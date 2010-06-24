@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="duracloud.org" targetNamespace="duracloud.org">
+
+  <!-- serviceType is container for system and user config info -->
+  <xs:complexType name="serviceType">
+
+    <xs:sequence>
+      <xs:element name="systemConfig" type="systemConfigType" minOccurs="0"/>
+      <xs:element name="userConfig" type="userConfigType" minOccurs="0"/>
+      <xs:element name="deploymentOptions" type="deploymentOptionsType" minOccurs="0"/>
+      <xs:element name="deployments" type="deploymentsType" minOccurs="0"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+
+    <xs:attribute name="id" type="xs:int" use="required"/>
+    <xs:attribute name="serviceVersion" type="xs:string" use="required"/>
+    <xs:attribute name="contentId" type="xs:string" use="required"/>
+    <xs:attribute name="displayName" type="xs:string" use="optional"/>
+    <xs:attribute name="userConfigVersion" type="xs:string" use="required"/>
+
+  </xs:complexType>
+
+  <!-- System configuration -->
+  <xs:complexType name="systemConfigType">
+    <xs:sequence>
+      <xs:element name="property" type="systemPropertyType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="optional"/>
+  </xs:complexType>
+
+  <!-- systemPropertyType define config NOT available to user -->
+  <xs:complexType name="systemPropertyType">
+    <xs:attribute name="id" type="xs:int" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="required"/>
+    <xs:attribute name="defaultValue" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <!-- User configuration -->
+  <xs:complexType name="userConfigType">
+    <xs:sequence>
+      <xs:element name="property" type="userPropertyType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="optional"/>
+  </xs:complexType>
+
+  <!-- userPropertyType define config available to user -->
+  <xs:complexType name="userPropertyType">
+
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="option">
+        <xs:complexType>
+          <xs:attribute name="displayName" type="xs:string" use="required"/>
+          <xs:attribute name="value" type="xs:string" use="required"/>
+          <xs:attribute name="selected" type="xs:boolean" default="false"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+
+    <xs:attribute name="id" type="xs:int" use="required"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="input" type="optionInputType" use="required"/>
+    <xs:attribute name="displayName" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="optional"/>
+
+  </xs:complexType>
+
+
+  <xs:simpleType name="optionInputType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SINGLESELECT"/>
+      <xs:enumeration value="MULTISELECT"/>
+      <xs:enumeration value="TEXT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <!-- Deployment configuration options -->
+  <xs:complexType name="deploymentOptionsType">
+    <xs:sequence>
+      <xs:element name="option" type="deploymentOptionType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="optional"/>
+    <xs:attribute name="max" type="xs:int" default="-1">
+      <xs:annotation>
+        <xs:documentation> max identifies the total number of deployments allowed of this service.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- describes options for and state of service deploy -->
+  <xs:complexType name="deploymentOptionType">
+    <xs:attribute name="id" type="xs:int" use="optional"/>
+    <xs:attribute name="displayName" type="xs:string" use="required"/>
+    <xs:attribute name="hostname" type="xs:string" use="optional"/>
+    <xs:attribute name="location" type="deploymentOptionLocationType" default="PRIMARY"/>
+    <xs:attribute name="state" type="deploymentOptionStateType" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="deploymentOptionLocationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PRIMARY"/>
+      <xs:enumeration value="NEW"/>
+      <xs:enumeration value="EXISTING"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="deploymentOptionStateType">
+    <xs:restriction base="xs:string">
+      <xs:annotation>
+        <xs:documentation> available: denotes location is available as a deployment option
+          unavailable: see above </xs:documentation>
+      </xs:annotation>
+      <xs:enumeration value="AVAILABLE"/>
+      <xs:enumeration value="UNAVAILABLE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Deployment configuration state -->
+  <xs:complexType name="deploymentsType">
+    <xs:sequence>
+      <xs:element name="deployment" type="deploymentType" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="optional"/>
+  </xs:complexType>
+
+  <!-- Deployment configuration state element -->
+  <xs:complexType name="deploymentType">
+    <xs:sequence>
+      <xs:element name="systemConfig" type="systemConfigType" minOccurs="0"/>
+      <xs:element name="userConfig" type="userConfigType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="required"/>
+    <xs:attribute name="hostname" type="xs:string" use="required"/>
+    <xs:attribute name="status" type="deploymentStatusType" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="deploymentStatusType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="STOPPED"/>
+      <xs:enumeration value="STARTED"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

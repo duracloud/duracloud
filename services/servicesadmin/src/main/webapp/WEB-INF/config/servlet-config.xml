@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"                               
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:osgi="http://www.springframework.org/schema/osgi"                               
+   xsi:schemaLocation="http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd                      
+       http://www.springframework.org/schema/osgi  
+       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+  <bean
+    class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property name="mappings">
+      <props>
+        <prop key="list">listController</prop>
+        <prop key="install">installController</prop>
+        <prop key="uninstall">uninstallController</prop>
+        <prop key="start">startController</prop>
+        <prop key="stop">stopController</prop>
+        <prop key="status/*">statusController</prop>
+        <prop key="configure/*">configureController</prop>
+        <prop key="props/*">propsController</prop>
+      </props>
+    </property>
+    <property name="order" value="1" />
+  </bean>
+  
+  <!-- Controllers -->
+  <bean id="listController" class="org.duracloud.servicesadmin.control.ListController">
+    <property name="serviceLister" ref="srvLister" />
+    <property name="serializer" ref="xmlSrvSerializer" />
+  </bean>
+  
+  <bean id="installController" class="org.duracloud.servicesadmin.control.InstallController" >
+    <property name="serviceInstaller" ref="srvInstaller" />
+  </bean>
+  
+  <bean id="uninstallController" class="org.duracloud.servicesadmin.control.UninstallController" >
+    <property name="serviceUninstaller" ref="srvUninstaller" />
+    <property name="supportedMethods" value="POST" />
+    <property name="requestHelper" ref="httpRequestHelper" />
+  </bean>
+  
+  <bean id="startController" class="org.duracloud.servicesadmin.control.StartController" >
+    <property name="serviceStarter" ref="srvStarter" />
+    <property name="requestHelper" ref="httpRequestHelper" />
+  </bean>
+  
+  <bean id="stopController" class="org.duracloud.servicesadmin.control.StopController" >
+    <property name="serviceStopper" ref="srvStopper" />
+    <property name="requestHelper" ref="httpRequestHelper" />
+  </bean>
+
+  <bean id="statusController" class="org.duracloud.servicesadmin.control.StatusController" >
+    <property name="serviceStatusReporter" ref="srvStatusReporter" />
+    <property name="requestHelper" ref="httpRequestHelper" />
+  </bean>
+  
+  <bean id="configureController" class="org.duracloud.servicesadmin.control.ConfigureController" >
+    <property name="configAdmin" ref="srvConfigAdmin" />
+    <property name="requestHelper" ref="httpRequestHelper" />
+  </bean>
+    
+  <bean id="propsController" class="org.duracloud.servicesadmin.control.PropsController" >
+    <property name="servicePropsFinder" ref="srvPropsFinder" />
+    <property name="requestHelper" ref="httpRequestHelper" />
+  </bean>
+
+  <bean id="httpRequestHelper" class="org.duracloud.servicesadmin.util.HttpRequestHelper" />
+  
+  
+  <!-- 
+    Service Beans:
+      Eventually they will all be defined as 'osgi:reference'
+   -->  
+  <bean id="xmlSrvSerializer" class="org.duracloud.services.util.XMLServiceSerializerImpl"/>
+  
+    
+  <!-- OSGi below -->
+  <osgi:reference id="srvLister" interface="org.duracloud.servicesutil.util.ServiceLister" />  
+  <osgi:reference id="srvInstaller" interface="org.duracloud.servicesutil.util.ServiceInstaller" />
+  <osgi:reference id="srvUninstaller" interface="org.duracloud.servicesutil.util.ServiceUninstaller" />
+  <osgi:reference id="srvStarter" interface="org.duracloud.servicesutil.util.ServiceStarter" />
+  <osgi:reference id="srvStopper" interface="org.duracloud.servicesutil.util.ServiceStopper" />
+  <osgi:reference id="srvStatusReporter" interface="org.duracloud.servicesutil.util.ServiceStatusReporter" />
+  <osgi:reference id="srvPropsFinder" interface="org.duracloud.servicesutil.util.ServicePropsFinder" />
+  <osgi:reference id="srvConfigAdmin" interface="org.duracloud.servicesutil.util.DuraConfigAdmin" />
+    
+</beans>

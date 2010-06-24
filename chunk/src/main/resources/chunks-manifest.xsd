@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="duracloud.org" targetNamespace="duracloud.org">
+
+  <xs:element name="chunksManifest" type="chunksManifestType"/>
+  
+  <xs:complexType name="chunksManifestType">
+    <xs:sequence>
+      <xs:element name="header" type="headerType"/>
+      <xs:element name="chunks" type="chunksType"/>    
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Header -->
+  <xs:complexType name="headerType">
+    <xs:sequence>
+      <xs:element name="sourceContent" type="sourceContentType"/>
+    </xs:sequence>
+    <xs:attribute name="schemaVersion" type="xs:string" fixed="0.2" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="sourceContentType">    
+    <xs:sequence>
+      <xs:element name="mimetype" type="xs:string"/>
+      <xs:element name="byteSize" type="xs:long"/>
+      <xs:element name="md5" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="contentId" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- Chunk Entries -->
+  <xs:complexType name="chunksType">
+    <xs:sequence>
+      <xs:element name="chunk" type="chunkType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="chunkType">
+    <xs:sequence>
+      <xs:element name="byteSize" type="xs:long"/>
+      <xs:element name="md5" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="chunkId" type="xs:string" use="required"/>
+    <xs:attribute name="index" type="xs:int" use="required"/>
+  </xs:complexType>
+
+</xs:schema>

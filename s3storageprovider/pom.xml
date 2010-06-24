@@ -1,0 +1,74 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">  
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.duracloud</groupId>
+  <artifactId>s3storageprovider</artifactId>
+  <packaging>jar</packaging>
+  <version>0.5.0-SNAPSHOT</version>
+  <name>S3 Storage Provider</name>
+  
+  <parent>
+    <artifactId>duracloud</artifactId>
+    <groupId>org.duracloud</groupId>
+    <version>0.5.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <!-- Additional repository to handle XMLBuilder dependency in Jets3t, which
+       should be in central soon. This should be removed at that time. --> 
+  <repositories>
+    <repository>
+      <id>googlecode.java-xmlbuilder</id>
+      <url>http://java-xmlbuilder.googlecode.com/svn/repo</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+  
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storageprovider</artifactId>
+      <version>${project.version}</version>
+    </dependency>  
+  
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>  
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>    
+
+    <!-- Jets3t, library for accessing Amazon S3 -->
+    <dependency>
+      <groupId>net.java.dev.jets3t</groupId>
+      <artifactId>jets3t</artifactId>
+      <version>0.7.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>   
+
+    <!-- Dependency of Jets3t but for some reason not included
+         in maven dependencies list -->
+    <dependency>
+      <groupId>com.jamesmurty.utils</groupId>
+      <artifactId>java-xmlbuilder</artifactId>
+      <version>0.3</version>
+    </dependency>
+
+    <!-- test -->
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>unit-test-db</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+</project>

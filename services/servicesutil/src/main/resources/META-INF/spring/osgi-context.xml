@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:osgi="http://www.springframework.org/schema/osgi"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/osgi 
+      http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+  <!--
+    OSGi services which are available to external bundles are defined
+    here.
+  -->
+  <osgi:service id="osgiListerService" ref="srvLister" interface="org.duracloud.servicesutil.util.ServiceLister" />
+
+  <osgi:service id="osgiInstallerService" ref="srvInstaller" interface="org.duracloud.servicesutil.util.ServiceInstaller" />
+
+  <osgi:service id="osgiUninstallerService" ref="srvUninstaller" interface="org.duracloud.servicesutil.util.ServiceUninstaller" />
+  
+  <osgi:service id="osgiDuraConfigAdminService" ref="duraConfigAdmin" interface="org.duracloud.servicesutil.util.DuraConfigAdmin" />
+
+  <osgi:service id="osgiStarterService" ref="srvStarter" interface="org.duracloud.servicesutil.util.ServiceStarter" />
+
+  <osgi:service id="osgiStopperService" ref="srvStopper" interface="org.duracloud.servicesutil.util.ServiceStopper" />
+
+  <osgi:service id="osgiStatusService" ref="srvStatusReporter" interface="org.duracloud.servicesutil.util.ServiceStatusReporter" />
+
+  <osgi:service id="osgiPropsService" ref="srvPropsFinder" interface="org.duracloud.servicesutil.util.ServicePropsFinder" />
+
+  <!-- 
+    OSGi services which are used by this bundle are defined here. 
+  -->
+  <osgi:list id="duraServices" interface="org.duracloud.services.ComputeService" cardinality="0..N" />
+  
+  <osgi:reference id="osgiConfigAdminSrv" interface="org.osgi.service.cm.ConfigurationAdmin" />
+   
+</beans>

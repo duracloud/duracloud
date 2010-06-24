@@ -1,0 +1,46 @@
+<assembly>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <fileSets>
+    <fileSet>
+      <directory>target</directory>
+      <outputDirectory>/docs</outputDirectory>
+      <includes>
+        <include>*javadoc.jar</include>
+      </includes>      
+    </fileSet>  
+    <fileSet>
+      <directory>resources</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>*.properties</include>
+        <include>readme.txt</include>
+        <include>build.xml</include>
+        <include>ExampleClient.java</include>
+        <include>logback.xml</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/lib</outputDirectory>
+      <excludes>
+        <exclude>org.springframework:spring-core</exclude>
+        <exclude>org.springframework:spring-jdbc</exclude>
+        <exclude>org.springframework:spring-dao</exclude>
+        <exclude>org.springframework:spring-tx</exclude>
+        <exclude>org.springframework:spring-beans</exclude>
+        <exclude>org.springframework:spring-context</exclude>
+        <exclude>aopalliance:aopalliance</exclude>
+        <exclude>org.jdom:com.springsource.org.jdom</exclude>
+        <exclude>commons-lang:commons-lang</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
+

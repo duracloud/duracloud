@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="duracloud.org"
+  targetNamespace="duracloud.org"> 
+
+  <xs:element name="security-users" type="SecurityUsersType"/>
+  
+  <xs:complexType name="SecurityUsersType">
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="security-user" type="SecurityUserType"/>
+    </xs:sequence>
+    <xs:attribute name="schemaVersion" type="xs:string" fixed="0.2" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="SecurityUserType">
+    <xs:sequence>      
+      <xs:element name="username" type="xs:string"/>
+      <xs:element name="password" type="xs:string"/>
+      <xs:element name="enabled" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="accountNonExpired" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="credentialsNonExpired" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="accountNonLocked" type="xs:boolean" minOccurs="0"/>
+      <xs:element name="grantedAuthorities" type="AuthoritiesType"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:simpleType name="AuthoritiesType">
+    <xs:list itemType="xs:string"/>    
+  </xs:simpleType>
+
+</xs:schema>

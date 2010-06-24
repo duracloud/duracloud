@@ -1,0 +1,22 @@
+<assembly>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <files>
+    <file>
+      <source>src/main/assembly/apache-tomcat-6.0.20.zip</source>
+    </file>
+  </files>
+
+  <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>org.duracloud.services:webapputilservice</include>
+      </includes>      
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
+

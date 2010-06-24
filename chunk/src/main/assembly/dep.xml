@@ -1,0 +1,24 @@
+<assembly>
+  <id>chunk-assembly</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <fileSets>
+    <fileSet>
+      <directory>src/main/resources</directory>
+      <includes>
+        <include>*.properties</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+
+  <dependencySets>
+    <dependencySet>
+      <unpack>true</unpack>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
+

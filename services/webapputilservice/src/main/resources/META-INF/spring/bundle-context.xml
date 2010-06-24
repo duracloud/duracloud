@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/osgi-compendium
+      http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd">
+
+  <!-- Spring beans which are used by the bundle are defined here. -->
+  <bean id="webAppUtil" class="org.duracloud.services.webapputil.internal.WebAppUtilImpl">
+    <osgix:managed-properties persistent-id="helloservice-${project.version}.jar"
+        update-strategy="container-managed"/>
+    <property name="serviceId" value="webapputilservice-${project.version}" />
+    <property name="nextPort" ref="tomcat.port" />
+    <property name="tomcatUtil" ref="tomcatUtility" />
+  </bean>
+
+  <!-- Spring beans which are used by this bundle. -->
+  <bean id="tomcatUtility" class="org.duracloud.services.webapputil.tomcat.TomcatUtil">
+    <property name="binariesZipName" value="${tomcat.binary.name}" />
+  </bean>
+
+  <!-- Properties config -->
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"  >
+    <property name="location" value="osgi-config.properties" />
+  </bean>
+
+  <bean id="tomcat.port" class="java.lang.Integer" >
+    <constructor-arg value="${tomcat.initial.port}"/>
+  </bean>
+ 
+</beans> 

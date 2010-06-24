@@ -1,0 +1,40 @@
+<settings>
+
+  <servers>
+    <server>
+      <id>tomcat-server</id>
+      <username>[tomcat-username]</username>
+      <password>[tomcat-password]</password>
+    </server>
+  </servers>
+
+  <profiles>
+
+    <profile>
+      <id>profile-clover</id>
+      <activation>
+        <property>
+          <name>profile</name>
+          <value>clover</value>
+        </property>
+      </activation>
+      <properties>
+        <cloverLicense>[location-of-clover.license]</cloverLicense>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>always</id>
+      <properties>
+        <duracloud.home>[location-of-writable-duracloud-directory]</duracloud.home>
+        <unit.database.home.default>[location-of-unit-test-db]</unit.database.home.default>
+        <unit.database.password.default>[boot-password]</unit.database.password.default>
+      </properties>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>always</activeProfile>
+  </activeProfiles>
+
+</settings>

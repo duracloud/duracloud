@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans.xsd  
+      http://www.springframework.org/schema/osgi-compendium 
+      http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd">
+
+  <!-- Spring beans which are used by the bundle are defined here. -->
+  <bean id="srvHello" class="org.duracloud.services.hello.impl.HelloServiceImpl" 
+   destroy-method="stop">
+   <!-- init-method="start" destroy-method="stop"> -->
+    <osgix:managed-properties persistent-id="helloservice-${project.version}.jar" 
+        update-strategy="container-managed"/>
+    <property name="serviceId" value="helloservice-${project.version}" />
+    <property name="serviceStatus" value="INSTALLED" />
+    <property name="text" value="joe" />
+  </bean>
+  
+</beans> 

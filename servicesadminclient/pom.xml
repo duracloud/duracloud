@@ -1,0 +1,162 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.duracloud</groupId>
+  <artifactId>servicesadminclient</artifactId>
+  <packaging>jar</packaging>
+  <version>0.5.0-SNAPSHOT</version>
+  <name>Services Admin Client</name>
+
+  <parent>
+    <artifactId>duracloud</artifactId>
+    <groupId>org.duracloud</groupId>
+    <version>0.5.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <build>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>integrationtest</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>org.duracloud.servicesadminclient.ServicesAdminClientCLI</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>      
+
+    </plugins>
+
+  </build>
+
+  
+  <profiles>
+
+    <profile>
+      <id>profile-servicetest</id>
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>integrationtest</id>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+
+                <configuration>
+                  <systemProperties>
+                    <property>
+                      <name>felix.fileinstall.dir</name>
+                      <value>${duracloud.home}/osgi-bundles</value>
+                    </property>
+                    <property>
+                      <name>base.dir</name>
+                      <value>${basedir}</value>
+                    </property>
+                    <property>
+                      <name>PROJECT_VERSION</name>
+                      <value>${project.version}</value>
+                    </property>
+                  </systemProperties>
+
+                  <trimStackTrace>false</trimStackTrace>
+                  <excludes>
+                    <exclude>${unitTests}</exclude>
+                    <exclude>${instrumentedTests}</exclude>
+                  </excludes>
+                  <includes>
+                    <include>${integrationTests}</include>
+                  </includes>
+
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.duracloud.services</groupId>
+                      <artifactId>helloservice</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>src/test/resources</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
+
+  <dependencies>
+  
+    <!-- internal projects -->
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.services</groupId>
+      <artifactId>computeservice</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- for HttpClient -->
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+    </dependency>    
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>  
+      <artifactId>com.springsource.org.apache.commons.io</artifactId>
+    </dependency>
+     
+  </dependencies>
+</project>

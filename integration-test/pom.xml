@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.duracloud</groupId>
+  <artifactId>integration-test</artifactId>
+  <packaging>jar</packaging>
+  <version>0.5.0-SNAPSHOT</version>
+  <name>Integration Test</name>
+
+  <parent>
+    <artifactId>duracloud</artifactId>
+    <groupId>org.duracloud</groupId>
+    <version>0.5.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+ 
+  <dependencies>
+  
+    <!-- internal projects -->
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storeclient</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>app-config</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>unit-test-db</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>    
+
+  </dependencies>
+</project>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+  <!--
+    Imports the configurations of the different infrastructure systems
+    of the application
+  -->
+  <import resource="restapi-config.xml" />
+  <import resource="aop-config.xml" />
+  <import resource="messaging-config.xml" />
+  <import resource="security-config.xml" />
+  
+  <!-- Domain Beans -->
+  <bean id="storageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactory">
+    <property name="statelessProvider" ref="statelessStoragePvdr"/>
+  </bean>
+  
+  <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
+
+</beans>

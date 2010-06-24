@@ -1,0 +1,23 @@
+<assembly>
+  <id>manifest-verify</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <dependencySets>
+    <dependencySet>
+      <unpack>true</unpack>
+      <includes>
+        <include>org.duracloud:common:bundle:${project.version}</include>
+        <include>org.apache.commons:com.springsource.org.apache.commons.io:jar:1.4.0</include>
+        <include>org.slf4j:slf4j-api:jar</include>
+        <include>ch.qos.logback:logback-classic:jar</include>
+        <include>ch.qos.logback:logback-core:jar</include>
+        <include>commons-cli:commons-cli:jar:1.2</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
+

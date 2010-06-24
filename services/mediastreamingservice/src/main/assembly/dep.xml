@@ -1,0 +1,30 @@
+<assembly>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <fileSets>
+    <fileSet>
+      <directory>resources</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>*</include>
+      </includes>
+    </fileSet>
+  </fileSets>  
+  
+  <dependencySets>
+    <dependencySet>
+      <scope>provided</scope>
+      <includes>
+        <include>org.duracloud.services:mediastreamingservice</include>
+        <include>org.duracloud:storeclient</include>
+        <include>org.duracloud:storageprovider</include>
+        <include>org.jdom:com.springsource.org.jdom</include>
+      </includes>      
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
+

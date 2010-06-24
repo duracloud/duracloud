@@ -1,0 +1,1 @@
+del ImageMagick-Windows-README.txt

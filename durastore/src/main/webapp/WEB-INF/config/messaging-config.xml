@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:amq="http://activemq.apache.org/schema/core"  
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://activemq.apache.org/schema/core 
+           http://activemq.apache.org/schema/core/activemq-core.xsd">
+           
+  <!--  Embedded ActiveMQ Broker -->
+  <amq:broker useJmx="false" persistent="false">
+    <amq:transportConnectors>
+      <amq:transportConnector uri="tcp://localhost:61617" />
+    </amq:transportConnectors>
+  </amq:broker>
+           
+  <bean id="connFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL" value="tcp://localhost:61617" />
+  </bean>
+  
+  <bean id="ingestDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.ingest" />
+  </bean>
+  
+  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="ingestDestination" />
+    <property name="messageConverter" ref="msgConverter" />
+  </bean>
+  
+  <bean id="msgConverter" class="org.duracloud.durastore.aop.IngestMessageConverter" />
+  
+  <!-- Message Consumers -->
+  <bean class="org.springframework.jms.listener.SimpleMessageListenerContainer" >
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="destination" ref="ingestDestination" />
+    <property name="messageListener" ref="msgConsumerAdapter" />
+  </bean>
+  
+  <bean id="msgConsumerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter" >
+    <property name="delegate" ref="msgConsumer" />
+    <property name="defaultListenerMethod" value="onIngest" />
+    <property name="messageConverter" ref="msgConverter" />
+  </bean>
+  
+  <bean id="msgConsumer" class="org.duracloud.durastore.aop.MessageConsumer" >
+    <property name="jmsTemplate" ref="jmsTemplate" />
+  </bean>
+  
+
+</beans>

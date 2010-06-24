@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="duracloud.org" targetNamespace="duracloud.org">
+
+  <xs:include schemaLocation="service-types.xsd"/>
+
+  <!-- top-level service -->
+  <xs:redefine schemaLocation="service-types.xsd"/>
+  <xs:complexType name="singleServiceType">
+    <xs:complexContent>
+      <xs:extension base="serviceType">
+        <xs:attribute name="schemaVersion" type="xs:string" fixed="0.2" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="service" type="singleServiceType"/>
+
+</xs:schema>

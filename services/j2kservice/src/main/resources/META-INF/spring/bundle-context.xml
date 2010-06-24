@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans.xsd  
+      http://www.springframework.org/schema/osgi-compendium 
+      http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd">
+
+  <!-- Spring beans which are used by the bundle are defined here. -->
+  <bean id="srvJ2kWrapper" class="org.duracloud.services.j2kservice.J2kWebappWrapper"
+   destroy-method="stop">
+   <!-- init-method="start" destroy-method="stop"> -->
+    <osgix:managed-properties persistent-id="j2kservice-${project.version}.jar"
+        update-strategy="container-managed"/>
+    <property name="serviceId" value="j2kservice-${project.version}" />
+    <property name="warName" value="adore-djatoka.war" />
+    <property name="webappUtil" ref="osgiWebappUtilSrv" />
+    <property name="platform" value="Linux-x86-32" />
+    <property name="j2kZipName" value="adore-djatoka-1.1.zip" />
+    <property name="url" value="http://example.org" />
+  </bean>
+  
+
+</beans> 

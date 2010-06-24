@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+  
+  <!-- AOP Advice - Ingest -->
+  <bean id="ingestAdvice" class="org.duracloud.durastore.aop.IngestAdvice" >
+    <property name="jmsTemplate" ref="jmsTemplate" />
+    <property name="destination" ref="ingestDestination" />
+    <property name="order" value="3" />
+  </bean>
+  
+  <bean id="ingestAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="ingestAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.addContent"/>
+  </bean>
+
+  <!-- AOP Advice - Retry -->
+  <bean id="retryAdvice" class="org.duracloud.durastore.aop.RetryAdvice" >
+    <property name="maxRetries" value="3" />
+    <property name="waitTime" value="3000" /> <!-- Milliseconds between attempts -->
+    <property name="order" value="1" /> <!-- Advice ordering, retry has highest precedence -->
+  </bean>
+
+  <bean id="retryAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="retryAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.*"/>
+  </bean>
+
+  <!-- AOP Advice - Verify Space Creation -->
+  <bean id="verifySpaceCreationAdvice" class="org.duracloud.durastore.aop.VerifySpaceCreationAdvice" >
+    <property name="maxRetries" value="3" />
+    <property name="waitTime" value="3000" /> <!-- Milliseconds between checks -->
+    <property name="order" value="3" />    
+  </bean>
+
+  <bean id="verifySpaceCreationAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="verifySpaceCreationAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.createSpace"/>
+  </bean>
+
+  <!-- AOP Advice - Verify Space Deletion -->
+  <bean id="verifySpaceDeletionAdvice" class="org.duracloud.durastore.aop.VerifySpaceDeletionAdvice" >
+    <property name="maxRetries" value="3" />
+    <property name="waitTime" value="3000" /> <!-- Milliseconds between checks -->
+    <property name="order" value="3" />    
+  </bean>
+
+  <bean id="verifySpaceDeletionAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="verifySpaceDeletionAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.deleteSpace"/>
+  </bean>
+
+  <!-- Enables Auto-AOP Proxy Creation -->
+  <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+  
+</beans>

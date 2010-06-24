@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+  <!-- REST API resources -->
+  <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" />
+  <bean id="taskRest" class="org.duracloud.durastore.rest.TaskRest" />
+  <bean id="spaceRest" class="org.duracloud.durastore.rest.SpaceRest" />
+  <bean id="contentRest" class="org.duracloud.durastore.rest.ContentRest" />
+  <bean id="securityRest" class="org.duracloud.durastore.rest.SecurityRest">
+    <constructor-arg ref="userDetailsSvc" />
+  </bean>
+
+</beans>
