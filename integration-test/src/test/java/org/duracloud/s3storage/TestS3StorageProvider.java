@@ -48,9 +48,10 @@ import java.util.Random;
  *
  * @author Bill Branan
  */
-public class S3StorageProviderTest extends S3ProviderTestBase {
+public class TestS3StorageProvider extends S3ProviderTestBase {
 
-    protected static final Logger log = LoggerFactory.getLogger(S3StorageProviderTest.class);
+    protected static final Logger log = LoggerFactory.getLogger(
+        TestS3StorageProvider.class);
 
     private S3StorageProvider s3Provider;
     private final List<String> spaceIds = new ArrayList<String>();

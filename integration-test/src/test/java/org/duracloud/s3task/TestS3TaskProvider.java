@@ -21,7 +21,7 @@ import java.util.List;
  * @author: Bill Branan
  * Date: May 20, 2010
  */
-public class S3TaskProviderTest extends S3ProviderTestBase {
+public class TestS3TaskProvider extends S3ProviderTestBase {
 
     private S3TaskProvider taskProvider;
 

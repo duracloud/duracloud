@@ -26,6 +26,13 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>s3storageprovider</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>app-config</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
