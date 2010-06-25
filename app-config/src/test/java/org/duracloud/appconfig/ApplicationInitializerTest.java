@@ -71,17 +71,19 @@ public class ApplicationInitializerTest {
     }
 
     private void verifyApplicationInitializer(ApplicationInitializer config) {
-        Application duradmin = config.getDuradmin();
+        // TODO: restore following when duradmin is in baseline
+        // Application duradmin = config.getDuradmin();
         Application durastore = config.getDurastore();
         Application duraservice = config.getDuraservice();
 
-        Assert.assertNotNull(duradmin);
+        // TODO: restore following when duradmin is in baseline
+        // Assert.assertNotNull(duradmin);
         Assert.assertNotNull(durastore);
         Assert.assertNotNull(duraservice);
-
-        String adminHost = duradmin.getHost();
-        String adminPort = duradmin.getPort();
-        String adminContext = duradmin.getContext();
+        // TODO: restore following when duradmin is in baseline
+        // String adminHost = duradmin.getHost();
+        // String adminPort = duradmin.getPort();
+        // String adminContext = duradmin.getContext();
         String storeHost = durastore.getHost();
         String storePort = durastore.getPort();
         String storeContext = durastore.getContext();
@@ -89,9 +91,10 @@ public class ApplicationInitializerTest {
         String servicePort = duraservice.getPort();
         String serviceContext = duraservice.getContext();
 
-        Assert.assertNotNull(adminHost);
-        Assert.assertNotNull(adminPort);
-        Assert.assertNotNull(adminContext);
+        // TODO: restore following when duradmin is in baseline
+        // Assert.assertNotNull(adminHost);
+        // Assert.assertNotNull(adminPort);
+        // Assert.assertNotNull(adminContext);
         Assert.assertNotNull(storeHost);
         Assert.assertNotNull(storePort);
         Assert.assertNotNull(storeContext);
@@ -99,9 +102,10 @@ public class ApplicationInitializerTest {
         Assert.assertNotNull(servicePort);
         Assert.assertNotNull(serviceContext);
 
-        Assert.assertEquals(allHost, adminHost);
-        Assert.assertEquals(duradminPort, adminPort);
-        Assert.assertEquals(duradminContext, adminContext);
+        // TODO: restore following when duradmin is in baseline
+        // Assert.assertEquals(allHost, adminHost);
+        // Assert.assertEquals(duradminPort, adminPort);
+        // Assert.assertEquals(duradminContext, adminContext);
         Assert.assertEquals(allHost, storeHost);
         Assert.assertEquals(durastorePort, storePort);
         Assert.assertEquals(durastoreContext, storeContext);

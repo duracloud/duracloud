@@ -41,13 +41,15 @@ public class TestApplicationInitializer extends BaseTestUtil {
         Properties appProps = createAppProps();
         Properties storeProps = createDurastoreProps();
         Properties serviceProps = createDuraserviceProps();
-        Properties adminProps = createDuradminProps();
+        // TODO: restore following when duradmin is in baseline
+        // Properties adminProps = createDuradminProps();
         Properties securityProps = createSecurityProps();
 
         props.putAll(appProps);
         props.putAll(storeProps);
         props.putAll(serviceProps);
-        props.putAll(adminProps);
+        // TODO: restore following when duradmin is in baseline
+        // props.putAll(adminProps);
         props.putAll(securityProps);
 
         propsFile = File.createTempFile("app-init-full-", ".props");
@@ -74,7 +76,8 @@ public class TestApplicationInitializer extends BaseTestUtil {
 
         props.put(pWild + DuraserviceConfig.hostKey, "localhost");
         props.put(pWild + DuraserviceConfig.portKey, BaseTestUtil.getPort());
-        props.put(pAdmin + DuraserviceConfig.contextKey, "duradmin");
+        // TODO: restore following when duradmin is in baseline
+        // props.put(pAdmin + DuraserviceConfig.contextKey, "duradmin");
         props.put(pStore + DuraserviceConfig.contextKey, "durastore");
         props.put(pService + DuraserviceConfig.contextKey, "duraservice");
 

@@ -14,6 +14,7 @@ import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.domain.DuraserviceConfig;
 import org.duracloud.appconfig.domain.DurastoreConfig;
 import org.duracloud.appconfig.domain.SecurityConfig;
+import org.duracloud.appconfig.support.ApplicationWithConfig;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.web.RestHttpHelper;
 import org.slf4j.Logger;
@@ -40,6 +41,10 @@ public class ApplicationInitializer extends BaseConfig {
 
     public static final String QUALIFIER = "app";
 
+    private static final String duradminKey = "duradmin";
+    private static final String duraserviceKey = "duraservice";
+    private static final String durastoreKey = "durastore";
+
     protected static final String hostKey = "host";
     protected static final String portKey = "port";
     protected static final String contextKey = "context";
@@ -55,14 +60,8 @@ public class ApplicationInitializer extends BaseConfig {
     private String durastorePort;
     private String durastoreContext;
 
-    private AppConfig duradminConfig = new DuradminConfig();
-    private AppConfig duraserviceConfig = new DuraserviceConfig();
-    private AppConfig durastoreConfig = new DurastoreConfig();
     private SecurityConfig securityConfig = new SecurityConfig();
-
-    private Application duradmin;
-    private Application durastore;
-    private Application duraservice;
+    private Map<String, ApplicationWithConfig> appsWithConfigs = new HashMap<String, ApplicationWithConfig>();
 
     public ApplicationInitializer(File propsFile) throws IOException {
         Properties p = new Properties();
@@ -88,29 +87,51 @@ public class ApplicationInitializer extends BaseConfig {
         createApplications();
 
         securityConfig.load(props);
-        durastoreConfig.load(props);
-        duraserviceConfig.load(props);
-        duradminConfig.load(props);
+        for (ApplicationWithConfig appWithConfig : appsWithConfigs.values()) {
+            appWithConfig.getConfig().load(props);
+        }
     }
 
     private void createApplications() {
-        if (!duradminEndpointLoad()) {
-            throw new DuraCloudRuntimeException("duradmin endpoint !loaded");
-        }
-        if (!duraserviceEndpointLoad()) {
-            throw new DuraCloudRuntimeException("duraservice endpoint !loaded");
-        }
-        if (!durastoreEndpointLoad()) {
-            throw new DuraCloudRuntimeException("durastore endpoint !loaded");
+        Application app;
+        ApplicationWithConfig appWithConfig;
+
+        if (duradminEndpointLoad()) {
+            app = new Application(duradminHost, duradminPort, duradminContext);
+
+            appWithConfig = new ApplicationWithConfig(duradminKey);
+            appWithConfig.setApplication(app);
+            appWithConfig.setConfig(new DuradminConfig());
+            appsWithConfigs.put(appWithConfig.getName(), appWithConfig);
+        } else {
+            log.warn("duradmin endpoint not !loaded");
         }
 
-        duradmin = new Application(duradminHost, duradminPort, duradminContext);
-        duraservice = new Application(duraserviceHost,
-                                      duraservicePort,
-                                      duraserviceContext);
-        durastore = new Application(durastoreHost,
-                                    durastorePort,
-                                    durastoreContext);
+        if (duraserviceEndpointLoad()) {
+            app = new Application(duraserviceHost,
+                                  duraservicePort,
+                                  duraserviceContext);
+
+            appWithConfig = new ApplicationWithConfig(duraserviceKey);
+            appWithConfig.setApplication(app);
+            appWithConfig.setConfig(new DuraserviceConfig());
+            appsWithConfigs.put(appWithConfig.getName(), appWithConfig);
+        } else {
+            log.warn("duraservice endpoint !loaded");
+        }
+
+        if (durastoreEndpointLoad()) {
+            app = new Application(durastoreHost,
+                                  durastorePort,
+                                  durastoreContext);
+
+            appWithConfig = new ApplicationWithConfig(durastoreKey);
+            appWithConfig.setApplication(app);
+            appWithConfig.setConfig(new DurastoreConfig());
+            appsWithConfigs.put(appWithConfig.getName(), appWithConfig);
+        } else {
+            log.warn("durastore endpoint !loaded");
+        }
     }
 
     private boolean duradminEndpointLoad() {
@@ -218,16 +239,15 @@ public class ApplicationInitializer extends BaseConfig {
      * @return
      */
     public RestHttpHelper.HttpResponse initialize() {
-        RestHttpHelper.HttpResponse response;
+        RestHttpHelper.HttpResponse response = null;
 
-        response = durastore.initialize(durastoreConfig);
-        validate(response, "durastore");
+        for (ApplicationWithConfig appWithConfig : appsWithConfigs.values()) {
+            Application app = appWithConfig.getApplication();
+            AppConfig config = appWithConfig.getConfig();
 
-        response = duraservice.initialize(duraserviceConfig);
-        validate(response, "duraservice");
-
-        response = duradmin.initialize(duradminConfig);
-        validate(response, "duradmin");
+            response = app.initialize(config);
+            validate(response, appWithConfig.getName());
+        } validate(response, "duradmin");
 
         return response;
     }
@@ -253,12 +273,13 @@ public class ApplicationInitializer extends BaseConfig {
     }
 
     /**
-     * This method sets the security users from the loaded configuration.     *
+     * This method sets the security users from the loaded configuration.
      */
     public void setSecurityUsers() {
-        durastore.setSecurityUsers(securityConfig.getUsers());
-        duraservice.setSecurityUsers(securityConfig.getUsers());
-        duradmin.setSecurityUsers(securityConfig.getUsers());
+        for (ApplicationWithConfig appWithConfig : appsWithConfigs.values()) {
+            Application app = appWithConfig.getApplication();
+            app.setSecurityUsers(securityConfig.getUsers());
+        }
     }
 
     /**
@@ -268,9 +289,12 @@ public class ApplicationInitializer extends BaseConfig {
      * @param dir
      */
     public void outputXml(File dir) {
-        write(new File(dir, "durastore-init.xml"), durastoreConfig.asXml());
-        write(new File(dir, "duraservice-init.xml"), duraserviceConfig.asXml());
-        write(new File(dir, "duradmin-init.xml"), duradminConfig.asXml());
+        for (ApplicationWithConfig appWithConfig : appsWithConfigs.values()) {
+            String name = appWithConfig.getName();
+            AppConfig config = appWithConfig.getConfig();
+            write(new File(dir, name + "-init.xml"), config.asXml());
+        }
+        
         write(new File(dir, "security-init.xml"), securityConfig.asXml());
     }
 
@@ -289,14 +313,14 @@ public class ApplicationInitializer extends BaseConfig {
     }
 
     public Application getDuradmin() {
-        return duradmin;
+        return appsWithConfigs.get(duradminKey).getApplication();
     }
 
     public Application getDurastore() {
-        return durastore;
+        return appsWithConfigs.get(durastoreKey).getApplication();
     }
 
     public Application getDuraservice() {
-        return duraservice;
+        return appsWithConfigs.get(duraserviceKey).getApplication();
     }
 }
