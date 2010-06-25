@@ -48,10 +48,10 @@ import java.util.Random;
  *
  * @author Bill Branan
  */
-public class RackspaceStorageProviderTest {
+public class TestRackspaceStorageProvider {
 
     protected static final Logger log =
-            LoggerFactory.getLogger(RackspaceStorageProviderTest.class);
+            LoggerFactory.getLogger(TestRackspaceStorageProvider.class);
 
     RackspaceStorageProvider rackspaceProvider;
 
