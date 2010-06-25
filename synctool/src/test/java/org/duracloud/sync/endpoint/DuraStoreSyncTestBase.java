@@ -8,13 +8,17 @@
 package org.duracloud.sync.endpoint;
 
 import static junit.framework.Assert.assertEquals;
+
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.SyncIntegrationTestBase;
 import org.junit.After;
+import org.junit.Assert;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -71,7 +75,8 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
     protected List<String> testEndpoint(DuraStoreSyncEndpoint endpoint,
                                         int expectedSize)
         throws Exception {
-        Thread.sleep(1000);
+        waitForSpaceToBeCreated(spaceId);
+        
         List<String> spaceContents =
             iteratorToList(store.getSpaceContents(spaceId));
         assertEquals(expectedSize, spaceContents.size());
@@ -90,6 +95,43 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
             list.add(it.next());
         }
         return list;
+    }
+
+    private void waitForSpaceToBeCreated(String spaceId)
+        throws ContentStoreException {
+        int maxTries = 10;
+        int numTries = 0;
+        long millis = 500;
+
+        Map<String, String> metadata = null;
+        while (numTries < maxTries) {
+            metadata = getMetadata(spaceId);
+            if (metadata != null && metadata.size() > 0) {
+                return;
+            }
+            numTries++;
+            sleep(millis);
+        }
+
+        Assert.fail("Space was never created: " + spaceId);
+    }
+
+    private Map<String, String> getMetadata(String spaceId){
+        Map<String, String> metadata = null;
+        try {
+            metadata = store.getSpaceMetadata(spaceId);
+        } catch (ContentStoreException e) {
+            // do nothing.
+        }
+        return metadata;
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing.
+        }
     }
 
 }

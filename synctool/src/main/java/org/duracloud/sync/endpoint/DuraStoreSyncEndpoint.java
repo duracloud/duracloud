@@ -109,8 +109,9 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                 return false;
             }
         } catch (ContentStoreException e) {
-            throw new RuntimeException("Could not connect to space with ID '" +
-                spaceId + "' due to error: " + e.getMessage(), e);
+            logger.warn("Could not connect to space with ID '" + spaceId +
+                "' due to error: " + e.getMessage(), e);
+            return false;
         }
     }
 

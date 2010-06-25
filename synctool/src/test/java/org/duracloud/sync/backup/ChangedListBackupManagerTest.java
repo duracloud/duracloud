@@ -41,12 +41,15 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
 
     @Test
     public void testChangedListBackupManager() throws Exception {
+        long backupFrequency = 100;
         ChangedListBackupManager bkMan =
-            new ChangedListBackupManager(changedList, tempDir, 100);
+            new ChangedListBackupManager(changedList, tempDir, backupFrequency);
         new Thread(bkMan).start();
+
         String testFileName = "testfile";
         changedList.addChangedFile(new File(testFileName));
-        Thread.sleep(800);
+
+        Thread.sleep(backupFrequency * 3);
         bkMan.endBackup();
 
         ChangedFile changedFile = changedList.getChangedFile();
