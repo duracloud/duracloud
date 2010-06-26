@@ -45,8 +45,8 @@ public class TestStoreRest extends BaseRestTester {
     public void setUp() throws Exception {
         // Retrieve the stores listing
         setNewSpaceId();
-        String url = baseUrl + "/stores";
-        HttpResponse response = restHelper.get(url);
+        String url = BaseRestTester.baseUrl + "/stores";
+        HttpResponse response = BaseRestTester.restHelper.get(url);
         storesXML = checkResponse(response, HttpStatus.SC_OK);
         assertNotNull(storesXML);
         assertTrue(storesXML.contains("<storageProviderAccounts>"));
@@ -97,24 +97,24 @@ public class TestStoreRest extends BaseRestTester {
      */
     private void testStore(String acctId) throws Exception {
         // Add space1
-        HttpResponse response = RestTestHelper.addSpace(spaceId, acctId);
+        HttpResponse response = RestTestHelper.addSpace(BaseRestTester.spaceId, acctId);
         checkResponse(response, HttpStatus.SC_CREATED);
 
         // Add content1 to space1
-        String url = baseUrl + "/" + spaceId + "/content1?storeID=" + acctId;
-        response = restHelper.put(url, CONTENT, null);
+        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/content1?storeID=" + acctId;
+        response = BaseRestTester.restHelper.put(url, CONTENT, null);
         checkResponse(response, HttpStatus.SC_CREATED);
 
         // Delete content1 from space1
-        url = baseUrl + "/" + spaceId + "/content1?storeID=" + acctId;
-        response = restHelper.delete(url);
+        url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/content1?storeID=" + acctId;
+        response = BaseRestTester.restHelper.delete(url);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
         assertNotNull(responseText);
         assertTrue(responseText.contains("content1"));
         assertTrue(responseText.contains("deleted"));
 
         // Delete space1
-        response = RestTestHelper.deleteSpace(spaceId, acctId);
+        response = RestTestHelper.deleteSpace(BaseRestTester.spaceId, acctId);
         checkResponse(response, HttpStatus.SC_OK);
     }
 }

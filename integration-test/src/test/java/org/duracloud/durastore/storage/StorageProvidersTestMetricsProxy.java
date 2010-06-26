@@ -27,7 +27,7 @@ import java.io.IOException;
 public class StorageProvidersTestMetricsProxy
         implements StorageProvidersTestInterface {
 
-    private final String reportTitle = "StorageProvidersTest";
+    private final String reportTitle = "TestStorageProviders";
 
     private final String reportFileName = "Storage-Providers-Metrics.txt";
 

@@ -41,7 +41,7 @@ public class TestContentRest extends BaseRestTester {
     public void setUp() throws Exception {
         // Add space
         setNewSpaceId();
-        HttpResponse response = RestTestHelper.addSpace(spaceId);
+        HttpResponse response = RestTestHelper.addSpace(BaseRestTester.spaceId);
         checkResponse(response, HttpStatus.SC_CREATED);
 
         for (String contentId : contentIds) {
@@ -53,18 +53,18 @@ public class TestContentRest extends BaseRestTester {
         HttpResponse response;
 
         // Add content to space
-        String url = baseUrl + "/" + spaceId + "/" + contentId;
+        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
         Map<String, String> headers = new HashMap<String, String>();
         headers.put(RestTestHelper.METADATA_NAME,
                     RestTestHelper.METADATA_VALUE);
-        response = restHelper.put(url, CONTENT, headers);
+        response = BaseRestTester.restHelper.put(url, CONTENT, headers);
         checkResponse(response, HttpStatus.SC_CREATED);
     }
 
     @After
     public void tearDown() throws Exception {
         // Delete space
-        HttpResponse response = RestTestHelper.deleteSpace(spaceId);
+        HttpResponse response = RestTestHelper.deleteSpace(BaseRestTester.spaceId);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
         assertNotNull(responseText);
     }
@@ -111,9 +111,9 @@ public class TestContentRest extends BaseRestTester {
     }
 
     private HttpResponse addContentItem(String contentId) throws Exception {
-        String url = baseUrl + "/" + spaceId + "/" + contentId;
+        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
         Map<String, String> headers = new HashMap<String, String>();
-        return restHelper.put(url, CONTENT, headers);
+        return BaseRestTester.restHelper.put(url, CONTENT, headers);
     }
 
     private void testCharacterInContentId(char character) throws Exception {
@@ -128,8 +128,8 @@ public class TestContentRest extends BaseRestTester {
     }
 
     private HttpResponse getContentItem(String contentId) throws Exception {
-        String url = baseUrl + "/" + spaceId + "/" + contentId;
-        return restHelper.get(url);
+        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
+        return BaseRestTester.restHelper.get(url);
     }
 
     @Test
@@ -159,8 +159,8 @@ public class TestContentRest extends BaseRestTester {
     }
 
     private void doTestGetContentMetadata(String contentId) throws Exception {
-        String url = baseUrl + "/" + spaceId + "/" + contentId;
-        HttpResponse response = restHelper.head(url);
+        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
+        HttpResponse response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
         verifyMetadata(response, HttpHeaders.CONTENT_LENGTH, "11");
@@ -197,7 +197,7 @@ public class TestContentRest extends BaseRestTester {
 
     private void doTestUpdateContentMetadata(String contentId)
         throws Exception {
-        String url = baseUrl + "/" + spaceId + "/" + contentId;
+        String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
 
         // Add metadata
         Map<String, String> headers = new HashMap<String, String>();
@@ -210,7 +210,7 @@ public class TestContentRest extends BaseRestTester {
         postMetadataUpdate(url, contentId, headers);
 
         // Make sure the changes were saved
-        HttpResponse response = restHelper.head(url);
+        HttpResponse response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
         verifyMetadata(response, HttpHeaders.CONTENT_TYPE, newContentMime);
@@ -220,7 +220,7 @@ public class TestContentRest extends BaseRestTester {
         headers = new HashMap<String, String>();
         postMetadataUpdate(url, contentId, headers);
 
-        response = restHelper.head(url);
+        response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
         // New metadata items should be gone, mimetype should be unchanged
@@ -233,7 +233,7 @@ public class TestContentRest extends BaseRestTester {
         headers.put(HttpHeaders.CONTENT_TYPE, testMime);
         postMetadataUpdate(url, contentId, headers);
 
-        response = restHelper.head(url);
+        response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
         // Metadata should be updated
@@ -244,7 +244,7 @@ public class TestContentRest extends BaseRestTester {
                                             String contentId,
                                             Map<String, String> headers)
         throws Exception {
-        HttpResponse response = restHelper.post(url, null, headers);
+        HttpResponse response = BaseRestTester.restHelper.post(url, null, headers);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
         assertNotNull(responseText);
         assertTrue(responseText.contains(removeParams(contentId)));
@@ -270,28 +270,28 @@ public class TestContentRest extends BaseRestTester {
     public void testNotFound() throws Exception {
         String invalidSpaceId = "non-existant-space";
         String invalidContentId = "non-existant-content";
-        String url = baseUrl + "/" + invalidSpaceId + "/" + invalidContentId;
+        String url = BaseRestTester.baseUrl + "/" + invalidSpaceId + "/" + invalidContentId;
 
         // Add Content
-        HttpResponse response = restHelper.put(url, "test-content", null);
+        HttpResponse response = BaseRestTester.restHelper.put(url, "test-content", null);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
-        url = baseUrl + "/" + spaceId + "/" + invalidContentId;
+        url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + invalidContentId;
 
         // Get Content
-        response = restHelper.get(url);
+        response = BaseRestTester.restHelper.get(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
         // Get Content Metadata
-        response = restHelper.head(url);
+        response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
         // Set Content Metadata
-        response = restHelper.post(url, null, null);
+        response = BaseRestTester.restHelper.post(url, null, null);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
         // Delete Content
-        response = restHelper.delete(url);
+        response = BaseRestTester.restHelper.delete(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
     } 
 

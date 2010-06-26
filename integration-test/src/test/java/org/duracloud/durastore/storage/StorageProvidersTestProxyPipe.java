@@ -13,7 +13,7 @@ import org.duracloud.storage.provider.StorageProvider;
 import java.io.IOException;
 
 /**
- * This class applies a list of proxies the the StorageProvidersTest suite.
+ * This class applies a list of proxies the the TestStorageProviders suite.
  *
  * @author Andrew Woods
  */

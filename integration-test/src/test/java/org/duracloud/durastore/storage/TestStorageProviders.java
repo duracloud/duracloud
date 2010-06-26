@@ -38,10 +38,10 @@ import java.util.Random;
  *
  * @author Andrew Woods
  */
-public class StorageProvidersTest {
+public class TestStorageProviders {
 
     protected final static Logger log =
-            LoggerFactory.getLogger(StorageProvidersTest.class);
+            LoggerFactory.getLogger(TestStorageProviders.class);
 
     private final static StorageProvidersTestInterface tester =
             new StorageProvidersTestProxyPipe();

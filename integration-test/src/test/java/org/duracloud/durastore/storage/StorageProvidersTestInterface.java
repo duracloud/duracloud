@@ -12,7 +12,7 @@ import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * This interface is to be implemented by AOP-like proxies of the
- * StorageProvidersTest.
+ * TestStorageProviders.
  *
  * @author Andrew Woods
  */

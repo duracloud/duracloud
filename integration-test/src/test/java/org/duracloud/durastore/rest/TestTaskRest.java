@@ -24,8 +24,8 @@ public class TestTaskRest extends BaseRestTester {
 
     @Test
     public void getSupportedTasks() throws Exception {
-        String url = baseUrl + "/task";
-        RestHttpHelper.HttpResponse response = restHelper.get(url);
+        String url = BaseRestTester.baseUrl + "/task";
+        RestHttpHelper.HttpResponse response = BaseRestTester.restHelper.get(url);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
         assertNotNull(responseText);
         List<String> supportedTasks =
@@ -38,15 +38,15 @@ public class TestTaskRest extends BaseRestTester {
     public void testPerformTask() throws Exception {
         // Noop Task
         String taskId = "noop";
-        String url = baseUrl + "/task/" + taskId;
-        RestHttpHelper.HttpResponse response = restHelper.post(url, null, null);
+        String url = BaseRestTester.baseUrl + "/task/" + taskId;
+        RestHttpHelper.HttpResponse response = BaseRestTester.restHelper.post(url, null, null);
         String responseText = checkResponse(response, HttpStatus.SC_OK);
         assertNotNull(responseText);        
 
         // Unsupported Task
         taskId = "unsupported-task";
-        url = baseUrl + "/task/" + taskId;
-        response = restHelper.post(url, null, null);
+        url = BaseRestTester.baseUrl + "/task/" + taskId;
+        response = BaseRestTester.restHelper.post(url, null, null);
         responseText = checkResponse(response, HttpStatus.SC_BAD_REQUEST);
         assertTrue(responseText.contains(taskId));
     }

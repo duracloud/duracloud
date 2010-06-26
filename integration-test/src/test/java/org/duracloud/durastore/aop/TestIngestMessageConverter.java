@@ -10,6 +10,8 @@ package org.duracloud.durastore.aop;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -77,20 +79,20 @@ public class TestIngestMessageConverter
     public void testFromMessage() throws Exception {
         IngestMessage msg = (IngestMessage) converter.fromMessage(mapMsg);
         assertNotNull(msg);
-        assertEquals(STORE_ID, msg.getStoreId());
-        assertEquals(CONTENT_ID, msg.getContentId());
-        assertEquals(MIMETYPE, msg.getContentMimeType());
-        assertEquals(SPACE_ID, msg.getSpaceId());
+        Assert.assertEquals(STORE_ID, msg.getStoreId());
+        Assert.assertEquals(CONTENT_ID, msg.getContentId());
+        Assert.assertEquals(MIMETYPE, msg.getContentMimeType());
+        Assert.assertEquals(SPACE_ID, msg.getSpaceId());
     }
 
     @Test
     public void testToMessage() throws Exception {
         MapMessage msg = (MapMessage) converter.toMessage(ingestMsg, session);
         assertNotNull(msg);
-        assertEquals(STORE_ID, msg.getStringProperty(IngestMessageConverter.STORE_ID));
-        assertEquals(CONTENT_ID, msg.getString(IngestMessageConverter.CONTENT_ID));
-        assertEquals(MIMETYPE, msg.getString(IngestMessageConverter.MIMETYPE));
-        assertEquals(SPACE_ID, msg.getString(IngestMessageConverter.SPACE_ID));
+        Assert.assertEquals(STORE_ID, msg.getStringProperty(IngestMessageConverter.STORE_ID));
+        Assert.assertEquals(CONTENT_ID, msg.getString(IngestMessageConverter.CONTENT_ID));
+        Assert.assertEquals(MIMETYPE, msg.getString(IngestMessageConverter.MIMETYPE));
+        Assert.assertEquals(SPACE_ID, msg.getString(IngestMessageConverter.SPACE_ID));
     }
 
 }

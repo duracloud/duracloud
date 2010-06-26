@@ -58,7 +58,7 @@ public class TestSecurityRest extends BaseRestTester {
 
         HttpCaller caller = new HttpCaller() {
             protected HttpResponse call() throws Exception {
-                return restHelper.post(url, content, headers);
+                return BaseRestTester.restHelper.post(url, content, headers);
             }
         };
         caller.makeCall(200);
@@ -114,7 +114,7 @@ public class TestSecurityRest extends BaseRestTester {
         // add security user
         HttpCaller caller = new HttpCaller() {
             protected HttpResponse call() throws Exception {
-                return restHelper.post(securityUrl, xml, headers);
+                return BaseRestTester.restHelper.post(securityUrl, xml, headers);
             }
         };
         caller.makeCall(200);

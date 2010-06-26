@@ -26,6 +26,14 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>durastore</artifactId>
+      <version>${project.version}</version>
+      <classifier>for-integration-test</classifier>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>s3storageprovider</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
