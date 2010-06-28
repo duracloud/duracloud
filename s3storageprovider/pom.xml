@@ -39,7 +39,13 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-    </dependency>    
+    </dependency>
+
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Jets3t, library for accessing Amazon S3 -->
     <dependency>
