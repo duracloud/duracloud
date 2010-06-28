@@ -62,13 +62,5 @@
       <version>0.3</version>
     </dependency>
 
-    <!-- test -->
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>unit-test-db</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 </project>

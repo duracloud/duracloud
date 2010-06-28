@@ -58,18 +58,10 @@
       <version>${project.version}</version>
     </dependency>
 
-
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
     
-    <!-- test -->
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>unit-test-db</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
   </dependencies>
 </project>

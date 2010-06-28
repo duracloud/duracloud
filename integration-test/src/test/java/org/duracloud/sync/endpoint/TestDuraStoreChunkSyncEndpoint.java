@@ -7,6 +7,7 @@
  */
 package org.duracloud.sync.endpoint;
 
+import org.duracloud.sync.SyncIntegrationTestBase;
 import org.junit.Test;
 
 import java.io.File;
@@ -23,12 +24,13 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
     @Test
     public void testChunkSyncDeletesOn() throws Exception {
         DuraStoreChunkSyncEndpoint endpoint =
-            new DuraStoreChunkSyncEndpoint(host,
-                                           Integer.parseInt(port),
-                                           context,
-                                           getRootCredential().getUsername(),
-                                           getRootCredential().getPassword(),
-                                           spaceId,
+            new DuraStoreChunkSyncEndpoint(SyncIntegrationTestBase.host,
+                                           Integer.parseInt(
+                                               SyncIntegrationTestBase.port),
+                                           SyncIntegrationTestBase.context,
+                                           SyncIntegrationTestBase.getRootCredential().getUsername(),
+                                           SyncIntegrationTestBase.getRootCredential().getPassword(),
+                                           SyncIntegrationTestBase.spaceId,
                                            true,
                                            maxFileSize);
         testSync(endpoint);
@@ -51,12 +53,13 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
     @Test
     public void testChunkSyncDeletesOff() throws Exception {
         DuraStoreChunkSyncEndpoint endpoint =
-            new DuraStoreChunkSyncEndpoint(host,
-                                           Integer.parseInt(port),
-                                           context,
-                                           getRootCredential().getUsername(),
-                                           getRootCredential().getPassword(),
-                                           spaceId,
+            new DuraStoreChunkSyncEndpoint(SyncIntegrationTestBase.host,
+                                           Integer.parseInt(
+                                               SyncIntegrationTestBase.port),
+                                           SyncIntegrationTestBase.context,
+                                           SyncIntegrationTestBase.getRootCredential().getUsername(),
+                                           SyncIntegrationTestBase.getRootCredential().getPassword(),
+                                           SyncIntegrationTestBase.spaceId,
                                            false,
                                            maxFileSize);
         testSyncNoDeletes(endpoint);

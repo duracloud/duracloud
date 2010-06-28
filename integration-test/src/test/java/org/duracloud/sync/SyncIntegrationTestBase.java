@@ -13,6 +13,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.unittestdb.util.StorageAccountTestUtil;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -22,11 +23,13 @@ import org.junit.BeforeClass;
 import java.io.File;
 import java.util.Random;
 
+import static junit.framework.Assert.assertNull;
+
 /**
  * @author: Bill Branan
  * Date: Apr 16, 2010
  */
-public class SyncIntegrationTestBase extends SyncTestBase {
+public class SyncIntegrationTestBase {
 
     protected static String host;
     protected static String context;
@@ -34,8 +37,17 @@ public class SyncIntegrationTestBase extends SyncTestBase {
     protected static ContentStore store;
     protected static String spaceId;
     protected File tempDir;
+    protected ChangedList changedList;
 
     private final static StorageAccountTestUtil acctUtil = new StorageAccountTestUtil();
+
+    protected File createTempDir(String dirName) {
+        File tempDir = new File("target", dirName);
+        if(!tempDir.exists()) {
+            tempDir.mkdir();
+        }
+        return tempDir;
+    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -79,15 +91,19 @@ public class SyncIntegrationTestBase extends SyncTestBase {
         }
     }
 
-    @Override
     @Before
     public void setUp() throws Exception {
+        changedList = ChangedList.getInstance();
+        assertNull(changedList.getChangedFile());
+
         tempDir = createTempDir("sync-test-dir");
     }
 
-    @Override
     @After
     public void tearDown() throws Exception {
+        while(changedList.getChangedFile() != null) {}
+        assertNull(changedList.getChangedFile());
+
         FileUtils.deleteDirectory(tempDir);
     }    
 
