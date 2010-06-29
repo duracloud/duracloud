@@ -14,6 +14,10 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <properties>
+    <servicesAdminTests>**/Test*WithServicesAdmin.class</servicesAdminTests>
+  </properties>
+
   <build>
     <plugins>
 
@@ -30,10 +34,25 @@
 
             <configuration>
               <testFailureIgnore>true</testFailureIgnore>
+              <systemProperties>
+                <property>
+                  <name>unit.database.home</name>
+                  <value>${unit.database.home.default}</value>
+                </property>
+                <property>
+                  <name>unit.database.password</name>
+                  <value>${unit.database.password.default}</value>
+                </property>
+                <property>
+                  <name>PROJECT_VERSION</name>
+                  <value>${project.version}</value>
+                </property>
+              </systemProperties>
               <excludes>
                 <exclude>${unitTests}</exclude>
                 <exclude>${instrumentedTests}</exclude>
                 <exclude>${innerClasses}</exclude>
+                <exclude>${servicesAdminTests}</exclude>
               </excludes>
               <includes>
                 <include>${integrationTests}</include>
@@ -68,6 +87,43 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>profile-servicetest</id>
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>integrationtest</id>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+
+                <configuration>
+                  <trimStackTrace>false</trimStackTrace>
+                  <excludes>
+                    <exclude>${unitTests}</exclude>
+                    <exclude>${instrumentedTests}</exclude>
+                    <exclude>${innerClasses}</exclude>
+                  </excludes>
+                  <includes>
+                    <include>${servicesAdminTests}</include>
+                  </includes>
+                </configuration>
+
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
  
   <dependencies>
@@ -83,6 +139,14 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>durastore</artifactId>
+      <version>${project.version}</version>
+      <classifier>for-integration-test</classifier>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>duraservice</artifactId>
       <version>${project.version}</version>
       <classifier>for-integration-test</classifier>
       <scope>test</scope>

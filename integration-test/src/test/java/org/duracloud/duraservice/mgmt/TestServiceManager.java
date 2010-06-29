@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +39,7 @@ import java.util.Map;
  *
  * @author Bill Branan
  */
-public class ServiceManagerTest extends ServiceManagerTestMockSupport {
+public class TestServiceManager extends ServiceManagerTestMockSupport {
 
     private ServiceManager serviceManager;
 
@@ -145,24 +147,26 @@ public class ServiceManagerTest extends ServiceManagerTestMockSupport {
             assertNotNull(config);
             // Stores Config Options
             if(config instanceof SingleSelectUserConfig) {
-                assertEquals("config2", config.getName());
+                Assert.assertEquals("config2", config.getName());
                 List<Option> options =
                     ((SingleSelectUserConfig)config).getOptions();
                 assertNotNull(options);
                 assertTrue(options.size() == 1);
-                assertEquals(USER_CONTENT_STORE, options.get(0).getValue());
+                Assert.assertEquals(ServiceManagerTestMockSupport.USER_CONTENT_STORE, options.get(0).getValue());
                 storesOptions = true;
             }
             // Spaces Config Options
             if(config instanceof MultiSelectUserConfig) {
-                assertEquals("config3", config.getName());
+                Assert.assertEquals("config3", config.getName());
                 List<Option> options =
                     ((MultiSelectUserConfig)config).getOptions();
                 assertNotNull(options);
                 assertTrue("size: " + options.size(), options.size() == 2);
                 for(Option option : options) {
-                    assertTrue(option.getValue().equals(USER_SPACE_1) ||
-                               option.getValue().equals(USER_SPACE_2));
+                    assertTrue(option.getValue().equals(
+                        ServiceManagerTestMockSupport.USER_SPACE_1) ||
+                               option.getValue().equals(
+                                   ServiceManagerTestMockSupport.USER_SPACE_2));
                 }
                 spacesOptions = true;
             }
@@ -197,14 +201,14 @@ public class ServiceManagerTest extends ServiceManagerTestMockSupport {
         List<ServiceInfo> services = serviceManager.getDeployedServices();
         assertTrue(services.size() == 1);
         ServiceInfo deployedService = services.get(0);
-        assertEquals(serviceId, deployedService.getId());
+        Assert.assertEquals(serviceId, deployedService.getId());
         assertTrue(deployedService.getDeployments().size() == 1);
 
         serviceManager.deployService(serviceId, null, "1.0", userConfigs);
         services = serviceManager.getDeployedServices();
         assertTrue(services.size() == 1);
         deployedService = services.get(0);
-        assertEquals(serviceId, deployedService.getId());
+        Assert.assertEquals(serviceId, deployedService.getId());
         assertTrue(deployedService.getDeployments().size() == 2);
 
         try {
@@ -241,7 +245,7 @@ public class ServiceManagerTest extends ServiceManagerTestMockSupport {
                                      userConfigs);
         services = serviceManager.getDeployedServices();
         assertTrue(services.size() == 2);
-        assertEquals(serviceId, services.get(1).getId());
+        Assert.assertEquals(serviceId, services.get(1).getId());
     }
 
     @Test

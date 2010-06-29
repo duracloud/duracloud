@@ -38,7 +38,7 @@ import java.util.HashMap;
 
 
 /**
- * Mock support for ServiceManagerTest
+ * Mock support for TestServiceManager
  *
  * @author Bill Branan
  */

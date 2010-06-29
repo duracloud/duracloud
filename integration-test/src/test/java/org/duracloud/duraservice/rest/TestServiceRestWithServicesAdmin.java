@@ -42,7 +42,7 @@ import java.util.Map;
  *
  * @author Bill Branan
  */
-public class TestServiceRest {
+public class TestServiceRestWithServicesAdmin {
 
     private static String configFileName = "test-duraservice.properties";
     private static ServicesAdminClient servicesAdmin;   
