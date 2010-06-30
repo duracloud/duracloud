@@ -161,8 +161,9 @@ public class RestTestHelper {
             rootCredential = dbUtil.findCredentialForResource(rootUser);
         } catch (Exception e) {
             System.err.println("ERROR getting credential: " + e.getMessage());
-
         }
+        
+        Assert.assertNotNull(rootCredential);
         return rootCredential;
     }
 

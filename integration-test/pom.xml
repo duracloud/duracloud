@@ -89,7 +89,7 @@
     </profile>
 
     <profile>
-      <id>profile-servicetest</id>
+      <id>runServicesAdminTests</id>
       <build>
         <plugins>
 
@@ -105,7 +105,28 @@
                 </goals>
 
                 <configuration>
-                  <trimStackTrace>false</trimStackTrace>
+                  <systemProperties>
+                    <property>
+                      <name>unit.database.home</name>
+                      <value>${unit.database.home.default}</value>
+                    </property>
+                    <property>
+                      <name>unit.database.password</name>
+                      <value>${unit.database.password.default}</value>
+                    </property>
+                    <property>
+                      <name>felix.fileinstall.dir</name>
+                      <value>${duracloud.home}/osgi-container</value>
+                    </property>
+                    <property>
+                      <name>base.dir</name>
+                      <value>${basedir}</value>
+                    </property>
+                    <property>
+                      <name>PROJECT_VERSION</name>
+                      <value>${project.version}</value>
+                    </property>
+                  </systemProperties>
                   <excludes>
                     <exclude>${unitTests}</exclude>
                     <exclude>${instrumentedTests}</exclude>
@@ -116,6 +137,30 @@
                   </includes>
                 </configuration>
 
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.duracloud.services</groupId>
+                      <artifactId>helloservice</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>src/test/resources</outputDirectory>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -155,6 +200,13 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>serviceclient</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>servicesadminclient</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

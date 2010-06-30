@@ -19,17 +19,6 @@
     <plugins>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>integrationtest</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
           <archive>
@@ -51,86 +40,6 @@
     </plugins>
 
   </build>
-
-  
-  <profiles>
-
-    <profile>
-      <id>profile-servicetest</id>
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>integrationtest</id>
-                <phase>integration-test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-
-                <configuration>
-                  <systemProperties>
-                    <property>
-                      <name>felix.fileinstall.dir</name>
-                      <value>${duracloud.home}/osgi-bundles</value>
-                    </property>
-                    <property>
-                      <name>base.dir</name>
-                      <value>${basedir}</value>
-                    </property>
-                    <property>
-                      <name>PROJECT_VERSION</name>
-                      <value>${project.version}</value>
-                    </property>
-                  </systemProperties>
-
-                  <trimStackTrace>false</trimStackTrace>
-                  <excludes>
-                    <exclude>${unitTests}</exclude>
-                    <exclude>${instrumentedTests}</exclude>
-                  </excludes>
-                  <includes>
-                    <include>${integrationTests}</include>
-                  </includes>
-
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>copy</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>org.duracloud.services</groupId>
-                      <artifactId>helloservice</artifactId>
-                      <version>${project.version}</version>
-                    </artifactItem>
-                  </artifactItems>
-                  <outputDirectory>src/test/resources</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-
-  </profiles>
-
 
   <dependencies>
   

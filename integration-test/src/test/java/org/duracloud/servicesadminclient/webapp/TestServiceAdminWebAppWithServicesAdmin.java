@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class TestServiceAdminWepApp {
+public class TestServiceAdminWebAppWithServicesAdmin {
 
     private final static Logger log = LoggerFactory.getLogger(
-        TestServiceAdminWepApp.class);
+        TestServiceAdminWebAppWithServicesAdmin.class);
 
     private static final String PROJECT_VERSION_PROP = "PROJECT_VERSION";
     protected static final String BASE_DIR_PROP = "base.dir";

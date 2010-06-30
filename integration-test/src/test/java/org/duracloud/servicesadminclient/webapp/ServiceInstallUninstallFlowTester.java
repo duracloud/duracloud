@@ -76,7 +76,7 @@ public class ServiceInstallUninstallFlowTester extends ServiceInstallTestBase {
 
             if (!testServiceFound) {
                 testServiceFound =
-                        TestServiceAdminWepApp.testServiceFound(serviceDesc);
+                        TestServiceAdminWebAppWithServicesAdmin.testServiceFound(serviceDesc);
             }
         }
         assertEquals(exists, testServiceFound);
