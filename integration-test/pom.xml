@@ -70,6 +70,11 @@
 
     <profile>
       <id>skipIntTests</id>
+      <activation>
+        <property>
+          <name>skipIntTests</name>
+        </property>
+      </activation>
       <build>
         <plugins>
 
@@ -90,6 +95,11 @@
 
     <profile>
       <id>runServicesAdminTests</id>
+      <activation>
+        <property>
+          <name>runServicesAdminTests</name>
+        </property>
+      </activation>
       <build>
         <plugins>
 
