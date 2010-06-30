@@ -33,11 +33,11 @@ import java.util.Map;
  *
  * @author Bill Branan
  */
-public class TestServicesManager
+public class TestServicesManagerWithServicesAdmin
         extends TestCase {
 
     protected static final Logger log =
-        LoggerFactory.getLogger(TestServicesManager.class);
+        LoggerFactory.getLogger(TestServicesManagerWithServicesAdmin.class);
 
     private static String host = "localhost";
 

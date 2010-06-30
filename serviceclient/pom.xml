@@ -14,66 +14,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <build>
-
-    <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>integrationtest</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-
-  </build>
-
-
-  <profiles>
-
-    <profile>
-      <id>profile-servicetest</id>
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>integrationtest</id>
-                <phase>integration-test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-
-                <configuration>
-                  <trimStackTrace>false</trimStackTrace>
-                  <excludes>
-                    <exclude>${unitTests}</exclude>
-                    <exclude>${instrumentedTests}</exclude>
-                  </excludes>
-                  <includes>
-                    <include>${integrationTests}</include>
-                  </includes>
-                </configuration>
-
-              </execution>
-            </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-
-  </profiles>
-
-
   <dependencies>
   
     <!-- internal projects -->
@@ -100,14 +40,6 @@
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
     </dependency>    
-
-    <!-- test -->
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>unit-test-db</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>  
