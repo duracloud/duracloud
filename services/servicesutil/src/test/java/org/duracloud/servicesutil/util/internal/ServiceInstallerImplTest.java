@@ -134,6 +134,7 @@ public class ServiceInstallerImplTest extends ServiceInstallImplTestBase {
         ZipFile file = new ZipFile(bundle);
         verifyEntry(file, entryName0, serviceContent0);
         verifyEntry(file, entryName1, serviceContent1);
+        file.close();
     }
 
     private void verifyEntry(ZipFile file, String entryName, String content)
@@ -163,5 +164,6 @@ public class ServiceInstallerImplTest extends ServiceInstallImplTestBase {
         }
 
         Assert.assertEquals(content, contentRead.toString());
+        br.close();
     }
 }
