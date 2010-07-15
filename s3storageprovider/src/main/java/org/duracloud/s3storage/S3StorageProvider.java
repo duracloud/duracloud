@@ -11,13 +11,8 @@ import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.loadMetadata;
-import static org.duracloud.storage.util.StorageProviderUtil.storeMetadata;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.S3ServiceException;
 import org.jets3t.service.acl.AccessControlList;
@@ -36,6 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import static org.duracloud.storage.util.StorageProviderUtil.loadMetadata;
+import static org.duracloud.storage.util.StorageProviderUtil.storeMetadata;
 
 /**
  * Provides content storage backed by Amazon's Simple Storage Service.
@@ -558,6 +559,10 @@ public class S3StorageProvider extends StorageProviderBase {
         contentMetadata.remove(S3Object.METADATA_HEADER_LAST_MODIFIED_DATE);
         contentMetadata.remove(S3Object.METADATA_HEADER_DATE);
         contentMetadata.remove(S3Object.METADATA_HEADER_ETAG);
+        contentMetadata.remove(S3Object.METADATA_HEADER_CONTENT_LENGTH.toLowerCase());
+        contentMetadata.remove(S3Object.METADATA_HEADER_LAST_MODIFIED_DATE.toLowerCase());
+        contentMetadata.remove(S3Object.METADATA_HEADER_DATE.toLowerCase());
+        contentMetadata.remove(S3Object.METADATA_HEADER_ETAG.toLowerCase());        
 
         // Determine mimetype, from metadata list or existing value
         String mimeType = contentMetadata.remove(METADATA_CONTENT_MIMETYPE);

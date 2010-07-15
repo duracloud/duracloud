@@ -569,7 +569,6 @@ public class ContentStoreImpl implements ContentStore{
                 } else if (name.equals(HttpHeaders.LAST_MODIFIED)) {
                     headers.put(CONTENT_MODIFIED, header.getValue());
                 }
-                headers.put(name, header.getValue());
             }
         }
         return headers;

@@ -148,12 +148,26 @@ public class ContentRest extends BaseRest {
                 } else if(metadataName.equals(StorageProvider.METADATA_CONTENT_MODIFIED)) {
                     response.header(HttpHeaders.LAST_MODIFIED, metadataValue);
                     contentModifiedSet = true;
-                } else if((metadataName.equals(HttpHeaders.CONTENT_TYPE) && !contentTypeSet) ||
-                          (metadataName.equals(HttpHeaders.CONTENT_LENGTH) && !contentSizeSet) ||
-                          (metadataName.equals(HttpHeaders.CONTENT_MD5) && !contentChecksumSet) ||
-                          (metadataName.equals(HttpHeaders.ETAG) && !contentChecksumSet) ||
-                          (metadataName.equals(HttpHeaders.LAST_MODIFIED) && !contentModifiedSet)) {
-                    response.header(metadataName, metadataValue);
+                } else if((metadataName.equals(HttpHeaders.CONTENT_TYPE))) {
+                    if(!contentTypeSet) {
+                        response.header(metadataName, metadataValue);
+                    }
+                } else if(metadataName.equals(HttpHeaders.CONTENT_LENGTH)) {
+                    if(!contentSizeSet) {
+                        response.header(metadataName, metadataValue);
+                    }
+                } else if(metadataName.equals(HttpHeaders.CONTENT_MD5)) {
+                    if(!contentChecksumSet) {
+                        response.header(metadataName, metadataValue);
+                    }
+                } else if(metadataName.equals(HttpHeaders.ETAG)) {
+                    if(!contentChecksumSet) {
+                        response.header(metadataName, metadataValue);
+                    }
+                } else if(metadataName.equals(HttpHeaders.LAST_MODIFIED)) {
+                    if(!contentModifiedSet) {
+                        response.header(metadataName, metadataValue);
+                    }
                 } else if(metadataName.equals(HttpHeaders.DATE) ||
                           metadataName.equals(HttpHeaders.CONNECTION)) {
                     // Ignore this value
