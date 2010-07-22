@@ -39,7 +39,7 @@
               </execution>
             </executions>
             <configuration>
-              <finalName>chunk-assembly</finalName>
+              <finalName>chunk-assembly-${project.version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>
               <archive>
                 <manifest>

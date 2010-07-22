@@ -2,10 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud.services</groupId>
-  <artifactId>mediastreamingservice</artifactId>
+  <artifactId>osgi-test</artifactId>
   <version>0.5.0-SNAPSHOT</version>
-  <name>DuraCloud Media Streaming Service Bundle</name>
-  <packaging>bundle</packaging>
+  <name>DuraCloud OSGi Service Tests</name>
+  <url>http://duracloud.org</url>
+  <packaging>pom</packaging>
 
   <parent>
     <artifactId>services</artifactId>
@@ -14,26 +15,44 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <modules>
+    <module>osgi-test-hellowebappwrapper</module>
+    <module>osgi-test-j2kservice</module>
+    <module>osgi-test-mediastreamingservice</module>
+    <module>osgi-test-replicationservice</module>
+    <module>osgi-test-scriptservice</module>
+    <module>osgi-test-servicesutil</module>
+    <module>osgi-test-webapputilservice</module>
+  </modules>
+
   <build>
+
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+      </testResource>
+    </testResources>
 
     <plugins>
 
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
         <executions>
           <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
+            <id>bundle-manifest</id>
+            <phase>none</phase>
           </execution>
         </executions>
-      </plugin>    
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+
         <executions>
+
           <execution>
             <id>integrationtest</id>
             <phase>integration-test</phase>
@@ -43,6 +62,14 @@
 
             <configuration>
               <systemProperties>
+                <property>
+                  <name>base.dir</name>
+                  <value>${basedir}</value>
+                </property>
+                <property>
+                  <name>BUNDLE_HOME</name>
+                  <value>${project.build.directory}/osgi-bundles</value>
+                </property>
                 <property>
                   <name>PROJECT_VERSION</name>
                   <value>${project.version}</value>
@@ -67,6 +94,31 @@
   </build>
 
   <profiles>
+    
+    <profile>
+      <id>skipIntTests</id>
+      <activation>
+        <property>
+          <name>skipIntTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>integrationtest</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
 
     <profile>
       <id>profile-clover</id>
@@ -102,70 +154,11 @@
   </profiles>
 
   <dependencies>
-
-    <!-- internal projects -->
-    <dependency>
-      <groupId>org.duracloud.services</groupId>
-      <artifactId>computeservice</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud.services</groupId>
-      <artifactId>servicescommon</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>common</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>storeclient</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>storageprovider</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>      
-
-    <!-- felix -->
     <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
     </dependency>
-    
-    <!-- other deps -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>com.springsource.org.apache.commons.io</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>com.springsource.org.apache.commons.codec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jdom</groupId>
-      <artifactId>com.springsource.org.jdom</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
   </dependencies>
   
 </project>
-

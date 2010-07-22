@@ -42,7 +42,7 @@
                   <directory>../../resources/unit-test</directory>
                   <filtering>false</filtering>
                   <includes>
-                    <include>apache-tomcat-6.0.20.zip</include>
+                    <include>adore-djatoka-1.1.zip</include>
                   </includes>
                 </resource>
               </resources>
@@ -62,7 +62,7 @@
           </execution>
         </executions>
       </plugin>
-
+      
     </plugins>
 
   </build>

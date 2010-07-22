@@ -34,6 +34,7 @@
     <module>imagemagickservice</module>
     <module>imageconversionservice</module>
     <module>mediastreamingservice</module>
+    <module>osgi-test</module>
   </modules>
 
   <build>

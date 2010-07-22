@@ -76,43 +76,6 @@
         </executions>
       </plugin>
 
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>integrationtest</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-
-            <configuration>
-              <systemProperties>
-                <property>
-                  <name>base.dir</name>
-                  <value>${basedir}</value>
-                </property>
-                <property>
-                  <name>PROJECT_VERSION</name>
-                  <value>${project.version}</value>
-                </property>
-              </systemProperties>
-
-              <trimStackTrace>false</trimStackTrace>
-              <excludes>
-                <exclude>${unitTests}</exclude>
-                <exclude>${instrumentedTests}</exclude>
-              </excludes>
-              <includes>
-                <include>${integrationTests}</include>
-              </includes>
-           </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
 
   </build>
