@@ -1,0 +1,259 @@
+/* Style for Duradmin dialogs
+*  Created by Charles Hacskaylo
+*  Extends jquery-ui.css
+*/
+
+/* DIALOG BOX *******************************/
+
+
+.ui-dialog
+{
+	-moz-border-radius:5px;
+	border-radius:5px;
+	background:url("../images/bg_L1.png") no-repeat center top transparent;
+	border:1px solid #333;
+	color:#ccc;
+	font-size:13px;
+	overflow:hidden;
+	padding:20px;
+	position:absolute;
+}
+
+.ui-dialog-buttonpane
+{
+	text-align:right;
+}
+
+.ui-button
+{
+	background:url(../images/btn_dialog_std_90.png) no-repeat;
+	border:none;
+	color:#000;
+	font-size:13px;
+	height:28px;
+	margin-left:10px;
+	padding:0;
+	text-align:center;
+	width:90px;
+}
+
+.ui-button span
+{
+	display:block;
+	margin-top:-4px;
+}
+
+.ui-button:hover
+{
+	background-position:bottom;
+}
+
+.ui-dialog h1
+{
+	color:#bbb;
+	margin-bottom:5px;
+}
+
+.hint
+{
+	font-size:13px;
+}
+
+.ui-dialog .hint { 	color:#999; }
+.ui-dialog div.hint
+{
+	-moz-border-radius:5px;	
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	background-color:#585B5E;
+	margin:10px 0;
+	padding:10px;
+}
+
+.ui-dialog div.hint h2 { color:#bbb; }
+
+.dialog-open {
+	border:1px solid  red !important;
+}
+
+.dialog-closed {
+	border:1px solid  blue !important;
+}
+
+.ui-dialog label.error
+{
+	/*background-color:#cc0000;*/
+	color:#ffcc00;
+	font-size:11px;
+	margin:1px 0 0 2px;
+	padding:1px 5px;
+}
+
+.ui-dialog-content
+{
+
+}
+
+.ui-dialog-buttonpane
+{
+
+}
+
+.ui-dialog .dc-item-list-wrapper
+{
+	background-color:#575757;
+}
+
+.ui-dialog .dc-item,
+.ui-dialog .dc-item td
+{
+	border-color:#666
+}
+
+.ui-dialog .dc-item,
+.ui-dialog .dc-item td
+{
+	color:#ccc;
+}
+
+.ui-dialog .dc-item:hover,
+.ui-dialog .dc-item:hover td
+{
+	background-color:#666;
+	color:#fff;
+}
+
+.ui-dialog .dialog-detail
+{
+	padding:0 10px;
+}
+
+/* SPECIFIC DIALOGS *************************/
+#available-services-dialog
+{
+	margin-bottom:10px;
+}
+
+#dc-item-list-wrapper,
+#dc-service-detail-wrapper
+{
+	float:left;
+	margin-right:10px;
+	width:300px !important;
+}
+
+/* UPLOAD STATUS DIALOG *************************/
+#upload-list-wrapper
+{
+	height:430px;
+	overflow:auto;
+	padding-right:10px;
+}
+
+.upload-item
+{
+	border-bottom:1px solid #555;
+	margin-bottom:5px;
+	padding:5px 0;
+}
+
+.upload-item .dc-progressbar-wrapper
+{
+	float:left;
+	width:340px;
+}
+
+.upload-item-id,
+.upload-item-store-space,
+.upload-item-kbytes
+{
+	color:#999;
+	display:block;
+	font-size:13px;	
+	margin-bottom:5px;
+}
+
+.upload-item-id
+{
+	color:#fff;
+	font-size:16px;
+}
+
+/* OVERLAY **********************************/
+.ui-widget-overlay
+{
+	background:none;
+	background-color:#fff;
+	left:0;
+	opacity:0.7;
+	position:absolute;
+	top:0;
+}
+
+/* FORM FIELDS ***************************/
+/* Used by dialog boxes and login screen */
+
+.form-fields { overflow:auto; }
+.h400 { height:400px; }
+
+.form-fields
+{
+	font-size:14px;
+}
+
+.form-fields label
+{
+	color:#ccc;
+	display:inline-block;
+	float:left;
+	line-height:22px;
+	padding-right:10px;
+	width:130px;
+	white-space:normal;
+}
+
+.form-fields .field
+{
+	display:inline-block;
+	float:left;
+}
+
+.form-fields input.field,
+.form-fields select.field,
+.form-fields textarea.field
+{
+	background-color:#585b5e; /* 484747 */
+	border:1px solid #36383a; /* 727576 */
+	border-bottom-color:#727576;
+	color:#ccc;
+	font-size:14px;
+	padding:3px;
+}
+
+select.field
+{
+}
+
+
+.form-fields li
+{
+	padding:5px 0;
+	white-space:nowrap;
+}
+
+.form-fields li.row
+{
+	border-top:1px solid #666;
+}
+
+.form-fields a.helper-link
+{
+	color:#8a8a8a;
+	font-size:11px;
+}
+
+.form-fields a:hover
+{
+	color:#ccc;
+}
+

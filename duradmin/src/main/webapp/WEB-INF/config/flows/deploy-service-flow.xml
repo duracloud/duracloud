@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+     "http://www.springframework.org/schema/webflow
+     http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"  >
+
+  <input name="serviceInfo" required="true" type="org.duracloud.serviceconfig.ServiceInfo"/>
+  <input name="deployment" required="false" type="org.duracloud.serviceconfig.Deployment"/>
+  
+  <decision-state id="newOrExistingDeployment">
+    <if test="deployment eq null" then="chooseDeployment" else="reconfigureServiceDeployment"/>
+  </decision-state>
+
+  <view-state id="chooseDeployment">
+    <transition on="submit" to="configureAndDeployService">
+      <evaluate expression="deployServiceAction.chooseDeploymentOption(flowRequestContext)" result="flowScope.deploymentOption" />    
+    </transition>
+  </view-state>
+
+
+  <view-state id="configureAndDeployService" >
+    <transition on="submit" to="deployed">
+		<evaluate expression="deployServiceAction.configureAndDeployService(flowRequestContext)" />    
+    </transition>
+  </view-state>
+
+  <view-state id="reconfigureServiceDeployment">
+    <on-entry>
+      <set name="flowScope.userConfigs" value="deployment.userConfigs"/>
+    </on-entry>
+    <transition on="submit" to="reconfigured">
+      <evaluate expression="deployServiceAction.reconfigureServiceDeployment(flowRequestContext)" />    
+    </transition>
+  </view-state>
+
+
+  <end-state id="deployed">
+  	<output name="serviceInfo" value="serviceInfo"/>
+  </end-state>
+
+  <end-state id="reconfigured">
+    <output name="serviceInfo" value="serviceInfo"/>
+    <output name="deployment" value="deployment"/>
+  </end-state>
+  
+  <end-state id="cancel" />
+
+  <global-transitions>
+    <transition on="cancel" to="cancel"  validate="false"/>
+  </global-transitions>
+
+</flow>

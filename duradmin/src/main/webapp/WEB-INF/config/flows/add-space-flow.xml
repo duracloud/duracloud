@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+     "http://www.springframework.org/schema/webflow
+     http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"  >
+
+  <var name="space"
+      class="org.duracloud.duradmin.domain.Space"
+      
+      />
+
+  <view-state id="defineSpace" model="space" >
+    <transition on="submit" to="success">
+		<evaluate expression="addSpaceAction.execute(space,messageContext)" />    
+    </transition>
+  </view-state>
+
+  <end-state id="success">
+  	<output name="spaceId" value="space.spaceId"/>
+  </end-state>
+  
+  <end-state id="cancel" />
+
+  <global-transitions>
+    <transition on="cancel" to="cancel"  validate="false"/>
+  </global-transitions>
+
+</flow>

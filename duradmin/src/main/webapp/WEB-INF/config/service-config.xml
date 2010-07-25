@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		   http://www.springframework.org/schema/aop 
+		   http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
+           >
+  <!--
+    Imports the configurations of the different infrastructure systems
+    of the application
+  -->
+  <bean id="contentStoreManagerFactory" class="org.duracloud.duradmin.contentstore.ContentStoreManagerFactoryImpl"/>
+  <!-- 
+  <bean id="contentStoreManagerFactory" class="org.duracloud.duradmin.mock.contentstore.MockContentStoreManagerFactoryImpl"/>
+   -->  
+
+
+  
+  <bean id="contentStoreManagerTarget"  factory-bean="contentStoreManagerFactory" factory-method="create" />
+
+  <bean id="contentStoreSelector" class="org.duracloud.duradmin.contentstore.ContentStoreSelector"
+        scope="session">
+    <aop:scoped-proxy/>
+  </bean>
+
+  <bean id="contentStoreProvider"  class="org.duracloud.duradmin.contentstore.ContentStoreProvider">
+    <constructor-arg ref="contentStoreManager"/>
+    <constructor-arg ref="contentStoreSelector" />
+  </bean>
+
+  <bean id="servicesManagerTarget" class="org.duracloud.duradmin.services.DuradminServicesManagerImpl"/>
+
+  <bean id="controllerSupport" class="org.duracloud.duradmin.control.ControllerSupport">
+    <constructor-arg ref="contentStoreProvider"/>
+    <constructor-arg ref="servicesManager"/>
+  </bean>
+
+  <bean id="baseCommandController" class="org.duracloud.duradmin.control.BaseCommandController" abstract="true">
+    <property name="controllerSupport" ref="controllerSupport"/>
+  </bean>
+
+  <bean id="baseFormController" class="org.duracloud.duradmin.control.BaseFormController" abstract="true">
+    <property name="controllerSupport" ref="controllerSupport"/>
+  </bean>
+
+</beans>

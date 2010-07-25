@@ -1,0 +1,108 @@
+#login-wrapper
+{
+	position:absolute;
+	top:20%;
+	width:100%;
+}
+
+
+#login-header
+{
+	margin:0 0 20px 20px;
+}
+
+#dc-logo,
+#dc-app-title
+{
+	height:60px;
+}
+
+#dc-logo
+{
+	background-image:url(../images/logo_top_duracloud_lg.png);
+	width:152px;
+}
+
+
+#dc-app-title
+{
+	background-image:url(../images/app_title_lg.png);
+	width:330px;
+	
+}
+
+#login-content,
+#login-footer
+{
+	
+	min-width:750px;
+	width:75%;
+
+}
+
+#login-content
+{
+	padding:50px 10px;
+}
+
+#login-content .error
+{
+	font-size:13px;
+}
+
+#login-content h1
+{
+	color:#666;
+	display:block;
+	margin-left:30px;
+	width:100px;
+}
+
+#login-footer
+{
+	background-position:right -30px;
+}
+
+#login-wrapper .footer-content { padding-top:20px; }
+
+
+#form-fields #button-login,
+#form-fields #button-login span
+{
+	background-image:url(../images/btn_login.gif);
+	color:#fff;
+	height:28px;
+	line-height:25px;	
+}
+
+
+#form-fields #button-login span
+{
+	padding-right:50px;
+}
+
+
+/* LOGIN STYLES ****************************/
+
+.ui-dialog fieldset
+{
+	padding:20px 0;
+}
+
+
+#login-content .form-fields
+{
+	margin-right:20%;
+	width:350px;
+}
+
+#login-content label
+{
+	width:100px;
+}
+
+#login-content .form-fields .field
+{
+	float:right;
+	width:200px;
+}

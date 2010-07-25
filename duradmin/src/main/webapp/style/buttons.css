@@ -1,0 +1,280 @@
+/* css classes for buttons and a tags as buttons */
+
+button::-moz-focus-inner
+{
+	border: none;  /* overrides extra padding in Firefox */
+	padding:0 !important;
+}
+
+button a
+{
+	text-decoration:none;
+}
+
+button,
+.button,
+.icon-link,
+.switch-holder,
+.switch
+{
+	font-family:Verdana, Helvetica, Sans-Serif;
+	font-size:11px;
+	font-style:normal;
+	white-space:nowrap;
+	width:auto;
+}
+
+button,
+.button,
+.icon-link,
+.switch
+{
+	color:#ccc;
+	display:inline-block;
+	position:relative;
+	overflow: visible; /* removes extra side padding in IE */
+	text-align:center;
+	text-decoration:none;
+	vertical-align:middle;
+}
+
+button,
+.button,
+.switch
+{
+	-moz-border-radius:5px;	
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	border-width:1px;
+	border-style:solid;
+	border-color:#333;
+	padding:1px 10px 0 10px;
+
+}
+
+button,
+.button
+{	
+	background-color:#515151;
+	background: -moz-linear-gradient(top, #797979, #515151);
+	background: -webkit-gradient(linear, left top, left bottom, from(#797979), to(#515151)); 	/* For WebKit (Safari, Google Chrome etc) */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF797979, endColorstr=#FF515151); /* For Internet Explorer 5.5 - 7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF797979, endColorstr=#FF515151)";	/* For Internet Explorer 8 */
+	cursor:pointer;
+	height:25px;
+	margin-right:2px;
+
+}
+
+.button
+{
+	padding-top:4px;
+	height:19px;
+}
+
+button.featured,
+.button.featured
+{ 
+	background-color:#999999;
+	background: -moz-linear-gradient(top, #e4e4e4, #999999);
+	background: -webkit-gradient(linear, left top, left bottom, from(#e4e4e4), to(#999999)); 	/* For WebKit (Safari, Google Chrome etc) */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFe4e4e4, endColorstr=#FF999999); /* For Internet Explorer 5.5 - 7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFe4e4e4, endColorstr=#FF999999)";	/* For Internet Explorer 8 */
+	color:#444;
+}
+
+button.primary,
+.button.primary
+{
+
+	background-color:#2375b2;
+	background: -moz-linear-gradient(top, #37a9de, #2375b2);
+	background: -webkit-gradient(linear, left top, left bottom, from(#37a9de), to(#2375b2)); 	/* For WebKit (Safari, Google Chrome etc) */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF37a9de, endColorstr=#FF2375b2); /* For Internet Explorer 5.5 - 7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF37a9de, endColorstr=#FF2375b2)";	/* For Internet Explorer 8 */
+	color:#56ffff;
+}
+
+button.primary:hover,
+.button.primary:hover
+{
+
+	background-color:#3793d6;
+	background: -moz-linear-gradient(top, #4db6e8, #3793d6);
+	background: -webkit-gradient(linear, left top, left bottom, from(#4db6e8), to(#3793d6)); 	/* For WebKit (Safari, Google Chrome etc) */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF4db6e8, endColorstr=#FF3793d6); /* For Internet Explorer 5.5 - 7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF4db6e8, endColorstr=#FF3793d6)";	/* For Internet Explorer 8 */
+	border-color:#4db6e8;
+	color:#ffffff;
+}
+
+button.small,
+.button.small
+{
+	height:20px;
+}
+
+button:hover,
+.button:hover
+{
+	background-color:#757575;
+	background: -moz-linear-gradient(top, #8e8e8e, #757575);
+	background: -webkit-gradient(linear, left top, left bottom, from(#8e8e8e), to(#757575)); 	/* For WebKit (Safari, Google Chrome etc) */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF8e8e8e, endColorstr=#FF757575); /* For Internet Explorer 5.5 - 7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF8e8e8e, endColorstr=#FF757575)";	/* For Internet Explorer 8 */
+	border-color:#00CC00;
+	color:#fff;
+}
+
+button.featured:hover,
+.button.featured:hover
+{ 
+	background-color:#c9c9c9;
+	background: -moz-linear-gradient(top, #f8f8f8, #c9c9c9);
+	background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#c9c9c9)); 	/* For WebKit (Safari, Google Chrome etc) */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFf8f8f8, endColorstr=#FFc9c9c9); /* For Internet Explorer 5.5 - 7 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFf8f8f8, endColorstr=#FFc9c9c9)";	/* For Internet Explorer 8 */
+	color:#000; 
+}
+
+button i,
+span.switch i,
+.button i,
+.icon-link i
+{
+	background-position:0 0;
+	background-repeat:no-repeat;
+	display:inline-block;
+	height:16px;
+	margin-top:-1px;
+	vertical-align:middle;
+	width:14px;
+}
+
+.icon-link:hover i
+{
+	background-position:left 0;
+}
+
+span.switch i, .button i { margin-top:0; }
+
+button i.pre,
+.button i.pre,
+.icon-link i,
+span.switch i.pre
+{
+	margin-left:-5px;
+	margin-right:3px;
+}
+
+button i.post,
+.button i.post,
+span.switch i.post
+{
+	margin-left:3px;
+	margin-right:-5px;
+}
+
+.icon-only
+{
+	padding-right:5px;
+}
+
+.icon-only .pre { margin-right:0; }
+
+
+/* SWTICHES *****************************************************/
+
+.switch-holder
+{
+	background-color:#545454;
+	-moz-border-radius:8px;	
+	-webkit-border-radius:8px;
+	border-radius:8px;
+	margin:20px 0;
+	padding:7px;
+}
+
+.switch { margin:0 }
+
+span.switch
+{
+	box-shadow:inset 0 0 3px #000000;
+   -moz-box-shadow:inset 0 0 3px #000000;
+   -webkit-box-shadow:inset 0 0 3px #000000;
+	height:19px;
+	padding-top:4px;
+}
+
+.switch.left
+{
+	-webkit-border-top-right-radius: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+	-moz-border-radius-topright: 0px;
+	-moz-border-radius-bottomright: 0px;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.switch.right
+{
+	-webkit-border-top-left-radius: 0px;
+	-webkit-border-bottom-left-radius: 0px;
+	-moz-border-radius-topleft: 0px;
+	-moz-border-radius-bottomleft: 0px;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
+
+span.switch.right { border-left:none; }
+span.switch.left { border-right:none; }
+
+span.on
+{
+	background-color:#009900;
+	color:#66FF00;
+}
+
+span.off
+{
+	background-color:#990000;
+	color:#FF6600;
+}
+
+span.on i,
+span.off i,
+.icon-link i
+{
+	background-position:left -20px;
+}
+
+/* SPECIFIC BUTTONS *****************************************************/
+
+.plus { background-image:url(../images/icon_sm_plus.png); }
+.featured .plus { background-image:url(../images/icon_sm_plus_featured.png); }
+.pencil { background-image:url(../images/icon_sm_pencil.png); }
+.trash { background-image:url(../images/icon_sm_trash.png); }
+.x { background:url(../images/icon_sm_x.png); }
+.lock { background-image:url(../images/icon_sm_lock.png); }
+.unlock { background-image:url(../images/icon_sm_unlock.png); }
+.checkbox { background:url(../images/icon_sm_checkbox.png); }
+.download { background-image:url(../images/icon_sm_download_featured.png); }
+.arw-down-blue { background:url(../images/icon_sm_arw_blue.gif) no-repeat top right; }
+.arw-down-liteblue { background-image:url(../images/icon_sm_arw_cyan.gif); }
+.arw-down-green { background:url(../images/icon_sm_arw_green.gif) no-repeat top right; }
+.outer .help { background-image:url(../images/icon_sm_help_blue.gif); }
+.outer .logoff { background-image:url(../images/icon_sm_logoff_blue.gif); }
+
+/* BUTTONS IN SPECIFIC AREAS *******************************/
+.dc-item button
+{
+	height:auto;
+}
+
+
+/* ICON LINKS **********************************************/
+
+.icon-link
+{
+	margin-left:10px;
+}

@@ -1,0 +1,25 @@
+/* FLEX BASE CLASSES *********************************/
+
+.flex a,
+.flex,
+.flex span
+{
+	color:#ccc;
+	display:inline-block;
+	height:24px;
+	font-size:11px;
+	line-height:22px;
+	text-decoration:none;
+}
+
+.flex a,
+.flex
+{
+	padding-left:10px;
+}
+
+.flex span
+{
+	cursor:pointer;
+	padding-right:10px;
+}

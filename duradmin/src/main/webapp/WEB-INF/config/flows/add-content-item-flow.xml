@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+     "http://www.springframework.org/schema/webflow
+     http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"  >
+
+
+  <var name="contentItem" 
+      class="org.duracloud.duradmin.domain.ContentItem"/>
+
+  <input name="space" required="true"/>
+  <input name="returnTo" />
+
+  <on-start>
+    <evaluate expression="#{contentItem.setSpaceId(space.getSpaceId())}"></evaluate>
+  </on-start>
+  <view-state id="defineContentItem" model="contentItem">
+    
+    <transition on="submit" to="success">
+		<evaluate expression="addContentItemAction.execute(contentItem,space, messageContext)" />    
+    </transition>
+  </view-state>
+
+  <end-state id="success">
+  	<output name="contentItem" value="contentItem" required="true"/>
+  	<output name="space" required="true"/>
+  	<output name="returnTo"/>
+  </end-state>
+  
+  <end-state id="cancel">
+  	<output name="space"/>
+  	<output name="returnTo"/>
+  </end-state>
+
+  <global-transitions>
+    <transition on="cancel" to="cancel"  validate="false"/>
+  </global-transitions>
+
+</flow>
