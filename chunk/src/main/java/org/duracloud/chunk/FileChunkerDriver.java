@@ -28,6 +28,7 @@ import org.duracloud.chunk.writer.FilesystemContentWriter;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.model.Credential;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -96,6 +97,20 @@ public class FileChunkerDriver {
 
     private static Options getOptions() {
 
+        Option username = new Option("u",
+                                     "username",
+                                     true,
+                                     "username of duracloud instance");
+        username.setArgs(1);
+        username.setArgName("username");
+
+        Option password = new Option("p",
+                                     "password",
+                                     true,
+                                     "password of duracloud instance");
+        password.setArgs(1);
+        password.setArgName("password");
+
         Option create = new Option("g",
                                    "generate",
                                    true,
@@ -155,6 +170,8 @@ public class FileChunkerDriver {
                                                  "option will be ignored.");
 
         Options options = new Options();
+        options.addOption(username);
+        options.addOption(password);
         options.addOption(create);
         options.addOption(add);
         options.addOption(fileFiltered);
@@ -201,6 +218,13 @@ public class FileChunkerDriver {
 
         ensureWritePermissionToLocalDir();
 
+        // Are there credentials?
+        Credential credential = null;
+        if (cmd.hasOption("username") || cmd.hasOption("password")) {
+            credential = getCredentials(cmd.getOptionValue("username"),
+                                        cmd.getOptionValue("password"));
+        }
+
         // Where will content be written?
         ContentWriter writer;
         if (cmd.hasOption("cloud-store")) {
@@ -208,6 +232,10 @@ public class FileChunkerDriver {
             String host = vals[0];
             String port = vals[1];
             ContentStoreManager mgr = new ContentStoreManagerImpl(host, port);
+
+            if (credential != null) {
+                mgr.login(credential);
+            }
 
             writer = new DuracloudContentWriter(mgr.getPrimaryContentStore());
         } else {
@@ -266,6 +294,20 @@ public class FileChunkerDriver {
         } else {
             usage();
         }
+    }
+
+    private static Credential getCredentials(String username, String password) {
+        if (null == username || null == password) {
+            String border = "**************\n";
+            StringBuilder msg = new StringBuilder(border);
+            msg.append("If either username or password are provided,\n");
+            msg.append("they both must be provided.\n");
+            msg.append(border);
+            System.out.println(msg);
+            die();
+        }
+
+        return new Credential(username, password);
     }
 
     private static void ensureWritePermissionToLocalDir() throws Exception {
