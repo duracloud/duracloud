@@ -16,12 +16,12 @@
 
   <profiles>
     <profile>
-      <id>profile-assembly</id>
+      <id>profile-driver</id>
 
       <activation>
         <property>
           <name>profile</name>
-          <value>assembly</value>
+          <value>driver</value>
         </property>
       </activation>
 
@@ -39,8 +39,6 @@
               </execution>
             </executions>
             <configuration>
-              <finalName>chunk-assembly-${project.version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
               <archive>
                 <manifest>
                   <mainClass>org.duracloud.chunk.FileChunkerDriver</mainClass>

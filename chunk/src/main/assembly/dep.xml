@@ -1,5 +1,5 @@
 <assembly>
-  <id>chunk-assembly</id>
+  <id>driver</id>
   <includeBaseDirectory>false</includeBaseDirectory>
   <formats>
     <format>jar</format>
