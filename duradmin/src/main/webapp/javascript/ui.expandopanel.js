@@ -107,7 +107,7 @@ $.widget("ui.tabularexpandopanel",
 			}, 
 			
 			options: $.extend({}, $.ui.expandopanel.prototype.options, {
-				data: [["a1","b1"], ["a2","b2"]],
+				data: [],  //2 dimensional array
 			}),
 		}
 	)

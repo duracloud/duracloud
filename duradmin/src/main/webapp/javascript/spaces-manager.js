@@ -284,37 +284,29 @@ $(document).ready(function() {
 		}else{
 			options['type'] = 'image';
 		}
-
-		
+	
 		var div = $.fn.create("div")
 					  .expandopanel({title: "Preview"});
 		
+		$(".view-content-item-button", target)
+			.css("display","inline-block")
+			.attr("href", contentItem.viewerURL);
+
 		var thumbnail = $.fn.create("img")
 							.attr("src", contentItem.thumbnailURL)
 							.addClass("preview-image");
-							
-		var viewerLink = $.fn.create("a").append(thumbnail);
-							
-		
+
+		var viewerLink = $.fn.create("a").append(thumbnail)
+							.attr("href", contentItem.viewerURL)
+							.fancybox(options);
+	
 		var wrapper = $.fn.create("div")
 							.addClass("preview-image-wrapper")
 							.append(viewerLink);
 		
-		
 		$(div).expandopanel("getContent").append(wrapper);
 		
-		
-		//viewerLink.fancybox(options);
-		
-		$(".view-content-item-button", target)
-			.removeAttr("target") //prevent viewer from opening in new window
-			.css("display","inline-block")
-			.add(viewerLink)
-			.attr("href", contentItem.viewerURL)
-			.fancybox(options);
-		
 		$(".center", target).append(div);
-
 	};
 
 	var options = {
