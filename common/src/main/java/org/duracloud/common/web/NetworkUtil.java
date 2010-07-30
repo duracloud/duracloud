@@ -71,11 +71,18 @@ public class NetworkUtil {
         throws DuraCloudCheckedException {
         int tries = 0;
         int maxTries = 20;
-        while (isRunning(url) != state && tries++ < maxTries) {
+        boolean running = isRunning(url);
+        while (running != state && tries++ < maxTries) {
             sleep(500);
+            running = isRunning(url);
         }
 
-        if (isRunning(url) != state) {
+        if (running != state) {
+            sleep(5000);
+            running = isRunning(url);
+        }
+
+        if (running != state) {
             String err = state ? "Not running" : "Still running";
             throw new DuraCloudCheckedException(err + ": " + url);
         }

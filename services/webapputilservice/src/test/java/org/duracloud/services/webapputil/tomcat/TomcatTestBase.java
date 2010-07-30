@@ -37,7 +37,15 @@ public class TomcatTestBase {
             }
         }
 
-        Assert.assertEquals(numFiles, totalFiles);
+        int numLogs = 0;
+        if(numFiles != totalFiles) {
+            File logsDir = new File(catalinaHome, "logs");
+            if(logsDir.exists()) {
+                numLogs = logsDir.listFiles().length;
+            }
+        }
+
+        Assert.assertEquals(numFiles + numLogs, totalFiles);
     }
 
     private int verifyFile(File file, int port) throws IOException {
