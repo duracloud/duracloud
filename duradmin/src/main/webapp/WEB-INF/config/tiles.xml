@@ -21,10 +21,7 @@
 
 	</definition>
 
-	<definition name="error" extends="base" template="/WEB-INF/jsp/error.jsp">
-		<put-attribute name="mainTab" value="" />
-		<put-attribute name="menu" value=""/>
-	</definition>
+	<definition name="error"  template="/WEB-INF/jsp/error.jsp"/>
 
 	<definition name="exception" extends="error">
 	</definition>
