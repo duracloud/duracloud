@@ -106,6 +106,7 @@ public class MediaStreamingService extends BaseService implements ComputeService
 
             if(streamHost != null) {
                 props.put("Streaming Host", streamHost);
+                props.put("RTMP Streaming URL", "rtmp://"+streamHost+"/cfx/st");
             }
 
             if(enableStreamingResult != null) {
