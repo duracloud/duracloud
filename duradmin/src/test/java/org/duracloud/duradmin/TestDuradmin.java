@@ -24,15 +24,12 @@ public class TestDuradmin extends DuradminTestBase {
 
     @Test
     public void testSpaces() throws Exception {
-        Assert.assertTrue("This test does not work.", true);
-        if (false) {
-            String url = getBaseUrl() + "/login";
-            HttpResponse response = restHelper.get(url);
-            Assert.assertEquals(200, response.getStatusCode());
+        String url = getBaseUrl() + "/login";
+        HttpResponse response = restHelper.get(url);
+        Assert.assertEquals(200, response.getStatusCode());
 
-            String responseText = response.getResponseBody();
-            Assert.assertNotNull(responseText);
-        }
+        String responseText = response.getResponseBody();
+        Assert.assertNotNull(responseText);
     }
 
 }
