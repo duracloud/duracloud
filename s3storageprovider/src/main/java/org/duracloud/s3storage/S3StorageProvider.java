@@ -47,6 +47,8 @@ public class S3StorageProvider extends StorageProviderBase {
 
     private final Logger log = LoggerFactory.getLogger(S3StorageProvider.class);
 
+    protected static final int MAX_ITEM_COUNT = 1000;
+
     private String accessKeyId = null;
     private S3Service s3Service = null;
 
@@ -332,18 +334,21 @@ public class S3StorageProvider extends StorageProviderBase {
             spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
         }
 
-        spaceMetadata.put(METADATA_SPACE_COUNT, getSpaceCount(spaceId));
+        spaceMetadata.put(METADATA_SPACE_COUNT,
+                          getSpaceCount(spaceId, MAX_ITEM_COUNT));
         return spaceMetadata;
     }
 
     /*
-     * Counts the number of items in a space.
+     * Counts the number of items in a space up to the maxCount. If maxCount
+     * is reached or exceeded, the returned string will indicate this with a
+     * trailing '+' character (e.g. 1000+).
      *
      * Note that anecdotal evidence shows that this method of counting
      * (using size of chunked calls) is faster in most cases than enumerating
      * the Iteration: StorageProviderUtil.count(getSpaceContents(spaceId, null))
      */
-    private String getSpaceCount(String spaceId) {
+    protected String getSpaceCount(String spaceId, int maxCount) {
         List<String> spaceContentChunk = null;
         long count = 0;
         do {
@@ -356,9 +361,14 @@ public class S3StorageProvider extends StorageProviderBase {
                                                         DEFAULT_MAX_RESULTS,
                                                         marker);
             count += spaceContentChunk.size();
-        } while (spaceContentChunk.size() > 0);
-        return String.valueOf(count);
-    }
+        } while (spaceContentChunk.size() > 0 && count < maxCount);
+
+        String suffix = "";
+        if(count >= maxCount) {
+            suffix = "+";
+        }
+        return String.valueOf(count) + suffix;
+    }    
 
     private Date getCreationDate(String bucketName,
                                  Map<String, String> spaceMetadata) {
