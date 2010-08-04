@@ -213,7 +213,7 @@
 					title="Edit Content Item">
 				<h1>Edit Content Item</h1>
 				<p class="hint">All fields are required.</p>
-				<form enctype="multipart/form-data" id="edit-content-item-form">
+				<form  id="edit-content-item-form" onsubmit="return false;">
 				<input type="hidden" name="spaceId"/>
 				<input type="hidden" name="contentId"/>
 				<input type="hidden" name="storeId"/>

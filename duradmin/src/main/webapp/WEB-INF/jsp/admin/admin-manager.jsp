@@ -73,7 +73,7 @@
 			<div id="add-user-dialog" class="dialog detail-pane">
 				<h1>Add User</h1>
 				<p class="hint">All fields are required.</p>
-				<form enctype="multipart/form-data" id="add-user-form">
+				<form id="add-user-form" onsubmit="return false;">
 				<input type="hidden" name="verb" value="add"/>
 				<div id="form-fields" class="form-fields">
 				<fieldset>
@@ -90,7 +90,7 @@
 			<div id="change-password-dialog" class="dialog detail-pane">
 				<h1>Change Password for <span class="username"></span></h1>
 				<p class="hint">All fields are required.</p>
-				<form enctype="multipart/form-data" id="change-password-form">
+				<form enctype="multipart/form-data" id="change-password-form" onsubmit="return false;">
 				<input type="hidden" id="username" name="username" value=""/>
 				<input type="hidden" name="verb" value="modify"/>
 

@@ -78,10 +78,8 @@ $(document).ready(function() {
 
 		$(".delete-user-button", userDetailPane).click(function(evt){
 			$.ajax({ url: "/duradmin/admin", 
-				dataType: "json",
 				type: "POST",
 				data: "username="+user.username+"&verb=remove",
-				cache: false,
 				success: function(data){
 					$(usersListId).selectablelist("removeById", data.user.username);
 					$(detailPaneId).html('');
@@ -158,23 +156,7 @@ $(document).ready(function() {
 		buttons: {
 			Add: function(){
 				var that = this;
-				$(that).dialog("disable");
-				$.ajax({ url: "/duradmin/admin", 
-					dataType: "json",
-					type: "POST",
-					data: $("form", this).serialize(),
-					cache: false,
-					success: function(data){
-						$(that).dialog("enable");
-						$(that).dialog("close");
-						insertUserIntoList(data.user);
-						loadUserDetail(data.user);
-					},
-				    error: function(xhr, textStatus, errorThrown){
-						$(that).dialog("enable");
-						alert("unable to add user: " + textStatus);
-				    },
-				});		
+				_addUser();
 			},
 			Cancel: function(){
 				$(this).dialog("close");
@@ -190,10 +172,34 @@ $(document).ready(function() {
 		
 	});
 
-	
+	var _addUser = function(){
+		var d = $("#add-user-dialog");
+		d.dialog("disable");
+		$.ajax({ url: "/duradmin/admin", 
+			type: "POST",
+			data: $("form", d).serialize(),
+			success: function(data){
+				d.dialog("enable");
+				d.dialog("close");
+				insertUserIntoList(data.user);
+				loadUserDetail(data.user);
+			},
+		    error: function(xhr, textStatus, errorThrown){
+				d.dialog("enable");
+				alert("unable to add user: " + textStatus);
+		    },
+		});		
+
+	};
 	
 	$(".add-user-button").click(function(){
 		$("#add-user-dialog").dialog("open");
+	});
+
+	$("#add-user-dialog input").bind('keypress', function(e) {
+		if(e.keyCode==13){
+        	_addUser();
+	    }
 	});
 
 	
@@ -210,21 +216,7 @@ $(document).ready(function() {
 		buttons: {
 			Save: function(){
 				var that = this;
-				$(that).dialog("disable");
-				$.ajax({ url: "/duradmin/admin", 
-					dataType: "json",
-					type: "POST",
-					data: $("form", this).serialize(),
-					cache: false,
-					success: function(data){
-						$(that).dialog("close");
-						$(that).dialog("enable");
-					},
-				    error: function(xhr, textStatus, errorThrown){
-						$(that).dialog("enable");
-						alert("unable to change password: " + textStatus);
-				    },
-				});		
+				_changePassword();
 			},
 			Cancel: function(){
 				$(this).dialog("close");
@@ -239,7 +231,29 @@ $(document).ready(function() {
 		},
 		
 	});
+	
+	var _changePassword = function() {
+		var d = $('#change-password-dialog');
+		d.dialog("disable");
+		$.ajax({ url: "/duradmin/admin", 
+			type: "POST",
+			data: $("form", d).serialize(),
+			success: function(data){
+				d.dialog("close");
+				d.dialog("enable");
+			},
+		    error: function(xhr, textStatus, errorThrown){
+				d.dialog("enable");
+				alert("unable to change password: " + textStatus);
+		    },
+		});			
+	};
 
+	$("#change-password-dialog input").bind('keypress', function(e) {
+		if(e.keyCode==13){
+        	_changePassword();
+	    }
+	});
 
 
 	$(".ui-dialog-titlebar").hide();
