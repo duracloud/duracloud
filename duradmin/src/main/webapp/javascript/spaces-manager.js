@@ -5,12 +5,12 @@
  */
 var centerLayout, listBrowserLayout, spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
 
-
 $.require("jquery.fancybox-1.3.1.pack.js");
 $.require("jquery.easing-1.3.pack.js");
 $.require("ui.metadataviewer.js");
 $.require("ui.tagsviewer.js");
 $.require("ui.flyoutselect.js");
+$.require("jquery.dc.common.js");
 
 $(document).ready(function() {
 	centerLayout = $('#page-content').layout({
