@@ -94,6 +94,7 @@ public class ManageSecurityUsersController extends AbstractCommandController {
                                             SecurityUserBean user)
         throws Exception {
         pushUpdates(cmd.getUsers());
+        user.setPassword("*********");
         return new ModelAndView("jsonView", "user", user);
     }
 

@@ -68,21 +68,7 @@ $(document).ready(function() {
 		var centerPane = $(".center",userDetailPane.first());
 		centerPane.html("");
 		
-		/*
-		var userDetails = new Array();
-		for(i in user){
-			userDetails.push([i, user[i]]);
-		}
-		
-		centerPane.append(
-			$.fn.create("div")
-			.tabularexpandopanel(
-				{title: "Details", 
-				 data: userDetails,
-                 }
-			)
-		);
-		*/
+
 		$(".change-password-button", userDetailPane).click(function(evt){
 			var d = $("#change-password-dialog");
 			$("#username",d).val(user.username);
@@ -93,10 +79,9 @@ $(document).ready(function() {
 		$(".delete-user-button", userDetailPane).click(function(evt){
 			$.ajax({ url: "/duradmin/admin", 
 				dataType: "json",
-				method: "POST",
+				type: "POST",
 				data: "username="+user.username+"&verb=remove",
 				cache: false,
-				context: document.body, 
 				success: function(data){
 					$(usersListId).selectablelist("removeById", data.user.username);
 					$(detailPaneId).html('');
@@ -176,10 +161,9 @@ $(document).ready(function() {
 				$(that).dialog("disable");
 				$.ajax({ url: "/duradmin/admin", 
 					dataType: "json",
-					method: "POST",
+					type: "POST",
 					data: $("form", this).serialize(),
 					cache: false,
-					context: document.body, 
 					success: function(data){
 						$(that).dialog("enable");
 						$(that).dialog("close");
@@ -229,10 +213,9 @@ $(document).ready(function() {
 				$(that).dialog("disable");
 				$.ajax({ url: "/duradmin/admin", 
 					dataType: "json",
-					method: "POST",
+					type: "POST",
 					data: $("form", this).serialize(),
 					cache: false,
-					context: document.body, 
 					success: function(data){
 						$(that).dialog("close");
 						$(that).dialog("enable");
