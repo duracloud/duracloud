@@ -13,6 +13,14 @@ public class TextUserConfig extends UserConfig {
 
     private String value;
 
+    public TextUserConfig(String name,
+                          String displayName,
+                          String value,
+                          String exclusion) {
+        super(name, displayName, exclusion);
+        this.value = value;
+    }
+
     public TextUserConfig(String name, String displayName, String value) {
         super(name, displayName);
         this.value = value;

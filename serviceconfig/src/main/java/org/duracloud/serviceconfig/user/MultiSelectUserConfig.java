@@ -20,6 +20,13 @@ public class MultiSelectUserConfig extends SelectableUserConfig {
         super(name, displayName, options);
     }
 
+    public MultiSelectUserConfig(String name,
+                                 String displayName,
+                                 List<Option> options,
+                                 String exclusion) {
+        super(name, displayName, options, exclusion);
+    }
+
     public InputType getInputType() {
         return InputType.MULTISELECT;
     }

@@ -172,6 +172,11 @@ public class ServiceElementWriter {
                 userPropertyType.setDisplayName(displayName);
             }
 
+            String exclusion = userConfig.getExclusion();
+            if (!StringUtils.isBlank(exclusion)) {
+                userPropertyType.setExclusion(exclusion);
+            }
+
             UserConfig.InputType inputType = userConfig.getInputType();
             if (inputType != null) {
                 if (inputType.equals(UserConfig.InputType.TEXT)) {

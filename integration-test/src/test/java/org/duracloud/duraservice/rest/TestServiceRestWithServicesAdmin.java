@@ -66,7 +66,7 @@ public class TestServiceRestWithServicesAdmin {
 
     private int deploymentId = 0;
 
-    private static final String testServiceId = "1"; // replication service
+    private static final String testServiceId = "0"; // replication service
 
     @Before
     public void setUp() throws Exception {

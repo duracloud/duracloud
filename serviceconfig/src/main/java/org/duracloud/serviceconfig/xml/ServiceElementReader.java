@@ -175,6 +175,7 @@ public class ServiceElementReader {
 
         String name = userPropertyType.getName();
         String displayName = userPropertyType.getDisplayName();
+        String exclusion = userPropertyType.getExclusion();
 
         OptionInputType.Enum inputType = userPropertyType.getInput();
         if (null == inputType) {
@@ -184,13 +185,25 @@ public class ServiceElementReader {
 
         if (inputType.equals(OptionInputType.TEXT)) {
             String value = userPropertyType.getValue();
-            userConfig = new TextUserConfig(name, displayName, value);
+            userConfig = new TextUserConfig(name,
+                                            displayName,
+                                            value,
+                                            exclusion);
+
         } else if (inputType.equals(OptionInputType.SINGLESELECT)) {
             List<Option> options = createOptions(userPropertyType);
-            userConfig = new SingleSelectUserConfig(name, displayName, options);
+            userConfig = new SingleSelectUserConfig(name,
+                                                    displayName,
+                                                    options,
+                                                    exclusion);
+
         } else if (inputType.equals(OptionInputType.MULTISELECT)) {
             List<Option> options = createOptions(userPropertyType);
-            userConfig = new MultiSelectUserConfig(name, displayName, options);
+            userConfig = new MultiSelectUserConfig(name,
+                                                   displayName,
+                                                   options,
+                                                   exclusion);
+
         } else {
             // FIXME: add proper runtime exception
             throw new RuntimeException("Unexpected inputType: " + inputType);

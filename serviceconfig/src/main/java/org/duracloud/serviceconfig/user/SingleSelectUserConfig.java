@@ -14,22 +14,35 @@ import java.util.List;
 public class SingleSelectUserConfig extends SelectableUserConfig{
     private static final long serialVersionUID = -2912715735337021361L;
 
-    public SingleSelectUserConfig(String name, String displayName, List<Option> options){
-        super(name,displayName, options);
-        
+    public SingleSelectUserConfig(String name,
+                                  String displayName,
+                                  List<Option> options) {
+        super(name, displayName, options);
+        init(options);
+    }
+
+    public SingleSelectUserConfig(String name,
+                                  String displayName,
+                                  List<Option> options,
+                                  String exclusion) {
+        super(name, displayName, options, exclusion);
+        init(options);
+    }
+
+    private void init(List<Option> options) {
         boolean hasSelected = false;
-        for(Option o : options){
-            if(o.isSelected()){
-                if(hasSelected){
-                    throw new IllegalArgumentException("the option list contains more than one selected option");
-                }else{
+        for (Option o : options) {
+            if (o.isSelected()) {
+                if (hasSelected) {
+                    throw new IllegalArgumentException(
+                        "the option list contains more than one selected option");
+                } else {
                     hasSelected = true;
                 }
             }
         }
     }
-    
-    
+
     public Option getSelectedOption(){
         for(Option o : getOptions()){
             if(o.isSelected()){

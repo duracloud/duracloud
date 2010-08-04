@@ -62,6 +62,7 @@
     <xs:attribute name="input" type="optionInputType" use="required"/>
     <xs:attribute name="displayName" type="xs:string" use="required"/>
     <xs:attribute name="value" type="xs:string" use="optional"/>
+    <xs:attribute name="exclusion" type="xs:string" use="optional"/>
 
   </xs:complexType>
 

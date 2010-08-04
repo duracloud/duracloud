@@ -33,10 +33,16 @@ public abstract class UserConfig implements Serializable {
     private int id;
     private String name;
     private String displayName;
+    private String exclusion;
 
     public UserConfig(String name, String displayName) {
+        this(name, displayName, "");
+    }
+
+    public UserConfig(String name, String displayName, String exclusion) {
         this.name = name;
         this.displayName = displayName;
+        this.exclusion = exclusion;
     }
 
     public abstract InputType getInputType();
@@ -51,6 +57,10 @@ public abstract class UserConfig implements Serializable {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public String getExclusion() {
+        return exclusion;
     }
 
     @Override
@@ -71,6 +81,10 @@ public abstract class UserConfig implements Serializable {
             that.displayName != null) {
             return false;
         }
+        if (exclusion != null ? !exclusion.equals(that.exclusion) :
+            that.exclusion != null) {
+            return false;
+        }
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
@@ -78,15 +92,16 @@ public abstract class UserConfig implements Serializable {
         return true;
     }
 
-    public abstract String getDisplayValue();
-    
     @Override
     public int hashCode() {
         int result = id;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result =
             31 * result + (displayName != null ? displayName.hashCode() : 0);
+        result = 31 * result + (exclusion != null ? exclusion.hashCode() : 0);
         return result;
     }
-    
+
+    public abstract String getDisplayValue();
+
 }

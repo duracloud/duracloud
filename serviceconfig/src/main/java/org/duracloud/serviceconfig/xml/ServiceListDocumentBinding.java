@@ -11,6 +11,7 @@ import org.apache.xmlbeans.XmlException;
 import org.duracloud.ServiceType;
 import org.duracloud.ServicesDocument;
 import org.duracloud.serviceconfig.ServiceInfo;
+import org.duracloud.serviceconfig.ServicesConfigDocument;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,8 +57,9 @@ public class ServiceListDocumentBinding {
      */
     public static ServicesDocument createDocumentFrom(List<ServiceInfo> serviceList) {
         ServicesDocument doc = ServicesDocument.Factory.newInstance();
-        if (null != serviceList && serviceList.size() > 0) {
+        ServicesDocument.Services servicesType = getServicesType();
 
+        if (null != serviceList && serviceList.size() > 0) {
             ServiceType[] serviceTypes = new ServiceType[serviceList.size()];
             int i = 0;
             for (ServiceInfo serviceInfo : serviceList) {
@@ -66,18 +68,23 @@ public class ServiceListDocumentBinding {
 
                 serviceTypes[i++] = serviceType;
             }
-
-            ServicesDocument.Services servicesType =
-                ServicesDocument.Services.Factory.newInstance();
             servicesType.setServiceArray(serviceTypes);
-            doc.setServices(servicesType);
-        } else if(serviceList.size() == 0) {
-            ServicesDocument.Services servicesType =
-                ServicesDocument.Services.Factory.newInstance();
+
+        } else if (serviceList.size() == 0) {
             servicesType.setServiceArray(new ServiceType[0]);
-            doc.setServices(servicesType);
         }
+
+        doc.setServices(servicesType);
         return doc;
     }
+
+    private static ServicesDocument.Services getServicesType() {
+        ServicesDocument.Services servicesType = ServicesDocument.Services
+            .Factory
+            .newInstance();
+        servicesType.setSchemaVersion(ServicesConfigDocument.SCHEMA_VERSION);
+        return servicesType;
+    }
+
 
 }

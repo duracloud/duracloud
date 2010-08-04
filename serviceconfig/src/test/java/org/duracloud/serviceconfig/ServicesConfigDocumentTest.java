@@ -40,6 +40,7 @@ public class ServicesConfigDocumentTest {
     private String userConfigName = "userConfigName-";
     private String userConfigDisplayName = "userConfigDisplayName-";
     private String userConfigValue = "userConfigValue-";
+    private String userConfigExclusion = "userConfigExclusion-";
     private String optionDisplayName = "optionDisplayName-";
     private String optionValue = "optionValue-";
     private String deploymentOptionDisplayName = "deploymentOptionDisplayName-";
@@ -93,17 +94,20 @@ public class ServicesConfigDocumentTest {
             case 0:
                 return new TextUserConfig(userConfigName + tag,
                                           userConfigDisplayName + tag,
-                                          userConfigValue + tag);
+                                          userConfigValue + tag,
+                                          userConfigExclusion + tag);
             case 1:
                 return new SingleSelectUserConfig(userConfigName + tag,
                                                   userConfigDisplayName + tag,
                                                   createUserConfigOptions(tag,
-                                                                          count));
+                                                                          count),
+                                                  userConfigExclusion + tag);
             case 2:
                 return new MultiSelectUserConfig(userConfigName + tag,
                                                  userConfigDisplayName + tag,
                                                  createUserConfigOptions(tag,
-                                                                         count));
+                                                                         count),
+                                                 userConfigExclusion + tag);
             default:
                 throw new RuntimeException("Impossible.");
         }

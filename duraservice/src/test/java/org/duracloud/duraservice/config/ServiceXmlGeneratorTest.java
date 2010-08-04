@@ -19,6 +19,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * @author Andrew Woods
+ *         Date: Jan 31, 2010
+ */
 public class ServiceXmlGeneratorTest {
 
     private static final String PROJECT_VERSION_PROP = "PROJECT_VERSION";
@@ -31,7 +35,7 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> serviceInfos = serviceXmlGenerator.buildServiceList();
         Assert.assertNotNull(serviceInfos);
 
-        int NUM_SERVICES = 6;
+        int NUM_SERVICES = 7;
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
@@ -42,6 +46,7 @@ public class ServiceXmlGeneratorTest {
         boolean foundJ2k = false;
         boolean foundImageconversion = false;
         boolean foundMediaStreaming = false;
+        boolean foundFixity = false;
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             String contentId = serviceInfo.getContentId();
@@ -80,6 +85,11 @@ public class ServiceXmlGeneratorTest {
                 foundMediaStreaming = true;
                 verifyMediaStreaming(serviceInfo);
 
+            } else if (contentId.equals(
+                "fixityservice-" + ver + ".zip")) {
+                foundFixity = true;
+                verifyFixity(serviceInfo);
+
             } else {
                 Assert.fail("unexpected contentId: " + contentId);
             }
@@ -92,6 +102,7 @@ public class ServiceXmlGeneratorTest {
         //Assert.assertTrue(foundHellowebappwrapper);
         Assert.assertTrue(foundJ2k);
         Assert.assertTrue(foundImageconversion);
+        Assert.assertTrue(foundFixity);
     }
 
     private void verifyHello() {
@@ -134,6 +145,18 @@ public class ServiceXmlGeneratorTest {
         List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
         Assert.assertNotNull(userConfigs);
         Assert.assertEquals(2, userConfigs.size());
+
+        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
+        Assert.assertNotNull(systemConfigs);
+        Assert.assertEquals(5, systemConfigs.size());
+
+        verifyDurastoreCredential(systemConfigs);
+    }
+
+    private void verifyFixity(ServiceInfo serviceInfo) {
+        List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
+        Assert.assertNotNull(userConfigs);
+        Assert.assertEquals(13, userConfigs.size());
 
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);

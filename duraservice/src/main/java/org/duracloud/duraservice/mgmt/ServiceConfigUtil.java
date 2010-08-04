@@ -42,6 +42,7 @@ public class ServiceConfigUtil {
     // User Config Variables
     public static final String STORES_VAR = "$STORES";
     public static final String SPACES_VAR = "$SPACES";
+    public static final String EXCLUSION_DEFINITION = "EXCLUSION_DEFINITION";
 
     // System Config Variables
     public static final String STORE_HOST_VAR = "$DURASTORE-HOST";

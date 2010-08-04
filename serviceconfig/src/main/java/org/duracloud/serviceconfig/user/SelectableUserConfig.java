@@ -21,6 +21,18 @@ public abstract class SelectableUserConfig extends UserConfig {
                                 String displayName,
                                 List<Option> options) {
         super(name, displayName);
+        init(options);
+    }
+
+    public SelectableUserConfig(String name,
+                                String displayName,
+                                List<Option> options,
+                                String exclusion) {
+        super(name, displayName, exclusion);
+        init(options);
+    }
+
+    private void init(List<Option> options) {
         this.options = Collections.unmodifiableList(options);
     }
 
