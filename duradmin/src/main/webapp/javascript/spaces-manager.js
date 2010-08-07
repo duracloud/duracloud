@@ -10,9 +10,11 @@ $.require("jquery.easing-1.3.pack.js");
 $.require("ui.metadataviewer.js");
 $.require("ui.tagsviewer.js");
 $.require("ui.flyoutselect.js");
-$.require("jquery.dc.common.js");
 
 $(document).ready(function() {
+	
+
+	
 	centerLayout = $('#page-content').layout({
 	// minWidth: 300 // ALL panes
 		north__size: 			50	
@@ -96,11 +98,63 @@ $(document).ready(function() {
 
 	
 	var showMultiSpaceDetail = function(){
-		var multiSpace = $("#spaceMultiSelectPane").clone();
+		var detail = $("#spaceMultiSelectPane").clone();
 		//loadMetadataPane(multiSpace);
 		//loadTagPane(multiSpace);
-		$("#detail-pane").replaceContents(multiSpace, spaceDetailLayoutOptions);
+		$("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
 		$("#content-item-list").selectablelist("clear");
+
+		// attach delete button listener
+		$(".delete-space-button",detail).click(function(evt){
+			if(!dc.confirm("Are you sure you want to delete multiple spaces?")){
+				return;
+			}
+
+			dc.busy("Deleting spaces");
+
+			
+			var spaces = $("#spaces-list").selectablelist("getSelectedData");
+			var job = dc.createJob("delete-spaces");	
+
+			for(i in spaces){
+				job.addTask({
+					_space: spaces[i],
+					execute: function(callback){
+						var that = this;
+						dc.store.DeleteSpace(this._space, {
+							success:function(){
+								callback.success();
+								$("#spaces-list").selectablelist("removeById", that._space.spaceId);
+							},
+							failure: function(message){
+								callback.failure();
+							},
+						});
+					},
+				});
+			}
+
+			job.execute(
+				{ 
+					changed: function(job){
+						console.log("changed:" + job)
+						var p = job.getProgress();
+						dc.busy("Deleting spaces: " + p.successes );
+					},
+
+					cancelled: function(job){
+						console.log("cancelled:" + job);
+						dc.done();
+					}, 
+					done: function(job){
+						console.log("done:" + job);
+						dc.done();
+				}, 
+			});
+
+			
+		});
+
 	};
 
 	var showMultiContentItemDetail = function(){
@@ -1245,7 +1299,7 @@ $(document).ready(function() {
 	
 
 	$("#content-item-list").selectablelist({selectable: false});
-	$("#spaces-list").selectablelist({selectable: false});
+	$("#spaces-list").selectablelist({selectable: true});
 
 	var DEFAULT_FILTER_TEXT = "filter";
 
@@ -1515,5 +1569,6 @@ $(document).ready(function() {
 	$(".ui-dialog-titlebar").hide();
 	
 	//temporarily hide all the checkboxes;
-	$("input[type=checkbox]").css("visibility", "hidden");
+	$("#content-item-list-view input[type=checkbox]").css("visibility", "hidden");
+	
 });

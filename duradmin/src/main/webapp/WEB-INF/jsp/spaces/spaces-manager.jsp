@@ -118,6 +118,10 @@
 				<div class="north header">
 				<h1>Spaces</h1>
 				<h2 class="object-name">Multiple spaces selected</h2>
+				<div class="button-bar">
+					<button class="featured delete-space-button dc-delete-button"><i class="pre trash"></i>Delete Selected Spaces</button>
+				</div>
+
 				</div>
 				<div class="center">
 					Coming soon.					

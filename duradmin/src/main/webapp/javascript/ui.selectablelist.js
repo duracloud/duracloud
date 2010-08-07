@@ -46,12 +46,25 @@ $.widget("ui.selectablelist",{
 	},
 
 	_getSelectedItems: function(){
-		var array =  this.element.find("."+this.options.itemClass + " input[type=checkbox][checked]").toArray();	
-		if(array == null || array == undefined){
-			array = new Array();
+		var array =  new Array();
+		var items = this.element.find("."+this.options.itemClass).toArray();
+		$.each(items, function(i, e){
+			if($(e).find("input[type=checkbox][checked]").size() > 0){
+				array.push(e);
+			}
+		});
+
+		return array;
+	},
+	
+	getSelectedData: function(){
+		var selected = this._getSelectedItems();
+		var selectedData = new Array();
+		for(i in selected){
+			selectedData.push(this._getDataById($(selected[i]).attr("id")));
 		}
 		
-		return array;
+		return selectedData;
 	},
 	
 	_fireCurrentItemChanged: function(item, notify){

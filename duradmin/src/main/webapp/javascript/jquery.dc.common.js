@@ -372,7 +372,128 @@ var dc;
 		}
 			
 		$.ajax(ajaxParameters);
-	}
+	};
+	
+	dc.createJob = function(jobId){
+		var workerCount = 10;
+		var taskQueue = new Array();
+		var reducer = null;
+		var activeWorkers = 0;
+		var cancel = false;
+		
+		var job =  {
+			
+			getState: function(){
+				
+				var state = "new";
+				if(reducer != null){
+					if(cancel){
+						if(activeWorkers == 0){
+							state = "cancelled";
+						}else{
+							state = "cancelling";
+						}
+					}else{
+						if(activeWorkers == 0){
+							state = "done";
+						}else{
+							state = "running";
+						}
+					}
+				}
+				
+				return state;
+			},
+			
+			getProgress: function(){
+				if(reducer != null){
+					return {
+						taskCount: reducer.taskCount,
+						successes: reducer.successes,
+						failures: reducer.failures,
+					};
+				}else{
+					return {};
+				}
+			},
+				
+			toString: function(){
+				var p = this.getProgress();
+				
+				return "Job(id="+this.getJobId() +", state: " + this.getState() + 
+						", successes: " + p.successes + ", failures:" + p.failures + ")";
+			},
+			
+			getJobId: function(){
+				return jobId;
+		    },
+		    
+			addTask: function(task){
+				taskQueue.push(task);
+			},
+			
+			_processNextTask: function(reducer){
+				var task = taskQueue.shift();
+				if(task != null){
+					activeWorkers++;
+					task.execute(reducer);
+				}
+			},
+			
+			execute: function(callback){
+				var that = this;
+				if(reducer != null){
+					throw "Already executed!";
+				}
+				
+				reducer = {
+					taskCount: taskQueue.length,  	
+					successes: 0,
+					failures: 0,
+					success: function(task){
+						this.successes++;
+						callback.changed(job)
+						that._processNextTask(this);
+						this._decrementActiveWorkers(callback);
+					},
+					
+					_decrementActiveWorkers: function(callback){
+						activeWorkers--;
+						if(activeWorkers == 0){
+							if(cancel){
+								callback.cancelled(job);
+							}else{
+								callback.done(job);
+							}
+						}
+					},
+					
+					failure: function(task){
+						this.failures++;
+						callback.changed(job)
+						that._processNextTask(this);
+						this._decrementActiveWorkers(callback);
+					},
+				};
+				
+				for(i = 0; i < workerCount; i++){
+					that._processNextTask(reducer);
+				}
+			},
+			
+			cancel: function(callback){
+				if(taskQueue.length > 0){
+					if(!cancel){
+						taskQueue.clear();
+					}
+				}
+			},
+		};
+		
+		return job;
+		
+	};
+
 
 
 })();
