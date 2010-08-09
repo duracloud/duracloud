@@ -7,6 +7,9 @@
  */
 package org.duracloud.common.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -14,11 +17,10 @@ import java.util.Date;
 
 public class DateUtil {
 
-    private static final String DEFAULT_PATTERN =
-            "yyyy-MM-dd'T'HH:mm:ss.sss'Z'";
+    private static final String DEFAULT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.sss'Z'";
 
     public static Date convertToDate(String text, String pattern)
-            throws ParseException {
+        throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat(pattern);
         format.setLenient(false);
 
@@ -28,6 +30,13 @@ public class DateUtil {
 
     public static Date convertToDate(String text) throws ParseException {
         return convertToDate(text, DEFAULT_PATTERN);
+    }
+
+    public static String now() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss");
+        Date now = new Date(System.currentTimeMillis());
+        return dateFormat.format(now);
     }
 
 }
