@@ -33,7 +33,7 @@ public abstract class UserConfig implements Serializable {
     private int id;
     private String name;
     private String displayName;
-    private String exclusion;
+    private String exclusion = "";
 
     public UserConfig(String name, String displayName) {
         this(name, displayName, "");

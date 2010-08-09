@@ -122,21 +122,22 @@ public class ServiceConfigUtil {
         if(userConfigs != null){
             for(UserConfig config : userConfigs) {
                 if(config instanceof SelectableUserConfig) {
-                    List<Option> options =
-                        ((SelectableUserConfig)config).getOptions();
+                    List<Option> options = ((SelectableUserConfig) config).getOptions();
                     options = populateStoresVariable(userStoreManager, options);
                     options = populateSpacesVariable(userStoreManager, options);
-                    if(config instanceof SingleSelectUserConfig) {
-                        SingleSelectUserConfig newConfig =
-                            new SingleSelectUserConfig(config.getName(),
-                                                       config.getDisplayName(),
-                                                       options);
+                    if (config instanceof SingleSelectUserConfig) {
+                        SingleSelectUserConfig newConfig = new SingleSelectUserConfig(
+                            config.getName(),
+                            config.getDisplayName(),
+                            options,
+                            config.getExclusion());
                         newUserConfigs.add(newConfig);
-                    } else if(config instanceof MultiSelectUserConfig) {
-                        MultiSelectUserConfig newConfig =
-                            new MultiSelectUserConfig(config.getName(),
-                                                      config.getDisplayName(),
-                                                      options);
+                    } else if (config instanceof MultiSelectUserConfig) {
+                        MultiSelectUserConfig newConfig = new MultiSelectUserConfig(
+                            config.getName(),
+                            config.getDisplayName(),
+                            options,
+                            config.getExclusion());
                         newUserConfigs.add(newConfig);
                     } else {
                         throw new RuntimeException("Unexpected UserConfig type: " +
