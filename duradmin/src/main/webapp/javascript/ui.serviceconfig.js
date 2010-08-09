@@ -184,11 +184,12 @@
 					exclusions.push(uc);
 				}
 			}
-			
+
 			var selectedExclusions;
+			
 			for(i in exDefs){
+				selectedExclusions = new Array();
 				uc = exDefs[i];
-				var selectedExclusions;
 				var control = $("[name="+uc.name+"]");
 				if(uc.inputType == "SINGLESELECT"){
 					selectedExclusions.push(control.val());
