@@ -19,12 +19,17 @@ public class NoopResultListener implements ServiceResultListener {
 
     @Override
     public void processServiceResult(ServiceResult result) {
-        throw new UnsupportedOperationException("called with: "+result);
+        throw new UnsupportedOperationException("called with: " + result);
     }
 
     @Override
     public void setTotalWorkitems(long total) {
         // do nothing
+    }
+
+    @Override
+    public void setProcessingComplete() {
+        // do nothing.
     }
 
     @Override

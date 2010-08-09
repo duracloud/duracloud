@@ -21,6 +21,8 @@ import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.HashFinderResult;
+import org.duracloud.services.fixity.results.NoopResultListener;
+import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.duracloud.services.fixity.worker.PatientServiceWorkManager;
 import org.duracloud.services.fixity.worker.ServiceWorkManager;
@@ -47,6 +49,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
 
     private ServiceWorkManager workManager;
+    private ContentStore contentStore;
 
     private String duraStoreHost;
     private String duraStorePort;
@@ -57,7 +60,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private String mode;
     private String hashApproach;
     private String salt;
-    private Boolean isFailFast;
+    private String isFailFast;
     private String storeId;
     private String providedListingSpaceIdA;
     private String providedListingSpaceIdB;
@@ -80,30 +83,26 @@ public class FixityService extends BaseService implements ComputeService, Manage
         log.info("Starting Fixity Service as '" + username + "': " + threads +
             " worker threads");
 
-        ContentStore contentStore = getContentStore();
         FixityServiceOptions serviceOptions = getServiceOptions();
+        ContentStore contentStore = getContentStore();
 
+        File workDir = new File(getServiceWorkDir());
         CountDownLatch doneHashing = new CountDownLatch(1);
         if (serviceOptions.needsToHash()) {
-            startHashing(contentStore,
-                         serviceOptions,
-                         doneHashing);
+            startHashing(contentStore, serviceOptions, workDir, doneHashing);
         } else {
             doneHashing.countDown();
         }
 
         if (serviceOptions.needsToCompare()) {
-            startComparing(contentStore,
-                           serviceOptions,
-                           doneHashing);
+            startComparing(contentStore, serviceOptions, workDir, doneHashing);
         }
     }
 
     private void startHashing(ContentStore contentStore,
                               FixityServiceOptions serviceOptions,
+                              File workDir,
                               CountDownLatch doneHashing) {
-        File workDir = new File(getServiceWorkDir());
-
         String resultHeader = HashFinderResult.HEADER;
         ServiceResultProcessor resultListener = new ServiceResultProcessor(
             contentStore,
@@ -134,16 +133,21 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
     private void startComparing(ContentStore contentStore,
                                 FixityServiceOptions serviceOptions,
+                                File workDir,
                                 CountDownLatch doneHashing) {
         ServiceWorkload workload = new HashVerifierWorkload(serviceOptions,
-                                                          contentStore);
+                                                            contentStore);
 
         ServiceWorkerFactory workerFactory = new HashVerifierWorkerFactory(
             serviceOptions,
-            contentStore);
+            contentStore,
+            workDir);
 
+        ServiceResultListener resultListener = new NoopResultListener();
         workManager = new PatientServiceWorkManager(workload,
                                                     workerFactory,
+                                                    resultListener,
+                                                    threads,
                                                     doneHashing);
 
         workManager.start();
@@ -179,29 +183,120 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     private ContentStore getContentStore() throws ContentStoreException {
-        ContentStoreManager storeManager = new ContentStoreManagerImpl(
-            duraStoreHost,
-            duraStorePort,
-            duraStoreContext);
-        storeManager.login(new Credential(username, password));
-        return storeManager.getContentStore(storeId);
+        ContentStore store = contentStore;
+        if (null == contentStore) {
+            ContentStoreManager storeManager = new ContentStoreManagerImpl(
+                getDuraStoreHost(),
+                getDuraStorePort(),
+                getDuraStoreContext());
+            storeManager.login(new Credential(getUsername(), getPassword()));
+            store = storeManager.getContentStore(storeId);
+        }
+        return store;
     }
 
     private FixityServiceOptions getServiceOptions() {
-        return new FixityServiceOptions(mode,
-                                        hashApproach,
-                                        salt,
-                                        isFailFast,
-                                        storeId,
-                                        providedListingSpaceIdA,
-                                        providedListingSpaceIdB,
-                                        providedListingContentIdA,
-                                        providedListingContentIdB,
-                                        targetSpaceId,
-                                        outputSpaceId,
-                                        outputContentId,
-                                        reportContentId);
+        FixityServiceOptions opts = new FixityServiceOptions(mode,
+                                                             hashApproach,
+                                                             salt,
+                                                             isFailFast,
+                                                             storeId,
+                                                             providedListingSpaceIdA,
+                                                             providedListingSpaceIdB,
+                                                             providedListingContentIdA,
+                                                             providedListingContentIdB,
+                                                             targetSpaceId,
+                                                             outputSpaceId,
+                                                             outputContentId,
+                                                             reportContentId);
+
+        opts.verify();
+        return opts;
     }
+
+    public void setContentStore(ContentStore contentStore) {
+        this.contentStore = contentStore;
+    }
+
+    public void setDuraStoreHost(String duraStoreHost) {
+        this.contentStore = null;
+        this.duraStoreHost = duraStoreHost;
+    }
+
+    public void setDuraStorePort(String duraStorePort) {
+        this.contentStore = null;
+        this.duraStorePort = duraStorePort;
+    }
+
+    public void setDuraStoreContext(String duraStoreContext) {
+        this.contentStore = null;
+        this.duraStoreContext = duraStoreContext;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public void setHashApproach(String hashApproach) {
+        this.hashApproach = hashApproach;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public void setFailFast(String failFast) {
+        isFailFast = failFast;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+
+    public void setProvidedListingSpaceIdA(String providedListingSpaceIdA) {
+        this.providedListingSpaceIdA = providedListingSpaceIdA;
+    }
+
+    public void setProvidedListingSpaceIdB(String providedListingSpaceIdB) {
+        this.providedListingSpaceIdB = providedListingSpaceIdB;
+    }
+
+    public void setProvidedListingContentIdA(String providedListingContentIdA) {
+        this.providedListingContentIdA = providedListingContentIdA;
+    }
+
+    public void setProvidedListingContentIdB(String providedListingContentIdB) {
+        this.providedListingContentIdB = providedListingContentIdB;
+    }
+
+    public void setTargetSpaceId(String targetSpaceId) {
+        this.targetSpaceId = targetSpaceId;
+    }
+
+    public void setOutputSpaceId(String outputSpaceId) {
+        this.outputSpaceId = outputSpaceId;
+    }
+
+    public void setOutputContentId(String outputContentId) {
+        this.outputContentId = outputContentId;
+    }
+
+    public void setReportContentId(String reportContentId) {
+        this.reportContentId = reportContentId;
+    }
+
+    public void setThreads(int threads) {
+        this.threads = threads;
+    }
+
 
     public String getText() {
         return text;
@@ -210,6 +305,42 @@ public class FixityService extends BaseService implements ComputeService, Manage
     public void setText(String text) {
         log.info("FixityService: setText (" + text + ")");
         this.text = text;
+    }
+
+
+    public String getDuraStoreHost() {
+        if (null == duraStoreHost) {
+            duraStoreHost = DEFAULT_DURASTORE_HOST;
+        }
+        return duraStoreHost;
+    }
+
+    public String getDuraStorePort() {
+        if (null == duraStorePort) {
+            duraStorePort = DEFAULT_DURASTORE_PORT;
+        }
+        return duraStorePort;
+    }
+
+    public String getDuraStoreContext() {
+        if (null == duraStoreContext) {
+            duraStoreContext = DEFAULT_DURASTORE_CONTEXT;
+        }
+        return duraStoreContext;
+    }
+
+    public String getUsername() {
+        if (null == username) {
+            username = "username-null";
+        }
+        return username;
+    }
+
+    public String getPassword() {
+        if (null == password) {
+            password = "password-null";
+        }
+        return password;
     }
 
 }

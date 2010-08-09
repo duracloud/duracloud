@@ -12,13 +12,16 @@ import org.duracloud.services.fixity.domain.ContentLocationPair;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.worker.ServiceWorkerFactory;
 
+import java.io.File;
+
 /**
  * @author Andrew Woods
  *         Date: Aug 6, 2010
  */
 public class HashVerifierWorkerFactory implements ServiceWorkerFactory<ContentLocationPair> {
     public HashVerifierWorkerFactory(FixityServiceOptions serviceOptions,
-                                     ContentStore contentStore) {
+                                     ContentStore contentStore,
+                                     File workDir) {
     }
 
     @Override

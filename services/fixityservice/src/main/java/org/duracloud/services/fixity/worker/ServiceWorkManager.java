@@ -35,20 +35,7 @@ public class ServiceWorkManager extends Thread {
 
     private final Logger log = LoggerFactory.getLogger(ServiceWorkManager.class);
 
-    private boolean processingComplete = false;
     private boolean continueProcessing = true;
-    private Map<String, String> extMimeMap;
-
-//    private ContentStore contentStore;
-//    private File workDir;
-    private String toFormat;
-    private String colorSpace;
-    private String sourceSpaceId;
-    private String destSpaceId;
-    private String namePrefix;
-    private String nameSuffix;
-
-    private String convertScript;
     private ThreadPoolExecutor workerPool;
 
     private ServiceWorkload workload;
@@ -65,9 +52,6 @@ public class ServiceWorkManager extends Thread {
         this.workerFactory = workerFactory;
         this.resultListener = resultListener;
         this.doneWorking = doneWorking;
-
-//        this.contentStore = contentStore;
-//        this.workDir = workDir;
 
         workerPool = new ThreadPoolExecutor(threads,
                                             threads,
@@ -102,6 +86,8 @@ public class ServiceWorkManager extends Thread {
     }
 
     private void shutdown() {
+        resultListener.setProcessingComplete();
+        
         workerPool.shutdown();
         try {
             workerPool.awaitTermination(60, TimeUnit.MINUTES);
@@ -126,18 +112,6 @@ public class ServiceWorkManager extends Thread {
 
     private void printStartMessage() {
         StringBuffer startMsg = new StringBuffer();
-        startMsg.append("Starting Image Conversion. Image source space: ");
-        startMsg.append(sourceSpaceId);
-        startMsg.append(". Image destination space: ");
-        startMsg.append(destSpaceId);
-        startMsg.append(". Converting to format: '");
-        startMsg.append(toFormat);
-        startMsg.append("'. Name prefix: '");
-        startMsg.append(namePrefix);
-        startMsg.append("'. Name suffix: '");
-        startMsg.append(nameSuffix);
-        startMsg.append("'.");
-
         log.info(startMsg.toString());
     }
 
@@ -150,8 +124,8 @@ public class ServiceWorkManager extends Thread {
     }
 
     /**
-     * Indicate that conversion should stop after the files currently being
-     * processed have completed
+     * Indicate that service should stop after the items currently being
+     * processed have completed.
      */
     public void stopProcessing() {
         continueProcessing = false;

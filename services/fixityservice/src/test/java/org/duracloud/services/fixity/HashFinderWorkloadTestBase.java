@@ -28,14 +28,11 @@ import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
  */
 public abstract class HashFinderWorkloadTestBase {
 
-//    protected Runnable worker;
     protected FixityServiceOptions serviceOptions;
     protected ContentStore contentStore;
-//    protected ContentLocation workItemLocation;
-//    protected ServiceResultListener resultListener;
 
     protected final static String salt = "abc123";
-    protected final static Boolean failFast = Boolean.TRUE;
+    protected final static String failFast = Boolean.TRUE.toString();
     protected final static String storeId = "1";
     protected final static String providedListingSpaceIdA = "spaceIdA";
     protected final static String providedListingSpaceIdB = "spaceIdB";
@@ -50,8 +47,6 @@ public abstract class HashFinderWorkloadTestBase {
         throws ContentStoreException {
         serviceOptions = createServiceOptions(mode, hashApproach);
         contentStore = createContentStore();
-//        workItemLocation = createWorkItemLocation();
-//        resultListener = createResultListener();
     }
 
     protected FixityServiceOptions createServiceOptions(Mode m,
@@ -71,23 +66,7 @@ public abstract class HashFinderWorkloadTestBase {
                                         reportContentId);
     }
 
-//    private ContentLocation createWorkItemLocation() {
-//        return new ContentLocation(providedListingSpaceIdA,
-//                                   providedListingContentIdA);
-//    }
-//
-//    protected String getHash(String text) {
-//        ChecksumUtil checksumUtil = new ChecksumUtil(MD5);
-//        return checksumUtil.generateChecksum(getInputStream(text));
-//    }
-
-//    protected InputStream getInputStream(String text) {
-//        return new AutoCloseInputStream(new ByteArrayInputStream(text.getBytes()));
-//    }
-
     protected abstract ContentStore createContentStore()
         throws ContentStoreException;
-
-//    protected abstract ServiceResultListener createResultListener();
 
 }

@@ -25,8 +25,8 @@ public class HashFinderWorkerFactory implements ServiceWorkerFactory<ContentLoca
     private ServiceResultListener resultListener;
 
     public HashFinderWorkerFactory(FixityServiceOptions serviceOptions,
-                               ContentStore contentStore,
-                               ServiceResultListener resultListener) {
+                                   ContentStore contentStore,
+                                   ServiceResultListener resultListener) {
         this.serviceOptions = serviceOptions;
         this.contentStore = contentStore;
         this.resultListener = resultListener;
@@ -34,10 +34,10 @@ public class HashFinderWorkerFactory implements ServiceWorkerFactory<ContentLoca
 
     @Override
     public Runnable newWorker(ContentLocation workItemLocation) {
-            return new HashFinderWorker(serviceOptions,
-                                        contentStore,
-                                        workItemLocation,
-                                        resultListener);
+        return new HashFinderWorker(serviceOptions,
+                                    contentStore,
+                                    workItemLocation,
+                                    resultListener);
     }
 
 }

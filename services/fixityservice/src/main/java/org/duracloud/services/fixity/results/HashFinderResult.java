@@ -44,7 +44,6 @@ public class HashFinderResult implements ServiceResult {
         results.append(contentId);
         results.append(",");
         results.append(hash);
-        results.append(newline);
         return results.toString();
     }
 

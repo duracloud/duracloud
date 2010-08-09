@@ -8,17 +8,19 @@
 package org.duracloud.services.fixity.worker;
 
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
+
 
 /**
  * @author Andrew Woods
  *         Date: Aug 9, 2010
  */
-public class ServiceWorkManagerTest {
+public class ServiceWorkManagerTest extends ServiceWorkManagerMockSupport {
 
     private ServiceWorkManager manager;
 
@@ -26,10 +28,14 @@ public class ServiceWorkManagerTest {
     private ServiceWorkerFactory workerFactory;
     private ServiceResultListener resultListener;
     private int threads = 3;
-    private CountDownLatch doneWorking;
+    private CountDownLatch doneWorking = new CountDownLatch(1);
 
     @Before
     public void setUp() throws Exception {
+        workload = createWorkload();
+        workerFactory = createWorkerFactory();
+        resultListener = createResultListener();
+
         manager = new ServiceWorkManager(workload,
                                          workerFactory,
                                          resultListener,
@@ -38,19 +44,20 @@ public class ServiceWorkManagerTest {
 
     }
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
     @Test
     public void testRun() throws Exception {
+        Assert.assertEquals(1, doneWorking.getCount());
+
+        manager.start();
+        String status = null;
+        while (callsMade < 50) {
+            status = manager.getProcessingStatus();
+        }
+        Assert.assertNotNull(status);
+        Assert.assertEquals(STATUS_MSG, status);
+
+        manager.stopProcessing();
+        Assert.assertEquals(0, doneWorking.getCount());
     }
 
-    @Test
-    public void testGetProcessingStatus() throws Exception {
-    }
-
-    @Test
-    public void testStopProcessing() throws Exception {
-    }
 }

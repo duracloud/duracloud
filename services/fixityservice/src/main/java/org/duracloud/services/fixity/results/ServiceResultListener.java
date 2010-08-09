@@ -17,8 +17,10 @@ import org.duracloud.services.fixity.results.ServiceResult;
 public interface ServiceResultListener {
 
     public void processServiceResult(ServiceResult result);
-    public void setTotalWorkitems(long total);
+
     public String getProcessingStatus();
 
-    
+    public void setTotalWorkitems(long total);
+
+    void setProcessingComplete();
 }

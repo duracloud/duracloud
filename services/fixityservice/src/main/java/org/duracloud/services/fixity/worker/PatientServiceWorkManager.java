@@ -13,6 +13,7 @@ import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -27,13 +28,11 @@ public class PatientServiceWorkManager extends ServiceWorkManager {
                                      ServiceResultListener resultListener,
                                      int threads,
                                      CountDownLatch doneWorking) {
-        super(workload, workerFactory, resultListener, threads, doneWorking);
-    }
-
-    public PatientServiceWorkManager(ServiceWorkload workload,
-                                     ServiceWorkerFactory workerFactory,
-                                     CountDownLatch doneHashing) {
-        this(workload, workerFactory, new NoopResultListener(), 1, doneHashing);
+        super(workload,
+              workerFactory,
+              resultListener,
+              threads,
+              doneWorking);
     }
 
     @Override

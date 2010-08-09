@@ -35,7 +35,7 @@ public abstract class HashFinderWorkerTestBase {
     protected ServiceResultListener resultListener;
 
     protected final static String salt = "abc123";
-    protected final static Boolean failFast = Boolean.TRUE;
+    protected final static String failFast = Boolean.TRUE.toString();
     protected final static String storeId = "1";
     protected final static String providedListingSpaceIdA = "spaceIdA";
     protected final static String providedListingSpaceIdB = "spaceIdB";

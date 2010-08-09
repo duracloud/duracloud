@@ -13,6 +13,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Andrew Woods
  *         Date: Aug 5, 2010
@@ -20,13 +23,28 @@ import org.junit.Test;
 public class FixityServiceOptionsTest {
 
     private FixityServiceOptions serviceOptions;
+    private Map<String, String> params;
+
+    private String modeKey = "modeKey";
+    private String hashApproachKey = "hashApproachKey";
+    private String saltKey = "saltKey";
+    private String failFastKey = "failFastKey";
+    private String storeIdKey = "storeIdKey";
+    private String providedListingSpaceIdAKey = "providedListingSpaceIdAKey";
+    private String providedListingSpaceIdBKey = "providedListingSpaceIdBKey";
+    private String providedListingContentIdAKey = "providedListingContentIdAKey";
+    private String providedListingContentIdBKey = "providedListingContentIdBKey";
+    private String targetSpaceIdKey = "targetSpaceIdKey";
+    private String outputSpaceIdKey = "outputSpaceIdKey";
+    private String outputContentIdKey = "outputContentIdKey";
+    private String reportContentIdKey = "reportContentIdKey";
 
     private String mode = FixityServiceOptions.Mode.GENERATE_LIST.getKey();
     private String hashApproach = FixityServiceOptions.HashApproach
         .SALTED
         .name();
     private String salt = "abc123";
-    private Boolean failFast = Boolean.FALSE;
+    private String failFast = Boolean.FALSE.toString();
     private String storeId = "1";
     private String providedListingSpaceIdA = "spaceIdA";
     private String providedListingSpaceIdB = "spaceIdB";
@@ -39,19 +57,38 @@ public class FixityServiceOptionsTest {
 
     @Before
     public void setUp() throws Exception {
-        serviceOptions = new FixityServiceOptions(mode,
-                                                  hashApproach,
-                                                  salt,
-                                                  failFast,
-                                                  storeId,
-                                                  providedListingSpaceIdA,
-                                                  providedListingSpaceIdB,
-                                                  providedListingContentIdA,
-                                                  providedListingContentIdB,
-                                                  targetSpaceId,
-                                                  outputSpaceId,
-                                                  outputContentId,
-                                                  reportContentId);
+        params = new HashMap<String, String>();
+        params.put(modeKey, mode);
+        params.put(hashApproachKey, hashApproach);
+        params.put(saltKey, salt);
+        params.put(failFastKey, failFast);
+        params.put(storeIdKey, storeId);
+        params.put(providedListingSpaceIdAKey, providedListingSpaceIdA);
+        params.put(providedListingSpaceIdBKey, providedListingSpaceIdB);
+        params.put(providedListingContentIdAKey, providedListingContentIdA);
+        params.put(providedListingContentIdBKey, providedListingContentIdB);
+        params.put(targetSpaceIdKey, targetSpaceId);
+        params.put(outputSpaceIdKey, outputSpaceId);
+        params.put(outputContentIdKey, outputContentId);
+        params.put(reportContentIdKey, reportContentId);
+
+        createServiceOptions();
+    }
+
+    private FixityServiceOptions createServiceOptions() {
+        return new FixityServiceOptions(params.get(modeKey),
+                                        params.get(hashApproachKey),
+                                        params.get(saltKey),
+                                        params.get(failFastKey),
+                                        params.get(storeIdKey),
+                                        params.get(providedListingSpaceIdAKey),
+                                        params.get(providedListingSpaceIdBKey),
+                                        params.get(providedListingContentIdAKey),
+                                        params.get(providedListingContentIdBKey),
+                                        params.get(targetSpaceIdKey),
+                                        params.get(outputSpaceIdKey),
+                                        params.get(outputContentIdKey),
+                                        params.get(reportContentIdKey));
     }
 
     @After
@@ -61,6 +98,8 @@ public class FixityServiceOptionsTest {
 
     @Test
     public void testGetters() throws Exception {
+        serviceOptions = createServiceOptions();
+
         FixityServiceOptions.Mode modeX = serviceOptions.getMode();
         FixityServiceOptions.HashApproach hashApproachX = serviceOptions.getHashApproach();
         String saltX = serviceOptions.getSalt();
@@ -92,7 +131,7 @@ public class FixityServiceOptionsTest {
         Assert.assertEquals(mode, modeX.getKey());
         Assert.assertEquals(hashApproach, hashApproachX.name());
         Assert.assertEquals(salt, saltX);
-        Assert.assertEquals(failFast, failFastX);
+        Assert.assertEquals(failFast, failFastX.toString());
         Assert.assertEquals(storeId, storeIdX);
         Assert.assertEquals(providedListingSpaceIdA, providedListingSpaceIdAX);
         Assert.assertEquals(providedListingSpaceIdB, providedListingSpaceIdBX);
@@ -106,4 +145,121 @@ public class FixityServiceOptionsTest {
         Assert.assertEquals(reportContentId, reportContentIdX);
 
     }
+
+    @Test
+    public void testVerifyFull() {
+        serviceOptions = createServiceOptions();
+
+        // All fields populated != valid
+        boolean thrown = false;
+        try {
+            serviceOptions.verify();
+        } catch (Exception e) {
+            thrown = true;
+            System.out.println("^^^^^^^^^^  Expected Error  ^^^^^^^^^^");
+        }
+        Assert.assertTrue(thrown);
+    }
+
+    @Test
+    public void testVerifyNoMode() {
+        params.put(modeKey, null);
+        serviceOptions = createServiceOptions();
+
+        boolean thrown = false;
+        try {
+            serviceOptions.verify();
+        } catch (Exception e) {
+            thrown = true;
+        }
+        Assert.assertTrue(thrown);
+    }
+
+    @Test
+    public void testVerifyAllInOneListMode() {
+        params = new HashMap<String,String>();
+        params.put(modeKey, FixityServiceOptions.Mode.ALL_IN_ONE_LIST.getKey());
+        params.put(hashApproachKey, hashApproach);
+        params.put(saltKey, salt);
+        params.put(failFastKey, failFast);
+        params.put(storeIdKey, storeId);
+        params.put(providedListingSpaceIdAKey, providedListingSpaceIdA);
+        params.put(providedListingContentIdAKey, providedListingContentIdA);
+        params.put(outputSpaceIdKey, outputSpaceId);
+        params.put(outputContentIdKey, outputContentId);
+        params.put(reportContentIdKey, reportContentId);
+
+        serviceOptions = createServiceOptions();
+        serviceOptions.verify();
+    }
+
+    @Test
+    public void testVerifyAllInOneSpaceMode() {
+        params = new HashMap<String,String>();
+        params.put(modeKey, FixityServiceOptions.Mode.ALL_IN_ONE_SPACE.getKey());
+        params.put(hashApproachKey, hashApproach);
+        params.put(saltKey, salt);
+        params.put(failFastKey, failFast);
+        params.put(storeIdKey, storeId);
+        params.put(providedListingSpaceIdAKey, providedListingSpaceIdA);
+        params.put(providedListingContentIdAKey, providedListingContentIdA);
+        params.put(outputSpaceIdKey, outputSpaceId);
+        params.put(outputContentIdKey, outputContentId);
+        params.put(reportContentIdKey, reportContentId);
+
+        serviceOptions = createServiceOptions();
+        serviceOptions.verify();
+    }
+
+
+    @Test
+    public void testVerifyGenerateListMode() {
+        params = new HashMap<String,String>();
+        params.put(modeKey, FixityServiceOptions.Mode.GENERATE_LIST.getKey());
+        params.put(hashApproachKey, hashApproach);
+        params.put(saltKey, salt);
+        params.put(storeIdKey, storeId);
+        params.put(providedListingSpaceIdAKey, providedListingSpaceIdA);
+        params.put(providedListingContentIdAKey, providedListingContentIdA);
+        params.put(outputSpaceIdKey, outputSpaceId);
+        params.put(outputContentIdKey, outputContentId);
+        params.put(reportContentIdKey, reportContentId);
+
+        serviceOptions = createServiceOptions();
+        serviceOptions.verify();
+    }
+
+    @Test
+    public void testVerifyGenerateSpaceMode() {
+        params = new HashMap<String,String>();
+        params.put(modeKey, FixityServiceOptions.Mode.GENERATE_SPACE.getKey());
+        params.put(hashApproachKey, hashApproach);
+        params.put(saltKey, salt);
+        params.put(storeIdKey, storeId);
+        params.put(targetSpaceIdKey, targetSpaceId);
+        params.put(outputSpaceIdKey, outputSpaceId);
+        params.put(outputContentIdKey, outputContentId);
+        params.put(reportContentIdKey, reportContentId);
+
+        serviceOptions = createServiceOptions();
+        serviceOptions.verify();
+    }
+
+    @Test
+    public void testVerifyCompareMode() {
+        params = new HashMap<String,String>();
+        params.put(modeKey, FixityServiceOptions.Mode.COMPARE.getKey());
+        params.put(failFastKey, failFast);
+        params.put(storeIdKey, storeId);
+        params.put(providedListingSpaceIdAKey, providedListingSpaceIdA);
+        params.put(providedListingContentIdAKey, providedListingContentIdA);
+        params.put(providedListingSpaceIdBKey, providedListingSpaceIdB);
+        params.put(providedListingContentIdBKey, providedListingContentIdB);
+        params.put(outputSpaceIdKey, outputSpaceId);
+        params.put(reportContentIdKey, reportContentId);
+
+        serviceOptions = createServiceOptions();
+        serviceOptions.verify();
+    }
+
 }

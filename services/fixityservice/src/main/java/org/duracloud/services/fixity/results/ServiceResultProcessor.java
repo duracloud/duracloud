@@ -92,8 +92,8 @@ public class ServiceResultProcessor implements ServiceResultListener {
                                     null,
                                     null);
         } catch (ContentStoreException e) {
-            log.error("Error attempting to store conversion results: " +
-                e.getMessage());
+            log.error(
+                "Error attempting to store service results: " + e.getMessage());
         } finally {
             IOUtils.closeQuietly(resultsStream);
         }
@@ -126,13 +126,22 @@ public class ServiceResultProcessor implements ServiceResultListener {
         sb.append(totalIsAvailable() ? totalWorkitems : "?");
 
         if (unsuccessfulResults > 0) {
-            sb.append(" [" + unsuccessfulResults + " failures]");
+            String failSuffix = "failures";
+            if (unsuccessfulResults == 1) {
+                failSuffix = "failure";
+            }
+            sb.append(" [" + unsuccessfulResults + " " + failSuffix + "]");
         }
         return sb.toString();
     }
 
     private boolean isComplete() {
         return successfulResults + unsuccessfulResults == totalWorkitems;
+    }
+
+    @Override
+    public void setProcessingComplete() {
+        totalWorkitems = successfulResults + unsuccessfulResults;
     }
 
     private boolean totalIsAvailable() {

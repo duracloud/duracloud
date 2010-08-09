@@ -8,17 +8,20 @@
 package org.duracloud.services.fixity.domain;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew Woods
  *         Date: Aug 5, 2010
  */
 public class FixityServiceOptions {
+    private final Logger log = LoggerFactory.getLogger(FixityServiceOptions.class);
 
     private String mode;
     private String hashApproach;
     private String salt;
-    private Boolean failFast;
+    private String failFast;
     private String storeId;
     private String providedListingSpaceIdA;
     private String providedListingSpaceIdB;
@@ -77,7 +80,7 @@ public class FixityServiceOptions {
     public FixityServiceOptions(String mode,
                                 String hashApproach,
                                 String salt,
-                                Boolean failFast,
+                                String failFast,
                                 String storeId,
                                 String providedListingSpaceIdA,
                                 String providedListingSpaceIdB,
@@ -116,6 +119,111 @@ public class FixityServiceOptions {
             mode.equals(Mode.ALL_IN_ONE_SPACE) || mode.equals(Mode.COMPARE);
     }
 
+    public void verify() {
+        // must have a mode
+        Mode mode = getMode();
+        if (mode == null || mode.equals(Mode.UNKNOWN)) {
+            throwInvalidOptions("Invalid mode");
+        }
+
+        switch (mode) {
+            case ALL_IN_ONE_LIST:
+                verifyNotNull(hashApproach, "hashApproach");
+                verifyNotNull(salt, "salt");
+                verifyNotNull(failFast, "failFast");
+                verifyNotNull(storeId, "storeId");
+                verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
+                verifyNotNull(providedListingContentIdA, "prListingContentIdA");
+                verifyNull(providedListingSpaceIdB, "providedListingSpaceIdB");
+                verifyNull(providedListingContentIdB, "proListingContentIdB");
+                verifyNull(targetSpaceId, "targetSpaceId");
+                verifyNotNull(outputSpaceId, "outputSpaceId");
+                verifyNotNull(outputContentId, "outputContentId");
+                verifyNotNull(reportContentId, "reportContentId");
+                break;
+            case ALL_IN_ONE_SPACE:
+                verifyNotNull(hashApproach, "hashApproach");
+                verifyNotNull(salt, "salt");
+                verifyNotNull(failFast, "failFast");
+                verifyNotNull(storeId, "storeId");
+                verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
+                verifyNotNull(providedListingContentIdA, "prListingContentIdA");
+                verifyNull(providedListingSpaceIdB, "providedListingSpaceIdB");
+                verifyNull(providedListingContentIdB, "proListingContentIdB");
+                verifyNull(targetSpaceId, "targetSpaceId");
+                verifyNotNull(outputSpaceId, "outputSpaceId");
+                verifyNotNull(outputContentId, "outputContentId");
+                verifyNotNull(reportContentId, "reportContentId");
+                break;
+            case GENERATE_LIST:
+                verifyNotNull(hashApproach, "hashApproach");
+                verifyNotNull(salt, "salt");
+                verifyNull(failFast, "failFast");
+                verifyNotNull(storeId, "storeId");
+                verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
+                verifyNotNull(providedListingContentIdA, "prListingContentIdA");
+                verifyNull(providedListingSpaceIdB, "providedListingSpaceIdB");
+                verifyNull(providedListingContentIdB, "proListingContentIdB");
+                verifyNull(targetSpaceId, "targetSpaceId");
+                verifyNotNull(outputSpaceId, "outputSpaceId");
+                verifyNotNull(outputContentId, "outputContentId");
+                verifyNotNull(reportContentId, "reportContentId");
+                break;
+            case GENERATE_SPACE:
+                verifyNotNull(hashApproach, "hashApproach");
+                verifyNotNull(salt, "salt");
+                verifyNull(failFast, "failFast");
+                verifyNotNull(storeId, "storeId");
+                verifyNull(providedListingSpaceIdA, "providedListingSpaceIdA");
+                verifyNull(providedListingContentIdA, "proListingContentIdA");
+                verifyNull(providedListingSpaceIdB, "providedListingSpaceIdB");
+                verifyNull(providedListingContentIdB, "proListingContentIdB");
+                verifyNotNull(targetSpaceId, "targetSpaceId");
+                verifyNotNull(outputSpaceId, "outputSpaceId");
+                verifyNotNull(outputContentId, "outputContentId");
+                verifyNotNull(reportContentId, "reportContentId");
+                break;
+            case COMPARE:
+                verifyNull(hashApproach, "hashApproach");
+                verifyNull(salt, "salt");
+                verifyNotNull(failFast, "failFast");
+                verifyNotNull(storeId, "storeId");
+                verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
+                verifyNotNull(providedListingContentIdA, "prListingContentIdA");
+                verifyNotNull(providedListingSpaceIdB, "proListingSpaceIdB");
+                verifyNotNull(providedListingContentIdB, "prListingContentIdB");
+                verifyNull(targetSpaceId, "targetSpaceId");
+                verifyNotNull(outputSpaceId, "outputSpaceId");
+                verifyNull(outputContentId, "outputContentId");
+                verifyNotNull(reportContentId, "reportContentId");
+                break;
+            default:
+                throwInvalidOptions("Unexpected mode");
+        }
+
+    }
+
+    private void verifyNull(String value, String name) {
+        if (null != value) {
+            throwInvalidOptions(name + " should be null");
+        }
+    }
+
+    private void verifyNotNull(String value, String name) {
+        if (null == value) {
+            throwInvalidOptions(name + " should not be null");
+        }
+    }
+
+    private void throwInvalidOptions(String msg) {
+        StringBuilder sb = new StringBuilder("Invalid FixityServiceOptions: ");
+        sb.append(msg);
+        sb.append(System.getProperty("line.separator"));
+        sb.append(toString());
+        log.error(sb.toString());
+        throw new DuraCloudRuntimeException(sb.toString());
+    }
+
     public Mode getMode() {
         return Mode.fromString(mode);
     }
@@ -129,7 +237,7 @@ public class FixityServiceOptions {
     }
 
     public Boolean isFailFast() {
-        return failFast;
+        return new Boolean(failFast);
     }
 
     public String getStoreId() {
@@ -166,5 +274,49 @@ public class FixityServiceOptions {
 
     public String getReportContentId() {
         return reportContentId;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder("ServiceOptions: [");
+        sb.append("mode=");
+        sb.append(mode);
+        sb.append(", ");
+        sb.append("hashApproach=");
+        sb.append(hashApproach);
+        sb.append(", ");
+        sb.append("salt=");
+        sb.append(salt);
+        sb.append(", ");
+        sb.append("failFast=");
+        sb.append(failFast);
+        sb.append(", ");
+        sb.append("storeId=");
+        sb.append(storeId);
+        sb.append(", ");
+        sb.append("providedListingSpaceIdA=");
+        sb.append(providedListingSpaceIdA);
+        sb.append(", ");
+        sb.append("providedListingSpaceIdB=");
+        sb.append(providedListingSpaceIdB);
+        sb.append(", ");
+        sb.append("providedListingContentIdA=");
+        sb.append(providedListingContentIdA);
+        sb.append(", ");
+        sb.append("providedListingContentIdB=");
+        sb.append(providedListingContentIdB);
+        sb.append(", ");
+        sb.append("targetSpaceId=");
+        sb.append(targetSpaceId);
+        sb.append(", ");
+        sb.append("outputSpaceId=");
+        sb.append(outputSpaceId);
+        sb.append(", ");
+        sb.append("outputContentId=");
+        sb.append(outputContentId);
+        sb.append(", ");
+        sb.append("reportContentId=");
+        sb.append(reportContentId);
+        sb.append("]");
+        return sb.toString();
     }
 }
