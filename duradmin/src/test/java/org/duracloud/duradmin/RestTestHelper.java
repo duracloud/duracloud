@@ -7,9 +7,9 @@
  */
 package org.duracloud.duradmin;
 
-import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.DuraCloudUserType;
+import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
 

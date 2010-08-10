@@ -7,20 +7,21 @@
  */
 package org.duracloud.duradmin.security;
 
-import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.Securable;
-import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.EasyMock.replay;
+
+import java.lang.reflect.Method;
+
+import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.Securable;
+import org.duracloud.security.context.SecurityContextUtil;
+import org.duracloud.security.error.NoUserLoggedInException;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.reflect.Method;
 
 /**
  * @author Andrew Woods

@@ -20,7 +20,6 @@ import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.util.MetadataUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
-import org.duracloud.duradmin.util.TagUtil;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,6 +7,10 @@
  */
 package org.duracloud.duradmin.control;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.duradmin.DuradminTestBase;
@@ -16,10 +20,6 @@ import org.duracloud.security.xml.SecurityUsersDocumentBinding;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Andrew Woods

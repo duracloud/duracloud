@@ -8,15 +8,12 @@
 package org.duracloud.duradmin.control;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.appconfig.domain.Application;
-import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.config.DuradminConfig;
 import org.duracloud.duradmin.domain.SecurityUserCommand;
 import org.duracloud.security.DuracloudUserDetailsService;

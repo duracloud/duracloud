@@ -7,10 +7,10 @@
  */
 package org.duracloud.duradmin.config;
 
+import java.util.Properties;
+
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.duradmin.domain.AdminInit;
-
-import java.util.Properties;
 
 /**
  * This class provides configuration properties associated with the duracloud

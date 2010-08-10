@@ -7,6 +7,10 @@
  */
 package org.duracloud.duradmin.util;
 
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ServicesManager;
 import org.duracloud.common.web.EncodeUtil;
@@ -16,10 +20,6 @@ import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceMetadata;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceconfig.ServiceInfo;
-
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides utility methods for spaces.

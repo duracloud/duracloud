@@ -7,12 +7,6 @@
  */
 package org.duracloud.duradmin.cache;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.InvalidIdException;
-import org.duracloud.domain.Content;
-import org.duracloud.domain.Space;
-
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,6 +14,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.duracloud.client.ContentStore;
+import org.duracloud.domain.Content;
+import org.duracloud.domain.Space;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.InvalidIdException;
 
 public class ContentStoreCache
         implements ContentStore {

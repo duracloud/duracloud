@@ -7,16 +7,6 @@
  */
 package org.duracloud.duradmin.mock.contentstore;
 
-import org.apache.commons.codec.binary.Hex;
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.common.model.Credential;
-import org.duracloud.duradmin.contentstore.ContentStoreManagerFactory;
-import org.duracloud.domain.Content;
-import org.duracloud.domain.Space;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.InvalidIdException;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +14,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.codec.binary.Hex;
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.model.Credential;
+import org.duracloud.domain.Content;
+import org.duracloud.domain.Space;
+import org.duracloud.duradmin.contentstore.ContentStoreManagerFactory;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.InvalidIdException;
 
 public class MockContentStoreManagerFactoryImpl
         implements ContentStoreManagerFactory {

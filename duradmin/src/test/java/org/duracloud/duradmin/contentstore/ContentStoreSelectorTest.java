@@ -7,12 +7,12 @@
  */
 package org.duracloud.duradmin.contentstore;
 
+import java.util.Collection;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Collection;
 
 public class ContentStoreSelectorTest
         extends ContentStoreProviderTestBase {

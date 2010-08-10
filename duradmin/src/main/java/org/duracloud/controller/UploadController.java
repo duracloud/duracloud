@@ -11,7 +11,6 @@ package org.duracloud.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.duracloud.duradmin.spaces.controller.ContentItemUploadTask;
 import org.duracloud.duradmin.spaces.controller.ContentUploadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

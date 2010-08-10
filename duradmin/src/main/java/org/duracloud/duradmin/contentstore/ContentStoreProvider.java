@@ -7,13 +7,13 @@
  */
 package org.duracloud.duradmin.contentstore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.config.DuradminConfig;
 import org.duracloud.error.ContentStoreException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ContentStoreProvider {
 

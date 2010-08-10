@@ -7,27 +7,28 @@
  */
 package org.duracloud.duradmin.control;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
-import org.duracloud.security.DuracloudUserDetailsService;
-import org.duracloud.security.domain.SecurityUserBean;
 import static org.duracloud.security.xml.SecurityUsersDocumentBinding.createSecurityUsersFrom;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
+import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import java.io.IOException;
-import java.util.List;
+
+import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.security.DuracloudUserDetailsService;
+import org.duracloud.security.domain.SecurityUserBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.AbstractController;
 
 /**
  * This class initializes the application security users based on the xml

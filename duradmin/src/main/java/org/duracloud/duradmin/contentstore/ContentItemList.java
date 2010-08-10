@@ -7,6 +7,9 @@
  */
 package org.duracloud.duradmin.contentstore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.duradmin.domain.ContentItem;
@@ -15,9 +18,6 @@ import org.duracloud.duradmin.util.DataRetrievalException;
 import org.duracloud.duradmin.util.ScrollableList;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ContentItemList
         extends ScrollableList<String> {
