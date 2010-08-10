@@ -16,7 +16,7 @@
 	   		<div id="services-list-view" class="list-browser dc-list-item-viewer">
 				<div class="north header list-header clearfix">
 					<div id="header-spaces-list" class="header-section clearfix">							
-						<button class="float-r deploy-service-button"><i class="pre plus"></i>Deploy a New Service</button>
+						<button class="float-r deploy-service-button"><i class="pre plus"></i>Available Services</button>
 						<h2>Services</h2>
 					</div>
 				</div>
