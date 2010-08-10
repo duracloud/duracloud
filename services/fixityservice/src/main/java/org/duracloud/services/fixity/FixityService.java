@@ -80,8 +80,9 @@ public class FixityService extends BaseService implements ComputeService, Manage
     @Override
     public void start() throws Exception {
         this.setServiceStatus(ServiceStatus.STARTING);
-        log.info("Starting Fixity Service as '" + username + "': " + threads +
-            " worker threads");
+        log.info(
+            "Starting Fixity Service as '" + getUsername() + "': " + threads +
+                " worker threads");
 
         FixityServiceOptions serviceOptions = getServiceOptions();
         ContentStore contentStore = getContentStore();
@@ -143,14 +144,14 @@ public class FixityService extends BaseService implements ComputeService, Manage
             contentStore,
             workDir);
 
-        ServiceResultListener resultListener = new NoopResultListener();
-        workManager = new PatientServiceWorkManager(workload,
-                                                    workerFactory,
-                                                    resultListener,
-                                                    threads,
-                                                    doneHashing);
-
-        workManager.start();
+//        ServiceResultListener resultListener = new NoopResultListener();
+//        workManager = new PatientServiceWorkManager(workload,
+//                                                    workerFactory,
+//                                                    resultListener,
+//                                                    threads,
+//                                                    doneHashing);
+//
+//        workManager.start();
 
         this.setServiceStatus(ServiceStatus.STARTED);
     }

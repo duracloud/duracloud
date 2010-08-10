@@ -7,6 +7,8 @@
  */
 package org.duracloud.services.fixity.worker;
 
+import org.duracloud.services.fixity.util.CountListener;
+
 /**
  * This class is responsible for determining the set of items that should be
  * worked.
@@ -17,5 +19,8 @@ package org.duracloud.services.fixity.worker;
 public interface ServiceWorkload<T> {
 
     public boolean hasNext();
+
     public T next();
+
+    public void registerCountListener(CountListener listener);
 }

@@ -23,13 +23,13 @@ public class NoopResultListener implements ServiceResultListener {
     }
 
     @Override
-    public void setTotalWorkitems(long total) {
+    public void setTotalWorkItems(long total) {
         // do nothing
     }
 
     @Override
-    public void setProcessingComplete() {
-        // do nothing.
+    public void setProcessingState(State state) {
+        // do nothing
     }
 
     @Override

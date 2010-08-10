@@ -7,20 +7,11 @@
  */
 package org.duracloud.services.fixity.worker;
 
-import org.apache.commons.io.FileUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
 import org.duracloud.services.fixity.results.ServiceResultListener;
+import org.duracloud.services.fixity.util.CountListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
@@ -31,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @author Andrew Woods
  *         Date: Aug 4, 2010
  */
-public class ServiceWorkManager extends Thread {
+public class ServiceWorkManager extends Thread implements CountListener {
 
     private final Logger log = LoggerFactory.getLogger(ServiceWorkManager.class);
 
@@ -53,6 +44,8 @@ public class ServiceWorkManager extends Thread {
         this.resultListener = resultListener;
         this.doneWorking = doneWorking;
 
+        this.workload.registerCountListener(this);
+
         workerPool = new ThreadPoolExecutor(threads,
                                             threads,
                                             Long.MAX_VALUE,
@@ -62,6 +55,7 @@ public class ServiceWorkManager extends Thread {
     }
 
     public void run() {
+        resultListener.setProcessingState(ServiceResultListener.State.STARTED);
         printStartMessage();
 
         while (continueProcessing && workload.hasNext()) {
@@ -75,19 +69,18 @@ public class ServiceWorkManager extends Thread {
 
                 } catch (RejectedExecutionException e) {
                     successStartingWorker = false;
-                    doSleep(10000);
+                    doSleep(500);
                 }
             }
         }
 
         shutdown();
 
+        resultListener.setProcessingState(ServiceResultListener.State.COMPLETE);
         printEndMessage();
     }
 
     private void shutdown() {
-        resultListener.setProcessingComplete();
-        
         workerPool.shutdown();
         try {
             workerPool.awaitTermination(60, TimeUnit.MINUTES);
@@ -129,7 +122,12 @@ public class ServiceWorkManager extends Thread {
      */
     public void stopProcessing() {
         continueProcessing = false;
+        resultListener.setProcessingState(ServiceResultListener.State.STOPPED);
         shutdown();
     }
 
+    @Override
+    public void setCount(long count) {
+        resultListener.setTotalWorkItems(count);
+    }
 }

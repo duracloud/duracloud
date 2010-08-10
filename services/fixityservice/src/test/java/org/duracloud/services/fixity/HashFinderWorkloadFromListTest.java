@@ -91,14 +91,14 @@ public class HashFinderWorkloadFromListTest extends HashFinderWorkloadTestBase {
     protected ContentStore createContentStore() throws ContentStoreException {
         Content content = EasyMock.createMock(Content.class);
         EasyMock.expect(content.getStream()).andReturn(getContentStream(
-            contentListing));
+            contentListing)).anyTimes();
         EasyMock.replay(content);
 
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
         EasyMock.expect(store.getContent(providedListingSpaceIdA,
                                          providedListingContentIdA)).andReturn(
-            content);
+            content).times(2);
         EasyMock.replay(store);
 
         return store;

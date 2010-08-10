@@ -16,11 +16,16 @@ import org.duracloud.services.fixity.results.ServiceResult;
  */
 public interface ServiceResultListener {
 
+    public enum State {
+        STARTED, IN_PROGRESS, COMPLETE, STOPPED;
+    }
+
     public void processServiceResult(ServiceResult result);
 
     public String getProcessingStatus();
 
-    public void setTotalWorkitems(long total);
+    public void setTotalWorkItems(long total);
 
-    void setProcessingComplete();
+    public void setProcessingState(State state);
+
 }

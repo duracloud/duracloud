@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach.GENERATED;
@@ -32,22 +33,14 @@ public class HashFinderWorkloadFromSpaceTest extends HashFinderWorkloadTestBase 
     private FixityServiceOptions.Mode mode = GENERATE_SPACE;
     private FixityServiceOptions.HashApproach hashApproach = GENERATED;
 
-
-    private List<String> contentItems;
     private final String contentItemPrefix = "content-item-";
     private final int numContentItems = 5;
 
     @Before
     public void setUp() throws ContentStoreException {
-        contentItems = new ArrayList<String>();
-        for (int i = 0; i < numContentItems; ++i) {
-            contentItems.add(contentItemPrefix + i);
-        }
-
         super.initialize(mode, hashApproach);
         workload = new HashFinderWorkload(serviceOptions, contentStore);
     }
-
 
     @Test
     public void testHasNext() throws Exception {
@@ -76,10 +69,23 @@ public class HashFinderWorkloadFromSpaceTest extends HashFinderWorkloadTestBase 
     protected ContentStore createContentStore() throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
+
+        // must create twice to support new iterator for counting thread.
         EasyMock.expect(store.getSpaceContents(targetSpaceId)).andReturn(
-            contentItems.iterator());
+            getContentIterator());
+        EasyMock.expect(store.getSpaceContents(targetSpaceId)).andReturn(
+            getContentIterator());
         EasyMock.replay(store);
 
         return store;
     }
+
+    private Iterator getContentIterator() {
+        List<String> contentItems = new ArrayList<String>();
+        for (int i = 0; i < numContentItems; ++i) {
+            contentItems.add(contentItemPrefix + i);
+        }
+        return contentItems.iterator();
+    }
+
 }

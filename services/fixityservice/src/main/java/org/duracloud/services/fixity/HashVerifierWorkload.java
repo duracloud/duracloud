@@ -10,6 +10,7 @@ package org.duracloud.services.fixity;
 import org.duracloud.client.ContentStore;
 import org.duracloud.services.fixity.domain.ContentLocationPair;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
+import org.duracloud.services.fixity.util.CountListener;
 import org.duracloud.services.fixity.worker.ServiceWorkload;
 
 /**
@@ -33,5 +34,11 @@ public class HashVerifierWorkload implements ServiceWorkload<ContentLocationPair
     public ContentLocationPair next() {
         // Default method body
         return null;
+    }
+
+    @Override
+    public void registerCountListener(CountListener listener) {
+        // Default method body
+
     }
 }

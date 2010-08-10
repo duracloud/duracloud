@@ -37,7 +37,9 @@ public class ServiceResultProcessor implements ServiceResultListener {
 
     private long successfulResults = 0;
     private long unsuccessfulResults = 0;
-    private long totalWorkitems = -1;
+    private long totalWorkItems = -1;
+
+    private State state;
 
     private File resultsFile;
 
@@ -51,9 +53,11 @@ public class ServiceResultProcessor implements ServiceResultListener {
         this.outputSpaceId = outputSpaceId;
         this.outputContentId = outputContentId;
 
+        this.state = State.IN_PROGRESS;
         this.resultsFile = new File(workDir, outputContentId);
         writeToLocalResultsFile(header, false);
     }
+
 
     private void writeToLocalResultsFile(String text, boolean append) {
         try {
@@ -100,8 +104,13 @@ public class ServiceResultProcessor implements ServiceResultListener {
     }
 
     @Override
-    public void setTotalWorkitems(long total) {
-        this.totalWorkitems = total;
+    public void setTotalWorkItems(long total) {
+        this.totalWorkItems = total;
+    }
+
+    @Override
+    public void setProcessingState(State state) {
+        this.state = state;
     }
 
     private InputStream getLocalResultsFileStream() {
@@ -113,17 +122,14 @@ public class ServiceResultProcessor implements ServiceResultListener {
         }
     }
 
-    public String getProcessingStatus() {
-        String status = "in-progress";
-        if (isComplete()) {
-            status = "complete";
-        }
+    public synchronized String getProcessingStatus() {
+        String status = this.state.name();
 
         StringBuilder sb = new StringBuilder(status);
         sb.append(": ");
         sb.append(successfulResults + unsuccessfulResults);
         sb.append("/");
-        sb.append(totalIsAvailable() ? totalWorkitems : "?");
+        sb.append(totalIsAvailable() ? totalWorkItems : "?");
 
         if (unsuccessfulResults > 0) {
             String failSuffix = "failures";
@@ -135,17 +141,8 @@ public class ServiceResultProcessor implements ServiceResultListener {
         return sb.toString();
     }
 
-    private boolean isComplete() {
-        return successfulResults + unsuccessfulResults == totalWorkitems;
-    }
-
-    @Override
-    public void setProcessingComplete() {
-        totalWorkitems = successfulResults + unsuccessfulResults;
-    }
-
     private boolean totalIsAvailable() {
-        return totalWorkitems != -1;
+        return totalWorkItems != -1;
     }
 
 }

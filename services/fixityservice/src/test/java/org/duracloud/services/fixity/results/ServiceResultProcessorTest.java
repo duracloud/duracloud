@@ -17,12 +17,9 @@ import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 
 /**
@@ -70,39 +67,43 @@ public class ServiceResultProcessorTest {
     public void testSetProcessingComplete() throws Exception {
         String status = processor.getProcessingStatus();
         Assert.assertNotNull(status);
-        Assert.assertTrue(status.startsWith("in-progress"));
+        Assert.assertTrue(status,
+                          status.startsWith(ServiceResultListener.State.IN_PROGRESS.name()));
 
-        processor.setProcessingComplete();
+        processor.setProcessingState(ServiceResultListener.State.COMPLETE);
         status = processor.getProcessingStatus();
         Assert.assertNotNull(status);
-        Assert.assertTrue(status.startsWith("complete"));
+        Assert.assertTrue(status.startsWith(ServiceResultListener.State.COMPLETE.name()));
     }
 
     @Test
     public void testProcessServiceResult() throws Exception {
+        ServiceResultListener.State inProgress = ServiceResultListener.State.IN_PROGRESS;
+        ServiceResultListener.State complete = ServiceResultListener.State.COMPLETE;
+
         boolean success = true;
         int index = 0;
         processResult(success, index++);
-        verifyStatus("in-progress", "1", "0", "?");
+        verifyStatus(inProgress.name(), "1", "0", "?");
 
         success = true;
         processResult(success, index++);
-        verifyStatus("in-progress", "2", "0", "?");
+        verifyStatus(inProgress.name(), "2", "0", "?");
 
         success = false;
         processResult(success, index++);
-        verifyStatus("in-progress", "3", "1", "?");
+        verifyStatus(inProgress.name(), "3", "1", "?");
 
-        processor.setTotalWorkitems(5);
-        verifyStatus("in-progress", "3", "1", "5");
+        processor.setTotalWorkItems(5);
+        verifyStatus(inProgress.name(), "3", "1", "5");
 
         success = true;
         processResult(success, index++);
-        verifyStatus("in-progress", "4", "1", "5");
+        verifyStatus(inProgress.name(), "4", "1", "5");
 
         success = false;
         processResult(success, index++);
-        verifyStatus("complete", "5", "2", "5");
+        verifyStatus(inProgress.name(), "5", "2", "5");
 
         verifyLocalOutputFile();
     }

@@ -9,6 +9,7 @@ package org.duracloud.services.fixity.worker;
 
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.results.ServiceResultListener;
+import org.duracloud.services.fixity.util.CountListener;
 import org.easymock.IAnswer;
 import org.easymock.classextension.EasyMock;
 
@@ -20,7 +21,7 @@ public class ServiceWorkManagerMockSupport {
     private final int NUM_WORK_ITEMS = 10000;
     private final static String SPACE_PREFIX = "space-prefix-";
     private final static String CONTENT_PREFIX = "content-prefix-";
-    
+
     protected int callsMade = 0;
     protected String STATUS_MSG = "hello";
 
@@ -34,6 +35,11 @@ public class ServiceWorkManagerMockSupport {
 
         EasyMock.expect(wl.next()).andAnswer(new ContentLocationAnswer()).times(
             NUM_WORK_ITEMS).andReturn(null);
+
+        wl.registerCountListener(EasyMock.<CountListener>anyObject());
+        EasyMock.expectLastCall();
+
+        EasyMock.makeThreadSafe(wl, true);
 
         EasyMock.replay(wl);
         return wl;
@@ -58,7 +64,7 @@ public class ServiceWorkManagerMockSupport {
         EasyMock.expect(rl.getProcessingStatus())
             .andReturn(STATUS_MSG)
             .anyTimes();
-        rl.setProcessingComplete();
+        rl.setProcessingState(EasyMock.<ServiceResultListener.State>anyObject());
         EasyMock.expectLastCall().anyTimes();
         EasyMock.makeThreadSafe(rl, true);
 

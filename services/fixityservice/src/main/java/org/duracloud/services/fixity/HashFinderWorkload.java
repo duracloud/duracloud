@@ -7,11 +7,14 @@
  */
 package org.duracloud.services.fixity;
 
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
+import org.duracloud.services.fixity.util.CountListener;
+import org.duracloud.services.fixity.util.IteratorCounterThread;
 import org.duracloud.services.fixity.util.StoreCaller;
 import org.duracloud.services.fixity.worker.ServiceWorkload;
 import org.slf4j.Logger;
@@ -33,7 +36,7 @@ import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
  * @author Andrew Woods
  *         Date: Aug 5, 2010
  */
-public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
+public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, CountListener {
 
     private final Logger log = LoggerFactory.getLogger(HashFinderWorkload.class);
 
@@ -41,6 +44,8 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
     private ContentStore contentStore;
 
     private Iterator<ContentLocation> workload;
+    private List<CountListener> countListeners;
+    private long count;
 
     public HashFinderWorkload(FixityServiceOptions serviceOptions,
                               ContentStore contentStore) {
@@ -48,6 +53,8 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
         this.contentStore = contentStore;
 
         this.workload = createWorkload();
+        this.countListeners = new ArrayList<CountListener>();
+        findWorkloadSize();
     }
 
     private Iterator<ContentLocation> createWorkload() {
@@ -77,18 +84,18 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
         return itr;
     }
 
-    private String getContentId() {
-        String contentId;
+    private Iterator<String> getSpaceContents() {
+        StoreCaller<Iterator<String>> caller = new StoreCaller<Iterator<String>>() {
+            protected Iterator<String> doCall() throws ContentStoreException {
+                return contentStore.getSpaceContents(getSpaceId());
+            }
 
-        Mode mode = serviceOptions.getMode();
-        if (findFromListing(mode)) {
-            contentId = serviceOptions.getProvidedListingContentIdA();
-
-        } else {
-            log.error("Invalid mode for seeking contentId: " + mode.getKey());
-            contentId = "invalid-mode-for-content-id";
-        }
-        return contentId;
+            protected String getLogMessage() {
+                return "Error calling contentStore.getSpaceContents() for: " +
+                    getSpaceId();
+            }
+        };
+        return caller.call();
     }
 
     private Iterator<ContentLocation> getContentsFromListing() {
@@ -106,7 +113,35 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
                     getContentId());
         }
 
-        return new ListingIterator(listingStream);
+        return new ListingIterator(new AutoCloseInputStream(listingStream));
+    }
+
+    private Content getContent() {
+        StoreCaller<Content> caller = new StoreCaller<Content>() {
+            protected Content doCall() throws ContentStoreException {
+                return contentStore.getContent(getSpaceId(), getContentId());
+            }
+
+            protected String getLogMessage() {
+                return "Error calling contentStore.getContent() for: " +
+                    getSpaceId() + "/" + getContentId();
+            }
+        };
+        return caller.call();
+    }
+
+    private String getContentId() {
+        String contentId;
+
+        Mode mode = serviceOptions.getMode();
+        if (findFromListing(mode)) {
+            contentId = serviceOptions.getProvidedListingContentIdA();
+
+        } else {
+            log.error("Invalid mode for seeking contentId: " + mode.getKey());
+            contentId = "invalid-mode-for-content-id";
+        }
+        return contentId;
     }
 
     private boolean findFromListing(Mode mode) {
@@ -124,34 +159,6 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
 
         List<ContentLocation> tmp = new ArrayList<ContentLocation>();
         return tmp.iterator();
-    }
-
-    private Iterator<String> getSpaceContents() {
-        StoreCaller<Iterator<String>> caller = new StoreCaller<Iterator<String>>() {
-            protected Iterator<String> doCall() throws ContentStoreException {
-                return contentStore.getSpaceContents(getSpaceId());
-            }
-
-            protected String getLogMessage() {
-                return "Error calling contentStore.getSpaceContents() for: " +
-                    getSpaceId();
-            }
-        };
-        return caller.call();
-    }
-
-    private Content getContent() {
-        StoreCaller<Content> caller = new StoreCaller<Content>() {
-            protected Content doCall() throws ContentStoreException {
-                return contentStore.getContent(getSpaceId(), getContentId());
-            }
-
-            protected String getLogMessage() {
-                return "Error calling contentStore.getContent() for: " +
-                    getSpaceId() + "/" + getContentId();
-            }
-        };
-        return caller.call();
     }
 
     private String getSpaceId() {
@@ -172,6 +179,25 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
         return spaceId;
     }
 
+    private void findWorkloadSize() {
+        Iterator itr = null;
+        FixityServiceOptions.Mode mode = serviceOptions.getMode();
+        if (findFromSpace(mode)) {
+            itr = getSpaceContents();
+
+        } else if (findFromListing(mode)) {
+            itr = getContentsFromListing();
+        }
+
+        if (itr != null) {
+            IteratorCounterThread p = new IteratorCounterThread(itr, this);
+            new Thread(p).start();
+
+        } else {
+            log.warn("Unable to determine workload size, itr is null.");
+        }
+    }
+
     @Override
     public boolean hasNext() {
         return workload.hasNext();
@@ -180,6 +206,19 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation> {
     @Override
     public ContentLocation next() {
         return workload.next();
+    }
+
+    @Override
+    public void registerCountListener(CountListener listener) {
+        countListeners.add(listener);
+    }
+
+    @Override
+    public void setCount(long count) {
+        this.count = count;
+        for (CountListener listener : countListeners) {
+            listener.setCount(count);
+        }
     }
 
 
