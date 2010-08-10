@@ -7,12 +7,21 @@
  */
 package org.duracloud.services.fileprocessor;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.mapred.Reporter;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Record reader used to provide a set of key/value pairs for each file
@@ -24,11 +33,22 @@ import java.io.IOException;
  * Date: Aug 5, 2010
  */
 public class SimpleFileRecordReader implements RecordReader<Text, Text> {
-    FileSplit inputSplit;
-    String filePath;
 
-    public SimpleFileRecordReader(FileSplit inputSplit) {
+    private FileSplit inputSplit;
+    private JobConf jobConf;
+    private Reporter reporter;
+    private String tempDir;    
+    private String filePath;
+
+    public SimpleFileRecordReader(FileSplit inputSplit,
+                                  JobConf jobConf,
+                                  Reporter reporter) {
         this.inputSplit = inputSplit;
+        this.jobConf = jobConf;
+        this.reporter = reporter;
+
+        this.tempDir =
+            new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
     }
 
     @Override
@@ -38,22 +58,59 @@ public class SimpleFileRecordReader implements RecordReader<Text, Text> {
         if(filePath == null) {
             filePath = inputSplit.getPath().toString();
 
+            System.out.println("Record reader handling file: " + filePath);
+
             if(filePath != null) {
-                key.set(filePath);
-                value.set("");
+                String localPath = moveLocal();
+                key.set(localPath);
+
+                Path outputPath = FileOutputFormat.getOutputPath(jobConf);
+                value.set(outputPath.toString());
+
                 result = true;
             }
         }
 
         if(result) {
             System.out.println("Attempt by record reader to get the next " +
-                "record was successful, key=" + key.toString());
+                "record was successful, key=" + key.toString() + ", value=" +
+                value.toString());
         } else {
             System.out.println("Attempt by record reader to get the next " +
-                "was not successful");
+                "record was not successful");
         }
 
         return result;
+    }
+
+    public String moveLocal() throws IOException {
+        Path path = new Path(filePath);
+        String fileName = path.getName();
+
+        reporter.setStatus("Moving file to local system for processing: " +
+                           fileName);
+
+        FileSystem fs = path.getFileSystem(jobConf);
+
+        if(fs.isFile(path)) {
+            // Copy file from remote file system to local storage
+            InputStream inputStream = fs.open(path, 2048);
+            File localFile = new File(tempDir, fileName);
+
+            System.out.println("Record reader about to read S3 file (" +
+                               filePath + ") to local file system " +
+                               localFile.getAbsolutePath());
+
+            OutputStream localFileStream = new FileOutputStream(localFile);
+            IOUtils.copy(inputStream, localFileStream);
+
+            System.out.println("File moved to local storage successfully");
+            return localFile.getAbsolutePath();
+        } else {
+            System.out.println("Record reader could not retrieve file " +
+                               "from S3: " + filePath);
+            throw new IOException("Could not retrieve file: " + filePath);
+        }
     }
 
     /**

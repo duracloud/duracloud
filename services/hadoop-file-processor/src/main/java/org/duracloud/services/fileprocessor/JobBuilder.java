@@ -54,7 +54,6 @@ public class JobBuilder {
     conf.setOutputValueClass(Text.class);
 
     // Configure mappper
-    ProcessFileMapper.setOutputPath(outputPath);
     conf.setMapperClass(ProcessFileMapper.class);
 
     // Configure reducer

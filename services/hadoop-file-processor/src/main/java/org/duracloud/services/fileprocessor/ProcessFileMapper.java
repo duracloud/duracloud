@@ -10,8 +10,8 @@ package org.duracloud.services.fileprocessor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.s3.S3FileSystem;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -21,11 +21,8 @@ import org.apache.hadoop.mapred.Reporter;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
 
 /**
  * Mapper used to process files.
@@ -36,80 +33,65 @@ import java.net.URI;
 public class ProcessFileMapper extends MapReduceBase
 	implements Mapper<Text, Text, Text, Text>
 {
-    private static String outputPath;
-
-    private String tempDir;
-
-    public ProcessFileMapper() {
-        this.tempDir =
-            new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
-    }
-
-    public static void setOutputPath(String path) {
-        outputPath = path;
-    }
-
     @Override
     public void map(Text key,
                     Text value,
                     OutputCollector<Text, Text> output,
                     Reporter reporter) throws IOException {
-        String filePath = key.toString();
-        reporter.setStatus("Retrieving file from S3: " + filePath);
+        String localFilePath = key.toString();
+        String outputPath = value.toString();
 
-        System.out.println("Beginning map process, retrieving file from S3: " +
-                           filePath);        
+        reporter.setStatus("Processing file: " + localFilePath);
+        System.out.println("Beginning map process, processing file: " +
+                           localFilePath + ". Output path: " + outputPath);
 
-        Path file = new Path(filePath);
-        String fileName = file.getName();
+        File localFile = new File(localFilePath);
 
-        S3FileSystem s3 = new S3FileSystem();
-        s3.initialize(URI.create(filePath), new JobConf());
-        
-        if(s3.isFile(file)) {
-            // Copy file from S3 to local storage
-            InputStream inputStream = s3.open(file, 2048);
-            File localFile = new File(tempDir, fileName);
-            OutputStream localFileStream = new FileOutputStream(localFile);
-            IOUtils.copy(inputStream, localFileStream);
+        if(localFile.exists()) {
+            String fileName = localFile.getName();
 
-            reporter.setStatus("Processing file: " + fileName);
+            InputStream resultStream = processFile(localFile);
 
-            System.out.println("Continuing map process, file moved to local " +
-                               "storage successfully, performing processing");
+            System.out.println("File processing complete for file " + fileName +
+                               ", moving result to output location");
 
-            // Process the file
-            // TODO: make this more generic
-
-            if(outputPath != null) {
-                Path outputFile = new Path(outputPath, fileName);
-                FSDataOutputStream outputStream = s3.create(outputFile);
-
-                // Test implementation to be replaced by real processing
-                String outputText = "Processed local file: " +
-                                    localFile.getAbsolutePath() +
-                                    " in ProcessFileMapper";
-                InputStream textStream =
-                    new ByteArrayInputStream(outputText.getBytes("UTF-8"));
-                IOUtils.copy(textStream, outputStream);
-                // End test implementation
-            } else {
-                System.out.println("Output path is null, not able to complete " +
-                    "processing of local file:" + localFile.getAbsolutePath());
-            }
+            copyToOutput(resultStream, fileName, outputPath);
 
             FileUtils.deleteQuietly(localFile);
 
-            output.collect(new Text(filePath), new Text("success"));
+            output.collect(new Text(fileName), new Text("success"));
 
-            System.out.println("Finished map process, file processing complete");
+            System.out.println("Map processing completed for: " + fileName);
         } else {
-            output.collect(new Text(filePath), new Text("failure"));
+            output.collect(new Text(localFilePath), new Text("failure"));
 
-            System.out.println("Map processing failed, file not found in S3");
+            System.out.println("Map processing failed for " + localFilePath +
+                               ". File not found");
         }
 
-        reporter.setStatus("Processing complete for file: " + fileName);
+        reporter.setStatus("Processing complete for file: " + localFilePath);
+    }
+
+    private InputStream processFile(File file) throws IOException {
+        // Test implementation to be replaced by real processing
+        String outputText = "Processed local file: " + file.getAbsolutePath() +
+                            " in ProcessFileMapper";
+        return new ByteArrayInputStream(outputText.getBytes("UTF-8"));
+    }
+
+    private void copyToOutput(InputStream resultStream,
+                              String fileName,
+                              String outputPath) throws IOException {
+            if(outputPath != null) {
+                Path outputFile = new Path(outputPath, fileName);
+                FileSystem outputFS = outputFile.getFileSystem(new JobConf());
+                FSDataOutputStream outputStream = outputFS.create(outputFile);
+
+                IOUtils.copy(resultStream, outputStream);
+            } else {
+                System.out.println("Output path is null, not able to " +
+                                   "store result of processing local file");
+            }
     }
 
 }

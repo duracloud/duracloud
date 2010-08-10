@@ -36,31 +36,12 @@ public class WholeFileInputFormat extends FileInputFormat {
     public RecordReader getRecordReader(InputSplit inputSplit,
                                         JobConf jobConf,
                                         Reporter reporter) throws IOException {
-        String locations = "";
-        for(String location : inputSplit.getLocations()) {
-            locations += (location + ", ");
-        }
-        System.out.println("Creating record reader for split with locations: " +
-                           locations);
-
         SimpleFileRecordReader recordReader =
-            new SimpleFileRecordReader((FileSplit)inputSplit);
+            new SimpleFileRecordReader((FileSplit)inputSplit,
+                                       jobConf,
+                                       reporter);
         return recordReader;
     }
 
-    @Override
-    public InputSplit[] getSplits(JobConf job, int numSplits)
-        throws IOException {
-        InputSplit[] splits = super.getSplits(job, numSplits);
-
-        System.out.println("File splits for processing:");
-        for(InputSplit split : splits) {
-            for(String location : split.getLocations()) {
-                System.out.println("Split location: " + location);
-            }
-        }
-
-        return splits;
-    }
 }
 
