@@ -36,6 +36,8 @@
         <prop key="/services">servicesController</prop>
         <prop key="/services/service">serviceController</prop>
  		<prop key="/dashboard">dashboardController</prop>
+ 		<prop key="/partnerlogo">partnerLogoController</prop>
+
       </props>
     </property>
     <property name="order" value="1" />
@@ -45,6 +47,10 @@
   <bean id="loginController" class="org.duracloud.duradmin.control.LoginController"/>
 
   <bean id="initController" class="org.duracloud.duradmin.control.InitController" parent="baseCommandController"/>
+
+  <bean id="partnerLogoController" class="org.duracloud.duradmin.spaces.controller.PartnerLogoController">
+  	<property name="contentStoreManager" ref="contentStoreManager"/>
+  </bean>
 
   <bean id="spacesController" class="org.duracloud.duradmin.spaces.controller.SpacesController">
   	<property name="contentStoreManager" ref="contentStoreManager"/>

@@ -7,13 +7,18 @@
  */
 package org.duracloud.duradmin.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ServicesManager;
 import org.duracloud.common.web.EncodeUtil;
+import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.domain.ContentMetadata;
 import org.duracloud.duradmin.domain.Space;
@@ -28,7 +33,6 @@ import org.duracloud.serviceconfig.ServiceInfo;
  */
 public class SpaceUtil {
 
-    private static final String IMAGE_J2K_MIME_TYPE = "image/jp2";
 
     public static Space populateSpace(Space space,
                                       org.duracloud.domain.Space cloudSpace) {
@@ -193,4 +197,22 @@ public class SpaceUtil {
        
         return metadata;
     }
+    
+	public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
+			throws ContentStoreException, IOException {
+		Content c = store.getContent(spaceId, contentId);
+		Map<String,String> m = store.getContentMetadata(spaceId, contentId);
+		response.setContentType(m.get(ContentStore.CONTENT_MIMETYPE));
+		response.setContentLength(Integer.parseInt(m.get(ContentStore.CONTENT_SIZE)));
+		InputStream is = c.getStream();
+		byte[] buf = new byte[1024];
+		int read = -1;
+		while((read = is.read(buf)) > 0){
+			response.getOutputStream().write(buf, 0, read);
+		}
+		
+		response.flushBuffer();
+		response.getOutputStream().close();
+	}
+
 }

@@ -17,7 +17,7 @@
 		</div>
 	</div>	
 	<div id="right" class="float-r">
-		<img class="float-r" id="dc-partner-logo" src="/duradmin/images/partner_logo_placeholder.png"/>
+		<img class="float-r" id="dc-partner-logo" src="/duradmin/partnerlogo"/>
 		<div id="dc-user" class="float-r">
 			${pageContext.request.userPrincipal.name}
 			<ul class="horizontal-list" style="margin-top:10px;">

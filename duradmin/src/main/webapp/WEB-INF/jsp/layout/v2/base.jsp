@@ -109,30 +109,9 @@
 	$.require('duraservice-api.js');
 	$.require('main.js');
 	$(document).ready(function() {
-
-		///////////////////////////////////////////////////////////////////////
-		////load partner logo
-		///////////////////////////////////////////////////////////////////////
-		
-		dc.store.CheckIfContentItemExists(
-				{spaceId: "x-duracloud-admin", contentId: "logo", storeId:"0"}, 
-				{ 
-					success: function(exists){
-						if(exists){
-							$("#dc-partner-logo").attr('src',"/duradmin/download/contentItem?spaceId=x-duracloud-admin&contentId=logo&storeID=0").load(function() {
-							});
-						}
-					},
-					failure: function(text){
-						//console.error("failed to check if content item exists:" +  text);
-					}
-				});
-		
-
 		///////////////////////////////////////////////////////////////////////
 		////controls rollovers on tags and metadata
 		///////////////////////////////////////////////////////////////////////
-		
 		$(".dc-mouse-panel-activator td, li.dc-mouse-panel-activator, .dc-mouse-panel").live("mouseover",function(evt){
 			var ancestor = $(evt.target).nearestOfClass(".dc-mouse-panel-activator");
 			$(".dc-mouse-panel",ancestor).css("visibility","visible");

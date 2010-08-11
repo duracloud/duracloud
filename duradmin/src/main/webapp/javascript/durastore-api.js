@@ -121,7 +121,6 @@ var dc;
 		$.ajax({ url: "/duradmin/spaces", 
 				data: "storeId="+storeProviderId+"&f=json",
 				cache: false,
-				context: document.body, 
 				success: function(data){
 					callback.success(data.spaces);
 			    },
@@ -146,8 +145,7 @@ var dc;
 		$.ajax({ url: "/duradmin/spaces/content",
 				data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&contentId="+escape(contentItemId),
 				cache: false,
-				type: "GET",
-				context: document.body, 
+				dataType:"json",
 				success: function(data){
 					callback.success(data.contentItem);
 			    },
