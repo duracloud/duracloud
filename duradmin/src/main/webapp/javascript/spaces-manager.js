@@ -102,17 +102,14 @@ $(document).ready(function() {
 		//loadMetadataPane(multiSpace);
 		//loadTagPane(multiSpace);
 		$("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
-		$("#content-item-list").selectablelist("clear");
 
+		clearContents();
 		// attach delete button listener
 		$(".delete-space-button",detail).click(function(evt){
 			if(!dc.confirm("Are you sure you want to delete multiple spaces?")){
 				return;
 			}
-
 			dc.busy("Deleting spaces");
-
-			
 			var spaces = $("#spaces-list").selectablelist("getSelectedData");
 			var job = dc.createJob("delete-spaces");	
 
@@ -137,17 +134,70 @@ $(document).ready(function() {
 			job.execute(
 				{ 
 					changed: function(job){
-						console.log("changed:" + job)
+						dc.log("changed:" + job)
 						var p = job.getProgress();
 						dc.busy("Deleting spaces: " + p.successes );
 					},
-
 					cancelled: function(job){
-						console.log("cancelled:" + job);
+						dc.log("cancelled:" + job);
 						dc.done();
 					}, 
 					done: function(job){
-						console.log("done:" + job);
+						dc.log("done:" + job);
+						dc.done();
+				}, 
+			});
+		});
+
+	};
+
+	var showMultiContentItemDetail = function(){
+		var detail = $("#contentItemMultiSelectPane").clone();
+		// attach delete button listener
+		$(".delete-content-item-button",detail).click(function(evt){
+			if(!dc.confirm("Are you sure you want to delete multiple content items?")){
+				return;
+			}
+			dc.busy("Deleting Content Items...");
+			var contentItems = $("#content-item-list").selectablelist("getSelectedData");
+			var job = dc.createJob("delete-content-items");	
+
+			for(i in contentItems){
+				job.addTask({
+					_contentItem: {
+						contentId: contentItems[i].contentId, 
+						spaceId:getCurrentSpaceId(),
+						storeId:getCurrentProviderStoreId() 
+					},
+					execute: function(callback){
+						var that = this;
+						dc.store.DeleteContentItem(this._contentItem, {
+							success:function(){
+								callback.success();
+								$("#content-item-list").selectablelist("removeById", that._contentItem.contentId);
+							},
+							failure: function(message){
+								callback.failure();
+							},
+						});
+					},
+				});
+			}
+
+			job.execute(
+				{ 
+					changed: function(job){
+						dc.log("changed:" + job)
+						var p = job.getProgress();
+						dc.busy("Deleting content items: " + p.successes );
+					},
+
+					cancelled: function(job){
+						dc.log("cancelled:" + job);
+						dc.done();
+					}, 
+					done: function(job){
+						dc.log("done:" + job);
 						dc.done();
 				}, 
 			});
@@ -155,13 +205,10 @@ $(document).ready(function() {
 			
 		});
 
-	};
 
-	var showMultiContentItemDetail = function(){
-		var multiSpace = $("#contentItemMultiSelectPane").clone();
-		//loadMetadataPane(multiSpace);
-		//loadTagPane(multiSpace);
-		$("#detail-pane").replaceContents(multiSpace, contentItemDetailLayoutOptions);
+		$("#detail-pane").replaceContents(detail, contentItemDetailLayoutOptions);
+
+	
 	};
 
 	var showGenericDetailPane = function(){
@@ -702,20 +749,22 @@ $(document).ready(function() {
 				var that = this;
 				if($("#add-content-item-form").valid()){
 					var form = $("#add-content-item-form");
-					var contentId = $("#contentId", form).val();
-					var spaceId	  =	getCurrentSpaceId();
-					var storeId	  =	getCurrentProviderStoreId();
+					var contentItem = {
+							 storeId: getCurrentProviderStoreId(), 
+							 spaceId: getCurrentSpaceId(), 
+							 contentId: $("#contentId", form).val()};
+
 					var filename = $("#file", form).val();
 					
-					if(contentId == null || contentId.trim() == ''){
-						contentId = filename;
+					if(contentItem.contentId == null || contentItem.contentId.trim() == ''){
+						contentItem.contentId = filename;
 					}
-					$("#spaceId", form).val(spaceId);
-					$("#storeId", form).val(storeId);
+					$("#spaceId", form).val(contentItem.spaceId);
+					$("#storeId", form).val(contentItem.storeId);
 					var dialog = $("#add-content-item-dialog").find(".ui-dialog");
 					dialog.hide();
 					dc.store.CheckIfContentItemExists(
-							{spaceId: spaceId, contentId: contentId, storeId:storeId}, 
+							contentItem, 
 							{ 
 								success: function(exists){
 									if(exists){
@@ -728,35 +777,26 @@ $(document).ready(function() {
 									$(that).dialog("enable");
 									$(that).dialog("close");
 
-									
 									var updateFunc =  function(data){
 										poller();
-										//add to content item list
 										var contentId = data.contentItem.contentId;
-										
 										if($("#content-item-list [id='"+contentId+"']").size() == 0){
-											addContentItemToList(contentId);
+											addContentItemToList(data.contentItem);
 										}
-										
-										
 									};
-							 		
+
 									var callback = {
-											key: escape(storeId+"/"+spaceId+"/"+ contentId),
-											begin: function(){
-												$("#upload-viewer").dialog("open");
-											},
-
-											failure: function(){
-												alert("upload failed for " + storeId + "/" + spaceId + "/" + contentId);
-											},
-											
-											success: updateFunc,
+										key: escape(storeId+"/"+spaceId+"/"+ contentId),
+										begin: function(){
+											$("#upload-viewer").dialog("open");
+										},
+										failure: function(){
+											alert("upload failed for " + storeId + "/" + spaceId + "/" + contentId);
+										},
+										success: updateFunc,
 									};
 
-									
 									dc.store.AddContentItem(form, callback);
-									
 								},
 								
 								failure: function(message){
@@ -1174,27 +1214,30 @@ $(document).ready(function() {
 		$("#content-item-list-view button,#content-item-list-view input").fadeIn();
 		
 		for(i in contentItems){
-			var ci = contentItems[i];
+			var ci = {
+				contentId:contentItems[i],
+				spaceId:getCurrentSpaceId(),
+				storeId:getCurrentProviderStoreId()
+			};
+			
 			addContentItemToList(ci);
 		}
 	}
 	
-	var addContentItemToList = function(contentItemId){
+	var addContentItemToList = function(contentItem){
 		var node =  document.createElement("div");
 		var actions = document.createElement("div");
 		
 		var deleteButton = $("<button class='delete-space-button featured icon-only'><i class='pre trash'></i></button>");
 		deleteButton.click(function(evt){
 			deleteContentItem(evt,
-								{storeId: getCurrentProviderStoreId(), 
-								 spaceId: getCurrentSpaceId(), 
-								 contentId: contentItemId});
+								contentItem);
 		});
 		$(actions).append(deleteButton);
-		$(node).attr("id", contentItemId)
-			   .html(contentItemId)
+		$(node).attr("id", contentItem.contentId)
+			   .html(contentItem.contentId)
 			   .append(actions);
-		$("#content-item-list").selectablelist('addItem',node);	   
+		$("#content-item-list").selectablelist('addItem',node, contentItem);	   
 	
 	};
 	
@@ -1212,7 +1255,7 @@ $(document).ready(function() {
 				callback.success(data.space);
 			},
 		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
+	    		//dc.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
 				dc.done();
 	    		callback.failure(textStatus);
 		    },
@@ -1232,7 +1275,7 @@ $(document).ready(function() {
 				callback.success();
 			},
 		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
+	    		//dc.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
 	    		callback.failure(textStatus);
 		    },
 		};
@@ -1275,7 +1318,7 @@ $(document).ready(function() {
 				callback.success();
 			},
 		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
+	    		//dc.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
 	    		callback.failure(textStatus);
 		    },
 		};
@@ -1302,7 +1345,7 @@ $(document).ready(function() {
 	};
 	
 
-	$("#content-item-list").selectablelist({selectable: false});
+	$("#content-item-list").selectablelist({selectable: true});
 	$("#spaces-list").selectablelist({selectable: true});
 
 	var DEFAULT_FILTER_TEXT = "filter";
@@ -1552,7 +1595,7 @@ $(document).ready(function() {
 		
 		$("#"+PROVIDER_SELECT_ID).flyoutselect(options).bind("changed",function(evt,state){
 			dc.cookie(PROVIDER_COOKIE_ID, state.value.id);
-			//console.debug("value changed: new value=" + state.value.label);
+			//dc.debug("value changed: new value=" + state.value.label);
 			refreshSpaces(state.value.id);
 		});		 
 
@@ -1573,8 +1616,4 @@ $(document).ready(function() {
 
 	// hides the title bar on all dialogs;
 	$(".ui-dialog-titlebar").hide();
-	
-	//temporarily hide all the checkboxes;
-	$("#content-item-list-view input[type=checkbox]").css("visibility", "hidden");
-	
 });

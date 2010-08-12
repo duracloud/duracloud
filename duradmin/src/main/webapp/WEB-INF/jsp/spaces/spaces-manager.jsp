@@ -132,6 +132,10 @@
 				<div class="north header">
 				<h1>Content Items</h1>
 				<h2 class="object-name">Multiple content items selected</h2>
+				<div class="button-bar">
+					<button class="featured delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete Selected Content Items</button>
+				</div>
+
 				</div>
 				<div class="center"></div>
 					Coming soon.
