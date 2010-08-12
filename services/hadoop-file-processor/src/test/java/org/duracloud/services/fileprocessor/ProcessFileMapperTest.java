@@ -8,6 +8,7 @@
 package org.duracloud.services.fileprocessor;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
@@ -59,7 +60,7 @@ public class ProcessFileMapperTest {
         testFiles.add(fileToProcess);
         FileUtils.writeStringToFile(fileToProcess, fileContent);
 
-        File resultFile = mapper.processFile(fileToProcess);
+        File resultFile = mapper.processFile(fileToProcess, "fileName");
         testFiles.add(resultFile);
 
         assertNotNull(resultFile);
@@ -111,12 +112,12 @@ public class ProcessFileMapperTest {
 
     private class MockProcessFileMapper extends ProcessFileMapper {
         @Override
-        protected File copyFileLocal(String filePath) throws IOException {
+        protected File copyFileLocal(Path remotePath) throws IOException {
             return new File("/local/file");
         }
 
         @Override
-        protected File processFile(File file) throws IOException {
+        protected File processFile(File file, String fileName) throws IOException {
             return new File("/processed/file");
         }
 

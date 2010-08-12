@@ -46,11 +46,14 @@ public class ProcessFileMapper extends MapReduceBase
             reporter.setStatus("Processing file: " + filePath);
             System.out.println("Starting map processing for file: " + filePath);
 
+            Path remotePath = new Path(filePath);
+            String origFileName = remotePath.getName();
+
             // Copy the input file to local storage
-            File localFile = copyFileLocal(filePath);
+            File localFile = copyFileLocal(remotePath);
 
             // Process the local file
-            File resultFile = processFile(localFile);
+            File resultFile = processFile(localFile, origFileName);
 
             System.out.println("File processing complete, result file " +
                                "generated: " + resultFile.getName());
@@ -84,20 +87,19 @@ public class ProcessFileMapper extends MapReduceBase
     /**
      * Copies a file from a remote file system to local storage
      *
-     * @param filePath path to remote file
+     * @param remotePath path to remote file
      * @return local file
      */
-    protected File copyFileLocal(String filePath) throws IOException {
-        Path remotePath = new Path(filePath);
+    protected File copyFileLocal(Path remotePath) throws IOException {
         String fileName = remotePath.getName();
 
         FileSystem fs = remotePath.getFileSystem(new JobConf());
 
         if(fs.isFile(remotePath)) {
-            File localFile = new File(getTempDir(), fileName);
+            File localFile = File.createTempFile("local", fileName);
             Path localPath = new Path(LOCAL_FS + localFile.getAbsolutePath());
 
-            System.out.println("Copying file (" + filePath +
+            System.out.println("Copying file (" + fileName +
                                ") to local file system");
 
             fs.copyToLocalFile(remotePath, localPath);
@@ -107,14 +109,14 @@ public class ProcessFileMapper extends MapReduceBase
                 return localFile;
             } else {
                 String error = "Failure attempting to move remote file (" +
-                    filePath + ") to local filesystem, local file (" +
+                    fileName + ") to local filesystem; local file (" +
                     localFile.getAbsolutePath() + ") not found after transfer.";
                 System.out.println(error);
                 throw new IOException(error);
             }
         } else {
             String error = "Failure attempting to access remote file (" +
-                filePath + "), the file could not be found";
+                fileName + "), the file could not be found";
             System.out.println(error);
             throw new IOException(error);
         }
@@ -127,15 +129,14 @@ public class ProcessFileMapper extends MapReduceBase
      * A default implementation is provided, but this method should be
      * overridden by subclasses.
      *
-     * @param file the file to process
+     * @param file the file to be processed
+     * @param fileName the original name of the file to be processed
      * @return the file resulting from the processing
      */
-    protected File processFile(File file) throws IOException {
-        String fileName = file.getName();
+    protected File processFile(File file, String fileName) throws IOException {
         if(!fileName.endsWith(".txt")) {
             fileName += ".txt";
         }
-
         File resultFile = new File(getTempDir(), fileName);
 
         String outputText = "Processed local file: " + file.getAbsolutePath() +
