@@ -23,7 +23,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.duracloud.services.fileprocessor.FileProcessor</mainClass>
+              <mainClass>org.duracloud.services.fileprocessor.JobRunner</mainClass>
             </manifest>
           </archive>
         </configuration>

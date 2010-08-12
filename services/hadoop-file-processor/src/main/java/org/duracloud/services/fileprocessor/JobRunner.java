@@ -19,43 +19,52 @@ import org.apache.hadoop.mapred.JobConf;
 import java.io.IOException;
 
 /**
- * This is the main point of entry for the file processing hadoop application.
+ * This is the main point of entry for the hadoop file processing application.
  *
  * @author: Bill Branan
  * Date: Aug 5, 2010
  */
-public class FileProcessor {
-    
+public class JobRunner {
+
+  private static String inputPath;
+  private static String outputPath;
+
   /**
    * Main method that sets up file processing job.
    */
-  public static void main(String[] args) throws IOException,
-                                                java.text.ParseException {
+  public static void main(String[] args) throws Exception {
 
     CommandLine cmd = processArgs(args);
 
-    String inputPath = cmd.getOptionValue("input");
+    inputPath = cmd.getOptionValue("input");
     inputPath = appendTrailingSlash(inputPath);
 
-    String outputPath = cmd.getOptionValue("output");
+    outputPath = cmd.getOptionValue("output");
     outputPath = appendTrailingSlash(outputPath);
 
-    runJob(inputPath, outputPath);
+    runJob();
   }
 
   // Construct and run the job.    
-  private static void runJob(String inputPath, String outputPath)
+  private static void runJob()
       throws IOException, java.text.ParseException {
-    JobBuilder jobBuilder = new JobBuilder(inputPath, outputPath);
+    JobBuilder jobBuilder = getJobBuilder();
     JobConf jobConf = jobBuilder.getJobConf();
-
-    System.out.println("Running job to process files.");
-
     JobClient.runJob(jobConf);
   }
 
+  /**
+   * Creates a job builder which is responsible for creating a hadoop job
+   * which can be run.
+   *
+   * This method can be overridden to provide an alternate job builder.
+   */
+  protected static JobBuilder getJobBuilder() {
+    return new JobBuilder(inputPath, outputPath);
+  }
+
   // Process the command line arguments
-  private static CommandLine processArgs(String[] args) {
+  protected static CommandLine processArgs(String[] args) {
     Options options = createOptions();
     CommandLine cmd = null;
     try {
@@ -84,7 +93,8 @@ public class FileProcessor {
                                     "-input <path to input> " +
                                     "-output <path to output> ", 
                                     options);
-    System.exit(1);      
+    throw new RuntimeException("Program arguments must include " +
+                               "both input and output values");  
   }
 
   private static Options createOptions() {

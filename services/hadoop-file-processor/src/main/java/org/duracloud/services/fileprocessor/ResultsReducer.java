@@ -28,8 +28,6 @@ public class ResultsReducer extends MapReduceBase implements Reducer<Text, Text,
                      Iterator<Text> values,
                      OutputCollector<Text, Text> output,
                      Reporter reporter) throws IOException {
-    System.out.println("Reducing on key: " + key.toString());  
-
     while (values.hasNext()) {
       output.collect(key, values.next());
     }

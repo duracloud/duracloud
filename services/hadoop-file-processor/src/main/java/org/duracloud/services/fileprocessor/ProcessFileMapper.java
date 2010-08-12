@@ -8,8 +8,6 @@
 package org.duracloud.services.fileprocessor;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -19,10 +17,8 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Mapper used to process files.
@@ -33,65 +29,158 @@ import java.io.InputStream;
 public class ProcessFileMapper extends MapReduceBase
 	implements Mapper<Text, Text, Text, Text>
 {
+    public static final String LOCAL_FS = "file://";
+
+    /**
+     * Performs the actual file processing.
+     */
     @Override
     public void map(Text key,
                     Text value,
                     OutputCollector<Text, Text> output,
                     Reporter reporter) throws IOException {
-        String localFilePath = key.toString();
+        String filePath = key.toString();
         String outputPath = value.toString();
 
-        reporter.setStatus("Processing file: " + localFilePath);
-        System.out.println("Beginning map process, processing file: " +
-                           localFilePath + ". Output path: " + outputPath);
+        try {
+            reporter.setStatus("Processing file: " + filePath);
+            System.out.println("Starting map processing for file: " + filePath);
 
-        File localFile = new File(localFilePath);
+            // Copy the input file to local storage
+            File localFile = copyFileLocal(filePath);
 
-        if(localFile.exists()) {
-            String fileName = localFile.getName();
+            // Process the local file
+            File resultFile = processFile(localFile);
 
-            InputStream resultStream = processFile(localFile);
+            System.out.println("File processing complete, result file " +
+                               "generated: " + resultFile.getName());
 
-            System.out.println("File processing complete for file " + fileName +
-                               ", moving result to output location");
+            // Move the result file to the output location
+            String finalResultFilePath =
+                moveToOutput(resultFile, resultFile.getName(), outputPath);
 
-            copyToOutput(resultStream, fileName, outputPath);
-
+            // Delete the local file
             FileUtils.deleteQuietly(localFile);
 
-            output.collect(new Text(fileName), new Text("success"));
+            String results = "input: " + filePath +
+                             " output: " + finalResultFilePath;
+            output.collect(new Text("success:"), new Text(results));
 
-            System.out.println("Map processing completed for: " + fileName);
-        } else {
-            output.collect(new Text(localFilePath), new Text("failure"));
+            System.out.println("Map processing completed successfully for: " +
+                               filePath);
+        } catch(IOException e) {
+            String results = "input: " + filePath +
+                             " error: " + e.getMessage();
+            output.collect(new Text("failure:"), new Text(results));
 
-            System.out.println("Map processing failed for " + localFilePath +
-                               ". File not found");
+            System.out.println("Map processing failed for: " +
+                               filePath + " due to: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
 
-        reporter.setStatus("Processing complete for file: " + localFilePath);
+        reporter.setStatus("Processing complete for file: " + filePath);
     }
 
-    private InputStream processFile(File file) throws IOException {
-        // Test implementation to be replaced by real processing
+    /**
+     * Copies a file from a remote file system to local storage
+     *
+     * @param filePath path to remote file
+     * @return local file
+     */
+    protected File copyFileLocal(String filePath) throws IOException {
+        Path remotePath = new Path(filePath);
+        String fileName = remotePath.getName();
+
+        FileSystem fs = remotePath.getFileSystem(new JobConf());
+
+        if(fs.isFile(remotePath)) {
+            File localFile = new File(getTempDir(), fileName);
+            Path localPath = new Path(LOCAL_FS + localFile.getAbsolutePath());
+
+            System.out.println("Copying file (" + filePath +
+                               ") to local file system");
+
+            fs.copyToLocalFile(remotePath, localPath);
+
+            if(localFile.exists()) {
+                System.out.println("File moved to local storage successfully.");
+                return localFile;
+            } else {
+                String error = "Failure attempting to move remote file (" +
+                    filePath + ") to local filesystem, local file (" +
+                    localFile.getAbsolutePath() + ") not found after transfer.";
+                System.out.println(error);
+                throw new IOException(error);
+            }
+        } else {
+            String error = "Failure attempting to access remote file (" +
+                filePath + "), the file could not be found";
+            System.out.println(error);
+            throw new IOException(error);
+        }
+    }
+
+    /**
+     * Processes a file and produces a result file. The result file should
+     * be named as intended for the final output file.
+     *
+     * A default implementation is provided, but this method should be
+     * overridden by subclasses.
+     *
+     * @param file the file to process
+     * @return the file resulting from the processing
+     */
+    protected File processFile(File file) throws IOException {
+        String fileName = file.getName();
+        if(!fileName.endsWith(".txt")) {
+            fileName += ".txt";
+        }
+
+        File resultFile = new File(getTempDir(), fileName);
+
         String outputText = "Processed local file: " + file.getAbsolutePath() +
                             " in ProcessFileMapper";
-        return new ByteArrayInputStream(outputText.getBytes("UTF-8"));
+        FileUtils.writeStringToFile(resultFile, outputText, "UTF-8");
+        return resultFile;
     }
 
-    private void copyToOutput(InputStream resultStream,
-                              String fileName,
-                              String outputPath) throws IOException {
+    /**
+     * Moves the result file to the output location with the given filename.
+     *
+     * @param resultFile the file to move to output
+     * @param fileName the name to give the file in the output filesystem
+     * @param outputPath the path to where the file should be written
+     * @return the path of the new file in at the output location
+     */
+    protected String moveToOutput(File resultFile,
+                                  String fileName,
+                                  String outputPath) throws IOException {
             if(outputPath != null) {
-                Path outputFile = new Path(outputPath, fileName);
-                FileSystem outputFS = outputFile.getFileSystem(new JobConf());
-                FSDataOutputStream outputStream = outputFS.create(outputFile);
+                Path resultFilePath =
+                    new Path(LOCAL_FS + resultFile.getAbsolutePath());
+                Path outputFilePath = new Path(outputPath, fileName);
 
-                IOUtils.copy(resultStream, outputStream);
+                System.out.println("Moving file: " + resultFilePath.toString() +
+                                   " to output " + outputFilePath.toString());
+
+                FileSystem outputFS =
+                    outputFilePath.getFileSystem(new JobConf());
+                outputFS.moveFromLocalFile(resultFilePath, outputFilePath);
+
+                return outputFilePath.toString();
             } else {
-                System.out.println("Output path is null, not able to " +
-                                   "store result of processing local file");
+                String error = "Output path is null, not able to " +
+                               "store result of processing local file";
+                System.out.println(error);
+                throw new IOException(error);
             }
+    }
+
+    /**
+     * Retrieves a temporary directory on the local file system.
+     */
+    public File getTempDir() {
+        return new File(System.getProperty("java.io.tmpdir"));
     }
 
 }
