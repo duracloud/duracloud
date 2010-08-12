@@ -1171,6 +1171,7 @@ $(document).ready(function() {
 
 	var loadContentItems = function(contentItems){
 		$("#content-item-list").selectablelist("clear");
+		$("#content-item-list-view button,#content-item-list-view input").fadeIn();
 		
 		for(i in contentItems){
 			var ci = contentItems[i];
@@ -1388,6 +1389,8 @@ $(document).ready(function() {
 
 	var clearContents = function(){
 		$("#content-item-list").selectablelist("clear");
+		$("#content-item-list-view button").fadeOut();
+		$("#content-item-list-view input").val('').fadeOut();
 	};
 
 	var clearSpaces = function(){
