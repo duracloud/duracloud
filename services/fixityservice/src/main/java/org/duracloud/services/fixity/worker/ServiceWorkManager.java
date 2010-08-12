@@ -18,6 +18,9 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static org.duracloud.services.fixity.results.ServiceResultListener.State.COMPLETE;
+import static org.duracloud.services.fixity.results.ServiceResultListener.State.STOPPED;
+
 /**
  * @author Andrew Woods
  *         Date: Aug 4, 2010
@@ -75,8 +78,6 @@ public class ServiceWorkManager extends Thread implements CountListener {
         }
 
         shutdown();
-
-        resultListener.setProcessingState(ServiceResultListener.State.COMPLETE);
         printEndMessage();
     }
 
@@ -92,6 +93,12 @@ public class ServiceWorkManager extends Thread implements CountListener {
             if (doneWorking != null) {
                 doneWorking.countDown();
             }
+        }
+
+        if (continueProcessing) {
+            resultListener.setProcessingState(COMPLETE);
+        } else {
+            resultListener.setProcessingState(STOPPED);
         }
     }
 
@@ -122,7 +129,6 @@ public class ServiceWorkManager extends Thread implements CountListener {
      */
     public void stopProcessing() {
         continueProcessing = false;
-        resultListener.setProcessingState(ServiceResultListener.State.STOPPED);
         shutdown();
     }
 

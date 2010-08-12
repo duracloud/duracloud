@@ -90,7 +90,7 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
                 return contentStore.getSpaceContents(getSpaceId());
             }
 
-            protected String getLogMessage() {
+            public String getLogMessage() {
                 return "Error calling contentStore.getSpaceContents() for: " +
                     getSpaceId();
             }
@@ -122,7 +122,7 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
                 return contentStore.getContent(getSpaceId(), getContentId());
             }
 
-            protected String getLogMessage() {
+            public String getLogMessage() {
                 return "Error calling contentStore.getContent() for: " +
                     getSpaceId() + "/" + getContentId();
             }

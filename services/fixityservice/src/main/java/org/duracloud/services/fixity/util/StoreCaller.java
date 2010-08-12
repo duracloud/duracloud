@@ -33,6 +33,11 @@ public abstract class StoreCaller<T> {
                 result = doCall();
                 callComplete = true;
             } catch (ContentStoreException e) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // do nothing
+                }
                 log.warn(getLogMessage());
                 tries++;
             }
@@ -42,5 +47,5 @@ public abstract class StoreCaller<T> {
 
     protected abstract T doCall() throws ContentStoreException;
 
-    protected abstract String getLogMessage();
+    public abstract String getLogMessage();
 }

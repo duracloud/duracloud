@@ -23,6 +23,7 @@
     <module>osgi-test-scriptservice</module>
     <module>osgi-test-servicesutil</module>
     <module>osgi-test-webapputilservice</module>
+    <module>osgi-test-fixityservice</module>
   </modules>
 
   <build>
@@ -63,6 +64,14 @@
             <configuration>
               <systemProperties>
                 <property>
+                  <name>unit.database.home</name>
+                  <value>${unit.database.home.default}</value>
+                </property>
+                <property>
+                  <name>unit.database.password</name>
+                  <value>${unit.database.password.default}</value>
+                </property>
+                <property>
                   <name>base.dir</name>
                   <value>${basedir}</value>
                 </property>
@@ -80,6 +89,7 @@
               <excludes>
                 <exclude>${unitTests}</exclude>
                 <exclude>${instrumentedTests}</exclude>
+                <exclude>${innerClasses}</exclude>
               </excludes>
               <includes>
                 <include>${integrationTests}</include>

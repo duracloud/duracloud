@@ -137,7 +137,7 @@ public class HashFinderWorker implements Runnable {
                                                        getContentId());
             }
 
-            protected String getLogMessage() {
+            public String getLogMessage() {
                 return "Error calling contentStore.getContentMetadata() for: " +
                     getSpaceId() + "/" + getContentId();
             }
@@ -209,7 +209,7 @@ public class HashFinderWorker implements Runnable {
                 return contentStore.getContent(getSpaceId(), getContentId());
             }
 
-            protected String getLogMessage() {
+            public String getLogMessage() {
                 return "Error calling contentStore.getContent() for: " +
                     getSpaceId() + "/" + getContentId();
             }
