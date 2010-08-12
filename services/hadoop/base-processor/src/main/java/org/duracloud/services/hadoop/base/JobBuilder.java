@@ -9,9 +9,7 @@ package org.duracloud.services.hadoop.base;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.TextOutputFormat;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -64,8 +62,8 @@ public class JobBuilder {
         conf.setInputFormat(WholeFileInputFormat.class);
 
         // Configure output path
-        FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-        conf.setOutputFormat(TextOutputFormat.class);
+        AltTextOutputFormat.setOutputPath(conf, new Path(outputPath));
+        conf.setOutputFormat(AltTextOutputFormat.class);
 
         // Other config
         conf.setCompressMapOutput(false);
