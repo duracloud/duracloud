@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.duracloud.services</groupId>
-  <artifactId>hadoop-file-processor</artifactId>
+  <groupId>org.duracloud.services.hadoop</groupId>
+  <artifactId>base-processor</artifactId>
   <packaging>jar</packaging>
   <version>0.6.0-SNAPSHOT</version>
-  <name>Hadoop File Processor</name>
+  <name>Base File Processor</name>
 
   <parent>
-    <artifactId>services</artifactId>
-    <groupId>org.duracloud</groupId>
+    <artifactId>hadoop</artifactId>
+    <groupId>org.duracloud.services</groupId>
     <version>0.6.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
@@ -23,7 +23,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.duracloud.services.fileprocessor.JobRunner</mainClass>
+              <mainClass>org.duracloud.services.hadoop.base.JobRunner</mainClass>
             </manifest>
           </archive>
         </configuration>

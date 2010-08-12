@@ -5,13 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.fileprocessor;
+package org.duracloud.services.hadoop.base;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.duracloud.services.hadoop.base.ProcessFileMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

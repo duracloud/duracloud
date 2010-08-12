@@ -5,12 +5,15 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.fileprocessor;
+package org.duracloud.services.hadoop.base;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
+import org.duracloud.services.hadoop.base.JobBuilder;
+import org.duracloud.services.hadoop.base.ProcessFileMapper;
+import org.duracloud.services.hadoop.base.ResultsReducer;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

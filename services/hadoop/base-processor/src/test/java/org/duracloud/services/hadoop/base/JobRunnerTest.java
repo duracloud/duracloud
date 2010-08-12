@@ -5,8 +5,9 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.fileprocessor;
+package org.duracloud.services.hadoop.base;
 
+import org.duracloud.services.hadoop.base.JobRunner;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertNotNull;
