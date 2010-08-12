@@ -143,10 +143,12 @@
 }
 
 /* UPLOAD STATUS DIALOG *************************/
-#upload-list-wrapper
-{
+#upload-viewer{
 	height:430px;
 	overflow:auto;
+}
+#upload-list-wrapper
+{
 	padding-right:10px;
 }
 
