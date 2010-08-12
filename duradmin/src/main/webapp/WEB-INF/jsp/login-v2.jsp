@@ -9,21 +9,42 @@
 	</tiles:putAttribute>
 	
 	<tiles:putAttribute name="body">
-		<form id="loginForm" action="${pageContext.request.contextPath}/j_spring_security_check" method="post" >
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$("#username").focus();
+
+				$("#button-login").click(function(evt){
+					evt.stopPropagation();
+					  $("#msg-error").fadeOut();
+						
+					$.ajax({
+						  type:"POST",
+						  url: "/duradmin/j_spring_security_check",
+							data: $("#loginForm").serialize(), 
+						  	success: function(data, text, xhr) {
+							  dc.debug("data="+data+";text="+text);
+							  if(data.indexOf("Login") > 0){
+								  $("#msg-error").fadeIn();
+							  }else{
+		 						  location.reload();
+							  }
+						  }
+						});
+				});
+				
+			});
+		</script>
+
+		<form id="loginForm" action="${pageContext.request.contextPath}/j_spring_security_check"  method="post" onsubmit="return false;" >
 			<div id="login-wrapper">
 				<div id="login-header" class="outer clearfix">
 					<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a><span id="dc-app-title"></span></div>			
 				</div>
-				<script type="text/javascript">
-					$(document).ready(function(){
-						$("#username").focus();
-					});
-				
-				</script>
 				<div id="login-content" class="pane-L1-body clearfix">
 					<h1 id="title" class="float-l">Login</h1>
 					<div id="form-fields" class="form-fields float-r">
 						<div id="msg-error" class="error" style="display:none">Username/Password combination not valid. Please try again.</div>
+						
 						<ul>
 							<li class="clearfix">
 								<label for="j_username">Username</label>							

@@ -9,20 +9,21 @@
   <beans:bean id="authenticationProcessingFilter"
               class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
     <beans:property name="authenticationManager" ref="authenticationManager" />
-    <beans:property name="authenticationFailureUrl" value="/login?login_error=1" />
+    <beans:property name="authenticationFailureUrl" value="/login?error=true" />
     <beans:property name="defaultTargetUrl" value="/" />
     <beans:property name="filterProcessesUrl" value="/j_spring_security_check" />
   </beans:bean>
 
-  <http>
-    <intercept-url pattern="/security" access="ROLE_ADMIN" />
-
+  <http auto-config="false" entry-point-ref="authenticationProcessingFilterEntryPoint">
+    <intercept-url  pattern="/security" access="ROLE_ADMIN" />
     <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/style/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/images/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    <intercept-url pattern="/javascript/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    <intercept-url pattern="/jquery/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 
-    <intercept-url pattern="/**" access="ROLE_USER" />
-    <form-login login-page="/login" always-use-default-target="true"/>
+    <intercept-url pattern="/**" access="ROLE_USER"  />
+    <form-login login-page="/login" always-use-default-target="false"  authentication-failure-url="/login?error=true" />
     <anonymous />
     <http-basic />
     <logout logout-url="/logout"/>
@@ -32,6 +33,11 @@
   <authentication-manager alias="authenticationManager"/>
   <authentication-provider user-service-ref="userDetailsSvc"/>
   <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl"/>
+
+	<beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+		<beans:property name="loginFormUrl" value="/login" />
+		<beans:property name="serverSideRedirect" value="true" />
+	</beans:bean>
 
   <!-- AOP to log(in/out) ContentStoreMgr and ServicesMgr -->
   <beans:bean id="securityContextUtil" class="org.duracloud.security.context.SecurityContextUtil"/>

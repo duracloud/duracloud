@@ -879,9 +879,12 @@ $(document).ready(function() {
 	
 	var scrollToCurrentSpace = function(){
 		var spacesList = $("#spaces-list");
-		var element = spacesList.selectablelist("currentItem").item;
-		var scrollpane = spacesList.closest(".dc-item-list-wrapper");
-		scrollpane.scrollTo(element);
+		var current = spacesList.selectablelist("currentItem"); 
+		if(current.data != null && current.data != undefined ){
+			 spacesList
+			 	.closest(".dc-item-list-wrapper")
+			 	.scrollTo(current.item);
+		}
 	};
 	
 	// ///////////////////////////////////////////////////////////
