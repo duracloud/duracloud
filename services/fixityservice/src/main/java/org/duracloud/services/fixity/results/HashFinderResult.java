@@ -18,8 +18,7 @@ public class HashFinderResult implements ServiceResult {
 
     private static final Logger log = LoggerFactory.getLogger(HashFinderResult.class);
 
-    private static String newline = System.getProperty("line.separator");
-    public static final String HEADER = "space-id,content-id,MD5";
+    private static final String HEADER = "space-id,content-id,MD5";
 
     private String spaceId;
     private String contentId;
@@ -27,9 +26,9 @@ public class HashFinderResult implements ServiceResult {
     private boolean success;
 
     public HashFinderResult(boolean success,
-                        String spaceId,
-                        String contentId,
-                        String hash) {
+                            String spaceId,
+                            String contentId,
+                            String hash) {
         this.success = success;
         this.spaceId = spaceId;
         this.contentId = contentId;
@@ -45,6 +44,11 @@ public class HashFinderResult implements ServiceResult {
         results.append(",");
         results.append(hash);
         return results.toString();
+    }
+
+    @Override
+    public String getHeader() {
+        return HEADER;
     }
 
     @Override

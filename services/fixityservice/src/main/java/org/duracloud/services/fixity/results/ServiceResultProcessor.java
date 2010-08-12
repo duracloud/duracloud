@@ -35,6 +35,9 @@ public class ServiceResultProcessor implements ServiceResultListener {
     private String outputSpaceId;
     private String outputContentId;
 
+    private String phase;
+    private String previousPhaseStatus;
+
     private long successfulResults = 0;
     private long unsuccessfulResults = 0;
     private long totalWorkItems = -1;
@@ -43,37 +46,35 @@ public class ServiceResultProcessor implements ServiceResultListener {
 
     private File resultsFile;
 
+    public ServiceResultProcessor(ContentStore contentStore,
+                                  String outputSpaceId,
+                                  String outputContentId,
+                                  String phase,
+                                  File workDir) {
+        this(contentStore,
+             outputSpaceId,
+             outputContentId,
+             phase,
+             null,
+             workDir);
+    }
 
     public ServiceResultProcessor(ContentStore contentStore,
                                   String outputSpaceId,
                                   String outputContentId,
-                                  String header,
+                                  String phase,
+                                  String previousPhaseStatus,
                                   File workDir) {
         this.contentStore = contentStore;
         this.outputSpaceId = outputSpaceId;
         this.outputContentId = outputContentId;
+        this.phase = phase;
+        this.previousPhaseStatus = previousPhaseStatus;
 
         this.state = State.IN_PROGRESS;
         this.resultsFile = new File(workDir, outputContentId);
-        writeToLocalResultsFile(header, false);
-    }
-
-
-    private void writeToLocalResultsFile(String text, boolean append) {
-        try {
-            FileWriter writer = new FileWriter(resultsFile, append);
-            writer.append(text);
-            writer.append(newline);
-            writer.close();
-
-        } catch (IOException e) {
-            StringBuilder sb = new StringBuilder("Error writing result: '");
-            sb.append(text);
-            sb.append("' to results file: ");
-            sb.append(resultsFile.getAbsolutePath());
-            sb.append(", exception: ");
-            sb.append(e.getMessage());
-            log.error(sb.toString());
+        if (resultsFile.exists()) {
+            resultsFile.delete();
         }
     }
 
@@ -84,7 +85,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
             unsuccessfulResults++;
         }
 
-        writeToLocalResultsFile(result.getEntry(), true);
+        writeToLocalResultsFile(result);
 
         InputStream resultsStream = getLocalResultsFileStream();
         try {
@@ -100,6 +101,33 @@ public class ServiceResultProcessor implements ServiceResultListener {
                 "Error attempting to store service results: " + e.getMessage());
         } finally {
             IOUtils.closeQuietly(resultsStream);
+        }
+    }
+
+    private void writeToLocalResultsFile(ServiceResult result) {
+        if (!resultsFile.exists()) {
+            write(result.getHeader());
+        }
+        write(result.getEntry());
+    }
+
+    private void write(String text) {
+        boolean append = true;
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(resultsFile, append);
+            writer.append(text);
+            writer.append(newline);
+            writer.close();
+
+        } catch (IOException e) {
+            StringBuilder sb = new StringBuilder("Error writing result: '");
+            sb.append(text);
+            sb.append("' to results file: ");
+            sb.append(resultsFile.getAbsolutePath());
+            sb.append(", exception: ");
+            sb.append(e.getMessage());
+            log.error(sb.toString());
         }
     }
 
@@ -123,26 +151,12 @@ public class ServiceResultProcessor implements ServiceResultListener {
     }
 
     public synchronized String getProcessingStatus() {
-        String status = this.state.name();
-
-        StringBuilder sb = new StringBuilder(status);
-        sb.append(": ");
-        sb.append(successfulResults + unsuccessfulResults);
-        sb.append("/");
-        sb.append(totalIsAvailable() ? totalWorkItems : "?");
-
-        if (unsuccessfulResults > 0) {
-            String failSuffix = "failures";
-            if (unsuccessfulResults == 1) {
-                failSuffix = "failure";
-            }
-            sb.append(" [" + unsuccessfulResults + " " + failSuffix + "]");
-        }
-        return sb.toString();
-    }
-
-    private boolean totalIsAvailable() {
-        return totalWorkItems != -1;
+        return new StatusMsg(successfulResults,
+                             unsuccessfulResults,
+                             totalWorkItems,
+                             state,
+                             phase,
+                             previousPhaseStatus).toString();
     }
 
 }

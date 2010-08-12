@@ -104,12 +104,11 @@ public class FixityService extends BaseService implements ComputeService, Manage
                               FixityServiceOptions serviceOptions,
                               File workDir,
                               CountDownLatch doneHashing) {
-        String resultHeader = HashFinderResult.HEADER;
         ServiceResultProcessor resultListener = new ServiceResultProcessor(
             contentStore,
             outputSpaceId,
             outputContentId,
-            resultHeader,
+            "FindHashes",
             workDir);
 
         ServiceWorkload workload = new HashFinderWorkload(serviceOptions,
@@ -145,6 +144,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             workDir);
 
 //        ServiceResultListener resultListener = new NoopResultListener();
+        String previousPhaseStatus = workManager.getProcessingStatus();
 //        workManager = new PatientServiceWorkManager(workload,
 //                                                    workerFactory,
 //                                                    resultListener,

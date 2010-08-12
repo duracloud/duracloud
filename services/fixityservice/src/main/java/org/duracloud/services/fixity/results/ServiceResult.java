@@ -18,5 +18,7 @@ public interface ServiceResult {
 
     public String getEntry();
 
+    public String getHeader();
+
     public boolean isSuccess();
 }

@@ -65,11 +65,11 @@ public class HashFinderWorker implements Runnable {
         String hash = null;
         try {
             hash = getHash();
+            sendResult(true, getSpaceId(), getContentId(), hash);
 
         } catch (Exception e) {
             sendResult(false, getSpaceId(), getContentId(), e.getMessage());
         }
-        sendResult(true, getSpaceId(), getContentId(), hash);
     }
 
     private void sendResult(boolean success,

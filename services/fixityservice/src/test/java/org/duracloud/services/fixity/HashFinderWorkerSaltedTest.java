@@ -92,7 +92,7 @@ public class HashFinderWorkerSaltedTest extends HashFinderWorkerTestBase {
         ServiceResultListener listener = EasyMock.createMock(
             "ServiceResultListener",
             ServiceResultListener.class);
-        listener.processServiceResult(HashFinderWorkerMockSupport.eqResult(
+        listener.processServiceResult(HashWorkerMockSupport.eqResult(
             expectedResult));
         EasyMock.expectLastCall().anyTimes();
         EasyMock.replay(listener);

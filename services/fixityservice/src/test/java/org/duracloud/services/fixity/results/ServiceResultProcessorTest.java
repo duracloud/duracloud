@@ -31,7 +31,6 @@ public class ServiceResultProcessorTest {
     private ServiceResultProcessor processor;
     private String outputSpaceId = "output-space-id";
     private String outputContentId = "output-content-id";
-    private String header = "some-csv-header-text";
     private String mime = "text/csv";
 
     private final String SPACE_PREFIX = "test-space-id-";
@@ -51,7 +50,8 @@ public class ServiceResultProcessorTest {
         processor = new ServiceResultProcessor(contentStore,
                                                outputSpaceId,
                                                outputContentId,
-                                               header,
+                                               "test-hashing",
+                                               "previous status blah",
                                                workDir);
     }
 
@@ -67,19 +67,24 @@ public class ServiceResultProcessorTest {
     public void testSetProcessingComplete() throws Exception {
         String status = processor.getProcessingStatus();
         Assert.assertNotNull(status);
-        Assert.assertTrue(status,
-                          status.startsWith(ServiceResultListener.State.IN_PROGRESS.name()));
+
+        ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
+            status);
+        Assert.assertEquals(ServiceResultListener.State.IN_PROGRESS,
+                            msg.getState());
 
         processor.setProcessingState(ServiceResultListener.State.COMPLETE);
         status = processor.getProcessingStatus();
         Assert.assertNotNull(status);
-        Assert.assertTrue(status.startsWith(ServiceResultListener.State.COMPLETE.name()));
+
+        msg = new ServiceResultListener.StatusMsg(status);
+        Assert.assertEquals(ServiceResultListener.State.COMPLETE,
+                            msg.getState());
     }
 
     @Test
     public void testProcessServiceResult() throws Exception {
         ServiceResultListener.State inProgress = ServiceResultListener.State.IN_PROGRESS;
-        ServiceResultListener.State complete = ServiceResultListener.State.COMPLETE;
 
         boolean success = true;
         int index = 0;
@@ -118,40 +123,31 @@ public class ServiceResultProcessorTest {
     }
 
     private void verifyStatus(String status,
-                              String numSuccess,
+                              String numProcessed,
                               String numFailure,
                               String totalWorkItems) {
         String text = processor.getProcessingStatus();
         Assert.assertNotNull(text);
         System.out.println("s: '" + text + "'");
+        ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
+            text);
 
+        Assert.assertEquals(status, msg.getState().name());
+        Assert.assertEquals(Long.parseLong(numFailure), msg.getFailed());
+        Assert.assertEquals(Long.parseLong(numProcessed),
+                            msg.getPassed() + msg.getFailed());
 
-        Assert.assertTrue(text, text.startsWith(status));
-        String newText = text.substring(status.length() + ": ".length());
-
-        String[] parts = newText.split("/");
-        Assert.assertEquals(2, parts.length);
-
-        Assert.assertEquals(numSuccess, parts[0]);
-        if (numFailure.equals("0")) {
-            Assert.assertEquals(totalWorkItems, parts[1]);
-
-        } else {
-            String[] moreParts = parts[1].split("\\[");
-            Assert.assertEquals(2, moreParts.length);
-
-            Assert.assertEquals(totalWorkItems, moreParts[0].trim());
-
-            String failSuffix = "failures";
-            if (numFailure.equals("1")) {
-                failSuffix = "failure";
-            }
-            Assert.assertEquals(numFailure + " " + failSuffix + "]",
-                                moreParts[1].trim());
+        long totalExpected = -1;
+        if (!totalWorkItems.equals("?")) {
+            totalExpected = Long.parseLong(totalWorkItems);
         }
+        Assert.assertEquals(totalExpected, msg.getTotal());
+
+
     }
 
     private void verifyLocalOutputFile() throws IOException {
+        HashFinderResult result = new HashFinderResult(true, "", "", "");
         File file = new File(workDir, outputContentId);
         Assert.assertTrue(file.exists());
 
@@ -160,7 +156,7 @@ public class ServiceResultProcessorTest {
         String line;
         while ((line = reader.readLine()) != null) {
             if (i == -1) {
-                Assert.assertEquals(header, line);
+                Assert.assertEquals(result.getHeader(), line);
             } else {
                 StringBuilder expected = new StringBuilder(SPACE_PREFIX);
                 expected.append(i);

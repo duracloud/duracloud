@@ -37,9 +37,9 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
 
     private ServiceResult createExpectedResult() {
         return new HashFinderResult(true,
-                                providedListingSpaceIdA,
-                                providedListingContentIdA,
-                                getHash(text));
+                                    providedListingSpaceIdA,
+                                    providedListingContentIdA,
+                                    getHash(text));
     }
 
     private void doInitialize() throws ContentStoreException {
@@ -92,7 +92,7 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
         ServiceResultListener listener = EasyMock.createMock(
             "ServiceResultListener",
             ServiceResultListener.class);
-        listener.processServiceResult(HashFinderWorkerMockSupport.eqResult(
+        listener.processServiceResult(HashWorkerMockSupport.eqResult(
             expectedResult));
         EasyMock.expectLastCall().anyTimes();
         EasyMock.replay(listener);

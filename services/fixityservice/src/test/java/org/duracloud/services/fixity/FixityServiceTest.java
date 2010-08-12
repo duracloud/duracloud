@@ -101,6 +101,7 @@ public class FixityServiceTest {
         fixity.start();
 
         Map<String, String> props = null;
+        ServiceResultProcessor.StatusMsg msg;
         boolean done = false;
         while (!done) {
             props = fixity.getServiceProps();
@@ -108,7 +109,9 @@ public class FixityServiceTest {
 
             String status = props.get(ServiceResultProcessor.STATUS_KEY);
             Assert.assertNotNull(status);
-            if (status.startsWith(ServiceResultListener.State.COMPLETE.name())) {
+
+            msg = new ServiceResultListener.StatusMsg(status);
+            if (msg.getState().equals(ServiceResultListener.State.COMPLETE)) {
                 done = true;
             }
         }
@@ -168,8 +171,11 @@ public class FixityServiceTest {
         Assert.assertNotNull(props);
         String status = props.get(ServiceResultProcessor.STATUS_KEY);
         Assert.assertNotNull(status);
-        Assert.assertTrue(status,
-                          status.startsWith(ServiceResultListener.State.STOPPED.name()));
+
+        ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
+            status);
+        Assert.assertEquals(ServiceResultListener.State.STOPPED,
+                            msg.getState());
     }
 
     private ContentStore createMockContentStore() throws ContentStoreException {

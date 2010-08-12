@@ -38,7 +38,7 @@ import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
  * @author Andrew Woods
  *         Date: Aug 11, 2010
  */
-public class TestFixityServiceGenerateList extends FixityServiceTestBase {
+public class TestFixityService extends FixityServiceTestBase {
 
     private String adminSpaceId;
     private String outputGenListId = "output-gen-list-id";
@@ -97,6 +97,7 @@ public class TestFixityServiceGenerateList extends FixityServiceTestBase {
         fixity.start();
 
         Map<String, String> props = null;
+        ServiceResultListener.StatusMsg msg;
         boolean done = false;
         while (!done) {
             props = fixity.getServiceProps();
@@ -104,7 +105,9 @@ public class TestFixityServiceGenerateList extends FixityServiceTestBase {
 
             String status = props.get(ServiceResultProcessor.STATUS_KEY);
             Assert.assertNotNull(status);
-            if (status.startsWith(ServiceResultListener.State.COMPLETE.name())) {
+
+            msg = new ServiceResultListener.StatusMsg(status);
+            if (ServiceResultListener.State.COMPLETE.equals(msg.getState())) {
                 done = true;
             }
         }
@@ -194,8 +197,11 @@ public class TestFixityServiceGenerateList extends FixityServiceTestBase {
         Assert.assertNotNull(props);
         String status = props.get(ServiceResultProcessor.STATUS_KEY);
         Assert.assertNotNull(status);
-        Assert.assertTrue(status,
-                          status.startsWith(ServiceResultListener.State.STOPPED.name()));
+
+        ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
+            status);
+        Assert.assertEquals(ServiceResultListener.State.STOPPED,
+                            msg.getState());
     }
 
 

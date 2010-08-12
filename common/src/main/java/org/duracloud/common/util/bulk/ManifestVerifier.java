@@ -61,12 +61,26 @@ public class ManifestVerifier {
     }
 
     public void report(OutputStream out) {
+        String newline = System.getProperty("line.separator");
+
         StringBuilder sb = new StringBuilder();
         String cksum0 = "0:" + FilenameUtils.getName(file0.getName());
         String cksum1 = "1:" + FilenameUtils.getName(file1.getName());
         sb.append("title,file," + cksum0 + "," + cksum1 + ",state");
-        sb.append("\n");
+        sb.append(newline);
 
+        sb.append(resultEntries());
+
+        try {
+            out.write(sb.toString().getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String resultEntries() {
+        String newline = System.getProperty("line.separator");
+        StringBuilder sb = new StringBuilder();
         for (ResultEntry result : results.values()) {
             sb.append(result.getTitle());
             sb.append(",");
@@ -77,14 +91,9 @@ public class ManifestVerifier {
             sb.append(result.getChecksum1());
             sb.append(",");
             sb.append(result.getState());
-            sb.append("\n");
+            sb.append(newline);
         }
-
-        try {
-            out.write(sb.toString().getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return sb.toString();
     }
 
     /**
@@ -142,7 +151,7 @@ public class ManifestVerifier {
         return false;
     }
 
-    private void addEntry(String line, Map<String, String> entries) {
+    protected void addEntry(String line, Map<String, String> entries) {
         String[] cksumFilenamePair = line.split("\\s");
         if (cksumFilenamePair == null || cksumFilenamePair.length != 2) {
             throw new RuntimeException("Invalid manifest file.");
