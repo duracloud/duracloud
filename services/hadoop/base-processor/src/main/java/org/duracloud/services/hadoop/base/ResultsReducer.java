@@ -24,12 +24,13 @@ import java.util.Iterator;
  */
 public class ResultsReducer extends MapReduceBase implements Reducer<Text, Text, Text, Text> {
 
-  public void reduce(Text key,
-                     Iterator<Text> values,
-                     OutputCollector<Text, Text> output,
-                     Reporter reporter) throws IOException {
-    while (values.hasNext()) {
-      output.collect(key, values.next());
+    public void reduce(Text key,
+                       Iterator<Text> values,
+                       OutputCollector<Text, Text> output,
+                       Reporter reporter)
+        throws IOException {
+        while (values.hasNext()) {
+            output.collect(key, values.next());
+        }
     }
-  }
 }

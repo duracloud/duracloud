@@ -24,86 +24,85 @@ import java.text.ParseException;
  */
 public class JobBuilder {
 
-  private String inputPathPrefix;
-  private String outputPath;
+    private String inputPathPrefix;
+    private String outputPath;
 
-  /**
-   * Constructs a Job builder
-   * 
-   * @param inputPathPrefix
-   *          The path from which the input files can be retrieved.
-   * @param outputPath
-   *          The path to which output files will be written.
-   */
-  public JobBuilder(final String inputPathPrefix, final String outputPath) {
-    this.inputPathPrefix = inputPathPrefix;
-    this.outputPath = outputPath;
-  }
+    /**
+     * Constructs a Job builder
+     *
+     * @param inputPathPrefix path from which the input files can be retrieved
+     * @param outputPath      path to which output files will be written
+     */
+    public JobBuilder(final String inputPathPrefix, final String outputPath) {
+        this.inputPathPrefix = inputPathPrefix;
+        this.outputPath = outputPath;
+    }
 
-  /**
-   * Constructs the JobConf to be used to run the map reduce job.
-   */
-  public JobConf getJobConf() throws IOException, ParseException {
+    /**
+     * Constructs the JobConf to be used to run the map reduce job.
+     */
+    public JobConf getJobConf() throws IOException, ParseException {
 
-    System.out.println("Creating job to process files in " + inputPathPrefix + 
-                       " and store results in " + outputPath);
+        System.out.println(
+            "Creating job to process files in " + inputPathPrefix +
+            " and store results in " + outputPath);
 
-    JobConf conf = new JobConf(JobBuilder.class);
-    conf.setJobName(getJobName());
-    conf.setOutputKeyClass(Text.class);
-    conf.setOutputValueClass(Text.class);
+        JobConf conf = new JobConf(JobBuilder.class);
+        conf.setJobName(getJobName());
+        conf.setOutputKeyClass(Text.class);
+        conf.setOutputValueClass(Text.class);
 
-    // Configure mappper
-    conf.setMapperClass(getMapper());
+        // Configure mappper
+        conf.setMapperClass(getMapper());
 
-    // Configure reducer
-    conf.setReducerClass(getReducer());
-    conf.setNumReduceTasks(1);
+        // Configure reducer
+        conf.setReducerClass(getReducer());
+        conf.setNumReduceTasks(1);
 
-    // Configure input path
-    WholeFileInputFormat.addInputPath(conf, new Path(inputPathPrefix));
-    conf.setInputFormat(WholeFileInputFormat.class);
+        // Configure input path
+        WholeFileInputFormat.addInputPath(conf, new Path(inputPathPrefix));
+        conf.setInputFormat(WholeFileInputFormat.class);
 
-    // Configure output path
-    FileOutputFormat.setOutputPath(conf, new Path(outputPath));
-    conf.setOutputFormat(TextOutputFormat.class);
+        // Configure output path
+        FileOutputFormat.setOutputPath(conf, new Path(outputPath));
+        conf.setOutputFormat(TextOutputFormat.class);
 
-    // Other config
-    conf.setCompressMapOutput(false);
+        // Other config
+        conf.setCompressMapOutput(false);
 
-    return conf;
-  }
+        return conf;
+    }
 
-  /**
-   * Retrieves the name of the hadoop job.
-   *
-   * This method can be overridden to provide an alternate job name.
-   */
-  protected String getJobName() {
-      return "ProcessFiles";
-  }
+    /**
+     * Retrieves the name of the hadoop job.
+     * <p/>
+     * This method can be overridden to provide an alternate job name.
+     */
+    protected String getJobName() {
+        return "ProcessFiles";
+    }
 
-  /**
-   * Retrieves the mapper class which will be used for perform the hadoop
-   * mapping tasks. The default mapper performs a simple file processing task.
-   *
-   * This method can be overridden to provide an alternate mapper
-   * implementation class, possibly a subclass of the default mapper.
-   */
-  protected Class getMapper() {
-      return ProcessFileMapper.class;
-  }
+    /**
+     * Retrieves the mapper class which will be used for perform the hadoop
+     * mapping tasks. The default mapper performs a simple file processing task.
+     * <p/>
+     * This method can be overridden to provide an alternate mapper
+     * implementation class, possibly a subclass of the default mapper.
+     */
+    protected Class getMapper() {
+        return ProcessFileMapper.class;
+    }
 
-  /**
-   * Retrieves the reducer class which will be used to perform the hadoop
-   * reduction tasks. The default reducer simply collects all output name/value
-   * pairs and writes it to an output file.
-   *
-   * This method can be overridden to provide an alternate reducer
-   * implementation class.
-   */
-  protected Class getReducer() {
-      return ResultsReducer.class;
-  }
+    /**
+     * Retrieves the reducer class which will be used to perform the hadoop
+     * reduction tasks. The default reducer simply collects all output name/value
+     * pairs and writes it to an output file.
+     * <p/>
+     * This method can be overridden to provide an alternate reducer
+     * implementation class.
+     */
+    protected Class getReducer() {
+        return ResultsReducer.class;
+    }
 
 }
