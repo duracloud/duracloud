@@ -30,7 +30,7 @@ public class HashVerifierWorkload implements ServiceWorkload<ContentLocationPair
 
     private FixityServiceOptions serviceOptions;
     private Iterator<ContentLocationPair> workload;
-    
+
 
     public HashVerifierWorkload(FixityServiceOptions serviceOptions) {
         this.serviceOptions = serviceOptions;
@@ -93,7 +93,6 @@ public class HashVerifierWorkload implements ServiceWorkload<ContentLocationPair
 
     @Override
     public void registerCountListener(CountListener listener) {
-        throw new UnsupportedOperationException(
-            "registerCountListener() not supported.");
+        log.info("registerCountListner() ignored.");
     }
 }

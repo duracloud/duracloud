@@ -47,9 +47,9 @@ public class HashVerifierResultTest {
         String header = result.getHeader();
         Assert.assertNotNull(header);
 
-        String locA = contentLocationA.getSpaceId() + "-" +
+        String locA = contentLocationA.getSpaceId() + "/" +
             contentLocationA.getContentId();
-        String locB = contentLocationB.getSpaceId() + "-" +
+        String locB = contentLocationB.getSpaceId() + "/" +
             contentLocationB.getContentId();
         String h =
             "space-id,content-id,0:" + locA + "," + "1:" + locB + ",status";

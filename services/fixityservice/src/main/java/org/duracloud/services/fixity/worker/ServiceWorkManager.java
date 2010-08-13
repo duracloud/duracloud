@@ -130,6 +130,7 @@ public class ServiceWorkManager extends Thread implements CountListener {
     public void stopProcessing() {
         continueProcessing = false;
         shutdown();
+        printEndMessage();
     }
 
     @Override

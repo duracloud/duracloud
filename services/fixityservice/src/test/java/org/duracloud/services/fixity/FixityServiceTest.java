@@ -13,6 +13,7 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.easymock.classextension.EasyMock;
@@ -23,15 +24,15 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
-import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
 
 /**
@@ -44,11 +45,19 @@ public class FixityServiceTest {
     private File workDir = new File("target/test-fixity-service");
 
     private String listingText;
+    private String corruptListingText;
     private final int NUM_WORK_ITEMS = 100;
-    private final String listingSpaceId = "listing-space-id";
-    private final String listingContentId = "listing-content-id";
+
+    private final String salt = "abc123";
+    private final String spaceIdA = "space-id-a";
+    private final String contentIdA = "content-id-a";
+    private final String spaceIdB = "space-id-b";
+    private final String contentIdB = "content-id-b";
+    private final String targetSpaceId = "target-space-id";
     private final String outputSpaceId = "output-space-id";
     private final String outputContentId = "output-content-id";
+    private final String reportContentId = "report-content-id";
+
     private final String spaceId = "space-id";
     private final String contentId = "content-id-";
     private final String hash = "hash-";
@@ -61,9 +70,20 @@ public class FixityServiceTest {
             Assert.assertTrue(workDir.getCanonicalPath(), workDir.mkdir());
         }
 
+        boolean isCorrupt = true;
+        listingText = createListing(!isCorrupt);
+        corruptListingText = createListing(isCorrupt);
+    }
+
+    private String createListing(boolean isCorrupt) {
         StringBuilder text = new StringBuilder("header,header,header");
         text.append(System.getProperty("line.separator"));
+
         for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
+            if (isCorrupt &&
+                (i == 2 || i == 22)) { // leave off the 2nd and 22nd items
+                continue;
+            }
             text.append(spaceId);
             text.append(",");
             text.append(contentId);
@@ -71,35 +91,114 @@ public class FixityServiceTest {
             text.append(",");
             text.append(hash);
             text.append(i);
+
+            if (isCorrupt && (i % 8 == 0)) { // corrupt every 8th item
+                text.append("-junk");
+            }
             text.append(System.getProperty("line.separator"));
         }
-        listingText = text.toString();
-
-        setServiceOptions();
+        return text.toString();
     }
 
-    private void setServiceOptions() throws Exception {
-        fixity.setMode(Mode.ALL_IN_ONE_LIST.getKey());
-        fixity.setHashApproach(HashApproach.GENERATED.toString());
-        fixity.setSalt("abc123");
+    private void setServiceOptions(Mode mode) throws Exception {
+        fixity.setHashApproach(FixityServiceOptions.HashApproach.SALTED.name());
+        fixity.setSalt(salt);
         fixity.setFailFast(Boolean.TRUE.toString());
         fixity.setStoreId("1");
-        fixity.setProvidedListingSpaceIdA(listingSpaceId);
-        fixity.setProvidedListingContentIdA(listingContentId);
+        fixity.setProvidedListingSpaceIdA(spaceIdA);
+        fixity.setProvidedListingContentIdA(contentIdA);
+        fixity.setProvidedListingSpaceIdB(spaceIdB);
+        fixity.setProvidedListingContentIdB(contentIdB);
+        fixity.setTargetSpaceId(targetSpaceId);
         fixity.setOutputSpaceId(outputSpaceId);
         fixity.setOutputContentId(outputContentId);
-        fixity.setReportContentId("report-id");
+        fixity.setReportContentId(reportContentId);
+
+        fixity.setMode(mode.getKey());
+        switch (mode) {
+            case ALL_IN_ONE_LIST:
+            case ALL_IN_ONE_SPACE:
+                fixity.setProvidedListingSpaceIdB(null);
+                fixity.setProvidedListingContentIdB(null);
+                fixity.setTargetSpaceId(null);
+                break;
+
+            case GENERATE_LIST:
+                fixity.setFailFast(null);
+                fixity.setProvidedListingSpaceIdB(null);
+                fixity.setProvidedListingContentIdB(null);
+                fixity.setTargetSpaceId(null);
+                break;
+
+            case GENERATE_SPACE:
+                fixity.setFailFast(null);
+                fixity.setProvidedListingSpaceIdA(null);
+                fixity.setProvidedListingContentIdA(null);
+                fixity.setProvidedListingSpaceIdB(null);
+                fixity.setProvidedListingContentIdB(null);
+                break;
+
+            case COMPARE:
+                fixity.setHashApproach(null);
+                fixity.setSalt(null);
+                fixity.setTargetSpaceId(null);
+                fixity.setOutputContentId(null);
+                break;
+
+            default:
+                Assert.fail("Unexpected Mode: " + mode);
+        }
 
         fixity.setThreads(3);
         fixity.setServiceWorkDir(workDir.getCanonicalPath());
-        fixity.setContentStore(createMockContentStore());
-
+        fixity.setContentStore(createMockContentStore(mode));
     }
 
     @Test
-    public void testStart() throws Exception {
+    public void testStartCompareMode() throws Exception {
+        setServiceOptions(Mode.COMPARE);
+
         fixity.start();
 
+        boolean isValid = true;
+        waitForCompletion();
+        verifyOutputReportFile(isValid);
+
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
+                            fixity.getServiceStatus());
+    }
+
+    @Test
+    public void testStartAllInOneListMode() throws Exception {
+        setServiceOptions(Mode.ALL_IN_ONE_LIST);
+
+        fixity.start();
+
+        waitForCompletion();
+
+        boolean isValid = true;
+        verifyOutputHashFile();
+        verifyOutputReportFile(!isValid);
+
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
+                            fixity.getServiceStatus());
+    }
+
+    @Test
+    public void testStartGenerateListMode() throws Exception {
+        setServiceOptions(Mode.GENERATE_LIST);
+
+        fixity.start();
+
+        waitForCompletion();
+
+        verifyOutputHashFile();
+
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
+                            fixity.getServiceStatus());
+    }
+
+    private void waitForCompletion() {
         Map<String, String> props = null;
         ServiceResultProcessor.StatusMsg msg;
         boolean done = false;
@@ -115,14 +214,9 @@ public class FixityServiceTest {
                 done = true;
             }
         }
-
-        verifyOutputFile();
-
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
-                            fixity.getServiceStatus());
     }
 
-    private void verifyOutputFile() throws IOException {
+    private void verifyOutputHashFile() throws IOException {
         File outFile = new File(fixity.getServiceWorkDir(), outputContentId);
         Assert.assertTrue(outFile.exists());
 
@@ -152,13 +246,60 @@ public class FixityServiceTest {
             Assert.assertNotNull(md5);
 
             String expectedMd5 = checksumUtil.generateChecksum(new AutoCloseInputStream(
-                new ByteArrayInputStream(new String("data" + i).getBytes())));
+                new ByteArrayInputStream(new String(
+                    "data" + i + salt).getBytes())));
             Assert.assertEquals(expectedMd5, md5);
+        }
+    }
+
+    private void verifyOutputReportFile(boolean success) throws Exception {
+        File outFile = new File(fixity.getServiceWorkDir(), reportContentId);
+        Assert.assertTrue(outFile.exists());
+
+        Map<String, String> idToStatus = new HashMap<String, String>();
+
+        BufferedReader reader = new BufferedReader(new FileReader(outFile));
+        reader.readLine(); // not counting header line
+
+        String line;
+        int count = 0;
+        while ((line = reader.readLine()) != null) {
+            if (line.length() > 0) {
+                count++;
+
+                String[] parts = line.split(",");
+                Assert.assertEquals(5, parts.length);
+
+                Assert.assertEquals(spaceId, parts[0]);
+                Assert.assertTrue(parts[1], parts[1].startsWith(contentId));
+                idToStatus.put(parts[1], parts[4]);
+            }
+        }
+        reader.close();
+        Assert.assertEquals(NUM_WORK_ITEMS, count);
+
+        // uses knowledge of how corrupt content was created in "setUp()" above.
+        String valid = "VALID";
+        String mismatch = "MISMATCH";
+        String missing = "MISSING_FROM_1";
+        for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
+            String status = idToStatus.get(contentId + i);
+            Assert.assertNotNull(status);
+
+            if (i == 2 || i == 22) {
+                Assert.assertEquals(success ? valid : missing, status);
+            } else if (i % 8 == 0) {
+                Assert.assertEquals(success ? valid : mismatch, status);
+            } else {
+                Assert.assertEquals(valid, status);
+            }
         }
     }
 
     @Test
     public void testStop() throws Exception {
+        setServiceOptions(Mode.GENERATE_SPACE);
+
         fixity.start();
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
                             fixity.getServiceStatus());
@@ -178,18 +319,63 @@ public class FixityServiceTest {
                             msg.getState());
     }
 
-    private ContentStore createMockContentStore() throws ContentStoreException {
-        Content listingContent = createContent(listingText);
+    private ContentStore createMockContentStore(Mode mode)
+        throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
 
-        EasyMock.expect(store.getContent(listingSpaceId, listingContentId))
-            .andReturn(createContent(listingText));
-        EasyMock.expect(store.getContent(listingSpaceId, listingContentId))
-            .andReturn(createContent(listingText));
+        switch (mode) {
+            case GENERATE_SPACE: // used by testStop
+                EasyMock.expect(store.getSpaceContents(targetSpaceId))
+                    .andReturn(newIterator(19750))
+                    .anyTimes();
+                EasyMock.expect(store.getContent(targetSpaceId, ""))
+                    .andReturn(createContent("nothing")).anyTimes();
+                break;
+
+            case GENERATE_LIST:
+                // need to specify two getContent(spaceA,contentA) for counting thread
+                EasyMock.expect(store.getContent(spaceIdA, contentIdA))
+                    .andReturn(createContent(listingText));
+                EasyMock.expect(store.getContent(spaceIdA, contentIdA))
+                    .andReturn(createContent(listingText));
+                break;
+
+            case ALL_IN_ONE_SPACE:
+            case ALL_IN_ONE_LIST:
+                // need to specify two getContent(spaceA,contentA) for counting thread
+                EasyMock.expect(store.getContent(spaceIdA, contentIdA))
+                    .andReturn(createContent(listingText));
+                EasyMock.expect(store.getContent(spaceIdA, contentIdA))
+                    .andReturn(createContent(listingText));
+                EasyMock.expect(store.getContent(spaceIdA, contentIdA))
+                    .andReturn(createContent(listingText));
+                EasyMock.expect(store.getContent(outputSpaceId,
+                                                 outputContentId)).andReturn(
+                    createContent(corruptListingText)).anyTimes();
+                break;
+
+            case COMPARE:
+                EasyMock.expect(store.getContent(spaceIdA, contentIdA))
+                    .andReturn(createContent(listingText));
+                EasyMock.expect(store.getContent(spaceIdB, contentIdB))
+                    .andReturn(createContent(listingText));
+                break;
+
+        }
+        EasyMock.expect(store.addContent(EasyMock.eq(outputSpaceId),
+                                         EasyMock.eq(reportContentId),
+                                         EasyMock.<InputStream>anyObject(),
+                                         EasyMock.gt(0L),
+                                         EasyMock.eq("text/csv"),
+                                         EasyMock.<String>isNull(),
+                                         EasyMock.<Map<String, String>>isNull()))
+            .andReturn("")
+            .anyTimes();
+
         for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
             EasyMock.expect(store.getContent(spaceId, contentId + i)).andReturn(
-                createContent("data" + i));
+                createContent("data" + i)).anyTimes();
         }
         EasyMock.expect(store.addContent(EasyMock.eq(outputSpaceId),
                                          EasyMock.eq(outputContentId),
@@ -205,6 +391,14 @@ public class FixityServiceTest {
 
         EasyMock.replay(store);
         return store;
+    }
+
+    private Iterator<String> newIterator(int count) {
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < count; ++i) {
+            list.add("");
+        }
+        return list.iterator();
     }
 
     private Content createContent(String text) {

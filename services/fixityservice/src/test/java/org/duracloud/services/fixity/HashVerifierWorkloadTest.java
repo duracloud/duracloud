@@ -97,6 +97,8 @@ public class HashVerifierWorkloadTest extends HashWorkloadTestBase {
 
     @Test
     public void testRegisterCountListener() throws Exception {
+        doSetUp(FixityServiceOptions.Mode.ALL_IN_ONE_LIST);
+
         CountListener countListener = new CountListener() {
             public void setCount(long count) {
             }
@@ -105,11 +107,10 @@ public class HashVerifierWorkloadTest extends HashWorkloadTestBase {
         boolean thrown = false;
         try {
             workload.registerCountListener(countListener);
-            Assert.fail("exception expected");
         } catch (Exception e) {
             thrown = true;
         }
-        Assert.assertTrue(thrown);
+        Assert.assertEquals(false, thrown);
     }
 
     @Override

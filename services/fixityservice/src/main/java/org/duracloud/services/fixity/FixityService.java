@@ -14,8 +14,8 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.common.error.ServiceException;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
-import org.duracloud.services.fixity.results.NoopResultListener;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.duracloud.services.fixity.worker.ServiceWorkManager;
@@ -94,7 +94,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             StringBuilder err = new StringBuilder("Error starting service: ");
             err.append(e.getMessage());
             log.error(err.toString());
-            
+
             this.setServiceStatus(ServiceStatus.INSTALLED);
         }
     }
@@ -140,35 +140,50 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                              resultListener,
                                              threads,
                                              doneHashing);
-
         workManager.start();
-
-
     }
 
     private void startComparing(ContentStore contentStore,
                                 FixityServiceOptions serviceOptions,
                                 File workDir,
-                                CountDownLatch doneHashing) {
-        ServiceResultListener resultListener = new NoopResultListener();
-        ServiceWorkload workload = new HashVerifierWorkload(serviceOptions);
+                                CountDownLatch doneHashing)
+        throws ServiceException {
+        try {
+            doneHashing.await();
+
+        } catch (InterruptedException e) {
+            StringBuilder sb = new StringBuilder("Error: ");
+            sb.append("calling doneWorking.await(): ");
+            sb.append(e.getMessage());
+            log.error(sb.toString(), e);
+            throw new ServiceException(sb.toString(), e);
+        }
+
+        String previousPhaseStatus = null;
+        if (workManager != null) {
+            previousPhaseStatus = workManager.getProcessingStatus();
+        }
+
+        ServiceResultListener resultListener = new ServiceResultProcessor(
+            contentStore,
+            outputSpaceId,
+            reportContentId,
+            "CompareHashes",
+            previousPhaseStatus,
+            workDir);
 
         ServiceWorkerFactory workerFactory = new HashVerifierWorkerFactory(
             contentStore,
             workDir,
             resultListener);
 
-
-        String previousPhaseStatus = workManager.getProcessingStatus();
-//        workManager = new PatientServiceWorkManager(workload,
-//                                                    workerFactory,
-//                                                    resultListener,
-//                                                    threads,
-//                                                    doneHashing);
-//
-//        workManager.start();
-
-
+        ServiceWorkload workload = new HashVerifierWorkload(serviceOptions);
+        workManager = new ServiceWorkManager(workload,
+                                             workerFactory,
+                                             resultListener,
+                                             threads,
+                                             doneHashing);
+        workManager.start();
     }
 
 

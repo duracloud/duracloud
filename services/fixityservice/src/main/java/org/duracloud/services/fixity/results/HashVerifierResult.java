@@ -41,9 +41,9 @@ public class HashVerifierResult implements ServiceResult {
 
     @Override
     public String getHeader() {
-        String locA = contentLocationA.getSpaceId() + "-" +
+        String locA = contentLocationA.getSpaceId() + "/" +
             contentLocationA.getContentId();
-        String locB = contentLocationB.getSpaceId() + "-" +
+        String locB = contentLocationB.getSpaceId() + "/" +
             contentLocationB.getContentId();
         return "space-id,content-id,0:" + locA + "," + "1:" + locB + ",status";
     }

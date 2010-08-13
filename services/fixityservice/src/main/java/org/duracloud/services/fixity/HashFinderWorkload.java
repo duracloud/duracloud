@@ -27,7 +27,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
@@ -45,6 +44,8 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
 
     private Iterator<ContentLocation> workload;
     private List<CountListener> countListeners;
+
+    private long count = -1;
 
     public HashFinderWorkload(FixityServiceOptions serviceOptions,
                               ContentStore contentStore) {
@@ -209,11 +210,13 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
 
     @Override
     public void registerCountListener(CountListener listener) {
-        countListeners.add(listener);
+        listener.setCount(this.count);
+        countListeners.add(listener);        
     }
 
     @Override
     public void setCount(long count) {
+        this.count = count;
         for (CountListener listener : countListeners) {
             listener.setCount(count);
         }
