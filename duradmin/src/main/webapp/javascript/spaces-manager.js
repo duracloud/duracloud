@@ -1241,7 +1241,7 @@ $(document).ready(function() {
 				});
 	};
 
-
+	var refreshButtonState = null;
 	(function(){
 		var list = $("#content-item-list");
 		var previousList = new Array();
@@ -1253,17 +1253,17 @@ $(document).ready(function() {
 		var previousButton = $("#content-item-list-view .previous"); 
 		var nextButton = $("#content-item-list-view .next")
 		
-		var refreshButtonState = function(){
+		refreshButtonState = function(){
 			if(previousList.length == 0 ){
-				previousButton.addClass("disabled");
+				previousButton.removeClass("featured");
 			}else{
-				previousButton.removeClass("disabled");
+				previousButton.addClass("featured");
 			}
 
 			if(list.selectablelist("length") == 0){
-				nextButton.addClass("disabled");
+				nextButton.removeClass("featured");
 			}else{
-				nextButton.removeClass("disabled");
+				nextButton.addClass("featured");
 			}
 		};
 		
@@ -1326,6 +1326,9 @@ $(document).ready(function() {
 			
 			addContentItemToList(ci);
 		}
+
+		refreshButtonState();
+
 	}
 	
 	var addContentItemToList = function(contentItem){
@@ -1492,6 +1495,7 @@ $(document).ready(function() {
 
 	$("#spaces-list").bind("itemRemoved", function(evt,state){
 		clearContents();
+		
 		showGenericDetailPane();
 	});
 	// /////////////////////////////////////////
