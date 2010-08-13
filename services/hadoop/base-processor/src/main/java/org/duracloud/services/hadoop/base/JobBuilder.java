@@ -13,6 +13,7 @@ import org.apache.hadoop.mapred.JobConf;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Map;
 
 /**
  * This class constructs a hadoop job to process files.
@@ -22,24 +23,26 @@ import java.text.ParseException;
  */
 public class JobBuilder {
 
-    private String inputPathPrefix;
-    private String outputPath;
+    private Map<String, String> initParams;
 
     /**
      * Constructs a Job builder
      *
-     * @param inputPathPrefix path from which the input files can be retrieved
-     * @param outputPath      path to which output files will be written
+     * @param initParams configuration for the job
      */
-    public JobBuilder(final String inputPathPrefix, final String outputPath) {
-        this.inputPathPrefix = inputPathPrefix;
-        this.outputPath = outputPath;
+    public JobBuilder(final Map<String, String> initParams) {
+        this.initParams = initParams;
     }
 
     /**
      * Constructs the JobConf to be used to run the map reduce job.
      */
     public JobConf getJobConf() throws IOException, ParseException {
+        String inputPathPrefix = initParams.get(InitParamParser.INPUT_PATH);
+        String outputPath = initParams.get(InitParamParser.OUTPUT_PATH);
+
+        inputPathPrefix = appendTrailingSlash(inputPathPrefix);
+        outputPath = appendTrailingSlash(outputPath);
 
         System.out.println(
             "Creating job to process files in " + inputPathPrefix +
@@ -68,7 +71,18 @@ public class JobBuilder {
         // Other config
         conf.setCompressMapOutput(false);
 
+        for(String paramKey : initParams.keySet()) {
+            conf.set(paramKey, initParams.get(paramKey));
+        }
+
         return conf;
+    }
+
+    private static String appendTrailingSlash(String path) {
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+        return path;
     }
 
     /**

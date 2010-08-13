@@ -30,6 +30,12 @@ public class ProcessFileMapper extends MapReduceBase
 	implements Mapper<Text, Text, Text, Text>
 {
     public static final String LOCAL_FS = "file://";
+    protected JobConf jobConf;
+
+    @Override
+    public void configure(JobConf job){
+        this.jobConf = job;
+    }
 
     /**
      * Performs the actual file processing.
