@@ -191,6 +191,19 @@ $.widget("ui.selectablelist",{
 			 this._fireCurrentItemChanged(first, true);
 		 }
 	},
+
+	lastItemData: function(){
+		 var last = this.element.children().last();
+		 if(last != undefined && last != null){
+			 return this._getDataById($(last).attr("id"));
+		 }
+		 return null;
+	},
+
+	length: function(){
+		 return this.element.children().size();
+	},
+
 	
 	currentItem:function(){
 		return this._currentItem;

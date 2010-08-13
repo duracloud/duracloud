@@ -37,16 +37,16 @@ var dc;
 		}
 
 		var prefix = null;
-			if(options.prefix != undefined){
-				prefix = options.prefix;
-			}
+		if(options.prefix != undefined){
+			prefix = options.prefix;
+		}
 
 		if(callback.begin != undefined){
 			callback.begin();
 		}
 		
 		$.ajax({ url: "/duradmin/spaces/space", 
-			data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&prefix="+escape(prefix==null?'':prefix),
+			data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&prefix="+escape(prefix==null?'':prefix)+"&marker="+escape(marker==null?'':marker),
 			cache: false,
 			context: document.body, 
 			success: function(data){

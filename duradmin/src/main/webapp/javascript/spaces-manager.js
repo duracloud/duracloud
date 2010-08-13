@@ -764,46 +764,47 @@ $(document).ready(function() {
 					var dialog = $("#add-content-item-dialog").find(".ui-dialog");
 					dialog.hide();
 					dc.store.CheckIfContentItemExists(
-							contentItem, 
-							{ 
-								success: function(exists){
-									if(exists){
-										if(!confirm("A content ID with this name already exists. Overwrite?")){
-											dialog.show();
-											return;
-										}
+						contentItem, 
+						{ 
+							success: function(exists){
+								if(exists){
+									if(!confirm("A content ID with this name already exists. Overwrite?")){
+										dialog.show();
+										return;
 									}
-
-									$(that).dialog("enable");
-									$(that).dialog("close");
-
-									var updateFunc =  function(data){
-										poller();
-										var contentId = data.contentItem.contentId;
-										if($("#content-item-list [id='"+contentId+"']").size() == 0){
-											addContentItemToList(data.contentItem);
-										}
-									};
-
-									var callback = {
-										key: escape(storeId+"/"+spaceId+"/"+ contentId),
-										begin: function(){
-											$("#upload-viewer").dialog("open");
-										},
-										failure: function(){
-											alert("upload failed for " + storeId + "/" + spaceId + "/" + contentId);
-										},
-										success: updateFunc,
-									};
-
-									dc.store.AddContentItem(form, callback);
-								},
-								
-								failure: function(message){
-									alert("check for existing content item failed: " + message);
 								}
-							});
-					
+	
+								$(that).dialog("enable");
+								$(that).dialog("close");
+	
+								var updateFunc =  function(data){
+									poller();
+									var contentId = data.contentItem.contentId;
+									if($("#content-item-list [id='"+contentId+"']").size() == 0){
+										addContentItemToList(data.contentItem);
+									}
+								};
+									
+								var key = escape(contentItem.storeId+"/"+contentItem.spaceId+"/"+ contentItem.contentId);
+								var callback = {
+									key: key,
+									begin: function(){
+										$("#upload-viewer").dialog("open");
+									},
+									failure: function(){
+										alert("upload failed for " + key);
+									},
+									success: updateFunc,
+								};
+	
+								dc.store.AddContentItem(form, callback);
+							},
+							
+							failure: function(message){
+								alert("check for existing content item failed: " + message);
+							}
+						}
+					);
 				}
 			},
 			Cancel: function() {
@@ -1150,41 +1151,41 @@ $(document).ready(function() {
 	};
 
 	var contentItemListStatusId = "#content-item-list-status";
+	var getFilterText = function(){
+		var val = $("#content-item-filter").val();
+		if(val == DEFAULT_FILTER_TEXT){
+			val = null;
+		}
+		return val;
+	};
 	
 	var getSpace = function(spaceId, loadHandler){
 		clearContents();
 		$("#detail-pane").fadeOut("slow");
-		var prefix = $("#content-item-filter").val();
-		if(prefix == DEFAULT_FILTER_TEXT){
-			prefix = null;
-		}
-		
 		dc.store.GetSpace(
-				getCurrentProviderStoreId(),
-				spaceId, 
-				{
-					begin: function(){
-						dc.busy("Loading space...");
-						$(contentItemListStatusId).html("Loading...").fadeIn("slow");
-					},
-					success: function(space){
-						dc.done();
-						if(space == undefined || space == null){
-							$(contentItemListStatusId).html("Error: space not found.").fadeIn("slow");
-						}else{
-							setHash(space);
-							loadHandler(space);
-						}
-						$(contentItemListStatusId).fadeOut("fast");
-					}, 
-					failure:function(info){
-						dc.done();
-						alert("Get Space failed: " + info);
-					},
+			getCurrentProviderStoreId(),
+			spaceId, 
+			{
+				begin: function(){
+					dc.busy("Loading space...");
+					$(contentItemListStatusId).html("Loading...").fadeIn("slow");
 				},
-				{
-					prefix: prefix,
-				});
+				success: function(space){
+					dc.done();
+					if(space == undefined || space == null){
+						$(contentItemListStatusId).html("Error: space not found.").fadeIn("slow");
+					}else{
+						setHash(space);
+						loadHandler(space);
+					}
+					$(contentItemListStatusId).fadeOut("fast");
+				}, 
+				failure:function(info){
+					dc.done();
+					alert("Get Space failed: " + info);
+				},
+			}
+		);
 	};
 	
 	var getContentItem = function(storeId, spaceId, contentId){
@@ -1204,14 +1205,117 @@ $(document).ready(function() {
 			},
 		});
 	};
+	
+	
 	$("#content-item-list-view").find(".dc-item-list-filter").bind("keyup", $.debounce(500, function(evt){
-		var spaceId = getCurrentSpaceId();
-		getSpace(spaceId, function(space){loadContentItems(space.contents)});
+		reloadContents(getCurrentSpaceId(), null, function(space){loadContentItems(space.contents)});
 	}));
-
-	var loadContentItems = function(contentItems){
+	
+	var reloadContents = function(spaceId, marker, handler){
 		$("#content-item-list").selectablelist("clear");
-		$("#content-item-list-view button,#content-item-list-view input").fadeIn();
+		var prefix = getFilterText();
+		dc.store.GetSpace(
+				getCurrentProviderStoreId(),
+				getCurrentSpaceId(), 
+				{
+					begin: function(){
+						$(contentItemListStatusId).html("Loading contents...").fadeIn("slow");
+					},
+					success: function(space){
+						dc.done();
+						if(space == undefined || space == null){
+							$(contentItemListStatusId).html("Error: space not found.").fadeIn("slow");
+						}else{
+							handler(space);
+							$(contentItemListStatusId).fadeOut("fast");
+						}
+					}, 
+					failure:function(info){
+						dc.done();
+						alert("Get Space failed: " + info);
+					},
+				},
+				{
+					prefix: prefix,
+					marker: marker,
+				});
+	};
+
+
+	(function(){
+		var list = $("#content-item-list");
+		var previousList = new Array();
+		$("#content-item-list-view").find(".dc-item-list-filter").bind("change",function(){
+			previousList = new Array();
+			refreshButtonState();
+		});
+		
+		var previousButton = $("#content-item-list-view .previous"); 
+		var nextButton = $("#content-item-list-view .next")
+		
+		var refreshButtonState = function(){
+			if(previousList.length == 0 ){
+				previousButton.addClass("disabled");
+			}else{
+				previousButton.removeClass("disabled");
+			}
+
+			if(list.selectablelist("length") == 0){
+				nextButton.addClass("disabled");
+			}else{
+				nextButton.removeClass("disabled");
+			}
+		};
+		
+		previousButton.click(function(){
+			var that = this;
+			var marker = null;
+			if(previousList.length > 1){
+				//get the second to last marker (marks the previous page)
+				marker = previousList[previousList.length-2];
+			}
+			
+			if(previousList.length > 0){
+				reloadContents(
+						getCurrentSpaceId(), 
+						marker,
+						function(space){
+							//pop the first one off the end- it's the current page
+							previousList.pop();
+							loadContentItems(space.contents,true);
+							refreshButtonState();
+						});
+			}
+		});
+		
+		nextButton.click(function(){
+			var that = this;
+			var marker = list.selectablelist("lastItemData").contentId;
+			if(marker != null){
+				//get the second to last marker (marks the previous page)
+				reloadContents(
+					getCurrentSpaceId(), 
+					marker,
+					function(space){
+						loadContentItems(space.contents,true);	
+						previousList.push(marker);
+						refreshButtonState();
+					});
+			}
+		});
+		
+
+		
+	})();
+
+	var loadContentItems = function(contentItems, fadeIn){
+		$("#content-item-list").selectablelist("clear");
+		
+		if(fadeIn == undefined) fadeIn = true;
+		
+		if(fadeIn){
+			$("#content-item-list-view button,#content-item-list-view input").fadeIn();
+		}
 		
 		for(i in contentItems){
 			var ci = {

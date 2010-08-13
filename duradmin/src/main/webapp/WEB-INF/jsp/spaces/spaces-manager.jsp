@@ -78,12 +78,16 @@
 				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add Content Item</button>
 				<h2>Content Items</h2>
 				</div>
-				<div class="header-section"><span class="float-r"><input
-					id="content-item-filter" class="dc-item-list-filter" value="filter"
-					type="text" /></span> <input id="check-all-content-items"
-					class="dc-check-all" type="checkbox" /> <span
-					id="content-item-list-status" class="dc-status"
-					style="display: none"></span></div>
+				<div class="header-section">
+					<span class="float-r">
+						<input id="content-item-filter" class="dc-item-list-filter" value="filter" 	type="text" />
+					</span> 
+					<input id="check-all-content-items" class="dc-check-all" type="checkbox" /> 
+					<button class="previous">&lt; Previous</button>
+					<button class="next">Next &gt;</button>
+					
+					<span id="content-item-list-status" class="dc-status" style="display: none"></span>
+					</div>
 				</div>
 
 				<div class="center dc-item-list-wrapper">
