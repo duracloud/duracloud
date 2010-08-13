@@ -10,6 +10,7 @@ package org.duracloud.services.fixity;
 import org.duracloud.client.ContentStore;
 import org.duracloud.services.fixity.domain.ContentLocationPair;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
+import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.worker.ServiceWorkerFactory;
 
 import java.io.File;
@@ -19,14 +20,24 @@ import java.io.File;
  *         Date: Aug 6, 2010
  */
 public class HashVerifierWorkerFactory implements ServiceWorkerFactory<ContentLocationPair> {
-    public HashVerifierWorkerFactory(FixityServiceOptions serviceOptions,
-                                     ContentStore contentStore,
-                                     File workDir) {
+
+    private ContentStore contentStore;
+    private File workDir;
+    private ServiceResultListener resultListener;
+
+    public HashVerifierWorkerFactory(ContentStore contentStore,
+                                     File workDir,
+                                     ServiceResultListener resultListener) {
+        this.contentStore = contentStore;
+        this.workDir = workDir;
+        this.resultListener = resultListener;
     }
 
     @Override
     public Runnable newWorker(ContentLocationPair workItem) {
-        // Default method body
-        return null;
+        return new HashVerifierWorker(contentStore,
+                                      workItem,
+                                      workDir,
+                                      resultListener);
     }
 }

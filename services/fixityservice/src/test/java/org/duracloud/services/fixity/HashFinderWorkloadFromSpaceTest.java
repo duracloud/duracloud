@@ -27,7 +27,7 @@ import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode.GEN
  * @author Andrew Woods
  *         Date: Aug 6, 2010
  */
-public class HashFinderWorkloadFromSpaceTest extends HashFinderWorkloadTestBase {
+public class HashFinderWorkloadFromSpaceTest extends HashWorkloadTestBase {
 
     private HashFinderWorkload workload;
     private FixityServiceOptions.Mode mode = GENERATE_SPACE;

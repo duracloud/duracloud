@@ -7,11 +7,6 @@
  */
 package org.duracloud.services.fixity;
 
-import java.io.File;
-import java.util.Dictionary;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -20,11 +15,9 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
-import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.NoopResultListener;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
-import org.duracloud.services.fixity.worker.PatientServiceWorkManager;
 import org.duracloud.services.fixity.worker.ServiceWorkManager;
 import org.duracloud.services.fixity.worker.ServiceWorkerFactory;
 import org.duracloud.services.fixity.worker.ServiceWorkload;
@@ -32,6 +25,11 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Dictionary;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This class is the entry point for performing on-demand bit-integrity
@@ -80,10 +78,28 @@ public class FixityService extends BaseService implements ComputeService, Manage
     @Override
     public void start() throws Exception {
         this.setServiceStatus(ServiceStatus.STARTING);
-        log.info(
-            "Starting Fixity Service as '" + getUsername() + "': " + threads +
-                " worker threads");
 
+        StringBuilder sb = new StringBuilder("Starting Fixity Service as '");
+        sb.append(getUsername());
+        sb.append(": ");
+        sb.append(threads);
+        sb.append(" worker threads");
+        log.info(sb.toString());
+
+        try {
+            doStart();
+            this.setServiceStatus(ServiceStatus.STARTED);
+
+        } catch (Exception e) {
+            StringBuilder err = new StringBuilder("Error starting service: ");
+            err.append(e.getMessage());
+            log.error(err.toString());
+            
+            this.setServiceStatus(ServiceStatus.INSTALLED);
+        }
+    }
+
+    public void doStart() throws Exception {
         FixityServiceOptions serviceOptions = getServiceOptions();
         ContentStore contentStore = getContentStore();
 
@@ -127,7 +143,6 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
         workManager.start();
 
-        this.setServiceStatus(ServiceStatus.STARTED);
 
     }
 
@@ -135,15 +150,15 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                 FixityServiceOptions serviceOptions,
                                 File workDir,
                                 CountDownLatch doneHashing) {
-        ServiceWorkload workload = new HashVerifierWorkload(serviceOptions,
-                                                            contentStore);
+        ServiceResultListener resultListener = new NoopResultListener();
+        ServiceWorkload workload = new HashVerifierWorkload(serviceOptions);
 
         ServiceWorkerFactory workerFactory = new HashVerifierWorkerFactory(
-            serviceOptions,
             contentStore,
-            workDir);
+            workDir,
+            resultListener);
 
-//        ServiceResultListener resultListener = new NoopResultListener();
+
         String previousPhaseStatus = workManager.getProcessingStatus();
 //        workManager = new PatientServiceWorkManager(workload,
 //                                                    workerFactory,
@@ -153,7 +168,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
 //
 //        workManager.start();
 
-        this.setServiceStatus(ServiceStatus.STARTED);
+
     }
 
 

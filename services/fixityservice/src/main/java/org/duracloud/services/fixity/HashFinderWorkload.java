@@ -45,7 +45,6 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
 
     private Iterator<ContentLocation> workload;
     private List<CountListener> countListeners;
-    private long count;
 
     public HashFinderWorkload(FixityServiceOptions serviceOptions,
                               ContentStore contentStore) {
@@ -215,7 +214,6 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
 
     @Override
     public void setCount(long count) {
-        this.count = count;
         for (CountListener listener : countListeners) {
             listener.setCount(count);
         }

@@ -19,20 +19,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach.GENERATED;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode.ALL_IN_ONE_LIST;
-import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode.GENERATE_SPACE;
 
 /**
  * @author Andrew Woods
  *         Date: Aug 6, 2010
  */
-public class HashFinderWorkloadFromListTest extends HashFinderWorkloadTestBase {
+public class HashFinderWorkloadFromListTest extends HashWorkloadTestBase {
 
     private HashFinderWorkload workload;
     private FixityServiceOptions.Mode mode = ALL_IN_ONE_LIST;

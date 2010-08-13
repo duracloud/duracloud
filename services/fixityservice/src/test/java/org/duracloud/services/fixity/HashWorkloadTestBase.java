@@ -7,18 +7,10 @@
  */
 package org.duracloud.services.fixity;
 
-import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
-import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
-import org.duracloud.services.fixity.results.ServiceResultListener;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
 
@@ -26,7 +18,7 @@ import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
  * @author Andrew Woods
  *         Date: Aug 5, 2010
  */
-public abstract class HashFinderWorkloadTestBase {
+public abstract class HashWorkloadTestBase {
 
     protected FixityServiceOptions serviceOptions;
     protected ContentStore contentStore;
@@ -51,8 +43,9 @@ public abstract class HashFinderWorkloadTestBase {
 
     protected FixityServiceOptions createServiceOptions(Mode m,
                                                         HashApproach ha) {
+        String hashApproachName = ha == null ? null : ha.name();
         return new FixityServiceOptions(m.getKey(),
-                                        ha.name(),
+                                        hashApproachName,
                                         salt,
                                         failFast,
                                         storeId,
