@@ -222,14 +222,14 @@ public class ManifestVerifier {
 
     }
 
-    private String titleOf(String name) {
+    protected String titleOf(String name) {
         String pre = "data/";
         int prefixIndex = name.startsWith(pre) ? pre.length() : 0;
         int suffixIndex = name.lastIndexOf('/');
         return name.substring(prefixIndex, suffixIndex);
     }
 
-    private String fileOf(String name) {
+    protected String fileOf(String name) {
         return FilenameUtils.getName(name);
     }
 

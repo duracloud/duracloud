@@ -14,8 +14,8 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.DuraCloudUserType;
 import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.util.StoreCaller;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,15 +58,22 @@ public class FixityServiceTestBase {
 
     private static final int NUM_WORK_ITEMS = 10;
     private static List<String> spaceIds;
-    protected static List<String> listingItems;
-    protected static Map<String, String> contentIdToMd5;
+    protected static List<ContentLocation> listingItems;
+    protected static List<ContentLocation> allItems0;
+    protected static Map<ContentLocation, String> itemToMd5;
+    protected static Map<ContentLocation, String> corruptItemsToStatus;
 
     protected static final ChecksumUtil checksumUtil = new ChecksumUtil(MD5);
     protected static final String adminSpacePrefix = "test-fixity-admin-";
-    protected static final String targetSpacePrefix = "test-fixity-target-";
+    protected static final String targetSpacePrefix0 = "test-fixity-target-0-";
+    protected static final String targetSpacePrefix1 = "test-fixity-target-1-";
     protected static final String targetContentPrefix = "test/content/id-";
 
+    protected static final String allContentId0 = "all-content-0-id";
     protected static final String listingContentId = "listing-content-id";
+    protected static final String listingGoodContentId = "listing-good-content-id";
+    protected static final String listingBadContentId = "listing-bad-content-id";
+
 
     private static final String DEFAULT_PORT = "8080";
     private static final String context = "durastore";
@@ -77,43 +85,26 @@ public class FixityServiceTestBase {
         final ContentStore store = createContentStore();
 
         spaceIds = new ArrayList<String>();
-        listingItems = new ArrayList<String>();
-        contentIdToMd5 = new HashMap<String, String>();
+        itemToMd5 = new HashMap<ContentLocation, String>();
+        corruptItemsToStatus = new HashMap<ContentLocation, String>();
 
         // create input/output space
         final String adminSpaceId = getSpaceId(adminSpacePrefix);
-        boolean success = false;
-        int tries = 0;
-        final int MAX_TRIES = 4;
-        while (!success && tries < MAX_TRIES) {
-            try {
-                store.createSpace(adminSpaceId, null);
-                success = true;
-            } catch (ContentStoreException e) {
-                Thread.sleep(1000);
-                tries++;
-            }
-        }
+        createSpace(store, adminSpaceId);
 
         // create target space
-        final String targetSpaceId = getSpaceId(targetSpacePrefix);
-        success = false;
-        tries = 0;
-        try {
-            store.createSpace(targetSpaceId, null);
-            success = true;
-        } catch (ContentStoreException e) {
-            Thread.sleep(1000);
-            tries++;
-        }
+        final String targetSpaceId0 = getSpaceId(targetSpacePrefix0);
+        final String targetSpaceId1 = getSpaceId(targetSpacePrefix1);
+        createSpace(store, targetSpaceId0);
+        createSpace(store, targetSpaceId1);
 
-        // create test content in target spaces
+        // create test content in target space
         for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
             String contentId = targetContentPrefix + i;
             String text = "data-" + contentId;
             String md5 = getMd5(text);
 
-            store.addContent(targetSpaceId,
+            store.addContent(targetSpaceId0,
                              contentId,
                              getContentStream(text),
                              text.length(),
@@ -121,26 +112,41 @@ public class FixityServiceTestBase {
                              md5,
                              null);
 
-            contentIdToMd5.put(contentId, md5);
+            store.addContent(targetSpaceId1,
+                             contentId,
+                             getContentStream(text),
+                             text.length(),
+                             "text/plain",
+                             md5,
+                             null);
+
+            itemToMd5.put(new ContentLocation(targetSpaceId0, contentId), md5);
+            itemToMd5.put(new ContentLocation(targetSpaceId1, contentId), md5);
         }
 
-        // create input content listing, and space listing
-        StringBuilder listing = new StringBuilder("space-id,content-id,md5");
-        listing.append(System.getProperty("line.separator"));
-        int i = 0;
-        for (String contentId : contentIdToMd5.keySet()) {
-            if (i % 3 == 0) {
-                listingItems.add(contentId);
-
-                listing.append(targetSpaceId);
-                listing.append(",");
-                listing.append(contentId);
-                listing.append(",");
-                listing.append(contentIdToMd5.get(contentId));
-                listing.append(System.getProperty("line.separator"));
+        // create input content listing
+        allItems0 = new ArrayList<ContentLocation>();
+        for (ContentLocation item : itemToMd5.keySet()) {
+            if (item.getSpaceId().startsWith(targetSpacePrefix0)) {
+                allItems0.add(item);
             }
-            ++i;
         }
+
+        int modulus = 3;
+        listingItems = createListingItems(itemToMd5.keySet(), modulus);
+
+        boolean isCorrupt = true;
+        String allListing0 = createListing(allItems0, !isCorrupt);
+        String listing = createListing(listingItems, !isCorrupt);
+        String badListing = createListing(listingItems, isCorrupt);
+
+        store.addContent(adminSpaceId,
+                         allContentId0,
+                         getContentStream(allListing0.toString()),
+                         allListing0.length(),
+                         "text/plain",
+                         getMd5(allListing0.toString()),
+                         null);
 
         store.addContent(adminSpaceId,
                          listingContentId,
@@ -150,10 +156,80 @@ public class FixityServiceTestBase {
                          getMd5(listing.toString()),
                          null);
 
+        store.addContent(adminSpaceId,
+                         listingGoodContentId,
+                         getContentStream(listing.toString()),
+                         listing.length(),
+                         "text/plain",
+                         getMd5(listing.toString()),
+                         null);
+
+        store.addContent(adminSpaceId, listingBadContentId, getContentStream(
+            badListing.toString()), badListing.length(), "text/plain", getMd5(
+            badListing.toString()), null);
+
         // verify spaces and content
         verifySpaces(store);
-        verifyContent(store, targetSpaceId);
+        verifyContent(store, itemToMd5.keySet());
+        verifyContent(store, adminSpaceId, allContentId0);
         verifyContent(store, adminSpaceId, listingContentId);
+        verifyContent(store, adminSpaceId, listingGoodContentId);
+        verifyContent(store, adminSpaceId, listingBadContentId);
+    }
+
+    private static void createSpace(ContentStore store, String spaceId)
+        throws InterruptedException {
+        boolean success = false;
+        int tries = 0;
+        final int MAX_TRIES = 4;
+        while (!success && tries < MAX_TRIES) {
+            try {
+                store.createSpace(spaceId, null);
+                success = true;
+            } catch (ContentStoreException e) {
+                Thread.sleep(1000);
+                tries++;
+            }
+        }
+    }
+
+    private static List<ContentLocation> createListingItems(Collection<ContentLocation> allItems,
+                                                            int modulus) {
+        List<ContentLocation> resultItems = new ArrayList<ContentLocation>();
+        for (ContentLocation item : allItems) {
+            String contentId = item.getContentId();
+            String suffix = contentId.substring(targetContentPrefix.length(),
+                                                contentId.length());
+            int index = Integer.parseInt(suffix);
+
+            if (index % modulus == 0) {
+                resultItems.add(item);
+            }
+        }
+        return resultItems;
+    }
+
+    private static String createListing(List<ContentLocation> items,
+                                        boolean isCorrupt) {
+        StringBuilder listing = new StringBuilder("space-id,content-id,md5");
+        listing.append(System.getProperty("line.separator"));
+        int i = 0;
+        for (ContentLocation item : items) {
+            listing.append(item.getSpaceId());
+            listing.append(",");
+            listing.append(item.getContentId());
+            listing.append(",");
+            if (isCorrupt && i == 3) {
+                listing.append("junk-md5");
+                corruptItemsToStatus.put(item, "MISMATCH");
+            } else {
+                listing.append(itemToMd5.get(item));
+            }
+            listing.append(System.getProperty("line.separator"));
+
+            ++i;
+        }
+        return listing.toString();
     }
 
     private static void verifySpaces(final ContentStore store) {
@@ -187,28 +263,27 @@ public class FixityServiceTestBase {
     }
 
     private static void verifyContent(final ContentStore store,
-                                      final String targetSpaceId) {
+                                      final Collection<ContentLocation> items) {
         StoreCaller<Boolean> contentCaller = new StoreCaller<Boolean>() {
             @Override
             protected Boolean doCall() throws ContentStoreException {
                 int good = 0;
                 Map<String, String> metadata;
-                for (String contentId : contentIdToMd5.keySet()) {
-                    metadata = store.getContentMetadata(targetSpaceId,
-                                                        contentId);
+                for (ContentLocation item : items) {
+                    metadata = store.getContentMetadata(item.getSpaceId(),
+                                                        item.getContentId());
                     if (metadata != null) {
                         good++;
                         metadata = null;
                     }
                 }
-                return good == contentIdToMd5.size();
+                return good == itemToMd5.size();
             }
 
             @Override
             public String getLogMessage() {
                 StringBuilder sb = new StringBuilder(
-                    "Test content not properly created in space: ");
-                sb.append(targetSpaceId);
+                    "Test content not properly created in space");
                 return sb.toString();
             }
         };

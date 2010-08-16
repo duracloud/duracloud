@@ -41,4 +41,14 @@ public class FixityManifestVerifier extends ManifestVerifier {
 
         entries.put(spaceId + "/" + contentId, md5);
     }
+
+    protected String titleOf(String name) {
+        int suffixIndex = name.indexOf('/');
+        return name.substring(0, suffixIndex);
+    }
+
+    protected String fileOf(String name) {
+        int suffixIndex = name.indexOf('/');
+        return name.substring(suffixIndex + 1, name.length());
+    }
 }

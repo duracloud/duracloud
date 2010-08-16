@@ -7,12 +7,11 @@
  */
 package org.duracloud.services.fixity;
 
-import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
-import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
@@ -22,17 +21,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 
 /**
  * @author Andrew Woods
@@ -40,11 +38,20 @@ import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
  */
 public class TestFixityService extends FixityServiceTestBase {
 
-    private String adminSpaceId;
-    private String outputGenListId = "output-gen-list-id";
+    private String compareReportGoodId = "output-compare-report-good-id";
+    private String compareReportBadId = "output-compare-report-bad-id";
 
-    private String targetSpaceId;
+    private String allReportGoodId = "output-all-report-good-id";
+    private String allReportBadId = "output-all-report-bad-id";
+
+    private String adminSpaceId;
+
+    private String targetSpaceId0;
+    private String targetSpaceId1;
     private String outputGenSpaceId = "output-gen-space-id";
+    private String outputGenListId = "output-gen-list-id";
+    private String outputAllInOneGenSpaceId = "output-all-gen-space-id";
+    private String outputAllInOneGenListId = "output-all-gen-list-id";
     private String salt = "abc123";
 
 
@@ -52,6 +59,52 @@ public class TestFixityService extends FixityServiceTestBase {
     public void setUp() throws Exception {
         super.setUp();
         adminSpaceId = findSpaceId(adminSpacePrefix);
+        targetSpaceId0 = findSpaceId(targetSpacePrefix0);
+        targetSpaceId1 = findSpaceId(targetSpacePrefix1);
+    }
+
+    private void setUpForCompareMode(boolean isCorrupt) {
+        fixity.setMode(FixityServiceOptions.Mode.COMPARE.getKey());
+        fixity.setFailFast(Boolean.FALSE.toString());
+        fixity.setStoreId("1");
+        fixity.setProvidedListingSpaceIdA(adminSpaceId);
+        fixity.setProvidedListingContentIdA(listingContentId);
+        fixity.setProvidedListingSpaceIdB(adminSpaceId);
+        fixity.setOutputSpaceId(adminSpaceId);
+        if (isCorrupt) {
+            fixity.setProvidedListingContentIdB(listingBadContentId);
+            fixity.setReportContentId(compareReportBadId);
+        } else {
+            fixity.setProvidedListingContentIdB(listingGoodContentId);
+            fixity.setReportContentId(compareReportGoodId);
+        }
+    }
+
+    private void setUpForAllInOneSpaceMode() {
+        fixity.setMode(FixityServiceOptions.Mode.ALL_IN_ONE_SPACE.getKey());
+        fixity.setHashApproach(FixityServiceOptions.HashApproach.STORED.toString());
+        fixity.setSalt("");
+        fixity.setFailFast(Boolean.FALSE.toString());
+        fixity.setStoreId("1");
+        fixity.setProvidedListingSpaceIdA(adminSpaceId);
+        fixity.setProvidedListingContentIdA(allContentId0);
+        fixity.setTargetSpaceId(targetSpaceId0);
+        fixity.setOutputSpaceId(adminSpaceId);
+        fixity.setOutputContentId(outputAllInOneGenSpaceId);
+        fixity.setReportContentId(allReportGoodId);
+    }
+
+    private void setUpForAllInOneListMode() {
+        fixity.setMode(FixityServiceOptions.Mode.ALL_IN_ONE_LIST.getKey());
+        fixity.setHashApproach(FixityServiceOptions.HashApproach.GENERATED.toString());
+        fixity.setSalt("");
+        fixity.setFailFast(Boolean.FALSE.toString());
+        fixity.setStoreId("1");
+        fixity.setProvidedListingSpaceIdA(adminSpaceId);
+        fixity.setProvidedListingContentIdA(listingBadContentId);
+        fixity.setOutputSpaceId(adminSpaceId);
+        fixity.setOutputContentId(outputAllInOneGenListId);
+        fixity.setReportContentId(allReportBadId);
     }
 
     private void setUpForGenerateListMode() {
@@ -67,33 +120,111 @@ public class TestFixityService extends FixityServiceTestBase {
     }
 
     private void setUpForGenerateSpaceMode() {
-        targetSpaceId = findSpaceId(targetSpacePrefix);
-
         fixity.setMode(FixityServiceOptions.Mode.GENERATE_SPACE.getKey());
         fixity.setHashApproach(FixityServiceOptions.HashApproach.SALTED.toString());
         fixity.setSalt(salt);
         fixity.setStoreId("1");
-        fixity.setTargetSpaceId(targetSpaceId);
+        fixity.setTargetSpaceId(targetSpaceId0);
         fixity.setOutputSpaceId(adminSpaceId);
         fixity.setOutputContentId(outputGenSpaceId);
         fixity.setReportContentId("report-id");
     }
 
     @Test
+    public void testStartCompareGoodMode() throws Exception {
+        boolean isCorrupt = true;
+        setUpForCompareMode(!isCorrupt);
+
+        Map<ContentLocation, String> noCorruptItems = new HashMap<ContentLocation, String>();
+        testStartCompare(compareReportGoodId, listingItems, noCorruptItems);
+    }
+
+    @Test
+    public void testStartCompareBadMode() throws Exception {
+        boolean isCorrupt = true;
+        setUpForCompareMode(isCorrupt);
+
+        testStartCompare(compareReportBadId,
+                         listingItems,
+                         corruptItemsToStatus);
+    }
+
+    @Test
+    public void testStartAllInOneSpaceMode() throws Exception {
+        setUpForAllInOneSpaceMode();
+
+        Map<ContentLocation, String> noCorruptItems = new HashMap<ContentLocation, String>();
+        testStartAllInOne(outputAllInOneGenSpaceId,
+                          allReportGoodId,
+                          allItems0,
+                          noCorruptItems);
+    }
+
+    @Test
+    public void testStartAllInOneListMode() throws Exception {
+        setUpForAllInOneListMode();
+
+        testStartAllInOne(outputAllInOneGenListId,
+                          allReportBadId,
+                          listingItems,
+                          corruptItemsToStatus);
+    }
+
+    @Test
     public void testStartGenerateListMode() throws Exception {
         setUpForGenerateListMode();
-        testStart(outputGenListId, listingItems, "");
+        testStartGenerate(outputGenListId, listingItems, "");
     }
 
     @Test
     public void testStartGenerateSpaceMode() throws Exception {
         setUpForGenerateSpaceMode();
-        testStart(outputGenSpaceId, contentIdToMd5.keySet(), salt);
+
+        // the service only runs over targetSpaceId0
+        List<ContentLocation> trimmedItems = new ArrayList<ContentLocation>();
+        for (ContentLocation item : itemToMd5.keySet()) {
+            if (item.getSpaceId().startsWith(targetSpacePrefix0)) {
+                trimmedItems.add(item);
+            }
+        }
+        testStartGenerate(outputGenSpaceId, trimmedItems, salt);
     }
 
-    private void testStart(String contentId,
-                           Collection<String> items,
-                           String salt) throws Exception {
+    private void testStartCompare(String contentId,
+                                  List<ContentLocation> items,
+                                  Map<ContentLocation, String> corruptItems)
+        throws Exception {
+        waitForCompletion(FixityService.PHASE_COMPARE);
+
+        verifyCompareReportFile(contentId, items, corruptItems);
+        verifyCompareReportContent(contentId, items, corruptItems);
+    }
+
+    private void testStartAllInOne(String hashContentId,
+                                   String reportContentId,
+                                   List<ContentLocation> items,
+                                   Map<ContentLocation, String> corruptItems)
+        throws Exception {
+        waitForCompletion(FixityService.PHASE_COMPARE);
+
+        verifyGeneratedHashFile(hashContentId, items, "");
+        verifyGeneratedHashContent(hashContentId, items, "");
+
+        verifyCompareReportFile(reportContentId, items, corruptItems);
+        verifyCompareReportContent(reportContentId, items, corruptItems);
+    }
+
+    private void testStartGenerate(String contentId,
+                                   Collection<ContentLocation> items,
+                                   String salt) throws Exception {
+        waitForCompletion(FixityService.PHASE_FIND);
+
+        verifyGeneratedHashFile(contentId, items, salt);
+        verifyGeneratedHashContent(contentId, items, salt);
+    }
+
+
+    private void waitForCompletion(String phase) throws Exception {
         fixity.start();
 
         Map<String, String> props = null;
@@ -107,67 +238,118 @@ public class TestFixityService extends FixityServiceTestBase {
             Assert.assertNotNull(status);
 
             msg = new ServiceResultListener.StatusMsg(status);
-            if (ServiceResultListener.State.COMPLETE.equals(msg.getState())) {
+            if (ServiceResultListener.State.COMPLETE.equals(msg.getState()) &&
+                msg.getPhase().equals(phase)) {
                 done = true;
             }
         }
-
-        verifyGeneratedHashFile(contentId, items, salt);
-        verifyGeneratedHashContent(contentId, items, salt);
 
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
                             fixity.getServiceStatus());
     }
 
-    private void verifyGeneratedHashFile(String contentId,
-                                         Collection<String> items,
-                                         String salt) throws IOException {
-        File outFile = new File(fixity.getServiceWorkDir(), contentId);
-        Assert.assertTrue(outFile.exists());
-
-        BufferedReader reader = new BufferedReader(new FileReader(outFile));
-        verifyGeneratedHashes(reader, items, salt);
+    private void verifyCompareReportFile(String contentId,
+                                         List<ContentLocation> items,
+                                         Map<ContentLocation, String> corruptItems)
+        throws IOException {
+        BufferedReader reader = getFileReader(contentId);
+        verifyCompareReport(reader, items, corruptItems);
     }
 
-    private void verifyGeneratedHashContent(String contentId,
-                                            Collection<String> items,
-                                            String salt) throws Exception {
-        Content content = getContent(adminSpaceId, contentId);
-        Assert.assertNotNull(content);
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(content.getStream()));
-        verifyGeneratedHashes(reader, items, salt);
+    private void verifyCompareReportContent(String contentId,
+                                            List<ContentLocation> items,
+                                            Map<ContentLocation, String> corruptItems)
+        throws Exception {
+        BufferedReader reader = getContentReader(contentId);
+        verifyCompareReport(reader, items, corruptItems);
     }
 
-    private void verifyGeneratedHashes(BufferedReader reader,
-                                       Collection<String> items,
-                                       String salt) throws IOException {
-        Map<String, String> idToMD5 = new HashMap<String, String>();
+
+    private void verifyCompareReport(BufferedReader reader,
+                                     List<ContentLocation> items,
+                                     Map<ContentLocation, String> corruptItems)
+        throws IOException {
+
+        Map<ContentLocation, String> itemToStatus = new HashMap<ContentLocation, String>();
 
         reader.readLine(); // not counting header line
 
         String line;
         int count = 0;
-        String targetSpaceId = findSpaceId(targetSpacePrefix);
+        while ((line = reader.readLine()) != null) {
+            if (line.length() > 0) {
+                count++;
+
+                String[] parts = line.split(",");
+                Assert.assertEquals(5, parts.length);
+
+                Assert.assertTrue(line,
+                                  parts[0].startsWith(targetSpacePrefix0) ||
+                                      parts[0].startsWith(targetSpacePrefix1));
+                itemToStatus.put(new ContentLocation(parts[0], parts[1]),
+                                 parts[4]);
+            }
+        }
+        reader.close();
+
+        Assert.assertEquals(items.size(), count);
+        Assert.assertTrue(items.size() > 0);
+
+        for (ContentLocation item : items) {
+            String status = itemToStatus.get(item);
+            Assert.assertNotNull(item.toString(), status);
+
+            String corrupt = corruptItems.get(item);
+            String expectedStatus = corrupt == null ? "VALID" : corrupt;
+            Assert.assertEquals(expectedStatus, status);
+        }
+    }
+
+    private void verifyGeneratedHashFile(String contentId,
+                                         Collection<ContentLocation> items,
+                                         String salt) throws IOException {
+        BufferedReader reader = getFileReader(contentId);
+        verifyGeneratedHashes(reader, items, salt);
+    }
+
+    private void verifyGeneratedHashContent(String contentId,
+                                            Collection<ContentLocation> items,
+                                            String salt) throws Exception {
+        BufferedReader reader = getContentReader(contentId);
+        verifyGeneratedHashes(reader, items, salt);
+    }
+
+    private void verifyGeneratedHashes(BufferedReader reader,
+                                       Collection<ContentLocation> items,
+                                       String salt) throws IOException {
+        Map<ContentLocation, String> itemToMD5 = new HashMap<ContentLocation, String>();
+
+        reader.readLine(); // not counting header line
+
+        String line;
+        int count = 0;
         while ((line = reader.readLine()) != null) {
             count++;
 
             String[] parts = line.split(",");
             Assert.assertEquals(3, parts.length);
 
-            Assert.assertEquals(targetSpaceId, parts[0]);
-            idToMD5.put(parts[1], parts[2]);
+            Assert.assertTrue(line,
+                              parts[0].startsWith(targetSpacePrefix0) ||
+                                  parts[0].startsWith(targetSpacePrefix1));
+            itemToMD5.put(new ContentLocation(parts[0], parts[1]), parts[2]);
         }
         reader.close();
+
         Assert.assertEquals(items.size(), count);
 
         // uses knowledge of how content was created in "beforeClass()" above.
         Assert.assertTrue(items.size() > 0);
-        for (String contentId : items) {
-            String md5 = idToMD5.get(contentId);
+        for (ContentLocation item : items) {
+            String md5 = itemToMD5.get(item);
             Assert.assertNotNull(md5);
 
-            String expectedMd5 = getMd5("data-" + contentId + salt);
+            String expectedMd5 = getMd5("data-" + item.getContentId() + salt);
             Assert.assertEquals(expectedMd5, md5);
         }
     }
@@ -204,6 +386,20 @@ public class TestFixityService extends FixityServiceTestBase {
                             msg.getState());
     }
 
+    private BufferedReader getFileReader(String contentId)
+        throws FileNotFoundException {
+        File outFile = new File(fixity.getServiceWorkDir(), contentId);
+        Assert.assertTrue(outFile.exists());
+
+        return new BufferedReader(new FileReader(outFile));
+    }
+
+    private BufferedReader getContentReader(String contentId) throws Exception {
+        Content content = getContent(adminSpaceId, contentId);
+        Assert.assertNotNull(content);
+
+        return new BufferedReader(new InputStreamReader(content.getStream()));
+    }
 
     private Content getContent(final String spaceId, final String contentId)
         throws Exception {

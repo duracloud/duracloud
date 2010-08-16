@@ -42,6 +42,9 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
     private final Logger log = LoggerFactory.getLogger(FixityService.class);
 
+    public static final String PHASE_FIND = "FindHashes";
+    public static final String PHASE_COMPARE = "CompareHashes";
+
     private static final String DEFAULT_DURASTORE_HOST = "localhost";
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
@@ -124,7 +127,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             contentStore,
             outputSpaceId,
             outputContentId,
-            "FindHashes",
+            PHASE_FIND,
             workDir);
 
         ServiceWorkload workload = new HashFinderWorkload(serviceOptions,
@@ -168,7 +171,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             contentStore,
             outputSpaceId,
             reportContentId,
-            "CompareHashes",
+            PHASE_COMPARE,
             previousPhaseStatus,
             workDir);
 

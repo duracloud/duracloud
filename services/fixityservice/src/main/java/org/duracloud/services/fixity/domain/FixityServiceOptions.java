@@ -150,7 +150,7 @@ public class FixityServiceOptions {
                 verifyNotNull(providedListingContentIdA, "prListingContentIdA");
                 verifyNull(providedListingSpaceIdB, "providedListingSpaceIdB");
                 verifyNull(providedListingContentIdB, "proListingContentIdB");
-                verifyNull(targetSpaceId, "targetSpaceId");
+                verifyNotNull(targetSpaceId, "targetSpaceId");
                 verifyNotNull(outputSpaceId, "outputSpaceId");
                 verifyNotNull(outputContentId, "outputContentId");
                 verifyNotNull(reportContentId, "reportContentId");

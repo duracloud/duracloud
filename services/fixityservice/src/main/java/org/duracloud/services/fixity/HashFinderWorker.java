@@ -118,7 +118,10 @@ public class HashFinderWorker implements Runnable {
 
         String hash = metadata.get(StorageProvider.METADATA_CONTENT_MD5);
         if (null == hash) {
-            throwRuntime("hash metdata element not found");
+            hash = metadata.get(StorageProvider.METADATA_CONTENT_CHECKSUM);
+        }
+        if (null == hash) {
+            throwRuntime("hash metadata element not found");
         }
         return hash;
     }

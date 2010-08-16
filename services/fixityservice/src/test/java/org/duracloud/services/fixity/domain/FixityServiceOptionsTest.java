@@ -7,7 +7,6 @@
  */
 package org.duracloud.services.fixity.domain;
 
-import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -177,7 +176,7 @@ public class FixityServiceOptionsTest {
 
     @Test
     public void testVerifyAllInOneListMode() {
-        params = new HashMap<String,String>();
+        params = new HashMap<String, String>();
         params.put(modeKey, FixityServiceOptions.Mode.ALL_IN_ONE_LIST.getKey());
         params.put(hashApproachKey, hashApproach);
         params.put(saltKey, salt);
@@ -195,14 +194,16 @@ public class FixityServiceOptionsTest {
 
     @Test
     public void testVerifyAllInOneSpaceMode() {
-        params = new HashMap<String,String>();
-        params.put(modeKey, FixityServiceOptions.Mode.ALL_IN_ONE_SPACE.getKey());
+        params = new HashMap<String, String>();
+        params.put(modeKey,
+                   FixityServiceOptions.Mode.ALL_IN_ONE_SPACE.getKey());
         params.put(hashApproachKey, hashApproach);
         params.put(saltKey, salt);
         params.put(failFastKey, failFast);
         params.put(storeIdKey, storeId);
         params.put(providedListingSpaceIdAKey, providedListingSpaceIdA);
         params.put(providedListingContentIdAKey, providedListingContentIdA);
+        params.put(targetSpaceIdKey, targetSpaceId);
         params.put(outputSpaceIdKey, outputSpaceId);
         params.put(outputContentIdKey, outputContentId);
         params.put(reportContentIdKey, reportContentId);
@@ -214,7 +215,7 @@ public class FixityServiceOptionsTest {
 
     @Test
     public void testVerifyGenerateListMode() {
-        params = new HashMap<String,String>();
+        params = new HashMap<String, String>();
         params.put(modeKey, FixityServiceOptions.Mode.GENERATE_LIST.getKey());
         params.put(hashApproachKey, hashApproach);
         params.put(saltKey, salt);
@@ -231,7 +232,7 @@ public class FixityServiceOptionsTest {
 
     @Test
     public void testVerifyGenerateSpaceMode() {
-        params = new HashMap<String,String>();
+        params = new HashMap<String, String>();
         params.put(modeKey, FixityServiceOptions.Mode.GENERATE_SPACE.getKey());
         params.put(hashApproachKey, hashApproach);
         params.put(saltKey, salt);
@@ -247,7 +248,7 @@ public class FixityServiceOptionsTest {
 
     @Test
     public void testVerifyCompareMode() {
-        params = new HashMap<String,String>();
+        params = new HashMap<String, String>();
         params.put(modeKey, FixityServiceOptions.Mode.COMPARE.getKey());
         params.put(failFastKey, failFast);
         params.put(storeIdKey, storeId);
