@@ -19,6 +19,8 @@ import org.apache.hadoop.mapred.Reporter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Mapper used to process files.
@@ -30,8 +32,22 @@ public class ProcessFileMapper extends MapReduceBase
 	implements Mapper<Text, Text, Text, Text>
 {
     public static final String LOCAL_FS = "file://";
-    protected JobConf jobConf;
 
+    public static final String RESULT = "result";
+    public static final String SUCCESS = "success";
+    public static final String FAILURE = "failure";
+
+    public static final String INPUT_PATH = "input-file-path";
+    public static final String RESULT_PATH = "result-file-path";
+    public static final String ERR_MESSAGE = "error-message";
+
+    protected JobConf jobConf;
+    protected Map<String, String> resultInfo;
+
+    public ProcessFileMapper() {
+        resultInfo = new HashMap<String, String>();
+    }
+    
     @Override
     public void configure(JobConf job){
         this.jobConf = job;
@@ -52,14 +68,12 @@ public class ProcessFileMapper extends MapReduceBase
             reporter.setStatus("Processing file: " + filePath);
             System.out.println("Starting map processing for file: " + filePath);
 
-            Path remotePath = new Path(filePath);
-            String origFileName = remotePath.getName();
-
             // Copy the input file to local storage
+            Path remotePath = new Path(filePath);
             File localFile = copyFileLocal(remotePath);
 
             // Process the local file
-            File resultFile = processFile(localFile, origFileName);
+            File resultFile = processFile(localFile);
 
             System.out.println("File processing complete, result file " +
                                "generated: " + resultFile.getName());
@@ -71,21 +85,23 @@ public class ProcessFileMapper extends MapReduceBase
             // Delete the local file
             FileUtils.deleteQuietly(localFile);
 
-            String results = "input: " + filePath +
-                             " output: " + finalResultFilePath;
-            output.collect(new Text("success:"), new Text(results));
+            // Collect result information
+            resultInfo.put(RESULT, SUCCESS);
+            resultInfo.put(INPUT_PATH, filePath);
+            resultInfo.put(RESULT_PATH, finalResultFilePath);
 
             System.out.println("Map processing completed successfully for: " +
                                filePath);
         } catch(IOException e) {
-            String results = "input: " + filePath +
-                             " error: " + e.getMessage();
-            output.collect(new Text("failure:"), new Text(results));
-
+            resultInfo.put(RESULT, FAILURE);
+            resultInfo.put(ERR_MESSAGE, e.getMessage());
+            
             System.out.println("Map processing failed for: " +
                                filePath + " due to: " + e.getMessage());
             e.printStackTrace(System.err);
         }
+
+        output.collect(new Text(collectResult()), new Text(""));
 
         reporter.setStatus("Processing complete for file: " + filePath);
     }
@@ -102,7 +118,7 @@ public class ProcessFileMapper extends MapReduceBase
         FileSystem fs = remotePath.getFileSystem(new JobConf());
 
         if(fs.isFile(remotePath)) {
-            File localFile = File.createTempFile("local", fileName);
+            File localFile = new File(getTempDir(), fileName);
             Path localPath = new Path(LOCAL_FS + localFile.getAbsolutePath());
 
             System.out.println("Copying file (" + fileName +
@@ -136,10 +152,10 @@ public class ProcessFileMapper extends MapReduceBase
      * overridden by subclasses.
      *
      * @param file the file to be processed
-     * @param fileName the original name of the file to be processed
      * @return the file resulting from the processing
      */
-    protected File processFile(File file, String fileName) throws IOException {
+    protected File processFile(File file) throws IOException {
+        String fileName = "result-" + file.getName();        
         if(!fileName.endsWith(".txt")) {
             fileName += ".txt";
         }
@@ -181,6 +197,24 @@ public class ProcessFileMapper extends MapReduceBase
                 System.out.println(error);
                 throw new IOException(error);
             }
+    }
+
+    /**
+     * Collects the result of the mapping process. This method may be
+     * overridden to provide more specific result info.
+     */
+    protected String collectResult() throws IOException {
+        String result =
+            RESULT + "=" + resultInfo.get(RESULT)
+            + ", " + INPUT_PATH + "=" + resultInfo.get(INPUT_PATH)
+            + ", " + RESULT_PATH + "=" + resultInfo.get(RESULT_PATH);
+
+        String errMsg = resultInfo.get(ERR_MESSAGE);
+        if(errMsg != null) {
+            result += ", " + ERR_MESSAGE + "=" + errMsg;
+        }
+
+        return result;
     }
 
     /**

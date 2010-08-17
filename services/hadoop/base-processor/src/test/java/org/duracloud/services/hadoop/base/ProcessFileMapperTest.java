@@ -12,7 +12,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
-import org.duracloud.services.hadoop.base.ProcessFileMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +60,7 @@ public class ProcessFileMapperTest {
         testFiles.add(fileToProcess);
         FileUtils.writeStringToFile(fileToProcess, fileContent);
 
-        File resultFile = mapper.processFile(fileToProcess, "fileName");
+        File resultFile = mapper.processFile(fileToProcess);
         testFiles.add(resultFile);
 
         assertNotNull(resultFile);
@@ -90,10 +89,7 @@ public class ProcessFileMapperTest {
         Text resultKey = collection.keySet().iterator().next();
         assertNotNull(resultKey);
         assertTrue(resultKey.toString().contains("success"));
-
-        Text resultValue = collection.get(resultKey);
-        assertNotNull(resultValue);
-        assertTrue(resultValue.toString().contains(key.toString()));
+        assertTrue(resultKey.toString().contains(key.toString()));
     }
 
     private class SimpleOutputCollector<K, V>
@@ -118,7 +114,7 @@ public class ProcessFileMapperTest {
         }
 
         @Override
-        protected File processFile(File file, String fileName) throws IOException {
+        protected File processFile(File file) throws IOException {
             return new File("/processed/file");
         }
 

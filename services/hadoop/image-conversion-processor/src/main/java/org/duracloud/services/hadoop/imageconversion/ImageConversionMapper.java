@@ -16,7 +16,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,29 +29,54 @@ import java.util.List;
  */
 public class ImageConversionMapper extends ProcessFileMapper {
 
+    public static final String DATE = "date";
+    public static final String PROC_TIME = "processing-time";
+    public static final String SRC_SIZE = "source-file-bytes";
+
     /**
      * Converts an image file.
      *
      * @param file the file to be converted
-     * @param fileName the original name of the image file
      * @return the converted file
      */
-    protected File processFile(File file, String fileName) throws IOException {
+    @Override
+    protected File processFile(File file) throws IOException {
+        resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
+
         String destFormat = jobConf.get(ICInitParamParser.DEST_FORMAT);
         String colorSpace = jobConf.get(ICInitParamParser.COLOR_SPACE);
 
         File workDir = file.getParentFile();
         File script = createScript(workDir, colorSpace);
-        return convertImage(script.getAbsolutePath(),
-                            file,
-                            destFormat,
-                            workDir);
+
+        long startProcTime = System.currentTimeMillis();
+        File resultFile = convertImage(script.getAbsolutePath(),
+                                       file,
+                                       destFormat,
+                                       workDir);
+        long processingTime = System.currentTimeMillis() - startProcTime;
+        resultInfo.put(PROC_TIME, String.valueOf(processingTime));
+
+        return resultFile;
+    }
+
+    @Override
+    protected String collectResult() throws IOException {                
+        String result = super.collectResult();
+        result += ", " + PROC_TIME + "=" + resultInfo.get(PROC_TIME);
+        result += ", " + SRC_SIZE + "=" +  resultInfo.get(SRC_SIZE);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        String now = format.format(new Date(System.currentTimeMillis()));
+        result += ", " + DATE + "=" + now;
+
+        return result;
     }
 
     /*
-     * Converts a local image to a given format using ImageMagick.
-     * Returns the name of the converted image.
-     */
+    * Converts a local image to a given format using ImageMagick.
+    * Returns the name of the converted image.
+    */
     private File convertImage(String convertScript,
                               File sourceFile,
                               String toFormat,
