@@ -44,4 +44,11 @@ public class ICJobBuilder extends JobBuilder {
         return ImageConversionMapper.class;
     }
 
+    /**
+     * {@inheritDoc}
+     */    
+    @Override
+    protected Class getInputFormat() {
+        return ICInputFormat.class;
+    }
 }

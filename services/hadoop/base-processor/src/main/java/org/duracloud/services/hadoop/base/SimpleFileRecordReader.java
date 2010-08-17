@@ -30,9 +30,10 @@ import java.io.IOException;
 public class SimpleFileRecordReader implements RecordReader<Text, Text> {
 
     private FileSplit inputSplit;
-    private JobConf jobConf;
-    private Reporter reporter;
     private String filePath;
+
+    protected JobConf jobConf;
+    protected Reporter reporter;
 
     public SimpleFileRecordReader(FileSplit inputSplit,
                                   JobConf jobConf,
@@ -42,6 +43,11 @@ public class SimpleFileRecordReader implements RecordReader<Text, Text> {
         this.reporter = reporter;
     }
 
+    /**
+     * Store the next record to be processed in the provided key/value objects.
+     * Returns true the first time the method is called for a given file and
+     * false thereafter.
+     */
     @Override
     public boolean next(Text key, Text value) throws IOException {
         boolean result = false;
@@ -52,12 +58,17 @@ public class SimpleFileRecordReader implements RecordReader<Text, Text> {
             System.out.println("Record reader handling file: " + filePath);
 
             if(filePath != null && !filePath.endsWith("-space-metadata")) {
-                key.set(filePath);
+                if(verifyProcessFile(filePath)) {
+                    key.set(filePath);
 
-                Path outputPath = FileOutputFormat.getOutputPath(jobConf);
-                value.set(outputPath.toString());
+                    Path outputPath = FileOutputFormat.getOutputPath(jobConf);
+                    value.set(outputPath.toString());
 
-                result = true;
+                    result = true;
+                } else {
+                    System.out.println("File with path: " + filePath +
+                                       " will not be processed");
+                }
             }
         }
 
@@ -71,6 +82,19 @@ public class SimpleFileRecordReader implements RecordReader<Text, Text> {
         }
 
         return result;
+    }
+
+    /**
+     * Verifies that the file at the provided file path should, indeed, be
+     * processed. This method is provided for purposes of being overridden
+     * to specify when a file should or should not be passed along to the
+     * mapper for processing. The defaul implementation always returns true.
+     *
+     * @param filePath the path of the file to be verified
+     * @return true if the file should be processed by the mapper, false otherwise
+     */
+    protected boolean verifyProcessFile(String filePath) {
+        return true;
     }
 
     /**

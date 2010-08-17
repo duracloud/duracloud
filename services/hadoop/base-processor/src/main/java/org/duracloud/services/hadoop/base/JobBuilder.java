@@ -62,7 +62,7 @@ public class JobBuilder {
 
         // Configure input path
         WholeFileInputFormat.addInputPath(conf, new Path(inputPathPrefix));
-        conf.setInputFormat(WholeFileInputFormat.class);
+        conf.setInputFormat(getInputFormat());
 
         // Configure output path
         AltTextOutputFormat.setOutputPath(conf, new Path(outputPath));
@@ -115,6 +115,18 @@ public class JobBuilder {
      */
     protected Class getReducer() {
         return ResultsReducer.class;
+    }
+
+    /**
+     * Retrieves the input format which will be used to determine the input
+     * to the mapper functions.
+     * <p/>
+     * This method can be overridden to provide an alternate input format
+     * implementation class. Note that the returned class is expected to be a
+     * subclass of WholeFileInputFormat 
+     */
+    protected Class getInputFormat() {
+        return WholeFileInputFormat.class;
     }
 
 }

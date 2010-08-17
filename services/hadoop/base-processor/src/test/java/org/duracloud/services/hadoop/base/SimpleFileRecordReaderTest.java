@@ -14,7 +14,6 @@ import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextOutputFormat;
-import org.duracloud.services.hadoop.base.SimpleFileRecordReader;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -31,11 +30,7 @@ public class SimpleFileRecordReaderTest {
         String inputPath = "file://inputPath";
         String outputPath = "file://outputPath";
 
-        // An unnecessary stack track is printed when creating a JobConf
-        // See org.apache.hadoop.conf.Configuration line 211
-        System.out.println("--- BEGIN EXPECTED STACK TRACE ---");
-        JobConf conf = new JobConf();
-        System.out.println("--- END EXPECTED STACK TRACE ---");
+        JobConf conf = HadoopTestUtil.createJobConf();
 
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(Text.class);
