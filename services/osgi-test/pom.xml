@@ -80,6 +80,10 @@
                   <value>${project.build.directory}/osgi-bundles</value>
                 </property>
                 <property>
+                  <name>STORE_PORT</name>
+                  <value>${tomcat.port}</value>
+                </property>
+                <property>
                   <name>PROJECT_VERSION</name>
                   <value>${project.version}</value>
                 </property>

@@ -222,7 +222,8 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         return new SingleSelectUserConfig("generateHashSpaceId",
                                           "Space over which to generate hashes",
                                           getSpaceOptions(),
-                                          Mode.GENERATE_SPACE.getKey());
+                                          or(Mode.GENERATE_SPACE,
+                                             Mode.ALL_IN_ONE_SPACE));
     }
 
     private TextUserConfig getContentIdOfProvidedListingConfig() {

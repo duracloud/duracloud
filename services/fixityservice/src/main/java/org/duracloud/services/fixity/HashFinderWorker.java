@@ -76,10 +76,12 @@ public class HashFinderWorker implements Runnable {
                             String spaceId,
                             String contentId,
                             String hash) {
-        resultListener.processServiceResult(new HashFinderResult(success,
-                                                                 spaceId,
-                                                                 contentId,
-                                                                 hash));
+        HashFinderResult result = new HashFinderResult(success,
+                                                       spaceId,
+                                                       contentId,
+                                                       hash);
+        log.debug("Sending result: " + result);
+        resultListener.processServiceResult(result);
     }
 
     private String getHash() {

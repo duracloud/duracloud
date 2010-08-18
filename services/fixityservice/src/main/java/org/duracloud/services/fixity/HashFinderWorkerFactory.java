@@ -11,14 +11,17 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.duracloud.services.fixity.worker.ServiceWorkerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew Woods
  *         Date: Aug 5, 2010
  */
 public class HashFinderWorkerFactory implements ServiceWorkerFactory<ContentLocation> {
+
+    private final Logger log = LoggerFactory.getLogger(HashFinderWorkerFactory.class);
 
     private FixityServiceOptions serviceOptions;
     private ContentStore contentStore;
@@ -34,6 +37,7 @@ public class HashFinderWorkerFactory implements ServiceWorkerFactory<ContentLoca
 
     @Override
     public Runnable newWorker(ContentLocation workItemLocation) {
+        log.debug("new worker: " + workItemLocation);
         return new HashFinderWorker(serviceOptions,
                                     contentStore,
                                     workItemLocation,

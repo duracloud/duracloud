@@ -17,8 +17,8 @@ import java.util.Map;
 public abstract class BaseService implements ComputeService {
 
     private String serviceId;
-
     private String serviceWorkDir;
+    private String error;
 
     private ServiceStatus serviceStatus = ServiceStatus.INSTALLED;
 
@@ -34,6 +34,11 @@ public abstract class BaseService implements ComputeService {
         Map<String, String> props = new HashMap<String, String>();
         props.put("serviceId", getServiceId());
         props.put("serviceStatus", getServiceStatus().name());
+
+        if (error != null) {
+            props.put(ComputeService.ERROR_KEY, error);
+        }
+        
         return props;
     }
 
@@ -70,5 +75,13 @@ public abstract class BaseService implements ComputeService {
 
     public void setServiceWorkDir(String serviceWorkDir) {
         this.serviceWorkDir = serviceWorkDir;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }

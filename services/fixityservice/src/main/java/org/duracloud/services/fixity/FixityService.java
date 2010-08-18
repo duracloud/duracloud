@@ -72,10 +72,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private String outputContentId;
     private String reportContentId;
 
-    private int threads;
-
-
-    private String text;
+    private int threads = 3;
 
 
     @Override
@@ -98,6 +95,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             err.append(e.getMessage());
             log.error(err.toString());
 
+            setError(err.toString());
             this.setServiceStatus(ServiceStatus.INSTALLED);
         }
     }
@@ -253,94 +251,110 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     public void setDuraStoreHost(String duraStoreHost) {
+        log.info("setDuraStoreHost (" + duraStoreHost + ")");
         this.contentStore = null;
         this.duraStoreHost = duraStoreHost;
     }
 
     public void setDuraStorePort(String duraStorePort) {
+        log.info("set duraStorePort(" + duraStorePort + ")");
         this.contentStore = null;
         this.duraStorePort = duraStorePort;
     }
 
     public void setDuraStoreContext(String duraStoreContext) {
+        log.info("set duraStoreContext(" + duraStoreContext + ")");
         this.contentStore = null;
         this.duraStoreContext = duraStoreContext;
     }
 
     public void setUsername(String username) {
+        log.info("set username(" + username + ")");
         this.username = username;
     }
 
     public void setPassword(String password) {
+        log.info("set password(" + password + ")");
         this.password = password;
     }
 
     public void setMode(String mode) {
+        log.info("set mode(" + mode + ")");
         this.mode = mode;
     }
 
     public void setHashApproach(String hashApproach) {
+        log.info("set hashApproach(" + hashApproach + ")");
         this.hashApproach = hashApproach;
     }
 
     public void setSalt(String salt) {
+        log.info("set salt(" + salt + ")");
         this.salt = salt;
     }
 
     public void setFailFast(String failFast) {
+        log.info("set failFast(" + failFast + ")");
         isFailFast = failFast;
     }
 
     public void setStoreId(String storeId) {
+        log.info("set storeId(" + storeId + ")");
         this.storeId = storeId;
     }
 
     public void setProvidedListingSpaceIdA(String providedListingSpaceIdA) {
+        log.info(
+            "set providedListingSpaceIdA(" + providedListingSpaceIdA + ")");
         this.providedListingSpaceIdA = providedListingSpaceIdA;
     }
 
     public void setProvidedListingSpaceIdB(String providedListingSpaceIdB) {
+        log.info(
+            "set providedListingSpaceIdB(" + providedListingSpaceIdB + ")");
         this.providedListingSpaceIdB = providedListingSpaceIdB;
     }
 
     public void setProvidedListingContentIdA(String providedListingContentIdA) {
+        log.info(
+            "set providedListingContentIdA(" + providedListingContentIdA + ")");
         this.providedListingContentIdA = providedListingContentIdA;
     }
 
     public void setProvidedListingContentIdB(String providedListingContentIdB) {
+        log.info(
+            "set providedListingContentIdB(" + providedListingContentIdB + ")");
         this.providedListingContentIdB = providedListingContentIdB;
     }
 
     public void setTargetSpaceId(String targetSpaceId) {
+        log.info("set targetSpaceId(" + targetSpaceId + ")");
         this.targetSpaceId = targetSpaceId;
     }
 
     public void setOutputSpaceId(String outputSpaceId) {
+        log.info("set outputSpaceId(" + outputSpaceId + ")");
         this.outputSpaceId = outputSpaceId;
     }
 
     public void setOutputContentId(String outputContentId) {
+        log.info("set outputContentId(" + outputContentId + ")");
         this.outputContentId = outputContentId;
     }
 
     public void setReportContentId(String reportContentId) {
+        log.info("set reportContentId(" + reportContentId + ")");
         this.reportContentId = reportContentId;
     }
 
     public void setThreads(int threads) {
+        log.info("set threads(" + threads + ")");
         this.threads = threads;
     }
 
-
-    public String getText() {
-        return text;
+    public String getMode() {
+        return this.mode;
     }
-
-    public void setText(String text) {
-        log.info("FixityService: setText (" + text + ")");
-        this.text = text;
-    }
-
 
     public String getDuraStoreHost() {
         if (null == duraStoreHost) {

@@ -79,12 +79,6 @@ public class ServiceResultProcessor implements ServiceResultListener {
     }
 
     public synchronized void processServiceResult(ServiceResult result) {
-        if (result.isSuccess()) {
-            successfulResults++;
-        } else {
-            unsuccessfulResults++;
-        }
-
         writeToLocalResultsFile(result);
 
         InputStream resultsStream = getLocalResultsFileStream();
@@ -101,6 +95,12 @@ public class ServiceResultProcessor implements ServiceResultListener {
                 "Error attempting to store service results: " + e.getMessage());
         } finally {
             IOUtils.closeQuietly(resultsStream);
+        }
+
+        if (result.isSuccess()) {
+            successfulResults++;
+        } else {
+            unsuccessfulResults++;
         }
     }
 

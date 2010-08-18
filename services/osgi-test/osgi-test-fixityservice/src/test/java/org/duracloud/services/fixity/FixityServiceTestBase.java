@@ -42,19 +42,8 @@ import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
  */
 public class FixityServiceTestBase {
 
-
     protected FixityService fixity;
     private File workDir = new File("target/test-fixity-service");
-
-
-    private String listingText;
-
-    private final String listingSpaceId = "listing-space-id";
-    private final String outputSpaceId = "output-space-id";
-    private final String spaceId = "space-id";
-    private final String contentId = "content-id-";
-    private final String hash = "hash-";
-
 
     private static final int NUM_WORK_ITEMS = 10;
     private static List<String> spaceIds;
@@ -73,7 +62,6 @@ public class FixityServiceTestBase {
     protected static final String listingContentId = "listing-content-id";
     protected static final String listingGoodContentId = "listing-good-content-id";
     protected static final String listingBadContentId = "listing-bad-content-id";
-
 
     private static final String DEFAULT_PORT = "8080";
     private static final String context = "durastore";

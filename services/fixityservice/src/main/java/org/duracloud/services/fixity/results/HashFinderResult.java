@@ -55,4 +55,18 @@ public class HashFinderResult implements ServiceResult {
     public boolean isSuccess() {
         return success;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder("HashFinderResult [");
+        sb.append("spaceId=");
+        sb.append(spaceId);
+        sb.append(",contentId=");
+        sb.append(contentId);
+        sb.append(",hash=");
+        sb.append(hash);
+        sb.append(",success=");
+        sb.append(success);
+        sb.append("]");
+        return sb.toString();
+    }
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 public interface ComputeService {
 
     public enum ServiceStatus {INSTALLED, STARTING, STARTED, STOPPING, STOPPED};
+    public static final String ERROR_KEY = "error-prop";
 
     public void start() throws Exception;
 
