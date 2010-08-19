@@ -28,9 +28,15 @@ import java.util.Iterator;
  *
  * @author Bill Branan
  */
-public class StorageProviderFactory extends ProviderFactoryBase {
+public class StorageProviderFactoryImpl extends ProviderFactoryBase implements StorageProviderFactory {
 
-    private static StatelessStorageProvider statelessProvider;
+    private StatelessStorageProvider statelessProvider;
+
+    public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
+                                      StatelessStorageProvider statelessStorageProvider) {
+        super(storageAccountManager);
+        this.statelessProvider = statelessStorageProvider;
+    }
 
     /**
      * Retrieves the ids for all available storage provider accounts
@@ -38,7 +44,8 @@ public class StorageProviderFactory extends ProviderFactoryBase {
      * @return
      * @throws StorageException
      */
-    public static Iterator<String> getStorageProviderAccountIds()
+    @Override
+    public Iterator<String> getStorageProviderAccountIds()
             throws StorageException {
         return getAccountManager().getStorageAccountIds();
     }
@@ -49,7 +56,8 @@ public class StorageProviderFactory extends ProviderFactoryBase {
      * @return
      * @throws StorageException
      */
-    public static String getPrimaryStorageProviderAccountId()
+    @Override
+    public String getPrimaryStorageProviderAccountId()
             throws StorageException {
         return getAccountManager().getPrimaryStorageAccountId();
     }
@@ -60,7 +68,8 @@ public class StorageProviderFactory extends ProviderFactoryBase {
      * @return
      * @throws StorageException
      */
-    public static StorageProvider getStorageProvider()
+    @Override
+    public StorageProvider getStorageProvider()
             throws StorageException {
         return getStorageProvider(null);
     }
@@ -74,7 +83,8 @@ public class StorageProviderFactory extends ProviderFactoryBase {
      * @return
      * @throws StorageException
      */
-    public static StorageProvider getStorageProvider(String storageAccountId)
+    @Override
+    public StorageProvider getStorageProvider(String storageAccountId)
             throws StorageException {
         StorageAccountManager storageAccountManager = getAccountManager();
         StorageAccount account =
@@ -117,7 +127,8 @@ public class StorageProviderFactory extends ProviderFactoryBase {
      * @return
      * @throws StorageException
      */
-    public static StorageProviderType getStorageProviderType(String storageAccountId)
+    @Override
+    public StorageProviderType getStorageProviderType(String storageAccountId)
             throws StorageException {
         StorageAccount account =
             getAccountManager().getStorageAccount(storageAccountId);
@@ -127,14 +138,5 @@ public class StorageProviderFactory extends ProviderFactoryBase {
             return StorageProviderType.UNKNOWN;
         }
     }
-
-    public StatelessStorageProvider getStatelessProvider() {
-        return statelessProvider;
-    }
-
-    public static void setStatelessProvider(StatelessStorageProvider statelessProvider) {
-        StorageProviderFactory.statelessProvider = statelessProvider;
-    }
-
 
 }

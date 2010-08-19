@@ -6,12 +6,46 @@
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
   <!-- REST API resources -->
-  <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" />
-  <bean id="taskRest" class="org.duracloud.durastore.rest.TaskRest" />
-  <bean id="spaceRest" class="org.duracloud.durastore.rest.SpaceRest" />
-  <bean id="contentRest" class="org.duracloud.durastore.rest.ContentRest" />
+  <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" >
+    <constructor-arg ref="storageProviderFactory"/>
+  </bean>
+
+  <bean id="taskRest" class="org.duracloud.durastore.rest.TaskRest" >
+    <constructor-arg ref="taskProviderFactory"/>
+  </bean>
+
+  <bean id="spaceRest" class="org.duracloud.durastore.rest.SpaceRest" >
+    <constructor-arg ref="spaceResource"/>
+  </bean>  
+
+  <bean id="contentRest" class="org.duracloud.durastore.rest.ContentRest" >
+    <constructor-arg ref="contentResource"/>
+  </bean>
+
   <bean id="securityRest" class="org.duracloud.durastore.rest.SecurityRest">
     <constructor-arg ref="userDetailsSvc" />
   </bean>
+
+  <!-- Support beans -->
+  <bean id="spaceResource" class="org.duracloud.durastore.rest.SpaceResource" >
+    <constructor-arg ref="storageProviderFactory"/>
+  </bean>
+
+  <bean id="contentResource" class="org.duracloud.durastore.rest.ContentResource" >
+    <constructor-arg ref="storageProviderFactory"/>
+  </bean>
+
+  <bean id="taskProviderFactory" class="org.duracloud.durastore.util.TaskProviderFactory">
+    <constructor-arg ref="storageAcctManager"/>
+  </bean>
+  
+  <bean id="storageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">
+    <constructor-arg ref="statelessStoragePvdr" />
+    <constructor-arg ref="storageAcctManager" />
+  </bean>
+
+  <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
+
+  <bean id="storageAcctManager" class="org.duracloud.storage.domain.StorageAccountManager"/>
 
 </beans>

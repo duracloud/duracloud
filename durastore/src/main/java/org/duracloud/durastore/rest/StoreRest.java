@@ -29,6 +29,12 @@ import java.util.Iterator;
 @Path("/stores")
 public class StoreRest extends BaseRest {
 
+    private StorageProviderFactory storageProviderFactory;
+
+    public StoreRest(StorageProviderFactory storageProviderFactory) {
+        this.storageProviderFactory = storageProviderFactory;
+    }
+
     /**
      * Initializes the instance. Expects as POST data
      * an XML file which includes credentials for all
@@ -42,7 +48,7 @@ public class StoreRest extends BaseRest {
         try {
             RestUtil restUtil = new RestUtil();
             content = restUtil.getRequestContent(request, headers);
-            StorageProviderFactory.initialize(content.getContentStream());
+            storageProviderFactory.initialize(content.getContentStream());
             String responseText = "Initialization Successful";
             return Response.ok(responseText, TEXT_PLAIN).build();
         } catch (Exception e) {
@@ -62,16 +68,16 @@ public class StoreRest extends BaseRest {
         try {
             // Get the list of storage provider ids
             Iterator<String> storageIDs =
-                StorageProviderFactory.getStorageProviderAccountIds();
+                storageProviderFactory.getStorageProviderAccountIds();
 
             // Get the primary storage provider id
             String primaryId =
-                StorageProviderFactory.getPrimaryStorageProviderAccountId();
+                storageProviderFactory.getPrimaryStorageProviderAccountId();
 
             while(storageIDs.hasNext()) {
                 String storageID = storageIDs.next();
                 StorageProviderType providerType =
-                    StorageProviderFactory.getStorageProviderType(storageID);
+                    storageProviderFactory.getStorageProviderType(storageID);
 
                 Element storageAcct = new Element("storageAcct");
                 storageAcct.setAttribute("isPrimary",

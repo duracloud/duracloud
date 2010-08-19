@@ -148,7 +148,9 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
                 String storesXML = response.getResponseBody();
                 if (storesXML != null) {
                     InputStream is = new ByteArrayInputStream(storesXML.getBytes());
-                    return new StorageAccountManager(is, true);
+                    StorageAccountManager storageAccountManager = new StorageAccountManager();
+                    storageAccountManager.initialize(is, true);
+                    return storageAccountManager;
                 } else {
                     throw new StorageException(error + "Response content was null");
                 }

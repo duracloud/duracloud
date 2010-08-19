@@ -33,6 +33,12 @@ import java.util.List;
 @Path("/task")
 public class TaskRest extends BaseRest {
 
+    private TaskProviderFactory taskProviderFactory;
+
+    public TaskRest(TaskProviderFactory taskProviderFactory) {
+        this.taskProviderFactory = taskProviderFactory;
+    }
+
     /**
      * Gets a listing of supported tasks for a given provider
      *
@@ -43,7 +49,7 @@ public class TaskRest extends BaseRest {
                                       String storeID){
         try {
             TaskProvider taskProvider =
-                TaskProviderFactory.getTaskProvider(storeID);
+                taskProviderFactory.getTaskProvider(storeID);
 
             List<String> supportedTasks = taskProvider.getSupportedTasks();
             String responseText =
@@ -75,7 +81,7 @@ public class TaskRest extends BaseRest {
 
         try {
             TaskProvider taskProvider =
-                TaskProviderFactory.getTaskProvider(storeID);
+                taskProviderFactory.getTaskProvider(storeID);
             String responseText =
                 taskProvider.performTask(taskName, taskParameters);
             return Response.ok(responseText, TEXT_PLAIN).build();

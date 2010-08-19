@@ -36,6 +36,12 @@ import java.util.Map;
 @Path("/")
 public class SpaceRest extends BaseRest {
 
+    private SpaceResource spaceResource;
+
+    public SpaceRest(SpaceResource spaceResource) {
+        this.spaceResource = spaceResource;
+    }
+
     /**
      * see SpaceResource.getSpaces()
      * @return 200 response with XML listing of spaces
@@ -46,7 +52,7 @@ public class SpaceRest extends BaseRest {
     public Response getSpaces(@QueryParam("storeID")
                               String storeID) {
         try {
-            String xml = SpaceResource.getSpaces(storeID);
+            String xml = spaceResource.getSpaces(storeID);
             return Response.ok(xml, TEXT_XML).build();
         } catch(ResourceException e) {
             return Response.serverError().entity(e.getMessage()).build();
@@ -73,7 +79,7 @@ public class SpaceRest extends BaseRest {
                              @QueryParam("marker")
                              String marker) {
         try {
-            String xml = SpaceResource.getSpaceContents(spaceID,
+            String xml = spaceResource.getSpaceContents(spaceID,
                                                         storeID,
                                                         prefix,
                                                         maxResults,
@@ -111,7 +117,7 @@ public class SpaceRest extends BaseRest {
                                                 String storeID) {
         try {
             Map<String, String> metadata =
-                SpaceResource.getSpaceMetadata(spaceID, storeID);
+                spaceResource.getSpaceMetadata(spaceID, storeID);
             if(metadata != null) {
                 Iterator<String> metadataNames = metadata.keySet().iterator();
                 while(metadataNames.hasNext()) {
@@ -149,7 +155,7 @@ public class SpaceRest extends BaseRest {
             }
 
             Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
-            SpaceResource.addSpace(spaceID,
+            spaceResource.addSpace(spaceID,
                                    spaceAccess,
                                    userMetadata,
                                    storeID);
@@ -181,7 +187,7 @@ public class SpaceRest extends BaseRest {
 
             Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
 
-            SpaceResource.updateSpaceMetadata(spaceID,
+            spaceResource.updateSpaceMetadata(spaceID,
                                               spaceAccess,
                                               userMetadata,
                                               storeID);
@@ -207,7 +213,7 @@ public class SpaceRest extends BaseRest {
                                 @QueryParam("storeID")
                                 String storeID){
         try {
-            SpaceResource.deleteSpace(spaceID, storeID);
+            spaceResource.deleteSpace(spaceID, storeID);
             String responseText = "Space " + spaceID + " deleted successfully";
             return Response.ok(responseText, TEXT_PLAIN).build();
         } catch(ResourceNotFoundException e) {

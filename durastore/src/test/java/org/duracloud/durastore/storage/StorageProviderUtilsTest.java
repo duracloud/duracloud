@@ -7,33 +7,34 @@
  */
 package org.duracloud.durastore.storage;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.durastore.util.StorageProviderFactory;
+import org.duracloud.durastore.util.StorageProviderFactoryImpl;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
+import org.duracloud.storage.provider.StatelessStorageProviderImpl;
 import org.duracloud.storage.provider.StorageProvider;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Runtime test of Storage Provider utility classes.
  *
  * @author Bill Branan
  */
-public class StorageProviderUtilsTest
-        extends TestCase {
+public class StorageProviderUtilsTest {
 
     private static String accountXml;
 
-    @Override
     @Before
     public void setUp() throws Exception {
         StringBuilder xml = new StringBuilder();
@@ -56,7 +57,8 @@ public class StorageProviderUtilsTest
     @Test
     public void testStorageAccountManager() throws Exception {
         InputStream is = new ByteArrayInputStream(accountXml.getBytes());
-        StorageAccountManager acctManager = new StorageAccountManager(is);
+        StorageAccountManager acctManager = new StorageAccountManager();
+        acctManager.initialize(is);
         assertNotNull(acctManager);
 
         StorageAccount primary = acctManager.getPrimaryStorageAccount();
@@ -71,9 +73,13 @@ public class StorageProviderUtilsTest
     @Test
     public void testStorageProviderUtility() throws Exception {
         InputStream is = new ByteArrayInputStream(accountXml.getBytes());
-        StorageProviderFactory.initialize(is);
+        StorageProviderFactory storageProviderFactory = new StorageProviderFactoryImpl(
+            new StorageAccountManager(),
+            new StatelessStorageProviderImpl());
+
+        storageProviderFactory.initialize(is);
         StorageProvider storage =
-            StorageProviderFactory.getStorageProvider();
+            storageProviderFactory.getStorageProvider();
 
         assertNotNull(storage);
         assertTrue(storage instanceof BrokeredStorageProvider);

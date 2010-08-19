@@ -40,6 +40,12 @@ import java.util.Map;
 @Path("/{spaceID}/{contentID: [^?]+}")
 public class ContentRest extends BaseRest {
 
+    private ContentResource contentResource;
+
+    public ContentRest(ContentResource contentResource) {
+        this.contentResource = contentResource;
+    }
+
     /**
      * see ContentResource.getContent()
      * see ContentResource.getContentMetadata()
@@ -56,14 +62,14 @@ public class ContentRest extends BaseRest {
                                boolean attachment) {
         try {
             Map<String, String> metadata =
-                ContentResource.getContentMetadata(spaceID, contentID, storeID);
+                contentResource.getContentMetadata(spaceID, contentID, storeID);
             String mimetype =
                 metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE);
             if(mimetype == null || mimetype.equals("")) {
                 mimetype = DEFAULT_MIME;
             }
             InputStream content =
-                ContentResource.getContent(spaceID, contentID, storeID);
+                contentResource.getContent(spaceID, contentID, storeID);
             
             ResponseBuilder responseBuilder = Response.ok(content, mimetype);
             if(attachment){
@@ -103,7 +109,7 @@ public class ContentRest extends BaseRest {
                                        String storeID) {
         try {
             Map<String, String> metadata =
-                ContentResource.getContentMetadata(spaceID, contentID, storeID);
+                contentResource.getContentMetadata(spaceID, contentID, storeID);
             return addContentMetadataToResponse(Response.ok(), metadata);
         } catch(ResourceNotFoundException e) {
             return Response.status(HttpStatus.SC_NOT_FOUND)
@@ -226,7 +232,7 @@ public class ContentRest extends BaseRest {
                                  contentMimeType);
             }
 
-            ContentResource.updateContentMetadata(spaceID,
+            contentResource.updateContentMetadata(spaceID,
                                                   contentID,
                                                   contentMimeType,
                                                   userMetadata,
@@ -270,7 +276,7 @@ public class ContentRest extends BaseRest {
         if(content != null) {
             try {
                 checksum =
-                    ContentResource.addContent(spaceID,
+                    contentResource.addContent(spaceID,
                                                contentID,
                                                content.getContentStream(),
                                                content.getMimeType(),
@@ -314,7 +320,7 @@ public class ContentRest extends BaseRest {
                                   @QueryParam("storeID")
                                   String storeID) {
         try {
-            ContentResource.deleteContent(spaceID, contentID, storeID);
+            contentResource.deleteContent(spaceID, contentID, storeID);
             String responseText = "Content " + contentID + " deleted successfully";
             return Response.ok(responseText, TEXT_PLAIN).build();
         } catch(ResourceNotFoundException e) {

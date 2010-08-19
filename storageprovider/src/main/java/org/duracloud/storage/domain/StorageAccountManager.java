@@ -7,12 +7,6 @@
  */
 package org.duracloud.storage.domain;
 
-import java.io.InputStream;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.error.StorageException;
 import org.jdom.Document;
@@ -20,6 +14,11 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Manages storage provider accounts.
@@ -33,9 +32,8 @@ public class StorageAccountManager {
     private String primaryStorageProviderId = null;
     private HashMap<String, StorageAccount> storageAccounts = null;
 
-    public StorageAccountManager(InputStream accountXml)
-    throws StorageException {
-        this(accountXml, false);
+    public void initialize(InputStream accountXml) {
+        this.initialize(accountXml, false);
     }
 
     /**
@@ -48,9 +46,8 @@ public class StorageAccountManager {
      * @param ignoreCredentials
      * @throws StorageException
      */
-    public StorageAccountManager(InputStream accountXml,
-                                 boolean ignoreCredentials)
-    throws StorageException {
+    public void initialize(InputStream accountXml, boolean ignoreCredentials)
+        throws StorageException {
         storageAccounts = new HashMap<String, StorageAccount>();
 
         try {
@@ -127,22 +124,42 @@ public class StorageAccountManager {
     }
 
     public String getPrimaryStorageAccountId() {
+        checkInitialized();
         return primaryStorageProviderId;
     }
 
     public StorageAccount getPrimaryStorageAccount() {
+        checkInitialized();
         return getStorageAccount(primaryStorageProviderId);
     }
 
     public Iterator<String> getStorageAccountIds() {
+        checkInitialized();
         return storageAccounts.keySet().iterator();
     }
 
     public StorageAccount getStorageAccount(String storageProviderId) {
+        checkInitialized();
         return storageAccounts.get(storageProviderId);
     }
 
     public Map<String, StorageAccount> getStorageAccounts() {
+        checkInitialized();
         return storageAccounts;
     }
+
+    private void checkInitialized() throws StorageException {
+        if (!isInitialized()) {
+            String error =
+                "DuraStore's StorageAccountManager must be initialized " +
+                    "with an XML file containing storage account information " +
+                    "before any further requests can be fulfilled.";
+            throw new StorageException(error);
+        }
+    }
+
+    public boolean isInitialized() throws StorageException {
+        return (null != storageAccounts && null != primaryStorageProviderId);
+    }
+
 }

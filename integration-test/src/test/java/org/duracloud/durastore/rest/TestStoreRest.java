@@ -13,9 +13,6 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,6 +21,10 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Runtime test of store REST API. The durastore web application must be
@@ -86,7 +87,8 @@ public class TestStoreRest extends BaseRestTester {
     private StorageAccountManager createStorageAccountManager()
             throws Exception {
         InputStream is = new ByteArrayInputStream(storesXML.getBytes());
-        StorageAccountManager manager = new StorageAccountManager(is, true);
+        StorageAccountManager manager = new StorageAccountManager();
+        manager.initialize(is, true);
         assertNotNull(manager);
         assertNotNull(manager.getStorageAccountIds());
         return manager;

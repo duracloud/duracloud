@@ -16,9 +16,13 @@ import java.io.InputStream;
  * @author: Bill Branan
  * Date: May 20, 2010
  */
-public abstract class ProviderFactoryBase {
+public class ProviderFactoryBase {
 
-    private static StorageAccountManager storageAccountManager;
+    private StorageAccountManager storageAccountManager;
+
+    public ProviderFactoryBase(StorageAccountManager storageAccountManager) {
+        this.storageAccountManager = storageAccountManager;
+    }
 
     /**
      * Initializes DuraStore with account information
@@ -26,19 +30,19 @@ public abstract class ProviderFactoryBase {
      *
      * @param accountXml A stream containing account information in XML format
      */
-    public static void initialize(InputStream accountXml)
+    public void initialize(InputStream accountXml)
             throws StorageException {
         if (accountXml == null) {
             throw new IllegalArgumentException("XML containing account information");
         }
 
-        storageAccountManager = new StorageAccountManager(accountXml);
+        storageAccountManager.initialize(accountXml);
     }
 
     /**
      * Gets the account manager
      */
-    protected static StorageAccountManager getAccountManager()
+    protected StorageAccountManager getAccountManager()
         throws StorageException {
         checkInitialized();
         return storageAccountManager;
@@ -47,11 +51,11 @@ public abstract class ProviderFactoryBase {
     /*
      * Ensures that the account manager has been initialized
      */
-    private static void checkInitialized()
+    private void checkInitialized()
     throws StorageException {
-        if (storageAccountManager == null) {
+        if (storageAccountManager == null || !storageAccountManager.isInitialized()) {
             String error =
-                    "DuraStore must be initilized with an XML file " +
+                    "DuraStore must be initialized with an XML file " +
                     "containing storage account information before any " +
                     "further requests can be fulfilled.";
             throw new StorageException(error);

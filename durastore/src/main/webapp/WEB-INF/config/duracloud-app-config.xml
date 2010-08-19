@@ -16,11 +16,5 @@
   <import resource="messaging-config.xml" />
   <import resource="security-config.xml" />
   
-  <!-- Domain Beans -->
-  <bean id="storageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactory">
-    <property name="statelessProvider" ref="statelessStoragePvdr"/>
-  </bean>
-  
-  <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
 
 </beans>

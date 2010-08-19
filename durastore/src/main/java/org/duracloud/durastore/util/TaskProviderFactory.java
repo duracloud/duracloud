@@ -22,13 +22,17 @@ import org.duracloud.storage.provider.TaskProvider;
  */
 public class TaskProviderFactory extends ProviderFactoryBase {
 
+    public TaskProviderFactory(StorageAccountManager storageAccountManager) {
+        super(storageAccountManager);
+    }
+
     /**
      * Retrieves the primary task provider for a given customer.
      *
      * @return
      * @throws org.duracloud.storage.error.StorageException
      */
-    public static TaskProvider getTaskProvider() {
+    public TaskProvider getTaskProvider() {
         return getTaskProvider(null);
     }
 
@@ -38,7 +42,7 @@ public class TaskProviderFactory extends ProviderFactoryBase {
      * @param storageAccountId - the ID of the provider account
      * @return
      */
-    public static TaskProvider getTaskProvider(String storageAccountId)
+    public TaskProvider getTaskProvider(String storageAccountId)
             throws TaskException {
         StorageAccountManager storageAccountManager = getAccountManager();
         StorageAccount account =

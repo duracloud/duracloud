@@ -30,6 +30,12 @@ public class ContentResource {
 
     private static final Logger log = LoggerFactory.getLogger(ContentResource.class);
 
+    private StorageProviderFactory storageProviderFactory;
+
+    public ContentResource(StorageProviderFactory storageProviderFactory) {
+        this.storageProviderFactory = storageProviderFactory;
+    }
+
     /**
      * Retrieves content from a space.
      *
@@ -37,13 +43,13 @@ public class ContentResource {
      * @param contentID
      * @return InputStream which can be used to read content.
      */
-    public static InputStream getContent(String spaceID,
+    public InputStream getContent(String spaceID,
                                          String contentID,
                                          String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
             return storage.getContent(spaceID, contentID);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("get content",
@@ -62,13 +68,13 @@ public class ContentResource {
      * @param contentID
      * @return Map of content metadata
      */
-    public static Map<String, String> getContentMetadata(String spaceID,
+    public Map<String, String> getContentMetadata(String spaceID,
                                                          String contentID,
                                                          String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
             return storage.getContentMetadata(spaceID, contentID);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("get metadata for content",
@@ -88,7 +94,7 @@ public class ContentResource {
      *
      * @return success
      */
-    public static void updateContentMetadata(String spaceID,
+    public void updateContentMetadata(String spaceID,
                                              String contentID,
                                              String contentMimeType,
                                              Map<String, String> userMetadata,
@@ -96,7 +102,7 @@ public class ContentResource {
     throws ResourceException {
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
 
             // Update content metadata
             if(userMetadata != null) {
@@ -120,7 +126,7 @@ public class ContentResource {
      *
      * @return the checksum of the content as computed by the storage provider
      */
-    public static String addContent(String spaceID,
+    public String addContent(String spaceID,
                                     String contentID,
                                     InputStream content,
                                     String contentMimeType,
@@ -132,7 +138,7 @@ public class ContentResource {
 
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
 
             return storage.addContent(spaceID,
                                       contentID,
@@ -157,13 +163,13 @@ public class ContentResource {
      * @param contentID
      * @return success
      */
-    public static void deleteContent(String spaceID,
+    public void deleteContent(String spaceID,
                                      String contentID,
                                      String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
 
             storage.deleteContent(spaceID, contentID);
         } catch (NotFoundException e) {

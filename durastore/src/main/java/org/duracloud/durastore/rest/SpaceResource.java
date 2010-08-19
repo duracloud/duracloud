@@ -35,6 +35,12 @@ public class SpaceResource {
 
     protected static final Logger log = LoggerFactory.getLogger(SpaceResource.class);
 
+    private StorageProviderFactory storageProviderFactory;
+
+    public SpaceResource(StorageProviderFactory storageProviderFactory) {
+        this.storageProviderFactory = storageProviderFactory;
+    }
+
     /**
      * Provides a listing of all spaces for a customer. Open spaces are
      * always included in the list, closed spaces are included based
@@ -43,14 +49,14 @@ public class SpaceResource {
      * @param storeID
      * @return XML listing of spaces
      */
-    public static String getSpaces(String storeID)
+    public String getSpaces(String storeID)
     throws ResourceException {
         log.debug("Enter");
         Element spacesElem = new Element("spaces");
 
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
 
             Iterator<String> spaces = storage.getSpaces();
             while(spaces.hasNext()) {
@@ -76,11 +82,11 @@ public class SpaceResource {
      * @param storeID
      * @return Map of space metadata
      */
-    public static Map<String, String> getSpaceMetadata(String spaceID, String storeID)
+    public Map<String, String> getSpaceMetadata(String spaceID, String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
             return storage.getSpaceMetadata(spaceID);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("retrieve space metadata for",
@@ -103,7 +109,7 @@ public class SpaceResource {
      * @param marker
      * @return XML listing of space contents
      */
-    public static String getSpaceContents(String spaceID,
+    public String getSpaceContents(String spaceID,
                                           String storeID,
                                           String prefix,
                                           long maxResults,
@@ -114,7 +120,7 @@ public class SpaceResource {
 
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
 
             List<String> contents = storage.getSpaceContentsChunked(spaceID,
                                                                     prefix,
@@ -148,7 +154,7 @@ public class SpaceResource {
      * @param userMetadata
      * @param storeID
      */
-    public static void addSpace(String spaceID,
+    public void addSpace(String spaceID,
                                 String spaceAccess,
                                 Map<String, String> userMetadata,
                                 String storeID)
@@ -157,7 +163,7 @@ public class SpaceResource {
 
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
             storage.createSpace(spaceID);
             
             waitForSpaceCreation(storage, spaceID);
@@ -170,7 +176,7 @@ public class SpaceResource {
         }
     }
 
-    private static void waitForSpaceCreation(StorageProvider storage,
+    private void waitForSpaceCreation(StorageProvider storage,
                                              String spaceID) {
         int maxTries = 10;
         int tries = 0;
@@ -191,7 +197,7 @@ public class SpaceResource {
         throw new StorageException(msg);
     }
 
-    private static void sleep(long millis) {
+    private void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -207,14 +213,14 @@ public class SpaceResource {
      * @param userMetadata
      * @param storeID
      */
-    public static void updateSpaceMetadata(String spaceID,
+    public void updateSpaceMetadata(String spaceID,
                                            String spaceAccess,
                                            Map<String, String> userMetadata,
                                            String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
 
             // Update space metadata
             if(userMetadata != null) {
@@ -259,11 +265,11 @@ public class SpaceResource {
      * @param spaceID
      * @param storeID
      */
-    public static void deleteSpace(String spaceID, String storeID)
+    public void deleteSpace(String spaceID, String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
-                StorageProviderFactory.getStorageProvider(storeID);
+                storageProviderFactory.getStorageProvider(storeID);
             storage.deleteSpace(spaceID);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("delete space", spaceID, e);
