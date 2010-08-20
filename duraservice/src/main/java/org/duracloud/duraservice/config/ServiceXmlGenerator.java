@@ -34,7 +34,8 @@ public class ServiceXmlGenerator {
                                                 new J2kServiceInfo(),
                                                 new ImageConversionServiceInfo(),
                                                 new MediaStreamingServiceInfo(),
-                                                new FixityServiceInfo()};
+                                                new FixityServiceInfo(),
+                                                new BulkImageConversionServiceInfo()};
 
     private String version;
 
