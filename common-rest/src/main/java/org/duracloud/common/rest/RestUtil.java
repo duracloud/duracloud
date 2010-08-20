@@ -11,6 +11,7 @@ import org.apache.commons.fileupload.FileItemHeaders;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +107,7 @@ public class RestUtil {
          * @return the contentStream
          */
         public InputStream getContentStream() {
-            return contentStream;
+            return new AutoCloseInputStream(contentStream);
         }
 
         /**
