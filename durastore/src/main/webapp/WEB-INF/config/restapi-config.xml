@@ -31,7 +31,7 @@
     <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
-  <bean id="contentResource" class="org.duracloud.durastore.rest.ContentResource" >
+  <bean id="contentResource" class="org.duracloud.durastore.rest.ContentResourceImpl" >
     <constructor-arg ref="storageProviderFactory"/>
   </bean>
 

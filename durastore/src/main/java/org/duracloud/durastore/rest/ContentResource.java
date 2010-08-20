@@ -8,177 +8,40 @@
 package org.duracloud.durastore.rest;
 
 import org.duracloud.durastore.error.ResourceException;
-import org.duracloud.durastore.error.ResourceNotFoundException;
-import org.duracloud.durastore.util.StorageProviderFactory;
 import org.duracloud.storage.error.InvalidIdException;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.util.IdUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Map;
 
 /**
- * Provides interaction with content
- *
- * @author Bill Branan
+ * @author Andrew Woods
+ *         Date: Aug 19, 2010
  */
-public class ContentResource {
+public interface ContentResource {
+    
+    InputStream getContent(String spaceID, String contentID, String storeID)
+        throws ResourceException;
 
-    private static final Logger log = LoggerFactory.getLogger(ContentResource.class);
+    Map<String, String> getContentMetadata(String spaceID,
+                                           String contentID,
+                                           String storeID)
+        throws ResourceException;
 
-    private StorageProviderFactory storageProviderFactory;
+    void updateContentMetadata(String spaceID,
+                               String contentID,
+                               String contentMimeType,
+                               Map<String, String> userMetadata,
+                               String storeID) throws ResourceException;
 
-    public ContentResource(StorageProviderFactory storageProviderFactory) {
-        this.storageProviderFactory = storageProviderFactory;
-    }
+    String addContent(String spaceID,
+                      String contentID,
+                      InputStream content,
+                      String contentMimeType,
+                      int contentSize,
+                      String checksum,
+                      String storeID)
+        throws ResourceException, InvalidIdException;
 
-    /**
-     * Retrieves content from a space.
-     *
-     * @param spaceID
-     * @param contentID
-     * @return InputStream which can be used to read content.
-     */
-    public InputStream getContent(String spaceID,
-                                         String contentID,
-                                         String storeID)
-    throws ResourceException {
-        try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
-            return storage.getContent(spaceID, contentID);
-        } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("get content",
-                                                spaceID,
-                                                contentID,
-                                                e);
-        } catch (StorageException e) {
-            throw new ResourceException("get content", spaceID, contentID, e);
-        }
-    }
-
-    /**
-     * Retrieves the metadata of a piece of content.
-     *
-     * @param spaceID
-     * @param contentID
-     * @return Map of content metadata
-     */
-    public Map<String, String> getContentMetadata(String spaceID,
-                                                         String contentID,
-                                                         String storeID)
-    throws ResourceException {
-        try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
-            return storage.getContentMetadata(spaceID, contentID);
-        } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("get metadata for content",
-                                                spaceID,
-                                                contentID,
-                                                e);
-        } catch (StorageException e) {
-            throw new ResourceException("get metadata for content",
-                                        spaceID,
-                                        contentID,
-                                        e);
-        }
-    }
-
-    /**
-     * Updates the metadata of a piece of content.
-     *
-     * @return success
-     */
-    public void updateContentMetadata(String spaceID,
-                                             String contentID,
-                                             String contentMimeType,
-                                             Map<String, String> userMetadata,
-                                             String storeID)
-    throws ResourceException {
-        try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
-
-            // Update content metadata
-            if(userMetadata != null) {
-                storage.setContentMetadata(spaceID, contentID, userMetadata);
-            }
-        } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("update metadata for content",
-                                                spaceID,
-                                                contentID,
-                                                e);
-        } catch (StorageException e) {
-            throw new ResourceException("update metadata for content",
-                                        spaceID,
-                                        contentID,
-                                        e);
-        }
-    }
-
-    /**
-     * Adds content to a space.
-     *
-     * @return the checksum of the content as computed by the storage provider
-     */
-    public String addContent(String spaceID,
-                                    String contentID,
-                                    InputStream content,
-                                    String contentMimeType,
-                                    int contentSize,
-                                    String checksum,
-                                    String storeID)
-    throws ResourceException, InvalidIdException {
-        IdUtil.validateContentId(contentID);
-
-        try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
-
-            return storage.addContent(spaceID,
-                                      contentID,
-                                      contentMimeType,
-                                      contentSize,
-                                      checksum,
-                                      content);
-        } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("add content",
-                                                spaceID,
-                                                contentID,
-                                                e);
-        } catch (StorageException e) {
-            throw new ResourceException("add content", spaceID, contentID, e);
-        }
-    }
-
-    /**
-     * Removes a piece of content.
-     *
-     * @param spaceID
-     * @param contentID
-     * @return success
-     */
-    public void deleteContent(String spaceID,
-                                     String contentID,
-                                     String storeID)
-    throws ResourceException {
-        try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
-
-            storage.deleteContent(spaceID, contentID);
-        } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("delete content",
-                                                spaceID,
-                                                contentID,
-                                                e);
-        } catch (StorageException e) {
-            throw new ResourceException("delete content", spaceID, contentID, e);
-        }
-    }
+    void deleteContent(String spaceID, String contentID, String storeID)
+        throws ResourceException;
 }
