@@ -34,6 +34,7 @@ public class HadoopJobWorker implements Runnable {
     private String serviceWorkDir;
     
     private boolean complete = false;
+    private String jobId = null;
     private String error = null;
 
     public HadoopJobWorker(ContentStore contentStore,
@@ -50,7 +51,13 @@ public class HadoopJobWorker implements Runnable {
     public void run() {
         try {
             String finalParams = moveResourcesToStorage();
-            contentStore.performTask(RUN_HADOOP_JOB_TASK, finalParams);
+
+            String response =
+                contentStore.performTask(RUN_HADOOP_JOB_TASK, finalParams);
+
+            Map<String, String> resultMap =
+                SerializationUtil.deserializeMap(response);
+            jobId = resultMap.get("jobFlowId");
         } catch(Exception e) {
             log.error("Error encountered starting hadoop job " +
                       e.getMessage(), e);
@@ -61,6 +68,10 @@ public class HadoopJobWorker implements Runnable {
 
     public boolean isComplete() {
         return complete;
+    }
+
+    public String getJobId() {
+        return jobId;
     }
 
     public String getError() {

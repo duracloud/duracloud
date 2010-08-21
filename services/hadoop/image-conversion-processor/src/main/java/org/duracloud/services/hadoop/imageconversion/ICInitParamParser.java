@@ -7,16 +7,9 @@
  */
 package org.duracloud.services.hadoop.imageconversion;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.duracloud.services.hadoop.base.InitParamParser;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author: Bill Branan

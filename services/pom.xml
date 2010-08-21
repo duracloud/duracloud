@@ -37,6 +37,7 @@
     <module>fixityservice</module>
     <module>osgi-test</module>
     <module>hadoop</module>
+    <module>bulkimageconversionservice</module>
   </modules>
 
   <build>

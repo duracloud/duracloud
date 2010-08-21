@@ -11,6 +11,7 @@ import org.duracloud.services.hadoop.base.InitParamParser;
 import org.duracloud.services.hadoop.base.JobBuilder;
 import org.duracloud.services.hadoop.base.JobRunner;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -26,6 +27,9 @@ public class ICJobRunner extends JobRunner {
      * Main method that sets up image conversion job.
      */
     public static void main(String[] args) throws Exception {
+        System.out.println("Starting Image Conversion Job with args: " +
+                           Arrays.toString(args));  
+
         JobRunner runner = new ICJobRunner();
         
         InitParamParser paramParser = new ICInitParamParser();

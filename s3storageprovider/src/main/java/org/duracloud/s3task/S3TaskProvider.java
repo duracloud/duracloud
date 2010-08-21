@@ -7,7 +7,9 @@
  */
 package org.duracloud.s3task;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -41,8 +43,11 @@ public class S3TaskProvider implements TaskProvider {
             new S3StorageProvider(accessKey, secretKey);
         CloudFrontService cfService =
             S3ProviderUtil.getCloudFrontService(accessKey, secretKey);
-        AmazonS3Client s3Client =
-            new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey));
+
+        AWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
+        AmazonS3Client s3Client = new AmazonS3Client(awsCreds);
+        AmazonElasticMapReduceClient emrClient =
+            new AmazonElasticMapReduceClient(awsCreds);
 
         taskList.add(new NoopTaskRunner());
         taskList.add(new EnableStreamingTaskRunner(s3Provider,
@@ -55,7 +60,8 @@ public class S3TaskProvider implements TaskProvider {
                                                    s3Service,
                                                    cfService));
         taskList.add(new RunHadoopJobTaskRunner(s3Provider,
-                                                s3Client));
+                                                s3Client,
+                                                emrClient));
     }
 
     public List<String> getSupportedTasks() {

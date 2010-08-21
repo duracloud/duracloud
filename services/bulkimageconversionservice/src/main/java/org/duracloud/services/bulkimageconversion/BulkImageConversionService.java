@@ -125,16 +125,21 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
 
         boolean complete = false;
         if(worker != null) {
-            String error = worker.getError();
             complete = worker.isComplete();
 
+            String error = worker.getError();
             if(error != null) {
                 props.put("Errors Encountered", error);
+            }
+
+            String jobId = worker.getJobId();
+            if(jobId != null) {
+                props.put("Job ID", jobId);
             }
         }
 
         if(complete) {
-            props.put("Service Status", "Complete");
+            props.put("Service Status", "Job Started");
         } else {
             props.put("Service Status", "Running...");
         }
