@@ -51,4 +51,13 @@ public class ICJobBuilder extends JobBuilder {
     protected Class getInputFormat() {
         return ICInputFormat.class;
     }
+
+    /**
+     * {@inheritDoc}
+     */    
+    @Override
+    protected Class getOutputFormat() {
+        return ICOutputFormat.class;
+    }
+
 }

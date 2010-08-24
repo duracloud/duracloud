@@ -13,7 +13,9 @@ import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3task.hadoop.DescribeHadoopJobTaskRunner;
 import org.duracloud.s3task.hadoop.RunHadoopJobTaskRunner;
+import org.duracloud.s3task.hadoop.StopHadoopJobTaskRunner;
 import org.duracloud.s3task.streaming.DeleteStreamingTaskRunner;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
@@ -66,6 +68,8 @@ public class S3TaskProvider implements TaskProvider {
         taskList.add(new RunHadoopJobTaskRunner(s3Provider,
                                                 s3Client,
                                                 emrClient));
+        taskList.add(new DescribeHadoopJobTaskRunner(emrClient));
+        taskList.add(new StopHadoopJobTaskRunner(emrClient));
     }
 
     public List<String> getSupportedTasks() {

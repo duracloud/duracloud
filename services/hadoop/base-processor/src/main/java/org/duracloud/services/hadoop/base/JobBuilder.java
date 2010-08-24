@@ -66,7 +66,7 @@ public class JobBuilder {
 
         // Configure output path
         AltTextOutputFormat.setOutputPath(conf, new Path(outputPath));
-        conf.setOutputFormat(AltTextOutputFormat.class);
+        conf.setOutputFormat(getOutputFormat());
 
         // Other config
         conf.setCompressMapOutput(false);
@@ -127,6 +127,17 @@ public class JobBuilder {
      */
     protected Class getInputFormat() {
         return WholeFileInputFormat.class;
+    }
+
+    /**
+     * Retrieves the output format which will be used to write output files.
+     * <p/>
+     * This method can be overridden to provide an alternate output format
+     * implementation class, such as to set the output file name. Note that
+     * the returned class is expected to be a subclass of AltTextOutputFormat 
+     */
+    protected Class getOutputFormat() {
+        return AltTextOutputFormat.class;
     }
 
 }

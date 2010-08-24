@@ -11,6 +11,8 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.util.SerializationUtil;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.osgi.service.cm.ConfigurationException;
@@ -47,6 +49,9 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
     private static final String DEFAULT_NUM_INSTANCES = "1";
     private static final String DEFAULT_INSTANCE_TYPE = "m1.small";
 
+    private static final String STOP_JOB_TASK = "stop-hadoop-job";
+    private static final String DESCRIBE_JOB_TASK = "describe-hadoop-job";
+    
     private String duraStoreHost;
     private String duraStorePort;
     private String duraStoreContext;
@@ -62,6 +67,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
     private String numInstances;
     private String instanceType;
 
+    private ContentStore contentStore;
     private HadoopJobWorker worker;
 
     @Override
@@ -75,7 +81,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
                                         duraStorePort,
                                         duraStoreContext);
         storeManager.login(new Credential(username, password));
-        ContentStore contentStore = storeManager.getPrimaryContentStore();
+        contentStore = storeManager.getPrimaryContentStore();
 
         // Start worker thread
         worker = new HadoopJobWorker(contentStore,
@@ -113,10 +119,14 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
 
     @Override
     public void stop() throws Exception {
-        log.info("Stopping Image Conversion Service");
+        log.info("Stopping Bulk Image Conversion Service");
         this.setServiceStatus(ServiceStatus.STOPPING);
 
-        //TODO: Stop hadoop job
+        // Stop hadoop job
+        String jobId = worker.getJobId();
+        if(jobId != null) {
+            contentStore.performTask(STOP_JOB_TASK, jobId);
+        }
 
         this.setServiceStatus(ServiceStatus.STOPPED);
     }
@@ -137,13 +147,28 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
             String jobId = worker.getJobId();
             if(jobId != null) {
                 props.put("Job ID", jobId);
+                String jobStatus = null;
+                try {
+                    jobStatus =
+                        contentStore.performTask(DESCRIBE_JOB_TASK, jobId);
+                } catch(ContentStoreException e) {
+                    props.put("Error Retrieving Job Status", e.getMessage());    
+                }
+
+                if(jobStatus != null) {
+                    Map<String, String> jobStatusMap =
+                        SerializationUtil.deserializeMap(jobStatus);
+                    for(String key : jobStatusMap.keySet()) {
+                        props.put(key, jobStatusMap.get(key));
+                    }
+                }
             }
         }
 
         if(complete) {
             props.put("Service Status", "Job Started");
         } else {
-            props.put("Service Status", "Running...");
+            props.put("Service Status", "Starting Job...");
         }
 
         return props;

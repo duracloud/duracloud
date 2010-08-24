@@ -12,7 +12,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileAlreadyExistsException;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.util.Progressable;
 
 import java.io.IOException;
 
@@ -24,6 +26,20 @@ import java.io.IOException;
  * Date: Aug 12, 2010
  */
 public class AltTextOutputFormat<K, V> extends TextOutputFormat<K, V> {
+
+    @Override
+    public RecordWriter<K, V> getRecordWriter(FileSystem ignored,
+                                              JobConf job,
+                                              String name,
+                                              Progressable progress)
+        throws IOException {
+        String newName = getOutputFileName();
+        return super.getRecordWriter(ignored, job, newName, progress);
+    }
+
+    protected String getOutputFileName() {
+        return "duracloud-service-results";
+    }
 
     @Override
     public void checkOutputSpecs(FileSystem ignored, JobConf job)
