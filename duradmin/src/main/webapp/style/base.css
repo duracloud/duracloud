@@ -250,6 +250,31 @@ h3 { font-size:1em; }
 
 }
 
+ul.dc-user-config > li:first-child, .dc-exclusion-group > ul > li:first-child {
+	border-top:0px;
+}
+
+ul.dc-user-config > li:last-child {
+	border-bottom: 0px;
+}
+
+
+.dc-exclusion-group  li {
+	margin-left: 30px;
+	border-bottom: 0px;
+	border-top: 0px;
+}
+
+.dc-exclusion-group > label, .dc-exclusion-group > select
+{
+	margin-bottom: 10px;
+}
+
+.dc-exclusion-group  li:last-child {
+	border-bottom: 0px;
+}
+
+
 .ui-layout-toggler
 {
 	background:url(../images/grippy.gif) no-repeat left top;

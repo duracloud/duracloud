@@ -26,7 +26,6 @@ var dc;
 	 */
 
 	 dc.store.GetSpace = function(storeProviderId,spaceId,callback,options){
-		 
 		if(options == undefined){
 			options = {};
 		}
@@ -41,24 +40,16 @@ var dc;
 			prefix = options.prefix;
 		}
 
-		if(callback.begin != undefined){
-			callback.begin();
-		}
 		
-		$.ajax({ url: "/duradmin/spaces/space", 
+		dc.ajax({
+			url: "/duradmin/spaces/space", 
 			data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&prefix="+escape(prefix==null?'':prefix)+"&marker="+escape(marker==null?'':marker),
 			cache: false,
-			context: document.body, 
+			context: document.body,
 			success: function(data){
 				callback.success(data.space);
 			},
-		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("get space failed: " + textStatus + ", error: " + errorThrown);
-	    		//alert("get space failed: " + textStatus);
-	    		callback.failure(textStatus);
-		    },
-		});		
-		
+		}, callback);		
 	};
 	
 	/**
@@ -66,21 +57,13 @@ var dc;
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
 	dc.store.DeleteSpace = function(space, callback){
-
-		if(callback.begin != undefined){
-			callback.begin();
-		}
-
-		$.ajax({
+		dc.ajax({
 			url: "/duradmin/spaces/space", 
 			data: "action=delete&storeId="+space.storeId+"&spaceId="+escape(space.spaceId),
 			type: "POST",
 			success: callback.success,
-		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("delete space failed: " + textStatus + ", error: " + errorThrown);
-	    		callback.failure(textStatus);
-			},
-		});
+		    failure: callback.failure,
+		}, callback);
 	};
 
 	/**
@@ -89,21 +72,15 @@ var dc;
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
 	dc.store.AddSpace = function(space, callback){
-
-		if(callback.begin != undefined){
-			callback.begin();
-		}
-
-		$.ajax({
+		dc.ajax({
 			url: "/duradmin/spaces/space", 
 			data: "storeId="+space.storeId+"&spaceId="+escape(space.spaceId)+"&access="+space.access,
 			type: "POST",
-			success: function(data){callback.success(data.space)},
-		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("add space failed: " + textStatus + ", error: " + errorThrown);
-	    		callback.failure(textStatus);
+			success: function(data){
+				callback.success(data.space)
 			},
-		});
+		    failure:callback.failure,
+		},callback);
 	};
 
 	/**
@@ -114,22 +91,15 @@ var dc;
 	 * @option Function failure(info) a handler that returns failure info 
 	 */
 	dc.store.GetSpaces = function(storeProviderId, callback){
-		if(callback.begin != undefined){
-			callback.begin();
-		}
-
-		$.ajax({ url: "/duradmin/spaces", 
+		dc.ajax({ 
+				url: "/duradmin/spaces", 
 				data: "storeId="+storeProviderId+"&f=json",
 				cache: false,
 				success: function(data){
-					callback.success(data.spaces);
-			    },
-			    error: function(xhr, textStatus, errorThrown){
-			    	//console.error("get spaces failed: " + textStatus + "; error: " + errorThrown + "; xhr=" + xhr);
-			    	callback.failure(textStatus);
-			    	
-			    },
-		});
+					callback.success(data.spaces)
+				},
+				failure:callback.failure,
+		},callback);
 		
 	};
 	
@@ -138,22 +108,16 @@ var dc;
 	 * returns contentItem details
 	 */
 	dc.store.GetContentItem = function(storeProviderId, spaceId, contentItemId, callback){
-		if(callback.begin != undefined){
-			callback.begin();
-		}
-		
-		$.ajax({ url: "/duradmin/spaces/content",
+		dc.ajax({
+				url: "/duradmin/spaces/content",
 				data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&contentId="+escape(contentItemId),
 				cache: false,
 				dataType:"json",
 				success: function(data){
 					callback.success(data.contentItem);
 			    },
-			    error: function(xhr, textStatus, errorThrown){
-			    	//console.error("get contentItem failed: " + textStatus);
-			    	callback.failure(textStatus);
-			    },
-		});
+			    failure: callback.failure,
+		},callback);
 
 	};
 	
@@ -162,19 +126,13 @@ var dc;
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
 	dc.store.DeleteContentItem = function(contentItem, callback){
-		if(callback.begin != undefined){
-			callback.begin();
-		}
-		$.ajax({
+		dc.ajax({
 			url: "/duradmin/spaces/content", 
 			data: "action=delete&storeId="+contentItem.storeId+"&spaceId="+escape(contentItem.spaceId)+"&contentId="+escape(contentItem.contentId),
 			type: "POST",
 			success: callback.success,
-		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("delete content item failed: " + textStatus + ", error: " + errorThrown +", contentItem: " + contentItem);
-	    		callback.failure(textStatus);
-			},
-		});
+		    failure: callback.failure,
+		},callback);
 	};
 
 
@@ -183,36 +141,29 @@ var dc;
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
 	dc.store.UpdateContentItemMimetype = function(data, callback){
-		if(callback.begin != undefined){
-			callback.begin();
-		}
-		$.ajax({
+		dc.ajax({
 			url: "/duradmin/spaces/content", 
 			data: data + "&action=put&method=changeMimetype",
 			type: "POST",
 			success: function(data){
 				callback.success(data.contentItem);
 			},
-		    error: function(xhr, textStatus, errorThrown){
-	    		//console.error("failed to update content item mimetype: " + textStatus + 
-				//", error: " + errorThrown + "; xhr.status = " + xhr.status);
-	    		callback.failure(textStatus);
-			},
-		});
+		    failure: callback.failure,
+		},callback);
 	};
 
 	
 	dc.store.AddContentItem = function(form, future){
 		future.begin();
-
 		$(form).ajaxSubmit({
 			iframe: true,
 			dataType: 'json',
 			success: function(data){
+				dc.checkSession(data);
 				future.success(data);
 		    },
-		    error: function(xhr, textStatus, errorThrown){
-		    	future.failure(textStatus);
+		    error: function(xhr, status, errorThrown){
+		    	future.failure(status);
 		    },
 		});
 	};
@@ -227,11 +178,9 @@ var dc;
 	dc.store.CheckIfContentItemExists = function(contentItem, callback){
 		dc.store.GetContentItem(contentItem.storeId,contentItem.spaceId,contentItem.contentId,{
 			begin: function(){
-				//dc.busy("Checking for duplicates...");
 			},
 			
 			failure: function(text){
-				//dc.done();
 				callback.success(false);
 			},
 

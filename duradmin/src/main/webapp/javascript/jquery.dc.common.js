@@ -130,7 +130,54 @@ $(document).ready(function(){
 			}
 		};
 		
+		dc.checkSession = function(data){
+			if(data != undefined && data != null){
+				if(data.toString().indexOf("loginForm") > -1){
+					alert("Your session has timed out.");
+					window.location.reload();
+				}
+			}
+		};
 		
+		dc.ajax = function(innerCallback, outerCallback){
+			var callback = $.extend(
+					true, 
+					{}, 
+					innerCallback, 
+					{
+						success: function(data, status, xhr){
+							dc.checkSession(data);
+							if(innerCallback.success != undefined){
+								innerCallback.success(data);
+							}else{
+								if(outerCallback != undefined 
+										&& outerCallback.success != undefined){
+									outerCallback.success(data);
+								}
+							}
+						},
+						error: function(xhr, textStatus, errorThrown){
+							if(innerCallback.failure != undefined){
+								innerCallback.failure(textStatus);
+							}else{
+								if(outerCallback != undefined 
+										&& outerCallback.failure != undefined){
+									outerCallback.failure(textStatus);
+								}
+							}
+						},
+						 
+						begin: (innerCallback.begin != undefined ? innerCallback.begin : 
+								(outerCallback != undefined && outerCallback.begin != undefined ? outerCallback.begin : undefined)),
+					}
+			);
+
+			if(callback.begin != undefined){
+				callback.begin();
+			}
+			
+			$.ajax(callback);			
+		}
 		/**
 		 * Create a cookie with the given name and value and other optional parameters.
 		 *
@@ -334,46 +381,17 @@ $(document).ready(function(){
 				}
 			};
 			
-			$.ajax({ url: url, 
+			dc.ajax({ url: url, 
 				cache: false,
-				method: "GET",
-				context: document.body, 
+				type: "GET",
 				success: function(data){
 					//ajax response gets set here
 					updater(callback, data);
 			    },
-			    error: function(xhr, textStatus, errorThrown){
+			    failure: function(textStatus){
 			    	alert("updater failed: " + textStatus);
 			    },
 			});		
-		};
-		
-		
-		dc.ajax = function(params,callback){
-			var ajaxParameters = {
-				url: params.url,
-				success: function(data){
-					callback.success(data);
-				},
-			    error: function(xhr, textStatus, errorThrown){
-		    		_error("error: {url: " + params.url + ", xhr.status: " + status + "," + textStatus + ", error: " + errorThrown);
-		    		callback.failure(textStatus);
-			    },
-			};
-			
-			if(params.type != undefined){
-				ajaxParameters.type = params.type;
-			}
-			
-			if(params.data != undefined){
-				ajaxParameters.data = params.data;
-			}
-			
-			if(callback.begin != undefined){
-				callback.begin();
-			}
-				
-			$.ajax(ajaxParameters);
 		};
 		
 		dc.createJob = function(jobId){

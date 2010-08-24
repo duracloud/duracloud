@@ -88,6 +88,14 @@
 			return result;
 		},
 		
+		_isExDef: function(uc){
+			return uc.exclusion == "EXCLUSION_DEFINITION";
+		},
+		
+		_isEx: function(uc){
+			var ex = uc.exclusion;
+			return ex != undefined  && ex != null && ex != '' && !this._isExDef(uc);			
+		},
 		load: function(service, deployment){
 			var that = this;
 			
@@ -97,12 +105,12 @@
 			
 			this._service = service;
 
-			//console.debug("loading service: " + service.id);
+			dc.debug("loading service: " + service.id);
 			var userConfigs = service.userConfigs;
 
 			if(deployment != undefined){
 				this._deployment = deployment;
-				//console.debug("loading deployment: " + deployment.id);
+				dc.debug("loading deployment: " + deployment.id);
 				userConfigs = deployment.userConfigs;
 			}
 			
@@ -114,7 +122,7 @@
 									.val(service.id)
 			);
 
-			var list = $.fn.create("ul");
+			var list = $.fn.create("ul").addClass("dc-user-config");
 			this._controlContainer.append(list);
 
 			if(deployment != undefined){
@@ -141,30 +149,56 @@
 			}
 
 			
-			
-			
 			if(userConfigs != undefined && userConfigs != null && userConfigs.length > 0){
-				var item,control,uc;
+				var uc,ex,item,control,sublist;
+				var i;
 				for(i in userConfigs){
 					uc = userConfigs[i];
-					control = this._createControl(uc);
-					//attach listener if an exclusion definition
-					if(uc.exclusion == "EXCLUSION_DEFINITION"){
-						control.change(function(){
-							that._exclusionGroupChanged(userConfigs);
-						});
+					ex = uc.exclusion;
+					var isExDef = this._isExDef(uc);
+					var isEx = this._isEx(uc);
+
+					if( !isEx || isExDef){
+						control = this._createControl(uc);
+						item = this._createListItem(uc.name, uc.displayName);
+						item.append(control);
+						list.append(item);
+						if(isExDef){
+							item.addClass("dc-exclusion-group");
+							control.change(function(){
+								that._exclusionGroupChanged(userConfigs);
+							});
+
+							sublist = $.fn.create("ul");
+							item.append(sublist);
+							var exDefs = new Array();
+							for(j in uc.options){
+								exDefs.push(uc.options[j].value);
+							}
+
+							var j;
+							for(j in userConfigs){
+								uc = userConfigs[j];
+								if(this._isEx(uc) && !this._isExDef(uc)){
+									var exclusions = uc.exclusion.split("|");
+									var k;
+									for(k in exDefs){
+										if(exclusions[0] == exDefs[k]){
+											control = this._createControl(uc);
+											item = this._createListItem(uc.name, uc.displayName);
+											item.append(control);
+											sublist.append(item);
+											break;
+										}
+									}
+								}
+							}
+						}
 					}
-					
-					item = this._createListItem(uc.name, uc.displayName);
-					item.append(control)
-					list.append(item);
-				}	
+				}
 
 				that._exclusionGroupChanged(userConfigs);
-
 			}
-			
-			
 		},
 		
 		_exclusionGroupChanged: function(userConfigs){

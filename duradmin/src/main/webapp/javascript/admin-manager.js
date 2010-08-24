@@ -77,14 +77,14 @@ $(document).ready(function() {
 		});
 
 		$(".delete-user-button", userDetailPane).click(function(evt){
-			$.ajax({ url: "/duradmin/admin", 
+			dc.ajax({ url: "/duradmin/admin", 
 				type: "POST",
 				data: "username="+user.username+"&verb=remove",
 				success: function(data){
 					$(usersListId).selectablelist("removeById", data.user.username);
 					$(detailPaneId).html('');
 				},
-			    error: function(xhr, textStatus, errorThrown){
+			    failure: function(textStatus){
 					alert("unable to delete user: " + textStatus);
 			    },
 			});		
@@ -175,7 +175,7 @@ $(document).ready(function() {
 	var _addUser = function(){
 		var d = $("#add-user-dialog");
 		d.dialog("disable");
-		$.ajax({ url: "/duradmin/admin", 
+		dc.ajax({ url: "/duradmin/admin", 
 			type: "POST",
 			data: $("form", d).serialize(),
 			success: function(data){
@@ -184,7 +184,7 @@ $(document).ready(function() {
 				insertUserIntoList(data.user);
 				loadUserDetail(data.user);
 			},
-		    error: function(xhr, textStatus, errorThrown){
+		    failure: function(textStatus){
 				d.dialog("enable");
 				alert("unable to add user: " + textStatus);
 		    },
@@ -235,14 +235,14 @@ $(document).ready(function() {
 	var _changePassword = function() {
 		var d = $('#change-password-dialog');
 		d.dialog("disable");
-		$.ajax({ url: "/duradmin/admin", 
+		dc.ajax({ url: "/duradmin/admin", 
 			type: "POST",
 			data: $("form", d).serialize(),
 			success: function(data){
 				d.dialog("close");
 				d.dialog("enable");
 			},
-		    error: function(xhr, textStatus, errorThrown){
+		    failure: function(textStatus){
 				d.dialog("enable");
 				alert("unable to change password: " + textStatus);
 		    },

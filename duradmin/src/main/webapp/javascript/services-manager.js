@@ -134,11 +134,8 @@ $(document).ready(function() {
 			                }
 						)
 					);
-				
 			},
 		});
-
-		
 		
 		centerPane.append(
 			$.fn.create("div")
@@ -413,7 +410,7 @@ $(document).ready(function() {
 				var form = $("#reconfigure-service-dialog form");
 				var formData = form.serialize();
 				dc.busy("Reploying " + data.service.displayName);
-				$.ajax({
+				dc.ajax({
 					url: "/duradmin/services/service?method=reconfigure",
 					data: formData, 
 					type: "POST",
@@ -421,8 +418,7 @@ $(document).ready(function() {
 						dc.done();
 						refreshDeployedServices();
 					},
-				
-					error: function(xhr, textStatus, errorThrown){
+				    failure: function(textStatus){
 						dc.done();
 				    	alert("failed: " + textStatus);
 				    },
@@ -485,7 +481,7 @@ $(document).ready(function() {
 				var form = $("#configure-service-dialog form");
 				var data = form.serialize();
 				dc.busy("Deploying " + service.displayName);
-				$.ajax({
+				dc.ajax({
 					url: "/duradmin/services/service?method=deploy",
 					data: data, 
 					type: "POST",
@@ -495,7 +491,7 @@ $(document).ready(function() {
 						refreshDeployedServices();
 					},
 				
-					error: function(xhr, textStatus, errorThrown){
+				    failure: function(textStatus){
 						dc.done();
 				    	alert("failed: " + textStatus);
 				    },

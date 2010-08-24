@@ -482,7 +482,7 @@ $(document).ready(function() {
 					.click(function(evt){ 
 						var that = this;
 						evt.stopPropagation();
-						$.ajax({
+						dc.ajax({
 							url: "/duradmin/spaces/upload",
 							data: "action=cancel&taskId="+task.id,
 							type:"POST",
@@ -490,7 +490,7 @@ $(document).ready(function() {
 								$(that).closest(".upload-item").fadeOut("slow");
 							},
 							
-							error: function(){
+						    failure: function(textStatus){
 								alert("failed to remove task");
 							},
 						});	
@@ -499,7 +499,7 @@ $(document).ready(function() {
 			actionCell.append($.fn.create("button").html("Remove").click(function(evt){
 				var that = this;
 				evt.stopPropagation();
-				$.ajax({
+				dc.ajax({
 					url: "/duradmin/spaces/upload",
 					data: "action=remove&taskId="+task.id,
 					type:"POST",
@@ -507,7 +507,7 @@ $(document).ready(function() {
 						$(that).closest(".upload-item").fadeOut("slow");
 					},
 					
-					error: function(){
+				    failure: function(textStatus){
 						alert("failed to remove task");
 					},
 				});	
@@ -558,7 +558,7 @@ $(document).ready(function() {
 	});
 
 	var poller = function(pollInterval){
-		$.ajax({
+		dc.ajax({
 			cache:false,
 			url: "/duradmin/spaces/upload",
 			success: function(data){
@@ -1352,7 +1352,7 @@ $(document).ready(function() {
 		var access = space.metadata.access;
 		var newAccess = (access == "OPEN") ? "CLOSED":"OPEN";
 		dc.busy( "Changing space access..."); 
-		$.ajax({ url: "/duradmin/spaces/space?storeId="+space.storeId+"&spaceId="+escape(space.spaceId), 
+		dc.ajax({ url: "/duradmin/spaces/space?storeId="+space.storeId+"&spaceId="+escape(space.spaceId), 
 			data: "access="+newAccess+"&action=put&method=changeAccess",
 			type: "POST",
 			cache: false,
@@ -1361,8 +1361,7 @@ $(document).ready(function() {
 				dc.done();
 				callback.success(data.space);
 			},
-		    error: function(xhr, textStatus, errorThrown){
-	    		//dc.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
+		    failure: function(textStatus){
 				dc.done();
 	    		callback.failure(textStatus);
 		    },
@@ -1392,22 +1391,22 @@ $(document).ready(function() {
 	
 	var addSpaceMetadata = function(spaceId, name, value, callback){
 		var data = "metadata-name=" + escape(name) +"&metadata-value="+escape(value);
-		$.ajax(createSpaceMetadataCall(spaceId, data, "addMetadata", callback));		
+		dc.ajax(createSpaceMetadataCall(spaceId, data, "addMetadata", callback));		
 	};
 
 	var removeSpaceMetadata = function(spaceId, name,callback){
 		var data = "metadata-name=" + escape(name);
-		$.ajax(createSpaceMetadataCall(spaceId, data, "removeMetadata", callback));		
+		dc.ajax(createSpaceMetadataCall(spaceId, data, "removeMetadata", callback));		
 	};
 
 	var addSpaceTag = function(spaceId, tag, callback){
 		var data = "tag="+ escape(tag);
-		$.ajax(createSpaceMetadataCall(spaceId, data, "addTag", callback));		
+		dc.ajax(createSpaceMetadataCall(spaceId, data, "addTag", callback));		
 	};
 
 	var removeSpaceTag = function(spaceId, tag,callback){
 		var data = "tag="+escape(tag);
-		$.ajax(createSpaceMetadataCall(spaceId, data, "removeTag", callback));		
+		dc.ajax(createSpaceMetadataCall(spaceId, data, "removeTag", callback));		
 	};
 
 	// ///////////////////////////////////////////////////////////////////////////////
@@ -1424,8 +1423,7 @@ $(document).ready(function() {
 			success: function(data){
 				callback.success();
 			},
-		    error: function(xhr, textStatus, errorThrown){
-	    		//dc.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
+		    failure: function(textStatus){
 	    		callback.failure(textStatus);
 		    },
 		};
@@ -1433,22 +1431,22 @@ $(document).ready(function() {
 	
 	var addContentItemMetadata = function(spaceId, contentId, name, value, callback){
 		var data = "metadata-name=" + escape(name) +"&metadata-value="+escape(value);
-		$.ajax(createContentItemMetadataCall(spaceId, contentId, data, "addMetadata", callback));		
+		dc.ajax(createContentItemMetadataCall(spaceId, contentId, data, "addMetadata", callback));		
 	};
 
 	var removeContentItemMetadata = function(spaceId, contentId, name,callback){
 		var data = "metadata-name=" + escape(name);
-		$.ajax(createContentItemMetadataCall(spaceId,contentId, data, "removeMetadata", callback));		
+		dc.ajax(createContentItemMetadataCall(spaceId,contentId, data, "removeMetadata", callback));		
 	};
 
 	var addContentItemTag = function(spaceId, contentId, tag, callback){
 		var data = "tag="+ escape(tag);
-		$.ajax(createContentItemMetadataCall(spaceId,contentId, data, "addTag", callback));		
+		dc.ajax(createContentItemMetadataCall(spaceId,contentId, data, "addTag", callback));		
 	};
 
 	var removeContentItemTag = function(spaceId, contentId, tag,callback){
 		var data = "tag="+escape(tag);
-		$.ajax(createContentItemMetadataCall(spaceId, contentId, data, "removeTag", callback));		
+		dc.ajax(createContentItemMetadataCall(spaceId, contentId, data, "removeTag", callback));		
 	};
 	
 
@@ -1583,10 +1581,6 @@ $(document).ready(function() {
 		
 		
 	};
-	
-	
-	
-
 	
 	var refreshSpaces = function(providerId, /*optional*/successFunc){
 		clearContents();
