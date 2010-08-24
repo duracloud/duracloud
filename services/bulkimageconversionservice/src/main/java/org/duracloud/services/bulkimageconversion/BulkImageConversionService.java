@@ -33,6 +33,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
 
     private final Logger log = LoggerFactory.getLogger(BulkImageConversionService.class);
 
+    private static final String JOB_TYPE = "bulk-image-conversion";
     private static final String DEFAULT_DURASTORE_HOST = "localhost";
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
@@ -87,17 +88,18 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
         this.setServiceStatus(ServiceStatus.STARTED);        
     }
 
-    private Map<String, String> collectTaskParams() {
+    protected Map<String, String> collectTaskParams() {
         Map<String, String> taskParams = new HashMap<String, String>();
         
+        taskParams.put("jobType", JOB_TYPE);
         taskParams.put("workSpaceId", workSpaceId);
         taskParams.put("sourceSpaceId", sourceSpaceId);
         taskParams.put("destSpaceId", destSpaceId);
         taskParams.put("destFormat", toFormat);
-        if(namePrefix != null) {
+        if(namePrefix != null && !namePrefix.equals("")) {
             taskParams.put("namePrefix", namePrefix);
         }
-        if(nameSuffix != null) {
+        if(nameSuffix != null && !namePrefix.equals("")) {
             taskParams.put("nameSuffix", nameSuffix);
         }
         if(colorSpace != null) {

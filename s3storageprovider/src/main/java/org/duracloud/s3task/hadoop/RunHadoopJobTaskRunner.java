@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task;
+package org.duracloud.s3task.hadoop;
 
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 import com.amazonaws.services.elasticmapreduce.model.BootstrapActionConfig;
@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,8 @@ import java.util.Map;
  */
 public class RunHadoopJobTaskRunner  implements TaskRunner {
 
-    private final Logger log = LoggerFactory.getLogger(RunHadoopJobTaskRunner.class);
+    private final Logger log =
+        LoggerFactory.getLogger(RunHadoopJobTaskRunner.class);
 
     private static final Integer DEFAULT_NUM_INSTANCES = new Integer(1);
     private static final String DEFAULT_INSTANCE_TYPE = "m1.small";
@@ -45,6 +47,8 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     private AmazonElasticMapReduceClient emrClient;
 
     private static final String TASK_NAME = "run-hadoop-job";
+
+    private static final String IMG_CONV_JOB_TYPE = "bulk-image-conversion";
 
     public RunHadoopJobTaskRunner(S3StorageProvider s3Provider,
                                   AmazonS3Client s3Client,
@@ -62,6 +66,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     public String performTask(String taskParameters) {
         Map<String, String> taskParams =
             SerializationUtil.deserializeMap(taskParameters);
+        String jobType = taskParams.get("jobType");
         String workSpaceId = taskParams.get("workSpaceId");
         String bootstrapContentId = taskParams.get("bootstrapContentId");
         String jarContentId = taskParams.get("jarContentId");
@@ -72,6 +77,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
 
         log.info("Performing " + TASK_NAME +
                  " with the following parameters:" +
+                 " jobType=" + jobType +
                  " workSpaceId=" + workSpaceId +
                  " bootstrapContentId=" + bootstrapContentId +
                  " jarContentId=" + jarContentId +
@@ -79,6 +85,14 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
                  " destSpaceId=" + destSpaceId +
                  " instanceType=" + instanceType +
                  " numInstances=" + numInstances);
+
+        // Verify a known job type
+        HadoopTaskHelper taskHelper = null;
+        if(jobType != null && jobType.equals(IMG_CONV_JOB_TYPE)) {
+            taskHelper = new BulkImageConversionTaskHelper();
+        } else {
+            throw new RuntimeException("Unknown Job Type: " + jobType);
+        }
 
         // Verify required params were provided
         if(workSpaceId == null || sourceSpaceId == null ||
@@ -164,38 +178,19 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         jarParams.add("-o");
         jarParams.add(outputPath);
 
-        // Add image conversion specific jar parameters
-        String destFormat = taskParams.get("destFormat");
-        String namePrefix = taskParams.get("namePrefix");
-        String nameSuffix = taskParams.get("nameSuffix");
-        String colorSpace = taskParams.get("colorSpace");
-
-        if(destFormat == null) {
-            throw new RuntimeException("Destination format must be provided " +
-                                       "to run image conversion hadoop job");
+        // Add job-type specific jar parameters
+        if(taskHelper != null) {
+            jarParams = taskHelper.completeJarParams(taskParams, jarParams);
         }
 
-        jarParams.add("-f");
-        jarParams.add(destFormat);
-        if(namePrefix != null && !namePrefix.equals("")) {
-            jarParams.add("-p");
-            jarParams.add(namePrefix);
-        }
-        if(nameSuffix != null && !nameSuffix.equals("")) {
-            jarParams.add("-s");
-            jarParams.add(nameSuffix);
-        }
-        if(colorSpace != null && !colorSpace.equals("")) {
-            jarParams.add("-c");
-            jarParams.add(colorSpace);
-        }
-
-        log.info("Running Hadoop Job:" +
+        String jarParamListing =
+            Arrays.toString(jarParams.toArray(new String[jarParams.size()]));
+        log.info("Running Hadoop Job with parameters:" +
                  " jar-path=" + jarPath +
                  " include-bootstrap=" + includeBootstrap +
                  " bootstrap-path=" + bootstrapPath +
                  " log-path=" + logPath +
-                 " jar-params=" + jarParams +
+                 " jar-params=" + jarParamListing +
                  " num-instances=" + numberOfInstances +
                  " instance-type=" + instanceType);
 

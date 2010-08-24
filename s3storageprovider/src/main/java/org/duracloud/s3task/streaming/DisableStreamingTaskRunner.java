@@ -5,21 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task;
+package org.duracloud.s3task.streaming;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.storage.provider.TaskRunner;
-import org.duracloud.s3storage.S3ProviderUtil;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.S3ServiceException;
 import org.jets3t.service.acl.AccessControlList;
-import org.jets3t.service.acl.CanonicalGrantee;
-import org.jets3t.service.acl.Permission;
-import org.jets3t.service.model.S3Object;
-import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

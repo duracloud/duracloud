@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task;
+package org.duracloud.s3task.streaming;
 
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.util.SerializationUtil;

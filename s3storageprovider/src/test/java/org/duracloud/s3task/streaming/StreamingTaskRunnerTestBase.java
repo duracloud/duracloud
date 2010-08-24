@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task;
+package org.duracloud.s3task.streaming;
 
 import org.duracloud.s3storage.S3StorageProvider;
 import org.easymock.classextension.EasyMock;

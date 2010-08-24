@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task;
+package org.duracloud.s3task.streaming;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,6 @@ import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 
 import java.util.List;
 

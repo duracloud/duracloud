@@ -5,23 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task;
+package org.duracloud.s3task.streaming;
 
-import org.duracloud.common.util.SerializationUtil;
-import org.duracloud.s3storage.S3StorageProvider;
 import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.acl.AccessControlList;
-import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
-import org.junit.After;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
