@@ -50,12 +50,7 @@ $.widget("ui.metadataviewer",
 						triggerAdd();
 					});
 					
-					$("input[type=text]", addControlsRow).keyup(function(e) {
-							//enter key listener
-							if(e.keyCode == 13) {
-								triggerAdd();
-							}
-						});
+					$("input[type=text]", addControlsRow).bindEnterKey(triggerAdd);
 
 					table.append(addControlsRow);
 				}

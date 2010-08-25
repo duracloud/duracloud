@@ -196,11 +196,7 @@ $(document).ready(function() {
 		$("#add-user-dialog").dialog("open");
 	});
 
-	$("#add-user-dialog input").bind('keypress', function(e) {
-		if(e.keyCode==13){
-        	_addUser();
-	    }
-	});
+	$("#add-user-dialog input").bindEnterKey(_addUser);
 
 	
 	$('#change-password-dialog').dialog({
@@ -249,12 +245,7 @@ $(document).ready(function() {
 		});			
 	};
 
-	$("#change-password-dialog input").bind('keypress', function(e) {
-		if(e.keyCode==13){
-        	_changePassword();
-	    }
-	});
-
+	$("#change-password-dialog input").bindEnterKey(_changePassword);
 
 	$(".ui-dialog-titlebar").hide();
 

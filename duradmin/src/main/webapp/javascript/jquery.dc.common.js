@@ -104,6 +104,16 @@ $(document).ready(function(){
 		};
 		
 		
+		$.fn.bindEnterKey = function(func) {
+			$(this).bind('keyup', function(e){
+				if(e.keyCode==13){
+		        	func();
+			    }
+			});		
+			
+			return this;
+		};
+		
 		///////////////////////////////////////////////////////////////////////
 		////duracloud js utils
 		///////////////////////////////////////////////////////////////////////

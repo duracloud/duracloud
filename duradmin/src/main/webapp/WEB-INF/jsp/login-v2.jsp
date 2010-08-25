@@ -13,24 +13,28 @@
 			$(document).ready(function(){
 				$("#username").focus();
 
+				var login = function(){
+					$("#msg-error").fadeOut();
+					$.ajax({
+						type:"POST",
+						url: "/duradmin/j_spring_security_check",
+						data: $("#loginForm").serialize(), 
+					  	success: function(data, text, xhr) {
+						  dc.debug("data="+data+";text="+text);
+						  if(data.indexOf("Login") > 0){
+							  $("#msg-error").fadeIn();
+						  }else{
+	 						  location.reload();
+						  }
+					  }
+					});
+				};
+				
 				$("#button-login").click(function(evt){
 					evt.stopPropagation();
-					  $("#msg-error").fadeOut();
-						
-					$.ajax({
-						  type:"POST",
-						  url: "/duradmin/j_spring_security_check",
-							data: $("#loginForm").serialize(), 
-						  	success: function(data, text, xhr) {
-							  dc.debug("data="+data+";text="+text);
-							  if(data.indexOf("Login") > 0){
-								  $("#msg-error").fadeIn();
-							  }else{
-		 						  location.reload();
-							  }
-						  }
-						});
 				});
+
+				$("#loginForm input").bindEnterKey(login);
 				
 			});
 		</script>

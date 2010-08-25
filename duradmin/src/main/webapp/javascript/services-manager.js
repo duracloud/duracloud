@@ -398,9 +398,9 @@ $(document).ready(function() {
 		hide: 'fade',
 		resizable: false,
 		height: 500,
+		width:700,
 		closeOnEscape:true,
 		modal: true,
-		width:500,
 		buttons: {
 			"Redeploy": function(){
 		
@@ -460,9 +460,9 @@ $(document).ready(function() {
 		hide: 'fade',
 		resizable: false,
 		height: 500,
+		width:700,
 		closeOnEscape:true,
 		modal: true,
-		width:700,
 		close: function() {
 		
 		},

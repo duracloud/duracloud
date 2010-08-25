@@ -462,10 +462,18 @@ $(document).ready(function() {
 						);
 
 		// configure progress bar
-		item.find(".dc-progressbar-value").css("width", percentComplete+"%").html(parseInt(parseInt(props.bytesRead)/1024)+" of " + parseInt(parseInt(props.totalBytes)/1024) + " KB / " + percentComplete+"%");			
+		item.find(".dc-progressbar-value")
+			.css("width", percentComplete+"%")
+			.html(parseInt(parseInt(props.bytesRead)/1024) + 
+					" of " + 
+						parseInt(parseInt(props.totalBytes)/1024) + 
+							" KB / " + 
+								percentComplete + "%");			
 		
 		var actionCell = item.find(".dc-controls");	
-		actionCell.append($.fn.create("span").addClass("dc-progress-state").html(state));
+		actionCell.append(
+				$.fn.create("span")
+					.addClass("dc-progress-state").html(state));
 		
 		if(state == 'success'){
 			item.click(function(){
@@ -663,16 +671,16 @@ $(document).ready(function() {
 		
 		open: function(e){
 			$("#add-space-dialog .access-switch").accessswitch({})
-						.bind("turnOn", function(evt, future){
-							future.success();
-							evt.stopPropagation();
-							$("#add-space-dialog #access").val("OPEN");
-							
-						}).bind("turnOff", function(evt, future){
-							future.success();
-							evt.stopPropagation();
-							$("#add-space-dialog #access").val("CLOSED");
-						}).accessswitch("on");
+				.bind("turnOn", function(evt, future){
+					future.success();
+					evt.stopPropagation();
+					$("#add-space-dialog #access").val("OPEN");
+					
+				}).bind("turnOff", function(evt, future){
+					future.success();
+					evt.stopPropagation();
+					$("#add-space-dialog #access").val("CLOSED");
+				}).accessswitch("on");
 			
 			$("#add-space-form").validate({
 				rules: {
@@ -704,24 +712,16 @@ $(document).ready(function() {
 					"Invalid");
 			$.validator.addMethod("misc", function(value,element){return !(/^.*([.][-]|[-][.]|[.][.]).*$/.test(value));}, 
 					"Invalid");
-
 			$("#add-space-form").resetForm();
-
-			
 		}
 		
 	});
-
-
 
 	$('.add-space-button').live("click",
 			function(evt){
 				$("#add-space-dialog").dialog("open");
 			}
 		);
-	
-	
-
 
 	var getCurrentSpaceId = function(){
 		var currentItem = $("#spaces-list").selectablelist("currentItem");
@@ -848,6 +848,26 @@ $(document).ready(function() {
 		
 	});
 	
+	var updateContentItem = function(){
+		var form = $("#edit-content-item-form");
+		var data = form.serialize();
+		if(form.valid()){
+			var callback = {
+				success: function(contentItem){
+					dc.done();
+					loadContentItem(contentItem);
+				},
+				failure: function(){
+					dc.done();
+					alert("an error occurred");
+				},
+			};
+			$('#edit-content-item-dialog').dialog("close");
+			dc.busy("Updating...");
+			dc.store.UpdateContentItemMimetype(data, callback)
+		}
+	};
+
 
 	$('#edit-content-item-dialog').dialog({
 		autoOpen: false,
@@ -859,29 +879,7 @@ $(document).ready(function() {
 		modal: true,
 		width:500,
 		buttons: {
-			'Save': function() {
-				var form = $("#edit-content-item-form");
-				var data = form.serialize();
-								
-				if(form.valid()){
-					var callback = {
-							success: function(contentItem){
-								dc.done();
-								loadContentItem(contentItem);
-							},
-							
-							failure: function(){
-								dc.done();
-								alert("an error occurred");
-							},
-						};
-
-					$(this).dialog("close");
-					dc.busy("Updating...");
-					dc.store.UpdateContentItemMimetype(data, callback)
-				}
-	
-			},
+			'Save': updateContentItem,
 			Cancel: function() {
 				$(this).dialog('close');
 			}
@@ -890,7 +888,8 @@ $(document).ready(function() {
 
 		},
 		open: function(e){
-			$("#edit-content-item-form").validate({
+			var form = $("#edit-content-item-form",this);
+			form.validate({
 				rules: {
 					contentMimetype: {
 					    required:true,
@@ -902,6 +901,7 @@ $(document).ready(function() {
 				}
 			});
 			
+			$("input",this).bindEnterKey(updateContentItem);
 			
 		}
 	});
