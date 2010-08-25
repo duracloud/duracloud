@@ -8,6 +8,7 @@
 package org.duracloud.services.fixity.osgi;
 
 import junit.framework.Assert;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -182,31 +183,42 @@ public class FixityTester {
     }
 
     private String addContent(final ContentLocation loc, final String text) {
+        ContentStoreException cse = null;
+        StringBuilder err = null;
+
         String mime = "text/plain";
         long contentSize = text.length();
         Map<String, String> metadata = null;
 
-        InputStream content = new AutoCloseInputStream(new ByteArrayInputStream(
-            text.getBytes()));
+        int MAX_TRIES = 4;
+        int tries = 0;
         String md5 = null;
-        try {
-            md5 = contentStore.addContent(loc.getSpaceId(),
-                                          loc.getContentId(),
-                                          content,
-                                          contentSize,
-                                          mime,
-                                          null,
-                                          metadata);
-        } catch (ContentStoreException e) {
-            StringBuilder sb = new StringBuilder("Error adding content: ");
-            sb.append(loc.getSpaceId());
-            sb.append("/");
-            sb.append(loc.getContentId());
-            System.err.println(sb.toString());
-            Assert.fail(sb.toString() + ", " + e.getMessage());
+        while (null == md5 && tries < MAX_TRIES) {
+            InputStream content = new AutoCloseInputStream(new ByteArrayInputStream(
+                text.getBytes()));
+
+            try {
+                md5 = contentStore.addContent(loc.getSpaceId(),
+                                              loc.getContentId(),
+                                              content,
+                                              contentSize,
+                                              mime,
+                                              null,
+                                              metadata);
+            } catch (ContentStoreException e) {
+                tries++;
+                cse = e;
+                IOUtils.closeQuietly(content);
+
+                err = new StringBuilder("Error adding content: ");
+                err.append(loc.getSpaceId());
+                err.append("/");
+                err.append(loc.getContentId());
+                System.err.println(err.toString());
+            }
         }
 
-        Assert.assertNotNull(md5);
+        Assert.assertNotNull(err.toString() + ", " + cse.getMessage(), md5);
         return md5;
     }
 

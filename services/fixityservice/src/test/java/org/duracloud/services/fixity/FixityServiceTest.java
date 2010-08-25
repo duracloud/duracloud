@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
+import static org.duracloud.services.fixity.results.ServiceResultListener.State.COMPLETE;
 
 /**
  * @author Andrew Woods
@@ -161,7 +162,7 @@ public class FixityServiceTest {
         fixity.start();
 
         boolean isValid = true;
-        waitForCompletion();
+        waitForState(COMPLETE);
         verifyOutputReportFile(isValid);
 
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
@@ -174,7 +175,7 @@ public class FixityServiceTest {
 
         fixity.start();
 
-        waitForCompletion();
+        waitForState(COMPLETE);
 
         boolean isValid = true;
         verifyOutputHashFile();
@@ -190,7 +191,7 @@ public class FixityServiceTest {
 
         fixity.start();
 
-        waitForCompletion();
+        waitForState(COMPLETE);
 
         verifyOutputHashFile();
 
@@ -198,21 +199,33 @@ public class FixityServiceTest {
                             fixity.getServiceStatus());
     }
 
-    private void waitForCompletion() {
+    private void waitForState(ServiceResultListener.State state) {
         Map<String, String> props = null;
         ServiceResultProcessor.StatusMsg msg;
         boolean done = false;
-        while (!done) {
+        int MAX_TRIES = 60;
+        int tries = 0;
+        while (!done && tries < MAX_TRIES) {
             props = fixity.getServiceProps();
             Assert.assertNotNull(props);
 
             String status = props.get(ServiceResultProcessor.STATUS_KEY);
-            Assert.assertNotNull(status);
-
-            msg = new ServiceResultListener.StatusMsg(status);
-            if (msg.getState().equals(ServiceResultListener.State.COMPLETE)) {
-                done = true;
+            if (status != null) {
+                msg = new ServiceResultListener.StatusMsg(status);
+                if (msg.getState().equals(state)) {
+                    done = true;
+                }
             }
+            tries++;
+            sleep(500);
+        }
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing
         }
     }
 
@@ -301,8 +314,11 @@ public class FixityServiceTest {
         setServiceOptions(Mode.GENERATE_SPACE);
 
         fixity.start();
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
-                            fixity.getServiceStatus());
+
+        ComputeService.ServiceStatus status = fixity.getServiceStatus();
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
+
+        sleep(1000); // do some work
 
         fixity.stop();
         Assert.assertEquals(ComputeService.ServiceStatus.STOPPED,
@@ -310,11 +326,11 @@ public class FixityServiceTest {
 
         Map<String, String> props = fixity.getServiceProps();
         Assert.assertNotNull(props);
-        String status = props.get(ServiceResultProcessor.STATUS_KEY);
-        Assert.assertNotNull(status);
+        String statusMsg = props.get(ServiceResultProcessor.STATUS_KEY);
+        Assert.assertNotNull(statusMsg);
 
         ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
-            status);
+            statusMsg);
         Assert.assertEquals(ServiceResultListener.State.STOPPED,
                             msg.getState());
     }
@@ -329,8 +345,8 @@ public class FixityServiceTest {
                 EasyMock.expect(store.getSpaceContents(targetSpaceId))
                     .andReturn(newIterator(19750))
                     .anyTimes();
-                EasyMock.expect(store.getContent(targetSpaceId, ""))
-                    .andReturn(createContent("nothing")).anyTimes();
+                EasyMock.expect(store.getContent(targetSpaceId, "")).andReturn(
+                    createContent("nothing")).anyTimes();
                 break;
 
             case GENERATE_LIST:

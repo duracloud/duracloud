@@ -92,21 +92,8 @@ public class FixityServiceTestBase {
             String text = "data-" + contentId;
             String md5 = getMd5(text);
 
-            store.addContent(targetSpaceId0,
-                             contentId,
-                             getContentStream(text),
-                             text.length(),
-                             "text/plain",
-                             md5,
-                             null);
-
-            store.addContent(targetSpaceId1,
-                             contentId,
-                             getContentStream(text),
-                             text.length(),
-                             "text/plain",
-                             md5,
-                             null);
+            addContent(store, targetSpaceId0, contentId, text, md5);
+            addContent(store, targetSpaceId1, contentId, text, md5);
 
             itemToMd5.put(new ContentLocation(targetSpaceId0, contentId), md5);
             itemToMd5.put(new ContentLocation(targetSpaceId1, contentId), md5);
@@ -128,33 +115,29 @@ public class FixityServiceTestBase {
         String listing = createListing(listingItems, !isCorrupt);
         String badListing = createListing(listingItems, isCorrupt);
 
-        store.addContent(adminSpaceId,
-                         allContentId0,
-                         getContentStream(allListing0.toString()),
-                         allListing0.length(),
-                         "text/plain",
-                         getMd5(allListing0.toString()),
-                         null);
+        addContent(store,
+                   adminSpaceId,
+                   allContentId0,
+                   allListing0.toString(),
+                   getMd5(allListing0.toString()));
 
-        store.addContent(adminSpaceId,
-                         listingContentId,
-                         getContentStream(listing.toString()),
-                         listing.length(),
-                         "text/plain",
-                         getMd5(listing.toString()),
-                         null);
+        addContent(store,
+                   adminSpaceId,
+                   listingContentId,
+                   listing.toString(),
+                   getMd5(listing.toString()));
 
-        store.addContent(adminSpaceId,
-                         listingGoodContentId,
-                         getContentStream(listing.toString()),
-                         listing.length(),
-                         "text/plain",
-                         getMd5(listing.toString()),
-                         null);
+        addContent(store,
+                   adminSpaceId,
+                   listingGoodContentId,
+                   listing.toString(),
+                   getMd5(listing.toString()));
 
-        store.addContent(adminSpaceId, listingBadContentId, getContentStream(
-            badListing.toString()), badListing.length(), "text/plain", getMd5(
-            badListing.toString()), null);
+        addContent(store,
+                   adminSpaceId,
+                   listingBadContentId,
+                   badListing.toString(),
+                   getMd5(badListing.toString()));
 
         // verify spaces and content
         verifySpaces(store);
@@ -163,6 +146,36 @@ public class FixityServiceTestBase {
         verifyContent(store, adminSpaceId, listingContentId);
         verifyContent(store, adminSpaceId, listingGoodContentId);
         verifyContent(store, adminSpaceId, listingBadContentId);
+    }
+
+    private static void addContent(final ContentStore store,
+                                   final String spaceId,
+                                   final String contentId,
+                                   final String text,
+                                   final String md5) {
+        StoreCaller<Boolean> caller = new StoreCaller<Boolean>() {
+            @Override
+            protected Boolean doCall() throws ContentStoreException {
+                String newMd5 = store.addContent(spaceId,
+                                                 contentId,
+                                                 getContentStream(text),
+                                                 text.length(),
+                                                 "text/plain",
+                                                 md5,
+                                                 null);
+                return md5.equals(newMd5);
+            }
+
+            @Override
+            public String getLogMessage() {
+                StringBuilder sb = new StringBuilder("Error adding content: ");
+                sb.append(spaceId);
+                sb.append("/");
+                sb.append(contentId);
+                return sb.toString();
+            }
+        };
+        Assert.assertTrue(caller.getLogMessage(), caller.call());
     }
 
     private static void createSpace(ContentStore store, String spaceId)

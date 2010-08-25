@@ -129,7 +129,7 @@ public class FixityServiceOptions {
         switch (mode) {
             case ALL_IN_ONE_LIST:
                 verifyNotNull(hashApproach, "hashApproach");
-                verifyNotNull(salt, "salt");
+                //verifyNotNull(salt, "salt");
                 verifyNotNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
@@ -143,7 +143,7 @@ public class FixityServiceOptions {
                 break;
             case ALL_IN_ONE_SPACE:
                 verifyNotNull(hashApproach, "hashApproach");
-                verifyNotNull(salt, "salt");
+                //verifyNotNull(salt, "salt");
                 verifyNotNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
@@ -157,7 +157,7 @@ public class FixityServiceOptions {
                 break;
             case GENERATE_LIST:
                 verifyNotNull(hashApproach, "hashApproach");
-                verifyNotNull(salt, "salt");
+                //verifyNotNull(salt, "salt");
                 verifyNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
@@ -171,7 +171,7 @@ public class FixityServiceOptions {
                 break;
             case GENERATE_SPACE:
                 verifyNotNull(hashApproach, "hashApproach");
-                verifyNotNull(salt, "salt");
+                //verifyNotNull(salt, "salt");
                 verifyNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNull(providedListingSpaceIdA, "providedListingSpaceIdA");
@@ -185,7 +185,7 @@ public class FixityServiceOptions {
                 break;
             case COMPARE:
                 verifyNull(hashApproach, "hashApproach");
-                verifyNull(salt, "salt");
+                //verifyNull(salt, "salt");
                 verifyNotNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
@@ -204,9 +204,10 @@ public class FixityServiceOptions {
     }
 
     private void verifyNull(String value, String name) {
-        if (null != value) {
-            throwInvalidOptions(name + " should be null");
-        }
+        log.info("verifyNull(" + name + ") is currently disabled.");
+//        if (null != value) {
+//            throwInvalidOptions(name + " should be null");
+//        }
     }
 
     private void verifyNotNull(String value, String name) {

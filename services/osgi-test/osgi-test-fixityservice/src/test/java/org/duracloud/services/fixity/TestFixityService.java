@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.duracloud.services.fixity.results.ServiceResultListener.State.COMPLETE;
+
 /**
  * @author Andrew Woods
  *         Date: Aug 11, 2010
@@ -194,7 +196,7 @@ public class TestFixityService extends FixityServiceTestBase {
                                   List<ContentLocation> items,
                                   Map<ContentLocation, String> corruptItems)
         throws Exception {
-        waitForCompletion(FixityService.PHASE_COMPARE);
+        startAndWaitForCompletion(FixityService.PHASE_COMPARE);
 
         verifyCompareReportFile(contentId, items, corruptItems);
         verifyCompareReportContent(contentId, items, corruptItems);
@@ -205,7 +207,7 @@ public class TestFixityService extends FixityServiceTestBase {
                                    List<ContentLocation> items,
                                    Map<ContentLocation, String> corruptItems)
         throws Exception {
-        waitForCompletion(FixityService.PHASE_COMPARE);
+        startAndWaitForCompletion(FixityService.PHASE_COMPARE);
 
         verifyGeneratedHashFile(hashContentId, items, "");
         verifyGeneratedHashContent(hashContentId, items, "");
@@ -217,35 +219,45 @@ public class TestFixityService extends FixityServiceTestBase {
     private void testStartGenerate(String contentId,
                                    Collection<ContentLocation> items,
                                    String salt) throws Exception {
-        waitForCompletion(FixityService.PHASE_FIND);
+        startAndWaitForCompletion(FixityService.PHASE_FIND);
 
         verifyGeneratedHashFile(contentId, items, salt);
         verifyGeneratedHashContent(contentId, items, salt);
     }
 
-
-    private void waitForCompletion(String phase) throws Exception {
+    private void startAndWaitForCompletion(String phase) throws Exception {
         fixity.start();
+        waitForStateAndPhase(COMPLETE, phase);
 
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
+                            fixity.getServiceStatus());
+    }
+
+    private void waitForStateAndPhase(ServiceResultListener.State state,
+                                      String phase) throws Exception {
         Map<String, String> props = null;
-        ServiceResultListener.StatusMsg msg;
+        ServiceResultListener.StatusMsg msg = null;
         boolean done = false;
-        while (!done) {
+        int MAX_TRIES = 120;
+        int tries = 0;
+        while (!done && tries < MAX_TRIES) {
             props = fixity.getServiceProps();
             Assert.assertNotNull(props);
 
             String status = props.get(ServiceResultProcessor.STATUS_KEY);
-            Assert.assertNotNull(status);
-
-            msg = new ServiceResultListener.StatusMsg(status);
-            if (ServiceResultListener.State.COMPLETE.equals(msg.getState()) &&
-                msg.getPhase().equals(phase)) {
-                done = true;
+            if (status != null) {
+                msg = new ServiceResultListener.StatusMsg(status);
+                if (msg.getState().equals(state) &&
+                    msg.getPhase().equals(phase)) {
+                    done = true;
+                }
             }
+            tries++;
+            sleep(500);
         }
-
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
-                            fixity.getServiceStatus());
+        Assert.assertNotNull(msg);
+        Assert.assertEquals(state, msg.getState());
+        Assert.assertEquals(phase, msg.getPhase());
     }
 
     private void verifyCompareReportFile(String contentId,
@@ -368,22 +380,16 @@ public class TestFixityService extends FixityServiceTestBase {
 
     private void testStop() throws Exception {
         fixity.start();
+        waitForStateAndPhase(ServiceResultListener.State.STARTED,
+                             FixityService.PHASE_FIND);
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
                             fixity.getServiceStatus());
 
         fixity.stop();
+        waitForStateAndPhase(ServiceResultListener.State.STOPPED,
+                             FixityService.PHASE_FIND);
         Assert.assertEquals(ComputeService.ServiceStatus.STOPPED,
                             fixity.getServiceStatus());
-
-        Map<String, String> props = fixity.getServiceProps();
-        Assert.assertNotNull(props);
-        String status = props.get(ServiceResultProcessor.STATUS_KEY);
-        Assert.assertNotNull(status);
-
-        ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
-            status);
-        Assert.assertEquals(ServiceResultListener.State.STOPPED,
-                            msg.getState());
     }
 
     private BufferedReader getFileReader(String contentId)
@@ -426,6 +432,14 @@ public class TestFixityService extends FixityServiceTestBase {
             }
         };
         return caller.call();
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
     }
 
 }

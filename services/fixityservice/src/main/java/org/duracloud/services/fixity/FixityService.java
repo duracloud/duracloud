@@ -72,12 +72,16 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private String outputContentId;
     private String reportContentId;
 
+    private String processingStatusMsg;
+    private boolean keepWorking;
+
     private int threads = 3;
 
 
     @Override
     public void start() throws Exception {
         this.setServiceStatus(ServiceStatus.STARTING);
+        keepWorking = true;
 
         StringBuilder sb = new StringBuilder("Starting Fixity Service as '");
         sb.append(getUsername());
@@ -86,21 +90,52 @@ public class FixityService extends BaseService implements ComputeService, Manage
         sb.append(" worker threads");
         log.info(sb.toString());
 
-        try {
-            doStart();
-            this.setServiceStatus(ServiceStatus.STARTED);
+        new Thread(new FixityServiceThread()).start();
+        new Thread(new ProcessingStatusMonitorThread()).start();
+    }
 
-        } catch (Exception e) {
-            StringBuilder err = new StringBuilder("Error starting service: ");
-            err.append(e.getMessage());
-            log.error(err.toString());
+    private class FixityServiceThread implements Runnable {
+        @Override
+        public void run() {
+            try {
+                setServiceStatus(ServiceStatus.STARTED);
+                doStart();
 
-            setError(err.toString());
-            this.setServiceStatus(ServiceStatus.INSTALLED);
+            } catch (Exception e) {
+                StringBuilder err = new StringBuilder("Error starting service: ");
+                err.append(e.getMessage());
+                log.error(err.toString());
+
+                setError(err.toString());
+                setServiceStatus(ServiceStatus.INSTALLED);
+            }
         }
     }
 
-    public void doStart() throws Exception {
+    private class ProcessingStatusMonitorThread implements Runnable {
+        @Override
+        public void run() {
+            while (keepWorking) {
+                log.debug("PStatusMonitorThread.run() " + processingStatusMsg);
+                updateProcessingStatus();
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+            }
+        }
+    }
+
+    private void updateProcessingStatus() {
+        log.debug("updateProcessingStatus() " + processingStatusMsg);
+        if (workManager != null) {
+            processingStatusMsg = workManager.getProcessingStatus();
+        }
+    }
+
+    private void doStart() throws Exception {
         FixityServiceOptions serviceOptions = getServiceOptions();
         ContentStore contentStore = getContentStore();
 
@@ -115,6 +150,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
         if (serviceOptions.needsToCompare()) {
             startComparing(contentStore, serviceOptions, workDir, doneHashing);
         }
+
+        doneWorking();
     }
 
     private void startHashing(ContentStore contentStore,
@@ -195,15 +232,23 @@ public class FixityService extends BaseService implements ComputeService, Manage
         if (workManager != null) {
             workManager.stopProcessing();
         }
+
+        doneWorking();
         this.setServiceStatus(ServiceStatus.STOPPED);
+    }
+
+    private void doneWorking() {
+        updateProcessingStatus();
+        keepWorking = false;
     }
 
     @Override
     public Map<String, String> getServiceProps() {
         Map<String, String> props = super.getServiceProps();
-        if (workManager != null) {
-            props.put(ServiceResultProcessor.STATUS_KEY,
-                      workManager.getProcessingStatus());
+        if (processingStatusMsg != null) {
+            log.debug("getServiceProps() " + processingStatusMsg);
+            updateProcessingStatus();
+            props.put(ServiceResultProcessor.STATUS_KEY, processingStatusMsg);
         }
         return props;
     }
