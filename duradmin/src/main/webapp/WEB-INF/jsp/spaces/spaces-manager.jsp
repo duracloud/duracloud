@@ -38,6 +38,8 @@
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/javascript/ui.flyoutselect.js"></script>
         <script type='text/javascript' src='${pageContext.request.contextPath}/jwplayer/swfobject.js'></script>
+		<script type="text/javascript"
+			src="${pageContext.request.contextPath}/javascript/dc.util.paralleltasks.js"></script>
 			
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/javascript/spaces-manager.js"></script>

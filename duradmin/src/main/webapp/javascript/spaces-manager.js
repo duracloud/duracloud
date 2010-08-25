@@ -111,7 +111,7 @@ $(document).ready(function() {
 			}
 			dc.busy("Deleting spaces");
 			var spaces = $("#spaces-list").selectablelist("getSelectedData");
-			var job = dc.createJob("delete-spaces");	
+			var job = dc.util.createJob("delete-spaces");	
 
 			for(i in spaces){
 				job.addTask({
@@ -160,7 +160,7 @@ $(document).ready(function() {
 			}
 			dc.busy("Deleting Content Items...");
 			var contentItems = $("#content-item-list").selectablelist("getSelectedData");
-			var job = dc.createJob("delete-content-items");	
+			var job = dc.util.createJob("delete-content-items");	
 
 			for(i in contentItems){
 				job.addTask({
@@ -1668,10 +1668,48 @@ $(document).ready(function() {
 		return pHash;
 	};
 
+	var isUploadManagerBusy = function(){
+		var inprogress = false;
+		$.ajax({
+			async:false,
+			cache:false,
+			url: "/duradmin/spaces/upload",
+			success: function(data){
+				if(data != null && data.taskList != null && data.taskList.length > 0){
+					for(i in data.taskList){
+						var props = data.taskList[i].properties;
+						if(props.state =='running'){
+							inprogress = true;
+							break;
+						}
+					}
+				}
+			}
+		});
+		return inprogress;
+	};
+	
 	var initSpacesManager =  function(){
-		// //////////////////////////////////////////
+		////////////////////////////////////////////
+		//alert user if they are navigating away from 
+		//spaces manager while an upload is still underway
+		////////////////////////////////////////////
+		$("a").each(function(i,element){
+			if($(element).attr("href")  != undefined){
+				$(element).click(function(e){
+					if(isUploadManagerBusy()){
+						return confirm(
+								"The upload manager is uploading files.  " +
+								"\nIf you navigate away from this page, the uploads in process may not complete.");
+					}
+					return true;
+				});
+			}
+		});
+		
+		////////////////////////////////////////////
 		// initialize provider selection
-		// /
+		////////////////////////////////////////////
 		var PROVIDER_COOKIE_ID = "providerId";
 		var options = {
 			data: storeProviders, // this variable is defined in a script in
