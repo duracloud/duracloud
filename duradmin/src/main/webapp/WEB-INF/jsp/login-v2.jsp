@@ -32,6 +32,7 @@
 				
 				$("#button-login").click(function(evt){
 					evt.stopPropagation();
+					login();
 				});
 
 				$("#loginForm input").bindEnterKey(login);
