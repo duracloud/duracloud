@@ -367,6 +367,7 @@ $(document).ready(function() {
 
 	
 	var loadPreview = function(target, contentItem){
+		
 		var mimetype = contentItem.metadata.mimetype;
 		var isExternalViewer =  contentItem.viewerURL.indexOf('djatok') > 0;
 		var isImage = (contentItem.metadata.mimetype.indexOf('image') == 0)
@@ -404,7 +405,42 @@ $(document).ready(function() {
 		var wrapper = $.fn.create("div")
 							.addClass("preview-image-wrapper")
 							.append(viewerLink);
-		
+
+		if(isImage && isExternalViewer){
+			var warning = $.fn.create("div").addClass("error").hide();
+			$(div).expandopanel("getContent").append(warning);
+			dc.store.GetSpace(
+				 contentItem.storeId,
+				 contentItem.spaceId,
+				 {
+					success: function(space){
+					 	if(space.metadata.access == 'CLOSED'){
+					 		var button = $.fn.create("button")
+					 			.addClass("featured")
+					 			.css("margin-left","10px")
+					 			.html("Open Space");
+					 		
+					 		button.click(function(){
+			 					toggleSpaceAccess(
+			 						space, 
+			 						{
+			 							success:function(){
+			 								loadContentItem(contentItem);
+			 							},
+			 							failure:function(){alert("operation failed")},
+			 						})					 				
+				 			});
+
+					 		
+					 		warning.append("<span>To use the JP2 Viewer you must open this space.</span>")
+					 			   .append(button).show();
+					 	}
+				 	},
+				 	failure: function(){},
+				 });
+
+			
+		}
 		$(div).expandopanel("getContent").append(wrapper);
 		
 		$(".center", target).append(div);
