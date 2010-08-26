@@ -89,12 +89,16 @@ public class ImageConversionMapper extends ProcessFileMapper {
         pb.directory(workDir);
         Process p = pb.start();
 
+        System.out.println("Image conversion started for " + fileName);
+
         try {
             p.waitFor();  // Wait for the conversion to complete
         } catch (InterruptedException e) {
             throw new IOException("Conversion process interruped for " +
                 fileName, e);
         }
+
+        System.out.println("Image conversion complete for " + fileName);
 
         String convertedFileName = FilenameUtils.getBaseName(fileName);
         convertedFileName += "." + toFormat;

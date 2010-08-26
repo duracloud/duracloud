@@ -105,7 +105,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
         if(namePrefix != null && !namePrefix.equals("")) {
             taskParams.put("namePrefix", namePrefix);
         }
-        if(nameSuffix != null && !namePrefix.equals("")) {
+        if(nameSuffix != null && !nameSuffix.equals("")) {
             taskParams.put("nameSuffix", nameSuffix);
         }
         if(colorSpace != null) {
