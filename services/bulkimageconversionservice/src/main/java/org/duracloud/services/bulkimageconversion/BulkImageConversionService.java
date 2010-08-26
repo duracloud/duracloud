@@ -71,6 +71,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
 
     private ContentStore contentStore;
     private HadoopJobWorker worker;
+    private PostJobWorker postWorker;
 
     @Override
     public void start() throws Exception {
@@ -92,6 +93,14 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
                                      getServiceWorkDir());
         Thread workerThread = new Thread(worker);
         workerThread.start();
+
+        // Start post job worker
+        postWorker = new PostJobWorker(this,
+                                       contentStore,
+                                       toFormat,
+                                       destSpaceId);
+        Thread postWorkerThread = new Thread(postWorker);
+        postWorkerThread.start();
 
         this.setServiceStatus(ServiceStatus.STARTED);        
     }
@@ -115,7 +124,17 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
         }
         taskParams.put("instanceType", instanceType);
         taskParams.put("numInstances", numInstances);
-        taskParams.put("mappersPerInstance", mappersPerInstance);
+
+        // Set max mappers based on instance type if the value is default
+        String mappers = mappersPerInstance;
+        if(DEFAULT_NUM_MAPPERS.equals(mappers)) {
+            if("m1.large".equals(instanceType)) {
+                mappers = "2";
+            } else if("m1.xlarge".equals(instanceType)) {
+                mappers = "4";
+            }
+        }
+        taskParams.put("mappersPerInstance", mappers);
 
         return taskParams;
     }
@@ -131,6 +150,10 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
             contentStore.performTask(STOP_JOB_TASK, jobId);
         }
 
+        if(postWorker != null) {
+            postWorker.shutdown();
+        }
+
         this.setServiceStatus(ServiceStatus.STOPPED);
     }
 
@@ -138,9 +161,9 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
     public Map<String, String> getServiceProps() {
         Map<String, String> props = super.getServiceProps();
 
-        boolean complete = false;
+        boolean jobWorkerComplete = false;
         if(worker != null) {
-            complete = worker.isComplete();
+            jobWorkerComplete = worker.isComplete();
 
             String error = worker.getError();
             if(error != null) {
@@ -155,7 +178,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
                     jobStatus =
                         contentStore.performTask(DESCRIBE_JOB_TASK, jobId);
                 } catch(ContentStoreException e) {
-                    props.put("Error Retrieving Job Status", e.getMessage());    
+                    props.put("Error Retrieving Job Status", e.getMessage());
                 }
 
                 if(jobStatus != null) {
@@ -168,13 +191,51 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
             }
         }
 
-        if(complete) {
-            props.put("Service Status", "Job Started");
-        } else {
-            props.put("Service Status", "Starting Job...");
+        String status = "Starting Job...";
+        if(jobWorkerComplete) { // Job Started
+            if(jobComplete()) { // Job Complete
+                if(postWorker != null &&
+                   postWorker.isComplete()) { // Post complete
+                    status = "Job Completed";
+                } else {
+                    status = "Running Post Job Processing...";
+                }
+            } else {
+                status = "Running Job...";
+            }
         }
+        props.put("Service Status", status);
 
         return props;
+    }
+
+    protected boolean jobComplete() {
+        boolean complete = false;
+        if(worker != null) {
+            String jobId = worker.getJobId();
+            if(jobId != null) {
+                String jobStatus = null;
+                try {
+                    jobStatus =
+                        contentStore.performTask(DESCRIBE_JOB_TASK, jobId);
+                } catch(ContentStoreException e) {                    
+                }
+
+                if(jobStatus != null) {
+                    Map<String, String> jobStatusMap =
+                        SerializationUtil.deserializeMap(jobStatus);
+                    for(String key : jobStatusMap.keySet()) {
+                        if(key.equals("Job State")) {
+                            if("COMPLETED".equals(jobStatusMap.get(key))) {
+                                complete = true;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return complete;
     }
 
     @SuppressWarnings("unchecked")

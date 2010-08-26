@@ -126,8 +126,6 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         instanceTypeOptions.add(new Option("Large Instance", "m1.large", false));
         instanceTypeOptions.add(
             new Option("Extra Large Instance", "m1.xlarge", false));
-        instanceTypeOptions.add(
-            new Option("High-CPU Extra Large Instance", "c1.xlarge", false));
 
         SingleSelectUserConfig instanceType =
             new SingleSelectUserConfig("instanceType",

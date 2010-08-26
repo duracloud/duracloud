@@ -216,7 +216,8 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
                  " num-mappers-per-instance=" + numMappersPerInstance);
 
         // Run hadoop job
-        String jobFlowId = runHadoopJob(jarPath,
+        String jobFlowId = runHadoopJob(jobType,
+                                        jarPath,
                                         customBootstrapPath,
                                         logPath,
                                         jarParams,
@@ -233,7 +234,8 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         return toReturn;
     }
 
-    private String runHadoopJob(String jarPath,
+    private String runHadoopJob(String jobType,
+                                String jarPath,
                                 String customBootstrapPath,
                                 String logPath,
                                 List<String> jarParams,
@@ -284,7 +286,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         stepConfig.setHadoopJarStep(jarStepConfig);
         jobFlow = jobFlow.withSteps(stepConfig);
 
-        jobFlow.setName("DuraCloud Service Job Flow");
+        jobFlow.setName("DuraCloud Job: " + jobType);
         jobFlow.setLogUri(logPath);
 
         RunJobFlowResult result = emrClient.runJobFlow(jobFlow);
