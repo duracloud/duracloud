@@ -115,7 +115,14 @@ public class BulkImageConversionServiceTest {
         service.setInstanceType(null);
         assertEquals("m1.small", service.getInstanceType());
         service.setInstanceType("c1.xlarge");
-        assertEquals("c1.xlarge", service.getInstanceType());        
+        assertEquals("c1.xlarge", service.getInstanceType());
+
+        service.setMappersPerInstance(null);
+        assertEquals("1", service.getMappersPerInstance());
+        service.setMappersPerInstance("test");
+        assertEquals("1", service.getMappersPerInstance());
+        service.setMappersPerInstance("8");
+        assertEquals("8", service.getMappersPerInstance());        
     }
 
 }

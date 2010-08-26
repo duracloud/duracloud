@@ -133,6 +133,7 @@ public class RunHadoopJobTaskRunnerTest {
         taskParams.put("numInstances", "2");
         taskParams.put("destFormat", "png");
         taskParams.put("colorSpace", "sRGB");
+        taskParams.put("mappersPerInstance", "1");
 
         params = SerializationUtil.serializeMap(taskParams);
         String result = runner.performTask(params);

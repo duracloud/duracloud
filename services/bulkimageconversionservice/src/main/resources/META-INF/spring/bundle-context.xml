@@ -25,6 +25,7 @@
     <property name="nameSuffix" value=""/>
     <property name="numInstances" value="1"/>
     <property name="instanceType" value="m1.small"/>
+    <property name="mappersPerInstance" value="1"/>
   </bean>
 
 </beans>

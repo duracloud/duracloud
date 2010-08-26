@@ -179,7 +179,7 @@ public class ServiceXmlGeneratorTest {
 
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(5, systemConfigs.size());
+        Assert.assertEquals(6, systemConfigs.size());
 
         verifyDurastoreCredential(systemConfigs);
     }

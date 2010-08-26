@@ -48,6 +48,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
     private static final String DEFAULT_NAME_SUFFIX = "";
     private static final String DEFAULT_NUM_INSTANCES = "1";
     private static final String DEFAULT_INSTANCE_TYPE = "m1.small";
+    private static final String DEFAULT_NUM_MAPPERS = "1";
 
     private static final String STOP_JOB_TASK = "stop-hadoop-job";
     private static final String DESCRIBE_JOB_TASK = "describe-hadoop-job";
@@ -66,6 +67,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
     private String nameSuffix;
     private String numInstances;
     private String instanceType;
+    private String mappersPerInstance;
 
     private ContentStore contentStore;
     private HadoopJobWorker worker;
@@ -113,6 +115,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
         }
         taskParams.put("instanceType", instanceType);
         taskParams.put("numInstances", numInstances);
+        taskParams.put("mappersPerInstance", mappersPerInstance);
 
         return taskParams;
     }
@@ -378,6 +381,32 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
                 ", which is not valid. Setting value to default: " +
                 DEFAULT_INSTANCE_TYPE);
             this.instanceType = DEFAULT_INSTANCE_TYPE;
+        }
+    }
+
+    public String getMappersPerInstance() {
+        return mappersPerInstance;
+    }
+
+    public void setMappersPerInstance(String mappersPerInstance) {
+        this.mappersPerInstance = mappersPerInstance;
+
+        if(mappersPerInstance != null && !mappersPerInstance.equals("")) {
+            try {
+                Integer.valueOf(mappersPerInstance);
+                this.mappersPerInstance = mappersPerInstance;
+            } catch(NumberFormatException e) {
+                log("Attempt made to set mappersPerInstance to a " +
+                    "non-numerical value, which is not valid. Setting " +
+                    "value to default: " +
+                    DEFAULT_NUM_MAPPERS);
+                this.mappersPerInstance = DEFAULT_NUM_MAPPERS;
+            }
+        } else {
+            log("Attempt made to set mappersPerInstance to to null or empty, " +
+                ", which is not valid. Setting value to default: " +
+                DEFAULT_NUM_MAPPERS);
+            this.mappersPerInstance = DEFAULT_NUM_MAPPERS;
         }
     }
 

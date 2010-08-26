@@ -165,12 +165,16 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         SystemConfig password = new SystemConfig("password",
                                                  ServiceConfigUtil.STORE_PWORD_VAR,
                                                  "no-password");
+        SystemConfig mappersPerInstance = new SystemConfig("mappersPerInstance",
+                                                           "1",
+                                                           "1");
 
         systemConfig.add(host);
         systemConfig.add(port);
         systemConfig.add(context);
         systemConfig.add(username);
         systemConfig.add(password);
+        systemConfig.add(mappersPerInstance);
 
         icService.setSystemConfigs(systemConfig);
 

@@ -41,6 +41,10 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
 
     private static final Integer DEFAULT_NUM_INSTANCES = new Integer(1);
     private static final String DEFAULT_INSTANCE_TYPE = "m1.small";
+    private static final Integer DEFAULT_NUM_MAPPERS = new Integer(1);
+
+    private static final String CONFIG_HADOOP_BOOTSTRAP_ACTION =
+        "s3://elasticmapreduce/bootstrap-actions/configure-hadoop";
 
     private S3StorageProvider s3Provider;
     private AmazonS3Client s3Client;
@@ -74,6 +78,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         String destSpaceId = taskParams.get("destSpaceId");
         String instanceType = taskParams.get("instanceType");
         String numInstances = taskParams.get("numInstances");
+        String mappersPerInstance = taskParams.get("mappersPerInstance");
 
         log.info("Performing " + TASK_NAME +
                  " with the following parameters:" +
@@ -84,7 +89,8 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
                  " sourceSpaceId=" + sourceSpaceId +
                  " destSpaceId=" + destSpaceId +
                  " instanceType=" + instanceType +
-                 " numInstances=" + numInstances);
+                 " numInstances=" + numInstances +
+                 " mappersPerInstance=" + mappersPerInstance);
 
         // Verify a known job type
         HadoopTaskHelper taskHelper = null;
@@ -119,6 +125,19 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
             }
         }
 
+        // Check number of mappers per instance
+        Integer numMappersPerInstance = DEFAULT_NUM_MAPPERS;
+        if(mappersPerInstance != null) {
+            try {
+                numMappersPerInstance = Integer.valueOf(mappersPerInstance);
+            } catch(NumberFormatException e) {
+                log.warn("Value for mappersPerInstance if not a valid " +
+                         "integer, using default value " + DEFAULT_NUM_MAPPERS +
+                         " instead");
+                numMappersPerInstance = DEFAULT_NUM_MAPPERS;
+            }
+        }
+
         // Verify buckets exist        
         String workBucketName = s3Provider.getBucketName(workSpaceId);
         String sourceBucketName = s3Provider.getBucketName(sourceSpaceId);
@@ -148,20 +167,21 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
                                        workBucketName);
         }
 
-        // Set bootstrap path if necessary
-        boolean includeBootstrap = false;
+        // Set custom bootstrap path if necessary
+        boolean includeCustomBootstrap = false;
         if(bootstrapContentId != null) {
             ObjectMetadata bootstrapMeta =
                 s3Client.getObjectMetadata(workBucketName, bootstrapContentId);
             if(bootstrapMeta != null &&
                !bootstrapMeta.getRawMetadata().isEmpty()) {
-                includeBootstrap = true;
+                includeCustomBootstrap = true;
             }
         }
 
-        String bootstrapPath = null;
-        if(includeBootstrap) {
-            bootstrapPath = "s3n://" + workBucketName + "/" + bootstrapContentId;
+        String customBootstrapPath = null;
+        if(includeCustomBootstrap) {
+            customBootstrapPath =
+                "s3n://" + workBucketName + "/" + bootstrapContentId;
         }
 
         // Set jar and log paths
@@ -187,20 +207,22 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
             Arrays.toString(jarParams.toArray(new String[jarParams.size()]));
         log.info("Running Hadoop Job with parameters:" +
                  " jar-path=" + jarPath +
-                 " include-bootstrap=" + includeBootstrap +
-                 " bootstrap-path=" + bootstrapPath +
+                 " include-custom-bootstrap=" + includeCustomBootstrap +
+                 " custom-bootstrap-path=" + customBootstrapPath +
                  " log-path=" + logPath +
                  " jar-params=" + jarParamListing +
                  " num-instances=" + numberOfInstances +
-                 " instance-type=" + instanceType);
+                 " instance-type=" + instanceType +
+                 " num-mappers-per-instance=" + numMappersPerInstance);
 
         // Run hadoop job
         String jobFlowId = runHadoopJob(jarPath,
-                                        bootstrapPath,
+                                        customBootstrapPath,
                                         logPath,
                                         jarParams,
                                         numberOfInstances,
-                                        instanceType);
+                                        instanceType,
+                                        numMappersPerInstance);
 
         // Return results
         Map<String, String> returnInfo = new HashMap<String, String>();
@@ -212,25 +234,38 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     }
 
     private String runHadoopJob(String jarPath,
-                                String bootstrapPath,
+                                String customBootstrapPath,
                                 String logPath,
                                 List<String> jarParams,
                                 Integer numInstances,
-                                String instanceType) {
+                                String instanceType,
+                                Integer numMappersPerInstance) {
         RunJobFlowRequest jobFlow = new RunJobFlowRequest();
 
-        // Add bootstrap path if included
-        if(bootstrapPath != null) {
-            ScriptBootstrapActionConfig bootstrapScriptConfig =
-                new ScriptBootstrapActionConfig();
-            bootstrapScriptConfig.setPath(bootstrapPath);
+        // Create bootstrap actions
+        List<BootstrapActionConfig> bootstrapActions =
+            new ArrayList<BootstrapActionConfig>();
 
-            BootstrapActionConfig bootstrapConfig = new BootstrapActionConfig();
-            bootstrapConfig.setName("BootStrap Action");
-            bootstrapConfig.setScriptBootstrapAction(bootstrapScriptConfig);
-            
-            jobFlow = jobFlow.withBootstrapActions(bootstrapConfig);
+        // Add number of mappers per instance bootstrap config
+        List<String> setMappersArgs = new ArrayList<String>();
+        setMappersArgs.add("-s");
+        setMappersArgs.add("mapred.tasktracker.map.tasks.maximum=" +
+                           numMappersPerInstance);
+        BootstrapActionConfig mappersBootstrapConfig =
+            createBootstrapAction("Set Hadoop Config",
+                                  CONFIG_HADOOP_BOOTSTRAP_ACTION,
+                                  setMappersArgs);
+        bootstrapActions.add(mappersBootstrapConfig);
+
+        // Add custom bootstrap path if included
+        if(customBootstrapPath != null) {
+            BootstrapActionConfig customBootstrapConfig =
+                createBootstrapAction("Custom BootStrap Action",
+                                      customBootstrapPath,
+                                      null);
+            bootstrapActions.add(customBootstrapConfig);
         }
+        jobFlow.setBootstrapActions(bootstrapActions);
 
         // Set instance config
         JobFlowInstancesConfig instancesConfig = new JobFlowInstancesConfig();
@@ -255,5 +290,24 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         RunJobFlowResult result = emrClient.runJobFlow(jobFlow);
         return result.getJobFlowId();
     }
+
+    private BootstrapActionConfig createBootstrapAction(String bootstrapName,
+                                                        String bootstrapPath,
+                                                        List<String> args) {
+        ScriptBootstrapActionConfig bootstrapScriptConfig =
+            new ScriptBootstrapActionConfig();
+        bootstrapScriptConfig.setPath(bootstrapPath);
+
+        if(args != null) {
+            bootstrapScriptConfig.setArgs(args);
+        }
+
+        BootstrapActionConfig bootstrapConfig = new BootstrapActionConfig();
+        bootstrapConfig.setName(bootstrapName);
+        bootstrapConfig.setScriptBootstrapAction(bootstrapScriptConfig);
+
+        return bootstrapConfig;
+    }
+
 
 }
