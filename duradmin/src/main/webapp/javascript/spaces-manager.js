@@ -1115,7 +1115,7 @@ $(document).ready(function() {
 		return [
 			        ["Space", contentItem.spaceId],
 			        ["Size", m.size],
-			        ["Created", m.created],
+			        ["Modified", m.modified],
 			        ["Checksum", m.checksum],
 		       ];
 	};
