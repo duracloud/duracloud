@@ -10,6 +10,7 @@ $.require("jquery.easing-1.3.pack.js");
 $.require("ui.metadataviewer.js");
 $.require("ui.tagsviewer.js");
 $.require("ui.flyoutselect.js");
+$.require("dc.util.paralleltasks.js");
 
 $(document).ready(function() {
 	
@@ -407,7 +408,7 @@ $(document).ready(function() {
 							.append(viewerLink);
 
 		if(isImage && isExternalViewer){
-			var warning = $.fn.create("div").addClass("error").hide();
+			var warning = $.fn.create("div").addClass("warning").hide();
 			$(div).expandopanel("getContent").append(warning);
 			dc.store.GetSpace(
 				 contentItem.storeId,
@@ -957,7 +958,9 @@ $(document).ready(function() {
 	var scrollToCurrentSpace = function(){
 		var spacesList = $("#spaces-list");
 		var current = spacesList.selectablelist("currentItem"); 
-		if(current.data != null && current.data != undefined ){
+		
+		if(current != null && current != undefined && 
+				current.data != null && current.data != undefined ){
 			 spacesList
 			 	.closest(".dc-item-list-wrapper")
 			 	.scrollTo(current.item);

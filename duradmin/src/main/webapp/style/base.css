@@ -714,15 +714,24 @@ span.label,
  
  /* ERRORS *********************************************************/
  
- .pane-L1-body .error
+ .pane-L1-body .error,  .pane-L1-body .warning
  {
- 	background-color:#990000;
- 	border:1px solid #aa0000;
  	color:#ccc;
  	margin-bottom:10px;
  	padding:10px;
  }
- 
+
+.pane-L1-body .error
+ {
+ 	border:1px solid #aa0000;
+ 	background-color:#990000;
+ }
+.pane-L1-body .warning
+ {
+ 	border:1px solid #ff9933;
+	background-color:#ff6600;
+ }
+
  /* MISC **********************************************************/
  
  
