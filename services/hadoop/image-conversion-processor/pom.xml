@@ -41,13 +41,11 @@
     </plugins>
 
     <resources>
-        <resource>
-            <directory>${basedir}/resources</directory>
-            <includes>
-               <include>**/*.icm</include>
-            </includes>
-        </resource>
-    </resources>     
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
 
   </build> 
 
