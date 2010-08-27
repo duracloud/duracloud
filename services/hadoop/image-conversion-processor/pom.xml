@@ -40,6 +40,15 @@
 
     </plugins>
 
+    <resources>
+        <resource>
+            <directory>${basedir}/resources</directory>
+            <includes>
+               <include>**/*.icm</include>
+            </includes>
+        </resource>
+    </resources>     
+
   </build> 
 
   <dependencies>
