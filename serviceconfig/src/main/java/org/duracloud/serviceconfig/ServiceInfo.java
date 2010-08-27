@@ -7,6 +7,7 @@
  */
 package org.duracloud.serviceconfig;
 
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.serviceconfig.user.UserConfig;
 
 import java.io.Serializable;
@@ -21,7 +22,7 @@ import java.util.List;
  * @author Andrew Woods
  *         Date: Nov 6, 2009
  */
-public class ServiceInfo implements Serializable, Cloneable{
+public class ServiceInfo implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -7958760599324208594L;
 
@@ -54,6 +55,7 @@ public class ServiceInfo implements Serializable, Cloneable{
 
     /** The default user configuration options */
     private List<UserConfig> userConfigs;
+    private List<UserConfigModeSet> modeSets;
 
     /** Includes information necessary to deploy a new service of this type */
     private List<DeploymentOption> deploymentOptions;
@@ -107,6 +109,14 @@ public class ServiceInfo implements Serializable, Cloneable{
 
     public void setUserConfigs(List<UserConfig> userConfigs) {
         this.userConfigs = userConfigs;
+    }
+
+    public List<UserConfigModeSet> getModeSets() {
+        return modeSets;
+    }
+
+    public void setModeSets(List<UserConfigModeSet> modeSets) {
+        this.modeSets = modeSets;
     }
 
     public String getUserConfigVersion() {

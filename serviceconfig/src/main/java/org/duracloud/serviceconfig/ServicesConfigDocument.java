@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class ServicesConfigDocument {
 
-    public static final String SCHEMA_VERSION = "0.3";
+    public static final String SCHEMA_VERSION = "0.6.0";
 
     /**
      * This method binds the arg xml to a list of ServiceInfo objects.

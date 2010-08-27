@@ -16,6 +16,8 @@ import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SelectableUserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
@@ -32,7 +34,7 @@ import java.util.List;
 public class ServiceElementWriter {
 
     /**
-     * This method serializes a single ServiceInfo object into a 
+     * This method serializes a single ServiceInfo object into a
      * single-service-config xml element.
      *
      * @param serviceInfo object to be serialized
@@ -98,11 +100,21 @@ public class ServiceElementWriter {
             populateSystemConfig(systemConfigType, systemConfigs);
         }
 
+        UserConfigType userConfigType = null;
         List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
         if (userConfigs != null && userConfigs.size() > 0) {
-            UserConfigType userConfigType;
-            userConfigType = service.addNewUserConfig();
-            populateUserConfig(userConfigType, userConfigs);
+            if (null == userConfigType) {
+                userConfigType = service.addNewUserConfig();
+            }
+            populateUserConfigProperties(userConfigType, userConfigs);
+        }
+
+        List<UserConfigModeSet> userConfigModeSets = serviceInfo.getModeSets();
+        if (userConfigModeSets != null && userConfigModeSets.size() > 0) {
+            if (null == userConfigType) {
+                userConfigType = service.addNewUserConfig();
+            }
+            populateUserConfigModeSets(userConfigType, userConfigModeSets);
         }
 
         List<DeploymentOption> deploymentOptions = serviceInfo.getDeploymentOptions();
@@ -122,6 +134,64 @@ public class ServiceElementWriter {
             populateDeployments(deploymentsType, deployments);
         }
 
+    }
+
+    private static void populateUserConfigModeSets(UserConfigType userConfigType,
+                                                   List<UserConfigModeSet> modeSets) {
+        for (UserConfigModeSet modeSet : modeSets) {
+            ModeSetType modeSetType = userConfigType.addNewModeSet();
+            populateUserConfigModeSet(modeSetType, modeSet);
+        }
+    }
+
+    private static void populateUserConfigModeSets(ModeType modeType,
+                                                   List<UserConfigModeSet> modeSets) {
+        for (UserConfigModeSet modeSet : modeSets) {
+            ModeSetType modeSetType = modeType.addNewModeSet();
+            populateUserConfigModeSet(modeSetType, modeSet);
+        }
+    }
+
+    private static void populateUserConfigModeSet(ModeSetType modeSetType,
+                                                  UserConfigModeSet modeSet) {
+        int id = modeSet.getId();
+        if (id != -1) {
+            modeSetType.setId(id);
+        }
+
+        List<UserConfigMode> modes = modeSet.getModes();
+        if (modes != null && modes.size() > 0) {
+            populateUserConfigModes(modeSetType, modes);
+        }
+    }
+
+    private static void populateUserConfigModes(ModeSetType modeSetType,
+                                                List<UserConfigMode> modes) {
+        for (UserConfigMode mode : modes) {
+            ModeType modeType = modeSetType.addNewMode();
+
+            String displayName = mode.getDisplayName();
+            if (null != displayName && !StringUtils.isBlank(displayName)) {
+                modeType.setDisplayName(displayName);
+            }
+
+            String value = mode.getValue();
+            if (null != value && !StringUtils.isBlank(value)) {
+                modeType.setValue(value);
+            }
+
+            modeType.setSelected(mode.isSelected());
+
+            List<UserConfig> userConfigs = mode.getUserConfigs();
+            if (userConfigs != null && userConfigs.size() > 0) {
+                populateUserConfigProperties(modeType, userConfigs);
+            }
+
+            List<UserConfigModeSet> modeSets = mode.getUserConfigModeSets();
+            if (modeSets != null && modeSets.size() > 0) {
+                populateUserConfigModeSets(modeType, modeSets);
+            }
+        }
     }
 
     private static void populateSystemConfig(SystemConfigType systemConfigType,
@@ -152,54 +222,64 @@ public class ServiceElementWriter {
 
     }
 
-    private static void populateUserConfig(UserConfigType userConfigType,
-                                           List<UserConfig> userConfigs) {
+    private static void populateUserConfigProperties(UserConfigType userConfigType,
+                                                     List<UserConfig> userConfigs) {
         for (UserConfig userConfig : userConfigs) {
             UserPropertyType userPropertyType = userConfigType.addNewProperty();
+            populateUserConfigProperty(userConfig, userPropertyType);
+        }
+    }
 
-            int id = userConfig.getId();
-            if (id >= 0) {
-                userPropertyType.setId(id);
-            }
+    private static void populateUserConfigProperties(ModeType modeType,
+                                                     List<UserConfig> userConfigs) {
+        for (UserConfig userConfig : userConfigs) {
+            UserPropertyType userPropertyType = modeType.addNewProperty();
+            populateUserConfigProperty(userConfig, userPropertyType);
+        }
+    }
 
-            String name = userConfig.getName();
-            if (!StringUtils.isBlank(name)) {
-                userPropertyType.setName(name);
-            }
-
-            String displayName = userConfig.getDisplayName();
-            if (!StringUtils.isBlank(displayName)) {
-                userPropertyType.setDisplayName(displayName);
-            }
-
-            String exclusion = userConfig.getExclusion();
-            if (!StringUtils.isBlank(exclusion)) {
-                userPropertyType.setExclusion(exclusion);
-            }
-
-            UserConfig.InputType inputType = userConfig.getInputType();
-            if (inputType != null) {
-                if (inputType.equals(UserConfig.InputType.TEXT)) {
-                    userPropertyType.setInput(OptionInputType.TEXT);
-                    populateTextUserConfig(userPropertyType,
-                                           (TextUserConfig) userConfig);
-                } else if (inputType.equals(UserConfig.InputType.SINGLESELECT)) {
-                    userPropertyType.setInput(OptionInputType.SINGLESELECT);
-                    populateSelectableUserConfig(userPropertyType,
-                                                 (SingleSelectUserConfig) userConfig);
-                } else if (inputType.equals(UserConfig.InputType.MULTISELECT)) {
-                    userPropertyType.setInput(OptionInputType.MULTISELECT);
-                    populateSelectableUserConfig(userPropertyType,
-                                                 (MultiSelectUserConfig) userConfig);
-
-                } else {
-                    // FIXME: throw proper exception
-                    throw new RuntimeException(
-                        "Unknown inputType: " + inputType);
-                }
-            }
+    private static void populateUserConfigProperty(UserConfig userConfig,
+                                                   UserPropertyType userPropertyType) {
+        int id = userConfig.getId();
+        if (id >= 0) {
+            userPropertyType.setId(id);
         }
 
+        String name = userConfig.getName();
+        if (!StringUtils.isBlank(name)) {
+            userPropertyType.setName(name);
+        }
+
+        String displayName = userConfig.getDisplayName();
+        if (!StringUtils.isBlank(displayName)) {
+            userPropertyType.setDisplayName(displayName);
+        }
+
+        String exclusion = userConfig.getExclusion();
+        if (!StringUtils.isBlank(exclusion)) {
+            userPropertyType.setExclusion(exclusion);
+        }
+
+        UserConfig.InputType inputType = userConfig.getInputType();
+        if (inputType != null) {
+            if (inputType.equals(UserConfig.InputType.TEXT)) {
+                userPropertyType.setInput(OptionInputType.TEXT);
+                populateTextUserConfig(userPropertyType,
+                                       (TextUserConfig) userConfig);
+            } else if (inputType.equals(UserConfig.InputType.SINGLESELECT)) {
+                userPropertyType.setInput(OptionInputType.SINGLESELECT);
+                populateSelectableUserConfig(userPropertyType,
+                                             (SingleSelectUserConfig) userConfig);
+            } else if (inputType.equals(UserConfig.InputType.MULTISELECT)) {
+                userPropertyType.setInput(OptionInputType.MULTISELECT);
+                populateSelectableUserConfig(userPropertyType,
+                                             (MultiSelectUserConfig) userConfig);
+
+            } else {
+                // FIXME: throw proper exception
+                throw new RuntimeException("Unknown inputType: " + inputType);
+            }
+        }
     }
 
     private static void populateTextUserConfig(UserPropertyType userPropertyType,
@@ -322,7 +402,7 @@ public class ServiceElementWriter {
                 List<UserConfig> userConfigs = deployment.getUserConfigs();
                 if (userConfigs != null && userConfigs.size() > 0) {
                     UserConfigType userConfigType = deploymentType.addNewUserConfig();
-                    populateUserConfig(userConfigType, userConfigs);
+                    populateUserConfigProperties(userConfigType, userConfigs);
                 }
             }
         }

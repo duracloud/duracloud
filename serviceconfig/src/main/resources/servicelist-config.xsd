@@ -9,7 +9,7 @@
       <xs:sequence>
         <xs:element name="service" minOccurs="0" maxOccurs="unbounded" type="serviceType"/>
       </xs:sequence>
-      <xs:attribute name="schemaVersion" type="xs:string" fixed="0.3" use="required"/>
+      <xs:attribute name="schemaVersion" type="xs:string" fixed="0.6.0" use="required"/>
     </xs:complexType>
   </xs:element>
 

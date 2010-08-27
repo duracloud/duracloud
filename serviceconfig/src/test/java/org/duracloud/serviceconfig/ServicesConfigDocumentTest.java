@@ -9,6 +9,8 @@ package org.duracloud.serviceconfig;
 
 import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
@@ -27,6 +29,7 @@ import java.util.List;
  */
 public class ServicesConfigDocumentTest {
     private int COUNT = 4;
+    private int MODE_COUNT = 2;
     private int id = 100;
     private String contentId = "contentId-";
     private String displayName = "displayName-";
@@ -60,6 +63,7 @@ public class ServicesConfigDocumentTest {
 
         serviceInfo.setSystemConfigs(createSystemConfigs(tag, COUNT));
         serviceInfo.setUserConfigs(createUserConfigs(tag, COUNT));
+        serviceInfo.setModeSets(createUserConfigModeSets(tag));
         serviceInfo.setDeploymentOptions(createDeploymentOptions(tag, COUNT));
         serviceInfo.setDeployments(createDeployments(tag, COUNT));
 
@@ -123,6 +127,33 @@ public class ServicesConfigDocumentTest {
             options.add(option);
         }
         return options;
+    }
+
+    private List<UserConfigModeSet> createUserConfigModeSets(int tag) {
+        List<UserConfigModeSet> userConfigModeSets = new ArrayList<UserConfigModeSet>();
+        for (int i = 0; i < MODE_COUNT; ++i) {
+            UserConfigModeSet modeSet = new UserConfigModeSet();
+            modeSet.setId(20 + i);
+            modeSet.setModes(createUserConfigModes(tag));
+
+            userConfigModeSets.add(modeSet);
+        }
+        return userConfigModeSets;
+    }
+
+    private List<UserConfigMode> createUserConfigModes(int tag) {
+        List<UserConfigMode> userConfigModes = new ArrayList<UserConfigMode>();
+
+        for (int i = 0; i < MODE_COUNT; ++i) {
+            UserConfigMode mode = new UserConfigMode();
+
+            mode.setUserConfigs(createUserConfigs(tag + i, COUNT));
+            mode.setUserConfigModeSets(null);
+
+            userConfigModes.add(mode);
+        }
+
+        return userConfigModes;
     }
 
     private List<DeploymentOption> createDeploymentOptions(int tag, int count) {
@@ -204,7 +235,9 @@ public class ServicesConfigDocumentTest {
 
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes());
         ServiceInfo serviceInfo = ServicesConfigDocument.getService(inputStream);
-        verifyEqual(expected, serviceInfo);
+        ServiceInfoVerifyHelper verifier = new ServiceInfoVerifyHelper(
+            serviceInfo);
+        verifier.verify(serviceInfo);
 
         String newXml = ServicesConfigDocument.getServiceAsXML(serviceInfo);
         Assert.assertEquals(xml, newXml);
@@ -249,43 +282,9 @@ public class ServicesConfigDocumentTest {
 
     private void verifyService(ServiceInfo serviceInfo, int tag) {
         ServiceInfo expected = createService(tag);
-        verifyEqual(expected, serviceInfo);
-    }
 
-    private void verifyEqual(ServiceInfo expected, ServiceInfo serviceInfo) {
-        Assert.assertNotNull(expected);
-        Assert.assertNotNull(serviceInfo);
-
-        Assert.assertTrue(expected.getId() >= 0);
-        Assert.assertNotNull(expected.getContentId());
-        Assert.assertNotNull(expected.getDisplayName());
-        Assert.assertNotNull(expected.getServiceVersion());
-        Assert.assertNotNull(expected.getUserConfigVersion());
-        Assert.assertNotNull(expected.getDescription());
-        Assert.assertTrue(expected.getMaxDeploymentsAllowed() >= -1);
-
-        Assert.assertEquals(expected.getId(), serviceInfo.getId());
-        Assert.assertEquals(expected.getContentId(),
-                            serviceInfo.getContentId());
-        Assert.assertEquals(expected.getDisplayName(),
-                            serviceInfo.getDisplayName());
-        Assert.assertEquals(expected.getServiceVersion(),
-                            serviceInfo.getServiceVersion());
-        Assert.assertEquals(expected.getUserConfigVersion(),
-                            serviceInfo.getUserConfigVersion());
-        Assert.assertEquals(expected.getDescription(),
-                            serviceInfo.getDescription());
-        Assert.assertEquals(expected.getMaxDeploymentsAllowed(),
-                            serviceInfo.getMaxDeploymentsAllowed());
-
-        verifyEqual(expected.getSystemConfigs(),
-                    serviceInfo.getSystemConfigs());
-        verifyEqual(expected.getUserConfigs(), serviceInfo.getUserConfigs());
-        verifyEqual(expected.getDeploymentOptions(),
-                    serviceInfo.getDeploymentOptions());
-        verifyDeploymentsEqual(expected.getDeployments(),
-                               serviceInfo.getDeployments());
-
+        ServiceInfoVerifyHelper verifier = new ServiceInfoVerifyHelper(expected);
+        verifier.verify(serviceInfo);
     }
 
     private void verifyServiceListsEqual(List<ServiceInfo> expectedServices,
@@ -297,55 +296,10 @@ public class ServicesConfigDocumentTest {
         Iterator<ServiceInfo> expectedServicesItr = expectedServices.iterator();
         Iterator<ServiceInfo> servicesItr = services.iterator();
         while (expectedServicesItr.hasNext() && servicesItr.hasNext()) {
-            verifyEqual(expectedServicesItr.next(), servicesItr.next());
+            ServiceInfoVerifyHelper verifier = new ServiceInfoVerifyHelper(
+                expectedServicesItr.next());
+            verifier.verify(servicesItr.next());
         }
-    }
-
-    private void verifyEqual(List expected, List list) {
-        Assert.assertNotNull(expected);
-        Assert.assertNotNull(list);
-        Assert.assertEquals(expected.size(), list.size());
-
-        for (Object expectedElem : expected) {
-            boolean found = false;
-            for (Object obj : list) {
-                if (expectedElem.equals(obj)) {
-                    found = true;
-                }
-            }
-            Assert.assertTrue(found);
-        }
-    }
-
-    private void verifyDeploymentsEqual(List<Deployment> expected,
-                                        List<Deployment> deployments) {
-        Assert.assertNotNull(expected);
-        Assert.assertNotNull(deployments);
-        Assert.assertEquals(expected.size(), deployments.size());
-
-        for (Deployment expectedElem : expected) {
-            boolean found = false;
-            int expectedId = expectedElem.getId();
-            for (Deployment deployment : deployments) {
-                if (expectedId == deployment.getId()) {
-                    found = true;
-                    Assert.assertNotNull(expectedElem.getHostname());
-                    Assert.assertNotNull(expectedElem.getStatus());
-
-                    Assert.assertEquals(expectedElem.getHostname(),
-                                        deployment.getHostname());
-                    Assert.assertEquals(expectedElem.getStatus(),
-                                        deployment.getStatus());
-
-                    verifyEqual(expectedElem.getSystemConfigs(),
-                                deployment.getSystemConfigs());
-                    verifyEqual(expectedElem.getUserConfigs(),
-                                deployment.getUserConfigs());
-                }
-            }
-            Assert.assertTrue("Id: " + expectedElem.getId(), found);
-        }
-
     }
 
     private void verifyServiceListXML(String xml, List<Integer> tags) {

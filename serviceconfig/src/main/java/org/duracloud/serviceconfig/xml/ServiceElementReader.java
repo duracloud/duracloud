@@ -16,6 +16,8 @@ import org.duracloud.serviceconfig.ServicesConfigDocument;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
@@ -117,7 +119,15 @@ public class ServiceElementReader {
 
         UserConfigType userConfigType = serviceType.getUserConfig();
         if (null != userConfigType) {
-            service.setUserConfigs(createUserConfigs(userConfigType));
+            UserPropertyType[] userPropertyTypes = userConfigType.getPropertyArray();
+            if (null != userPropertyTypes && userPropertyTypes.length > 0) {
+                service.setUserConfigs(createUserConfigs(userPropertyTypes));
+            }
+
+            ModeSetType[] modeSetTypes = userConfigType.getModeSetArray();
+            if (null != modeSetTypes && modeSetTypes.length > 0) {
+                service.setModeSets(createUserConfigModeSets(modeSetTypes));
+            }
         }
 
         DeploymentOptionsType deploymentOptionsType = serviceType.getDeploymentOptions();
@@ -157,14 +167,10 @@ public class ServiceElementReader {
         return systemConfigs;
     }
 
-    private static List<UserConfig> createUserConfigs(UserConfigType userConfigType) {
+    private static List<UserConfig> createUserConfigs(UserPropertyType[] userPropertyTypes) {
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
-
-        UserPropertyType[] userPropertyTypes = userConfigType.getPropertyArray();
-        if (null != userPropertyTypes && userPropertyTypes.length > 0) {
-            for (UserPropertyType userPropertyType : userPropertyTypes) {
-                userConfigs.add(createUserConfig(userPropertyType));
-            }
+        for (UserPropertyType userPropertyType : userPropertyTypes) {
+            userConfigs.add(createUserConfig(userPropertyType));
         }
 
         return userConfigs;
@@ -229,6 +235,53 @@ public class ServiceElementReader {
         return options;
     }
 
+    private static List<UserConfigModeSet> createUserConfigModeSets(ModeSetType[] modeSetTypes) {
+        List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
+        for (ModeSetType modeSetType : modeSetTypes) {
+            modeSets.add(createUserConfigModeSet(modeSetType));
+        }
+
+        return modeSets;
+    }
+
+    private static UserConfigModeSet createUserConfigModeSet(ModeSetType modeSetType) {
+        UserConfigModeSet modeSet = new UserConfigModeSet();
+
+        modeSet.setId(modeSetType.getId());
+
+        ModeType[] modeTypes = modeSetType.getModeArray();
+        if (null != modeTypes && modeTypes.length > 0) {
+            List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+            for (ModeType modeType : modeTypes) {
+                modes.add(createUserConfigMode(modeType));
+            }
+
+            modeSet.setModes(modes);
+        }
+
+        return modeSet;
+    }
+
+    private static UserConfigMode createUserConfigMode(ModeType modeType) {
+        UserConfigMode mode = new UserConfigMode();
+
+        mode.setDisplayName(modeType.getDisplayName());
+        mode.setValue(modeType.getValue());
+        mode.setSelected(modeType.getSelected());
+
+        UserPropertyType[] userPropertyTypes = modeType.getPropertyArray();
+        if (null != userPropertyTypes && userPropertyTypes.length > 0) {
+            mode.setUserConfigs(createUserConfigs(userPropertyTypes));
+        }
+
+        ModeSetType[] modeSetTypes = modeType.getModeSetArray();
+        if (null != modeSetTypes && modeSetTypes.length > 0) {
+            mode.setUserConfigModeSets(createUserConfigModeSets(modeSetTypes));
+        }
+
+        return mode;
+    }
+
     private static List<DeploymentOption> createDeploymentOptions(
         DeploymentOptionsType deploymentOptionsType) {
         List<DeploymentOption> options = new ArrayList<DeploymentOption>();
@@ -286,7 +339,12 @@ public class ServiceElementReader {
 
                 UserConfigType userConfigType = deploymentType.getUserConfig();
                 if (null != userConfigType) {
-                    deployment.setUserConfigs(createUserConfigs(userConfigType));
+                    UserPropertyType[] userPropertyTypes = userConfigType.getPropertyArray();
+                    if (null != userPropertyTypes &&
+                        userPropertyTypes.length > 0) {
+                        deployment.setUserConfigs(createUserConfigs(
+                            userPropertyTypes));
+                    }
                 }
 
                 deployments.add(deployment);

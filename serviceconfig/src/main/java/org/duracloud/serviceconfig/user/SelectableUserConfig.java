@@ -91,7 +91,7 @@ public abstract class SelectableUserConfig extends UserConfig {
 
         SelectableUserConfig that = (SelectableUserConfig) o;
 
-        if (options != null ? !options.equals(that.options) :
+        if (options != null ? !optionsEqual(that.options) :
             that.options != null) {
             return false;
         }
@@ -99,10 +99,34 @@ public abstract class SelectableUserConfig extends UserConfig {
         return true;
     }
 
+    private boolean optionsEqual(List<Option> otherOpts) {
+        if (null == otherOpts) {
+            return false;
+        }
+
+        int numFound = 0;
+        for (Option opt : options) {
+            for (Option otherOpt : otherOpts) {
+                if (opt.equals(otherOpt)) {
+                    numFound++;
+                }
+            }
+        }
+        return numFound == options.size();
+    }
+
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (options != null ? options.hashCode() : 0);
+        result = 31 * result + (options != null ? optionsHashCode() : 0);
         return result;
+    }
+
+    private int optionsHashCode() {
+        int sum = 0;
+        for (Option opt : options) {
+            sum += opt.hashCode();
+        }
+        return sum;
     }
 }
