@@ -130,7 +130,6 @@
 
 				</div>
 				<div class="center">
-					Coming soon.					
 				</div>
 				</div>
 
@@ -144,7 +143,6 @@
 
 				</div>
 				<div class="center"></div>
-					Coming soon.
 				</div>
 
 				<!-- an invisible  prototype for content items details.-->
@@ -246,7 +244,7 @@
 
 			<tiles:putAttribute name="main-footer">
 				<div id="status-holder">
-					<a href="javascript:void(0)" id="view-uploads">
+					<a id="view-uploads">
 						<span id="upload-status-label">Upload Status:</span> 
 					</a>
 				</div>

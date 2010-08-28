@@ -5,8 +5,9 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.fixity.util;
+package org.duracloud.common.util;
 
+import org.duracloud.common.util.CountListener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

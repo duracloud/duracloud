@@ -8,11 +8,11 @@
 package org.duracloud.services.fixity;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.CountListener;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.ContentLocationPair;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
-import org.duracloud.services.fixity.util.CountListener;
 import org.junit.Assert;
 import org.junit.Test;
 

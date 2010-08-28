@@ -5,9 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.fixity.util;
-
-import org.duracloud.services.fixity.HashFinderWorkload;
+package org.duracloud.common.util;
 
 import java.util.Iterator;
 
@@ -20,10 +18,12 @@ import java.util.Iterator;
  */
 public class IteratorCounterThread implements Runnable {
 
-    private Iterator itr;
+    @SuppressWarnings("unchecked")
+	private Iterator itr;
     private CountListener listener;
 
-    public IteratorCounterThread(Iterator itr, CountListener listener) {
+    @SuppressWarnings("unchecked")
+	public IteratorCounterThread(Iterator itr, CountListener listener) {
         this.itr = itr;
         this.listener = listener;
     }

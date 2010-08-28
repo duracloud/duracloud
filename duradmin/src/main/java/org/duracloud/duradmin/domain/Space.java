@@ -29,7 +29,7 @@ public class Space
 		this.storeId = storeId;
 	}
 
-    
+	
     private String action;
 
     private String spaceId;
@@ -42,6 +42,19 @@ public class Space
 
     private List<String> contents;
 
+    /**
+	 * the count of all the items in the space
+	 */
+    public Long getItemCount() {
+		return itemCount;
+	}
+
+	public void setItemCount(Long itemCount) {
+		this.itemCount = itemCount;
+	}
+
+	private Long itemCount = null;
+    
     public String getAction() {
         return action;
     }

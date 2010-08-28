@@ -7,17 +7,17 @@
  */
 package org.duracloud.duraservice.config;
 
+import java.io.File;
+import java.net.URI;
+import java.util.List;
+import java.util.Properties;
+
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
-import java.net.URI;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * @author Andrew Woods

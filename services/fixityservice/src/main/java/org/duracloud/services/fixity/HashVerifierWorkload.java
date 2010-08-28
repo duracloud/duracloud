@@ -7,11 +7,11 @@
  */
 package org.duracloud.services.fixity;
 
+import org.duracloud.common.util.CountListener;
 import org.duracloud.services.common.error.ServiceRuntimeException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.ContentLocationPair;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
-import org.duracloud.services.fixity.util.CountListener;
 import org.duracloud.services.fixity.worker.ServiceWorkload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

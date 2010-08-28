@@ -1,3 +1,11 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
+
 /**
  * Spaces Manager
  * 
@@ -237,10 +245,15 @@ $(document).ready(function() {
 	};
 	
 	var loadProperties = function(target, /* array */ properties){
-		$(".center", target)
-			.append($.fn.create("div")
-						.tabularexpandopanel(
+		var propertiesDiv = $(".detail-properties", target).first();
+		
+		if(propertiesDiv.size() == 0){
+			propertiesDiv = $.fn.create("div").addClass("detail-properties");
+			$(".center", target).append(propertiesDiv.tabularexpandopanel(
 								{title: "Details", data: properties}));
+		}else{
+			$(propertiesDiv).tabularexpandopanel("setData", properties);
+		}
 	};
 
 	var loadVideo = function(target, contentItem){		
@@ -1059,6 +1072,8 @@ $(document).ready(function() {
 		var detail = $("#spaceDetailPane").clone();
 		setObjectName(detail, space.spaceId);
 		
+		var center = $(".center", detail);
+		
 		// attach delete button listener
 		$(".delete-space-button",detail).click(function(evt){
 			deleteSpace(evt,space);
@@ -1075,11 +1090,34 @@ $(document).ready(function() {
 				toggleSpaceAccess(space, future);
 			});
 
-		
-		
-		
 		loadProperties(detail, extractSpaceProperties(space));
-
+		
+		if(space.itemCount == null){
+			//attach poller if itemCount is null
+			var pollItemCount = function(){
+				dc.store.GetSpace(
+						space.storeId,
+						space.spaceId, 
+						{
+							success: function(s){
+								if(s != undefined && s != null){
+									if(s.itemCount != null){
+										loadProperties(center, extractSpaceProperties(s));
+									}else{
+										setTimeout(pollItemCount, 5000);
+									}
+								}
+							}, 
+							failure:function(info){
+								alert("Get Space failed for: " + space.spaceId);
+							},
+						}
+					);				
+			};
+			
+			setTimeout(pollItemCount, 5000);
+		}
+		
 		var mp = loadMetadataPane(detail, space.extendedMetadata);
 		
 		$(mp).bind("add", function(evt, future){
@@ -1108,7 +1146,7 @@ $(document).ready(function() {
 	
 	var extractSpaceProperties = function(space){
 		return [ 
-					['Items', space.metadata.count],
+					['Items', (space.itemCount == null || space.itemCount == undefined  ? "<img src='/duradmin/images/wait.gif'/> Calculating...":space.itemCount)],
 					['Created', space.metadata.created],
 			   ];
 	};

@@ -7,8 +7,8 @@
  */
 package org.duracloud.services.fixity.worker;
 
+import org.duracloud.common.util.CountListener;
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.duracloud.services.fixity.util.CountListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

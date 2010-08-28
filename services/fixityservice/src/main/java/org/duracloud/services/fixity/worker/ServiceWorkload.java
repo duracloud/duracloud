@@ -7,7 +7,7 @@
  */
 package org.duracloud.services.fixity.worker;
 
-import org.duracloud.services.fixity.util.CountListener;
+import org.duracloud.common.util.CountListener;
 
 /**
  * This class is responsible for determining the set of items that should be

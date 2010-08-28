@@ -7,19 +7,6 @@
  */
 package org.duracloud.services.fixity;
 
-import org.apache.commons.io.input.AutoCloseInputStream;
-import org.duracloud.client.ContentStore;
-import org.duracloud.domain.Content;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.services.fixity.domain.ContentLocation;
-import org.duracloud.services.fixity.domain.FixityServiceOptions;
-import org.duracloud.services.fixity.util.CountListener;
-import org.duracloud.services.fixity.util.IteratorCounterThread;
-import org.duracloud.services.fixity.util.StoreCaller;
-import org.duracloud.services.fixity.worker.ServiceWorkload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +16,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
+import org.apache.commons.io.input.AutoCloseInputStream;
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.StoreCaller;
+import org.duracloud.common.util.CountListener;
+import org.duracloud.common.util.IteratorCounterThread;
+import org.duracloud.domain.Content;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.fixity.domain.ContentLocation;
+import org.duracloud.services.fixity.domain.FixityServiceOptions;
+import org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
+import org.duracloud.services.fixity.worker.ServiceWorkload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew Woods

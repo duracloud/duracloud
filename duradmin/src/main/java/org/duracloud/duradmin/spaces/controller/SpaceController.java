@@ -8,6 +8,7 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +16,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.StoreCaller;
 import org.duracloud.client.ContentStore.AccessType;
+import org.duracloud.common.util.IteratorCounterThread;
 import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.util.MetadataUtils;
@@ -43,6 +46,7 @@ public class SpaceController extends  AbstractRestController<Space> {
 	public SpaceController(){
 		super(null);
 		setValidator(new Validator(){
+			@SuppressWarnings("unchecked")
 			@Override
 			public boolean supports(Class clazz) {
 				return clazz == Space.class;
@@ -80,7 +84,7 @@ public class SpaceController extends  AbstractRestController<Space> {
 	protected ModelAndView get(HttpServletRequest request,
 			HttpServletResponse response, Space space,
 			BindException errors) throws Exception {
-		
+
 		String prefix = request.getParameter("prefix");
 		if(prefix != null){
 			prefix = ("".equals(prefix.trim())?null:prefix);
@@ -90,10 +94,40 @@ public class SpaceController extends  AbstractRestController<Space> {
 		org.duracloud.domain.Space cloudSpace = 
 			contentStoreManager.getContentStore(space.getStoreId()).getSpace(space.getSpaceId(), prefix, 200, marker);
 		SpaceUtil.populateSpace(space, cloudSpace);
+
+		long itemCount = Long.valueOf(space.getMetadata().getCount());
+		if(itemCount < 1000){
+			space.setItemCount(itemCount);
+		}else {
+			setItemCount(space, request);
+		}
+
 		return createModel(space);
 	}
 	
 	
+	private void setItemCount(final Space space, HttpServletRequest request) throws ContentStoreException{
+		String key = space.getStoreId() + "/" + space.getSpaceId() + "/itemCountListener";
+		ItemCounter listener = (ItemCounter)request.getSession().getAttribute(key);
+		if(listener != null){
+			space.setItemCount(listener.getCount());
+		}else{
+			request.getSession().setAttribute(key, listener = new ItemCounter());
+			final ContentStore contentStore = contentStoreManager.getContentStore(space.getStoreId());
+			StoreCaller<Iterator<String>> caller = new StoreCaller<Iterator<String>>() {
+	            protected Iterator<String> doCall() throws ContentStoreException {
+	            	return contentStore.getSpaceContents(space.getSpaceId());
+	            }
+	            public String getLogMessage() {
+	                return "Error calling contentStore.getSpaceContents() for: " +
+	                   space.getSpaceId();
+	            }
+	        };
+	        
+	        new Thread(new IteratorCounterThread(caller.call(), listener)).start();
+		}
+	}
+
 	@Override
 	protected ModelAndView put(HttpServletRequest request,
 			HttpServletResponse response, Space space,

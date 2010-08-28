@@ -7,27 +7,26 @@
  */
 package org.duracloud.services.fixity;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.StoreCaller;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.duracloud.services.fixity.util.StoreCaller;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.util.Map;
-
-import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 
 /**
  * This class finds the hash associated with a single content-item.
@@ -48,7 +47,7 @@ public class HashFinderWorker implements Runnable {
     private ContentLocation workitemLocation;
     private ServiceResultListener resultListener;
 
-    private ChecksumUtil checksumUtil = new ChecksumUtil(MD5);
+    private ChecksumUtil checksumUtil = new ChecksumUtil(Algorithm.MD5);
 
     public HashFinderWorker(FixityServiceOptions serviceOptions,
                             ContentStore contentStore,

@@ -10,6 +10,7 @@ package org.duracloud.services.fixity;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.StoreCaller;
 import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.error.ManifestVerifyException;
 import org.duracloud.common.util.bulk.ManifestVerifier;
@@ -22,7 +23,6 @@ import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.HashVerifierResult;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.util.FixityManifestVerifier;
-import org.duracloud.services.fixity.util.StoreCaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,5 +1,7 @@
 package org.duracloud.duraservice.config;
 
+import java.util.List;
+
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -7,8 +9,6 @@ import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * @author Andrew Woods

@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.fixity.util;
+package org.duracloud.common.util;
 
 /**
  * @author Andrew Woods

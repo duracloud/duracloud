@@ -1,6 +1,13 @@
 /**
- * 
- * created by Daniel Bernstein
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
+
+/**
+ * @author Daniel Bernstein
  */
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -95,12 +102,20 @@ $.widget("ui.tabularexpandopanel",
 				$.ui.expandopanel.prototype._init.call(this); //call super init first
 				//add the table if it is not null
 				var d = this.options.data;
-				if(d != null){
-					var table = dc.createTable(d, ["label", "value"]);
+				this.setData(d);
+			}, 
+
+			setData: function(data){ 
+				var tableClass = "ui-tabularexpandopanel-table";
+				$("."+tableClass, this.element).remove();
+				if(data != null){
+					var table = dc.createTable(data, ["label", "value"]);
+					$(table).addClass(tableClass);
 					this.append(table);
 				}
+
 			}, 
-			
+
 			destroy: function(){ 
 				//tabular destroy here
 				$.ui.expandopanel.prototype.destroy.call(this); // call the original function 

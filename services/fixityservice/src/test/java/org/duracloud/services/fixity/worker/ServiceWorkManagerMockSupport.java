@@ -7,9 +7,9 @@
  */
 package org.duracloud.services.fixity.worker;
 
+import org.duracloud.common.util.CountListener;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.duracloud.services.fixity.util.CountListener;
 import org.easymock.IAnswer;
 import org.easymock.classextension.EasyMock;
 

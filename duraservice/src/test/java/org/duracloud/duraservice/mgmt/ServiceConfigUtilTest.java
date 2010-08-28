@@ -7,18 +7,18 @@
  */
 package org.duracloud.duraservice.mgmt;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.duracloud.common.model.Credential;
 import org.duracloud.duraservice.domain.UserStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceconfig.SystemConfig;
-import org.duracloud.common.model.Credential;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Andrew Woods
