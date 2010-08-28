@@ -696,7 +696,7 @@ $(document).ready(function() {
 								   return a.spaceId > b.spaceId;
 								});
 							
-								$("spaces-list").selectablelist("setCurrentItemById", space.spaceId);
+								$("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
 								scrollToCurrentSpace();
 								
 							},
@@ -1273,7 +1273,7 @@ $(document).ready(function() {
 			
 			failure: function(text){
 				dc.done();
-				alert("get item failed: " + text);
+				alert("get content item failed: " + text);
 			},
 
 			success: function(data){
