@@ -444,6 +444,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
 
         S3Object contentItem = new S3Object(contentId);
+        contentItem.setStorageClass(S3Object.STORAGE_CLASS_REDUCED_REDUNDANCY);
         contentItem.setContentType(contentMimeType);
         contentItem.setDataInputStream(wrappedContent);
 

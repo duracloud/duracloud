@@ -84,7 +84,8 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
                         cfService.updateStreamingDistributionConfig(distId,
                                                                     null,
                                                                     null,
-                                                                    true);
+                                                                    true,
+                                                                    null);
                     }
                     domainName = existingDist.getDomainName();
                 } else {
@@ -101,6 +102,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
                                                           null,
                                                           null,
                                                           true,
+                                                          null,
                                                           oaIdentityId,
                                                           false,
                                                           null);

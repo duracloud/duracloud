@@ -16,6 +16,8 @@ import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3task.hadoop.DescribeHadoopJobTaskRunner;
 import org.duracloud.s3task.hadoop.RunHadoopJobTaskRunner;
 import org.duracloud.s3task.hadoop.StopHadoopJobTaskRunner;
+import org.duracloud.s3task.storage.SetReducedStorageTaskRunner;
+import org.duracloud.s3task.storage.SetStandardStorageTaskRunner;
 import org.duracloud.s3task.streaming.DeleteStreamingTaskRunner;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
@@ -70,6 +72,8 @@ public class S3TaskProvider implements TaskProvider {
                                                 emrClient));
         taskList.add(new DescribeHadoopJobTaskRunner(emrClient));
         taskList.add(new StopHadoopJobTaskRunner(emrClient));
+        taskList.add(new SetStandardStorageTaskRunner(s3Provider, s3Client));
+        taskList.add(new SetReducedStorageTaskRunner(s3Provider, s3Client));
     }
 
     public List<String> getSupportedTasks() {

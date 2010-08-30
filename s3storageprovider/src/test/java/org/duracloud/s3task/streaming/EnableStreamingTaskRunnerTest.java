@@ -12,6 +12,7 @@ import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.acl.AccessControlList;
+import org.jets3t.service.model.cloudfront.LoggingStatus;
 import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
@@ -120,6 +121,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
                 EasyMock.<String[]>isNull(),
                 EasyMock.<String>isNull(),
                 EasyMock.eq(true),
+                EasyMock.<LoggingStatus>isNull(),
                 EasyMock.isA(String.class),
                 EasyMock.eq(false),
                 EasyMock.<String[]>isNull()))
@@ -185,7 +187,8 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         StreamingDistributionConfig config =
             new StreamingDistributionConfig("origin", "callerReference",
                                             new String[0], "comment", true,
-                                            "originId", false, null);
+                                            null, "originId", false, null,
+                                            null);
 
         EasyMock
             .expect(service.getStreamingDistributionConfig(
