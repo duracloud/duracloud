@@ -30,7 +30,6 @@ import static junit.framework.Assert.assertTrue;
  */
 public class TestAnonymousAccess extends ClientTestBase {
 
-    private static RestHttpHelper restHelper = getAuthorizedRestHelper();
 
     private final static String spacePrefix = "test-store-anon-";
     private final static String contentPrefix = "test-content-";
@@ -50,33 +49,8 @@ public class TestAnonymousAccess extends ClientTestBase {
                                                                        getContext());
         store = storeManager.getPrimaryContentStoreAsAnonymous();
 
-        createSpace();
-        createContent();
-    }
-
-    private static void createSpace() throws Exception {
-        ClientTestBase.HttpCaller caller = new ClientTestBase.HttpCaller() {
-            protected RestHttpHelper.HttpResponse call() throws Exception {
-                String url = getSpaceUrl();
-                String content = null;
-                Map<String, String> headers = new HashMap<String, String>();
-                headers.put("x-dura-meta-" + ContentStore.SPACE_ACCESS,
-                            ContentStore.AccessType.OPEN.name());
-                return restHelper.put(url, content, headers);
-            }
-        };
-        caller.makeCall(201);
-    }
-
-    private static void createContent() throws Exception {
-        HttpCaller caller = new HttpCaller() {
-            protected RestHttpHelper.HttpResponse call() throws Exception {
-                String url = getContentUrl();
-                Map<String, String> headers = null;
-                return restHelper.put(url, "hello", headers);
-            }
-        };
-        caller.makeCall(201);
+        createSpace(getSpaceUrl());
+        createContent(getContentUrl());
     }
 
     @AfterClass

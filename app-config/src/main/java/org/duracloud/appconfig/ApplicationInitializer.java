@@ -247,7 +247,7 @@ public class ApplicationInitializer extends BaseConfig {
 
             response = app.initialize(config);
             validate(response, appWithConfig.getName());
-        } validate(response, "duradmin");
+        }
 
         return response;
     }

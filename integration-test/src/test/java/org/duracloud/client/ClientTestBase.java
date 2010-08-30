@@ -14,11 +14,17 @@ import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.Assert;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 /**
  * @author Andrew Woods
  *         Date: Apr 20, 2010
  */
 public class ClientTestBase {
+
+    protected static RestHttpHelper restHelper = getAuthorizedRestHelper();
 
     private static String host = "localhost";
     private static String port = null;
@@ -56,7 +62,7 @@ public class ClientTestBase {
         return new RestHttpHelper(getRootCredential());
     }
 
-    private static Credential getRootCredential() {
+    protected static Credential getRootCredential() {
         UnitTestDatabaseUtil dbUtil = null;
         try {
             dbUtil = new UnitTestDatabaseUtil();
@@ -74,6 +80,29 @@ public class ClientTestBase {
 
         }
         return rootCredential;
+    }
+
+    protected static void createSpace(final String url) throws Exception {
+        ClientTestBase.HttpCaller caller = new ClientTestBase.HttpCaller() {
+            protected RestHttpHelper.HttpResponse call() throws Exception {
+                String content = null;
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("x-dura-meta-" + ContentStore.SPACE_ACCESS,
+                            ContentStore.AccessType.OPEN.name());
+                return restHelper.put(url, content, headers);
+            }
+        };
+        caller.makeCall(201);
+    }
+
+    protected static void createContent(final String url) throws Exception {
+        HttpCaller caller = new HttpCaller() {
+            protected RestHttpHelper.HttpResponse call() throws Exception {
+                Map<String, String> headers = null;
+                return restHelper.put(url, "hello", headers);
+            }
+        };
+        caller.makeCall(201);
     }
 
     /**
