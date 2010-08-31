@@ -184,7 +184,7 @@ public class SyncTool {
                     }
                 }
             }
-            if(loops >= 600) { // Print status every 10 minutes
+            if(loops >= 60) { // Print status every 10 minutes
                 System.out.println(statusManager.getPrintableStatus());
                 loops = 0;
             }
