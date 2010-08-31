@@ -94,14 +94,12 @@ public class SpaceController extends  AbstractRestController<Space> {
 		org.duracloud.domain.Space cloudSpace = 
 			contentStoreManager.getContentStore(space.getStoreId()).getSpace(space.getSpaceId(), prefix, 200, marker);
 		SpaceUtil.populateSpace(space, cloudSpace);
-
-		long itemCount = Long.valueOf(space.getMetadata().getCount());
-		if(itemCount < 1000){
-			space.setItemCount(itemCount);
-		}else {
+		String countStr = space.getMetadata().getCount();
+		if(countStr.endsWith("+")){
 			setItemCount(space, request);
+		}else{
+			space.setItemCount(Long.valueOf(space.getMetadata().getCount()));
 		}
-
 		return createModel(space);
 	}
 	
