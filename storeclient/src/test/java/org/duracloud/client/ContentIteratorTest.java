@@ -8,8 +8,10 @@
 package org.duracloud.client;
 
 import static junit.framework.Assert.assertNotNull;
+
 import org.duracloud.domain.Space;
 import org.duracloud.storage.error.StorageException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -23,51 +25,52 @@ public class ContentIteratorTest {
 
     @Test
     public void testIterator() throws Exception {
-        for(int i=0; i<30; i++) {
+        for (int i = 0; i < 30; i++) {
             ContentStore testStore = new MockStore(i);
             long maxResults = 10;
             ContentIterator iterator =
                 new ContentIterator(testStore, "spaceId", "prefix", maxResults);
-            while(iterator.hasNext()) {
+
+            int count = 0;
+            while (iterator.hasNext()) {
                 assertNotNull(iterator.next());
+                Assert.assertTrue("count=" + count + ", i=" + i, count <= i);
+                count++;
             }
+            Assert.assertEquals(i, count);
         }
     }
 
     private class MockStore extends ContentStoreImpl {
 
-        private long contentItems;
+        private List<String> contentItems;
 
-        public MockStore(long contentItems) {
+        public MockStore(long numItems) {
             super(null, null, null, null);
-            this.contentItems = contentItems;
+            this.contentItems = new ArrayList<String>();
+            for (int i = 0; i < numItems; ++i) {
+                this.contentItems.add("test" + i);
+            }
         }
 
         @Override
         public Space getSpace(String spaceId,
                               String prefix,
                               long maxResults,
-                              String marker)
-            throws StorageException {
+                              String marker) throws StorageException {
 
-            long listSize;
-            if(contentItems > maxResults) {
-                listSize = maxResults;
-                contentItems -= maxResults;
-            } else if(contentItems == maxResults) {
-                listSize = 0;
-            } else {
-                listSize = contentItems;
-            }
+            List<String> items = new ArrayList<String>();
 
-            List<String> contentList = new ArrayList<String>();
-            for(long i=0; i < listSize; i++) {
-                contentList.add("test" + i);
+            int index = marker == null ? 0 : contentItems.indexOf(marker) + 1;
+            int limit = (int) Math.min(index + maxResults, contentItems.size());
+
+            for (int i = index; i < limit; ++i) {
+                items.add(contentItems.get(i));
             }
 
             Space space = new Space();
             space.setId(spaceId);
-            space.setContentIds(contentList);
+            space.setContentIds(items);
             return space;
         }
     }

@@ -50,7 +50,7 @@ public class ContentIterator implements Iterator<String> {
         if (index < contentList.size()) {
             return true;
         } else {
-            if (contentList.size() >= 0) {
+            if (contentList.size() > 0) {
                 updateList();
                 return contentList.size() > 0;
             } else {
