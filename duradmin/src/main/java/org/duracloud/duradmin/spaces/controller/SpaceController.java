@@ -94,16 +94,20 @@ public class SpaceController extends  AbstractRestController<Space> {
 		org.duracloud.domain.Space cloudSpace = 
 			contentStoreManager.getContentStore(space.getStoreId()).getSpace(space.getSpaceId(), prefix, 200, marker);
 		SpaceUtil.populateSpace(space, cloudSpace);
+		populateSpaceCount(space, request);
+		return createModel(space);
+	}
+	
+	
+	private void populateSpaceCount(Space space, HttpServletRequest request) throws Exception{
 		String countStr = space.getMetadata().getCount();
 		if(countStr.endsWith("+")){
 			setItemCount(space, request);
 		}else{
 			space.setItemCount(Long.valueOf(space.getMetadata().getCount()));
 		}
-		return createModel(space);
 	}
-	
-	
+
 	private void setItemCount(final Space space, HttpServletRequest request) throws ContentStoreException{
 		String key = space.getStoreId() + "/" + space.getSpaceId() + "/itemCountListener";
 		ItemCounter listener = (ItemCounter)request.getSession().getAttribute(key);
@@ -149,7 +153,6 @@ public class SpaceController extends  AbstractRestController<Space> {
                     null,
                     0,
                     null));
-
     		return createModel(newSpace);
 
         }
@@ -168,7 +171,7 @@ public class SpaceController extends  AbstractRestController<Space> {
                                                              null,
                                                              0,
                                                              null));
-		return createModel(space);
+        return createModel(space);
 	}
 
 	

@@ -690,14 +690,18 @@ $(document).ready(function() {
 							},
 							success: function(space){
 								dc.done();
-								addSpaceToList(space);
-								spacesArray.push(space);
-								spacesArray.sort(function(a,b){
-								   return a.spaceId > b.spaceId;
-								});
-							
-								$("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
-								scrollToCurrentSpace();
+								if(space == undefined){
+									alert("error: space is undefined");
+								}else{
+									addSpaceToList(space);
+									spacesArray.push(space);
+									spacesArray.sort(function(a,b){
+									   return a.spaceId > b.spaceId;
+									});
+								
+									$("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
+									scrollToCurrentSpace();
+								}
 								
 							},
 							failure: function(text){
@@ -1146,7 +1150,7 @@ $(document).ready(function() {
 	
 	var extractSpaceProperties = function(space){
 		return [ 
-					['Items', (space.itemCount == null || space.itemCount == undefined  ? "<img src='/duradmin/images/wait.gif'/> Calculating...":space.itemCount)],
+					['Items', (space.itemCount == null || space.itemCount == undefined  ? space.metadata.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
 					['Created', space.metadata.created],
 			   ];
 	};
@@ -1250,7 +1254,8 @@ $(document).ready(function() {
 				success: function(space){
 					dc.done();
 					if(space == undefined || space == null){
-						$(contentItemListStatusId).html("Error: space not found.").fadeIn("slow");
+						alert("error: space == " + space);
+						//$(contentItemListStatusId).html("Error: space not found.").fadeIn("slow");
 					}else{
 						setHash(space);
 						loadHandler(space);
