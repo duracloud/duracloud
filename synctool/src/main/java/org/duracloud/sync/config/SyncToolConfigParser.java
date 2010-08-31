@@ -140,6 +140,16 @@ public class SyncToolConfigParser {
         syncDeletes.setRequired(false);
         cmdOptions.addOption(syncDeletes);
 
+       Option exitOnCompletion =
+           new Option("e", "exit-on-completion", false,
+                      "indicates that the sync tool should exit once it has " +
+                      "completed a scan of the backup directories and synced " +
+                      "all files; if this option is included, the sync tool " +
+                      "will not continue to monitor the sync dirs " +
+                      "(optional, not set by default)");
+        exitOnCompletion.setRequired(false);
+        cmdOptions.addOption(exitOnCompletion);
+
        // Options to use Backup Config
        configFileOptions = new Options();
 
@@ -284,6 +294,12 @@ public class SyncToolConfigParser {
             config.setSyncDeletes(true);
         } else {
             config.setSyncDeletes(false);
+        }
+
+        if(cmd.hasOption("e")) {
+            config.setExitOnCompletion(true);
+        } else {
+            config.setExitOnCompletion(false);
         }
 
         return config;

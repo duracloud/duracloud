@@ -64,7 +64,9 @@ public class RestartDirWalker extends DirWalker {
         return true;
     }
 
-    public static void start(List<File> topDirs, long lastBackup) {
-        (new Thread(new RestartDirWalker(topDirs, lastBackup))).start();       
+    public static DirWalker start(List<File> topDirs, long lastBackup) {
+        RestartDirWalker dirWalker = new RestartDirWalker(topDirs, lastBackup);
+        (new Thread(dirWalker)).start();
+        return dirWalker;
     }
 }

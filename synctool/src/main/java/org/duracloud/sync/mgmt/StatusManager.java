@@ -8,6 +8,7 @@
 package org.duracloud.sync.mgmt;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +21,9 @@ import java.util.List;
  * Date: Apr 2, 2010
  */
 public class StatusManager {
+
+    private static final DateFormat DATE_FORMAT =
+        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private long inWork;
     private long succeeded;
@@ -42,8 +46,7 @@ public class StatusManager {
     protected StatusManager() {
         succeeded = 0;
         failed = new ArrayList<File>();
-        startTime =
-            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+        startTime = DATE_FORMAT.format(new Date());
         changedList = ChangedList.getInstance();
     }
 
@@ -88,6 +91,7 @@ public class StatusManager {
         status.append(" Sync Tool Status");
         status.append("\n--------------------------------------\n");
         status.append("Start Time: " + startTime + "\n");
+        status.append("Current Time: " + DATE_FORMAT.format(new Date()) + "\n");
         status.append("Sync Queue Size: " + getQueueSize() + "\n");
         status.append("Syncs In Process: " + getInWork() + "\n");
         status.append("Successful Syncs: " + getSucceeded() + "\n");

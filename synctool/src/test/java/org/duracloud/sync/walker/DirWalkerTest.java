@@ -7,7 +7,6 @@
  */
 package org.duracloud.sync.walker;
 
-import static junit.framework.Assert.assertEquals;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.duracloud.sync.SyncTestBase;
@@ -17,6 +16,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * @author: Bill Branan
@@ -31,7 +34,9 @@ public class DirWalkerTest extends SyncTestBase {
         dirs.add(tempDir);
 
         DirWalker dirWalker = new DirWalker(dirs);
-        dirWalker.walkDirs();
+        assertFalse(dirWalker.walkComplete());
+        dirWalker.walkDirs();        
+        assertTrue(dirWalker.walkComplete());
 
         int walkerFilesFound = 0;
         while(changedList.getChangedFile() != null) {

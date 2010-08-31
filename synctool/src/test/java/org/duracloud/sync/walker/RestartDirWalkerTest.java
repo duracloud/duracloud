@@ -7,9 +7,6 @@
  */
 package org.duracloud.sync.walker;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertNull;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.mgmt.ChangedFile;
@@ -20,6 +17,11 @@ import org.junit.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * @author: Bill Branan
@@ -70,7 +72,9 @@ public class RestartDirWalkerTest extends SyncTestBase {
 
         // Run the restart walker
         RestartDirWalker rDirWalker = new RestartDirWalker(dirs, restartTime);
+        assertFalse(rDirWalker.walkComplete());
         rDirWalker.walkDirs();
+        assertTrue(rDirWalker.walkComplete());
 
         // Changed list should include sub1file1, and all files from sub2
         List<File> changedFiles = new ArrayList<File>();

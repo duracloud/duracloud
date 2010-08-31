@@ -31,6 +31,7 @@ public class SyncToolConfig implements Serializable {
     private int numThreads;
     private long maxFileSize;
     private boolean syncDeletes;
+    private boolean exitOnCompletion;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
@@ -63,6 +64,8 @@ public class SyncToolConfig implements Serializable {
         config.append(getMaxFileSize()).append(" bytes\n");
         config.append("SyncTool Syncing Deletes: ");
         config.append(syncDeletes()).append("\n");
+        config.append("SyncTool Exit on Completion: ");
+        config.append(exitOnCompletion()).append("\n");
         config.append("--------------------------------------\n");
 
         return config.toString();
@@ -162,5 +165,13 @@ public class SyncToolConfig implements Serializable {
 
     public void setSyncDeletes(boolean syncDeletes) {
         this.syncDeletes = syncDeletes;
+    }
+
+    public boolean exitOnCompletion() {
+        return exitOnCompletion;
+    }
+
+    public void setExitOnCompletion(boolean exitOnCompletion) {
+        this.exitOnCompletion = exitOnCompletion;
     }
 }

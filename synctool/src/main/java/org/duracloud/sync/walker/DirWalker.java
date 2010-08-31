@@ -33,6 +33,7 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     private List<File> topDirs;
     private ChangedList fileList;
     private int files = 0;
+    private boolean complete = false;
 
     protected DirWalker(List<File> topDirs) {
         super();
@@ -61,6 +62,7 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         }
         logger.info("Found " + files +
             " files to sync in initial directory walk");
+        complete = true;
     }
 
     @Override
@@ -69,8 +71,14 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         fileList.addChangedFile(file);
     }
 
-    public static void start(List<File> topDirs) {
-        (new Thread(new DirWalker(topDirs))).start();       
+    public static DirWalker start(List<File> topDirs) {
+        DirWalker dirWalker = new DirWalker(topDirs);
+        (new Thread(dirWalker)).start();
+        return dirWalker;
+    }
+
+    public boolean walkComplete() {
+        return complete;
     }
 
 }

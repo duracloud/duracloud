@@ -7,10 +7,6 @@
  */
 package org.duracloud.sync.config;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +15,11 @@ import org.junit.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -65,6 +66,7 @@ public class SyncToolConfigParserTest {
         argsMap.remove("-t");
         argsMap.remove("-m");
         argsMap.remove("-x");
+        argsMap.remove("-e");
 
         // Process configs, make sure optional params are set to defaults
         syncConfig =
@@ -78,6 +80,7 @@ public class SyncToolConfigParserTest {
                      SyncToolConfigParser.GIGABYTE,
                      syncConfig.getMaxFileSize());
         assertEquals(false, syncConfig.syncDeletes());
+        assertEquals(false, syncConfig.exitOnCompletion());
 
         // Make sure error is thrown on missing required params
         for(String arg : argsMap.keySet()) {
@@ -113,6 +116,7 @@ public class SyncToolConfigParserTest {
         argsMap.put("-s", "mySpace");
         argsMap.put("-m", "2");
         argsMap.put("-x", "");
+        argsMap.put("-e", "");
         return argsMap;
     }
 

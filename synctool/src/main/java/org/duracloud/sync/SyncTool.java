@@ -12,12 +12,13 @@ import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.config.SyncToolConfigParser;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.SyncEndpoint;
+import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
 import org.duracloud.sync.util.LogUtil;
-import org.duracloud.sync.walker.DirWalker;
 import org.duracloud.sync.walker.DeleteChecker;
+import org.duracloud.sync.walker.DirWalker;
 import org.duracloud.sync.walker.RestartDirWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ public class SyncTool {
     private SyncBackupManager syncBackupManager;
     private DirectoryUpdateMonitor dirMonitor;
     private SyncEndpoint syncEndpoint;
+    private DirWalker dirWalker;
     private LogUtil logUtil;
 
     private SyncToolConfig processCommandLineArgs(String[] args) {
@@ -115,11 +117,11 @@ public class SyncTool {
     }
 
     private void startDirWalker() {
-        DirWalker.start(syncConfig.getSyncDirs());
+        dirWalker = DirWalker.start(syncConfig.getSyncDirs());
     }
 
     private void startRestartDirWalker(long lastBackup) {
-        RestartDirWalker.start(syncConfig.getSyncDirs(), lastBackup);
+        dirWalker = RestartDirWalker.start(syncConfig.getSyncDirs(), lastBackup);
     }
 
     private void startDeleteChecker() {
@@ -166,6 +168,33 @@ public class SyncTool {
         closeSyncTool();
     }
 
+    private void waitForExit() {
+        StatusManager statusManager = StatusManager.getInstance();
+        boolean exit = false;
+        while(!exit) {
+            if(dirWalker.walkComplete()) {
+                if(ChangedList.getInstance().getListSize() <= 0) {
+                    if(statusManager.getInWork() <= 0) {
+                        exit = true;
+                        System.out.println("Sync Tool processing " +
+                                           "complete, final status:");
+                        System.out.println(
+                            statusManager.getPrintableStatus());
+                    }
+                }
+            }
+            sleep(10000);
+        }
+        closeSyncTool();
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+        }
+    }
+
     private void closeSyncTool() {
         syncBackupManager.endBackups();
         syncManager.endSync();
@@ -206,8 +235,16 @@ public class SyncTool {
 
         startDirMonitor();
         System.out.println("... Startup Complete");
-        printWelcome();
-        listenForExit();
+
+        if(syncConfig.exitOnCompletion()) {
+            System.out.println(syncConfig.getPrintableConfig());
+            System.out.println("The Sync Tool will exit when processing " +
+                               "is complete.\n");
+            waitForExit();
+        } else {
+            printWelcome();
+            listenForExit();
+        }
     }
 
     private void printWelcome() {
