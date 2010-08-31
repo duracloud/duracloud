@@ -295,6 +295,10 @@
               <directory>src/main/resources</directory>
               <filtering>true</filtering>
             </resource>
+            <resource>
+              <directory>src/main/webapp</directory>
+              <filtering>true</filtering>
+            </resource>
           </webResources>
         </configuration>
       </plugin>

@@ -23,7 +23,7 @@ $.widget("ui.tagsviewer",
 					controls.append(
 							$(document.createElement("td"))
 								.addClass("value")
-								.html("<input type='text' class='name-txt' size='35'/><input type='button' value='+'/><div class='dc-expando-status'></div>")
+								.html("<input type='text' class='name-txt' placeholder='tag here'	 size='35'/><input type='button' value='+'/><div class='dc-expando-status'></div>")
 						);
 					
 					return controls;

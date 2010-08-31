@@ -12,21 +12,33 @@
 		<script type="text/javascript">
 			$(document).ready(function(){
 				$("#username").focus();
-
+				
 				var login = function(){
-					$("#msg-error").fadeOut();
+					var loginForm = $("#loginForm");
+					var message =$("#msg-error");
+					var feedback = $("#feedback");
+					message.makeHidden();
+					feedback.fadeIn();					
+
 					$.ajax({
 						type:"POST",
 						url: "/duradmin/j_spring_security_check",
-						data: $("#loginForm").serialize(), 
-					  	success: function(data, text, xhr) {
-						  dc.debug("data="+data+";text="+text);
+						data: loginForm.serialize(), 
+					  	success: function(data) {
+   						  feedback.fadeOut();					
+						  dc.debug("data="+data);
 						  if(data.indexOf("Login") > 0){
-							  $("#msg-error").fadeIn();
+							  message.makeVisible();
+							  message.fadeIn();
 						  }else{
 	 						  location.reload();
 						  }
-					  }
+					  },
+					  error: function(){
+						  feedback.fadeOut();					
+						  alert("login error");
+					  },
+
 					});
 				};
 				
@@ -62,6 +74,8 @@
 							<li class="clearfix">
 								<label><a href="#" id="forgot-password" class="helper-link">Forgot Password?</a></label>
 								<button id="button-login" class="primary  float-r">Login</button>											
+								<span id="feedback" style="display:none; color:white" class="primary  float-r"><img src="/duradmin/images/wait.gif"/>Logging in...</span>											
+
 							</li>
 						</ul>
 					
