@@ -170,6 +170,7 @@ public class SyncTool {
 
     private void waitForExit() {
         StatusManager statusManager = StatusManager.getInstance();
+        int loops = 0;
         boolean exit = false;
         while(!exit) {
             if(dirWalker.walkComplete()) {
@@ -178,10 +179,14 @@ public class SyncTool {
                         exit = true;
                         System.out.println("Sync Tool processing " +
                                            "complete, final status:");
-                        System.out.println(
-                            statusManager.getPrintableStatus());
+                        System.out.println(statusManager.getPrintableStatus());
+                        break;
                     }
                 }
+            }
+            if(loops >= 600) { // Print status every 10 minutes
+                System.out.println(statusManager.getPrintableStatus());
+                loops = 0;
             }
             sleep(10000);
         }
