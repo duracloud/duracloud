@@ -168,11 +168,11 @@ $(document).ready(function(){
 						},
 						error: function(xhr, textStatus, errorThrown){
 							if(innerCallback.failure != undefined){
-								innerCallback.failure(textStatus);
+								innerCallback.failure(textStatus, xhr, errorThrown);
 							}else{
 								if(outerCallback != undefined 
 										&& outerCallback.failure != undefined){
-									outerCallback.failure(textStatus);
+									outerCallback.failure(textStatus, xhr, errorThrown);
 								}
 							}
 						},

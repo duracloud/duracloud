@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.StoreCaller;
@@ -84,18 +85,22 @@ public class SpaceController extends  AbstractRestController<Space> {
 	protected ModelAndView get(HttpServletRequest request,
 			HttpServletResponse response, Space space,
 			BindException errors) throws Exception {
-
-		String prefix = request.getParameter("prefix");
-		if(prefix != null){
-			prefix = ("".equals(prefix.trim())?null:prefix);
-		}
-		
-		String marker = request.getParameter("marker");
-		org.duracloud.domain.Space cloudSpace = 
+		try{
+			String prefix = request.getParameter("prefix");
+			if(prefix != null){
+				prefix = ("".equals(prefix.trim())?null:prefix);
+			}
+			String marker = request.getParameter("marker");
+			org.duracloud.domain.Space cloudSpace = 
 			contentStoreManager.getContentStore(space.getStoreId()).getSpace(space.getSpaceId(), prefix, 200, marker);
-		SpaceUtil.populateSpace(space, cloudSpace);
-		populateSpaceCount(space, request);
-		return createModel(space);
+			SpaceUtil.populateSpace(space, cloudSpace);
+			populateSpaceCount(space, request);
+			return createModel(space);
+		}catch(ContentStoreException ex){
+			ex.printStackTrace();
+			response.setStatus(HttpStatus.SC_NOT_FOUND);
+			return createModel(null);
+		}
 	}
 	
 	

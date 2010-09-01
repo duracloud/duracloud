@@ -124,7 +124,10 @@ $(document).ready(function() {
 		
 		//bind for current item change listener
 		usersList.bind("currentItemChanged", function(evt,state){
-			loadUserDetail(state.data);
+			var currentItem = state.currentItem;
+			if(currentItem != null){
+				loadUserDetail(currentItem.data);
+			}
 		});
 
 	};

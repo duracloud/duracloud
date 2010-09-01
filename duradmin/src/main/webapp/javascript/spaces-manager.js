@@ -779,8 +779,12 @@ $(document).ready(function() {
 
 	var getCurrentSpaceId = function(){
 		var currentItem = $("#spaces-list").selectablelist("currentItem");
-		var spaceId = currentItem.data.spaceId;
-		return spaceId;
+		if(currentItem != null && currentItem.data != null){
+			var spaceId = currentItem.data.spaceId;
+			return spaceId;
+		}else{
+			return null;
+		}
 	};
 
 	var getCurrentProviderStoreId = function(){
@@ -911,9 +915,9 @@ $(document).ready(function() {
 					dc.done();
 					loadContentItem(contentItem);
 				},
-				failure: function(){
+				failure: function(text){
 					dc.done();
-					alert("an error occurred");
+					alert("failed to update content item.");
 				},
 			};
 			$('#edit-content-item-dialog').dialog("close");
@@ -1137,7 +1141,7 @@ $(document).ready(function() {
 			var value = future.value[0];
 			addSpaceTag(space.spaceId, value, future);
 		}).bind("remove", function(evt, future){
-			var value = future.value[0];
+			var value = future.value;
 			removeSpaceTag(space.spaceId, value, future);
 		});
 
@@ -1217,7 +1221,7 @@ $(document).ready(function() {
 			var value = future.value[0];
 			addContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
 		}).bind("remove", function(evt, future){
-			var value = future.value[0];
+			var value = future.value;
 			removeContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
 		});
 
@@ -1254,8 +1258,7 @@ $(document).ready(function() {
 				success: function(space){
 					dc.done();
 					if(space == undefined || space == null){
-						alert("error: space == " + space);
-						//$(contentItemListStatusId).html("Error: space not found.").fadeIn("slow");
+						dc.error("error: space == " + space);
 					}else{
 						setHash(space);
 						loadHandler(space);
@@ -1276,9 +1279,13 @@ $(document).ready(function() {
 				dc.busy("Loading...");
 			},
 			
-			failure: function(text){
+			failure: function(text, xhr){
 				dc.done();
-				alert("get content item failed: " + text);
+				if(xhr.status == 404){
+					alert(contentId + " does not exist.");
+				}else{
+					alert("Unable to retrieve content [" + contentId + "]:" + text);
+				}
 			},
 
 			success: function(data){
@@ -1550,63 +1557,76 @@ $(document).ready(function() {
 	// /////////////////////////////////////////
 	// /click on a space list item
 
-	$("#spaces-list").bind("currentItemChanged", function(evt,state){
-		if(state.selectedItems.length < 2){
-			if(state.item !=null && state.item != undefined){
-				getSpace($(state.item).attr("id"), loadSpace);
+	var handleSpaceListStateChangedEvent = function(evt, state){
+		try{
+			
+			if(state.selectedItems.length == 0){
+				//uncheck 'check all' box
+				$("#check-all-spaces").attr("checked", false);
+				var currentItem = state.currentItem;
+				if(currentItem !=undefined && currentItem != null){
+					var spaceId = $(currentItem.item).attr("id");
+					if(spaceId != undefined){
+						getSpace(spaceId, loadSpace);
+					}else{
+						dc.error("spaceId is undefined");
+					}
+				}else{
+					showGenericDetailPane();
+				}
 			}else{
-				showGenericDetailPane();
+				showMultiSpaceDetail();
 			}
-		}else{
-			showMultiSpaceDetail();
+		}catch(err){
+			dc.error(err);
 		}
+	};
+	
+	$("#spaces-list").bind("currentItemChanged", function(evt,state){
+		handleSpaceListStateChangedEvent(evt, state);
 	});
 
 	$("#spaces-list").bind("selectionChanged", function(evt,state){
-		if(state.selectedItems.length == 0){
-			showGenericDetailPane();
-		}else if(state.selectedItems.length == 1){
-			getSpace($(state.item).attr("id"),loadSpace);
-		}else{
-			showMultiSpaceDetail();
-		}
+		handleSpaceListStateChangedEvent(evt, state);
 	});
-
 
 	$("#spaces-list").bind("itemRemoved", function(evt,state){
 		clearContents();
-		
 		showGenericDetailPane();
 	});
+
 	// /////////////////////////////////////////
 	// /click on a content list item
-	$("#content-item-list").bind("currentItemChanged", function(evt,state){
-		if(state.selectedItems.length < 2){
-			if(state.item != null && state.item != undefined){
-				var spaceId = getCurrentSpaceId();
-				getContentItem(getCurrentProviderStoreId(),spaceId,$(state.item).attr("id"));
+	var handleContentListStateChangedEvent = function(evt, state){
+		try{
+			if(state.selectedItems.length == 0){
+				//uncheck 'check all' box
+				$("#check-all-content-items").attr("checked", false);
+				var currentItem = state.currentItem;
+				if(currentItem !=undefined && currentItem != null){
+					var spaceId = getCurrentSpaceId();
+					if(spaceId != undefined){
+						var contentId = $(currentItem.item).attr("id");
+						getContentItem(getCurrentProviderStoreId(),spaceId,contentId);
+					}else{
+						dc.error("spaceId is undefined");
+					}
+				}else{
+					showGenericDetailPane();
+				}
 			}else{
-				showGenericDetailPane();
+				showMultiContentItemDetail();
 			}
-		}else{
-			showMultiContentItemDetail();
+		}catch(err){
+			dc.error(err);
 		}
+	};
+	$("#content-item-list").bind("currentItemChanged", function(evt,state){
+		handleContentListStateChangedEvent(evt,state);
 	});
 
-	
-	
 	$("#content-item-list").bind("selectionChanged", function(evt,state){
-		if(state.selectedItems.length == 0){
-			showGenericDetailPane();
-		}else if(state.selectedItems.length == 1){
-			var spaceId = "YYYYYYY";
-			/**
-			 * @FIXME
-			 */
-			getContentItem(getCurrentProviderStoreId(),spaceId,$(state.item).attr("id"));
-		}else{
-			showMultiContentItemDetail();
-		}
+		handleContentListStateChangedEvent(evt,state);
 	});
 
 	// /////////////////////////////////////////
@@ -1657,8 +1677,6 @@ $(document).ready(function() {
 					firstMatchFound = true;
 				}
 			}
-			
-
 		}
 		
 		

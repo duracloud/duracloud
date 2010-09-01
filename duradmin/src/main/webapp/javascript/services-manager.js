@@ -238,15 +238,16 @@ $(document).ready(function() {
 		table.show();
 		//bind for current item change listener
 		servicesList.bind("currentItemChanged", function(evt,state){
-			var data = state.data;
+			var currentItem = state.currentItem;
 			var service = null;
 			var deployment = null;
-			
-			if(data != null || data != undefined){
-				service = data.service;
-				deployment = data.deployment;
+			if(currentItem != null){
+				var data = currentItem.data;
+				if(data != null || data != undefined){
+					service = data.service;
+					deployment = data.deployment;
+				}
 			}
-
 			loadDeploymentDetail(service,deployment);
 		});
 

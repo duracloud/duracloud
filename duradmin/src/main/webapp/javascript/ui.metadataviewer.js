@@ -189,7 +189,7 @@ $.widget("ui.metadataviewer",
 						props += p + ": " + data[p] + ", ";
 					}
 
-					var value = that._getValue();
+					var value = data;
 					
 					child.addClass("dc-removing");
 					that.element.trigger("remove", { value: value, 

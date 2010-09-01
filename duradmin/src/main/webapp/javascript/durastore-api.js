@@ -145,8 +145,12 @@ var dc;
 			url: "/duradmin/spaces/content", 
 			data: data + "&action=put&method=changeMimetype",
 			type: "POST",
-			success: function(data){
-				callback.success(data.contentItem);
+			success: function(data,xhr){
+				if(data.contentItem != undefined){
+					callback.success(data.contentItem);
+				}else{
+					this.failure(data,xhr);
+				}
 			},
 		    failure: callback.failure,
 		},callback);

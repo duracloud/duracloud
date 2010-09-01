@@ -122,6 +122,7 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
             	return new ModelAndView("jsonView", "contentItem", null);
             }
 		}catch(ContentStoreException ex){
+			ex.printStackTrace();
 		    response.setStatus(HttpStatus.SC_NOT_FOUND);
 		    return new ModelAndView("jsonView", "contentItem", null);
 		}

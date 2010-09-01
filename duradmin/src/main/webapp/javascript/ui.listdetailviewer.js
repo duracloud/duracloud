@@ -24,11 +24,17 @@ $.widget("ui.listdetailviewer",
 			//initialize list
 			list.selectablelist({ selectable: false })
 				.bind("currentItemChanged", function(evt, state){
-					if(state.data == null || state.data == undefined){
+					var currentItem = state.currentItem;
+					if(currentItem == null){
 						that._showNoSelection();
 					}else{
-						var detail = that._prepareDetail(state.data);
-						that._getDetail().replaceContents(detail,o.detailLayout);
+						var data = currentItem.data;
+						if(data == null || data == undefined){
+							that._showNoSelection();
+						}else{
+							var detail = that._prepareDetail(data);
+							that._getDetail().replaceContents(detail,o.detailLayout);
+						}
 					}
 				});
 			

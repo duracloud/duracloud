@@ -33,7 +33,7 @@ $.widget("ui.selectablelist",{
 	},
 	
 	_styleItem:  function(target){
-		if(target != undefined){
+		if(target != undefined && target != null){
 			var item = $(target).nearestOfClass(this.options.itemClass);
 			$(item).removeClass("dc-checked-selected-list-item dc-checked-list-item dc-selected-list-item");
 			var checked = $(item).find("input[type=checkbox][checked]").size() > 0;
@@ -68,19 +68,25 @@ $.widget("ui.selectablelist",{
 	},
 	
 	_fireCurrentItemChanged: function(item, notify){
+		
+		if(item != null){
+			this._currentItem = {
+					item:item, 
+					data: this._getDataById($(item).attr("id")),
+				};
+		}else{
+			this._currentItem = null;
+		}
+		
+		$("input[type=checkbox][checked]",this.element).attr("checked", false);
 		this._styleItem(item);
-		this._currentItem = {
-			item:item, 
-			data: this._getDataById($(item).attr("id")),
-		};
 		
 		var fire = (notify == undefined || notify == null || notify == true);
 		if(fire){
 			this.element.trigger(
 				"currentItemChanged",
 				{	
-					item:this._currentItem.item, 
-					data: this._currentItem.data,
+					currentItem:this._currentItem, 
 					selectedItems: this._getSelectedItems()
 				}
 			);
@@ -88,7 +94,9 @@ $.widget("ui.selectablelist",{
 	},
 	
 	_fireSelectionChanged: function(){
-		this.element.trigger("selectionChanged", {selectedItems: this._getSelectedItems()});
+		var ci = this._currentItem;
+		this._styleItem(ci != null && ci.item != null ? ci.item : null);
+		this.element.trigger("selectionChanged", {selectedItems: this._getSelectedItems(), currentItem: this._currentItem});
 	},
 
 	_fireItemRemoved: function(item){
@@ -101,14 +109,14 @@ $.widget("ui.selectablelist",{
 		var item = $(target).closest("."+this.options.itemClass);
 		var checkbox = $("input[type=checkbox]", item).first();
 		var checked = checkbox.attr("checked");
-		this._styleItem(item);
 		this._fireSelectionChanged(item);
-		
 	},
 	
 	clear: function(){
+		this._currentItem = null;
 		this.element.children().remove();	
 		this.dataMap = new Array();
+		this._fireCurrentItemChanged(null,null);
 	},
 	
 	/**
@@ -134,7 +142,6 @@ $.widget("ui.selectablelist",{
 	select: function(select){
 		var that = this;
 		$("input[type=checkbox]",this.element).attr("checked",select);
-		that._styleItem();
 		that._fireSelectionChanged();
 	},
 	
@@ -221,6 +228,7 @@ $.widget("ui.selectablelist",{
 			$(item).prepend("<input type='checkbox'/>");
 			$(item).children().first().change(function(evt){
 				 that._itemSelectionStateChanged(evt.target);
+				 evt.stopPropagation();
 			});
 		}
 
@@ -234,8 +242,10 @@ $.widget("ui.selectablelist",{
 		//bind mouse action listeners
 		$(item).find("."+actionClass).andSelf().click(function(evt){
 			var item = $(evt.target).nearestOfClass(itemClass);
-			that._fireCurrentItemChanged(item);
-			evt.stopPropagation();
+			if($(evt.target).attr("type") != "checkbox"){
+				that._fireCurrentItemChanged(item);
+				evt.stopPropagation();
+			}
 		}).dblclick(function(evt){
 			var item = $(evt.target).nearestOfClass(itemClass);
 			that._fireCurrentItemChanged(item);
