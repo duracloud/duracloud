@@ -7,22 +7,27 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.durastore.util.TaskProviderFactory;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.TaskProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.List;
+
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 /**
  * Allows for calling storage provider specific tasks
@@ -32,11 +37,14 @@ import java.util.List;
  */
 @Path("/task")
 public class TaskRest extends BaseRest {
+    private final Logger log = LoggerFactory.getLogger(TaskRest.class);
 
     private TaskProviderFactory taskProviderFactory;
+    private RestUtil restUtil;
 
-    public TaskRest(TaskProviderFactory taskProviderFactory) {
+    public TaskRest(TaskProviderFactory taskProviderFactory, RestUtil restUtil) {
         this.taskProviderFactory = taskProviderFactory;
+        this.restUtil = restUtil;
     }
 
     /**
@@ -47,6 +55,7 @@ public class TaskRest extends BaseRest {
     @GET
     public Response getSupportedTasks(@QueryParam("storeID")
                                       String storeID){
+        String msg = "getting suppported tasks(" + storeID + ")";
         try {
             TaskProvider taskProvider =
                 taskProviderFactory.getTaskProvider(storeID);
@@ -55,9 +64,9 @@ public class TaskRest extends BaseRest {
             String responseText =
                 SerializationUtil.serializeList(supportedTasks);
 
-            return Response.ok(responseText, TEXT_PLAIN).build();
+            return responseOk(msg, responseText);
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,31 +81,35 @@ public class TaskRest extends BaseRest {
                                 String taskName,
                                 @QueryParam("storeID")
                                 String storeID){
+        String msg = "performing task(" + taskName + ", " + storeID + ")";
+
         String taskParameters = null;
         try {
             taskParameters = getTaskParameters();
+
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
 
         try {
-            TaskProvider taskProvider =
-                taskProviderFactory.getTaskProvider(storeID);
-            String responseText =
-                taskProvider.performTask(taskName, taskParameters);
-            return Response.ok(responseText, TEXT_PLAIN).build();
+            TaskProvider taskProvider = taskProviderFactory.getTaskProvider(
+                storeID);
+            String responseText = taskProvider.performTask(taskName,
+                                                           taskParameters);
+
+            return responseOk(msg, responseText);
+
         } catch (UnsupportedTaskException e) {
-            return Response.status(HttpStatus.SC_BAD_REQUEST).
-                   entity(e.getMessage()).build();
+            return responseBad(msg, e, BAD_REQUEST);
+
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
     }
 
     private String getTaskParameters() throws Exception {
         String taskParams = null;
 
-        RestUtil restUtil = new RestUtil();
         RestUtil.RequestContent content =
             restUtil.getRequestContent(request, headers);
 
@@ -108,6 +121,19 @@ public class TaskRest extends BaseRest {
         }
 
         return taskParams;
+    }
+
+    private Response responseOk(String msg, String text) {
+        log.debug(msg);
+        return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    private Response responseBad(String msg,
+                              Exception e,
+                              Response.Status status) {
+        log.error("Error: " + msg, e);
+        String entity = e.getMessage() == null ? "null" : e.getMessage();
+        return Response.status(status).entity(entity).build();
     }
 
 }

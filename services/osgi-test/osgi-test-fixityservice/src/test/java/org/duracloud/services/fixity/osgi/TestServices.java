@@ -8,11 +8,14 @@
 package org.duracloud.services.fixity.osgi;
 
 import junit.framework.Assert;
+import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.common.util.BundleHome;
 import org.duracloud.services.fixity.FixityService;
 import org.duracloud.servicesutil.util.DuraConfigAdmin;
+import org.duracloud.unittestdb.util.StorageAccountTestUtil;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -33,6 +36,22 @@ public class TestServices extends AbstractDuracloudOSGiTestBasePax {
     private final Logger log = LoggerFactory.getLogger(TestServices.class);
 
     private final int MAX_TRIES = 10;
+
+    @BeforeClass
+    public static void initializeDurastore() throws Exception {
+        StorageAccountTestUtil acctUtil = new StorageAccountTestUtil();
+        RestHttpHelper.HttpResponse response = acctUtil.initializeDurastore(
+            "localhost",
+            getPort(),
+            "durastore");
+        Assert.assertNotNull(response);
+    }
+
+    private static String getPort() {
+        String port = System.getProperty(STORE_PORT_PROP);
+        Assert.assertNotNull(port);
+        return port;
+    }
 
     @After
     public void tearDown() throws BundleException {
@@ -59,8 +78,7 @@ public class TestServices extends AbstractDuracloudOSGiTestBasePax {
 
     @Test
     public void testFixity() throws Exception {
-        String port = System.getProperty(STORE_PORT_PROP);
-        Assert.assertNotNull(port);
+        String port = getPort();
 
         String version = System.getProperty(PROJECT_VERSION_PROP);
         Assert.assertNotNull(version);

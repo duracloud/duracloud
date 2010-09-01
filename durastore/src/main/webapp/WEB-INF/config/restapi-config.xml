@@ -8,10 +8,12 @@
   <!-- REST API resources -->
   <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" >
     <constructor-arg ref="storageProviderFactory"/>
+    <constructor-arg ref="restUtil"/>
   </bean>
 
   <bean id="taskRest" class="org.duracloud.durastore.rest.TaskRest" >
     <constructor-arg ref="taskProviderFactory"/>
+    <constructor-arg ref="restUtil"/>
   </bean>
 
   <bean id="spaceRest" class="org.duracloud.durastore.rest.SpaceRest" >
@@ -20,10 +22,12 @@
 
   <bean id="contentRest" class="org.duracloud.durastore.rest.ContentRest" >
     <constructor-arg ref="contentResource"/>
+    <constructor-arg ref="restUtil"/>
   </bean>
 
   <bean id="securityRest" class="org.duracloud.durastore.rest.SecurityRest">
     <constructor-arg ref="userDetailsSvc" />
+    <constructor-arg ref="restUtil"/>
   </bean>
 
   <!-- Support beans -->
@@ -47,5 +51,7 @@
   <bean id="statelessStoragePvdr" class="org.duracloud.storage.provider.StatelessStorageProviderImpl"/>
 
   <bean id="storageAcctManager" class="org.duracloud.storage.domain.StorageAccountManager"/>
+
+  <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
 
 </beans>

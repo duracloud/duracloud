@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.fixity;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -14,11 +15,13 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.DuraCloudUserType;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.util.StoreCaller;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
+import org.duracloud.unittestdb.util.StorageAccountTestUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,6 +38,7 @@ import java.util.Map;
 import java.util.Random;
 
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrew Woods
@@ -70,6 +74,8 @@ public class FixityServiceTestBase {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
+        initializeDurastore();
+
         final ContentStore store = createContentStore();
 
         spaceIds = new ArrayList<String>();
@@ -146,6 +152,11 @@ public class FixityServiceTestBase {
         verifyContent(store, adminSpaceId, listingContentId);
         verifyContent(store, adminSpaceId, listingGoodContentId);
         verifyContent(store, adminSpaceId, listingBadContentId);
+    }
+
+    private static void initializeDurastore() throws Exception {
+        StorageAccountTestUtil acctUtil = new StorageAccountTestUtil();
+        acctUtil.initializeDurastore(host, getPort(), context);
     }
 
     private static void addContent(final ContentStore store,

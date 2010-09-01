@@ -14,6 +14,8 @@ import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.provider.StorageProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -32,6 +34,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
 /**
  * Provides interaction with content via REST
  *
@@ -39,11 +45,14 @@ import java.util.Map;
  */
 @Path("/{spaceID}/{contentID: [^?]+}")
 public class ContentRest extends BaseRest {
+    private final Logger log = LoggerFactory.getLogger(ContentRest.class);
 
     private ContentResource contentResource;
+    private RestUtil restUtil;
 
-    public ContentRest(ContentResource contentResource) {
+    public ContentRest(ContentResource contentResource, RestUtil restUtil) {
         this.contentResource = contentResource;
+        this.restUtil = restUtil;
     }
 
     /**
@@ -60,30 +69,51 @@ public class ContentRest extends BaseRest {
                                String storeID, 
                                @QueryParam("attachment")
                                boolean attachment) {
+        StringBuilder msg = new StringBuilder("getting content(");
+        msg.append(spaceID);
+        msg.append(", ");
+        msg.append(contentID);
+        msg.append(", ");
+        msg.append(storeID);
+        msg.append(", ");
+        msg.append(attachment);
+        msg.append(")");
+
         try {
-            Map<String, String> metadata =
-                contentResource.getContentMetadata(spaceID, contentID, storeID);
-            String mimetype =
-                metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE);
-            if(mimetype == null || mimetype.equals("")) {
-                mimetype = DEFAULT_MIME;
-            }
-            InputStream content =
-                contentResource.getContent(spaceID, contentID, storeID);
-            
-            ResponseBuilder responseBuilder = Response.ok(content, mimetype);
-            if(attachment){
-                addContentDispositionHeader(responseBuilder, contentID);
-            }
-            return addContentMetadataToResponse(responseBuilder,
-                                                metadata);
-        } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            log.debug(msg.toString());
+            return doGetContent(spaceID, contentID, storeID, attachment);
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response doGetContent(String spaceID,
+                                  String contentID,
+                                  String storeID,
+                                  boolean attachment) throws ResourceException {
+        Map<String, String> metadata =
+            contentResource.getContentMetadata(spaceID, contentID, storeID);
+        String mimetype =
+            metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE);
+        if(mimetype == null || mimetype.equals("")) {
+            mimetype = DEFAULT_MIME;
+        }
+        InputStream content =
+            contentResource.getContent(spaceID, contentID, storeID);
+
+        ResponseBuilder responseBuilder = Response.ok(content, mimetype);
+        if(attachment){
+            addContentDispositionHeader(responseBuilder, contentID);
+        }
+        return addContentMetadataToResponse(responseBuilder,
+                                            metadata);
     }
 
     private void addContentDispositionHeader(ResponseBuilder responseBuilder,
@@ -107,16 +137,29 @@ public class ContentRest extends BaseRest {
                                        String contentID,
                                        @QueryParam("storeID")
                                        String storeID) {
+        StringBuilder msg = new StringBuilder("getting content metadata(");
+        msg.append(spaceID);
+        msg.append(", ");
+        msg.append(contentID);
+        msg.append(", ");
+        msg.append(storeID);
+        msg.append(")");
+
         try {
             Map<String, String> metadata =
                 contentResource.getContentMetadata(spaceID, contentID, storeID);
+
+            log.debug(msg.toString());
             return addContentMetadataToResponse(Response.ok(), metadata);
-        } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -213,39 +256,58 @@ public class ContentRest extends BaseRest {
                                           String contentID,
                                           @QueryParam("storeID")
                                           String storeID) {
+        StringBuilder msg = new StringBuilder("updating content metadata(");
+        msg.append(spaceID);
+        msg.append(", ");
+        msg.append(contentID);
+        msg.append(", ");
+        msg.append(storeID);
+        msg.append(")");
+
         try {
-            MultivaluedMap<String, String> rHeaders =
-                headers.getRequestHeaders();
-            Map<String, String> userMetadata =
-                getUserMetadata(CONTENT_MIMETYPE_HEADER);
+            log.debug(msg.toString());
+            return doUpdateContentMetadata(spaceID, contentID, storeID);
 
-            // Set mimetype in metadata if it was provided
-            String contentMimeType = null;
-            if(rHeaders.containsKey(CONTENT_MIMETYPE_HEADER)) {
-                contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
-            }
-            if(contentMimeType == null && rHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
-                contentMimeType = rHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
-            }
-            if(contentMimeType != null && !contentMimeType.equals("")) {
-                userMetadata.put(StorageProvider.METADATA_CONTENT_MIMETYPE,
-                                 contentMimeType);
-            }
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg.toString(), e, NOT_FOUND);
 
-            contentResource.updateContentMetadata(spaceID,
-                                                  contentID,
-                                                  contentMimeType,
-                                                  userMetadata,
-                                                  storeID);
-            String responseText = "Content " + contentID + " updated successfully";
-            return Response.ok(responseText, TEXT_PLAIN).build();
-        } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+        } catch (ResourceException e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response doUpdateContentMetadata(String spaceID,
+                                             String contentID,
+                                             String storeID)
+        throws ResourceException {
+        MultivaluedMap<String, String> rHeaders =
+            headers.getRequestHeaders();
+        Map<String, String> userMetadata =
+            getUserMetadata(CONTENT_MIMETYPE_HEADER);
+
+        // Set mimetype in metadata if it was provided
+        String contentMimeType = null;
+        if(rHeaders.containsKey(CONTENT_MIMETYPE_HEADER)) {
+            contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
+        }
+        if(contentMimeType == null && rHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
+            contentMimeType = rHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
+        }
+        if(contentMimeType != null && !contentMimeType.equals("")) {
+            userMetadata.put(StorageProvider.METADATA_CONTENT_MIMETYPE,
+                             contentMimeType);
+        }
+
+        contentResource.updateContentMetadata(spaceID,
+                                              contentID,
+                                              contentMimeType,
+                                              userMetadata,
+                                              storeID);
+        String responseText = "Content " + contentID + " updated successfully";
+        return Response.ok(responseText, TEXT_PLAIN).build();
     }
 
     /**
@@ -259,13 +321,37 @@ public class ContentRest extends BaseRest {
                                String contentID,
                                @QueryParam("storeID")
                                String storeID) {
-        RestUtil.RequestContent content = null;
+        StringBuilder msg = new StringBuilder("adding content(");
+        msg.append(spaceID);
+        msg.append(", ");
+        msg.append(contentID);
+        msg.append(", ");
+        msg.append(storeID);
+        msg.append(")");
+
         try {
-            RestUtil restUtil = new RestUtil();
-            content = restUtil.getRequestContent(request, headers);
+            log.debug(msg.toString());
+            return doAddContent(spaceID, contentID, storeID);
+
+        } catch (InvalidIdException e) {
+            return responseBad(msg.toString(), e, BAD_REQUEST);
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response doAddContent(String spaceID,
+                                  String contentID,
+                                  String storeID) throws Exception {
+        RestUtil.RequestContent content = restUtil.getRequestContent(request,
+                                                                     headers);
 
         String checksum = null;
         MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
@@ -273,35 +359,24 @@ public class ContentRest extends BaseRest {
             checksum = rHeaders.getFirst(HttpHeaders.CONTENT_MD5);
         }
 
-        if(content != null) {
-            try {
-                checksum =
-                    contentResource.addContent(spaceID,
-                                               contentID,
-                                               content.getContentStream(),
-                                               content.getMimeType(),
-                                               content.getSize(),
-                                               checksum,
-                                               storeID);
-                updateContentMetadata(spaceID, contentID, storeID);
-                URI location = uriInfo.getRequestUri();
-                Map<String, String> metadata = new HashMap<String, String>();
-                metadata.put(StorageProvider.METADATA_CONTENT_CHECKSUM, checksum);
-                return addContentMetadataToResponse(Response.created(location),
-                                                    metadata);
-            } catch (InvalidIdException e) {
-                return Response.status(HttpStatus.SC_BAD_REQUEST)
-                    .entity(e.getMessage())
-                    .build();
-            } catch(ResourceNotFoundException e) {
-                return Response.status(HttpStatus.SC_NOT_FOUND)
-                    .entity(e.getMessage())
-                    .build();
-            } catch(ResourceException e) {
-                return Response.serverError().entity(e.getMessage()).build();
-            }
+        if (content != null) {
+            checksum = contentResource.addContent(spaceID,
+                                                  contentID,
+                                                  content.getContentStream(),
+                                                  content.getMimeType(),
+                                                  content.getSize(),
+                                                  checksum,
+                                                  storeID);
+            updateContentMetadata(spaceID, contentID, storeID);
+            URI location = uriInfo.getRequestUri();
+            Map<String, String> metadata = new HashMap<String, String>();
+            metadata.put(StorageProvider.METADATA_CONTENT_CHECKSUM, checksum);
+            return addContentMetadataToResponse(Response.created(location),
+                                                metadata);
+
         } else {
             String error = "Content could not be retrieved from the request.";
+            log.error(error);
             return Response.status(HttpStatus.SC_BAD_REQUEST)
                 .entity(error)
                 .build();
@@ -319,17 +394,41 @@ public class ContentRest extends BaseRest {
                                   String contentID,
                                   @QueryParam("storeID")
                                   String storeID) {
+        StringBuilder msg = new StringBuilder("deleting content(");
+        msg.append(spaceID);
+        msg.append(", ");
+        msg.append(contentID);
+        msg.append(", ");
+        msg.append(storeID);
+        msg.append(")");
+
         try {
             contentResource.deleteContent(spaceID, contentID, storeID);
             String responseText = "Content " + contentID + " deleted successfully";
-            return Response.ok(responseText, TEXT_PLAIN).build();
+            return responseOk(msg.toString(), responseText);
+
         } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response responseOk(String msg, String text) {
+        log.debug(msg);
+        return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    private Response responseBad(String msg,
+                                 Exception e,
+                                 Response.Status status) {
+        log.error("Error: " + msg, e);
+        String entity = e.getMessage() == null ? "null" : e.getMessage();
+        return Response.status(status).entity(entity).build();
     }
 
 }

@@ -47,7 +47,7 @@ public class TestServicesManagerWithServicesAdmin
 
     private ServicesManager servicesManager;
 
-    private static final int testServiceId = 1; // Replication Service
+    private static final int testServiceId = 0; // Replication Service
     private static int testDeploymentId = 0;
     private static final String textConfigValue = "Test";
 

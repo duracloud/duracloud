@@ -24,34 +24,43 @@ import java.util.Map;
  *
  * @author Bill Branan
  */
-public class ServiceResource {
+public class ServiceResourceImpl implements ServiceResource {
 
-    private static ServiceManager serviceManager;
+    private ServiceManager serviceManager;
 
-    public static void configureManager(InputStream configXml) {
+    public ServiceResourceImpl(ServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
+    }
+
+    @Override
+    public void configureManager(InputStream configXml) {
         serviceManager.configure(configXml);
     }
 
-    public static String getDeployedServices() {
+    @Override
+    public String getDeployedServices() {
         List<ServiceInfo> deployedServices = serviceManager.getDeployedServices();
         ServicesConfigDocument configDoc = new ServicesConfigDocument();
-        return configDoc.getServiceListAsXML(deployedServices);        
+        return configDoc.getServiceListAsXML(deployedServices);
     }
 
-    public static String getAvailableServices() {
+    @Override
+    public String getAvailableServices() {
         List<ServiceInfo> availableServices = serviceManager.getAvailableServices();
         ServicesConfigDocument configDoc = new ServicesConfigDocument();
         return configDoc.getServiceListAsXML(availableServices);
     }
 
-    public static String getService(int serviceId)
+    @Override
+    public String getService(int serviceId)
         throws NoSuchServiceException {
         ServiceInfo service = serviceManager.getService(serviceId);
         ServicesConfigDocument configDoc = new ServicesConfigDocument();
         return configDoc.getServiceAsXML(service);
     }
 
-    public static String getDeployedService(int serviceId, int deploymentId)
+    @Override
+    public String getDeployedService(int serviceId, int deploymentId)
         throws NoSuchDeployedServiceException {
         ServiceInfo service =
             serviceManager.getDeployedService(serviceId, deploymentId);
@@ -59,7 +68,8 @@ public class ServiceResource {
         return configDoc.getServiceAsXML(service);
     }
 
-    public static String getDeployedServiceProps(int serviceId,
+    @Override
+    public String getDeployedServiceProps(int serviceId,
                                                  int deploymentId)
         throws NoSuchDeployedServiceException {
         Map<String, String> serviceProperties =
@@ -69,7 +79,8 @@ public class ServiceResource {
         return SerializationUtil.serializeMap(serviceProperties);
     }
 
-    public static int deployService(int serviceId,
+    @Override
+    public int deployService(int serviceId,
                                      String serviceHost,
                                      InputStream serviceXml)
         throws NoSuchServiceException, NoSuchServiceComputeInstanceException {
@@ -81,7 +92,8 @@ public class ServiceResource {
                                             service.getUserConfigs());
     }
 
-    public static void updateServiceConfig(int serviceId,
+    @Override
+    public void updateServiceConfig(int serviceId,
                                            int deploymentId,
                                            InputStream serviceXml)
         throws NoSuchDeployedServiceException {
@@ -93,17 +105,10 @@ public class ServiceResource {
                                            service.getUserConfigs());
     }
 
-    public static void undeployService(int serviceId, int deploymentId)
+    @Override
+    public void undeployService(int serviceId, int deploymentId)
         throws NoSuchDeployedServiceException {
         serviceManager.undeployService(serviceId, deploymentId);
-    }
-
-    public ServiceManager getServiceManager() {
-        return serviceManager;
-    }
-
-    public void setServiceManager(ServiceManager manager) {
-        serviceManager = manager;
     }
 
 }

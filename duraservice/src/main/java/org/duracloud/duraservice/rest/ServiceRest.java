@@ -13,6 +13,8 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.duraservice.error.NoSuchDeployedServiceException;
 import org.duracloud.duraservice.error.NoSuchServiceComputeInstanceException;
 import org.duracloud.duraservice.error.NoSuchServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,6 +29,9 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 /**
  * Provides interaction with services via REST
@@ -44,6 +49,16 @@ import java.net.URISyntaxException;
  */
 @Path("/")
 public class ServiceRest extends BaseRest {
+
+    private final Logger log = LoggerFactory.getLogger(ServiceRest.class);
+
+    private ServiceResource serviceResource;
+    private RestUtil restUtil;
+
+    public ServiceRest(ServiceResource serviceResource, RestUtil restUtil) {
+        this.serviceResource = serviceResource;
+        this.restUtil = restUtil;
+    }
 
     private static enum ServiceList {
         AVAILABLE ("available"),
@@ -88,14 +103,16 @@ public class ServiceRest extends BaseRest {
     @Path("/services")
     @POST
     public Response initializeServices() {
+        String msg = "initializing services";
+
         try {
-            RestUtil restUtil = new RestUtil();
             RestUtil.RequestContent content = restUtil.getRequestContent(request, headers);
-            ServiceResource.configureManager(content.getContentStream());
+            serviceResource.configureManager(content.getContentStream());
             String responseText = "Initialization Successful";
-            return Response.ok(responseText, TEXT_PLAIN).build();
+            return responseOk(msg, responseText);
+
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -113,28 +130,47 @@ public class ServiceRest extends BaseRest {
     @Produces(XML)
     public Response getServices(@QueryParam("show")
                                 String show) {
+        String msg = "getting services(" + show + ")";
+
+        try {
+            return doGetServices(show);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response doGetServices(String show) {
+        String msg = "doGetServices(" + show + ")";
+
         ResponseBuilder response = Response.ok();
         String serviceListXml = null;
         if(show == null ||
            show.equals("") ||
            show.equals(ServiceList.AVAILABLE.type)) {
-            serviceListXml = ServiceResource.getAvailableServices();
+            serviceListXml = serviceResource.getAvailableServices();
         } else if(show.equals(ServiceList.DEPLOYED.type)) {
-            serviceListXml = ServiceResource.getDeployedServices();
+            serviceListXml = serviceResource.getDeployedServices();
         } else {
+            msg = "Invalid Request. Allowed values for show are 'available', " +
+                "and 'deployed'.";
+            log.error(msg);
             response = Response.serverError();
-            response.entity("Invalid Request. Allowed values for show are " +
-            		        "'available', and 'deployed'.");
+            response.entity(msg);
             return response.build();
         }
 
         if(serviceListXml != null) {
             response.entity(serviceListXml);
         } else {
+            msg = "Unable to retrieve services list.";
+            log.error(msg);
             response = Response.serverError();
-            response.entity("Unable to retrieve services list.");
+            response.entity(msg);
+            return response.build();
         }
 
+        log.debug(msg);
         return response.build();
     }
 
@@ -151,10 +187,22 @@ public class ServiceRest extends BaseRest {
     @Produces(XML)
     public Response getService(@PathParam("serviceId")
                                int serviceId) {
+        String msg = "getting service(" + serviceId + ")";
+
+        try {
+            log.debug(msg);
+            return doGetService(serviceId);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response doGetService(int serviceId) {
         ResponseBuilder response = Response.ok();
         String serviceXml;
         try {
-            serviceXml = ServiceResource.getService(serviceId);
+            serviceXml = serviceResource.getService(serviceId);
         } catch(NoSuchServiceException e) {
             return buildNotFoundResponse(e);
         }
@@ -185,11 +233,27 @@ public class ServiceRest extends BaseRest {
                                        int serviceId,
                                        @PathParam("deploymentId")
                                        int deploymentId) {
+        StringBuilder msg = new StringBuilder("getting deployed services(");
+        msg.append(serviceId);
+        msg.append(", ");
+        msg.append(deploymentId);
+        msg.append(")");
+
+        try {
+            log.debug(msg.toString());
+            return doGetDeployedService(serviceId, deploymentId);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response doGetDeployedService(int serviceId, int deploymentId) {
         ResponseBuilder response = Response.ok();
         String serviceXml;
         try {
             serviceXml =
-                ServiceResource.getDeployedService(serviceId, deploymentId);
+                serviceResource.getDeployedService(serviceId, deploymentId);
         } catch(NoSuchDeployedServiceException e) {
             return buildNotFoundResponse(e);
         }
@@ -219,11 +283,29 @@ public class ServiceRest extends BaseRest {
                                                  int serviceId,
                                                  @PathParam("deploymentId")
                                                  int deploymentId) {
+        StringBuilder msg = new StringBuilder("getting deployed services ");
+        msg.append("properties(");
+        msg.append(serviceId);
+        msg.append(", ");
+        msg.append(deploymentId);
+        msg.append(")");
+
+        try {
+            log.debug(msg.toString());
+            return doGetDeployedServiceProperties(serviceId, deploymentId);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response doGetDeployedServiceProperties(int serviceId,
+                                                    int deploymentId) {
         ResponseBuilder response = Response.ok();
         String servicePropertiesXml;
         try {
             servicePropertiesXml =
-                ServiceResource.getDeployedServiceProps(serviceId, deploymentId);
+                serviceResource.getDeployedServiceProps(serviceId, deploymentId);
         } catch(NoSuchDeployedServiceException e) {
             return buildNotFoundResponse(e);
         }
@@ -256,10 +338,26 @@ public class ServiceRest extends BaseRest {
                                   int serviceId,
                                   @QueryParam("serviceHost")
                                   String serviceHost) {
+        StringBuilder msg = new StringBuilder("deploying service(");
+        msg.append(serviceId);
+        msg.append(", ");
+        msg.append(serviceHost);
+        msg.append(")");
+
+        try {
+            log.debug(msg.toString());
+            return doDeployService(serviceId, serviceHost);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response doDeployService(int serviceId, String serviceHost) {
         InputStream userConfigXml = getRequestContent();
         int deploymentId;
         try {
-            deploymentId = ServiceResource.deployService(serviceId,
+            deploymentId = serviceResource.deployService(serviceId,
                                                          serviceHost,
                                                          userConfigXml);
         } catch(NoSuchServiceException e) {
@@ -293,16 +391,25 @@ public class ServiceRest extends BaseRest {
     @POST
     public Response configureService(@PathParam("serviceId")
                                      int serviceId,
-                                     @PathParam("deploymentId")
-                                     int deploymentId) {
-        InputStream userConfigXml = getRequestContent();
+                                     @PathParam("deploymentId") int deploymentId) {
+        StringBuilder msg = new StringBuilder("configuring service(");
+        msg.append(serviceId);
+        msg.append(", ");
+        msg.append(deploymentId);
+        msg.append(")");
 
         try {
-            ServiceResource.updateServiceConfig(serviceId,
+            log.debug(msg.toString());
+            InputStream userConfigXml = getRequestContent();
+            serviceResource.updateServiceConfig(serviceId,
                                                 deploymentId,
                                                 userConfigXml);
-        } catch(NoSuchDeployedServiceException e) {
-            return buildNotFoundResponse(e);
+
+        } catch (NoSuchDeployedServiceException e) {
+            return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
         return Response.ok().build();
     }
@@ -320,10 +427,21 @@ public class ServiceRest extends BaseRest {
                                     int serviceId,
                                     @PathParam("deploymentId")
                                     int deploymentId) {
+        StringBuilder msg = new StringBuilder("undeploying service(");
+        msg.append(serviceId);
+        msg.append(", ");
+        msg.append(deploymentId);
+        msg.append(")");
+
         try {
-            ServiceResource.undeployService(serviceId, deploymentId);
+            log.debug(msg.toString());
+            serviceResource.undeployService(serviceId, deploymentId);
+
         } catch(NoSuchDeployedServiceException e) {
-            return buildNotFoundResponse(e);
+            return responseBad(msg.toString(), e, NOT_FOUND);
+            
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
         return Response.ok().build();
     }
@@ -333,7 +451,6 @@ public class ServiceRest extends BaseRest {
      */
     private InputStream getRequestContent() {
         try {
-            RestUtil restUtil = new RestUtil();
             RestUtil.RequestContent content =
                 restUtil.getRequestContent(request, headers);
             return content.getContentStream();
@@ -342,7 +459,21 @@ public class ServiceRest extends BaseRest {
         }
     }
 
+    private Response responseOk(String msg, String text) {
+        log.debug(msg);
+        return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    private Response responseBad(String msg,
+                                 Exception e,
+                                 Response.Status status) {
+        log.error("Error: " + msg, e);
+        String entity = e.getMessage() == null ? "null" : e.getMessage();
+        return Response.status(status).entity(entity).build();
+    }
+
     private Response buildNotFoundResponse(DuraCloudCheckedException e) {
+        log.error(e.getFormattedMessage(), e);
         ResponseBuilder response = Response.status(HttpStatus.SC_NOT_FOUND);
         response.entity(e.getFormattedMessage());
         return response.build();

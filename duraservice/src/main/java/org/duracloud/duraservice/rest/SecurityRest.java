@@ -7,10 +7,14 @@
  */
 package org.duracloud.duraservice.rest;
 
-import org.duracloud.security.DuracloudUserDetailsService;
-import static org.duracloud.security.xml.SecurityUsersDocumentBinding.createSecurityUsersFrom;
-import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.common.rest.RestUtil;
+import org.duracloud.security.DuracloudUserDetailsService;
+
+import static org.duracloud.security.xml.SecurityUsersDocumentBinding.createSecurityUsersFrom;
+
+import org.duracloud.security.domain.SecurityUserBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.POST;
@@ -23,26 +27,32 @@ import java.util.List;
  */
 @Path("/security")
 public class SecurityRest extends BaseRest {
+    private final Logger log = LoggerFactory.getLogger(SecurityRest.class);
 
     private DuracloudUserDetailsService userDetailsService;
+    private RestUtil restUtil;
 
-    public SecurityRest(DuracloudUserDetailsService userDetailsService) {
+    public SecurityRest(DuracloudUserDetailsService userDetailsService,
+                        RestUtil restUtil) {
         this.userDetailsService = userDetailsService;
+        this.restUtil = restUtil;
     }
 
     @POST
     public Response initializeUsers() {
         RestUtil.RequestContent content = null;
         try {
-            RestUtil restUtil = new RestUtil();
             content = restUtil.getRequestContent(request, headers);
             List<SecurityUserBean> users = createSecurityUsersFrom(content.getContentStream());
             userDetailsService.setUsers(users);
 
             String responseText = "Initialization Successful\n";
             return Response.ok(responseText, BaseRest.TEXT_PLAIN).build();
+            
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            log.error("Error: initializing users.", e);
+            String entity = e.getMessage() == null ? "null" : e.getMessage();
+            return Response.serverError().entity(entity).build();
         }
     }
 }

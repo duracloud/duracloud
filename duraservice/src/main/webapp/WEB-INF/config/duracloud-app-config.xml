@@ -11,7 +11,6 @@
     Imports the configurations of the different infrastructure systems
     of the application
   -->
-  <import resource="core-config.xml"/>
   <import resource="restapi-config.xml" />
   <import resource="security-config.xml" />
   

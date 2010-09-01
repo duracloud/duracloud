@@ -27,14 +27,15 @@ import java.util.List;
  *
  * @author Bill Branan
  */
-public class RestUtil {
+public class RestUtilImpl implements RestUtil {
 
-    protected final Logger log = LoggerFactory.getLogger(RestUtil.class);
+    protected final Logger log = LoggerFactory.getLogger(RestUtilImpl.class);
 
     /**
      * Retrieves the contents of the HTTP Request.
      * @return InputStream from the request
      */
+    @Override
     public RequestContent getRequestContent(HttpServletRequest request,
                                             HttpHeaders headers)
     throws Exception {
@@ -96,33 +97,6 @@ public class RestUtil {
         }
 
         return rContent;
-    }
-
-    public class RequestContent {
-        private InputStream contentStream = null;
-        private String mimeType = null;
-        private int size = 0;
-
-        /**
-         * @return the contentStream
-         */
-        public InputStream getContentStream() {
-            return new AutoCloseInputStream(contentStream);
-        }
-
-        /**
-         * @return the mimeType
-         */
-        public String getMimeType() {
-            return mimeType;
-        }
-
-        /**
-         * @return the size
-         */
-        public int getSize() {
-            return size;
-        }
     }
 
 }

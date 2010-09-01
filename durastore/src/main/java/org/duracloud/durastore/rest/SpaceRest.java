@@ -11,6 +11,8 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.storage.error.InvalidIdException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -28,6 +30,10 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
 /**
  * Provides interaction with spaces via REST
  *
@@ -35,6 +41,7 @@ import java.util.Map;
  */
 @Path("/")
 public class SpaceRest extends BaseRest {
+    private final Logger log = LoggerFactory.getLogger(SpaceRest.class);
 
     private SpaceResource spaceResource;
 
@@ -51,11 +58,17 @@ public class SpaceRest extends BaseRest {
     @Produces(XML)
     public Response getSpaces(@QueryParam("storeID")
                               String storeID) {
+        String msg = "getting spaces(" + storeID + ")";
+
         try {
             String xml = spaceResource.getSpaces(storeID);
-            return Response.ok(xml, TEXT_XML).build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseOk(msg, xml);
+
+        } catch (ResourceException e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,22 +91,46 @@ public class SpaceRest extends BaseRest {
                              long maxResults,
                              @QueryParam("marker")
                              String marker) {
+        StringBuilder msg = new StringBuilder("getting space contents(");
+        msg.append(spaceID);
+        msg.append(", ");
+        msg.append(storeID);
+        msg.append(", ");
+        msg.append(prefix);
+        msg.append(", ");
+        msg.append(maxResults);
+        msg.append(", ");
+        msg.append(marker);
+        msg.append(")");
+
         try {
-            String xml = spaceResource.getSpaceContents(spaceID,
-                                                        storeID,
-                                                        prefix,
-                                                        maxResults,
-                                                        marker);
-            return addSpaceMetadataToResponse(Response.ok(xml, TEXT_XML),
-                                              spaceID,
-                                              storeID);
+            log.debug(msg.toString());
+            return doGetSpace(spaceID, storeID, prefix, maxResults, marker);
+
         } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+            
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response doGetSpace(String spaceID,
+                                String storeID,
+                                String prefix,
+                                long maxResults,
+                                String marker) throws ResourceException {
+        String xml = spaceResource.getSpaceContents(spaceID,
+                                                    storeID,
+                                                    prefix,
+                                                    maxResults,
+                                                    marker);
+        return addSpaceMetadataToResponse(Response.ok(xml, TEXT_XML),
+                                          spaceID,
+                                          storeID);
     }
 
     /**
@@ -106,7 +143,21 @@ public class SpaceRest extends BaseRest {
                                      String spaceID,
                                      @QueryParam("storeID")
                                      String storeID){
-        return addSpaceMetadataToResponse(Response.ok(), spaceID, storeID);
+        String msg = "adding space metadata(" + spaceID + ", " + storeID + ")";
+
+        try {
+            log.debug(msg);
+            return addSpaceMetadataToResponse(Response.ok(), spaceID, storeID);
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg, e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -114,26 +165,19 @@ public class SpaceRest extends BaseRest {
      */
     private Response addSpaceMetadataToResponse(ResponseBuilder response,
                                                 String spaceID,
-                                                String storeID) {
-        try {
-            Map<String, String> metadata =
-                spaceResource.getSpaceMetadata(spaceID, storeID);
-            if(metadata != null) {
-                Iterator<String> metadataNames = metadata.keySet().iterator();
-                while(metadataNames.hasNext()) {
-                    String metadataName = (String)metadataNames.next();
-                    String metadataValue = metadata.get(metadataName);
-                    response.header(HEADER_PREFIX + metadataName, metadataValue);
-                }
+                                                String storeID)
+        throws ResourceException {
+        Map<String, String> metadata = spaceResource.getSpaceMetadata(spaceID,
+                                                                      storeID);
+        if (metadata != null) {
+            Iterator<String> metadataNames = metadata.keySet().iterator();
+            while (metadataNames.hasNext()) {
+                String metadataName = (String) metadataNames.next();
+                String metadataValue = metadata.get(metadataName);
+                response.header(HEADER_PREFIX + metadataName, metadataValue);
             }
-            return response.build();
-        } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
         }
+        return response.build();
     }
 
     /**
@@ -146,28 +190,39 @@ public class SpaceRest extends BaseRest {
                              String spaceID,
                              @QueryParam("storeID")
                              String storeID){
-        try {            
-            MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
+        String msg = "adding space(" + spaceID + ", " + storeID + ")";
 
-            String spaceAccess = "CLOSED";
-            if(rHeaders.containsKey(SPACE_ACCESS_HEADER)) {
-                spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
-            }
+        try {
+            log.debug(msg);
+            return doAddSpace(spaceID, storeID);
 
-            Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
-            spaceResource.addSpace(spaceID,
-                                   spaceAccess,
-                                   userMetadata,
-                                   storeID);
-            URI location = uriInfo.getRequestUri();
-            return Response.created(location).build();
-        } catch(InvalidIdException e) {
-            return Response.status(HttpStatus.SC_BAD_REQUEST)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+        } catch (InvalidIdException e) {
+            return responseBad(msg, e, BAD_REQUEST);
+
+        } catch (ResourceException e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response doAddSpace(String spaceID, String storeID)
+        throws ResourceException, InvalidIdException {
+        MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
+
+        String spaceAccess = "CLOSED";
+        if(rHeaders.containsKey(SPACE_ACCESS_HEADER)) {
+            spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
+        }
+
+        Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
+        spaceResource.addSpace(spaceID,
+                               spaceAccess,
+                               userMetadata,
+                               storeID);
+        URI location = uriInfo.getRequestUri();
+        return Response.created(location).build();
     }
 
     /**
@@ -180,26 +235,37 @@ public class SpaceRest extends BaseRest {
                                         String spaceID,
                                         @QueryParam("storeID")
                                         String storeID){
+        String msg = "update space metadata(" + spaceID + ", " + storeID + ")";
+
         try {
-            MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
+            log.debug(msg);
+            return doUpdateSpaceMetadata(spaceID, storeID);
 
-            String spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg, e, NOT_FOUND);
 
-            Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
+        } catch (ResourceException e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
 
-            spaceResource.updateSpaceMetadata(spaceID,
-                                              spaceAccess,
-                                              userMetadata,
-                                              storeID);
-            String responseText = "Space " + spaceID + " updated successfully";
-            return Response.ok(responseText, TEXT_PLAIN).build();
-        } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response doUpdateSpaceMetadata(String spaceID, String storeID)
+        throws ResourceException {
+        MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
+
+        String spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
+
+        Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
+
+        spaceResource.updateSpaceMetadata(spaceID,
+                                          spaceAccess,
+                                          userMetadata,
+                                          storeID);
+        String responseText = "Space " + spaceID + " updated successfully";
+        return Response.ok(responseText, TEXT_PLAIN).build();
     }
 
     /**
@@ -212,17 +278,41 @@ public class SpaceRest extends BaseRest {
                                 String spaceID,
                                 @QueryParam("storeID")
                                 String storeID){
+        String msg = "deleting space(" + spaceID + ", " + storeID + ")";
+
         try {
-            spaceResource.deleteSpace(spaceID, storeID);
-            String responseText = "Space " + spaceID + " deleted successfully";
-            return Response.ok(responseText, TEXT_PLAIN).build();
-        } catch(ResourceNotFoundException e) {
-            return Response.status(HttpStatus.SC_NOT_FOUND)
-                .entity(e.getMessage())
-                .build();
-        } catch(ResourceException e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            log.debug(msg);
+            return doDeleteSpace(spaceID, storeID);
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg, e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private Response doDeleteSpace(String spaceID, String storeID)
+        throws ResourceException {
+        spaceResource.deleteSpace(spaceID, storeID);
+        String responseText = "Space " + spaceID + " deleted successfully";
+        return Response.ok(responseText, TEXT_PLAIN).build();
+    }
+
+    private Response responseOk(String msg, String text) {
+        log.debug(msg);
+        return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    private Response responseBad(String msg,
+                                 Exception e,
+                                 Response.Status status) {
+        log.error("Error: " + msg, e);
+        String entity = e.getMessage() == null ? "null" : e.getMessage();
+        return Response.status(status).entity(entity).build();
     }
 
 }

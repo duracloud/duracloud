@@ -68,7 +68,7 @@ public class FixityTester {
     private List<ContentLocation> items = new ArrayList<ContentLocation>();
 
 
-    private static final String storeIdS3 = "0";
+    private static final String storeIdS3 = "1";
 
     private ContentStore contentStore;
 
