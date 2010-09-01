@@ -6,7 +6,7 @@
 
   <fileSets>
     <fileSet>
-      <directory>/resources</directory>
+      <directory>resources</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
         <include>*.icm</include>
