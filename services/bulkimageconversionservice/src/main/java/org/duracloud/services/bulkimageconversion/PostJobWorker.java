@@ -86,8 +86,8 @@ public class PostJobWorker implements Runnable {
                     if(contentId != null) {
                         if(contentId.endsWith(toFormat)) {
                             setContentMimeType(contentId, mimetype);
-                        } else if(contentId.endsWith("service-results")) {
-                            setContentMimeType(contentId, "text/plain");
+                        } else if(contentId.endsWith(".csv")) {
+                            setContentMimeType(contentId, "text/csv");
                         }
                     }
                 }

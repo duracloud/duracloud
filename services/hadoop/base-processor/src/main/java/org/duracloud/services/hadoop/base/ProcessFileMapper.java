@@ -64,16 +64,19 @@ public class ProcessFileMapper extends MapReduceBase
         String filePath = key.toString();
         String outputPath = value.toString();
 
+        File localFile = null;
+        File resultFile = null;
         try {
             reporter.setStatus("Processing file: " + filePath);
             System.out.println("Starting map processing for file: " + filePath);
+            resultInfo.put(INPUT_PATH, filePath);
 
             // Copy the input file to local storage
             Path remotePath = new Path(filePath);
-            File localFile = copyFileLocal(remotePath);
+            localFile = copyFileLocal(remotePath);
 
             // Process the local file
-            File resultFile = processFile(localFile);
+            resultFile = processFile(localFile);
 
             System.out.println("File processing complete, result file " +
                                "generated: " + resultFile.getName());
@@ -82,12 +85,8 @@ public class ProcessFileMapper extends MapReduceBase
             String finalResultFilePath =
                 moveToOutput(resultFile, resultFile.getName(), outputPath);
 
-            // Delete the local file
-            FileUtils.deleteQuietly(localFile);
-
             // Collect result information
             resultInfo.put(RESULT, SUCCESS);
-            resultInfo.put(INPUT_PATH, filePath);
             resultInfo.put(RESULT_PATH, finalResultFilePath);
 
             System.out.println("Map processing completed successfully for: " +
@@ -99,11 +98,21 @@ public class ProcessFileMapper extends MapReduceBase
             System.out.println("Map processing failed for: " +
                                filePath + " due to: " + e.getMessage());
             e.printStackTrace(System.err);
+        } finally {
+            // Delete the local file
+            if(localFile != null && localFile.exists()) {
+                FileUtils.deleteQuietly(localFile);
+            }
+
+            // Delete the result file
+            if(resultFile != null && resultFile.exists()) {
+                FileUtils.deleteQuietly(resultFile);
+            }
+
+            output.collect(new Text(collectResult()), new Text(""));
+
+            reporter.setStatus("Processing complete for file: " + filePath);
         }
-
-        output.collect(new Text(collectResult()), new Text(""));
-
-        reporter.setStatus("Processing complete for file: " + filePath);
     }
 
     /**
@@ -173,7 +182,7 @@ public class ProcessFileMapper extends MapReduceBase
      * @param resultFile the file to move to output
      * @param fileName the name to give the file in the output filesystem
      * @param outputPath the path to where the file should be written
-     * @return the path of the new file in at the output location
+     * @return the path of the new file at the output location
      */
     protected String moveToOutput(File resultFile,
                                   String fileName,

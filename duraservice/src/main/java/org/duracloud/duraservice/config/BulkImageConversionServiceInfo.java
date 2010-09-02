@@ -28,7 +28,8 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
             "converted to the chosen format. The converted image files will " +
             "be stored in the destination space along with a file which " +
             "details the results of the conversion process. The working " +
-            "space will be used to store files used for processing and logs.";
+            "space will be used to store files used for processing and logs; " +
+            "the working space should not be the same as the output space.";
         icService.setDescription(desc);
         icService.setDisplayName("Bulk Image Conversion Service");
         icService.setUserConfigVersion("1.0");
