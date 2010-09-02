@@ -22,14 +22,14 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
     private enum Mode {
         ALL_IN_ONE_LIST("all-in-one-for-list",
-                        "Generate system MD5 for items in provided listing and verify"),
+                        "Verify the fixity of a list of items"),
         ALL_IN_ONE_SPACE("all-in-one-for-space",
-                         "Generate system MD5 for entire space and verify against provided listing"),
+                         "Verify the fixity of an entire Space"),
         GENERATE_LIST("generate-for-list",
-                      "Generate system MD5 listing for items in provided listing"),
+                      "Generate fixity information for a list of items"),
         GENERATE_SPACE("generate-for-space",
-                       "Generate system MD5 listing for entire space"),
-        COMPARE("compare", "Compare two provided MD5 listings");
+                       "Generate fixity information for an entire Space"),
+        COMPARE("compare", "Compare two different fixity reports");
 
         private String key;
         private String desc;
@@ -114,9 +114,9 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         List<UserConfig> fsServiceUserConfig = new ArrayList<UserConfig>();
 
         fsServiceUserConfig.add(getModeDefinitionSelection());
-        fsServiceUserConfig.add(getTrustLevelSelection());
+        fsServiceUserConfig.add(getHashMethodSelection());
         fsServiceUserConfig.add(getSaltConfig());
-        fsServiceUserConfig.add(getFailFastBoolean());
+        //fsServiceUserConfig.add(getFailFastBoolean()); option may not be needed.
         fsServiceUserConfig.add(getStorageProviderSelection());
         fsServiceUserConfig.add(getSpaceOfProvidedListingSelection());
         fsServiceUserConfig.add(getSpaceOfProvidedListingBSelection());
@@ -138,26 +138,27 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         modeOptions.add(Mode.GENERATE_SPACE.asOption());
         modeOptions.add(Mode.COMPARE.asOption());
 
-        SingleSelectUserConfig modeSelection = new SingleSelectUserConfig(
-            "mode",
-            "Service Mode",
-            modeOptions,
-            ServiceConfigUtil.EXCLUSION_DEFINITION);
+        SingleSelectUserConfig modeSelection = new SingleSelectUserConfig("mode",
+                                                                          "Service Mode",
+                                                                          modeOptions,
+                                                                          ServiceConfigUtil.EXCLUSION_DEFINITION);
         return modeSelection;
     }
 
-    private SingleSelectUserConfig getTrustLevelSelection() {
+    private SingleSelectUserConfig getHashMethodSelection() {
         List<Option> trustLevelOptions = new ArrayList<Option>();
-        trustLevelOptions.add(new Option("Stored Metadata",
+        trustLevelOptions.add(new Option("The storage provider",
                                          "stored",
                                          false));
-        trustLevelOptions.add(new Option("Recalculated Hash",
+        trustLevelOptions.add(new Option("The files themselves",
                                          "generated",
                                          false));
-        trustLevelOptions.add(new Option("Salted Hash", "salted", false));
+        trustLevelOptions.add(new Option("The files themselves, with salt",
+                                         "salted",
+                                         false));
 
         return new SingleSelectUserConfig("hashApproach",
-                                          "Hash Generation Method",
+                                          "Get fixity information from...",
                                           trustLevelOptions,
                                           or(Mode.ALL_IN_ONE_LIST,
                                              Mode.ALL_IN_ONE_SPACE,
@@ -168,7 +169,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     private UserConfig getSaltConfig() {
         String emptyValue = "";
         return new TextUserConfig("salt",
-                                  "Salt Character String",
+                                  "Salt",
                                   emptyValue,
                                   or(Mode.ALL_IN_ONE_SPACE,
                                      Mode.ALL_IN_ONE_LIST,
@@ -203,7 +204,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
     private SingleSelectUserConfig getSpaceOfProvidedListingSelection() {
         return new SingleSelectUserConfig("providedListingSpaceIdA",
-                                          "Space holding input listing",
+                                          "Space with input listing",
                                           getSpaceOptions(),
                                           or(Mode.ALL_IN_ONE_SPACE,
                                              Mode.ALL_IN_ONE_LIST,
@@ -213,14 +214,14 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
     private SingleSelectUserConfig getSpaceOfProvidedListingBSelection() {
         return new SingleSelectUserConfig("providedListingSpaceIdB",
-                                          "Space holding second input listing",
+                                          "Space with second input listing",
                                           getSpaceOptions(),
                                           Mode.COMPARE.getKey());
     }
 
     private SingleSelectUserConfig getSpaceOfGeneratedHashListingSelection() {
         return new SingleSelectUserConfig("targetSpaceId",
-                                          "Space over which to generate hashes",
+                                          "Space containing content items",
                                           getSpaceOptions(),
                                           or(Mode.GENERATE_SPACE,
                                              Mode.ALL_IN_ONE_SPACE));
@@ -228,8 +229,8 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
     private TextUserConfig getContentIdOfProvidedListingConfig() {
         return new TextUserConfig("providedListingContentIdA",
-                                  "Content-item listing object name",
-                                  "hash-content-listing.csv",
+                                  "Input listing name",
+                                  "item-listing.csv",
                                   or(Mode.ALL_IN_ONE_LIST,
                                      Mode.ALL_IN_ONE_SPACE,
                                      Mode.GENERATE_LIST,
@@ -238,15 +239,20 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
     private TextUserConfig getContentIdOfProvidedListingBConfig() {
         return new TextUserConfig("providedListingContentIdB",
-                                  "Second content-item listing object name",
-                                  "hash-content-listing-system.csv",
+                                  "Second input listing name",
+                                  "fingerprints.csv",
                                   Mode.COMPARE.getKey());
     }
 
     private SingleSelectUserConfig getSpaceOfOutputConfig() {
         return new SingleSelectUserConfig("outputSpaceId",
-                                          "Space to which output will be written",
-                                          getSpaceOptions());
+                                          "Output space",
+                                          getSpaceOptions(),
+                                          or(Mode.ALL_IN_ONE_LIST,
+                                             Mode.ALL_IN_ONE_SPACE,
+                                             Mode.GENERATE_LIST,
+                                             Mode.GENERATE_SPACE,
+                                             Mode.COMPARE));
     }
 
     private List<Option> getSpaceOptions() {
@@ -259,8 +265,8 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
     private TextUserConfig getContentIdOfGeneratedListingConfig() {
         return new TextUserConfig("outputContentId",
-                                  "Content-item object name of generated listing",
-                                  "hash-content-listing-system.csv",
+                                  "Output listing name",
+                                  "fingerprints.csv",
                                   or(Mode.ALL_IN_ONE_LIST,
                                      Mode.ALL_IN_ONE_SPACE,
                                      Mode.GENERATE_LIST,
@@ -269,8 +275,11 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
     private UserConfig getContentIdOfReportConfig() {
         return new TextUserConfig("reportContentId",
-                                  "Object name of verification report",
-                                  "hash-verification-report.csv");
+                                  "Output report name",
+                                  "fixity-report.csv",
+                                  or(Mode.ALL_IN_ONE_LIST,
+                                     Mode.ALL_IN_ONE_SPACE,
+                                     Mode.COMPARE));
     }
 
     private String or(Mode... modes) {

@@ -163,7 +163,7 @@ public class ServiceXmlGeneratorTest {
     private void verifyFixity(ServiceInfo serviceInfo) {
         List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
         Assert.assertNotNull(userConfigs);
-        Assert.assertEquals(13, userConfigs.size());
+        Assert.assertEquals(12, userConfigs.size());
 
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);

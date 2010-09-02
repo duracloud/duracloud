@@ -65,7 +65,7 @@ public class FixityServiceXmlTest {
 
         Assert.assertEquals(3, deploymentOptions.size());
         Assert.assertEquals(5, systemConfigs.size());
-        Assert.assertEquals(13, userConfigs.size());
+        Assert.assertEquals(12, userConfigs.size());
 
     }
 }
