@@ -150,14 +150,71 @@ $(document).ready(function() {
 
 	};
 	
+	var resolveUserConfigValue =  function(uc, delim, showRaw){
+		showRaw = (showRaw == undefined ? false : showRaw);
+		delim   = (delim == undefined ? ", " : delim);
+		if(uc.inputType == "TEXT"){
+			return uc.displayValue;
+		}else {
+			var value = "";
+			if(uc.options != undefined){
+    			var options = uc.options;
+    			var count =	 0;
+    			for(var i = 0; i < options.length; i++){
+    				var option = options[i];
+    				if(option.selected.toString() == "true"){
+    					if(count > 0) value+=delim;
+	    				value += (showRaw ? option.value : option.displayName);
+	    				count++;
+    				}
+    			}
+    			return value;
+			}else{
+				var value = "no value";
+			}
+		}
+	};
 	
 	var convertUserConfigsToArray = function(userConfigs){
 		var a = new Array();
+		var defs = new Array();
+		var uc;
 		for(u in userConfigs){
-			var uc = userConfigs[u];
-			a.push([uc.displayName, resolveUserConfigValue(uc)]);
+			uc = userConfigs[u];
+			if(uc.exclusion == "EXCLUSION_DEFINITION"){
+				defs.push(uc);
+			}
 		}
 		
+		for(u in userConfigs){
+			uc = userConfigs[u];
+			var row = [uc.displayName, resolveUserConfigValue(uc)];
+			var addRow = false;
+			if(uc.exclusion != undefined && uc.exclusion != "EXCLUSION_DEFINITION"){
+				var exclusions = uc.exclusion.split("|");
+				var k,m,n,defVals;
+				for(k in defs){
+					defVals = resolveUserConfigValue(defs[k], "|", true);
+					defVals = defVals.split("|");
+					for(m in exclusions){
+						for(n in defVals){
+							if(exclusions[m] == defVals[n]){
+								addRow = true;
+								break;
+							}
+						}
+						if(addRow) break;
+					}
+					if(addRow) break;
+				}
+			}else{
+				addRow = true;
+			}
+
+			if(addRow){
+				a.push(row);
+			}
+		}
 		return a;
 	};
 	
@@ -175,29 +232,6 @@ $(document).ready(function() {
 		return id.split("-")[1];
 	};
 
-
-	var resolveUserConfigValue =  function (uc){
-		if(uc.displayValue != undefined){
-			return uc.displayValue;
-		}else {
-			if(uc.options != undefined){
-    			var options = uc.options[0];
-    			var count =	 0;
-    			for(var i = 0; i < options.length; i++){
-    				var option = options[i];
-    				if(option.selected.toString() == "true"){
-    					if(count > 0) value+=", ";
-	    				value += option.displayName;
-	    				count++;
-    				}
-    			}
-    			
-    			return value;
-			}else{
-				var value = "no value";
-			}
-		}
-	};
 
 	var loadDeployedServiceList = function(services){
 		//alert("services count = " + services.length);
