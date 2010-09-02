@@ -315,6 +315,8 @@ public class FixityServiceTest {
 
         fixity.start();
 
+        sleep(1000); // do some work        
+
         ComputeService.ServiceStatus status = fixity.getServiceStatus();
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
 
