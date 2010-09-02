@@ -31,7 +31,7 @@ public class FixityServiceXmlTest {
 
         Assert.assertEquals(0, deploymentCount);
         Assert.assertEquals(index, id);
-        Assert.assertEquals(-1, maxDeploymentsAllowed);
+        Assert.assertEquals(1, maxDeploymentsAllowed);
 
 
         String contentId = serviceInfo.getContentId();

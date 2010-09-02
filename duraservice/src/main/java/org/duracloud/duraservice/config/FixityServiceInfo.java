@@ -61,7 +61,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         fsService.setDisplayName(displayName);
         fsService.setUserConfigVersion(userConfigVersion);
         fsService.setServiceVersion(version);
-        fsService.setMaxDeploymentsAllowed(-1); // unlimited
+        fsService.setMaxDeploymentsAllowed(1); // single deployment until otherwise supported
 
         fsService.setSystemConfigs(getSystemConfigs());
         fsService.setUserConfigs(getUserConfigs());
