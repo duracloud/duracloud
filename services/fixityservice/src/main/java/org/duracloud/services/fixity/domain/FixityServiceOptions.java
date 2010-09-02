@@ -130,7 +130,7 @@ public class FixityServiceOptions {
             case ALL_IN_ONE_LIST:
                 verifyNotNull(hashApproach, "hashApproach");
                 //verifyNotNull(salt, "salt");
-                verifyNotNull(failFast, "failFast");
+                //verifyNotNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
                 verifyNotNull(providedListingContentIdA, "prListingContentIdA");
@@ -144,7 +144,7 @@ public class FixityServiceOptions {
             case ALL_IN_ONE_SPACE:
                 verifyNotNull(hashApproach, "hashApproach");
                 //verifyNotNull(salt, "salt");
-                verifyNotNull(failFast, "failFast");
+                //verifyNotNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
                 verifyNotNull(providedListingContentIdA, "prListingContentIdA");
@@ -158,7 +158,7 @@ public class FixityServiceOptions {
             case GENERATE_LIST:
                 verifyNotNull(hashApproach, "hashApproach");
                 //verifyNotNull(salt, "salt");
-                verifyNull(failFast, "failFast");
+                //verifyNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
                 verifyNotNull(providedListingContentIdA, "prListingContentIdA");
@@ -172,7 +172,7 @@ public class FixityServiceOptions {
             case GENERATE_SPACE:
                 verifyNotNull(hashApproach, "hashApproach");
                 //verifyNotNull(salt, "salt");
-                verifyNull(failFast, "failFast");
+                //verifyNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNull(providedListingSpaceIdA, "providedListingSpaceIdA");
                 verifyNull(providedListingContentIdA, "proListingContentIdA");
@@ -186,7 +186,7 @@ public class FixityServiceOptions {
             case COMPARE:
                 verifyNull(hashApproach, "hashApproach");
                 //verifyNull(salt, "salt");
-                verifyNotNull(failFast, "failFast");
+                //verifyNotNull(failFast, "failFast");
                 verifyNotNull(storeId, "storeId");
                 verifyNotNull(providedListingSpaceIdA, "proListingSpaceIdA");
                 verifyNotNull(providedListingContentIdA, "prListingContentIdA");
