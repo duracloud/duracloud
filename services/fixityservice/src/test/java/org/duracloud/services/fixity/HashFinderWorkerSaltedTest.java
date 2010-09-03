@@ -74,7 +74,8 @@ public class HashFinderWorkerSaltedTest extends HashFinderWorkerTestBase {
     protected ContentStore createContentStore() throws ContentStoreException {
         InputStream inputStream = getInputStream(text);
         Content content = EasyMock.createMock("Content", Content.class);
-        EasyMock.expect(content.getStream()).andReturn(inputStream);
+        EasyMock.expect(content.getStream()).andReturn(inputStream).anyTimes();
+        EasyMock.expect(content.getId()).andReturn(null).anyTimes();
         EasyMock.replay(content);
 
         ContentStore store = EasyMock.createMock("ContentStore",
