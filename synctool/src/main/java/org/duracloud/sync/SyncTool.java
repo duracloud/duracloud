@@ -187,6 +187,8 @@ public class SyncTool {
             if(loops >= 60) { // Print status every 10 minutes
                 System.out.println(statusManager.getPrintableStatus());
                 loops = 0;
+            } else {
+                loops++;
             }
             sleep(10000);
         }
@@ -244,7 +246,8 @@ public class SyncTool {
         if(syncConfig.exitOnCompletion()) {
             System.out.println(syncConfig.getPrintableConfig());
             System.out.println("The Sync Tool will exit when processing " +
-                               "is complete.\n");
+                               "is complete. Status will be printed every " +
+                               "10 minutes.\n");
             waitForExit();
         } else {
             printWelcome();
