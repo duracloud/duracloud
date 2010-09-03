@@ -175,6 +175,7 @@ public class HashFinderWorker implements Runnable {
         if (null == content) {
             throwRuntime("content is null");
         }
+        log.debug("contentId: '" + content.getId() + "'");
 
         InputStream contentStream = content.getStream();
         if (null == contentStream) {
@@ -186,6 +187,7 @@ public class HashFinderWorker implements Runnable {
             closeQuietly(contentStream);
             throwRuntime("salt is null");
         }
+        log.debug("salt: '" + salt + "'");
 
         InputStream saltStream = new ByteArrayInputStream(salt.getBytes());
         InputStream saltedContentStream = new SequenceInputStream(contentStream,
@@ -196,6 +198,7 @@ public class HashFinderWorker implements Runnable {
             closeQuietly(contentStream, saltStream, saltedContentStream);
             throwRuntime("salted hash is null");
         }
+        log.debug("hash: '" + hash + "'");
 
         closeQuietly(contentStream, saltStream, saltedContentStream);
         return hash;

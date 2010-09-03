@@ -38,7 +38,7 @@ public class ServiceStopperTester {
         assertEquals(ComputeService.ServiceStatus.STARTED,
                      service.getServiceStatus());
 
-        stopper.stop(testServiceId);
+        stopper.stop(testServiceId + ".jar");
 
         duraServices = lister.getDuraServices();
         assertNotNull(duraServices);

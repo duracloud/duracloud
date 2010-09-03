@@ -24,10 +24,14 @@ public class ServiceHelper {
 
     public ComputeService findService(String serviceId,
                                       List<ComputeService> duraServices) {
+        log.debug("finding: " + serviceId + ", size: " + duraServices.size());
+
         ComputeService target = null;
         String normalizedId = FilenameUtils.getBaseName(serviceId).trim();
         for (ComputeService service : duraServices) {
             String id = service.getServiceId().trim();
+            log.debug("service in container: " + id);
+
             if (normalizedId.equalsIgnoreCase(id)) {
                 target = service;
                 break;

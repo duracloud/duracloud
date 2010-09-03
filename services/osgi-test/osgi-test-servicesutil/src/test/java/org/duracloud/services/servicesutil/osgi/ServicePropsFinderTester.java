@@ -43,7 +43,7 @@ public class ServicePropsFinderTester {
 
         for (ComputeService service : duraServices) {
             String serviceId = service.getServiceId();
-            Map<String, String> props = propsFinder.getProps(serviceId);
+            Map<String, String> props = propsFinder.getProps(serviceId + ".jar");
             Assert.assertNotNull(serviceId, props);
 
             String value = props.get("serviceId");

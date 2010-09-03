@@ -44,7 +44,7 @@ public class ServiceStatusReporterTester {
         for (ComputeService service : duraServices) {
             String serviceId = service.getServiceId();
             Assert.assertNotNull(serviceId,
-                                 statusReporter.getStatus(serviceId));
+                                 statusReporter.getStatus(serviceId + ".jar"));
         }
 
         try {
