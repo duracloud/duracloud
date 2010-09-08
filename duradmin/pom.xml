@@ -36,12 +36,21 @@
   </repositories>
   
   <build>
-  
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
+          <webResources>
+            <resource>
+              <directory>src/main/webapp</directory>
+              <includes>
+                <include>**/footer.jsp</include>
+              </includes>
+              <filtering>true</filtering>
+            </resource>
+          </webResources>
+
           <overlays>
             <overlay>
               <groupId>org.duracloud</groupId>
@@ -65,45 +74,6 @@
           </excludes>
         </configuration>
       </plugin>
-  
-     <!-- 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <warName>${artifactId}-${version}</warName>
-          <webResources>
-            <resource>
-              <directory>src/main/webapp/WEB-INF/jsp/include</directory>
-              <filtering>true</filtering>
-            </resource>
-          </webResources>
-        </configuration>
-      </plugin>
-      
-      
-      <plugin>
-        <groupId>com.google.code.maven-svn-revision-number-plugin
-        </groupId>
-        <artifactId>maven-svn-revision-number-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <entries>
-            <entry>
-              <prefix>prefix</prefix>
-            </entry>
-          </entries>
-        </configuration>
-      </plugin>
-      -->
-
     </plugins>
   </build>
   <dependencies>
