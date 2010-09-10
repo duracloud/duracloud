@@ -7,19 +7,17 @@
  */
 package org.duracloud.durastore.rest;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import org.duracloud.storage.provider.StorageProvider;
 
 import javax.servlet.http.HttpServletRequest;
-
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
-
-import org.duracloud.storage.provider.StorageProvider;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Base REST resource
@@ -36,14 +34,13 @@ public abstract class BaseRest {
     @Context
     UriInfo uriInfo;
 
-    public static final String XML = "text/xml";
-    public static final String HTML = "text/html";
+    public static final String XML = MediaType.TEXT_XML;
+    public static final String HTML = MediaType.TEXT_HTML;
 
-    public static final MediaType TEXT_XML = new MediaType("text", "xml");
-    public static final MediaType TEXT_HTML = new MediaType("text", "html");
-    public static final MediaType TEXT_PLAIN = new MediaType("text", "plain");
+    public static final MediaType TEXT_XML = MediaType.TEXT_XML_TYPE;
+    public static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN_TYPE;
 
-    public static final String DEFAULT_MIME = "application/octet-stream";
+    public static final String DEFAULT_MIME = MediaType.APPLICATION_OCTET_STREAM;
 
     public static final String HEADER_PREFIX = "x-dura-meta-";
     public static final String SPACE_ACCESS_HEADER =

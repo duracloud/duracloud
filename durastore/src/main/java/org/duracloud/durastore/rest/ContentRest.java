@@ -25,6 +25,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -100,15 +101,11 @@ public class ContentRest extends BaseRest {
                                   boolean attachment) throws ResourceException {
         Map<String, String> metadata =
             contentResource.getContentMetadata(spaceID, contentID, storeID);
-        String mimetype =
-            metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE);
-        if(mimetype == null || mimetype.equals("")) {
-            mimetype = DEFAULT_MIME;
-        }
         InputStream content =
             contentResource.getContent(spaceID, contentID, storeID);
 
-        ResponseBuilder responseBuilder = Response.ok(content, mimetype);
+        ResponseBuilder responseBuilder = Response.ok(content);
+
         if(attachment){
             addContentDispositionHeader(responseBuilder, contentID);
         }
@@ -123,7 +120,8 @@ public class ContentRest extends BaseRest {
         contentDisposition.append("filename=\"");
         contentDisposition.append(filename);
         contentDisposition.append("\"");
-        responseBuilder.header("Content-Disposition", contentDisposition.toString());
+        responseBuilder.header(HttpHeaders.CONTENT_DISPOSITION,
+                               contentDisposition.toString());
     }
 
     /**
@@ -185,8 +183,12 @@ public class ContentRest extends BaseRest {
                 String metadataValue = metadata.get(metadataName);
 
                 if(metadataName.equals(StorageProvider.METADATA_CONTENT_MIMETYPE)) {
-                    response.header(HttpHeaders.CONTENT_TYPE, metadataValue);
-                    contentTypeSet = true;
+                    if(validMimetype(metadataValue)) {
+                        response.header(HttpHeaders.CONTENT_TYPE, metadataValue);
+                        contentTypeSet = true;
+                    } else {
+                        response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
+                    }
                 } else if(metadataName.equals(StorageProvider.METADATA_CONTENT_SIZE)) {
                     response.header(HttpHeaders.CONTENT_LENGTH, metadataValue);
                     contentSizeSet = true;
@@ -199,7 +201,11 @@ public class ContentRest extends BaseRest {
                     contentModifiedSet = true;
                 } else if((metadataName.equals(HttpHeaders.CONTENT_TYPE))) {
                     if(!contentTypeSet) {
-                        response.header(metadataName, metadataValue);
+                        if(validMimetype(metadataValue)) {
+                            response.header(HttpHeaders.CONTENT_TYPE, metadataValue);
+                        } else {
+                            response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
+                        }
                     }
                 } else if(metadataName.equals(HttpHeaders.CONTENT_LENGTH)) {
                     if(!contentSizeSet) {
@@ -243,6 +249,20 @@ public class ContentRest extends BaseRest {
             }
         }
         return response.build();
+    }
+
+    protected boolean validMimetype(String mimetype) {
+        boolean valid = true;
+        if(mimetype == null || mimetype.equals("")) {
+            valid = false;
+        } else {
+            try {
+                MediaType.valueOf(mimetype);
+            } catch(IllegalArgumentException e) {
+                valid = false;
+            }
+        }
+        return valid;
     }
 
     /**
@@ -297,8 +317,12 @@ public class ContentRest extends BaseRest {
             contentMimeType = rHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
         }
         if(contentMimeType != null && !contentMimeType.equals("")) {
-            userMetadata.put(StorageProvider.METADATA_CONTENT_MIMETYPE,
-                             contentMimeType);
+            if(validMimetype(contentMimeType)) {
+                userMetadata.put(StorageProvider.METADATA_CONTENT_MIMETYPE,
+                                 contentMimeType);
+            } else {
+                throw new ResourceException("Invalid Mimetype");
+            }
         }
 
         contentResource.updateContentMetadata(spaceID,

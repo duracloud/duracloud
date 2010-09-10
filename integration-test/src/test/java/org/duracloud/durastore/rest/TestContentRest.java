@@ -12,15 +12,16 @@ import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Runtime test of content REST API. The durastore web application must be
@@ -238,6 +239,18 @@ public class TestContentRest extends BaseRestTester {
 
         // Metadata should be updated
         verifyMetadata(response, HttpHeaders.CONTENT_TYPE, testMime);
+
+        // Attempt to update to invalid mime
+        String invalidMime = "application*test";
+        headers = new HashMap<String, String>();
+        headers.put(HttpHeaders.CONTENT_TYPE, invalidMime);
+        postInvalidMetadataUpdate(url, contentId, headers);
+
+        response = BaseRestTester.restHelper.head(url);
+        checkResponse(response, HttpStatus.SC_OK);
+
+        // Metadata should not have been updated
+        verifyMetadata(response, HttpHeaders.CONTENT_TYPE, testMime);
     }
 
     private HttpResponse postMetadataUpdate(String url,
@@ -250,6 +263,18 @@ public class TestContentRest extends BaseRestTester {
         assertTrue(responseText.contains(removeParams(contentId)));
         assertTrue(responseText.contains("updated"));
 
+        return response;
+    }
+
+    private HttpResponse postInvalidMetadataUpdate(String url,
+                                                   String contentId,
+                                                   Map<String, String> headers)
+        throws Exception {
+        HttpResponse response =
+            BaseRestTester.restHelper.post(url, null, headers);
+        String responseText =
+            checkResponse(response, HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        assertNotNull(responseText);
         return response;
     }
 

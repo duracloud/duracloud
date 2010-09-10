@@ -15,6 +15,7 @@ public interface HttpHeaders extends javax.ws.rs.core.HttpHeaders {
 
     public static final String AGE = "Age";
     public static final String CONNECTION = "Connection";
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
     public static final String CONTENT_MD5 = "Content-MD5";
     public static final String CONTENT_RANGE = "Content-Range";
     public static final String PRAGMA = "Pragma";
