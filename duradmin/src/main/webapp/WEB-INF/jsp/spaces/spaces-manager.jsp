@@ -23,13 +23,9 @@
 			href="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.css"
 			type="text/css" media="screen" />
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.pack.js"></script>
+			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.js"></script>
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.pack.js"></script>
-
-		<!-- 
-		<script type="text/javascript" src="${pageContext.request.contextPath}/thirdparty/flowplayer/flowplayer-3.2.2.min.js"></script>
-	 	 -->
+			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.1.js"></script>
 
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/javascript/ui.metadataviewer.js"></script>
@@ -139,6 +135,8 @@
 				<h2 class="object-name">Multiple content items selected</h2>
 				<div class="button-bar">
 					<button class="featured delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete Selected Content Items</button>
+					<button id="edit-selected-content-items-button"><i class="pre pencil"></i>Edit Selected Content Items</button>
+	
 				</div>
 
 				</div>
@@ -221,9 +219,9 @@
 				</form>
 				</div>
 
-				<div id="edit-content-item-dialog" class="dialog"
+				<div id="edit-content-item-dialog" class="dialog" style="display:none"
 					title="Edit Content Item">
-				<h1>Edit Content Item</h1>
+				<h1 class="dc-dialog-title">Edit Content Item</h1>
 				<p class="hint">All fields are required.</p>
 				<form  id="edit-content-item-form" onsubmit="return false;">
 				<input type="hidden" name="spaceId"/>

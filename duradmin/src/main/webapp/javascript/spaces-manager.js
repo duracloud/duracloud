@@ -210,8 +210,76 @@ $(document).ready(function() {
 						dc.done();
 				}, 
 			});
+		});
+		
 
-			
+		//attach mimetype edit listener
+				
+		$("#edit-selected-content-items-button",detail).click(function(evt){
+			openContentItemDialog(function(){
+				var form = $("#edit-content-item-form");
+
+				if(form.valid()){
+					dc.busy("Preparing to update content items...");
+
+					$('#edit-content-item-dialog').dialog("close");
+
+					var contentItems = $("#content-item-list").selectablelist("getSelectedData");
+					var job = dc.util.createJob("update-content-items");	
+	
+					var contentItem;
+					for(i in contentItems){
+						contentItem = contentItems[i];
+						job.addTask({
+							_contentItem: {
+								contentId: contentItem.contentId, 
+								spaceId:   contentItem.spaceId,
+								storeId:   contentItem.storeId, 
+								contentMimetype: $("input[name=contentMimetype]", form).val()
+							},
+							execute: function(callback){
+								var that = this;
+								var citem = that._contentItem;
+								var serialize = function(obj){
+									var str = "";
+									for(p in obj){
+										str += "&" + p + "=" + escape(obj[p]);	
+									}
+									return str;
+								};
+								
+								var data = serialize(citem);
+								dc.store.UpdateContentItemMimetype(data, {
+									success:function(){
+										callback.success();
+									},
+									failure: function(message){
+										callback.failure();
+									},
+								});
+							},
+						});
+					}
+	
+					job.execute(
+						{ 
+							changed: function(job){
+								dc.log("changed:" + job)
+								var p = job.getProgress();
+								dc.busy("Updating content items: " + p.successes );
+							},
+	
+							cancelled: function(job){
+								dc.log("cancelled:" + job);
+								dc.done();
+							}, 
+							done: function(job){
+								dc.log("done:" + job);
+								dc.done();
+						}, 
+					});
+				}
+			});
 		});
 
 
@@ -908,75 +976,65 @@ $(document).ready(function() {
 		
 	});
 	
-	var updateContentItem = function(){
-		var form = $("#edit-content-item-form");
-		var data = form.serialize();
-		if(form.valid()){
-			var callback = {
-				success: function(contentItem){
-					dc.done();
-					loadContentItem(contentItem);
-				},
-				failure: function(text){
-					dc.done();
-					alert("failed to update content item.");
-				},
-			};
-			$('#edit-content-item-dialog').dialog("close");
-			dc.busy("Updating...");
-			dc.store.UpdateContentItemMimetype(data, callback)
-		}
+
+	var openContentItemDialog = function(saveFunction, contentItem){
+		var d = $('#edit-content-item-dialog');
+
+		// prepare edit dialog
+		d.find("input[name=storeId]").val(contentItem ? contentItem.storeId : "");
+		d.find("input[name=spaceId]").val(contentItem ? contentItem.spaceId : "");
+		d.find("input[name=contentId]").val(contentItem ? contentItem.contentId : "");
+		d.find("input[name=contentMimetype]").val(contentItem ? contentItem.metadata.mimetype : "");
+		
+		d.dialog({
+			autoOpen: false,
+			show: 'blind',
+			hide: 'blind',
+			height: 250,
+			resizable: false,
+			closeOnEscape:true,
+			modal: true,
+			width:500,
+			buttons: {
+				'Save': saveFunction,
+				Cancel: function() {
+					$(this).dialog('close');
+				}
+			},
+			close: function() {
+
+			},
+			open: function(e){
+				var form = $("#edit-content-item-form",this);
+				form.validate({
+					rules: {
+						contentMimetype: {
+						    required:true,
+							minlength: 3,
+						},
+					},
+					messages: {
+							
+					}
+				});
+				
+				$("input",this).bindEnterKey(saveFunction);
+				
+			}
+		});
+		
+		hideDialogTitleBars();
+		
+		d.dialog("open");
+		
 	};
 
-
-	$('#edit-content-item-dialog').dialog({
-		autoOpen: false,
-		show: 'blind',
-		hide: 'blind',
-		height: 250,
-		resizable: false,
-		closeOnEscape:true,
-		modal: true,
-		width:500,
-		buttons: {
-			'Save': updateContentItem,
-			Cancel: function() {
-				$(this).dialog('close');
-			}
-		},
-		close: function() {
-
-		},
-		open: function(e){
-			var form = $("#edit-content-item-form",this);
-			form.validate({
-				rules: {
-					contentMimetype: {
-					    required:true,
-						minlength: 3,
-					},
-				},
-				messages: {
-						
-				}
-			});
-			
-			$("input",this).bindEnterKey(updateContentItem);
-			
-		}
-	});
 	
 	
 	$('.add-content-item-button').live("click",
 			function(evt){
 				$("#add-content-item-dialog").dialog("open");
 			});
-	
-	$('.edit-content-item-button').live("click",
-			function(evt){
-				$("#edit-content-item-dialog").dialog("open");
-			});
-
 	
 	var scrollToCurrentSpace = function(){
 		var spacesList = $("#spaces-list");
@@ -1227,14 +1285,34 @@ $(document).ready(function() {
 			removeContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
 		});
 
-		// prepare edit dialog
-		var editDialog = $("#edit-content-item-dialog");
-		editDialog.find("input[name=storeId]").val(contentItem.storeId);
-		editDialog.find("input[name=spaceId]").val(contentItem.spaceId);
-		editDialog.find("input[name=contentId]").val(contentItem.contentId);
-		editDialog.find("input[name=contentMimetype]").val(mimetype);
-			
+		$(".edit-content-item-button",pane).click(
+				function(evt){
+					openContentItemDialog(function(){
+						var form = $("#edit-content-item-form");
+						var data = form.serialize();
+						if(form.valid()){
+							var callback = {
+								success: function(contentItem){
+									dc.done();
+									loadContentItem(contentItem);
+								},
+								failure: function(text){
+									dc.done();
+									alert("failed to update content item.");
+								},
+							};
+							$('#edit-content-item-dialog').dialog("close");
+							dc.busy("Updating...");
+							dc.store.UpdateContentItemMimetype(data, callback)
+						}
+					}, contentItem);
+				}
+			);			
+		
 		$("#detail-pane").replaceContents(pane,contentItemDetailLayoutOptions);
+
+	
+
 	};
 
 	var contentItemListStatusId = "#content-item-list-status";
@@ -1855,7 +1933,11 @@ $(document).ready(function() {
 	
 	
 	initSpacesManager();
-
-	// hides the title bar on all dialogs;
-	$(".ui-dialog-titlebar").hide();
+	
+	var hideDialogTitleBars = function(){
+		// hides the title bar on all dialogs;
+		$(".ui-dialog-titlebar").hide();
+	};
+	
+	hideDialogTitleBars();
 });
