@@ -112,7 +112,6 @@ var dc;
 				url: "/duradmin/spaces/content",
 				data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&contentId="+escape(contentItemId),
 				cache: false,
-				dataType:"json",
 				success: function(data){
 					callback.success(data.contentItem);
 			    },
