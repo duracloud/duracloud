@@ -837,9 +837,11 @@ $(document).ready(function() {
 	
 								var updateFunc =  function(data){
 									poller();
-									var contentId = data.contentItem.contentId;
-									if($("#content-item-list [id='"+contentId+"']").size() == 0){
-										addContentItemToList(data.contentItem);
+									var ci = data.contentItem;
+									var storeId = getCurrentProviderStoreId();
+									var spaceId = getCurrentSpaceId();
+									if( ci.storeId == storeId && ci.spaceId == spaceId && $("#content-item-list [id='"+ci.contentId+"']").size() == 0){
+										addContentItemToList(ci);
 									}
 								};
 									
