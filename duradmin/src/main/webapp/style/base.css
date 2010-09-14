@@ -614,7 +614,8 @@ input.dc-check-all
 }
 
 .detail-pane .segment-header, 
-#dynamic-panel .segment-header
+#dynamic-panel .segment-header,
+#add-remove-metadata-dialog .segment-header
 {
 	background:url(../images/bg_segment_header.gif) repeat-x top left;
 	border-bottom:1px solid #333;
@@ -627,26 +628,29 @@ input.dc-check-all
 }
 
 .detail-pane .segment-header:hover, 
-#dynamic-panel .segment-header:hover
+#dynamic-panel .segment-header:hover,
+#add-remove-metadata-dialog .segment-header:hover
 {
 	color:#fff;
 }
 
 .detail-pane .segment-content,
-#dynamic-panel .segment-content
+#dynamic-panel .segment-content,
+#add-remove-metadata-dialog .segment-content
 {
 	padding:10px;
 }
 
 .detail-pane .segment-content table,
-#dynamic-panel .segment-content table
-
+#dynamic-panel .segment-content table,
+#add-remove-metadata-dialog .segment-content table
 {
 	width:100%;
 }
 
 .detail-pane .segment-content table td, 
-#dynamic-panel .segment-content table td
+#dynamic-panel .segment-content table td,
+#add-remove-metadata-dialog .segment-content table td
 {
 	border-bottom:1px solid #555;
 	padding:4px 5px 4px 0;
@@ -655,27 +659,29 @@ input.dc-check-all
 .detail-pane .segment-content table td.label,
 span.label,
 #dynamic-panel .segment-content table td.label,
-
+#add-remove-metadata-dialog .segment-content table td.label
 {
 	color:#999;
 }
 
 .detail-pane .segment-content table td.label,
-#dynamic-panel .segment-content table td.label
+#dynamic-panel .segment-content table td.label,
+#add-remove-metadata-dialog .segment-content table td.label
 {
 	width:30%;
 }
 
 
 .detail-pane .segment-content table td.value,
-#dynamic-panel .segment-content table td.value
-
+#dynamic-panel .segment-content table td.value,
+#add-remove-metadata-dialog .segment-content table td.value
 {
 	width:70%;
 }
 
 .detail-pane .segment-content input,
-#dynamic-panel .segment-content input
+#dynamic-panel .segment-content input,
+#add-remove-metadata-dialog .segment-content input
 {
 	background-color:#484747;
 	border:1px solid #727576;

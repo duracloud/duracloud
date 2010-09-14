@@ -102,7 +102,9 @@ $.widget("ui.metadataviewer",
 
 			_removeSuccess: function(context, data){
 				$(".name",context.element).each(function(index,value){
-					if($(value).html() == data.name){
+					var valueElement = $(value).siblings(".value").first();
+					var val = valueElement.text();
+					if($(value).html() == data.name && val == data.value){
 						context._animateRemove(
 									$(value).parent(), 
 									function(){$(value).parent().remove()});

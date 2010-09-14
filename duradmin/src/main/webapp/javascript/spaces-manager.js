@@ -160,6 +160,24 @@ $(document).ready(function() {
 
 	};
 
+	var getSelectedContentItems = function(){
+		var contentItems =  $("#content-item-list").selectablelist("getSelectedData");
+		var spaceId = getCurrentSpaceId();
+		var storeId = getCurrentProviderStoreId();
+		for(i in contentItems){
+			var ci = contentItems[i];
+			if(ci.spaceId == undefined){
+				ci.spaceId = spaceId;
+			}
+			
+			if(ci.storeId == undefined){
+				ci.storeId = storeId;
+			}
+		};
+		
+		return contentItems;
+	};
+	
 	var showMultiContentItemDetail = function(){
 		var detail = $("#contentItemMultiSelectPane").clone();
 		// attach delete button listener
@@ -168,16 +186,12 @@ $(document).ready(function() {
 				return;
 			}
 			dc.busy("Deleting Content Items...");
-			var contentItems = $("#content-item-list").selectablelist("getSelectedData");
+			var contentItems = getSelectedContentItems();
 			var job = dc.util.createJob("delete-content-items");	
 
 			for(i in contentItems){
 				job.addTask({
-					_contentItem: {
-						contentId: contentItems[i].contentId, 
-						spaceId:getCurrentSpaceId(),
-						storeId:getCurrentProviderStoreId() 
-					},
+					_contentItem: contentItems[i],
 					execute: function(callback){
 						var that = this;
 						dc.store.DeleteContentItem(this._contentItem, {
@@ -215,7 +229,7 @@ $(document).ready(function() {
 
 		//attach mimetype edit listener
 				
-		$("#edit-selected-content-items-button",detail).click(function(evt){
+		$(".edit-selected-content-items-button",detail).click(function(evt){
 			openContentItemDialog(function(){
 				var form = $("#edit-content-item-form");
 
@@ -224,19 +238,16 @@ $(document).ready(function() {
 
 					$('#edit-content-item-dialog').dialog("close");
 
-					var contentItems = $("#content-item-list").selectablelist("getSelectedData");
+					var contentItems = getSelectedContentItems();
 					var job = dc.util.createJob("update-content-items");	
 	
 					var contentItem;
 					for(i in contentItems){
 						contentItem = contentItems[i];
+						contentItem.contentMimetype = $("input[name=contentMimetype]", form).val();
+
 						job.addTask({
-							_contentItem: {
-								contentId: contentItem.contentId, 
-								spaceId:   contentItem.spaceId,
-								storeId:   contentItem.storeId, 
-								contentMimetype: $("input[name=contentMimetype]", form).val()
-							},
+							_contentItem: contentItem,
 							execute: function(callback){
 								var that = this;
 								var citem = that._contentItem;
@@ -282,10 +293,262 @@ $(document).ready(function() {
 			});
 		});
 
+		
+		$(".add-remove-metadata-button",detail).click(function(evt){
+			prepareMetadataDialog();
+		});
+
+		
 
 		$("#detail-pane").replaceContents(detail, contentItemDetailLayoutOptions);
 
 	
+	};
+	
+	var prepareMetadataDialog = function(){
+		aggregateMetadataFromSelection({
+			success: function(data){
+				loadMetadataDialog(data);
+			},
+			failure: function(text){
+				alert("unable to load selection:" + text);
+			},
+		});
+
+	};
+
+	var appendToListIfNew = function(newItems, itemList, equalsFunc) {
+		var toAppend = [];
+		var i,j,ni,item,append;
+		for(i = 0; i < newItems.length; i++){
+			ni = newItems[i];
+			if(itemList.length == 0){
+				toAppend.push(ni);
+			}else{
+				append = true;
+				for(j = 0; j <  itemList.length; j++){
+					item = itemList[j];
+					if(equalsFunc != undefined){
+						if(equalsFunc(ni,item)){
+							append = false;
+							break;
+						}
+					}else{
+						if(ni == item){
+							append = false;
+							break;
+						}
+					}
+				}
+				
+				if(append){
+					toAppend.push(ni);
+				}
+			}
+		}
+
+		for(i = 0; i < toAppend.length; i++){
+			itemList.push(toAppend[i]);
+		}
+	};
+
+
+	var aggregateMetadataFromSelection = function(fcallback){
+		
+		dc.busy("Loading selection...");
+		var contentItems = getSelectedContentItems();
+		var metadataLists = [];
+		var tagLists = [];
+		
+		
+		var job = dc.util.createJob("load-content-items");	
+		for(i in contentItems){
+			job.addTask({
+				_contentItem: contentItems[i],
+				execute: function(callback){
+					var that = this;
+					var ci = that._contentItem;
+					dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, {
+						success:function(contentItem){
+							metadataLists.push(contentItem.extendedMetadata);
+							tagLists.push(contentItem.metadata.tags);
+							callback.success();
+						},
+						failure: function(message){
+							callback.failure();
+						},
+					});
+				},
+			});
+		}
+
+		job.execute({ 
+			changed: function(job){
+				dc.debug("changed:" + job)
+				var p = job.getProgress();
+				dc.busy("Loaded " + p.successes + " of " + p.total);
+			},
+			cancelled: function(job){
+				dc.debug("cancelled:" + job);
+				dc.done();
+			}, 
+			done: function(job){
+				dc.log("done:" + job);
+				dc.done();
+				var metadata = [];
+				var tags = [];
+				var i;
+				for(i = 0; i < metadataLists.length; i++){
+					appendToListIfNew(metadataLists[i],metadata, function(a,b){ return a.name == b.name && a.value == b.value;});
+				}
+				
+				for(i = 0; i < tagLists.length; i++){
+					appendToListIfNew(tagLists[i],tags);
+				}
+				
+				fcallback.success({
+					metadata: metadata,
+					tags: tags,
+				});
+			}, 
+		});
+
+		
+	};
+	
+	var loadMetadataDialog = function(data){
+		var metadataToBeAdded = [];
+		var metadataToBeRemoved = [];
+		var tagsToBeAdded = [];
+		var tagsToBeRemoved = [];
+
+		var mp = createMetadataPane(data.metadata);
+		
+		var equals = function(a,b){
+			return (a.name == b.name && a.value == b.value);
+		};
+
+		var removeValueFromList = function(value, list, equals){
+			var i,el;
+			for(i in list){
+				el = list[i];
+				if(equals != undefined ? equals(value, el) : value == el){
+					list.splice(i,1);
+					return el;
+				}
+			}
+			return null;
+		};
+		
+		
+		$(mp).bind("add", function(evt, future){
+			evt.stopPropagation();
+			var value = future.value;
+			future.success();
+			//if in the removed list, remove from remove list
+			removeValueFromList(value,metadataToBeRemoved, equals);
+			removeValueFromList(value,metadataToBeAdded, equals);
+			metadataToBeAdded.push(value);
+		}).bind("remove", function(evt, future){
+			evt.stopPropagation();
+			future.success();
+			var value = future.value;
+			if(removeValueFromList(value, metadataToBeAdded, equals) == null){
+				removeValueFromList(value, metadataToBeRemoved, equals);
+				metadataToBeRemoved.push(value);
+			}
+		});
+
+		var tag = createTagPane(data.tags);
+
+		$(tag).bind("add", function(evt, future){
+			evt.stopPropagation();
+			var value = future.value[0];
+			future.success();
+			removeValueFromList(value,tagsToBeRemoved);
+			removeValueFromList(value,tagsToBeAdded);
+			tagsToBeAdded.push(value);
+		}).bind("remove", function(evt, future){
+			evt.stopPropagation();
+			var value = future.value;
+			future.success();
+			if(removeValueFromList(value, tagsToBeAdded) == null){
+				removeValueFromList(value, tagsToBeRemoved);
+				tagsToBeRemoved.push(value);
+			}
+		});
+
+		
+		var saveFunction = function(){
+			var msg = "Applying the following changes: \n";
+			for(i in metadataToBeRemoved){
+				var m = metadataToBeRemoved[i];
+				msg +="\tremoving: " + m.name + "=" + m.value + "\n";
+			}
+
+			for(i in tagsToBeRemoved){
+				msg +="\tremoving: " + tagsToBeRemoved[i] + "\n";
+			}
+
+			for(i in metadataToBeAdded){
+				var m = metadataToBeAdded[i];
+				msg +="\tadding: " + m.name + "=" + m.value + "\n";
+			}
+
+			for(i in tagsToBeAdded){
+				msg +="\tadding: " + tagsToBeAdded[i] + "\n";
+			}
+			
+			if(confirm(msg)){
+				alert("not implemented!");
+			}
+			
+			
+			d.dialog("close");
+
+		};
+		
+		
+		var d = initializeMetadataDialog(saveFunction);
+
+
+		var pane = $(".center", d);
+		pane.append(mp);
+		pane.append(tag);
+
+		dc.done();
+		d.dialog("open");
+		
+	};
+
+	var initializeMetadataDialog = function(saveFunction){
+		var d = $("#add-remove-metadata-dialog");
+		d.dialog({
+			autoOpen: false,
+			show: 'blind',
+			hide: 'blind',
+			height: 600,
+			resizable: false,
+			closeOnEscape:true,
+			modal: true,
+			width:500,
+			buttons: {
+				'Save': saveFunction,
+				Cancel: function() {
+					$(this).dialog('close');
+				}
+			},
+			close: function() {
+
+			},
+			open: function(e){
+				
+			}
+		});
+		hideDialogTitleBars();
+		var pane = $(".center", d);
+		pane.empty();
+		return d;
 	};
 
 	var showGenericDetailPane = function(){
@@ -295,23 +558,32 @@ $(document).ready(function() {
 	// ////////////////////////////////////////
 	// //functions for loading metadata, tags and properties
 
-	var loadMetadataPane = function(target, extendedMetadata){
+	var createMetadataPane = function(extendedMetadata){
 		var viewerPane = $.fn.create("div")
 						.metadataviewer({title: "Metadata"})
 						.metadataviewer("load",extendedMetadata);
+		return viewerPane;
+	};
 
+	var createTagPane = function(tags){
+		var viewerPane = $.fn.create("div")
+						.tagsviewer({title: "Tags"})
+						.tagsviewer("load",tags);
+		return viewerPane;
+	};
+
+	var loadMetadataPane = function(target, extendedMetadata){
+		var viewerPane = createMetadataPane(extendedMetadata);
 		$(".center", target).append(viewerPane);
 		return viewerPane;
 	};
 
 	var loadTagPane = function(target, tags){
-		var viewerPane = $.fn.create("div")
-						.tagsviewer({title: "Tags"})
-						.tagsviewer("load",tags);
+		var viewerPane = createTagPane(tags);
 		$(".center", target).append(viewerPane);
 		return viewerPane;
 	};
-	
+
 	var loadProperties = function(target, /* array */ properties){
 		var propertiesDiv = $(".detail-properties", target).first();
 		
@@ -1245,7 +1517,6 @@ $(document).ready(function() {
 		$(".delete-content-item-button",pane).click(function(evt){
 			deleteContentItem(evt,contentItem);
 		});
-		
 		
 		var mimetype = contentItem.metadata.mimetype;
 		

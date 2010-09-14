@@ -134,8 +134,9 @@
 				<h1>Content Items</h1>
 				<h2 class="object-name">Multiple content items selected</h2>
 				<div class="button-bar">
-					<button class="featured delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete Selected Content Items</button>
-					<button id="edit-selected-content-items-button"><i class="pre pencil"></i>Edit Selected Content Items</button>
+					<button class="featured delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete</button>
+					<button class="edit-selected-content-items-button"><i class="pre pencil"></i>Edit</button>
+					<button class="add-remove-metadata-button"><i class="pre pencil"></i>Edit Metadata</button>
 	
 				</div>
 
@@ -238,6 +239,18 @@
 				</div>
 				</form>
 				</div>
+
+
+				<div id="add-remove-metadata-dialog" class="dialog" style="display:none;overflow:auto"
+					title="Add/Remove Metadata and Tags">
+				<h1 class="dc-dialog-title">Add/Remove Metadata and Tags</h1>
+				<p class="hint">[dialog instructions here]</p>
+					<div class="center">
+					
+					</div>				
+				</div>
+
+
 			</tiles:putAttribute>
 
 			<tiles:putAttribute name="main-footer">
