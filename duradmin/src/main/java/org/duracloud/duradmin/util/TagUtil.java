@@ -72,4 +72,16 @@ public class TagUtil {
         metadata.put(TAGS, formatTags(list));
         return result;
     }
+
+	public static void remove(String[] tags, Map<String, String> metadata) {
+		for(int i = 0; i < tags.length; i++){
+			removeTag(tags[i], metadata);
+		}
+	}
+
+	public static void add(String[] tags,  Map<String, String> metadata) {
+		for(int i = 0; i < tags.length; i++){
+			addTag(tags[i], metadata);
+		}
+	}
 }

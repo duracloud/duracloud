@@ -118,7 +118,7 @@ $(document).ready(function() {
 			if(!dc.confirm("Are you sure you want to delete multiple spaces?")){
 				return;
 			}
-			dc.busy("Deleting spaces");
+			dc.busy("Deleting spaces", {modal: true});
 			var spaces = $("#spaces-list").selectablelist("getSelectedData");
 			var job = dc.util.createJob("delete-spaces");	
 
@@ -145,7 +145,7 @@ $(document).ready(function() {
 					changed: function(job){
 						dc.log("changed:" + job)
 						var p = job.getProgress();
-						dc.busy("Deleting spaces: " + p.successes );
+						dc.busy("Deleting spaces: " + p.successes, {modal: true});
 					},
 					cancelled: function(job){
 						dc.log("cancelled:" + job);
@@ -156,6 +156,11 @@ $(document).ready(function() {
 						dc.done();
 				}, 
 			});
+		});
+
+		
+		$(".add-remove-metadata-button",detail).click(function(evt){
+			prepareMetadataDialog("space");
 		});
 
 	};
@@ -177,7 +182,22 @@ $(document).ready(function() {
 		
 		return contentItems;
 	};
+
 	
+	var getSelectedSpaces = function(){
+		var spaces =  $("#spaces-list").selectablelist("getSelectedData");
+		var storeId = getCurrentProviderStoreId();
+		var i;
+		for(i = 0; i < spaces.length; i++){
+			var s = spaces[i];
+			
+			if(s.storeId == undefined){
+				s.storeId = storeId;
+			}
+		};
+		return spaces;
+	};
+
 	var showMultiContentItemDetail = function(){
 		var detail = $("#contentItemMultiSelectPane").clone();
 		// attach delete button listener
@@ -185,11 +205,11 @@ $(document).ready(function() {
 			if(!dc.confirm("Are you sure you want to delete multiple content items?")){
 				return;
 			}
-			dc.busy("Deleting Content Items...");
+			dc.busy("Deleting content items...", {modal: true});
 			var contentItems = getSelectedContentItems();
 			var job = dc.util.createJob("delete-content-items");	
-
-			for(i in contentItems){
+			var i;
+			for(i = 0; i < contentItems.length; i++){
 				job.addTask({
 					_contentItem: contentItems[i],
 					execute: function(callback){
@@ -212,7 +232,7 @@ $(document).ready(function() {
 					changed: function(job){
 						dc.log("changed:" + job)
 						var p = job.getProgress();
-						dc.busy("Deleting content items: " + p.successes );
+						dc.busy("Deleting content items: " + p.successes, {modal: true});
 					},
 
 					cancelled: function(job){
@@ -234,15 +254,15 @@ $(document).ready(function() {
 				var form = $("#edit-content-item-form");
 
 				if(form.valid()){
-					dc.busy("Preparing to update content items...");
+					dc.busy("Preparing to update content items...", {modal: true});
 
 					$('#edit-content-item-dialog').dialog("close");
 
 					var contentItems = getSelectedContentItems();
 					var job = dc.util.createJob("update-content-items");	
 	
-					var contentItem;
-					for(i in contentItems){
+					var contentItem,i;
+					for(i = 0; i < contentItems.length; i++){
 						contentItem = contentItems[i];
 						contentItem.contentMimetype = $("input[name=contentMimetype]", form).val();
 
@@ -251,14 +271,6 @@ $(document).ready(function() {
 							execute: function(callback){
 								var that = this;
 								var citem = that._contentItem;
-								var serialize = function(obj){
-									var str = "";
-									for(p in obj){
-										str += "&" + p + "=" + escape(obj[p]);	
-									}
-									return str;
-								};
-								
 								var data = serialize(citem);
 								dc.store.UpdateContentItemMimetype(data, {
 									success:function(){
@@ -277,7 +289,7 @@ $(document).ready(function() {
 							changed: function(job){
 								dc.log("changed:" + job)
 								var p = job.getProgress();
-								dc.busy("Updating content items: " + p.successes );
+								dc.busy("Updating content items: " + p.successes, {modal: true});
 							},
 	
 							cancelled: function(job){
@@ -295,7 +307,7 @@ $(document).ready(function() {
 
 		
 		$(".add-remove-metadata-button",detail).click(function(evt){
-			prepareMetadataDialog();
+			prepareMetadataDialog("contentItem");
 		});
 
 		
@@ -305,10 +317,23 @@ $(document).ready(function() {
 	
 	};
 	
-	var prepareMetadataDialog = function(){
-		aggregateMetadataFromSelection({
+	var prepareMetadataDialog = function(targetListDataType){
+		var items, getFunction;
+		if(targetListDataType == "contentItem"){
+			items = getSelectedContentItems();
+			getFunction = function(ci,callback){
+				dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, callback);
+			};
+		}else{
+			items = getSelectedSpaces();
+			getFunction = function(space,callback){
+				dc.store.GetSpace(space.storeId, space.spaceId, callback);
+			};
+		}
+
+		aggregateMetadataFromSelection(items,getFunction,{
 			success: function(data){
-				loadMetadataDialog(data);
+				loadMetadataDialog(data,targetListDataType);
 			},
 			failure: function(text){
 				alert("unable to load selection:" + text);
@@ -353,31 +378,28 @@ $(document).ready(function() {
 	};
 
 
-	var aggregateMetadataFromSelection = function(fcallback){
-		
-		dc.busy("Loading selection...");
-		var contentItems = getSelectedContentItems();
+	var aggregateMetadataFromSelection = function(items, getFunction, fcallback){
+		dc.busy("Loading selection...", {modal: true});
 		var metadataLists = [];
 		var tagLists = [];
-		
-		
 		var job = dc.util.createJob("load-content-items");	
-		for(i in contentItems){
+		for(i in items){
 			job.addTask({
-				_contentItem: contentItems[i],
+				_item: items[i],
 				execute: function(callback){
-					var that = this;
-					var ci = that._contentItem;
-					dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, {
-						success:function(contentItem){
-							metadataLists.push(contentItem.extendedMetadata);
-							tagLists.push(contentItem.metadata.tags);
-							callback.success();
-						},
-						failure: function(message){
-							callback.failure();
-						},
-					});
+					getFunction(
+							this._item,
+							{
+								success:function(obj){
+									metadataLists.push(obj.extendedMetadata);
+									tagLists.push(obj.metadata.tags);
+									callback.success();
+								},
+								failure: function(message){
+									callback.failure();
+								},
+							}					
+					);
 				},
 			});
 		}
@@ -386,7 +408,7 @@ $(document).ready(function() {
 			changed: function(job){
 				dc.debug("changed:" + job)
 				var p = job.getProgress();
-				dc.busy("Loaded " + p.successes + " of " + p.total);
+				dc.busy(p.successes  + " content items loaded...", {modal: true});
 			},
 			cancelled: function(job){
 				dc.debug("cancelled:" + job);
@@ -416,7 +438,7 @@ $(document).ready(function() {
 		
 	};
 	
-	var loadMetadataDialog = function(data){
+	var loadMetadataDialog = function(data, targetListType){
 		var metadataToBeAdded = [];
 		var metadataToBeRemoved = [];
 		var tagsToBeAdded = [];
@@ -500,12 +522,25 @@ $(document).ready(function() {
 			}
 			
 			if(confirm(msg)){
-				alert("not implemented!");
-			}
-			
-			
-			d.dialog("close");
+				var params = {
+					metadataToRemove: metadataToBeRemoved, 
+					metadataToAdd:    metadataToBeAdded,
+					tagsToRemove:     tagsToBeRemoved, 
+					tagsToAdd:        tagsToBeAdded,
+				};
+				
+				if(targetListType == "contentItem"){
+					params.contentItems = getSelectedContentItems();
+					bulkUpdateContentMetadata(params);
+				}else{
+					params.spaces = getSelectedSpaces();
+					bulkUpdateSpaceMetadata(params);
+				}
 
+				d.dialog("close");
+				dc.busy("Preparing to perform update...", {modal: true});
+				
+			}
 		};
 		
 		
@@ -520,7 +555,73 @@ $(document).ready(function() {
 		d.dialog("open");
 		
 	};
+	
+	var serialize = function(obj){
+		var str = "";
+		for(p in obj){
+			str += "&" + p + "=" + escape(obj[p]);	
+		}
+		return str;
+	};
+	
+	var bulkUpdateContentMetadata = function(params){
+		var job = dc.util.createJob("bulk-update-content-metadata");	
+		var contentItems = params.contentItems;
+		var i;
+		for(i = 0; i < contentItems.length; i++){
+			var contentItem = contentItems[i];
+			job.addTask({
+				_contentItem: contentItem,
+				execute: function(callback){
+					var that = this;
+					var citem = that._contentItem;
+					addRemoveContentItemMetadata(citem.spaceId, citem.contentId, params,callback);
+				},
+			});
+		}
+		job.execute(createGenericJobCallback("Updating content items: "));
+	};
 
+	var bulkUpdateSpaceMetadata = function(params){
+		var job = dc.util.createJob("bulk-update-space-metadata");	
+		var spaces = params.spaces;
+		var i;
+		for(i = 0; i < spaces.length; i++){
+			var space = spaces[i];
+			job.addTask({
+				_space: space,
+				execute: function(callback){
+					addRemoveSpaceMetadata(this._space.spaceId, params,callback);
+				},
+			});
+		}
+		job.execute(createGenericJobCallback("Updating spaces: "));
+	};
+
+	var createGenericJobCallback = function(updateText){
+		return { 
+			changed: function(job){
+				dc.log("changed:" + job);
+				var p = job.getProgress();
+				dc.busy(updateText + p.successes, {modal: true});
+			},
+			cancelled: function(job){
+				dc.log("cancelled:" + job);
+				dc.done();
+			}, 
+			done: function(job){
+				var p = job.getProgress();
+				dc.log("done:" + job);
+				var message = "Successfully updated " + p.successes + " item(s).";
+				if(p.failures > 0){
+					message +=" However there were some errors: " + p.failures + " were not updated successfully.";
+				}
+				dc.done(message);
+				
+			},
+		};
+	};
+	
 	var initializeMetadataDialog = function(saveFunction){
 		var d = $("#add-remove-metadata-dialog");
 		d.dialog({
@@ -1026,7 +1127,7 @@ $(document).ready(function() {
 						space,
 						{
 							begin: function(){
-								dc.busy( "Adding space...");
+								dc.busy( "Adding space...",{modal: true});
 							},
 							success: function(space){
 								dc.done();
@@ -1369,7 +1470,7 @@ $(document).ready(function() {
 		}
 		dc.store.DeleteContentItem(contentItem, {
 			begin: function(){
-				dc.busy( "Deleting content item...");
+				dc.busy( "Deleting content item...", {modal: true});
 			},
 			success:function(){
 				dc.done();
@@ -1390,7 +1491,7 @@ $(document).ready(function() {
 		
 		dc.store.DeleteSpace(space, {
 			begin: function(){
-				dc.busy( "Deleting space...");
+				dc.busy( "Deleting space...",{modal: true});
 			},
 			
 			success:function(){
@@ -1573,7 +1674,7 @@ $(document).ready(function() {
 								},
 							};
 							$('#edit-content-item-dialog').dialog("close");
-							dc.busy("Updating...");
+							dc.busy("Updating mime type", {modal: true});
 							dc.store.UpdateContentItemMimetype(data, callback)
 						}
 					}, contentItem);
@@ -1791,7 +1892,7 @@ $(document).ready(function() {
 	var toggleSpaceAccess = function(space, callback){
 		var access = space.metadata.access;
 		var newAccess = (access == "OPEN") ? "CLOSED":"OPEN";
-		dc.busy( "Changing space access..."); 
+		dc.busy( "Changing space access...", {modal: true}); 
 		dc.ajax({ url: "/duradmin/spaces/space?storeId="+space.storeId+"&spaceId="+escape(space.spaceId), 
 			data: "access="+newAccess+"&action=put&method=changeAccess",
 			type: "POST",
@@ -1849,6 +1950,40 @@ $(document).ready(function() {
 		dc.ajax(createSpaceMetadataCall(spaceId, data, "removeTag", callback));		
 	};
 
+	var addRemoveSpaceMetadata = function(spaceId, params,callback){
+		dc.ajax(createSpaceMetadataCall(spaceId, formatBulkMetadataUpdateParams(params), "addRemove", callback));		
+	};
+	
+	var formatBulkMetadataUpdateParams = function(params){
+		var data = "";
+		data += formatMetadataList(params.metadataToRemove, "remove");
+		data += formatMetadataList(params.metadataToAdd, "add");
+		data += formatParamList(params.tagsToRemove, "tag", "remove");
+		data += formatParamList(params.tagsToAdd, "tag", "add");
+		return data;
+	};
+
+	var formatMetadataList = function(list, fieldNameModifier){
+		var i, list,item,data;
+		data = "";
+		for(i = 0; i < list.length; i++){
+			item = list[i];
+			data += "&metadata-name-"+fieldNameModifier+"-" + i + "=" + escape(item.name);
+			data += "&metadata-value-"+fieldNameModifier+"-" + i + "=" + escape(item.value);
+		}
+		return data;
+	};
+
+	var formatParamList = function(list, fieldPrefix, fieldNameModifier){
+		var i, list,item,data;
+		data = "";
+		for(i = 0; i < list.length; i++){
+			item = list[i];
+			data += "&" + fieldPrefix + "-" + fieldNameModifier + "-"+ i + "=" + escape(item);
+		}
+		return data;
+	};
+
 	// ///////////////////////////////////////////////////////////////////////////////
 	// /content metadata functions
 	var createContentItemMetadataCall = function(spaceId, contentId, data, method,callback){
@@ -1889,6 +2024,16 @@ $(document).ready(function() {
 		dc.ajax(createContentItemMetadataCall(spaceId, contentId, data, "removeTag", callback));		
 	};
 	
+	var addRemoveContentItemMetadata = function(spaceId, contentId, params,callback){
+		dc.ajax(
+			createContentItemMetadataCall(
+				spaceId,
+				contentId,
+				formatBulkMetadataUpdateParams(params), 
+				"addRemove", 
+				callback));		
+	};
+
 
 	$("#content-item-list").selectablelist({selectable: true});
 	$("#spaces-list").selectablelist({selectable: true});
@@ -2038,7 +2183,7 @@ $(document).ready(function() {
 		clearSpaces();
 		dc.store.GetSpaces(providerId,{
 			begin: function(){
-				dc.busy("Loading spaces...");
+				dc.busy("Loading spaces...", {modal: true});
 				$("#space-list-status").html("Loading...").fadeIn("slow");
 			},
 			success: function(spaces){

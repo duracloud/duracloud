@@ -304,18 +304,30 @@ $(document).ready(function(){
 		
 
 		
-		dc.busy = function(message){
+		dc.busy = function(message, options){
 			var d = 
 			   $("#busy-dialog");
+			var modal = false;
+			var buttons = undefined;
 			
-			d.dialog({
+			if(options != undefined){
+				if(options.modal != undefined){
+					modal = options.modal;
+				}
+				
+				if(options.buttons != undefined){
+					buttons = options.buttons;
+				}
+			}
+			
+			var dOptions = {
 					autoOpen: false,
 					show: 'fade',
 					hide: 'fade',
 					resizable: false,
 					height: 100,
 					closeOnEscape:false,
-					modal: false,
+					modal: modal != undefined ? modal : false,
 					width:300,
 					close: function() {
 						
@@ -323,7 +335,13 @@ $(document).ready(function(){
 					
 					open: function(e){
 					},
-				   });
+			};
+			
+			if(buttons != undefined){
+				dOptions.buttons = buttons;
+			}
+			
+			d.dialog(dOptions);
 			
 			$(".ui-dialog-titlebar").hide();
 			
@@ -332,9 +350,33 @@ $(document).ready(function(){
 		   d.dialog("open");
 		};
 		
-		dc.done = function(){
-			//$("#page-content").glasspane("hide");
+		dc.done = function(message){
 			$("#busy-dialog").dialog("close");
+
+			if(message != undefined){
+				var d = $("#message-dialog");
+				d.dialog({
+					autoOpen: false,
+					show: 'fade',
+					hide: 'fade',
+					resizable: false,
+					height: 100,
+					closeOnEscape:true,
+					modal: false,
+					width:300,
+					buttons: { 
+						"Close" : function(){ 
+							$(this).dialog('close');
+						 },
+					},
+					close: function() {},
+					open: function(e){},
+				});
+				
+				$(".ui-dialog-titlebar").hide();
+			   $("#message-dialog-title").html(message);
+			   d.dialog("open");
+			}
 		};
 
 		

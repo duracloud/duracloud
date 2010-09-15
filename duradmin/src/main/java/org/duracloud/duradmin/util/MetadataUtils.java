@@ -102,24 +102,74 @@ public class MetadataUtils {
 
 	public static void handle(String method, String context, Map<String, String> metadata,
 			HttpServletRequest request) {
-    	String tag = request.getParameter("tag");
-    	String name = request.getParameter("metadata-name");
-    	String value = request.getParameter("metadata-value");
-    	if(method.equals("addTag")){
-        	TagUtil.addTag(tag, metadata);
-        	log.info("added tag [{}] to [{}]", tag, context);
-        }else if(method.equals("removeTag")){
-        	TagUtil.removeTag(tag, metadata);
-        	log.info("removed tag [{}] from [{}]", tag, context);
-        }else if(method.equals("addMetadata")){
-        	MetadataUtils.add(name, value, metadata);
-        	log.info("added metadata [{}] to  [{}]", name+":"+value,context);
-        }else if(method.equals("removeMetadata")){
-        	MetadataUtils.remove(name,metadata);
-        	log.info("removed metadata [{}] from  [{}]", name+":"+value,context);
-        }else{
-        	log.warn("unexpected method parameter: " + method);
-        }
+		if(method.equals("addRemove")){
+			//remove metadata;
+			String[] names = extractList("metadata-name-remove", request);
+			String[] values = extractList("metadata-value-remove", request);
+			MetadataUtils.remove(names, values, metadata);
+
+			//add metadata
+			names = extractList("metadata-name-add", request);
+			values = extractList("metadata-value-add", request);
+			MetadataUtils.add(names, values, metadata);
+			
+			//remove tags
+			String[] tags = extractList("tag-remove", request);
+			TagUtil.remove(tags, metadata);
+			//add tags
+			tags = extractList("tag-add", request);
+			TagUtil.add(tags,metadata);
+			
+		}else{
+	    	String tag = request.getParameter("tag");
+	    	String name = request.getParameter("metadata-name");
+	    	String value = request.getParameter("metadata-value");
+	    	if(method.equals("addTag")){
+	        	TagUtil.addTag(tag, metadata);
+	        	log.info("added tag [{}] to [{}]", tag, context);
+	        }else if(method.equals("removeTag")){
+	        	TagUtil.removeTag(tag, metadata);
+	        	log.info("removed tag [{}] from [{}]", tag, context);
+	        }else if(method.equals("addMetadata")){
+	        	MetadataUtils.add(name, value, metadata);
+	        	log.info("added metadata [{}] to  [{}]", name+":"+value,context);
+	        }else if(method.equals("removeMetadata")){
+	        	MetadataUtils.remove(name,metadata);
+	        	log.info("removed metadata [{}] from  [{}]", name+":"+value,context);
+	        }else{
+	        	log.warn("unexpected method parameter: " + method);
+	        }
+		}
+	}
+
+	private static String[] extractList(String prefix,
+			HttpServletRequest request) {
+		List<String> values = new LinkedList<String>();
+		int count = 0;
+		while(true){
+			String value = request.getParameter(prefix + "-" + count);
+			if(value != null){
+				values.add(value);
+			}else{
+				break;
+			}
+			count++;
+		}
+		return values.toArray(new String[0]);
+	}
+
+	private static void add(String[] names, String[] values,
+			Map<String, String> metadata) {
+		for(int i = 0; i < names.length; i++){
+			add(names[i], values[i], metadata);
+		}
+	}
+
+	private static void remove(String[] names, String[] values,
+			Map<String, String> metadata) {
+		for(int i = 0; i < names.length; i++){
+			remove(names[i], metadata);
+		}
 	}
 
 }

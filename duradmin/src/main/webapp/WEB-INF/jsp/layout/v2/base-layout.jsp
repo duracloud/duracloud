@@ -44,4 +44,10 @@
 	
 	</div>
 </div>
+<div id="message-dialog" class="dialog" style="display:none">
+	<h2 id="message-dialog-title"></h2>
+	<div id="message-dialog-content">
+	
+	</div>
+</div>
 	
