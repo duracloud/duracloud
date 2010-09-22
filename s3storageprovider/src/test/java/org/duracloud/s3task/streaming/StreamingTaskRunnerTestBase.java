@@ -7,10 +7,10 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.S3Service;
 import org.junit.After;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.List;
 public class StreamingTaskRunnerTestBase {
 
     protected S3StorageProvider s3Provider;
-    protected S3Service s3Service;
+    protected AmazonS3Client s3Client;
     protected CloudFrontService cfService;
 
     @After
@@ -31,8 +31,8 @@ public class StreamingTaskRunnerTestBase {
         EasyMock.verify(s3Provider);
         s3Provider = null;
 
-        EasyMock.verify(s3Service);
-        s3Service = null;
+        EasyMock.verify(s3Client);
+        s3Client = null;
 
         EasyMock.verify(cfService);
         cfService = null;
@@ -62,8 +62,8 @@ public class StreamingTaskRunnerTestBase {
         return provider;
     }
 
-    protected S3Service createMockS3ServiceV1() throws Exception {
-        S3Service service = EasyMock.createMock(S3Service.class);
+    protected AmazonS3Client createMockS3ServiceV1() throws Exception {
+        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
 
         EasyMock.replay(service);
         return service;

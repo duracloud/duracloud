@@ -7,23 +7,32 @@
  */
 package org.duracloud.s3storage;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.S3ServiceException;
-import org.jets3t.service.acl.AccessControlList;
-import org.jets3t.service.model.S3Bucket;
-import org.jets3t.service.model.S3Object;
+import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,7 +43,6 @@ import java.util.TimeZone;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
 import static org.duracloud.storage.util.StorageProviderUtil.loadMetadata;
 import static org.duracloud.storage.util.StorageProviderUtil.storeMetadata;
 
@@ -50,15 +58,15 @@ public class S3StorageProvider extends StorageProviderBase {
     protected static final int MAX_ITEM_COUNT = 1000;
 
     private String accessKeyId = null;
-    private S3Service s3Service = null;
+    private AmazonS3Client s3Client = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
-        this(S3ProviderUtil.getS3Service(accessKey, secretKey), accessKey);
+        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey), accessKey);
     }
 
-    public S3StorageProvider(S3Service s3Service, String accessKey) {
+    public S3StorageProvider(AmazonS3Client s3Client, String accessKey) {
         this.accessKeyId = accessKey;
-        this.s3Service = s3Service;
+        this.s3Client = s3Client;
     }
 
     /**
@@ -68,8 +76,8 @@ public class S3StorageProvider extends StorageProviderBase {
         log.debug("getSpaces()");
 
         List<String> spaces = new ArrayList<String>();
-        S3Bucket[] buckets = listAllBuckets();
-        for (S3Bucket bucket : buckets) {
+        List<Bucket> buckets = listAllBuckets();
+        for (Bucket bucket : buckets) {
             String bucketName = bucket.getName();
             if (isSpace(bucketName)) {
                 spaces.add(getSpaceId(bucketName));
@@ -79,11 +87,11 @@ public class S3StorageProvider extends StorageProviderBase {
         return spaces.iterator();
     }
 
-    private S3Bucket[] listAllBuckets() {
+    private List<Bucket> listAllBuckets() {
         try {
-            return s3Service.listAllBuckets();
+            return s3Client.listBuckets();
         }
-        catch (S3ServiceException e) {
+        catch (AmazonServiceException e) {
             String err = "Could not retrieve list of S3 buckets due to error: "
                     + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -143,26 +151,27 @@ public class S3StorageProvider extends StorageProviderBase {
                                                   String marker) {
         List<String> contentItems = new ArrayList<String>();
 
-        S3Object[] objects = listObjects(spaceId, prefix, maxResults, marker);
-        for (S3Object object : objects) {
+        List<S3ObjectSummary> objects =
+            listObjects(spaceId, prefix, maxResults, marker);
+        for (S3ObjectSummary object : objects) {
             contentItems.add(object.getKey());
         }
         return contentItems;
     }
 
-    private S3Object[] listObjects(String spaceId,
-                                   String prefix,
-                                   long maxResults,
-                                   String marker) {
+    private List<S3ObjectSummary> listObjects(String spaceId,
+                                              String prefix,
+                                              long maxResults,
+                                              String marker) {
         String bucketName = getBucketName(spaceId);
 
+        int numResults = new Long(maxResults).intValue();
+        ListObjectsRequest request =
+            new ListObjectsRequest(bucketName, prefix, marker, null, numResults);        
         try {
-            return s3Service.listObjectsChunked(bucketName,
-                                                prefix,
-                                                null,
-                                                maxResults,
-                                                marker).getObjects();
-        } catch (S3ServiceException e) {
+            ObjectListing objectListing = s3Client.listObjects(request);
+            return objectListing.getObjectSummaries();
+        } catch (AmazonServiceException e) {
             String err = "Could not get contents of S3 bucket " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -196,13 +205,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
     private boolean spaceExists(String spaceId) {
         String bucketName = getBucketName(spaceId);
-        boolean exists = false;
-        try {
-            exists = s3Service.isBucketAccessible(bucketName);
-        } catch (S3ServiceException e) {
-            exists = false;
-        }
-        return exists;
+        return s3Client.doesBucketExist(bucketName);
     }
 
     private void waitForSpaceAvailable(String spaceId) {
@@ -227,11 +230,15 @@ public class S3StorageProvider extends StorageProviderBase {
         log.debug("createSpace(" + spaceId + ")");
         throwIfSpaceExists(spaceId);
 
-        S3Bucket bucket = createBucket(spaceId);
+        Bucket bucket = createBucket(spaceId);
+
+        Date created = bucket.getCreationDate();
+        if(created == null) {
+            created = new Date();
+        }
 
         // Add space metadata
         Map<String, String> spaceMetadata = new HashMap<String, String>();
-        Date created = bucket.getCreationDate();
         spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
         spaceMetadata.put(METADATA_SPACE_ACCESS, AccessType.CLOSED.name());
 
@@ -264,14 +271,11 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private S3Bucket createBucket(String spaceId) {
+    private Bucket createBucket(String spaceId) {
         String bucketName = getBucketName(spaceId);
         try {
-            AccessControlList bucketAcl = AccessControlList.REST_CANNED_PRIVATE;
-            S3Bucket bucket = new S3Bucket(bucketName);
-            bucket.setAcl(bucketAcl);
-            return s3Service.createBucket(bucket);
-        } catch (S3ServiceException e) {
+            return s3Client.createBucket(bucketName);
+        } catch (AmazonServiceException e) {
             String err = "Could not create S3 bucket with name " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -308,8 +312,8 @@ public class S3StorageProvider extends StorageProviderBase {
     private void deleteBucket(String spaceId) {
         String bucketName = getBucketName(spaceId);
         try {
-            s3Service.deleteBucket(bucketName);
-        } catch (S3ServiceException e) {
+            s3Client.deleteBucket(bucketName);
+        } catch (AmazonServiceException e) {
             String err = "Could not delete S3 bucket with name " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -328,11 +332,6 @@ public class S3StorageProvider extends StorageProviderBase {
         String bucketName = getBucketName(spaceId);
         InputStream is = getContent(spaceId, bucketName + SPACE_METADATA_SUFFIX);
         Map<String, String> spaceMetadata = loadMetadata(is);
-
-        Date created = getCreationDate(bucketName, spaceMetadata);
-        if (created != null) {
-            spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
-        }
 
         spaceMetadata.put(METADATA_SPACE_COUNT,
                           getSpaceCount(spaceId, MAX_ITEM_COUNT));
@@ -370,31 +369,29 @@ public class S3StorageProvider extends StorageProviderBase {
         return String.valueOf(count) + suffix;
     }    
 
-    private Date getCreationDate(String bucketName,
-                                 Map<String, String> spaceMetadata) {
+    private String getSpaceCreationDate(String spaceId) {
+        String bucketName = getBucketName(spaceId);
         Date created = null;
-        if (!spaceMetadata.containsKey(METADATA_SPACE_CREATED)) {
-            S3Bucket bucket = getBucket(bucketName);
-            created = bucket.getCreationDate();
-        } else {
-            String dateText = spaceMetadata.get(METADATA_SPACE_CREATED);
-            try {
-                created = RFC822_DATE_FORMAT.parse(dateText);
-            } catch (ParseException e) {
-                log.warn("Unable to parse date: '" + dateText + "'");
-            }
-        }
-        return created;
-    }
-
-    private S3Bucket getBucket(String bucketName) {
         try {
-            return s3Service.getBucket(bucketName);
-        } catch (S3ServiceException e) {
-            String err = "Could not retrieve metadata from S3 bucket "
-                    + bucketName + " due to error: " + e.getMessage();
+            List<Bucket> buckets = s3Client.listBuckets();
+            for(Bucket bucket : buckets) {
+                if(bucket.getName().equals(bucketName)) {
+                    created = bucket.getCreationDate();
+                }
+            }
+        } catch (AmazonServiceException e) {
+            String err = "Could not retrieve S3 bucket listing due to error: " +
+                         e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
+
+        String formattedDate = null;
+        if(created != null) {
+            formattedDate = formattedDate(created);
+        } else {
+            formattedDate = "unknown";
+        }
+        return formattedDate;
     }
 
     /**
@@ -406,9 +403,30 @@ public class S3StorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
+        Map<String, String> originalMetadata = null;
+        try {
+            originalMetadata = getSpaceMetadata(spaceId);
+        } catch(NotFoundException e) {
+            // Likely adding a new space, so no existing metadata yet.
+            originalMetadata = new HashMap<String, String>();
+        }
+
+        // Set creation date
+        String creationDate = originalMetadata.get(METADATA_SPACE_CREATED);
+        if(creationDate == null) {
+            creationDate = spaceMetadata.get(METADATA_SPACE_CREATED);
+            if(creationDate == null) {
+                creationDate = getSpaceCreationDate(spaceId);
+            }
+        }
+        spaceMetadata.put(METADATA_SPACE_CREATED, creationDate);
+
         // Ensure that space access is included in the new metadata
         if(!spaceMetadata.containsKey(METADATA_SPACE_ACCESS)) {
-            String spaceAccess = getSpaceAccess(spaceId).name();
+            String spaceAccess = originalMetadata.get(METADATA_SPACE_ACCESS);
+            if(spaceAccess == null) {
+                spaceAccess = AccessType.CLOSED.name();
+            }
             spaceMetadata.put(METADATA_SPACE_ACCESS, spaceAccess);
         }
 
@@ -417,9 +435,6 @@ public class S3StorageProvider extends StorageProviderBase {
         addContent(spaceId, bucketName + SPACE_METADATA_SUFFIX, "text/xml",
                    is.available(), null, is);
     }
-
-
-
 
     /**
      * {@inheritDoc}
@@ -443,47 +458,40 @@ public class S3StorageProvider extends StorageProviderBase {
             contentMimeType = DEFAULT_MIMETYPE;
         }
 
-        S3Object contentItem = new S3Object(contentId);
-        contentItem.setStorageClass(S3Object.STORAGE_CLASS_REDUCED_REDUNDANCY);
-        contentItem.setContentType(contentMimeType);
-        contentItem.setDataInputStream(wrappedContent);
-
+        ObjectMetadata objMetadata = new ObjectMetadata();
+        objMetadata.setContentType(contentMimeType);
         if (contentSize > 0) {
-            contentItem.setContentLength(contentSize);
+            objMetadata.setContentLength(contentSize);
         }
 
-        // Set private access control, content must be accessed via DuraCloud
-        AccessControlList privateAcl = AccessControlList.REST_CANNED_PRIVATE;
-        contentItem.setAcl(privateAcl);
+        String bucketName = getBucketName(spaceId);
+        PutObjectRequest putRequest = new PutObjectRequest(bucketName,
+                                                           contentId,
+                                                           wrappedContent,
+                                                           objMetadata);
+        putRequest.setStorageClass(StorageClass.ReducedRedundancy);
+        putRequest.setCannedAcl(CannedAccessControlList.Private);
 
         // Add the object
-        putObject(contentItem, spaceId);
-
-        // Compare checksum
-        String finalChecksum =
-            compareChecksum(this, spaceId, contentId, wrappedContent.getMD5());
-
-        // Set default content metadata values
-        Map<String, String> contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(METADATA_CONTENT_MIMETYPE, contentMimeType);
-        setContentMetadata(spaceId, contentId, contentMetadata);
-
-        return finalChecksum;
-    }
-
-    private void putObject(S3Object contentItem,
-                           String spaceId) {
-        String bucketName = getBucketName(spaceId);
+        PutObjectResult putResult;
         try {
-            s3Service.putObject(bucketName, contentItem);
-        } catch (S3ServiceException e) {
-            String err = "Could not add content " + contentItem.getKey()
-                    + " with type " + contentItem.getContentType()
-                    + " and size " + contentItem.getContentLength()
-                    + " to S3 bucket " + bucketName + " due to error: "
-                    + e.getMessage();
+            putResult = s3Client.putObject(putRequest);
+        } catch (AmazonServiceException e) {
+            String err = "Could not add content " + contentId +
+                         " with type " + contentMimeType +
+                         " and size " + contentSize +
+                         " to S3 bucket " + bucketName + " due to error: " +
+                         e.getMessage();
             throw new StorageException(err, e, NO_RETRY);
         }
+
+        // Compare checksum
+        String providerChecksum = getETagValue(putResult.getETag());
+        String checksum = wrappedContent.getMD5();
+        return StorageProviderUtil.compareChecksum(providerChecksum,
+                                                   spaceId,
+                                                   contentId,
+                                                   checksum);
     }
 
     /**
@@ -493,33 +501,16 @@ public class S3StorageProvider extends StorageProviderBase {
         log.debug("getContent(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
+        String bucketName = getBucketName(spaceId);
 
-        String bucketName = getBucketName(spaceId);        
-        S3Object contentItem = getObject(contentId, bucketName);
-
-        return getDataInputStream(contentItem);
-    }
-
-    private S3Object getObject(String contentId,
-                               String bucketName) {
         try {
-            return s3Service.getObject(new S3Bucket(bucketName), contentId);
-        } catch (S3ServiceException e) {
+             S3Object contentItem = s3Client.getObject(bucketName, contentId);
+            return contentItem.getObjectContent();
+        } catch (AmazonServiceException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not retrieve content " + contentId
                     + " in S3 bucket " + bucketName + " due to error: "
                     + e.getMessage();
-            throw new StorageException(err, e, RETRY);
-        }
-    }
-
-    private InputStream getDataInputStream(S3Object contentItem) {
-        try {
-            return contentItem.getDataInputStream();
-        } catch (S3ServiceException e) {
-            String err = "Could not retrieve content " + contentItem.getKey()
-                    + " in S3 bucket " + contentItem.getBucketName()
-                    + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -530,20 +521,20 @@ public class S3StorageProvider extends StorageProviderBase {
     public void deleteContent(String spaceId, String contentId) {
         log.debug("deleteContent(" + spaceId + ", " + contentId + ")");
 
-        throwIfSpaceNotExist(spaceId);
-
-        String bucketName = getBucketName(spaceId);       
+        String bucketName = getBucketName(spaceId);
+        try {
+          // Note that the s3Client does not throw an exception or indicate if
+          // the object to be deleted does not exist. This check is being run
+          // up front to fulfill the DuraCloud contract for this method.
+          throwIfContentNotExist(bucketName, contentId);
+        } catch (NotFoundException e) {
+          throwIfSpaceNotExist(spaceId);
+          throw e;
+        }
 
         try {
-            // See if the content exists to be deleted
-            S3Bucket bucket = new S3Bucket();
-            bucket.setName(bucketName);
-            s3Service.getObjectDetails(bucket, contentId);
-
-            // Delete content
-            s3Service.deleteObject(bucketName, contentId);
-        } catch (S3ServiceException e) {
-            throwIfContentNotExist(bucketName, contentId);
+            s3Client.deleteObject(bucketName, contentId);
+        } catch (AmazonServiceException e) {
             String err = "Could not delete content " + contentId
                     + " from S3 bucket " + bucketName
                     + " due to error: " + e.getMessage();
@@ -566,14 +557,14 @@ public class S3StorageProvider extends StorageProviderBase {
         contentMetadata.remove(METADATA_CONTENT_CHECKSUM);
         contentMetadata.remove(METADATA_CONTENT_MODIFIED);
         contentMetadata.remove(METADATA_CONTENT_SIZE);
-        contentMetadata.remove(S3Object.METADATA_HEADER_CONTENT_LENGTH);
-        contentMetadata.remove(S3Object.METADATA_HEADER_LAST_MODIFIED_DATE);
-        contentMetadata.remove(S3Object.METADATA_HEADER_DATE);
-        contentMetadata.remove(S3Object.METADATA_HEADER_ETAG);
-        contentMetadata.remove(S3Object.METADATA_HEADER_CONTENT_LENGTH.toLowerCase());
-        contentMetadata.remove(S3Object.METADATA_HEADER_LAST_MODIFIED_DATE.toLowerCase());
-        contentMetadata.remove(S3Object.METADATA_HEADER_DATE.toLowerCase());
-        contentMetadata.remove(S3Object.METADATA_HEADER_ETAG.toLowerCase());        
+        contentMetadata.remove(Headers.CONTENT_LENGTH);
+        contentMetadata.remove(Headers.LAST_MODIFIED);
+        contentMetadata.remove(Headers.DATE);
+        contentMetadata.remove(Headers.ETAG);
+        contentMetadata.remove(Headers.CONTENT_LENGTH.toLowerCase());
+        contentMetadata.remove(Headers.LAST_MODIFIED.toLowerCase());
+        contentMetadata.remove(Headers.DATE.toLowerCase());
+        contentMetadata.remove(Headers.ETAG.toLowerCase());
 
         // Determine mimetype, from metadata list or existing value
         String mimeType = contentMetadata.remove(METADATA_CONTENT_MIMETYPE);
@@ -587,72 +578,65 @@ public class S3StorageProvider extends StorageProviderBase {
             }
         }
 
-        if (log.isDebugEnabled()) {
-            for (String key : contentMetadata.keySet()) {
+        // Collect all object metadata
+        String bucketName = getBucketName(spaceId);
+        ObjectMetadata objMetadata = new ObjectMetadata();
+        for (String key : contentMetadata.keySet()) {
+            if (log.isDebugEnabled()) {
                 log.debug("[" + key + "|" + contentMetadata.get(key) + "]");
             }
+            objMetadata.addUserMetadata(key, contentMetadata.get(key));
         }
-
-        // Get the object and replace its metadata
-        String bucketName = getBucketName(spaceId);
-        S3Bucket bucket = new S3Bucket(bucketName);
-        S3Object contentItem = getObjectDetails(bucket, contentId, NO_RETRY);
-        contentItem.setAcl(getObjectAcl(contentId, bucket));
-        contentItem.replaceAllMetadata(contentMetadata);
 
         // Set Content-Type
         if (mimeType != null && !mimeType.equals("")) {
-            contentItem.addMetadata(S3Object.METADATA_HEADER_CONTENT_TYPE,
-                                    mimeType);
+            objMetadata.setContentType(mimeType);
         }
 
-        updateObjectMetadata(bucketName, contentId, contentItem);
+        updateObjectMetadata(bucketName, contentId, objMetadata);
     }
 
     private void throwIfContentNotExist(String bucketName, String contentId) {
         try {
-             s3Service.getObjectDetails(new S3Bucket(bucketName), contentId);
-        } catch(S3ServiceException e) {
+             s3Client.getObjectMetadata(bucketName, contentId);
+        } catch(AmazonServiceException e) {
             String err = "Could not find content item with ID " + contentId +
                 " in S3 bucket " + bucketName + ". S3 error: " + e.getMessage();
             throw new NotFoundException(err);
         }
     }
 
-    private S3Object getObjectDetails(S3Bucket bucket, String contentId,
-                                      boolean retry) {
+    private ObjectMetadata getObjectDetails(String bucketName,
+                                            String contentId,
+                                            boolean retry) {
         try {
-            return s3Service.getObjectDetails(bucket, contentId);
-        } catch (S3ServiceException e) {
-            throwIfContentNotExist(bucket.getName(), contentId);
+            return s3Client.getObjectMetadata(bucketName, contentId);
+        } catch (AmazonServiceException e) {
+            throwIfContentNotExist(bucketName, contentId);
             String err = "Could not get details for content " + contentId
-                    + " in S3 bucket " + bucket.getName() + " due to error: "
+                    + " in S3 bucket " + bucketName + " due to error: "
                     + e.getMessage();
             throw new StorageException(err, e, retry);
         }
     }
 
-    private AccessControlList getObjectAcl(String contentId,
-                                           S3Bucket bucket) {
-        try {
-            return s3Service.getObjectAcl(bucket, contentId);
-        } catch (S3ServiceException e) {
-            String err = "Could not get ACL for content " + contentId
-                    + " in S3 bucket " + bucket.getName() + " due to error: "
-                    + e.getMessage();
-            throw new StorageException(err, e, NO_RETRY);
-        }
-    }
-
     private void updateObjectMetadata(String bucketName,
                                       String contentId,
-                                      S3Object contentItem) {
+                                      ObjectMetadata objMetadata) {
         try {
-            s3Service.updateObjectMetadata(bucketName, contentItem);
-        } catch (S3ServiceException e) {
+            CopyObjectRequest copyRequest = new CopyObjectRequest(bucketName,
+                                                                  contentId,
+                                                                  bucketName,
+                                                                  contentId);
+            copyRequest.setCannedAccessControlList(
+                CannedAccessControlList.Private);
+            copyRequest.setStorageClass(StorageClass.ReducedRedundancy);
+            copyRequest.setNewObjectMetadata(objMetadata);
+            s3Client.copyObject(copyRequest);
+        } catch (AmazonServiceException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not update metadata for content "
-                    + contentItem.getKey() + " in S3 bucket " + bucketName
+                    + contentId + " in S3 bucket " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, NO_RETRY);
         }
@@ -669,68 +653,76 @@ public class S3StorageProvider extends StorageProviderBase {
 
         // Get the content item from S3
         String bucketName = getBucketName(spaceId);
-        S3Object contentItem = getObjectDetails(new S3Bucket(bucketName),
-                                                contentId, RETRY);
+        ObjectMetadata objMetadata =
+            getObjectDetails(bucketName, contentId, RETRY);
 
-        if (contentItem == null) {
+        if (objMetadata == null) {
             String err = "No metadata is available for item " + contentId
                     + " in S3 bucket " + bucketName;
             throw new StorageException(err, NO_RETRY);
         }
 
-        // Load the metadata Map
         Map<String, String> contentMetadata = new HashMap<String, String>();
-        Map contentItemMetadata = contentItem.getMetadataMap();
-        Iterator metaIterator = contentItemMetadata.keySet().iterator();
-        while (metaIterator.hasNext()) {
-            String metaName = metaIterator.next().toString();
-            Object metaValueObj = contentItemMetadata.get(metaName);
-            String metaValue;
-            if (metaValueObj instanceof Date) {
-                metaValue = formattedDate((Date) metaValueObj);
-            } else {
-                metaValue = metaValueObj.toString();
-            }
+
+        // Set the user metadata
+        Map<String, String> userMetadata = objMetadata.getUserMetadata();
+        for(String metaName : userMetadata.keySet()) {
+            String metaValue = userMetadata.get(metaName);
             contentMetadata.put(metaName, metaValue);
         }
 
         // Set MIMETYPE
-        String contentType =
-                contentMetadata.get(S3Object.METADATA_HEADER_CONTENT_TYPE);
+        String contentType = objMetadata.getContentType();
         if (contentType != null) {
             contentMetadata.put(METADATA_CONTENT_MIMETYPE, contentType);
+            contentMetadata.put(Headers.CONTENT_TYPE, contentType);
         }
 
         // Set SIZE
-        String contentLength =
-                contentMetadata.get(S3Object.METADATA_HEADER_CONTENT_LENGTH);
-        if (contentLength != null) {
-            contentMetadata.put(METADATA_CONTENT_SIZE, contentLength);
+        long contentLength = objMetadata.getContentLength();
+        if (contentLength > 0) {
+            String size = String.valueOf(contentLength);
+            contentMetadata.put(METADATA_CONTENT_SIZE, size);
+            contentMetadata.put(Headers.CONTENT_LENGTH, size);
         }
 
         // Set CHECKSUM
-        String checksum = contentMetadata.get(S3Object.METADATA_HEADER_ETAG);
+        String checksum = objMetadata.getETag();
         if (checksum != null) {
-            if (checksum.indexOf("\"") == 0
-                    && checksum.lastIndexOf("\"") == checksum.length() - 1) {
-                // Remove wrapping quotes
-                checksum = checksum.substring(1, checksum.length() - 1);
-            }
-            contentMetadata.put(METADATA_CONTENT_CHECKSUM, checksum);
+            String eTagValue = getETagValue(checksum);
+            contentMetadata.put(METADATA_CONTENT_CHECKSUM, eTagValue);
+            contentMetadata.put(METADATA_CONTENT_MD5, eTagValue);
+            contentMetadata.put(Headers.ETAG, eTagValue);
         }
 
         // Set MODIFIED
-        String modified =
-                contentMetadata.get(S3Object.METADATA_HEADER_LAST_MODIFIED_DATE);
+        Date modified = objMetadata.getLastModified();
         if (modified != null) {
-            contentMetadata.put(METADATA_CONTENT_MODIFIED, modified);
+            String modDate = formattedDate(modified);
+            contentMetadata.put(METADATA_CONTENT_MODIFIED, modDate);
+            contentMetadata.put(Headers.LAST_MODIFIED, modDate);
         }
 
         return contentMetadata;
     }
 
+    protected String getETagValue(String etag) {
+        String checksum = etag;
+        if (checksum != null) {
+            if (checksum.indexOf("\"") == 0 &&
+                checksum.lastIndexOf("\"") == checksum.length() - 1) {
+                // Remove wrapping quotes
+                checksum = checksum.substring(1, checksum.length() - 1);
+            }
+        }
+        return checksum;
+    }
+
     /**
      * Converts a DuraCloud spaceId into its corresponding Amazon S3 bucket name
+     *
+     * @param spaceId the space Id to convert into an S3 bucket name
+     * @return S3 bucket name of a given DuraCloud space
      */
     public String getBucketName(String spaceId) {
         return S3ProviderUtil.getBucketName(accessKeyId, spaceId);
@@ -739,8 +731,8 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * Converts a bucket name into what could be passed in as a space ID.
      *
-     * @param bucketName
-     * @return
+     * @param bucketName name of the S3 bucket
+     * @return the DuraCloud space name equivalent to a given S3 bucket Id
      */
     protected String getSpaceId(String bucketName) {
         String spaceId = bucketName;
@@ -751,10 +743,11 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
     /**
-     * Determines if an S3 bucket is a DuraSpace space
+     * Determines if an S3 bucket is a DuraCloud space
      *
-     * @param bucketName
-     * @return
+     * @param bucketName name of the S3 bucket
+     * @return true if the given S3 bucket name is named according to the
+     *         DuraCloud space naming conventions, false otherwise
      */
     protected boolean isSpace(String bucketName) {
         boolean isSpace = false;

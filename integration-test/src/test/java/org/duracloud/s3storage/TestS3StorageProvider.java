@@ -7,12 +7,8 @@
  */
 package org.duracloud.s3storage;
 
+import com.amazonaws.services.s3.Headers;
 import junit.framework.Assert;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;
@@ -21,10 +17,6 @@ import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProvider.AccessType;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.contains;
-import static org.duracloud.storage.util.StorageProviderUtil.count;
-import org.jets3t.service.model.S3Object;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +33,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import static org.duracloud.storage.util.StorageProviderUtil.contains;
+import static org.duracloud.storage.util.StorageProviderUtil.count;
 
 /**
  * Tests the S3 Storage Provider. This test is run via the command line in order
@@ -184,7 +185,7 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         assertNotNull(cMetadata);
         assertEquals(CONTENT_MIME_VALUE, cMetadata.get(CONTENT_MIME_NAME));
         assertEquals(CONTENT_MIME_VALUE,
-                     cMetadata.get(S3Object.METADATA_HEADER_CONTENT_TYPE));
+                     cMetadata.get(Headers.CONTENT_TYPE));
         assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_SIZE));
         assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_CHECKSUM));
         // Make sure date is in RFC-822 format
@@ -265,7 +266,7 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         // so its value should have been maintained
         assertEquals(CONTENT_MIME_VALUE, cMetadata.get(CONTENT_MIME_NAME));
         assertEquals(CONTENT_MIME_VALUE,
-                     cMetadata.get(S3Object.METADATA_HEADER_CONTENT_TYPE));
+                     cMetadata.get(Headers.CONTENT_TYPE));
 
         // test setContentMetadata() - mimetype
         log.debug("Test setContentMetadata() - mimetype");
@@ -278,7 +279,7 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
                      cMetadata.get(CONTENT_MIME_NAME));
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     cMetadata.get(S3Object.METADATA_HEADER_CONTENT_TYPE));
+                     cMetadata.get(Headers.CONTENT_TYPE));
 
         log.debug("Test getContentMetadata() - mimetype default");
         cMetadata = s3Provider.getContentMetadata(spaceId, testContent3);
@@ -286,7 +287,7 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
                      cMetadata.get(CONTENT_MIME_NAME));
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     cMetadata.get(S3Object.METADATA_HEADER_CONTENT_TYPE));
+                     cMetadata.get(Headers.CONTENT_TYPE));
 
         /* Test Deletes */
 
@@ -498,35 +499,41 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
 
     @Test
     public void testSetContentMetadata() {
-        String name00 = "request-id";
-        String name01 = "content-checksum";
-        String name02 = "content-md5";
-        String name03 = "Content-Type";
-        String name04 = "content-mimetype";
-        String name05 = "ETag";
-        String name06 = "Date";
-        String name07 = "id-2";
-        String name08 = "Content-Length";
-        String name09 = "content-size";
-        String name10 = "content-modified";
-        String name11 = "Last-Modified";
-        String name12 = "tags";
-        String name13 = "Server";
-
-        String value00 = "BA66CF8BF16D69CE";
+        // StorageProvider metadata which is expected to be available
+        String name00 = StorageProvider.METADATA_CONTENT_CHECKSUM;
+        String value00 = "c56f855f5dec9276733ff3e2c66ec7df";
+        String name01 = StorageProvider.METADATA_CONTENT_MD5;
         String value01 = "c56f855f5dec9276733ff3e2c66ec7df";
-        String value02 = "c56f855f5dec9276733ff3e2c66ec7df";
-        String value03 = "text/html";
-        String value04 = "text/html";
-        String value05 = "\"c56f855f5dec9276733ff3e2c66ec7df\"";
-        String value06 = "Wed, 25 Nov 2009 16:47:07 GMT";
-        String value07 = "GssZwY9fOk4ncr6CZneS1ndkLkfLD7y2vfK12O6PjjeFkQV56Z40WU7eOIPmjdaA";
-        String value08 = "59142";
-        String value09 = "59142";
-        String value10 = "Wed, 25 Nov 2009 11:09:39 EST";
-        String value11 = "Wed, 25 Nov 2009 11:09:39 EST";
-        String value12 = "a1";
-        String value13 = "Apache-Coyote/1.1";
+        String name02 = StorageProvider.METADATA_CONTENT_MIMETYPE;
+        String value02 = "text/html";
+        String name03 = StorageProvider.METADATA_CONTENT_SIZE;
+        String value03 = "59142";
+        String name04 = StorageProvider.METADATA_CONTENT_MODIFIED;
+        String value04 = "Wed, 25 Nov 2009 11:09:39 EST";
+
+        // Custom metadata values
+        String name05 = "request-id";
+        String value05 = "BA66CF8BF16D69CE";
+        String name06 = "id-2";
+        String value06 = "GssZwY9fOk4ncr6CZneS1ndkLkfLD7y2vfK12O6PjjeFkQV56Z40WU7eOIPmjdaA";
+        String name07 = "tags";
+        String value07 = "a1";
+        String name08 = "Server";
+        String value08 = "Apache-Coyote/1.1";
+
+        // Http header values which are expected to be available
+        String name09 = "ETag";
+        String value09 = "\"c56f855f5dec9276733ff3e2c66ec7df\"";
+        String name10 = "Content-Type";
+        String value10 = "text/html";
+        String name11 = "Content-Length";
+        String value11 = "59142";
+        String name12 = "Last-Modified";
+        String value12 = "Wed, 25 Nov 2009 11:09:39 EST";
+
+        // Http header values which are not expected to be available
+        String name13 = "Date";
+        String value13 = "Wed, 25 Nov 2009 16:47:07 GMT";
 
         Map<String, String> contentMetadata = new HashMap<String, String>();
         contentMetadata.put(name00, value00);
@@ -557,35 +564,35 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         Map<String, String> metadata = s3Provider.getContentMetadata(spaceId,
                                                                      contentId);
         Assert.assertNotNull(metadata);
+
         Assert.assertTrue(metadata.containsKey(name00));
         Assert.assertTrue(metadata.containsKey(name01));
-        // Assert.assertTrue(metadata.containsKey(name02)); // not expected
+        Assert.assertTrue(metadata.containsKey(name02));
         Assert.assertTrue(metadata.containsKey(name03));
         Assert.assertTrue(metadata.containsKey(name04));
         Assert.assertTrue(metadata.containsKey(name05));
         Assert.assertTrue(metadata.containsKey(name06));
         Assert.assertTrue(metadata.containsKey(name07));
-        Assert.assertTrue(metadata.containsKey(name08));
+        Assert.assertTrue(metadata.containsKey(name08.toLowerCase()));
         Assert.assertTrue(metadata.containsKey(name09));
         Assert.assertTrue(metadata.containsKey(name10));
         Assert.assertTrue(metadata.containsKey(name11));
         Assert.assertTrue(metadata.containsKey(name12));
-        // Assert.assertTrue(metadata.containsKey(name13)); // not expected
+        Assert.assertFalse(metadata.containsKey(name13));
 
         Assert.assertNotNull(metadata.get(name00));
         Assert.assertNotNull(metadata.get(name01));
-        // Assert.assertNotNull(metadata.get(name02)); // not expected
+        Assert.assertNotNull(metadata.get(name02));
         Assert.assertNotNull(metadata.get(name03));
         Assert.assertNotNull(metadata.get(name04));
         Assert.assertNotNull(metadata.get(name05));
         Assert.assertNotNull(metadata.get(name06));
         Assert.assertNotNull(metadata.get(name07));
-        Assert.assertNotNull(metadata.get(name08));
+        Assert.assertNotNull(metadata.get(name08.toLowerCase()));
         Assert.assertNotNull(metadata.get(name09));
         Assert.assertNotNull(metadata.get(name10));
         Assert.assertNotNull(metadata.get(name11));
         Assert.assertNotNull(metadata.get(name12));
-        // Assert.assertNotNull(metadata.get(name13)); // not expected
     }
 
 }

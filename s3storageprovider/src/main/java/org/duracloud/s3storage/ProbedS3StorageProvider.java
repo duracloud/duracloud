@@ -7,11 +7,12 @@
  */
 package org.duracloud.s3storage;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import org.duracloud.common.util.metrics.MetricsProbed;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.ProbedStorageProvider;
-import org.jets3t.service.S3ServiceException;
-import org.jets3t.service.security.AWSCredentials;
 
 /**
  * This class implements the StorageProvider interface using a Metrics-Probed
@@ -22,16 +23,16 @@ import org.jets3t.service.security.AWSCredentials;
 public class ProbedS3StorageProvider
         extends ProbedStorageProvider {
 
-    private ProbedRestS3Service probedCore;
+    private ProbedRestS3Client probedCore;
 
     public ProbedS3StorageProvider(String accessKey, String secretKey)
             throws StorageException {
         AWSCredentials awsCredentials =
-                new AWSCredentials(accessKey, secretKey);
+                new BasicAWSCredentials(accessKey, secretKey);
 
         try {
-            probedCore = new ProbedRestS3Service(awsCredentials);
-        } catch (S3ServiceException e) {
+            probedCore = new ProbedRestS3Client(awsCredentials);
+        } catch (AmazonServiceException e) {
             String err =
                     "Could not create connection to S3 due to error: "
                             + e.getMessage();

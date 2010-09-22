@@ -7,11 +7,11 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AccessControlList;
 import org.duracloud.common.util.SerializationUtil;
 import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.acl.AccessControlList;
 import org.jets3t.service.model.cloudfront.LoggingStatus;
 import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
@@ -31,12 +31,12 @@ import static junit.framework.Assert.fail;
  */
 public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
-    protected EnableStreamingTaskRunner createRunner(S3Service s3Service,
-                                                   CloudFrontService cfService) {
+    protected EnableStreamingTaskRunner createRunner(AmazonS3Client s3Client,
+                                                     CloudFrontService cfService) {
         this.s3Provider = createMockS3StorageProvider();
-        this.s3Service = s3Service;
+        this.s3Client = s3Client;
         this.cfService = cfService;
-        return new EnableStreamingTaskRunner(s3Provider, s3Service, cfService);
+        return new EnableStreamingTaskRunner(s3Provider, s3Client, cfService);
     }    
 
     @Test
@@ -55,7 +55,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask1() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV2(), createMockCFServiceV2());
+            createRunner(createMockS3ClientV2(), createMockCFServiceV2());
 
         try {
             runner.performTask(null);
@@ -69,8 +69,8 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         testResults(results);
     }
 
-    private S3Service createMockS3ServiceV2() throws Exception {
-        S3Service service = EasyMock.createMock(S3Service.class);
+    private AmazonS3Client createMockS3ClientV2() throws Exception {
+        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
 
         // Note that EasyMock appears to return the same ACL object
         // each time this method is called, meaning that once a grant
@@ -86,7 +86,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             // MockS3Provider.getSpaceContents()
             .times(3);
 
-        service.putObjectAcl(EasyMock.isA(String.class),
+        service.setObjectAcl(EasyMock.isA(String.class),
                              EasyMock.isA(String.class),
                              EasyMock.isA(AccessControlList.class));
         EasyMock.expectLastCall().times(1);
@@ -164,7 +164,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask2() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV2(), createMockCFServiceV3());
+            createRunner(createMockS3ClientV2(), createMockCFServiceV3());
 
         String results = runner.performTask("spaceId");
         assertNotNull(results);

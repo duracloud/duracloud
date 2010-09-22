@@ -7,17 +7,17 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AccessControlList;
+import com.amazonaws.services.s3.model.CanonicalGrantee;
+import com.amazonaws.services.s3.model.Grant;
+import com.amazonaws.services.s3.model.Permission;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.S3ServiceException;
-import org.jets3t.service.acl.AccessControlList;
-import org.jets3t.service.acl.CanonicalGrantee;
-import org.jets3t.service.acl.GrantAndPermission;
-import org.jets3t.service.acl.Permission;
 import org.jets3t.service.model.cloudfront.DistributionConfig;
 import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
@@ -43,10 +43,10 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
     private static final String TASK_NAME = "enable-streaming";
 
     public EnableStreamingTaskRunner(S3StorageProvider s3Provider,
-                                     S3Service s3Service,
+                                     AmazonS3Client s3Client,
                                      CloudFrontService cfService) {
         this.s3Provider = s3Provider;
-        this.s3Service = s3Service;
+        this.s3Client = s3Client;
         this.cfService = cfService;
     }
 
@@ -206,20 +206,20 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
             String contentId = contentIds.next();
             try {
                 AccessControlList contentACL =
-                    s3Service.getObjectAcl(bucketName, contentId);
+                    s3Client.getObjectAcl(bucketName, contentId);
 
                 // Determine if grant already exists
                 boolean grantExists = checkACL(contentACL,
                                                s3Grantee.getIdentifier(),
-                                               Permission.PERMISSION_READ);
+                                               Permission.Read);
 
                 if(!grantExists) {
                     contentACL.grantPermission(s3Grantee,
-                                               Permission.PERMISSION_READ);
-                    s3Service.putObjectAcl(bucketName, contentId, contentACL);
+                                               Permission.Read);
+                    s3Client.setObjectAcl(bucketName, contentId, contentACL);
                 }
                 successfulSet++;
-            } catch(S3ServiceException e) {
+            } catch(AmazonServiceException e) {
                 failedSet.add(contentId);
             }
         }
@@ -248,9 +248,8 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
     private boolean checkACL(AccessControlList acl,
                              String granteeId,
                              Permission permission) {
-        Set<GrantAndPermission> grants =
-            (Set<GrantAndPermission>) acl.getGrants();
-        for(GrantAndPermission grant : grants) {
+        Set<Grant> grants = acl.getGrants();
+        for(Grant grant : grants) {
             if(granteeId.equals(grant.getGrantee().getIdentifier())) {
                 if(permission.equals(grant.getPermission())) {
                     return true;

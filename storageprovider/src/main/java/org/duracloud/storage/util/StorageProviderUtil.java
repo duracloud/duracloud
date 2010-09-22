@@ -7,11 +7,7 @@
  */
 package org.duracloud.storage.util;
 
-import static org.duracloud.common.util.IOUtil.readStringFromStream;
-import static org.duracloud.common.util.SerializationUtil.deserializeMap;
-import static org.duracloud.common.util.SerializationUtil.serializeMap;
 import org.duracloud.storage.error.StorageException;
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +17,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static org.duracloud.common.util.IOUtil.readStringFromStream;
+import static org.duracloud.common.util.SerializationUtil.deserializeMap;
+import static org.duracloud.common.util.SerializationUtil.serializeMap;
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
 /**
  * Provides utility methods for Storage Providers
@@ -92,7 +93,7 @@ public class StorageProviderUtil {
      * @param provider The StorageProvider where the content was stored
      * @param spaceId The Space in which the content was stored
      * @param contentId The Id of the content
-     * @param checksum The content checksum
+     * @param checksum The content checksum, either provided or computed
      * @returns the validated checksum value from the provider
      * @throws StorageException if the included checksum does not match
      *                          the storage provider generated checksum
@@ -101,16 +102,35 @@ public class StorageProviderUtil {
                                          String spaceId,
                                          String contentId,
                                          String checksum)
-    throws StorageException {
+        throws StorageException {
         String providerChecksum =
             provider.getContentMetadata(spaceId, contentId).
             get(StorageProvider.METADATA_CONTENT_CHECKSUM);
+        return compareChecksum(providerChecksum, spaceId, contentId, checksum);
+    }
+
+    /**
+     * Determines if two checksum values are equal
+     *
+     * @param providerChecksum The checksum provided by the StorageProvider
+     * @param spaceId The Space in which the content was stored
+     * @param contentId The Id of the content
+     * @param checksum The content checksum, either provided or computed
+     * @returns the validated checksum value from the provider
+     * @throws StorageException if the included checksum does not match
+     *                          the storage provider generated checksum
+     */
+    public static String compareChecksum(String providerChecksum,
+                                         String spaceId,
+                                         String contentId,
+                                         String checksum)
+        throws StorageException {
         if(!providerChecksum.equals(checksum)) {
             String err = "Content " + contentId + " was added to space " +
                 spaceId + " but the checksum, either provided or computed " +
                 "enroute, (" + checksum + ") does not match the checksum " +
                 "computed by the storage provider (" + providerChecksum +
-                "). This content should be checked or retransmitted.";            
+                "). This content should be checked or retransmitted.";
             throw new StorageException(err, NO_RETRY);
         }
         return providerChecksum;

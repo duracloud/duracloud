@@ -7,12 +7,12 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.S3ServiceException;
-import org.jets3t.service.acl.AccessControlList;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +32,10 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
     private static final String TASK_NAME = "disable-streaming";
 
     public DisableStreamingTaskRunner(S3StorageProvider s3Provider,
-                                      S3Service s3Service,
+                                      AmazonS3Client s3Client,
                                       CloudFrontService cfService) {
         this.s3Provider = s3Provider;
-        this.s3Service = s3Service;
+        this.s3Client = s3Client;
         this.cfService = cfService;
     }
 
@@ -86,14 +86,6 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
         Iterator<String> contentIds =
             s3Provider.getSpaceContents(spaceId, null);
 
-        AccessControlList bucketAcl;
-        try {
-            bucketAcl = s3Service.getBucketAcl(bucketName);
-        } catch(S3ServiceException e) {
-            throw new RuntimeException("Unable to retrieve ACL for bucket " +
-                bucketName + " due to: " + e.getMessage(), e);            
-        }
-
         // Attempt to set private ACL permission
         int successfulSet = 0;
         List<String> failedSet = new ArrayList<String>();
@@ -101,11 +93,11 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
             String contentId = contentIds.next();
 
             try {
-                s3Service.putObjectAcl(bucketName,
-                                       contentId,
-                                       bucketAcl);                
+                s3Client.setObjectAcl(bucketName,
+                                      contentId,
+                                      CannedAccessControlList.Private);
                 successfulSet++;
-            } catch(S3ServiceException e) {
+            } catch(AmazonServiceException e) {
                 log.error("Error setting ACL for object " + contentId + ": " +
                           e.getMessage(), e);
                 failedSet.add(contentId);

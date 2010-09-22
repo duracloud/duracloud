@@ -7,11 +7,11 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.S3Service;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class BaseStreamingTaskRunner implements TaskRunner {
 
     protected S3StorageProvider s3Provider;
-    protected S3Service s3Service;
+    protected AmazonS3Client s3Client;
     protected CloudFrontService cfService;
 
     public abstract String getName();

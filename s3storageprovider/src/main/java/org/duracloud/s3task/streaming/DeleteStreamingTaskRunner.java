@@ -7,12 +7,12 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.S3Service;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 
 import java.util.List;
@@ -28,10 +28,10 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
     private static final String TASK_NAME = "delete-streaming";
 
     public DeleteStreamingTaskRunner(S3StorageProvider s3Provider,
-                                     S3Service s3Service,
+                                     AmazonS3Client s3Client,
                                      CloudFrontService cfService) {
         this.s3Provider = s3Provider;
-        this.s3Service = s3Service;
+        this.s3Client = s3Client;
         this.cfService = cfService;
     }
 

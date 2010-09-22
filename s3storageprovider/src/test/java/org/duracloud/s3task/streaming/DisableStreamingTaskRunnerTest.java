@@ -7,16 +7,15 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.acl.AccessControlList;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 /**
@@ -25,12 +24,12 @@ import static junit.framework.Assert.fail;
  */
 public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
-    protected DisableStreamingTaskRunner createRunner(S3Service s3Service,
+    protected DisableStreamingTaskRunner createRunner(AmazonS3Client s3Client,
                                                       CloudFrontService cfService) {
         this.s3Provider = createMockS3StorageProvider();
-        this.s3Service = s3Service;
+        this.s3Client = s3Client;
         this.cfService = cfService;
-        return new DisableStreamingTaskRunner(s3Provider, s3Service, cfService);
+        return new DisableStreamingTaskRunner(s3Provider, s3Client, cfService);
     }
 
     @Test
@@ -92,22 +91,18 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
     @Test
     public void testPerformTask2() throws Exception {
         DisableStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV2(), createMockCFServiceV3());
+            createRunner(createMockS3ClientV2(), createMockCFServiceV3());
 
         String results = runner.performTask("spaceId");
         assertNotNull(results);
     }
 
-    private S3Service createMockS3ServiceV2() throws Exception {
-        S3Service service = EasyMock.createMock(S3Service.class);
+    private AmazonS3Client createMockS3ClientV2() throws Exception {
+        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
 
-        EasyMock.expect(service.getBucketAcl(EasyMock.isA(String.class)))
-            .andReturn(new AccessControlList())
-            .times(1);
-
-        service.putObjectAcl(EasyMock.isA(String.class),
+        service.setObjectAcl(EasyMock.isA(String.class),
                              EasyMock.isA(String.class),
-                             EasyMock.isA(AccessControlList.class));
+                             EasyMock.isA(CannedAccessControlList.class));
         // Number determined by the number of items returned by the 
         // MockS3Provider.getSpaceContents()
         EasyMock.expectLastCall().times(3);

@@ -7,9 +7,9 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.S3Service;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.junit.Test;
 
@@ -23,12 +23,12 @@ import static junit.framework.Assert.fail;
  */
 public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
-    protected DeleteStreamingTaskRunner createRunner(S3Service s3Service,
+    protected DeleteStreamingTaskRunner createRunner(AmazonS3Client s3Client,
                                                      CloudFrontService cfService) {
         this.s3Provider = createMockS3StorageProvider();
-        this.s3Service = s3Service;
+        this.s3Client = s3Client;
         this.cfService = cfService;
-        return new DeleteStreamingTaskRunner(s3Provider, s3Service, cfService);
+        return new DeleteStreamingTaskRunner(s3Provider, s3Client, cfService);
     }
 
     @Test

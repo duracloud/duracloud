@@ -7,22 +7,24 @@
  */
 package org.duracloud.storage.util;
 
-import java.io.InputStream;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.duracloud.storage.error.StorageException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertFalse;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
  * Tests the Storage Provider Utilities.
@@ -81,4 +83,29 @@ public class StorageProviderUtilTest {
         testList.add("baz");
         assertEquals(testList, StorageProviderUtil.getList(testList.iterator()));
     }
+
+    @Test
+    public void testCompareChecksum() throws Exception {
+        String spaceId = "spaceId";
+        String contentId = "contentId";
+
+        String checksum = "1";
+        String finalChecksum = StorageProviderUtil.compareChecksum(checksum,
+                                                                   spaceId,
+                                                                   contentId,
+                                                                   checksum);
+        assertEquals(checksum, finalChecksum);
+
+        try {
+            String wrongChecksum = "2";
+            StorageProviderUtil.compareChecksum(wrongChecksum,
+                                                spaceId,
+                                                contentId,
+                                                checksum);
+            fail("Exception expected comparing different checksums");
+        } catch(StorageException expected) {
+            assertNotNull(expected);
+        }
+    }
+
 }

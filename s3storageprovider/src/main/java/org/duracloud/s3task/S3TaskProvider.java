@@ -7,8 +7,6 @@
  */
 package org.duracloud.s3task;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3ProviderUtil;
@@ -25,7 +23,6 @@ import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.provider.TaskRunner;
 import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.S3Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,27 +42,25 @@ public class S3TaskProvider implements TaskProvider {
     private List<TaskRunner> taskList = new ArrayList<TaskRunner>();
 
     public S3TaskProvider(String accessKey, String secretKey) {
-        S3Service s3Service =
-            S3ProviderUtil.getS3Service(accessKey, secretKey);
         S3StorageProvider s3Provider =
             new S3StorageProvider(accessKey, secretKey);
         CloudFrontService cfService =
             S3ProviderUtil.getCloudFrontService(accessKey, secretKey);
 
-        AWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        AmazonS3Client s3Client = new AmazonS3Client(awsCreds);
+        AmazonS3Client s3Client =
+            S3ProviderUtil.getAmazonS3Client(accessKey, secretKey);
         AmazonElasticMapReduceClient emrClient =
-            new AmazonElasticMapReduceClient(awsCreds);
+            S3ProviderUtil.getAmazonEMRClient(accessKey, secretKey);
 
         taskList.add(new NoopTaskRunner());
         taskList.add(new EnableStreamingTaskRunner(s3Provider,
-                                                   s3Service,
+                                                   s3Client,
                                                    cfService));
         taskList.add(new DisableStreamingTaskRunner(s3Provider,
-                                                    s3Service,
+                                                    s3Client,
                                                     cfService));
         taskList.add(new DeleteStreamingTaskRunner(s3Provider,
-                                                   s3Service,
+                                                   s3Client,
                                                    cfService));
         taskList.add(new RunHadoopJobTaskRunner(s3Provider,
                                                 s3Client,
