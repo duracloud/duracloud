@@ -8,9 +8,9 @@
 package org.duracloud.durastore.storage;
 
 import org.duracloud.common.model.Credential;
-import org.duracloud.emcstorage.ProbedEMCStorageProvider;
-import org.duracloud.rackspacestorage.ProbedRackspaceStorageProvider;
-import org.duracloud.s3storage.ProbedS3StorageProvider;
+import org.duracloud.durastore.storage.probe.ProbedEMCStorageProvider;
+import org.duracloud.durastore.storage.probe.ProbedS3StorageProvider;
+import org.duracloud.durastore.storage.probe.ProbedRackspaceStorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -19,7 +19,6 @@ import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,6 +30,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * This class runs a suite of tests on the StorageProvider interface across all

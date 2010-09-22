@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3storage;
+package org.duracloud.durastore.storage.probe;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;

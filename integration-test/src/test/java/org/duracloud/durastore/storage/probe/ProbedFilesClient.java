@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.rackspacestorage;
+package org.duracloud.durastore.storage.probe;
 
 import com.rackspacecloud.client.cloudfiles.*;
 import org.apache.commons.httpclient.HttpException;

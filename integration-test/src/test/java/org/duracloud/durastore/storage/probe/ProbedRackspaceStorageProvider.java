@@ -5,46 +5,43 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3storage;
+package org.duracloud.durastore.storage.probe;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import org.duracloud.common.util.metrics.MetricsProbed;
+import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.ProbedStorageProvider;
 
 /**
  * This class implements the StorageProvider interface using a Metrics-Probed
- * S3Service as the underlying storage service.
+ * Rackspace FilesClient as the underlying storage service.
  *
  * @author Andrew Woods
  */
-public class ProbedS3StorageProvider
+public class ProbedRackspaceStorageProvider
         extends ProbedStorageProvider {
 
-    private ProbedRestS3Client probedCore;
+    private ProbedFilesClient probedCore;
 
-    public ProbedS3StorageProvider(String accessKey, String secretKey)
+    public ProbedRackspaceStorageProvider(String username, String apiAccessKey)
             throws StorageException {
-        AWSCredentials awsCredentials =
-                new BasicAWSCredentials(accessKey, secretKey);
-
         try {
-            probedCore = new ProbedRestS3Client(awsCredentials);
-        } catch (AmazonServiceException e) {
+            probedCore = new ProbedFilesClient(username, apiAccessKey);
+            if (!probedCore.login()) {
+                throw new Exception("Login to Rackspace failed");
+            }
+        } catch (Exception e) {
             String err =
-                    "Could not create connection to S3 due to error: "
+                    "Could not create connection to Rackspace due to error: "
                             + e.getMessage();
             throw new StorageException(err, e);
         }
 
-        storageProvider = new S3StorageProvider(probedCore, accessKey);
+        setStorageProvider(new RackspaceStorageProvider(probedCore));
     }
 
     @Override
     protected MetricsProbed getProbedCore() {
         return probedCore;
     }
-
 }

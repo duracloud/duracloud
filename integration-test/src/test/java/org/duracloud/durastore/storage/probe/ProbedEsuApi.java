@@ -5,21 +5,34 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.emcstorage;
+package org.duracloud.durastore.storage.probe;
 
-import com.emc.esu.api.*;
+import com.emc.esu.api.Acl;
+import com.emc.esu.api.BufferSegment;
+import com.emc.esu.api.DirectoryEntry;
+import com.emc.esu.api.EsuApi;
+import com.emc.esu.api.Extent;
+import com.emc.esu.api.Identifier;
+import com.emc.esu.api.MetadataList;
+import com.emc.esu.api.MetadataTag;
+import com.emc.esu.api.MetadataTags;
+import com.emc.esu.api.ObjectId;
+import com.emc.esu.api.ObjectMetadata;
+import com.emc.esu.api.ObjectPath;
+import com.emc.esu.api.ObjectResult;
 import com.emc.esu.api.rest.EsuRestApi;
 import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
 import org.duracloud.common.util.metrics.MetricsProbed;
 import org.duracloud.common.util.metrics.MetricsTable;
-import static org.duracloud.emcstorage.EMCStorageProvider.ESU_HOST;
-import static org.duracloud.emcstorage.EMCStorageProvider.ESU_PORT;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+
+import static org.duracloud.emcstorage.EMCStorageProvider.ESU_HOST;
+import static org.duracloud.emcstorage.EMCStorageProvider.ESU_PORT;
 
 public class ProbedEsuApi
         implements EsuApi, MetricsProbed {

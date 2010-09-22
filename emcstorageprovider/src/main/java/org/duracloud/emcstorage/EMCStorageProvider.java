@@ -7,7 +7,18 @@
  */
 package org.duracloud.emcstorage;
 
-import com.emc.esu.api.*;
+import com.emc.esu.api.Acl;
+import com.emc.esu.api.DirectoryEntry;
+import com.emc.esu.api.DownloadHelper;
+import com.emc.esu.api.EsuApi;
+import com.emc.esu.api.EsuException;
+import com.emc.esu.api.Identifier;
+import com.emc.esu.api.Metadata;
+import com.emc.esu.api.MetadataList;
+import com.emc.esu.api.MetadataTag;
+import com.emc.esu.api.MetadataTags;
+import com.emc.esu.api.ObjectPath;
+import com.emc.esu.api.UploadHelper;
 import com.emc.esu.api.rest.EsuRestApi;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.stream.ChecksumInputStream;
@@ -15,13 +26,9 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,6 +39,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
 
 /**
  * Provides content storage backed by EMC's Storage Utility.
@@ -50,9 +61,9 @@ public class EMCStorageProvider extends StorageProviderBase {
 
     private static final String EMC_CREATION_DATE_NAME = "ctime";
 
-    protected static final String ESU_HOST = "accesspoint.emccis.com";
+    public static final String ESU_HOST = "accesspoint.emccis.com";
 
-    protected static final int ESU_PORT = 80;
+    public static final int ESU_PORT = 80;
 
     // All ATMOS_* codes are defined in the emc/esu javadocs
     private static final int ATMOS_NO_OBJECTS_FOUND = 1003;

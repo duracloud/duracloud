@@ -5,9 +5,10 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.emcstorage;
+package org.duracloud.durastore.storage.probe;
 
 import org.duracloud.common.util.metrics.MetricsProbed;
+import org.duracloud.emcstorage.EMCStorageProvider;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.ProbedStorageProvider;
 
