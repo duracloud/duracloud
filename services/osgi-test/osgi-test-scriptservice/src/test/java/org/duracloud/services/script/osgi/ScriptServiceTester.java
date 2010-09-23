@@ -58,7 +58,7 @@ public class ScriptServiceTester {
 
     private void createScripts() throws Exception {
         ScriptService.OS os = scriptService.determineOS();
-        if(os.equals(ScriptService.OS.Linux)) {
+        if(os.equals(ScriptService.OS.Linux) || os.equals(ScriptService.OS.MacOSX)) {
             // Start script
             File startScript = new File(workDir, "start.sh");
             startScript.createNewFile();
