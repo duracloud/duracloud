@@ -29,7 +29,7 @@ import java.util.Map;
 public class ScriptService extends BaseService implements ComputeService, ManagedService {
 
     public static enum OS {
-        Windows, Linux
+        Windows, Linux, MacOSX
     }
     
     private static final String START_SCRIPT = "start";
@@ -81,7 +81,7 @@ public class ScriptService extends BaseService implements ComputeService, Manage
         OS os = determineOS();
         String scriptFileName = script;
 
-        if (os.equals(OS.Linux)) { // Linux
+        if (os.equals(OS.Linux) || os.equals(OS.MacOSX)) { // Linux or Mac
             scriptFileName = scriptFileName + LIN_EXT;
         } else { // Windows
             scriptFileName = scriptFileName + WIN_EXT;
@@ -107,6 +107,8 @@ public class ScriptService extends BaseService implements ComputeService, Manage
             return OS.Windows;
         } else if (osName.toLowerCase().indexOf("linux") >= 0) {
             return OS.Linux;
+        } else if (osName.toLowerCase().indexOf("mac os x") >= 0) {
+            return OS.MacOSX;
         } else {
             String error = "No script version available for OS: " + osName;
             throw new ScriptServiceException(error);
