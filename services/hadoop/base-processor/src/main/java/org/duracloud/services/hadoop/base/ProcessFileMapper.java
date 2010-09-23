@@ -77,17 +77,12 @@ public class ProcessFileMapper extends MapReduceBase
 
             // Process the local file
             resultFile = processFile(localFile);
-
-            System.out.println("File processing complete, result file " +
-                               "generated: " + resultFile.getName());
-
-            // Move the result file to the output location
-            String finalResultFilePath =
-                moveToOutput(resultFile, resultFile.getName(), outputPath);
+            if (null != resultFile) {
+                storeResultFile(outputPath, resultFile);
+            }
 
             // Collect result information
             resultInfo.put(RESULT, SUCCESS);
-            resultInfo.put(RESULT_PATH, finalResultFilePath);
 
             System.out.println("Map processing completed successfully for: " +
                                filePath);
@@ -174,6 +169,20 @@ public class ProcessFileMapper extends MapReduceBase
                             " in ProcessFileMapper";
         FileUtils.writeStringToFile(resultFile, outputText, "UTF-8");
         return resultFile;
+    }
+
+    private void storeResultFile(String outputPath, File resultFile)
+        throws IOException {
+        System.out.println(
+            "File processing complete, result file " + "generated: " +
+                resultFile.getName());
+
+        // Move the result file to the output location
+        String finalResultFilePath = moveToOutput(resultFile,
+                                                  resultFile.getName(),
+                                                  outputPath);
+
+        resultInfo.put(RESULT_PATH, finalResultFilePath);
     }
 
     /**
