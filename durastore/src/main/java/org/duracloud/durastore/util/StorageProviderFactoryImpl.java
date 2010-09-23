@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.azurestorage.AzureStorageProvider;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
 import org.duracloud.durastore.test.MockVerifyDeleteStorageProvider;
@@ -101,7 +102,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
         if (type.equals(StorageProviderType.AMAZON_S3)) {
             storageProvider = new S3StorageProvider(username, password);
         } else if (type.equals(StorageProviderType.MICROSOFT_AZURE)) {
-            // TODO: Create Azure storage provider
+            storageProvider = new AzureStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.RACKSPACE)) {
             storageProvider = new RackspaceStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.EMC)) {
