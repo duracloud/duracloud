@@ -1,961 +1,963 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.duracloud</groupId>
-  <artifactId>duracloud</artifactId>
-  <packaging>pom</packaging>
-  <version>0.7.0-SNAPSHOT</version>
-  <name>DuraCloud</name>
-  <url>http://duracloud.org</url>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.duracloud</groupId>
+    <artifactId>duracloud</artifactId>
+    <packaging>pom</packaging>
+    <version>0.7.0-SNAPSHOT</version>
+    <name>DuraCloud</name>
+    <url>http://duracloud.org</url>
 
-  <prerequisites>
-    <maven>2.2.1</maven>
-  </prerequisites>
+    <prerequisites>
+        <maven>2.2.1</maven>
+    </prerequisites>
 
-  <inceptionYear>2009</inceptionYear>
+    <inceptionYear>2009</inceptionYear>
 
-  <developers>
-    <developer>
-      <name>Branan, Bill</name>
-      <email>bbranan@duraspace.org</email>
-    </developer>
+    <developers>
+        <developer>
+            <name>Branan, Bill</name>
+            <email>bbranan@duraspace.org</email>
+        </developer>
 
-    <developer>
-      <name>Wilper, Chris</name>
-      <email>cwilper@duraspace.org</email>
-    </developer>
+        <developer>
+            <name>Wilper, Chris</name>
+            <email>cwilper@duraspace.org</email>
+        </developer>
 
-    <developer>
-      <name>Woods, Andrew</name>
-      <email>awoods@duraspace.org</email>
-    </developer>
+        <developer>
+            <name>Woods, Andrew</name>
+            <email>awoods@duraspace.org</email>
+        </developer>
 
-    <developer>
-      <name>Bernstein, Danny</name>
-      <email>dbernstein@duraspace.org</email>
-    </developer>
+        <developer>
+            <name>Bernstein, Danny</name>
+            <email>dbernstein@duraspace.org</email>
+        </developer>
 
-    <developer>
-      <name>Hacskaylo, Charles</name>
-      <email>charlesh88@gmail.com</email>
-    </developer>
+        <developer>
+            <name>Hacskaylo, Charles</name>
+            <email>charlesh88@gmail.com</email>
+        </developer>
 
-  </developers>
+    </developers>
 
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
 
-  <organization>
-    <name>DuraSpace</name>
-    <url>http://www.duraspace.org</url>
-  </organization>
+    <organization>
+        <name>DuraSpace</name>
+        <url>http://www.duraspace.org</url>
+    </organization>
 
-  <modules>
-    <module>mavenplugins</module>
-    <module>common</module>
-    <module>common-db</module>
-    <module>common-rest</module>
-    <module>serviceconfig</module>
-    <module>storageprovider</module>
-    <module>unit-test-db</module>
-    <module>storeclient</module>
-    <module>security</module>
-    <module>computeprovider</module>
-    <module>ec2typicacomputeprovider</module>
-    <module>s3storageprovider</module>
-    <module>rackspacestorageprovider</module>
-    <module>emcstorageprovider</module>
-    <module>durastore</module>
-    <module>hellowebapp</module>
-    <module>services</module>
-    <module>duraservice</module>
-    <module>app-config</module>
-    <module>serviceclient</module>
-    <module>servicesadminclient</module>
-    <module>chunk</module>
-    <module>duradmin</module>
-    <module>synctool</module>
-    <module>integration-test</module>
-  </modules>
+    <modules>
+        <module>mavenplugins</module>
+        <module>common</module>
+        <module>common-db</module>
+        <module>common-rest</module>
+        <module>serviceconfig</module>
+        <module>storageprovider</module>
+        <module>unit-test-db</module>
+        <module>storeclient</module>
+        <module>security</module>
+        <module>computeprovider</module>
+        <module>ec2typicacomputeprovider</module>
+        <module>s3storageprovider</module>
+        <module>rackspacestorageprovider</module>
+        <module>emcstorageprovider</module>
+        <module>azurestorageprovider</module>
+        <module>durastore</module>
+        <module>hellowebapp</module>
+        <module>services</module>
+        <module>duraservice</module>
+        <module>app-config</module>
+        <module>serviceclient</module>
+        <module>servicesadminclient</module>
+        <module>chunk</module>
+        <module>duradmin</module>
+        <module>synctool</module>
+        <module>integration-test</module>
+    </modules>
 
-  <profiles>
-    <profile>
-      <id>profile-dev</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-          <property>
-            <name>profile</name>
-            <value>dev</value>
-          </property>
-      </activation>
+    <profiles>
+        <profile>
+            <id>profile-dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>profile</name>
+                    <value>dev</value>
+                </property>
+            </activation>
 
-      <properties>
-        <tomcat.port>${tomcat.port.default}</tomcat.port>
-        <database.home>${database.home.default}</database.home>
-        <log.level>${log.level.default}</log.level>
-      </properties>
+            <properties>
+                <tomcat.port>${tomcat.port.default}</tomcat.port>
+                <database.home>${database.home.default}</database.home>
+                <log.level>${log.level.default}</log.level>
+            </properties>
 
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>tomcat-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>tomcat-deploy</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>deploy-only</goal>
-                </goals>
-                <configuration>
-                  <server>tomcat-server</server>
-                  <url>http://localhost:${tomcat.port}/manager</url>
-                  <update>true</update>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-        
-    </profile>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>tomcat-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>tomcat-deploy</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-only</goal>
+                                </goals>
+                                <configuration>
+                                    <server>tomcat-server</server>
+                                    <url>http://localhost:${tomcat.port}/manager</url>
+                                    <update>true</update>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
 
-    <profile>
-      <id>profile-bootstrap</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-          <name>profile</name>
-          <value>bootstrap</value>
-        </property>
-      </activation>
+        </profile>
 
-      <properties>
-        <tomcat.port>${tomcat.port.default}</tomcat.port>
-        <database.home>${database.home.default}</database.home>
-      </properties>
-      
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-scm-plugin</artifactId>
-            <version>1.0</version>
-            <configuration>
-              <goals>compile</goals>
-              <connectionType>connection</connectionType>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+        <profile>
+            <id>profile-bootstrap</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>profile</name>
+                    <value>bootstrap</value>
+                </property>
+            </activation>
 
-    <profile>
-      <id>profile-clover</id>
-    
-      <properties>
-        <tomcat.port>${tomcat.port.default}</tomcat.port>
-        <database.home>${database.home.default}</database.home>
-      </properties>
-      
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.atlassian.maven.plugins</groupId>
-            <artifactId>maven-clover2-plugin</artifactId>
-            <version>2.6.2</version>
-            <configuration>
-              <licenseLocation>${cloverLicense}</licenseLocation>
-              <targetPercentage>50%</targetPercentage>
-              <includes>
-                <include>**/*.java</include>
-              </includes>
-              <generateHtml>true</generateHtml>
-              <generateHistorical>true</generateHistorical>
-              <historyDir>${user.home}/.clover/history/${project.artifact}</historyDir>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    
-  </profiles>
+            <properties>
+                <tomcat.port>${tomcat.port.default}</tomcat.port>
+                <database.home>${database.home.default}</database.home>
+            </properties>
 
-  <properties>
-    <tomcat.port.default>8080</tomcat.port.default>
-    <database.home.default>/opt/derby/duracloudDB</database.home.default>
-    <unitTests>**/*Test.class</unitTests>
-    <integrationTests>**/Test*.class</integrationTests>
-    <instrumentedTests>**/*Test*__*.class</instrumentedTests>
-    <innerClasses>**/*$*</innerClasses>
-    <log.level.default>INFO</log.level.default>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <version>1.0</version>
+                        <configuration>
+                            <goals>compile</goals>
+                            <connectionType>connection</connectionType>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-  <distributionManagement />
+        <profile>
+            <id>profile-clover</id>
 
-  <repositories>
+            <properties>
+                <tomcat.port>${tomcat.port.default}</tomcat.port>
+                <database.home>${database.home.default}</database.home>
+            </properties>
 
-    <repository>
-      <id>duraspace-thirdparty</id>
-      <name>DuraSpace Thirdparty</name>
-      <url>https://m2.duraspace.org/content/repositories/thirdparty</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>central</id>
-      <name>Maven Repository Switchboard</name>
-      <url>http://repo1.maven.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>maven2-repository.dev.java.net</id>
-      <name>Java.net Repository for Maven</name>
-      <url>http://download.java.net/maven/2/</url>
-      <layout>default</layout>
-    </repository> 
-    <repository>
-      <id>maven-repository.dev.java.net</id>
-      <name>Java.net Maven 1 Repository (legacy)</name>
-      <url>http://download.java.net/maven/1</url>
-      <layout>legacy</layout>
-    </repository>
-    <repository>
-      <id>com.springsource.repository.bundles.release</id>
-      <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
-      <url>http://repository.springsource.com/maven/bundles/release</url>
-    </repository>
-    <repository>
-      <id>com.springsource.repository.bundles.external</id>
-      <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-      <url>http://repository.springsource.com/maven/bundles/external</url>
-    </repository>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.atlassian.maven.plugins</groupId>
+                        <artifactId>maven-clover2-plugin</artifactId>
+                        <version>2.6.2</version>
+                        <configuration>
+                            <licenseLocation>${cloverLicense}</licenseLocation>
+                            <targetPercentage>50%</targetPercentage>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
+                            <generateHtml>true</generateHtml>
+                            <generateHistorical>true</generateHistorical>
+                            <historyDir>${user.home}/.clover/history/${project.artifact}</historyDir>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-  </repositories>
+    </profiles>
 
-  <scm>
-    <connection>scm:svn:https://svn.duraspace.org/duracloud/trunk</connection>
-    <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/trunk</developerConnection>
-  </scm>
+    <properties>
+        <tomcat.port.default>8080</tomcat.port.default>
+        <database.home.default>/opt/derby/duracloudDB</database.home.default>
+        <unitTests>**/*Test.class</unitTests>
+        <integrationTests>**/Test*.class</integrationTests>
+        <instrumentedTests>**/*Test*__*.class</instrumentedTests>
+        <innerClasses>**/*$*</innerClasses>
+        <log.level.default>INFO</log.level.default>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-  <build>
+    <distributionManagement/>
 
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-        <filtering>true</filtering>
-      </testResource>
-    </testResources>
-  
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2-beta-4</version>
-        <configuration>
-          <descriptor>src/main/assembly/dep.xml</descriptor>
-          <includeSite>false</includeSite>
-        </configuration>
-      </plugin>
+    <repositories>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <warName>${artifactId}-${version}</warName>
-          <webResources>
+        <repository>
+            <id>duraspace-thirdparty</id>
+            <name>DuraSpace Thirdparty</name>
+            <url>https://m2.duraspace.org/content/repositories/thirdparty</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>maven-repository.dev.java.net</id>
+            <name>Java.net Maven 1 Repository (legacy)</name>
+            <url>http://download.java.net/maven/1</url>
+            <layout>legacy</layout>
+        </repository>
+        <repository>
+            <id>com.springsource.repository.bundles.release</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </repository>
+        <repository>
+            <id>com.springsource.repository.bundles.external</id>
+            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
+        </repository>
+
+    </repositories>
+
+    <scm>
+        <connection>scm:svn:https://svn.duraspace.org/duracloud/trunk</connection>
+        <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/trunk</developerConnection>
+    </scm>
+
+    <build>
+
+        <resources>
             <resource>
-              <directory>src/main/resources</directory>
-              <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
             </resource>
-          </webResources>
-        </configuration>
-      </plugin>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
 
-      <plugin>
-        <groupId>com.google.code.maven-svn-revision-number-plugin
-        </groupId>
-        <artifactId>maven-svn-revision-number-plugin</artifactId>
-        <version>1.5</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <entries>
-            <entry>
-              <prefix>prefix</prefix>
-            </entry>
-          </entries>
-        </configuration>
-      </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-4</version>
+                <configuration>
+                    <descriptor>src/main/assembly/dep.xml</descriptor>
+                    <includeSite>false</includeSite>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>${artifactId}-${version}</warName>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/resources</directory>
+                            <filtering>true</filtering>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.code.maven-svn-revision-number-plugin
+                </groupId>
+                <artifactId>maven-svn-revision-number-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <entries>
+                        <entry>
+                            <prefix>prefix</prefix>
+                        </entry>
+                    </entries>
+                </configuration>
+            </plugin>
 
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.0-beta-9</version>
-        <configuration>
-          <tagBase>https://svn.duraspace.org/duracloud/tags</tagBase>
-        </configuration>
-      </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.0-beta-9</version>
+                <configuration>
+                    <tagBase>https://svn.duraspace.org/duracloud/tags</tagBase>
+                </configuration>
+            </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <trimStackTrace>false</trimStackTrace>
-          <systemProperties>
-            <property>
-              <name>unit.database.home</name>
-              <value>${unit.database.home.default}</value>
-            </property>
-            <property>
-              <name>unit.database.password</name>
-              <value>${unit.database.password.default}</value>
-            </property>
-            <property>
-              <name>PROJECT_VERSION</name>
-              <value>${project.version}</value>
-            </property>
-          </systemProperties>
-          <excludes>
-            <exclude>${integrationTests}</exclude>
-            <exclude>${instrumentedTests}</exclude>
-            <exclude>${innerClasses}</exclude>
-          </excludes>
-          <includes>
-            <include>${unitTests}</include>
-          </includes>
-        </configuration>
-        <executions>
-          <execution>
-            <id>integrationtest</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <trimStackTrace>false</trimStackTrace>
-              <systemProperties>
-                <property>
-                  <name>unit.database.home</name>
-                  <value>${unit.database.home.default}</value>
-                </property>
-                <property>
-                  <name>unit.database.password</name>
-                  <value>${unit.database.password.default}</value>
-                </property>
-                <property>
-                  <name>PROJECT_VERSION</name>
-                  <value>${project.version}</value>
-                </property>
-              </systemProperties>
-              <excludes>
-                <exclude>${unitTests}</exclude>
-                <exclude>${instrumentedTests}</exclude>
-                <exclude>${innerClasses}</exclude>
-              </excludes>
-              <includes>
-                <include>${integrationTests}</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>        
-      </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <trimStackTrace>false</trimStackTrace>
+                    <systemProperties>
+                        <property>
+                            <name>unit.database.home</name>
+                            <value>${unit.database.home.default}</value>
+                        </property>
+                        <property>
+                            <name>unit.database.password</name>
+                            <value>${unit.database.password.default}</value>
+                        </property>
+                        <property>
+                            <name>PROJECT_VERSION</name>
+                            <value>${project.version}</value>
+                        </property>
+                    </systemProperties>
+                    <excludes>
+                        <exclude>${integrationTests}</exclude>
+                        <exclude>${instrumentedTests}</exclude>
+                        <exclude>${innerClasses}</exclude>
+                    </excludes>
+                    <includes>
+                        <include>${unitTests}</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integrationtest</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <trimStackTrace>false</trimStackTrace>
+                            <systemProperties>
+                                <property>
+                                    <name>unit.database.home</name>
+                                    <value>${unit.database.home.default}</value>
+                                </property>
+                                <property>
+                                    <name>unit.database.password</name>
+                                    <value>${unit.database.password.default}</value>
+                                </property>
+                                <property>
+                                    <name>PROJECT_VERSION</name>
+                                    <value>${project.version}</value>
+                                </property>
+                            </systemProperties>
+                            <excludes>
+                                <exclude>${unitTests}</exclude>
+                                <exclude>${instrumentedTests}</exclude>
+                                <exclude>${innerClasses}</exclude>
+                            </excludes>
+                            <includes>
+                                <include>${integrationTests}</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
 
-        <executions> 
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
 
-        <configuration>
-          <supportedProjectTypes>
-            <supportedProjectType>jar</supportedProjectType>
-            <supportedProjectType>bundle</supportedProjectType>
-            <supportedProjectType>war</supportedProjectType>
-          </supportedProjectTypes>
-        </configuration>
-      </plugin>
+                <configuration>
+                    <supportedProjectTypes>
+                        <supportedProjectType>jar</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                        <supportedProjectType>war</supportedProjectType>
+                    </supportedProjectTypes>
+                </configuration>
+            </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.0-beta-1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <bannedDependencies>
-                  <searchTransitive>true</searchTransitive>
-                  <excludes>
-                    <exclude>commons-logging</exclude>
-                    <exclude>log4j</exclude>
-                    <exclude>com.springsource.org.apache.commons.logging</exclude>
-                  </excludes>
-                </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0-beta-1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>true</searchTransitive>
+                                    <excludes>
+                                        <exclude>commons-logging</exclude>
+                                        <exclude>log4j</exclude>
+                                        <exclude>com.springsource.org.apache.commons.logging</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-  <dependencyManagement>
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymockclassextension</artifactId>
+                <version>2.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.6.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>0.9.21</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>1.6.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>1.6.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+                <version>1.3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.stream</groupId>
+                <artifactId>com.springsource.javax.xml.stream</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>6.0.18</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core-tiger</artifactId>
+                <version>2.0.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>1.5.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.xmlpull</groupId>
+                <artifactId>com.springsource.org.xmlpull</artifactId>
+                <version>1.1.3.4-O</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom</artifactId>
+                <version>1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>com.springsource.org.jdom</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>1.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-validator</groupId>
+                <artifactId>commons-validator</artifactId>
+                <version>1.3.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.1.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.stream</groupId>
+                <artifactId>stax-api</artifactId>
+                <version>1.0-2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.jersey</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.jersey.contribs</groupId>
+                <artifactId>jersey-spring</artifactId>
+                <version>1.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.xbean</groupId>
+                <artifactId>xbean-spring</artifactId>
+                <version>3.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>2.3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
+                <version>1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tiles</groupId>
+                <artifactId>tiles-servlet</artifactId>
+                <version>2.1.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tiles</groupId>
+                <artifactId>tiles-jsp</artifactId>
+                <version>2.1.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.spring-json</groupId>
+                <artifactId>spring-json</artifactId>
+                <version>1.3.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.sf.sojo</groupId>
+                        <artifactId>sojo-optional</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.json-lib</groupId>
+                <artifactId>json-lib</artifactId>
+                <version>2.3</version>
+                <classifier>jdk15</classifier>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>2.0.4</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-dao</artifactId>
+                <version>2.0.8</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>2.5.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>com.springsource.org.apache.commons.httpclient</artifactId>
+                <version>3.1.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>2.5.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>2.5.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>2.5.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webflow</artifactId>
+                <version>1.0.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-binding</artifactId>
+                <version>1.0.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-mock</artifactId>
+                <version>2.0.8</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.jdbc</artifactId>
+                <version>2.5.6.A</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.transaction</artifactId>
+                <version>2.5.6.A</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>2.5.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jms</artifactId>
+                <version>2.5.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.webflow</groupId>
+                <artifactId>org.springframework.webflow</artifactId>
+                <version>2.0.8.RELEASE</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.webflow</groupId>
+                <artifactId>org.springframework.binding</artifactId>
+                <version>2.0.8.RELEASE</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>com.springsource.org.apache.commons.io</artifactId>
+                <version>1.4.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>com.springsource.org.apache.commons.lang</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>com.springsource.org.apache.commons.codec</artifactId>
+                <version>1.3.0</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.5</version>
-        <exclusions>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-        <groupId>org.easymock</groupId>
-        <artifactId>easymockclassextension</artifactId>
-        <version>2.4</version>
-      </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.6.0</version>
-      </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
 
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>0.9.21</version>
-      </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <version>1.6.0</version>
-      </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>log4j-over-slf4j</artifactId>
-        <version>1.6.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.thoughtworks.xstream</groupId>
-        <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-        <version>1.3.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>javax.xml.stream</groupId>
-        <artifactId>com.springsource.javax.xml.stream</artifactId>
-        <version>1.0.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.4</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>6.0.18</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-core-tiger</artifactId>
-        <version>2.0.4</version>
-      </dependency>
-
-      <dependency>
-        <groupId>aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <version>1.5.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.xmlpull</groupId>
-        <artifactId>com.springsource.org.xmlpull</artifactId>
-        <version>1.1.3.4-O</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jdom</groupId>
-        <artifactId>jdom</artifactId>
-        <version>1.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jdom</groupId>  
-        <artifactId>com.springsource.org.jdom</artifactId>
-        <version>1.0.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.4</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-fileupload</groupId>
-        <artifactId>commons-fileupload</artifactId>
-        <version>1.2.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>1.4</version>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-httpclient</groupId>
-        <artifactId>commons-httpclient</artifactId>
-        <version>3.1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-validator</groupId>
-        <artifactId>commons-validator</artifactId>
-        <version>1.3.1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <version>2.1.9</version>
-      </dependency>
-
-      <dependency>
-        <groupId>javax.xml.stream</groupId>
-        <artifactId>stax-api</artifactId>
-        <version>1.0-2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>1.4</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.sun.jersey</groupId>
-        <artifactId>jersey-server</artifactId>
-        <version>1.0.1</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>com.sun.jersey.contribs</groupId>
-        <artifactId>jersey-spring</artifactId>
-        <version>1.0.1</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-spring</artifactId>
-        <version>3.5</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.xmlbeans</groupId>
-        <artifactId>xmlbeans</artifactId>
-        <version>2.3.0</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>commons-cli</groupId>
-        <artifactId>commons-cli</artifactId>
-        <version>1.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.tiles</groupId>
-        <artifactId>tiles-servlet</artifactId>
-        <version>2.1.3</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.tiles</groupId>
-        <artifactId>tiles-jsp</artifactId>
-        <version>2.1.3</version>
-      </dependency>
-
-      <dependency>
-        <groupId>net.sf.spring-json</groupId>
-        <artifactId>spring-json</artifactId>
-        <version>1.3.0</version>
-        <exclusions>
-          <exclusion>
-            <groupId>net.sf.sojo</groupId>
-            <artifactId>sojo-optional</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>net.sf.json-lib</groupId>
-        <artifactId>json-lib</artifactId>
-        <version>2.3</version>
-        <classifier>jdk15</classifier>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-core</artifactId>
-        <version>2.0.4</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-dao</artifactId>
-        <version>2.0.8</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
-        <version>2.5.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>com.springsource.org.apache.commons.httpclient</artifactId>
-        <version>3.1.0</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>2.5.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webmvc</artifactId>
-        <version>2.5.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jdbc</artifactId>
-        <version>2.5.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webflow</artifactId>
-        <version>1.0.5</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-binding</artifactId>
-        <version>1.0.5</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-mock</artifactId>
-        <version>2.0.8</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>  
-        <groupId>org.springframework</groupId>
-        <artifactId>org.springframework.jdbc</artifactId>
-        <version>2.5.6.A</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>org.springframework.transaction</artifactId>
-        <version>2.5.6.A</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-tx</artifactId>
-        <version>2.5.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jms</artifactId>
-        <version>2.5.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.webflow</groupId>
-        <artifactId>org.springframework.webflow</artifactId>
-        <version>2.0.8.RELEASE</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.webflow</groupId>
-        <artifactId>org.springframework.binding</artifactId>
-        <version>2.0.8.RELEASE</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>com.springsource.org.apache.commons.io</artifactId>
-        <version>1.4.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>com.springsource.org.apache.commons.lang</artifactId>
-        <version>2.4.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>com.springsource.org.apache.commons.codec</artifactId>
-        <version>1.3.0</version>
-      </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
     </dependencies>
-  </dependencyManagement>
-
-  <dependencies>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymockclassextension</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
-  </dependencies>
 
 </project>
