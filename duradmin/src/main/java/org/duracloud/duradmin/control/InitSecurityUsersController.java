@@ -53,8 +53,7 @@ public class InitSecurityUsersController extends AbstractController {
 
         String method = request.getMethod();
         if (!method.equalsIgnoreCase("POST")) {
-            respond(response, "unsupported: " + method, SC_METHOD_NOT_ALLOWED);
-            return null;
+            return respond(response, "unsupported: " + method, SC_METHOD_NOT_ALLOWED);
         }
 
         ServletInputStream xml = request.getInputStream();
@@ -62,43 +61,23 @@ public class InitSecurityUsersController extends AbstractController {
             try {
                 List<SecurityUserBean> users = createSecurityUsersFrom(xml);
                 userDetailsService.setUsers(users);
-                respond(response, "Initialization Successful\n", SC_OK);
+                return respond(response, "Initialization Successful\n", SC_OK);
 
             } catch (Exception e) {
-                respond(response,
+                return respond(response,
                         getStackTraceAsString(e),
                         SC_INTERNAL_SERVER_ERROR);
             }
         } else {
-            respond(response, "no users in request\n", SC_BAD_REQUEST);
+            return respond(response, "no users in request\n", SC_BAD_REQUEST);
         }
-        return null;
     }
 
-    private void respond(HttpServletResponse response, String msg, int status) {
-        ServletOutputStream output;
-        try {
-            output = response.getOutputStream();
-
-        } catch (IOException e) {
-            String err = "Error getting servlet output stream";
-            log.error(err, e);
-            response.setStatus(SC_INTERNAL_SERVER_ERROR);
-            throw new DuraCloudRuntimeException(err, e);
-        }
-
-        try {
-            output.write(msg.getBytes());
-            output.flush();
-
-        } catch (IOException e) {
-            String err = "Error writing to servlet output stream";
-            log.error(err, e);
-            response.setStatus(SC_INTERNAL_SERVER_ERROR);
-            throw new DuraCloudRuntimeException(err, e);
-        }
-
+    private ModelAndView respond(HttpServletResponse response, String msg, int status) {
         response.setStatus(status);
+        log.info("writing response: status = " + status + "; msg = " + msg);
+        return new ModelAndView("jsonView", "response", msg);
     }
+
 
 }

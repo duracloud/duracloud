@@ -52,25 +52,23 @@ public class InitController extends BaseCommandController {
                                   BindException be) throws Exception {
         String method = request.getMethod();
         if (!method.equalsIgnoreCase("POST")) {
-            respond(response, "unsupported: " + method, SC_METHOD_NOT_ALLOWED);
-            return null;
+            return respond(response, "unsupported: " + method, SC_METHOD_NOT_ALLOWED);
         }
 
         ServletInputStream xml = request.getInputStream();
         if (xml != null) {
             try {
                 updateInit(createDuradminConfigFrom(xml));
-                respond(response, "Initialization Successful\n", SC_OK);
+                return respond(response, "Initialization Successful\n", SC_OK);
 
             } catch (Exception e) {
-                respond(response,
+                return respond(response,
                         getStackTraceAsString(e),
                         SC_INTERNAL_SERVER_ERROR);
             }
         } else {
-            respond(response, "no duradminConfig in request\n", SC_BAD_REQUEST);
+            return respond(response, "no duradminConfig in request\n", SC_BAD_REQUEST);
         }
-        return null;
     }
 
     private void updateInit(org.duracloud.appconfig.domain.DuradminConfig config)
@@ -89,30 +87,9 @@ public class InitController extends BaseCommandController {
         contentStoreProvider.reinitializeContentStoreManager();
     }
 
-    private void respond(HttpServletResponse response, String msg, int status) {
-        ServletOutputStream output;
-        try {
-            output = response.getOutputStream();
-
-        } catch (IOException e) {
-            String err = "Error getting servlet output stream";
-            log.error(err, e);
-            response.setStatus(SC_INTERNAL_SERVER_ERROR);
-            throw new DuraCloudRuntimeException(err, e);
-        }
-
-        try {
-            output.write(msg.getBytes());
-            output.flush();
-
-        } catch (IOException e) {
-            String err = "Error writing to servlet output stream";
-            log.error(err, e);
-            response.setStatus(SC_INTERNAL_SERVER_ERROR);
-            throw new DuraCloudRuntimeException(err, e);
-        }
-
+    private ModelAndView respond(HttpServletResponse response, String msg, int status) {
         response.setStatus(status);
+        log.info("writing response: status = " + status + "; msg = " + msg);
+        return new ModelAndView("jsonView", "response", msg);
     }
-
 }
