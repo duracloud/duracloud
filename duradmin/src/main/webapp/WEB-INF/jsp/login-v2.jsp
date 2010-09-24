@@ -26,14 +26,19 @@
 						data: loginForm.serialize(), 
 						cache: false,
 					  	success: function(data) {
-   						  feedback.fadeOut();					
-						  dc.debug("data="+data);
-						  if(data.indexOf("Login") > 0){
-							  message.makeVisible();
-							  message.fadeIn();
-						  }else{
-	 						  location.reload();
-						  }
+					  	 	try{
+	   						  feedback.fadeOut();					
+							  dc.debug("data="+data);
+							  if(data.indexOf("Login") > 0){
+								  message.makeVisible();
+								  message.fadeIn();
+							  }else{
+		 						  location.reload(true);
+							  }
+					  	 	}catch(err){
+								dc.error(err);
+								alert("an unexpected error occurred: " + err);
+					  	 	}
 					  },
 					  error: function(){
 						  feedback.fadeOut();					

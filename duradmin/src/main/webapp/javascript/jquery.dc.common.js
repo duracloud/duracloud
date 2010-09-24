@@ -130,13 +130,21 @@ $(document).ready(function(){
 
 		dc.debug = function(message){
 			if(window.console){
-				console.debug(message);
+				if(window.opera){
+					console.log(message);
+				}else{
+					console.debug(message);
+				}
 			}
 		};
 
 		dc.error = function(message){
 			if(window.console){
-				console.error(message);
+				if(window.opera){
+					console.log(message);
+				}else{
+					console.error(message);
+				}
 			}
 		};
 		
