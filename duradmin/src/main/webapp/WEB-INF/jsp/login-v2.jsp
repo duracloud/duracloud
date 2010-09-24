@@ -24,6 +24,7 @@
 						type:"POST",
 						url: "/duradmin/j_spring_security_check",
 						data: loginForm.serialize(), 
+						cache: false,
 					  	success: function(data) {
    						  feedback.fadeOut();					
 						  dc.debug("data="+data);
