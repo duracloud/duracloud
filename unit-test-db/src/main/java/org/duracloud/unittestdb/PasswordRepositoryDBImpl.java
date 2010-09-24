@@ -54,7 +54,7 @@ public class PasswordRepositoryDBImpl
             "CREATE TABLE passwords (id INT GENERATED ALWAYS AS IDENTITY,"
                     + "providerType VARCHAR(32) NOT NULL,"
                     + "username VARCHAR(64) NOT NULL,"
-                    + "password VARCHAR(64) NOT NULL)";
+                    + "password VARCHAR(128) NOT NULL)";
 
     public void insertPassword(ResourceType resource,
                                String username,
