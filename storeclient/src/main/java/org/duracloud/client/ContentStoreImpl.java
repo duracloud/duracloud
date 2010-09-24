@@ -9,7 +9,6 @@ package org.duracloud.client;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper;
