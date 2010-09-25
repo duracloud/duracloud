@@ -27,6 +27,16 @@ public class ContentItem
 
     private String contentId;
 
+	private String storeId;
+
+    private String contentMimetype;
+
+    private String durastoreURL;
+
+    private List<NameValuePair> extendedMetadata;
+
+    private ContentMetadata metadata;
+
     public String getStoreId() {
 		return storeId;
 	}
@@ -35,24 +45,7 @@ public class ContentItem
 		this.storeId = storeId;
 	}
 
-
-	private String storeId;
-
-    private String contentMimetype;
-
-    private String viewerURL;
-    
-    private String downloadURL;
-    
-    private String thumbnailURL;
-
-    private String tinyThumbnailURL;
-
-    
-    private List<NameValuePair> extendedMetadata;
-
-    private ContentMetadata metadata;
-
+	
     public String getAction() {
         return action;
     }
@@ -109,48 +102,16 @@ public class ContentItem
     }
 
     
-    public String getDownloadURL() {
-        return downloadURL;
-    }
+    public void setDurastoreURL(String durastoreURL) {
+		this.durastoreURL = durastoreURL;
+	}
 
-    
-    public void setDownloadURL(String downloadURL) {
-        this.downloadURL = downloadURL;
-    }
+	public String getDurastoreURL() {
+		return durastoreURL;
+	}
 
-    
-    public String getThumbnailURL() {
-        return thumbnailURL;
-    }
-
-    
-    public void setThumbnailURL(String thumbnailURL) {
-        this.thumbnailURL = thumbnailURL;
-    }
-
-    
-    public String getViewerURL() {
-        return viewerURL;
-    }
-
-    
-    public void setViewerURL(String viewerURL) {
-        this.viewerURL = viewerURL;
-    }
-
-    
-    public String getTinyThumbnailURL() {
-        return tinyThumbnailURL;
-    }
-
-    
-    public void setTinyThumbnailURL(String tinyThumbnailURL) {
-        this.tinyThumbnailURL = tinyThumbnailURL;
-    }
-
-    public String toString(){
+	public String toString(){
     	return "{storeId: " + storeId + ", spaceId: " + spaceId + ", contentId: " + contentId + 
-    				", viewerURL: " + viewerURL + ", downloadURL: " + downloadURL + ", thumbnailURL: " + thumbnailURL + 
     				", metadata: " + metadata + ", contentMimetype: " + contentMimetype +"}";
     }
 }

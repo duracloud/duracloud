@@ -121,9 +121,11 @@ $(document).ready(function() {
 			success: function(response){
 				var config = response.properties;
 				var data = new Array();
-				for(i = 0; i < config.length; i++){
-					data[i] = [config[i].name, config[i].value];
-				}			
+				if(config != undefined){
+					for(i = 0; i < config.length; i++){
+						data[i] = [config[i].name, config[i].value];
+					}			
+				}
 				
 				centerPane.prepend(
 						$.fn.create("div")

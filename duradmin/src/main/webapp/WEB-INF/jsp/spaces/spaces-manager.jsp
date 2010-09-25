@@ -155,11 +155,13 @@
 							<div class="mime-type-image-holder float-l"></div>
 							<span class="label">Mime Type:</span> <span class="value">image/jpg</span>
 						</div>		
+
 						<div class="button-bar">				
 							<button class="featured edit-content-item-button"><i class="pre pencil"></i>Edit</button>
 							<a class="button download-content-item-button"><i class="pre download"></i>Download</a>
 							<a class="button view-content-item-button" target="_blank" style="display:none"><i class="pre download"></i>View</a>
 							<button class="delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete</button>						
+							<a class="durastore-link">External Access</a>
 						</div>
 					</div>
 					<div class="center"></div>

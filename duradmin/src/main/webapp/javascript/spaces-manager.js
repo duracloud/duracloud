@@ -820,12 +820,8 @@ $(document).ready(function() {
 		.attr("controls", "true");
 	};
 
-	
-	var loadPreview = function(target, contentItem){
-		
-		var mimetype = contentItem.metadata.mimetype;
-		var isExternalViewer =  contentItem.viewerURL.indexOf('djatok') > 0;
-		var isImage = (contentItem.metadata.mimetype.indexOf('image') == 0)
+
+	var loadPreview = function(target,contentItem,space, j2kBaseURL){
 		var viewerType = 'iframe';
 		var options = {
 				'transitionIn'	:	'elastic',
@@ -833,71 +829,68 @@ $(document).ready(function() {
 				'speedIn'		:	600, 
 				'speedOut'		:	200, 
 				'overlayShow'	:	false};
-		
-		if(isExternalViewer || !isImage){
+
+		var open = space.metadata.access == "OPEN";
+		var externalViewer = j2kBaseURL != null && open;
+		if(externalViewer){
 			options['width'] = $(document).width()*0.8;
 			options['height'] = $(document).height()*0.8;
 			options['type'] = 'iframe';
 		}else{
 			options['type'] = 'image';
 		}
-	
+		
+		var viewerURL,thumbnailURL;
+		
+		if(externalViewer){
+			viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem);
+			thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL);
+		}else{
+			viewerURL = dc.store.formatDownloadURL(contentItem,false);
+			thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
+		}
+
 		var div = $.fn.create("div")
 					  .expandopanel({title: "Preview"});
 		
 		$(".view-content-item-button", target)
 			.css("display","inline-block")
-			.attr("href", contentItem.viewerURL);
+			.attr("href", viewerURL);
 
 		var thumbnail = $.fn.create("img")
-							.attr("src", contentItem.thumbnailURL)
+							.attr("src", thumbnailURL)
 							.addClass("preview-image");
 
 		var viewerLink = $.fn.create("a").append(thumbnail)
-							.attr("href", contentItem.viewerURL)
+							.attr("href", viewerURL)
 							.fancybox(options);
 	
 		var wrapper = $.fn.create("div")
 							.addClass("preview-image-wrapper")
 							.append(viewerLink);
 
-		if(isImage && isExternalViewer){
-			var warning = $.fn.create("div").addClass("warning").hide();
+		if(!open && j2kBaseURL != null){
+			var warning = $.fn.create("div").addClass("warning");
 			$(div).expandopanel("getContent").append(warning);
-			dc.store.GetSpace(
-				 contentItem.storeId,
-				 contentItem.spaceId,
-				 {
-					success: function(space){
-					 	if(space.metadata.access == 'CLOSED'){
-					 		var button = $.fn.create("button")
-					 			.addClass("featured")
-					 			.css("margin-left","10px")
-					 			.html("Open Space");
-					 		
-					 		button.click(function(){
-			 					toggleSpaceAccess(
-			 						space, 
-			 						{
-			 							success:function(){
-			 								loadContentItem(contentItem);
-			 							},
-			 							failure:function(){alert("operation failed")},
-			 						})					 				
-				 			});
-
-					 		
-					 		warning.append("<span>To use the JP2 Viewer you must open this space.</span>")
-					 			   .append(button).show();
-					 	}
-				 	},
-				 	failure: function(){},
-				 });
-
-			
+	 		var button = $.fn.create("button")
+	 			.addClass("featured")
+	 			.css("margin-left","10px")
+	 			.html("Open Space");
+	 		button.click(function(){
+				toggleSpaceAccess(
+					space, 
+					{
+						success:function(newSpace){
+							loadContentItem(contentItem,newSpace);
+						},
+						failure:function(){alert("operation failed")},
+					})					 				
+			});
+	 		warning.append("<span>To use the JP2 Viewer you must open this space.</span>")
+	 			   .append(button);
 		}
-		$(div).expandopanel("getContent").append(wrapper);
 		
+		$(div).expandopanel("getContent").append(wrapper);
 		$(".center", target).append(div);
 	};
 
@@ -1443,7 +1436,7 @@ $(document).ready(function() {
 					getSpace(spaceId, 
 						function(space){
 							if(notEmpty(contentId)){
-								getContentItem(storeId,spaceId,contentId);
+								getContentItem(storeId,spaceId,contentId,space);
 								loadContentItems(space.contents);
 							}else{
 								loadSpace(space);
@@ -1606,31 +1599,47 @@ $(document).ready(function() {
 		return(mimetype.toLowerCase().indexOf("pdf") > -1);
 	};
 	
-	var loadContentItem = function(contentItem){
-		
+	var j2kViewerBaseURL = "";
+	
+	var loadContentItem = function(/*object*/contentItem,/*object*/ space){
 		setHash(contentItem);
 		var pane = $("#contentItemDetailPane").clone();
 		setObjectName(pane, contentItem.contentId);
-		
-		$(".download-content-item-button", pane).attr("href", contentItem.downloadURL);
+		$(".download-content-item-button", pane)
+			.attr("href", dc.store.formatDownloadURL(contentItem));
 
-		// attach delete button listener
-		$(".delete-content-item-button",pane).click(function(evt){
-			deleteContentItem(evt,contentItem);
-		});
+		$(".delete-content-item-button",pane)
+			.click(function(evt){
+				deleteContentItem(evt,contentItem);
+			});
 		
 		var mimetype = contentItem.metadata.mimetype;
 		
 		if(mimetype.indexOf("image") == 0){
-			loadPreview(pane, contentItem);
+			if(j2kViewerBaseURL != ""){
+				loadPreview(pane,contentItem,space, j2kViewerBaseURL);
+			}else{
+				dc.service.GetJ2kBaseURL({
+					success:function(url){
+						j2kViewerBaseURL = url;
+						loadPreview(pane,contentItem,space, j2kViewerBaseURL);
+					},
+					failure: function(text){
+						alert("GetJ2kBaseURL failed: " + text);
+					}
+				});			
+			}			
 		}else if(mimetype.indexOf("video") == 0){
 			loadVideo(pane, contentItem);
 		}else if(mimetype.indexOf("audio") == 0){
 			loadAudio(pane, contentItem);
 		}else {
-			$(".view-content-item-button", pane).attr("href", contentItem.viewerURL).css("display", "inline-block");
+			var viewerURL= dc.store.formatDownloadURL(contentItem, false);
+			$(".view-content-item-button", pane).attr("href", viewerURL).css("display", "inline-block");
 		}
-		
+
+		$(".durastore-link", pane).attr("href", contentItem.durastoreURL);
+
 		loadProperties(pane, extractContentItemProperties(contentItem));
 		// load the details panel
 		var mimetype = contentItem.metadata.mimetype;
@@ -1666,7 +1675,7 @@ $(document).ready(function() {
 							var callback = {
 								success: function(contentItem){
 									dc.done();
-									loadContentItem(contentItem);
+									loadContentItem(contentItem,space);
 								},
 								failure: function(text){
 									dc.done();
@@ -1725,7 +1734,7 @@ $(document).ready(function() {
 		);
 	};
 	
-	var getContentItem = function(storeId, spaceId, contentId){
+	var getContentItem = function(storeId, spaceId, contentId,space){
 		dc.store.GetContentItem(storeId,spaceId,contentId,{
 			begin: function(){
 				dc.busy("Loading...");
@@ -1742,7 +1751,7 @@ $(document).ready(function() {
 
 			success: function(data){
 				dc.done();
-				loadContentItem(data);
+				loadContentItem(data,space);
 			},
 		});
 	};
@@ -2103,7 +2112,23 @@ $(document).ready(function() {
 					var spaceId = getCurrentSpaceId();
 					if(spaceId != undefined){
 						var contentId = $(currentItem.item).attr("id");
-						getContentItem(getCurrentProviderStoreId(),spaceId,contentId);
+						dc.store.GetSpace(
+								getCurrentProviderStoreId(),
+								spaceId, 
+								{
+									begin: function(){
+										dc.busy("Loading space...");
+									},
+									success: function(space){
+										getContentItem(getCurrentProviderStoreId(),spaceId,contentId,space);
+									}, 
+									failure:function(info){
+										dc.done();
+										alert("Get Space failed: " + info);
+									},
+								}
+							);
+
 					}else{
 						dc.error("spaceId is undefined");
 					}

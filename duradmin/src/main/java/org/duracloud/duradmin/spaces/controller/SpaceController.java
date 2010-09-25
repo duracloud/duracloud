@@ -148,7 +148,14 @@ public class SpaceController extends  AbstractRestController<Space> {
             if(access !=null){
                 contentStore.setSpaceAccess(spaceId, AccessType.valueOf(access));
             }
-            return createModel(space);
+            
+            Space newSpace = new Space();
+            SpaceUtil.populateSpace(newSpace, contentStore.getSpace(spaceId,
+                    null,
+                    0,
+                    null));            
+            
+            return createModel(newSpace);
         }else{ 
         	Map<String,String> metadata  = contentStore.getSpaceMetadata(spaceId);
         	MetadataUtils.handle(method, "space ["+spaceId+"]",  metadata, request);

@@ -31,8 +31,9 @@ $(document).ready(function(){
 		/**
 		 * Returns a list of deployed services.
 		 */
-		 dc.service.GetDeployedServices = function(callback){
+		 dc.service.GetDeployedServices = function(callback,/*optional boolean */ async){
 			 dc.ajax({
+				 async: (async == undefined || async) ? true : false,
 				 url: SERVICES_URL_BASE + "deployed",
 			 }, callback);
 		 };
@@ -40,8 +41,9 @@ $(document).ready(function(){
 		/**
 		 * 
 		 */
-		 dc.service.GetServiceDeploymentConfig = function(service, deployment, callback){
+		 dc.service.GetServiceDeploymentConfig = function(service, deployment, callback, /*optional boolean*/ async){
 			 dc.ajax({
+				 async: (async == undefined || async) ? true : false,
 				 url: SERVICE_URL_BASE + _formatServiceParams("getproperties", service,deployment),
 			 }, callback);
 		 };
@@ -57,6 +59,50 @@ $(document).ready(function(){
 			dc.ajax({
 				url: SERVICE_URL_BASE + _formatServiceParams("undeploy", service,deployment),
 			}, callback);
+		};
+
+		
+		dc.service.GetJ2kBaseURL = function(callback){
+			dc.service.GetDeployedServices({ 
+				success: function(services){
+					var i,service,deployment;
+		            for (i = 0; i < services.length; i++) {
+		            	service = services[i];
+		                if (service.contentId.toLowerCase().indexOf("j2k") >= 0 &&
+		                    service.deploymentCount > 0) {
+		                    deploymentId = service.deployments[0].id;
+		                    dc.service.GetServiceDeploymentConfig(service,service.deployments[0], { 
+		                    	success:function(response){
+		                    		var props = response.properties;
+		                    		var j;
+		                    		if(props != undefined && props != null){
+			                    		for(j = 0; j < props.length; j++){
+			                    			var p = props[j];
+			                    			if(p.name == 'url'){
+			                    				callback.success(p.value);
+			                    				return;
+			                    			}
+			                    		}
+		                    		}
+
+		                    		callback.success(null);
+		                    	},
+		                    	failure: function(text){
+		                    		callback.failure(text);	
+		                    	},
+		                    }, false);
+		                    
+		                    return;
+		                }
+		            }
+
+            		callback.success(null);
+		            
+				},
+            	failure: function(text){
+            		callback.failure(text);	
+            	},
+			},false);
 		};
 
 	})();
