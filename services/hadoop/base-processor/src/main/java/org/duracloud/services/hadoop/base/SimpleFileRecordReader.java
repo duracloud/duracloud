@@ -88,7 +88,7 @@ public class SimpleFileRecordReader implements RecordReader<Text, Text> {
      * Verifies that the file at the provided file path should, indeed, be
      * processed. This method is provided for purposes of being overridden
      * to specify when a file should or should not be passed along to the
-     * mapper for processing. The defaul implementation always returns true.
+     * mapper for processing. The default implementation always returns true.
      *
      * @param filePath the path of the file to be verified
      * @return true if the file should be processed by the mapper, false otherwise
