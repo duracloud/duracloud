@@ -57,8 +57,8 @@
 
         <dependency>
             <groupId>org.duracloud</groupId>
-            <artifactId>azure-java-cloudfiles</artifactId>
-            <version>1.0.0</version>
+            <artifactId>windowsazure4j</artifactId>
+            <version>1.0.0.200911160249</version>
         </dependency>
 
         <dependency>
