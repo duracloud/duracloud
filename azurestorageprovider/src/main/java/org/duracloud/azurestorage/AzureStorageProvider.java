@@ -16,14 +16,14 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.soyatec.windows.azure.blob.*;
-import org.soyatec.windows.azure.blob.io.MemoryStream;
-import org.soyatec.windows.azure.error.StorageServerException;
-import org.soyatec.windows.azure.util.NameValueCollection;
-import org.soyatec.windows.azure.util.TimeSpan;
+import org.soyatec.windowsazure.blob.*;
+import org.soyatec.windowsazure.blob.internal.*;
+import org.soyatec.windowsazure.blob.io.BlobMemoryStream;
+import org.soyatec.windowsazure.error.StorageServerException;
+import org.soyatec.windowsazure.internal.util.NameValueCollection;
+import org.soyatec.windowsazure.internal.util.TimeSpan;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,35 +46,35 @@ public class AzureStorageProvider extends StorageProviderBase {
 
     protected static final String BLOB_NAMESPACE = "http://blob.core.windows.net/";
 
-    private BlobStorage blobStorage = null;
+    private BlobStorageClient blobStorage = null;
 
     public AzureStorageProvider(String username, String apiAccessKey) {
 
 
         try {
-            blobStorage = BlobStorage.create(
-                    URI.create(BLOB_NAMESPACE),
-                    false,
-                    username,
-                    apiAccessKey
-            );
+            blobStorage = BlobStorageClient.create(URI.create(BLOB_NAMESPACE),
+                                                   false,
+                                                   username,
+                                                   apiAccessKey);
 
             /*
             * Set retry policy for a time interval of 5 seconds.
             */
-            blobStorage.setRetryPolicy(RetryPolicies.retryN(1, TimeSpan.fromSeconds(5)));
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
-            String err = "Could not connect to Azure due to error: "
-                    + e.getMessage();
+            blobStorage.setRetryPolicy(RetryPolicies.retryN(1,
+                                                            TimeSpan.fromSeconds(
+                                                                5)));
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
+            String err =
+                "Could not connect to Azure due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         } catch (Exception e) {
-            String err = "Could not connect to Azure due to error: "
-                    + e.getMessage();
+            String err =
+                "Could not connect to Azure due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
 
-    public AzureStorageProvider(BlobStorage blobStorage) {
+    public AzureStorageProvider(BlobStorageClient blobStorage) {
         this.blobStorage = blobStorage;
     }
 
@@ -84,18 +84,18 @@ public class AzureStorageProvider extends StorageProviderBase {
     public Iterator<String> getSpaces() {
         log.debug("getSpace()");
 
-        List<BlobContainer> containers = listContainers();
+        List<IBlobContainer> containers = listContainers();
         List<String> spaces = new ArrayList<String>();
-        for (BlobContainer container : containers) {
-            String containerName = container.getContainerName();
+        for (IBlobContainer container : containers) {
+            String containerName = container.getName();
             spaces.add(containerName);
         }
         return spaces.iterator();
     }
 
-    private List<BlobContainer> listContainers() {
-        StringBuilder err = new StringBuilder("Could not retrieve list of " +
-                "Azure containers due to error: ");
+    private List<IBlobContainer> listContainers() {
+        StringBuilder err = new StringBuilder(
+            "Could not retrieve list of " + "Azure containers due to error: ");
         try {
             return blobStorage.listBlobContainers();
         } catch (StorageServerException e) {
@@ -107,8 +107,7 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> getSpaceContents(String spaceId,
-                                             String prefix) {
+    public Iterator<String> getSpaceContents(String spaceId, String prefix) {
         log.debug("getSpaceContents(" + spaceId + ", " + prefix);
 
         throwIfSpaceNotExist(spaceId);
@@ -123,7 +122,7 @@ public class AzureStorageProvider extends StorageProviderBase {
                                                 long maxResults,
                                                 String marker) {
         log.debug("getSpaceContentsChunked(" + spaceId + ", " + prefix + ", " +
-                maxResults + ", " + marker + ")");
+            maxResults + ", " + marker + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -139,24 +138,25 @@ public class AzureStorageProvider extends StorageProviderBase {
                                                   long maxResults,
                                                   String marker) {
         String containerName = getContainerName(spaceId);
-        Collection<BlobProperties> objects;
+        Iterator<IBlobProperties> objects;
         List<String> contentItems = new ArrayList<String>();
 
         int counter = 0;
 
         boolean found = false;
-        if (marker == null)
+        if (marker == null) {
             found = true;
+        }
 
         do {
 
-            objects = listObjects(containerName,
-                    prefix,
-                    maxResults);
+            objects = listObjects(containerName, prefix, maxResults);
 
-            for (BlobProperties object : objects) {
-                if (maxResults == counter)
+            while (objects.hasNext()) {
+                IBlobProperties object = objects.next();
+                if (maxResults == counter) {
                     break;
+                }
                 if (found == false && object.getName().equals(marker)) {
                     found = true;
                     continue;
@@ -172,24 +172,26 @@ public class AzureStorageProvider extends StorageProviderBase {
         return contentItems;
     }
 
-    private Collection<BlobProperties> listObjects(String containerName,
-                                                   String prefix,
-                                                   long maxResults) {
-        StringBuilder err = new StringBuilder("Could not get contents of " +
-                "Azure container " + containerName + " due to error: ");
+    private Iterator<IBlobProperties> listObjects(String containerName,
+                                                  String prefix,
+                                                  long maxResults) {
+        StringBuilder err = new StringBuilder(
+            "Could not get contents of " + "Azure container " + containerName +
+                " due to error: ");
         try {
             int limit = new Long(maxResults).intValue();
             if (prefix == null) {
                 prefix = "";
             }
 
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
+            IBlobContainer blobContainer = blobStorage.getBlobContainer(
+                containerName);
 
             // listBlobs does not limit the results
             // maxResults - Specifies the maximum number of blobs to return per call to Azure storage.
             // This does NOT affect list size returned by this function.
             return blobContainer.listBlobs(prefix, false, limit);
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
         }
@@ -212,8 +214,9 @@ public class AzureStorageProvider extends StorageProviderBase {
     private void throwIfContentNotExist(String spaceId, String contentId) {
         String containerName = getContainerName(spaceId);
 
-        BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
-        if (!blobContainer.doesBlobExist(contentId)) {
+        IBlobContainer blobContainer = blobStorage.getBlobContainer(
+            containerName);
+        if (!blobContainer.isBlobExist(contentId)) {
             String msg = "Error: Content does not exist: " + contentId;
             throw new NotFoundException(msg);
 
@@ -223,8 +226,8 @@ public class AzureStorageProvider extends StorageProviderBase {
     private boolean spaceExists(String spaceId) {
         String containerName = getContainerName(spaceId);
         try {
-            return blobStorage.doesContainerExist(containerName);
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+            return blobStorage.isContainerExist(containerName);
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             return false;
         }
     }
@@ -238,7 +241,7 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         createContainer(spaceId);
 
-        // Add space metadata       
+        // Add space metadata
         Map<String, String> spaceMetadata = new HashMap<String, String>();
         Date created = new Date(System.currentTimeMillis());
         spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
@@ -253,12 +256,12 @@ public class AzureStorageProvider extends StorageProviderBase {
     private void createContainer(String spaceId) {
         String containerName = getContainerName(spaceId);
 
-        StringBuilder err = new StringBuilder("Could not create Azure " +
-                "container with name " + containerName + " due to error: ");
+        StringBuilder err = new StringBuilder(
+            "Could not create Azure " + "container with name " + containerName +
+                " due to error: ");
         try {
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
-            blobContainer.createContainer();
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+            blobStorage.createContainer(containerName);
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
         }
@@ -276,13 +279,13 @@ public class AzureStorageProvider extends StorageProviderBase {
 
     private void deleteContainer(String spaceId) {
         String containerName = getContainerName(spaceId);
-        StringBuilder err = new StringBuilder("Could not delete Azure" +
-                " container with name " + containerName + " due to error: ");
+        StringBuilder err = new StringBuilder(
+            "Could not delete Azure" + " container with name " + containerName +
+                " due to error: ");
 
         try {
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
-            blobContainer.deleteContainer();
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+            blobStorage.deleteContainer(containerName);
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());
             throw new NotFoundException(err.toString(), e);
         }
@@ -298,9 +301,10 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         String containerName = getContainerName(spaceId);
 
-        BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
+        IBlobContainer blobContainer = blobStorage.getBlobContainer(
+            containerName);
 
-        ContainerProperties containerInfo = getContainerInfo(containerName);
+        IContainerProperties containerInfo = getContainerInfo(containerName);
         NameValueCollection values = containerInfo.getMetadata();
 
         Map<String, String> spaceMetadata = new HashMap<String, String>();
@@ -313,36 +317,38 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
 
         int count = -1;
-        Collection<BlobProperties> listBlobs
-                = blobContainer.listBlobs("", false);
+        Iterator<IBlobProperties> blobs = blobContainer.listBlobs("", false);
 
-        if (null != listBlobs) {
-            count = listBlobs.size();
+        while (blobs != null && blobs.hasNext()) {
+            count++;
+            blobs.next();
         }
-        spaceMetadata.put(METADATA_SPACE_COUNT,
-                String.valueOf(count));
+        spaceMetadata.put(METADATA_SPACE_COUNT, String.valueOf(count));
 
-        ContainerAccessControl enumAccess = blobContainer.getContainerAccessControl();
+        ContainerAccessControl enumAccess = blobContainer.getAccessControl();
         if (enumAccess != null) {
-            if (enumAccess.isPublic())
+            if (enumAccess.isPublic()) {
                 spaceMetadata.put(METADATA_SPACE_ACCESS,
-                        AccessType.OPEN.name());
-            else
+                                  AccessType.OPEN.name());
+            } else {
                 spaceMetadata.put(METADATA_SPACE_ACCESS,
-                        AccessType.CLOSED.name());
+                                  AccessType.CLOSED.name());
+            }
         }
 
         return spaceMetadata;
     }
 
-    private ContainerProperties getContainerInfo(String containerName) {
-        StringBuilder err = new StringBuilder("Could not retrieve metadata " +
-                "from Azure container " + containerName + " due to error: ");
+    private IContainerProperties getContainerInfo(String containerName) {
+        StringBuilder err = new StringBuilder(
+            "Could not retrieve metadata " + "from Azure container " +
+                containerName + " due to error: ");
 
         try {
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
-            return blobContainer.getContainerProperties();
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+            IBlobContainer blobContainer = blobStorage.getBlobContainer(
+                containerName);
+            return blobContainer.getProperties();
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());
             throw new NotFoundException(err.toString(), e);
         }
@@ -365,7 +371,8 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         String containerName = getContainerName(spaceId);
 
-        BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
+        IBlobContainer blobContainer = blobStorage.getBlobContainer(
+            containerName);
 
         String spaceAccess = spaceMetadata.remove(METADATA_SPACE_ACCESS);
         if (spaceAccess != null) {
@@ -374,12 +381,12 @@ public class AzureStorageProvider extends StorageProviderBase {
                 enumAccess = ContainerAccessControl.Public;
             }
 
-            blobContainer.setContainerAccessControl(enumAccess);
+            blobContainer.setAccessControl(enumAccess);
         }
 
         NameValueCollection objMetadataPut = new NameValueCollection();
         objMetadataPut.putAll(spaceMetadata);
-        blobContainer.setContainerMetadata(objMetadataPut);
+        blobContainer.setMetadata(objMetadataPut);
     }
 
     private Date getCreationDate(String spaceId,
@@ -425,7 +432,8 @@ public class AzureStorageProvider extends StorageProviderBase {
                              String contentChecksum,
                              InputStream content) {
         log.debug("addContent(" + spaceId + ", " + contentId + ", " +
-                contentMimeType + ", " + contentSize + ", " + contentChecksum + ")");
+            contentMimeType + ", " + contentSize + ", " + contentChecksum +
+            ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -434,47 +442,42 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
 
         // Wrap the content in order to be able to retrieve a checksum
-        ChecksumInputStream wrappedContent =
-                new ChecksumInputStream(content, contentChecksum);
+        ChecksumInputStream wrappedContent = new ChecksumInputStream(content,
+                                                                     contentChecksum);
 
         storeStreamedObject(contentId,
-                contentMimeType,
-                spaceId,
-                wrappedContent);
+                            contentMimeType,
+                            spaceId,
+                            wrappedContent);
 
         // Compare checksum
         String finalChecksum = wrappedContent.getMD5();
         return compareChecksum(this, spaceId, contentId, finalChecksum);
     }
 
-    private void storeStreamedObject(String contentId, String contentMimeType,
+    private void storeStreamedObject(String contentId,
+                                     String contentMimeType,
                                      String spaceId,
                                      ChecksumInputStream wrappedContent) {
         String containerName = getContainerName(spaceId);
-        StringBuilder err = new StringBuilder("Could not add content "
-                + contentId + " with type " + contentMimeType
-                + " to Azure container " + containerName
-                + " due to error: ");
+        StringBuilder err = new StringBuilder(
+            "Could not add content " + contentId + " with type " +
+                contentMimeType + " to Azure container " + containerName +
+                " due to error: ");
 
         try {
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
-
+            IBlobContainer blobContainer = blobStorage.getBlobContainer(
+                containerName);
 
             /* New Blob Properties */
-            BlobProperties blobProperties = new BlobProperties(contentId);
+            IBlobProperties blobProperties = new BlobProperties(contentId);
 
             blobProperties.setContentType(contentMimeType);
 
             /* Set Blob Contents */
-            MemoryStream stream = new MemoryStream(inputStreamToBytes(wrappedContent));
-            BlobContents blobContents = new BlobContents(stream);
+            IBlobContents blobContents = new BlobContents(wrappedContent);
 
-
-            if (!blobContainer.createBlob(blobProperties, blobContents, false)) {
-                err.append("Failed to create blob");
-                throw new StorageException(err.toString(), NO_RETRY);
-            }
-
+            blobContainer.createBlockBlob(blobProperties, blobContents);
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
@@ -491,21 +494,16 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         String containerName = getContainerName(spaceId);
 
-        StringBuilder err = new StringBuilder("Could not retrieve content "
-                + contentId + " from Azure container " + containerName
-                + " due to error: ");
+        StringBuilder err = new StringBuilder(
+            "Could not retrieve content " + contentId +
+                " from Azure container " + containerName + " due to error: ");
         try {
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
-            MemoryStream stream = new MemoryStream();
-            BlobContents blobContents = new BlobContents(stream);
-            boolean fTransferAsChunks = false;
+            IBlobContainer blobContainer = blobStorage.getBlobContainer(
+                containerName);
 
-            BlobProperties blobProperties
-                    = blobContainer.getBlob(contentId,
-                    blobContents,
-                    fTransferAsChunks
-            );
+            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentId);
 
+            IBlobProperties blobProperties = blockBlob.getProperties();
             if (null == blobProperties) {
                 String errMsg = createNotFoundMsg(spaceId, contentId);
                 throw new NotFoundException(errMsg);
@@ -513,14 +511,19 @@ public class AzureStorageProvider extends StorageProviderBase {
 
             String strBlobNameProp = blobProperties.getName();
             if (!contentId.equals(strBlobNameProp)) {
-                throw new StorageException(err.append(String.format("Wrong blob: '%s'!", strBlobNameProp)).toString());
+                throw new StorageException(err.append(String.format(
+                    "Wrong blob: '%s'!",
+                    strBlobNameProp)).toString());
             }
 
+            BlobMemoryStream stream = new BlobMemoryStream();
+            blockBlob.getContents(stream);
             byte[] bytesResult = stream.getBytes();
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytesResult);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(
+                bytesResult);
 
             return inputStream;
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());
             throw new NotFoundException(err.toString(), e);
         } catch (IOException e) {
@@ -529,8 +532,7 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
     }
 
-    private String createNotFoundMsg(String spaceId,
-                                     String contentId) {
+    private String createNotFoundMsg(String spaceId, String contentId) {
         StringBuilder msg = new StringBuilder();
         msg.append("Could not find content item with ID ");
         msg.append(contentId);
@@ -552,20 +554,21 @@ public class AzureStorageProvider extends StorageProviderBase {
         deleteObject(contentId, spaceId);
     }
 
-    private void deleteObject(String contentId,
-                              String spaceId) {
+    private void deleteObject(String contentId, String spaceId) {
         String containerName = getContainerName(spaceId);
-        StringBuilder err = new StringBuilder("Could not delete content " + contentId
-                + " from Azure container " + containerName
-                + " due to error: ");
+        StringBuilder err = new StringBuilder(
+            "Could not delete content " + contentId + " from Azure container " +
+                containerName + " due to error: ");
 
         try {
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
+            IBlobContainer blobContainer = blobStorage.getBlobContainer(
+                containerName);
 
             boolean deleted = blobContainer.deleteBlob(contentId);
-            if (!deleted)
+            if (!deleted) {
                 throw new NotFoundException(err.toString());
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+            }
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());
             throw new NotFoundException(err.toString(), e);
         }
@@ -594,22 +597,24 @@ public class AzureStorageProvider extends StorageProviderBase {
                                        Map<String, String> contentMetadata) {
         String containerName = getContainerName(spaceId);
 
-        StringBuilder err = new StringBuilder("Could not update metadata " +
-                "for content " + contentId + " in Azure container " +
-                containerName + " due to error: ");
+        StringBuilder err = new StringBuilder(
+            "Could not update metadata " + "for content " + contentId +
+                " in Azure container " + containerName + " due to error: ");
 
         try {
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
+            IBlobContainer blobContainer = blobStorage.getBlobContainer(
+                containerName);
 
-            BlobProperties blobProperties = blobContainer.getBlobProperties(contentId);
+            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentId);
+            IBlobProperties blobProperties = blockBlob.getProperties();
 
             NameValueCollection metadata = new NameValueCollection();
             metadata.putAll(contentMetadata);
 
             blobProperties.setMetadata(metadata);
 
-            blobContainer.updateBlobMetadata(blobProperties);
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+            blockBlob.setProperties(blobProperties);
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             throwIfContentNotExist(spaceId, contentId);
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
@@ -625,10 +630,10 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        BlobProperties metadata = getObjectMetadata(spaceId, contentId);
+        IBlobProperties metadata = getObjectMetadata(spaceId, contentId);
         if (metadata == null) {
-            String err = "No metadata is available for item " + contentId
-                    + " in Azure space " + spaceId;
+            String err = "No metadata is available for item " + contentId +
+                " in Azure space " + spaceId;
             throw new StorageException(err, RETRY);
         }
 
@@ -636,8 +641,9 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         NameValueCollection metadataMap = metadata.getMetadata();
 
-        if (metadataMap == null)
+        if (metadataMap == null) {
             metadataMap = new NameValueCollection();
+        }
 
         // Set expected metadata values
         // MIMETYPE
@@ -653,26 +659,13 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
         // CHECKSUM
         ChecksumUtil cksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
-        String checksum =
-                cksumUtil.generateChecksum(getContent(spaceId, contentId));
+        String checksum = cksumUtil.generateChecksum(getContent(spaceId,
+                                                                contentId));
 
-//        String checksum = metadata.getETag();
         if (checksum != null) {
             resultMap.put(METADATA_CONTENT_CHECKSUM, checksum);
-
-//            byte[] digestBytes = checksum.getBytes();
-//
-//            StringBuffer hexString = new StringBuffer();
-//            for (int i=0; i<digestBytes.length; i++) {
-//                String hex=Integer.toHexString(0xff & digestBytes[i]);
-//                if(hex.length() == 1) {
-//                    hexString.append('0');
-//                }
-//                hexString.append(hex);
-//            }
-//
-//            resultMap.put(METADATA_CONTENT_CHECKSUM, hexString.toString());
         }
+
         // MODIFIED DATE
         Timestamp modified = metadata.getLastModifiedTime();
         if (modified != null) {
@@ -690,34 +683,29 @@ public class AzureStorageProvider extends StorageProviderBase {
         return resultMap;
     }
 
-    private BlobProperties getObjectMetadata(String spaceId,
-                                             String contentId) {
+    private IBlobProperties getObjectMetadata(String spaceId,
+                                              String contentId) {
         String containerName = getContainerName(spaceId);
 
-        StringBuilder err = new StringBuilder("Could not retrieve metadata"
-                + " for content " + contentId
-                + " from Azure container " + containerName
-                + " due to error: ");
+        StringBuilder err = new StringBuilder(
+            "Could not retrieve metadata" + " for content " + contentId +
+                " from Azure container " + containerName + " due to error: ");
 
         try {
 
-            BlobContainer blobContainer = blobStorage.getBlobContainer(containerName);
-            MemoryStream stream = new MemoryStream();
-            BlobContents blobContents = new BlobContents(stream);
-            boolean fTransferAsChunks = false;
+            IBlobContainer blobContainer = blobStorage.getBlobContainer(
+                containerName);
 
-            BlobProperties blobProperties
-                    = blobContainer.getBlob(contentId,
-                    blobContents,
-                    fTransferAsChunks
-            );
+            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentId);
+
+            IBlobProperties blobProperties = blockBlob.getProperties();
 
             if (null == blobProperties) {
                 String errMsg = createNotFoundMsg(spaceId, contentId);
                 throw new NotFoundException(errMsg);
             }
             return blobProperties;
-        } catch (org.soyatec.windows.azure.error.StorageException e) {
+        } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());
             throw new NotFoundException(err.toString(), e);
         }
@@ -746,19 +734,5 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
 
         return containerName;
-    }
-
-    public byte[] inputStreamToBytes(InputStream in) throws IOException {
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-        byte[] buffer = new byte[1024];
-        int len;
-
-        while ((len = in.read(buffer)) >= 0)
-            out.write(buffer, 0, len);
-
-        in.close();
-        out.close();
-        return out.toByteArray();
     }
 }
