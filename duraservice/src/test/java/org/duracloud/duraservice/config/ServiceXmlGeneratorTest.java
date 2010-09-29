@@ -35,7 +35,7 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> serviceInfos = serviceXmlGenerator.buildServiceList();
         Assert.assertNotNull(serviceInfos);
 
-        int NUM_SERVICES = 8;
+        int NUM_SERVICES = 9;
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
@@ -48,6 +48,7 @@ public class ServiceXmlGeneratorTest {
         boolean foundMediaStreaming = false;
         boolean foundFixity = false;
         boolean foundBulkImageConversion = false;
+        boolean foundAmazonFixity = false;
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             String contentId = serviceInfo.getContentId();
@@ -96,6 +97,11 @@ public class ServiceXmlGeneratorTest {
                 foundBulkImageConversion = true;
                 verifyBulkImageconversion(serviceInfo);
 
+            } else if (contentId.equals(
+                "amazonfixityservice-" + ver + ".zip")) {
+                foundAmazonFixity = true;
+                verifyAmazonFixity(serviceInfo);
+
             } else {
                 Assert.fail("unexpected contentId: " + contentId);
             }
@@ -141,45 +147,45 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyImageconversion(ServiceInfo serviceInfo) {
-        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
-        Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(6, systemConfigs.size());
-
-        verifyDurastoreCredential(systemConfigs);
+        int numUserConfigs = 6;
+        int numSystemConfigs = 6;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }
 
     private void verifyMediaStreaming(ServiceInfo serviceInfo) {
-        List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
-        Assert.assertNotNull(userConfigs);
-        Assert.assertEquals(2, userConfigs.size());
-
-        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
-        Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(5, systemConfigs.size());
-
-        verifyDurastoreCredential(systemConfigs);
+        int numUserConfigs = 2;
+        int numSystemConfigs = 5;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }
 
     private void verifyFixity(ServiceInfo serviceInfo) {
-        List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
-        Assert.assertNotNull(userConfigs);
-        Assert.assertEquals(12, userConfigs.size());
-
-        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
-        Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(5, systemConfigs.size());
-
-        verifyDurastoreCredential(systemConfigs);
+        int numUserConfigs = 12;
+        int numSystemConfigs = 5;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }
 
     private void verifyBulkImageconversion(ServiceInfo serviceInfo) {
+        int numUserConfigs = 9;
+        int numSystemConfigs = 6;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+    }
+
+    private void verifyAmazonFixity(ServiceInfo serviceInfo) {
+        int numUserConfigs = 5;
+        int numSystemConfigs = 6;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+    }
+
+    private void verifyServiceInfo(int numUserConfigs,
+                                   int numSystemConfigs,
+                                   ServiceInfo serviceInfo) {
         List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
         Assert.assertNotNull(userConfigs);
-        Assert.assertEquals(9, userConfigs.size());        
+        Assert.assertEquals(numUserConfigs, userConfigs.size());
 
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(6, systemConfigs.size());
+        Assert.assertEquals(numSystemConfigs, systemConfigs.size());
 
         verifyDurastoreCredential(systemConfigs);
     }

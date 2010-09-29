@@ -35,7 +35,8 @@ public class ServiceXmlGenerator {
                                                 new ImageConversionServiceInfo(),
                                                 new MediaStreamingServiceInfo(),
                                                 new FixityServiceInfo(),
-                                                new BulkImageConversionServiceInfo()};
+                                                new BulkImageConversionServiceInfo(),
+                                                new AmazonFixityServiceInfo()};
 
     private String version;
 

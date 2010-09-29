@@ -17,6 +17,7 @@ import java.util.Map;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * @author: Bill Branan
@@ -39,28 +40,28 @@ public class BulkImageConversionTaskHelperTest {
             assertNotNull(expected);
         }
 
-        taskParams.put("destFormat", "png");
+        taskParams.put(TASK_PARAMS.DEST_FORMAT.name(), "png");
         jarParams =
             helper.completeJarParams(taskParams, new ArrayList<String>());
         assertEquals(2, jarParams.size());
         assertEquals("-f", jarParams.get(0));
         assertEquals("png", jarParams.get(1));
 
-        taskParams.put("namePrefix", "test-");
+        taskParams.put(TASK_PARAMS.NAME_PREFIX.name(), "test-");
         jarParams =
             helper.completeJarParams(taskParams, new ArrayList<String>());
         assertEquals(4, jarParams.size());
         assertEquals("-p", jarParams.get(2));
         assertEquals("test-", jarParams.get(3));
 
-        taskParams.put("nameSuffix", "-test");
+        taskParams.put(TASK_PARAMS.NAME_SUFFIX.name(), "-test");
         jarParams =
             helper.completeJarParams(taskParams, new ArrayList<String>());
         assertEquals(6, jarParams.size());
         assertEquals("-s", jarParams.get(4));
         assertEquals("-test", jarParams.get(5));
 
-        taskParams.put("colorSpace", "sRGB");
+        taskParams.put(TASK_PARAMS.COLOR_SPACE.name(), "sRGB");
         jarParams =
             helper.completeJarParams(taskParams, new ArrayList<String>());
         assertEquals(8, jarParams.size());

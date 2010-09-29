@@ -20,6 +20,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * @author: Bill Branan
@@ -40,7 +45,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         LoggerFactory.getLogger(RunHadoopJobTaskRunner.class);
 
     private static final Integer DEFAULT_NUM_INSTANCES = new Integer(1);
-    private static final String DEFAULT_INSTANCE_TYPE = "m1.small";
+    private static final String DEFAULT_INSTANCE_TYPE = INSTANCES.SMALL.getId();
     private static final Integer DEFAULT_NUM_MAPPERS = new Integer(1);
 
     private static final String CONFIG_HADOOP_BOOTSTRAP_ACTION =
@@ -49,8 +54,6 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     private S3StorageProvider s3Provider;
     private AmazonS3Client s3Client;
     private AmazonElasticMapReduceClient emrClient;
-
-    private static final String TASK_NAME = "run-hadoop-job";
 
     private static final String IMG_CONV_JOB_TYPE = "bulk-image-conversion";
 
@@ -63,24 +66,24 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     }
 
     public String getName() {
-        return TASK_NAME;
+        return HadoopTypes.RUN_HADOOP_TASK_NAME;
     }
 
     // Run Hadoop Job
     public String performTask(String taskParameters) {
         Map<String, String> taskParams =
             SerializationUtil.deserializeMap(taskParameters);
-        String jobType = taskParams.get("jobType");
-        String workSpaceId = taskParams.get("workSpaceId");
-        String bootstrapContentId = taskParams.get("bootstrapContentId");
-        String jarContentId = taskParams.get("jarContentId");
-        String sourceSpaceId = taskParams.get("sourceSpaceId");
-        String destSpaceId = taskParams.get("destSpaceId");
-        String instanceType = taskParams.get("instanceType");
-        String numInstances = taskParams.get("numInstances");
-        String mappersPerInstance = taskParams.get("mappersPerInstance");
+        String jobType = taskParams.get(TASK_PARAMS.JOB_TYPE.name());
+        String workSpaceId = taskParams.get(TASK_PARAMS.WORKSPACE_ID.name());
+        String bootstrapContentId = taskParams.get(TASK_PARAMS.BOOTSTRAP_CONTENT_ID.name());
+        String jarContentId = taskParams.get(TASK_PARAMS.JAR_CONTENT_ID.name());
+        String sourceSpaceId = taskParams.get(TASK_PARAMS.SOURCE_SPACE_ID.name());
+        String destSpaceId = taskParams.get(TASK_PARAMS.DEST_SPACE_ID.name());
+        String instanceType = taskParams.get(TASK_PARAMS.INSTANCE_TYPE.name());
+        String numInstances = taskParams.get(TASK_PARAMS.NUM_INSTANCES.name());
+        String mappersPerInstance = taskParams.get(TASK_PARAMS.MAPPERS_PER_INSTANCE.name());
 
-        log.info("Performing " + TASK_NAME +
+        log.info("Performing " + HadoopTypes.RUN_HADOOP_TASK_NAME +
                  " with the following parameters:" +
                  " jobType=" + jobType +
                  " workSpaceId=" + workSpaceId +
@@ -97,7 +100,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         if(jobType != null && jobType.equals(IMG_CONV_JOB_TYPE)) {
             taskHelper = new BulkImageConversionTaskHelper();
         } else {
-            throw new RuntimeException("Unknown Job Type: " + jobType);
+            log.info("No TaskHelper for Job Type: "+ jobType);
         }
 
         // Verify required params were provided
@@ -227,10 +230,10 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
 
         // Return results
         Map<String, String> returnInfo = new HashMap<String, String>();
-        returnInfo.put("results", "success");
-        returnInfo.put("jobFlowId", jobFlowId);
+        returnInfo.put(TASK_OUTPUTS.RESULTS.name(), "success");
+        returnInfo.put(TASK_OUTPUTS.JOB_FLOW_ID.name(), jobFlowId);
         String toReturn = SerializationUtil.serializeMap(returnInfo);
-        log.debug("Result of " + TASK_NAME + " task: " + toReturn);
+        log.debug("Result of " + HadoopTypes.RUN_HADOOP_TASK_NAME + " task: " + toReturn);
         return toReturn;
     }
 

@@ -77,6 +77,10 @@ public class ServicesAdminClientCLI {
                     "image[magick]",
                     "imagemagickservice-" + version,
                     "zip"),
+        AMAZON_FIXITY("af",
+                    "amazonfixity[af]",
+                    "amazonfixityservice-" + version,
+                    "zip"),
         UNKNOWN("?", "unknown", "unknown-id", "no-ext");
 
         private File basePackageRepository = new File("../services/packages");
@@ -98,7 +102,7 @@ public class ServicesAdminClientCLI {
         }
 
         public String getServiceId() {
-            return id;
+            return id + "." + getExt();
         }
 
         public String getPackageName() {

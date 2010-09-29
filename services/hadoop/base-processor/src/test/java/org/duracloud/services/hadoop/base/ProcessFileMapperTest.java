@@ -109,7 +109,8 @@ public class ProcessFileMapperTest {
 
     private class MockProcessFileMapper extends ProcessFileMapper {
         @Override
-        protected File copyFileLocal(Path remotePath) throws IOException {
+        protected File copyFileLocal(Path remotePath, Reporter reporter)
+            throws IOException {
             return new File("/local/file");
         }
 
@@ -121,7 +122,8 @@ public class ProcessFileMapperTest {
         @Override
         protected String moveToOutput(File resultFile,
                                       String fileName,
-                                      String outputPath) throws IOException {
+                                      String outputPath,
+                                      Reporter reporter) throws IOException {
             return outputPath + "/" + fileName;
         }
     }

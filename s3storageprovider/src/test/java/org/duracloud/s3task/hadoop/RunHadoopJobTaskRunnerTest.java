@@ -15,6 +15,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -26,6 +27,7 @@ import java.util.Map;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * @author: Bill Branan
@@ -123,17 +125,17 @@ public class RunHadoopJobTaskRunnerTest {
             assertNotNull(expected);
         }
 
-        taskParams.put("jobType", "bulk-image-conversion");
-        taskParams.put("workSpaceId", "work");
-        taskParams.put("sourceSpaceId", "source");
-        taskParams.put("destSpaceId", "dest");
-        taskParams.put("bootstrapContentId", "boot");
-        taskParams.put("jarContentId", "jar");
-        taskParams.put("instanceType", "instance");
-        taskParams.put("numInstances", "2");
-        taskParams.put("destFormat", "png");
-        taskParams.put("colorSpace", "sRGB");
-        taskParams.put("mappersPerInstance", "1");
+        taskParams.put(TASK_PARAMS.JOB_TYPE.name(), "bulk-image-conversion");
+        taskParams.put(TASK_PARAMS.WORKSPACE_ID.name(), "work");
+        taskParams.put(TASK_PARAMS.SOURCE_SPACE_ID.name(), "source");
+        taskParams.put(TASK_PARAMS.DEST_SPACE_ID.name(), "dest");
+        taskParams.put(TASK_PARAMS.BOOTSTRAP_CONTENT_ID.name(), "boot");
+        taskParams.put(TASK_PARAMS.JAR_CONTENT_ID.name(), "jar");
+        taskParams.put(TASK_PARAMS.INSTANCE_TYPE.name(), "instance");
+        taskParams.put(TASK_PARAMS.NUM_INSTANCES.name(), "2");
+        taskParams.put(TASK_PARAMS.DEST_FORMAT.name(), "png");
+        taskParams.put(TASK_PARAMS.COLOR_SPACE.name(), "sRGB");
+        taskParams.put(TASK_PARAMS.MAPPERS_PER_INSTANCE.name(), "1");
 
         params = SerializationUtil.serializeMap(taskParams);
         String result = runner.performTask(params);
@@ -142,7 +144,7 @@ public class RunHadoopJobTaskRunnerTest {
         Map<String, String> resultMap =
             SerializationUtil.deserializeMap(result);
         assertNotNull(resultMap);
-        assertEquals("1", resultMap.get("jobFlowId"));
+        assertEquals("1", resultMap.get(HadoopTypes.TASK_OUTPUTS.JOB_FLOW_ID.name()));
     }
 
 

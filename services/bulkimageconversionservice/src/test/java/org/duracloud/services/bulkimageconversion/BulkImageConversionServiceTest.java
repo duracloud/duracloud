@@ -7,11 +7,14 @@
  */
 package org.duracloud.services.bulkimageconversion;
 
+import org.duracloud.storage.domain.HadoopTypes;
 import org.junit.Test;
 
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
+import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * @author: Bill Branan
@@ -33,16 +36,16 @@ public class BulkImageConversionServiceTest {
         service.setNumInstances("8");
 
         Map<String, String> params =  service.collectTaskParams();
-        assertEquals("bulk-image-conversion", params.get("jobType"));
-        assertEquals("test-work", params.get("workSpaceId"));
-        assertEquals("test-source", params.get("sourceSpaceId"));
-        assertEquals("test-dest", params.get("destSpaceId"));
-        assertEquals("png", params.get("destFormat"));
-        assertEquals("test-", params.get("namePrefix"));
-        assertEquals("-test", params.get("nameSuffix"));
-        assertEquals("sRGB", params.get("colorSpace"));
-        assertEquals("c1.xlarge", params.get("instanceType"));
-        assertEquals("8", params.get("numInstances"));
+        assertEquals("bulk-image-conversion", params.get(TASK_PARAMS.JOB_TYPE.name()));
+        assertEquals("test-work", params.get(TASK_PARAMS.WORKSPACE_ID.name()));
+        assertEquals("test-source", params.get(TASK_PARAMS.SOURCE_SPACE_ID.name()));
+        assertEquals("test-dest", params.get(TASK_PARAMS.DEST_SPACE_ID.name()));
+        assertEquals("png", params.get(TASK_PARAMS.DEST_FORMAT.name()));
+        assertEquals("test-", params.get(TASK_PARAMS.NAME_PREFIX.name()));
+        assertEquals("-test", params.get(TASK_PARAMS.NAME_SUFFIX.name()));
+        assertEquals("sRGB", params.get(TASK_PARAMS.COLOR_SPACE.name()));
+        assertEquals("c1.xlarge", params.get(TASK_PARAMS.INSTANCE_TYPE.name()));
+        assertEquals("8", params.get(TASK_PARAMS.NUM_INSTANCES.name()));
     }
 
     @Test
@@ -113,9 +116,9 @@ public class BulkImageConversionServiceTest {
         assertEquals("8", service.getNumInstances());
 
         service.setInstanceType(null);
-        assertEquals("m1.small", service.getInstanceType());
-        service.setInstanceType("c1.xlarge");
-        assertEquals("c1.xlarge", service.getInstanceType());
+        assertEquals(INSTANCES.SMALL.getId(), service.getInstanceType());
+        service.setInstanceType(INSTANCES.XLARGE.getId());
+        assertEquals(INSTANCES.XLARGE.getId(), service.getInstanceType());
 
         service.setMappersPerInstance(null);
         assertEquals("1", service.getMappersPerInstance());

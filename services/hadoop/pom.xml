@@ -20,6 +20,7 @@
   <modules>
     <module>base-processor</module>
     <module>image-conversion-processor</module>
+    <module>fixity-processor</module>
     <module>replication-processor</module>
   </modules>
 

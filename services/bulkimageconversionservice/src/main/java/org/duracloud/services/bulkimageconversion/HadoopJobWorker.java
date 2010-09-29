@@ -18,6 +18,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
+import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
+
 /**
  * @author: Bill Branan
  * Date: Aug 18, 2010
@@ -25,8 +29,6 @@ import java.util.Map;
 public class HadoopJobWorker implements Runnable {
 
     private final Logger log = LoggerFactory.getLogger(HadoopJobWorker.class);
-
-    private static final String RUN_HADOOP_JOB_TASK = "run-hadoop-job";    
 
     private ContentStore contentStore;
     private String workSpaceId;
@@ -53,11 +55,11 @@ public class HadoopJobWorker implements Runnable {
             String finalParams = moveResourcesToStorage();
 
             String response =
-                contentStore.performTask(RUN_HADOOP_JOB_TASK, finalParams);
+                contentStore.performTask(RUN_HADOOP_TASK_NAME, finalParams);
 
             Map<String, String> resultMap =
                 SerializationUtil.deserializeMap(response);
-            jobId = resultMap.get("jobFlowId");
+            jobId = resultMap.get(TASK_OUTPUTS.JOB_FLOW_ID.name());
         } catch(Exception e) {
             log.error("Error encountered starting hadoop job " +
                       e.getMessage(), e);
@@ -113,8 +115,8 @@ public class HadoopJobWorker implements Runnable {
                                 null,
                                 null);
 
-        taskParams.put("bootstrapContentId", bootstrapScriptContentId);
-        taskParams.put("jarContentId", hadoopJarContentId);
+        taskParams.put(TASK_PARAMS.BOOTSTRAP_CONTENT_ID.name(), bootstrapScriptContentId);
+        taskParams.put(TASK_PARAMS.JAR_CONTENT_ID.name(), hadoopJarContentId);
 
         return SerializationUtil.serializeMap(taskParams);
     }    

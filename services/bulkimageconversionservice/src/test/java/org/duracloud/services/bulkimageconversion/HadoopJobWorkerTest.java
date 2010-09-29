@@ -24,6 +24,8 @@ import java.util.Map;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 
 /**
  * @author: Bill Branan
@@ -51,11 +53,11 @@ public class HadoopJobWorkerTest {
         ContentStore contentStore = EasyMock.createMock(ContentStore.class);
 
         Map<String, String> taskReturnMap = new HashMap<String, String>();
-        taskReturnMap.put("jobFlowId", "1");
+        taskReturnMap.put(TASK_OUTPUTS.JOB_FLOW_ID.name(), "1");
         String taskReturn = SerializationUtil.serializeMap(taskReturnMap);
 
         EasyMock
-            .expect(contentStore.performTask(EasyMock.eq("run-hadoop-job"),
+            .expect(contentStore.performTask(EasyMock.eq(RUN_HADOOP_TASK_NAME),
                                              EasyMock.isA(String.class)))
             .andReturn(taskReturn)
             .times(1);

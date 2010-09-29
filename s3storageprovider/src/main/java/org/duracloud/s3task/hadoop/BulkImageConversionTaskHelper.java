@@ -7,8 +7,12 @@
  */
 package org.duracloud.s3task.hadoop;
 
+import org.duracloud.storage.domain.HadoopTypes;
+
 import java.util.List;
 import java.util.Map;
+
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * @author: Bill Branan
@@ -22,10 +26,10 @@ public class BulkImageConversionTaskHelper implements HadoopTaskHelper {
     @Override
     public List<String> completeJarParams(Map<String, String> taskParams,
                                           List<String> jarParams) {
-        String destFormat = taskParams.get("destFormat");
-        String namePrefix = taskParams.get("namePrefix");
-        String nameSuffix = taskParams.get("nameSuffix");
-        String colorSpace = taskParams.get("colorSpace");
+        String destFormat = taskParams.get(TASK_PARAMS.DEST_FORMAT.name());
+        String namePrefix = taskParams.get(TASK_PARAMS.NAME_PREFIX.name());
+        String nameSuffix = taskParams.get(TASK_PARAMS.NAME_SUFFIX.name());
+        String colorSpace = taskParams.get(TASK_PARAMS.COLOR_SPACE.name());
 
         if(destFormat == null) {
             throw new RuntimeException("Destination format must be provided " +

@@ -24,6 +24,11 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.duracloud.storage.domain.HadoopTypes.DESCRIBE_JOB_TASK_NAME;
+import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
+import static org.duracloud.storage.domain.HadoopTypes.STOP_JOB_TASK_NAME;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
+
 /**
  * Service which converts image files from one format to another
  * in a bulk fashion by utilizing hadoop.
@@ -47,12 +52,9 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
     private static final String DEFAULT_NAME_PREFIX = "";
     private static final String DEFAULT_NAME_SUFFIX = "";
     private static final String DEFAULT_NUM_INSTANCES = "1";
-    private static final String DEFAULT_INSTANCE_TYPE = "m1.small";
+    private static final String DEFAULT_INSTANCE_TYPE = INSTANCES.SMALL.getId();
     private static final String DEFAULT_NUM_MAPPERS = "1";
 
-    private static final String STOP_JOB_TASK = "stop-hadoop-job";
-    private static final String DESCRIBE_JOB_TASK = "describe-hadoop-job";
-    
     private String duraStoreHost;
     private String duraStorePort;
     private String duraStoreContext;
@@ -108,33 +110,33 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
     protected Map<String, String> collectTaskParams() {
         Map<String, String> taskParams = new HashMap<String, String>();
         
-        taskParams.put("jobType", JOB_TYPE);
-        taskParams.put("workSpaceId", workSpaceId);
-        taskParams.put("sourceSpaceId", sourceSpaceId);
-        taskParams.put("destSpaceId", destSpaceId);
-        taskParams.put("destFormat", toFormat);
+        taskParams.put(TASK_PARAMS.JOB_TYPE.name(), JOB_TYPE);
+        taskParams.put(TASK_PARAMS.WORKSPACE_ID.name(), workSpaceId);
+        taskParams.put(TASK_PARAMS.SOURCE_SPACE_ID.name(), sourceSpaceId);
+        taskParams.put(TASK_PARAMS.DEST_SPACE_ID.name(), destSpaceId);
+        taskParams.put(TASK_PARAMS.DEST_FORMAT.name(), toFormat);
         if(namePrefix != null && !namePrefix.equals("")) {
-            taskParams.put("namePrefix", namePrefix);
+            taskParams.put(TASK_PARAMS.NAME_PREFIX.name(), namePrefix);
         }
         if(nameSuffix != null && !nameSuffix.equals("")) {
-            taskParams.put("nameSuffix", nameSuffix);
+            taskParams.put(TASK_PARAMS.NAME_SUFFIX.name(), nameSuffix);
         }
         if(colorSpace != null) {
-            taskParams.put("colorSpace", colorSpace);
+            taskParams.put(TASK_PARAMS.COLOR_SPACE.name(), colorSpace);
         }
-        taskParams.put("instanceType", instanceType);
-        taskParams.put("numInstances", numInstances);
+        taskParams.put(TASK_PARAMS.INSTANCE_TYPE.name(), instanceType);
+        taskParams.put(TASK_PARAMS.NUM_INSTANCES.name(), numInstances);
 
         // Set max mappers based on instance type if the value is default
         String mappers = mappersPerInstance;
         if(DEFAULT_NUM_MAPPERS.equals(mappers)) {
-            if("m1.large".equals(instanceType)) {
+            if(INSTANCES.LARGE.getId().equals(instanceType)) {
                 mappers = "2";
-            } else if("m1.xlarge".equals(instanceType)) {
+            } else if(INSTANCES.XLARGE.getId().equals(instanceType)) {
                 mappers = "4";
             }
         }
-        taskParams.put("mappersPerInstance", mappers);
+        taskParams.put(TASK_PARAMS.MAPPERS_PER_INSTANCE.name(), mappers);
 
         return taskParams;
     }
@@ -147,7 +149,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
         // Stop hadoop job
         String jobId = worker.getJobId();
         if(jobId != null) {
-            contentStore.performTask(STOP_JOB_TASK, jobId);
+            contentStore.performTask(STOP_JOB_TASK_NAME, jobId);
         }
 
         if(postWorker != null) {
@@ -176,7 +178,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
                 String jobStatus = null;
                 try {
                     jobStatus =
-                        contentStore.performTask(DESCRIBE_JOB_TASK, jobId);
+                        contentStore.performTask(DESCRIBE_JOB_TASK_NAME, jobId);
                 } catch(ContentStoreException e) {
                     props.put("Error Retrieving Job Status", e.getMessage());
                 }
@@ -217,7 +219,7 @@ public class BulkImageConversionService extends BaseService implements ComputeSe
                 String jobStatus = null;
                 try {
                     jobStatus =
-                        contentStore.performTask(DESCRIBE_JOB_TASK, jobId);
+                        contentStore.performTask(DESCRIBE_JOB_TASK_NAME, jobId);
                 } catch(ContentStoreException e) {                    
                 }
 

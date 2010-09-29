@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+      http://www.springframework.org/schema/beans/spring-beans.xsd  
+      http://www.springframework.org/schema/osgi-compendium 
+      http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd">
+
+  <!-- Spring beans which are used by the bundle are defined here. -->
+  <bean id="amazonFixityService" class="org.duracloud.services.amazonfixity.AmazonFixityService"
+   destroy-method="stop">
+    <osgix:managed-properties persistent-id="amazonfixityservice-${project.version}.zip"
+        update-strategy="container-managed"/>
+    <property name="serviceId" value="amazonfixityservice-${project.version}" />
+	  <property name="duraStoreHost" value="localhost"/>
+    <property name="duraStorePort" value="8080"/>
+    <property name="duraStoreContext" value="durastore"/>
+    <property name="sourceSpaceId" value="image-conversion-source"/>
+    <property name="destSpaceId" value="image-conversion-dest"/>
+    <property name="workSpaceId" value="image-conversion-work"/>
+    <property name="numInstances" value="1"/>
+    <property name="instanceType" value="m1.small"/>
+    <property name="mappersPerInstance" value="1"/>
+  </bean>
+
+</beans>
