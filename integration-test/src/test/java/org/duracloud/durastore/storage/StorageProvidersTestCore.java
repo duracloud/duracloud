@@ -18,6 +18,9 @@ import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
 import static org.duracloud.storage.util.StorageProviderUtil.contains;
 import static org.duracloud.storage.util.StorageProviderUtil.count;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,6 +43,8 @@ import java.util.Map;
  */
 public class StorageProvidersTestCore
         implements StorageProvidersTestInterface {
+    protected final static Logger log = LoggerFactory.getLogger(
+        StorageProvidersTestCore.class);
 
     private final String mimeText = "text/plain";
 
@@ -287,22 +292,78 @@ public class StorageProvidersTestCore
 
         // Open access, and test again.
         provider.setSpaceAccess(spaceId0, AccessType.OPEN);
-        access = provider.getSpaceAccess(spaceId0);
+
+        boolean callComplete = false;
+        int maxTries = 5;
+        int tries = 0;
+        while (!callComplete && tries < maxTries) {
+            access = provider.getSpaceAccess(spaceId0);
+
+            if (access.equals(AccessType.OPEN)) {
+                callComplete = true;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // do nothing
+                }
+                tries++;
+            }
+        }
+
         Assert.assertEquals(AccessType.OPEN, access);
+        log.info("Test 1 passed in " + tries + " retries");
+
 
         // ...also check Access in user metadata.
-        spaceMd = provider.getSpaceMetadata(spaceId0);
-        assertNotNull(spaceMd);
-        prop = spaceMd.get(StorageProvider.METADATA_SPACE_ACCESS);
-        assertNotNull(prop);
+        callComplete = false;
+        tries = 0;
+        while (!callComplete && tries < maxTries) {
+            spaceMd = provider.getSpaceMetadata(spaceId0);
+            assertNotNull(spaceMd);
+            prop = spaceMd.get(StorageProvider.METADATA_SPACE_ACCESS);
+            assertNotNull(prop);
+
+            if (prop.equals(AccessType.OPEN.toString())) {
+                callComplete = true;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // do nothing
+                }
+                tries++;
+
+            }
+        }
+
         assertEquals(AccessType.OPEN.toString(), prop);
+        log.info("Test 2 passed in " + tries + " retries");
 
         // Set to Closed via metadata, test again
         spaceMd.put(StorageProvider.METADATA_SPACE_ACCESS,
                     AccessType.CLOSED.toString());
         provider.setSpaceMetadata(spaceId0, spaceMd);
-        access = provider.getSpaceAccess(spaceId0);
-        Assert.assertEquals(AccessType.CLOSED, access);        
+
+        callComplete = false;
+        tries = 0;
+        while (!callComplete && tries < maxTries) {
+            access = provider.getSpaceAccess(spaceId0);
+
+            if (access.equals(AccessType.CLOSED)) {
+                callComplete = true;
+            } else {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // do nothing
+                }
+                tries++;
+            }
+        }
+
+        Assert.assertEquals(AccessType.CLOSED, access);
+        log.info("Test 3 passed in " + tries + " retries");
     }
 
     public void testAddAndGetContent(StorageProvider provider,
@@ -541,7 +602,7 @@ public class StorageProvidersTestCore
         addContent(provider, spaceId1, contentId1, null, "hello".getBytes());
         metadata = provider.getContentMetadata(spaceId1, contentId1);
         assertNotNull(metadata);
-        assertEquals(StorageProvider.DEFAULT_MIMETYPE, 
+        assertEquals(StorageProvider.DEFAULT_MIMETYPE,
                      metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE));
     }
 
@@ -600,7 +661,7 @@ public class StorageProvidersTestCore
                                     metadata);
         metadata = provider.getContentMetadata(spaceId0, contentId0);
         assertNotNull(metadata);
-       
+
         // Mimetype value is updated
         assertEquals(mimeXml, metadata.get(mimeKey));
     }

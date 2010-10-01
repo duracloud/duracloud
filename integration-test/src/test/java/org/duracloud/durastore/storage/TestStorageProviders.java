@@ -8,6 +8,7 @@
 package org.duracloud.durastore.storage;
 
 import org.duracloud.common.model.Credential;
+import org.duracloud.durastore.storage.probe.ProbedAzureStorageProvider;
 import org.duracloud.durastore.storage.probe.ProbedEMCStorageProvider;
 import org.duracloud.durastore.storage.probe.ProbedS3StorageProvider;
 import org.duracloud.durastore.storage.probe.ProbedRackspaceStorageProvider;
@@ -58,7 +59,7 @@ public class TestStorageProviders {
     @BeforeClass
     public static void beforeClass() throws StorageException {
 
-        final int NUM_PROVIDERS = 3;
+        final int NUM_PROVIDERS = 4;
         for (StorageProviderType providerType : StorageProviderType.values()) {
             Credential credential = getCredential(providerType);
             if (credential != null) {
@@ -72,6 +73,8 @@ public class TestStorageProviders {
                     provider = new ProbedEMCStorageProvider(user, pass);
                 } else if (StorageProviderType.RACKSPACE.equals(providerType)) {
                     provider = new ProbedRackspaceStorageProvider(user, pass);
+                } else if (StorageProviderType.MICROSOFT_AZURE.equals(providerType)) {
+                    provider = new ProbedAzureStorageProvider(user, pass);
                 } else {
                     StringBuffer sb = new StringBuffer("NOT TESTING ");
                     sb.append("storage-provider: '" + providerType + "'");

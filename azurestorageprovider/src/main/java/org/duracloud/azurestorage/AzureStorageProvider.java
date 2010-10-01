@@ -44,7 +44,7 @@ public class AzureStorageProvider extends StorageProviderBase {
 
     private final Logger log = LoggerFactory.getLogger(AzureStorageProvider.class);
 
-    protected static final String BLOB_NAMESPACE = "http://blob.core.windows.net/";
+    public static final String BLOB_NAMESPACE = "http://blob.core.windows.net/";
 
     private BlobStorageClient blobStorage = null;
 
@@ -151,6 +151,9 @@ public class AzureStorageProvider extends StorageProviderBase {
         do {
 
             objects = listObjects(containerName, prefix, maxResults);
+            
+            if(!objects.hasNext())
+                break;
 
             while (objects.hasNext()) {
                 IBlobProperties object = objects.next();
@@ -477,7 +480,11 @@ public class AzureStorageProvider extends StorageProviderBase {
             /* Set Blob Contents */
             IBlobContents blobContents = new BlobContents(wrappedContent);
 
-            blobContainer.createBlockBlob(blobProperties, blobContents);
+            if (blobContainer.isBlobExist(contentId)) {
+                blobContainer.updateBlockBlob(blobProperties, blobContents);                
+            }
+            else
+                blobContainer.createBlockBlob(blobProperties, blobContents);
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
