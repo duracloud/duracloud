@@ -20,18 +20,18 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: Sep 30, 2010
  */
-public class StatusMonitor implements Runnable {
+public class JobCompletionMonitor implements Runnable {
 
-    private final Logger log = LoggerFactory.getLogger(StatusMonitor.class);
+    private final Logger log = LoggerFactory.getLogger(JobCompletionMonitor.class);
 
     private AmazonMapReduceJobWorker worker;
     private long sleepMillis;
 
-    public StatusMonitor(AmazonMapReduceJobWorker worker) {
+    public JobCompletionMonitor(AmazonMapReduceJobWorker worker) {
         this(worker, 30000);
     }
 
-    public StatusMonitor(AmazonMapReduceJobWorker worker, long sleepMillis) {
+    public JobCompletionMonitor(AmazonMapReduceJobWorker worker, long sleepMillis) {
         this.worker = worker;
         this.sleepMillis = sleepMillis;
     }

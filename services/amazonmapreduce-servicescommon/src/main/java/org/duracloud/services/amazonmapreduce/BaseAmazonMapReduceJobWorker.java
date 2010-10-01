@@ -91,7 +91,7 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
         }
         status = JobStatus.RUNNING;
 
-        new Thread(new StatusMonitor(this)).start();
+        new Thread(new JobCompletionMonitor(this)).start();
     }
 
     private String copyResourceToStorage(String resourceName)

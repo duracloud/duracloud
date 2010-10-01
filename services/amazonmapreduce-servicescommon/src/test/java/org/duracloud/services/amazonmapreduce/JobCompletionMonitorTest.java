@@ -19,9 +19,9 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: Sep 30, 2010
  */
-public class StatusMonitorTest {
+public class JobCompletionMonitorTest {
 
-    private StatusMonitor statusMonitor;
+    private JobCompletionMonitor jobCompletionMonitor;
     private AmazonMapReduceJobWorker worker;
 
     @Before
@@ -29,7 +29,7 @@ public class StatusMonitorTest {
         worker = createMockWorker();
 
         long sleepMillis = 1000;
-        statusMonitor = new StatusMonitor(worker, sleepMillis);
+        jobCompletionMonitor = new JobCompletionMonitor(worker, sleepMillis);
     }
 
     private AmazonMapReduceJobWorker createMockWorker() {
@@ -63,7 +63,7 @@ public class StatusMonitorTest {
 
     @Test
     public void testRun() throws Exception {
-        statusMonitor.run();
+        jobCompletionMonitor.run();
         // This test verifies the interaction with the AmazonMapReduceJobWorker.
     }
 }
