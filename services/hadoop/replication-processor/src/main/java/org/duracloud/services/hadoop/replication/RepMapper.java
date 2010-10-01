@@ -14,6 +14,7 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.services.hadoop.base.ProcessFileMapper;
+import org.duracloud.services.hadoop.base.ProcessResult;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,10 +42,12 @@ public class RepMapper extends ProcessFileMapper {
      * Replicate a file to another storage location
      *
      * @param file the file to be replicated
+     * @param origContentId the original ID of the file
      * @return null (there is no resultant file)
      */
     @Override
-    protected File processFile(File file) throws IOException {
+    protected ProcessResult processFile(File file, String origContentId) 
+        throws IOException {
         resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
 
         String dcHost = jobConf.get(RepInitParamParser.DC_HOST);
@@ -53,7 +56,7 @@ public class RepMapper extends ProcessFileMapper {
         String dcUser = jobConf.get(RepInitParamParser.DC_USERNAME);
         String dcPass = jobConf.get(RepInitParamParser.DC_PASSWORD);
         String repStoreId = jobConf.get(RepInitParamParser.REP_STORE_ID);
-        String repSpaceId = jobConf.get(RepInitParamParser.REP_STORE_ID);
+        String repSpaceId = jobConf.get(RepInitParamParser.REP_SPACE_ID);
         String fromSpaceId = jobConf.get(RepInitParamParser.SOURCE_SPACE_ID);
 
         System.out.println("Performing replication of file " + file.getName() +
@@ -82,7 +85,7 @@ public class RepMapper extends ProcessFileMapper {
 
         System.out.println("Connected to both to and from stores");
 
-        String contentId = file.getName(); // TODO: Support path contentIds
+        String contentId = origContentId;
 
         Exception exception = null;
         int attempts;
@@ -106,7 +109,7 @@ public class RepMapper extends ProcessFileMapper {
         resultInfo.put(REP_ATTEMPTS, String.valueOf(attempts));        
 
         if(attempts >= MAX_ATTEMPTS && exception != null) {
-            throw new IOException("Unable to replication file " +
+            throw new IOException("Unable to replicate file " +
                                   file.getName() + " due to " +
                                   exception.getMessage(), exception);
         }

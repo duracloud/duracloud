@@ -8,12 +8,9 @@
 package org.duracloud.services.hadoop.fixity;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.AutoCloseInputStream;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.services.hadoop.base.ProcessFileMapper;
+import org.duracloud.services.hadoop.base.ProcessResult;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,14 +34,15 @@ public class HashFinderMapper extends ProcessFileMapper {
      * Runs Fixity service on file.
      *
      * @param file the file to have checksum determined
+     * @param origContentId the original ID of the file
      * @return null file
      */
     @Override
-    protected File processFile(File file) throws IOException {
-        File nullFile = null;
+    protected ProcessResult processFile(File file, String origContentId)
+        throws IOException {
         if (null == file) {
             super.resultInfo.put(HASH, "null-file");
-            return nullFile;
+            return null;
         }
 
         InputStream fileStream = new FileInputStream(file);
@@ -54,7 +52,7 @@ public class HashFinderMapper extends ProcessFileMapper {
         System.out.println("file: " + file.getPath() + ", hash: " + hash);
         super.resultInfo.put(HASH, hash);
 
-        return nullFile;
+        return null;
     }
 
     @Override

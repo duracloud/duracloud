@@ -7,7 +7,6 @@
  */
 package org.duracloud.services.hadoop.base;
 
-import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileAlreadyExistsException;
@@ -41,6 +40,10 @@ public class AltTextOutputFormat<K, V> extends TextOutputFormat<K, V> {
         return "duracloud-service-results";
     }
 
+    /**
+     * Allows output directory (where results file will be stored) to already
+     * exist and to contain other files.
+     */
     @Override
     public void checkOutputSpecs(FileSystem ignored, JobConf job)
         throws IOException {
@@ -51,33 +54,7 @@ public class AltTextOutputFormat<K, V> extends TextOutputFormat<K, V> {
             FileSystem fs = outDir.getFileSystem(job);
 
             if (fs.exists(outDir)) {
-                ContentSummary contentSummary =
-                    fs.getContentSummary(outDir);
-                long fileCount = contentSummary.getFileCount();
-
-                if(fileCount == 0) {
-                    return;
-                } else if(fileCount == 1) {
-                    String spaceName = outDir.toUri().getAuthority();
-                    if(spaceName == null || spaceName.equals("")) {
-                        spaceName = outDir.getName();
-                    }
-
-                    String spaceMetaName = spaceName + "-space-metadata";
-                    Path spaceMetaPath = new Path(outDir, spaceMetaName);
-
-                    if(fs.exists(spaceMetaPath)) {
-                        if(fs.isFile(spaceMetaPath)) {
-                            return;
-                        }
-                    }
-                } else if (fileCount > 1) {
-                    String error = "Output bucket must be empty (except " +
-                        "for space metadata file) to ensure that content " +
-                        "is not overwritten, there are " + fileCount +
-                        " files in this bucket";
-                    throw new FileAlreadyExistsException(error);
-                }
+                return;
             }
 
             // Cause for exception not obvious, re-throw the original exception

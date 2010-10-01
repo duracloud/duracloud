@@ -9,16 +9,12 @@ package org.duracloud.services.hadoop.base;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.FileAlreadyExistsException;
 import org.apache.hadoop.mapred.JobConf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -61,12 +57,6 @@ public class AltTextOutputFormatTest {
             new File(testDir, "otherfile");
         FileUtils.writeStringToFile(otherFile, "Test");
 
-        try {
-            outputFormat.checkOutputSpecs(null, conf);
-            fail("Exception expected");
-        } catch(FileAlreadyExistsException expected) {
-            assertNotNull(expected);
-        }
-
+        outputFormat.checkOutputSpecs(null, conf);
     }
 }

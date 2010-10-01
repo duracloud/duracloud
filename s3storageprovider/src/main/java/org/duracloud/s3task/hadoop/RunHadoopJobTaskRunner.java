@@ -16,7 +16,6 @@ import com.amazonaws.services.elasticmapreduce.model.RunJobFlowResult;
 import com.amazonaws.services.elasticmapreduce.model.ScriptBootstrapActionConfig;
 import com.amazonaws.services.elasticmapreduce.model.StepConfig;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -31,10 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.duracloud.storage.domain.HadoopTypes.HJAR_PARAMS;
 import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
-import static org.duracloud.storage.domain.HadoopTypes.HJAR_PARAMS;
 
 /**
  * @author: Bill Branan
@@ -156,13 +155,6 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         if(!workExists || !sourceExists || !destExists) {
             throw new RuntimeException("Source, Destination, and Work " +
                 "buckets must exist in order to run a hadoop job");
-        }
-
-        // Verify that the destination bucket is empty (except for metadata)
-        ObjectListing destListing = s3Client.listObjects(destBucketName);
-        if(destListing.getObjectSummaries().size() > 1) {
-            throw new RuntimeException("The destination bucket must be empty " +
-                                       "in order to run a hadoop job");
         }
 
         // Verify jar exists

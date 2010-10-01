@@ -11,7 +11,6 @@ import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 import com.amazonaws.services.elasticmapreduce.model.RunJobFlowRequest;
 import com.amazonaws.services.elasticmapreduce.model.RunJobFlowResult;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -77,11 +76,6 @@ public class RunHadoopJobTaskRunnerTest {
             .expect(mock.doesBucketExist(EasyMock.isA(String.class)))
             .andReturn(true)
             .times(3);
-
-        EasyMock
-            .expect(mock.listObjects(EasyMock.isA(String.class)))
-            .andReturn(new ObjectListing())
-            .times(1);
 
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setHeader("key", "value");

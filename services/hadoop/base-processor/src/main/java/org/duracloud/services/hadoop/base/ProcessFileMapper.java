@@ -70,10 +70,23 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
             Path remotePath = new Path(filePath);
             localFile = copyFileLocal(remotePath, reporter);
 
+            // Determine the contentId
+            String contentId = getContentId(filePath);
+            if(contentId == null) {
+                contentId = remotePath.getName();
+            }
+
             // Process the local file
-            resultFile = processFile(localFile);
-            if (null != resultFile) {
-                storeResultFile(outputPath, resultFile, reporter);
+            ProcessResult result = processFile(localFile, contentId);
+            if(null != result) {
+                resultFile = result.getFile();
+                if (null != resultFile) {
+                    String resultId = result.getContentId();
+                    if(resultId == null) {
+                        resultId = resultFile.getName();
+                    }
+                    storeResultFile(outputPath, resultFile, resultId, reporter);
+                }
             }
 
             // Collect result information
@@ -107,6 +120,26 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
     }
 
     /**
+     * Determines the contentId based on a full path.
+     *
+     * @returns the contentId or null if the contentId cannot be determined
+     */
+    protected String getContentId(String path) {
+        String contentId = null;
+        if (null != path) {
+            String proto = "://";
+            int protoIndex = path.indexOf(proto);
+            if (protoIndex > -1) {
+                int slashIndex = path.indexOf('/', protoIndex + proto.length());
+                if (slashIndex > -1) {
+                    contentId = path.substring(slashIndex + 1);
+                }
+            }
+        }
+        return contentId;
+    }
+
+    /**
      * Copies a file from a remote file system to local storage
      *
      * @param remotePath path to remote file
@@ -125,16 +158,20 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
     }
 
     /**
-     * Processes a file and produces a result file. The result file should
-     * be named as intended for the final output file.
+     * Processes a file and produces a ProcessResult, which includes the file
+     * and the contentId under which the file should be stored.
      * <p/>
      * A default implementation is provided, but this method should be
      * overridden by subclasses.
      *
      * @param file the file to be processed
-     * @return the file resulting from the processing
+     * @param origContentId the original ID of the file
+     * @return ProcessResult including the file resulting from the processing
+     *         to be moved to output along with its corresponding content ID
+     *         or null if no file result exists
      */
-    protected File processFile(File file) throws IOException {
+    protected ProcessResult processFile(File file, String origContentId)
+        throws IOException {
         String fileName = "result-" + file.getName();
         if (!fileName.endsWith(".txt")) {
             fileName += ".txt";
@@ -144,18 +181,19 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
         String outputText = "Processed local file: " + file.getAbsolutePath() +
             " in ProcessFileMapper";
         FileUtils.writeStringToFile(resultFile, outputText, "UTF-8");
-        return resultFile;
+        return new ProcessResult(resultFile, origContentId);
     }
 
     private void storeResultFile(String outputPath,
                                  File resultFile,
+                                 String resultId,
                                  Reporter reporter) throws IOException {
         System.out.println("File processing complete, result file generated: " +
             resultFile.getName());
 
         // Move the result file to the output location
         String finalResultFilePath = moveToOutput(resultFile,
-                                                  resultFile.getName(),
+                                                  resultId,
                                                   outputPath,
                                                   reporter);
 

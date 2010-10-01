@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.services.hadoop.base.ProcessFileMapper;
+import org.duracloud.services.hadoop.base.ProcessResult;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,10 +38,12 @@ public class ImageConversionMapper extends ProcessFileMapper {
      * Converts an image file.
      *
      * @param file the file to be converted
+     * @param origContentId the original ID of the file
      * @return the converted file
      */
     @Override
-    protected File processFile(File file) throws IOException {
+    protected ProcessResult processFile(File file, String origContentId)
+        throws IOException {
         resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
 
         String destFormat = jobConf.get(ICInitParamParser.DEST_FORMAT);
@@ -57,7 +60,10 @@ public class ImageConversionMapper extends ProcessFileMapper {
         long processingTime = System.currentTimeMillis() - startProcTime;
         resultInfo.put(PROC_TIME, String.valueOf(processingTime));
 
-        return resultFile;
+        String contentId =
+            origContentId.replace(file.getName(), resultFile.getName());
+
+        return new ProcessResult(resultFile, contentId);
     }
 
     @Override

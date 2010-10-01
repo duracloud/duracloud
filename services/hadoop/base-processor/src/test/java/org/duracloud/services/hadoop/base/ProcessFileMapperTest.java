@@ -52,6 +52,19 @@ public class ProcessFileMapperTest {
     }
 
     @Test
+    public void testGetContentId() throws Exception {
+        ProcessFileMapper mapper = new ProcessFileMapper();
+
+        String noPathId = "s3n://abcd.test-bucket-name/test.txt";
+        assertEquals("test.txt", mapper.getContentId(noPathId));
+
+        String withPathId = 
+            "s3n://abcd.test-bucket-name/top/level/folder/test.txt";
+        assertEquals("top/level/folder/test.txt",
+                     mapper.getContentId(withPathId));
+    }
+
+    @Test
     public void testProcessFile() throws Exception {
         ProcessFileMapper mapper = new ProcessFileMapper();
 
@@ -60,7 +73,9 @@ public class ProcessFileMapperTest {
         testFiles.add(fileToProcess);
         FileUtils.writeStringToFile(fileToProcess, fileContent);
 
-        File resultFile = mapper.processFile(fileToProcess);
+        ProcessResult result = mapper.processFile(fileToProcess, "file.txt");
+        assertNotNull(result);
+        File resultFile = result.getFile();
         testFiles.add(resultFile);
 
         assertNotNull(resultFile);
@@ -115,8 +130,9 @@ public class ProcessFileMapperTest {
         }
 
         @Override
-        protected File processFile(File file) throws IOException {
-            return new File("/processed/file");
+        protected ProcessResult processFile(File file, String origContentId)
+            throws IOException {
+            return new ProcessResult(new File("/processed/file"), "file");
         }
 
         @Override
