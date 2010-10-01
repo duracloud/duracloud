@@ -15,13 +15,14 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.duracloud.common.util.SerializationUtil.deserializeMap;
 import static org.duracloud.common.util.SerializationUtil.serializeMap;
+import static org.duracloud.storage.domain.HadoopTypes.DESCRIBE_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
-import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * This class manages starting a hadoop job that relies on a jar being installed
@@ -40,7 +41,7 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
     private Map<String, String> taskParams;
     private String serviceWorkDir;
 
-    private boolean complete = false;
+    private JobStatus status = JobStatus.STARTING;
     private String jobId = null;
     private String error = null;
 
@@ -54,13 +55,30 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
         this.serviceWorkDir = serviceWorkDir;
     }
 
-    protected abstract String getHadoopJarPrefix();
+    /**
+     * This abstract method creates and returns a map of filenames that should
+     * be found in the service package, and their associated
+     * HadoopTypes.TASK_PARAM.name().
+     * <p/>
+     * Note: jars used by the hadoop framework must have the extension = .hjar
+     * so that the services-osgi-framework does not try to deploy the hadoop
+     * jar as a service.
+     * While copying the .hjar over to the storageprovider, the extension is
+     * then corrected to .jar .
+     *
+     * @return map of resource filename => task param name
+     */
+    protected abstract Map<String, String> getParamToResourceFileMap();
 
     @Override
     public void run() {
         try {
-            String jarContentId = copyResourceToStorage(getHadoopJarPrefix());
-            taskParams.put(TASK_PARAMS.JAR_CONTENT_ID.name(), jarContentId);
+            Map<String, String> paramToFileMap = getParamToResourceFileMap();
+            for (String param : paramToFileMap.keySet()) {
+                String filename = paramToFileMap.get(param);
+                String contentId = copyResourceToStorage(filename);
+                taskParams.put(param, contentId);
+            }
 
             String response = contentStore.performTask(RUN_HADOOP_TASK_NAME,
                                                        serializeMap(taskParams));
@@ -71,12 +89,45 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
             log.error("Error starting hadoop job " + e.getMessage(), e);
             error = e.getMessage();
         }
-        complete = true;
+        status = JobStatus.RUNNING;
+
+        new Thread(new StatusMonitor(this)).start();
+    }
+
+    private String copyResourceToStorage(String resourceName)
+        throws FileNotFoundException, ContentStoreException {
+        File workDir = new File(serviceWorkDir);
+
+        File resourceFile = null;
+        for (File file : workDir.listFiles()) {
+            if (file.getName().equals(resourceName)) {
+                resourceFile = file;
+            }
+        }
+        if (null == resourceFile) {
+            throw new RuntimeException(
+                "Unable to find service resource: " + resourceName);
+        }
+
+        String contentId = resourceName;
+        if (resourceName.endsWith(".hjar")) {
+            contentId = resourceName.replace(".hjar", ".jar");
+        }
+
+        contentStore.addContent(workSpaceId,
+                                contentId,
+                                new FileInputStream(resourceFile),
+                                resourceFile.length(),
+                                "application/java-archive",
+                                null,
+                                null);
+
+        return contentId;
     }
 
     @Override
-    public boolean isComplete() {
-        return complete;
+    public JobStatus getJobStatus() {
+        return status;
     }
 
     @Override
@@ -91,33 +142,34 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
 
     @Override
     public void shutdown() {
-        complete = true;
+        status = JobStatus.COMPLETE;
     }
 
-    private String copyResourceToStorage(String resourceNamePrefix)
-        throws FileNotFoundException, ContentStoreException {
-        File workDir = new File(serviceWorkDir);
+    @Override
+    public Map<String, String> getJobDetailsMap() {
+        Map<String, String> statusMap = new HashMap<String, String>();
 
-        File hadoopJar = null;
-        for (File file : workDir.listFiles()) {
-            if (file.getName().equals(resourceNamePrefix + ".hjar")) {
-                hadoopJar = file;
-            }
-        }
-        if (null == hadoopJar) {
-            throw new RuntimeException("Unable to find service resources.");
+        String jobStatus = describeJob(jobId);
+        if (jobStatus != null) {
+            statusMap = deserializeMap(jobStatus);
+
+        } else {
+            statusMap.put("Error", "Unable to retrieve job status");
         }
 
-        String hadoopJarContentId = resourceNamePrefix + ".jar";
-        contentStore.addContent(workSpaceId,
-                                hadoopJarContentId,
-                                new FileInputStream(hadoopJar),
-                                hadoopJar.length(),
-                                "application/java-archive",
-                                null,
-                                null);
+        return statusMap;
+    }
 
-        return hadoopJarContentId;
+    private String describeJob(String jobId) {
+        String jobStatus = null;
+        try {
+            jobStatus = contentStore.performTask(DESCRIBE_JOB_TASK_NAME, jobId);
+
+        } catch (ContentStoreException e) {
+            log.error("Error Retrieving Job Status", e.getMessage());
+        }
+
+        return jobStatus;
     }
 
 }

@@ -19,6 +19,7 @@
       <scope>provided</scope>
       <includes>
         <include>org.duracloud.services:bulkimageconversionservice</include>
+        <include>org.duracloud.services:amazonmapreduce-servicescommon</include>
         <include>org.duracloud:storeclient</include>
         <include>org.duracloud:storageprovider</include>
         <include>org.jdom:com.springsource.org.jdom</include>

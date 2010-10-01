@@ -9,6 +9,7 @@ package org.duracloud.services.bulkimageconversion;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -28,12 +29,12 @@ import static junit.framework.Assert.assertTrue;
 public class PostJobWorkerTest {
 
     private ContentStore contentStore;
-    private BulkImageConversionService service;
+    private AmazonMapReduceJobWorker jobWorker;
 
     @Before
     public void setUp() throws Exception {
         contentStore = createMockContentStore();
-        service = createMockService();
+        jobWorker = createMockJobWorker();
     }
 
     private ContentStore createMockContentStore()
@@ -62,14 +63,15 @@ public class PostJobWorkerTest {
         return contentStore;
     }
 
-    private BulkImageConversionService createMockService() {
-        BulkImageConversionService service =
-            EasyMock.createMock(BulkImageConversionService.class);
+    private AmazonMapReduceJobWorker createMockJobWorker() {
+        AmazonMapReduceJobWorker worker =
+            EasyMock.createMock(AmazonMapReduceJobWorker.class);
 
-        EasyMock.expect(service.jobComplete()).andReturn(true).times(1);
+        EasyMock.expect(worker.getJobStatus()).andReturn(
+            AmazonMapReduceJobWorker.JobStatus.COMPLETE).times(1);
         
-        EasyMock.replay(service);
-        return service;
+        EasyMock.replay(worker);
+        return worker;
     }
 
     @After
@@ -77,17 +79,17 @@ public class PostJobWorkerTest {
         EasyMock.verify(contentStore);
         contentStore = null;
 
-        EasyMock.verify(service);
-        service = null;
+        EasyMock.verify(jobWorker);
+        jobWorker = null;
     }
 
     @Test
     public void TestWorker() {
-        PostJobWorker worker = new PostJobWorker(service,
+        PostJobWorker worker = new PostJobWorker(jobWorker,
                                                  contentStore,
                                                  "jpg",
                                                  "spaceId");
         worker.run();
-        assertTrue(worker.isComplete());
+        assertTrue(worker.getJobStatus().isComplete());
     }
 }

@@ -84,17 +84,17 @@ public class BulkImageConversionServiceTest {
         assertEquals("sRGB", service.getColorSpace());
 
         service.setSourceSpaceId(null);
-        assertEquals("image-conversion-source", service.getSourceSpaceId());
+        assertEquals("service-source", service.getSourceSpaceId());
         service.setSourceSpaceId("test-source");
         assertEquals("test-source", service.getSourceSpaceId());
 
         service.setDestSpaceId(null);
-        assertEquals("image-conversion-dest", service.getDestSpaceId());
+        assertEquals("service-dest", service.getDestSpaceId());
         service.setDestSpaceId("test-dest");
         assertEquals("test-dest", service.getDestSpaceId());
 
         service.setWorkSpaceId(null);
-        assertEquals("image-conversion-work", service.getWorkSpaceId());
+        assertEquals("service-work", service.getWorkSpaceId());
         service.setWorkSpaceId("test-work");
         assertEquals("test-work", service.getWorkSpaceId());
 

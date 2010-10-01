@@ -9,7 +9,9 @@ package org.duracloud.services.amazonfixity;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceJobWorker;
+import org.duracloud.storage.domain.HadoopTypes;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,15 +21,18 @@ import java.util.Map;
 public class AmazonFixityJobWorker extends BaseAmazonMapReduceJobWorker {
 
     public AmazonFixityJobWorker(ContentStore contentStore,
-                           String workSpaceId,
-                           Map<String, String> taskParams,
-                           String serviceWorkDir) {
+                                 String workSpaceId,
+                                 Map<String, String> taskParams,
+                                 String serviceWorkDir) {
         super(contentStore, workSpaceId, taskParams, serviceWorkDir);
     }
 
     @Override
-    protected String getHadoopJarPrefix() {
-        return "fixity-processor";
+    protected Map<String, String> getParamToResourceFileMap() {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(HadoopTypes.TASK_PARAMS.JAR_CONTENT_ID.name(),
+                "fixity-processor.hjar");
+        return map;
     }
 
 }

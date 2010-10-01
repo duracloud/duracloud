@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.duracloud.common.util.SerializationUtil.deserializeMap;
+import static org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker.JobStatus;
 import static org.duracloud.storage.domain.HadoopTypes.DESCRIBE_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
 import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.*;
@@ -121,13 +122,19 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         log.info("Stopping " + getServiceId());
         this.setServiceStatus(ServiceStatus.STOPPING);
 
+        String jobId = null;
+        if (getJobWorker() != null) {
+            getJobWorker().shutdown();
+
+            jobId = getJobWorker().getJobId();
+        }
+
         // Stop hadoop job
-        String jobId = getJobWorker().getJobId();
         if (jobId != null) {
             getContentStore().performTask(STOP_JOB_TASK_NAME, jobId);
         }
 
-        if(getPostJobWorker() != null) {
+        if (getPostJobWorker() != null) {
             getPostJobWorker().shutdown();
         }
 
@@ -138,10 +145,10 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     public Map<String, String> getServiceProps() {
         Map<String, String> props = super.getServiceProps();
 
-        boolean jobWorkerLaunched = false;
+        AmazonMapReduceJobWorker.JobStatus jobStatus = JobStatus.UNKNOWN;
         AmazonMapReduceJobWorker worker = getJobWorker();
         if (worker != null) {
-            jobWorkerLaunched = worker.isComplete();
+            jobStatus = worker.getJobStatus();
 
             String error = worker.getError();
             if (error != null) {
@@ -151,81 +158,25 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
             String jobId = worker.getJobId();
             if (jobId != null) {
                 props.put("Job ID", jobId);
+            }
 
-                Map<String, String> jobStatusMap = getJobStatus(jobId);
-                for (String key : jobStatusMap.keySet()) {
-                    props.put(key, jobStatusMap.get(key));
-                }
+            Map<String, String> jobDetailsMap = worker.getJobDetailsMap();
+            for (String key : jobDetailsMap.keySet()) {
+                props.put(key, jobDetailsMap.get(key));
             }
         }
 
-        String status = "Starting Job...";
-        if (jobWorkerLaunched) { // Job Started
-            status = "Running Job...";
-
-            if (jobComplete()) { // Job Complete
-                status = "Job Completed";
-
-                AmazonMapReduceJobWorker postWorker = getPostJobWorker();
-                if (postWorker != null && !postWorker.isComplete()) {
-                    status = "Running Post Job Processing...";
-                }
+        if (jobStatus.isComplete()) {
+            AmazonMapReduceJobWorker postWorker = getPostJobWorker();
+            if (postWorker != null) {
+                jobStatus = postWorker.getJobStatus();
             }
         }
-        props.put("Service Status", status);
+
+        props.put("Service Status", jobStatus.getDescription());
+        log.info("Service Status: " + jobStatus.getDescription());
 
         return props;
-    }
-
-    private Map<String, String> getJobStatus(String jobId) {
-        Map<String, String> statusMap = new HashMap<String, String>();
-
-        String jobStatus = describeJob(jobId);
-        if (jobStatus != null) {
-            statusMap = deserializeMap(jobStatus);
-
-        } else {
-            statusMap.put("Error", "Unable to retrieve job status");
-        }
-
-        return statusMap;
-    }
-
-    private String describeJob(String jobId) {
-        String jobStatus = null;
-        try {
-            jobStatus = getContentStore().performTask(DESCRIBE_JOB_TASK_NAME,
-                                                      jobId);
-
-        } catch (ContentStoreException e) {
-            log.error("Error Retrieving Job Status", e.getMessage());
-        }
-
-        return jobStatus;
-    }
-
-    protected boolean jobComplete() {
-        boolean complete = false;
-        if (getJobWorker() != null) {
-
-            String jobId = getJobWorker().getJobId();
-            if (jobId != null) {
-
-                String jobStatus = describeJob(jobId);
-                if (jobStatus != null) {
-                    Map<String, String> jobStatusMap = deserializeMap(jobStatus);
-                    for (String key : jobStatusMap.keySet()) {
-                        if (key.equals("Job State")) {
-                            if ("COMPLETED".equals(jobStatusMap.get(key))) {
-                                complete = true;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return complete;
     }
 
     public void updated(Dictionary config) throws ConfigurationException {
