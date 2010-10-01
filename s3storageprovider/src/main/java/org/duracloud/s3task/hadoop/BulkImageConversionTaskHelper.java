@@ -7,11 +7,10 @@
  */
 package org.duracloud.s3task.hadoop;
 
-import org.duracloud.storage.domain.HadoopTypes;
-
 import java.util.List;
 import java.util.Map;
 
+import static org.duracloud.storage.domain.HadoopTypes.HJAR_PARAMS;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
@@ -36,18 +35,18 @@ public class BulkImageConversionTaskHelper implements HadoopTaskHelper {
                                        "to run image conversion hadoop job");
         }
 
-        jarParams.add("-f");
+        jarParams.add(HJAR_PARAMS.DEST_FORMAT.getParam());
         jarParams.add(destFormat);
         if(namePrefix != null && !namePrefix.equals("")) {
-            jarParams.add("-p");
+            jarParams.add(HJAR_PARAMS.NAME_PREFIX.getParam());
             jarParams.add(namePrefix);
         }
         if(nameSuffix != null && !nameSuffix.equals("")) {
-            jarParams.add("-s");
+            jarParams.add(HJAR_PARAMS.NAME_SUFFIX.getParam());
             jarParams.add(nameSuffix);
         }
         if(colorSpace != null && !colorSpace.equals("")) {
-            jarParams.add("-c");
+            jarParams.add(HJAR_PARAMS.COLOR_SPACE.getParam());
             jarParams.add(colorSpace);
         }
 

@@ -36,7 +36,8 @@ public class ServiceXmlGenerator {
                                                 new MediaStreamingServiceInfo(),
                                                 new FixityServiceInfo(),
                                                 new BulkImageConversionServiceInfo(),
-                                                new AmazonFixityServiceInfo()};
+                                                new AmazonFixityServiceInfo(),
+                                                new ReplicationOnDemandServiceInfo()};
 
     private String version;
 
@@ -91,7 +92,7 @@ public class ServiceXmlGenerator {
         sb.append("\n");
         sb.append("Example: ");
         sb.append("\n\t");
-        sb.append("ServiceXmlGenerator 0.4.0-SNAPSHOT");
+        sb.append("ServiceXmlGenerator 0.7.0-SNAPSHOT");
         sb.append("\n\n");
         sb.append("----------------------------------\n");
 

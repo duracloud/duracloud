@@ -32,7 +32,45 @@ public class HadoopTypes {
         DEST_FORMAT,
         COLOR_SPACE,
         NAME_PREFIX,
-        NAME_SUFFIX;
+        NAME_SUFFIX,
+        // replication on demand params
+        REP_STORE_ID,
+        REP_SPACE_ID,
+        DC_HOST,
+        DC_PORT,
+        DC_CONTEXT,
+        DC_USERNAME,
+        DC_PASSWORD;        
+    }
+
+    public enum HJAR_PARAMS {
+        INPUT_PATH("-i"),
+        OUTPUT_PATH("-o"),
+        // image conversion params
+        DEST_FORMAT("-f"),
+        NAME_PREFIX("-p"),
+        NAME_SUFFIX("-s"),
+        COLOR_SPACE("-c"),
+        // replication on demand params
+        SOURCE_SPACE_ID("-sourceSpaceId"),
+        DEST_SPACE_ID("-destSpaceId"),
+        REP_STORE_ID("-repStoreId"),
+        REP_SPACE_ID("-repSpaceId"),
+        DC_HOST("-dcHost"),
+        DC_PORT("-dcPort"),
+        DC_CONTEXT("-dcContext"),
+        DC_USERNAME("-dcUsername"),
+        DC_PASSWORD("-dcPassword");
+
+        private String param;
+
+        HJAR_PARAMS(String param) {
+            this.param = param;
+        }
+
+        public String getParam() {
+            return param;
+        }
     }
 
     public enum TASK_OUTPUTS {

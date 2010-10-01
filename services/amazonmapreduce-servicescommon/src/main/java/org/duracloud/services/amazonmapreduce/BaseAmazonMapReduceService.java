@@ -24,11 +24,9 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.duracloud.common.util.SerializationUtil.deserializeMap;
 import static org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker.JobStatus;
-import static org.duracloud.storage.domain.HadoopTypes.DESCRIBE_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
-import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.*;
+import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.SMALL;
 import static org.duracloud.storage.domain.HadoopTypes.STOP_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
@@ -180,8 +178,9 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     }
 
     public void updated(Dictionary config) throws ConfigurationException {
-        log("Attempt made to update Amazon Fixity Service configuration " +
-            "via updated method. Updates should occur via class setters.");
+        log("Attempt made to update " + getJobType() +
+            " service configuration via updated method. " +
+            "Updates should occur via class setters.");
     }
 
     public String getDuraStoreHost() {

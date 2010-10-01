@@ -34,6 +34,7 @@ import java.util.Map;
 import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
+import static org.duracloud.storage.domain.HadoopTypes.HJAR_PARAMS;
 
 /**
  * @author: Bill Branan
@@ -56,6 +57,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     private AmazonElasticMapReduceClient emrClient;
 
     private static final String IMG_CONV_JOB_TYPE = "bulk-image-conversion";
+    private static final String REP_O_D_JOB_TYPE = "replication-on-demand";
 
     public RunHadoopJobTaskRunner(S3StorageProvider s3Provider,
                                   AmazonS3Client s3Client,
@@ -99,6 +101,8 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         HadoopTaskHelper taskHelper = null;
         if(jobType != null && jobType.equals(IMG_CONV_JOB_TYPE)) {
             taskHelper = new BulkImageConversionTaskHelper();
+        } else if(jobType != null && jobType.equals(REP_O_D_JOB_TYPE)) {
+            taskHelper = new ReplicationOnDemandTaskHelper();
         } else {
             log.info("No TaskHelper for Job Type: "+ jobType);
         }
@@ -196,9 +200,9 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         String outputPath = "s3n://" + destBucketName + "/";
 
         List<String> jarParams = new ArrayList<String>();
-        jarParams.add("-i");
+        jarParams.add(HJAR_PARAMS.INPUT_PATH.getParam());
         jarParams.add(inputPath);
-        jarParams.add("-o");
+        jarParams.add(HJAR_PARAMS.OUTPUT_PATH.getParam());
         jarParams.add(outputPath);
 
         // Add job-type specific jar parameters

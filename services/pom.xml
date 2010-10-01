@@ -40,6 +40,7 @@
     <module>amazonmapreduce-servicescommon</module>
     <module>bulkimageconversionservice</module>
     <module>amazonfixityservice</module>
+    <module>replication-on-demand-service</module>
   </modules>
 
   <build>

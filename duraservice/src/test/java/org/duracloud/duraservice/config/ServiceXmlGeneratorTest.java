@@ -7,17 +7,17 @@
  */
 package org.duracloud.duraservice.config;
 
-import java.io.File;
-import java.net.URI;
-import java.util.List;
-import java.util.Properties;
-
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.File;
+import java.net.URI;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Andrew Woods
@@ -35,7 +35,7 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> serviceInfos = serviceXmlGenerator.buildServiceList();
         Assert.assertNotNull(serviceInfos);
 
-        int NUM_SERVICES = 9;
+        int NUM_SERVICES = 10;
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
@@ -49,6 +49,7 @@ public class ServiceXmlGeneratorTest {
         boolean foundFixity = false;
         boolean foundBulkImageConversion = false;
         boolean foundAmazonFixity = false;
+        boolean foundRepOnDemand = false;
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             String contentId = serviceInfo.getContentId();
@@ -102,6 +103,11 @@ public class ServiceXmlGeneratorTest {
                 foundAmazonFixity = true;
                 verifyAmazonFixity(serviceInfo);
 
+            } else if (contentId.equals(
+                "replication-on-demand-service-" + ver + ".zip")) {
+                foundRepOnDemand = true;
+                verifyRepOnDemand(serviceInfo);
+
             } else {
                 Assert.fail("unexpected contentId: " + contentId);
             }
@@ -114,8 +120,11 @@ public class ServiceXmlGeneratorTest {
         //Assert.assertTrue(foundHellowebappwrapper);
         Assert.assertTrue(foundJ2k);
         Assert.assertTrue(foundImageconversion);
+        Assert.assertTrue(foundMediaStreaming);
         Assert.assertTrue(foundFixity);
         Assert.assertTrue(foundBulkImageConversion);
+        Assert.assertTrue(foundAmazonFixity);
+        Assert.assertTrue(foundRepOnDemand);
     }
 
     private void verifyHello() {
@@ -172,6 +181,12 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyAmazonFixity(ServiceInfo serviceInfo) {
         int numUserConfigs = 5;
+        int numSystemConfigs = 6;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+    }
+
+    private void verifyRepOnDemand(ServiceInfo serviceInfo) {
+        int numUserConfigs = 7;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }

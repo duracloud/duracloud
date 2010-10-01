@@ -33,6 +33,7 @@ public class RepMapper extends ProcessFileMapper {
     public static final String DATE = "date";
     public static final String SRC_SIZE = "source-file-bytes";
     public static final String REP_RESULT = "replication-result";
+    public static final String REP_ATTEMPTS = "replication-attempts";
 
     private static final int MAX_ATTEMPTS = 5;
 
@@ -51,13 +52,13 @@ public class RepMapper extends ProcessFileMapper {
         String dcContext = jobConf.get(RepInitParamParser.DC_CONTEXT);
         String dcUser = jobConf.get(RepInitParamParser.DC_USERNAME);
         String dcPass = jobConf.get(RepInitParamParser.DC_PASSWORD);
-        String toStoreId = jobConf.get(RepInitParamParser.TO_STORE_ID);
-        String toSpaceId = jobConf.get(RepInitParamParser.TO_SPACE_ID);
-        String fromSpaceId = jobConf.get(RepInitParamParser.FROM_SPACE_ID);
+        String repStoreId = jobConf.get(RepInitParamParser.REP_STORE_ID);
+        String repSpaceId = jobConf.get(RepInitParamParser.REP_STORE_ID);
+        String fromSpaceId = jobConf.get(RepInitParamParser.SOURCE_SPACE_ID);
 
         System.out.println("Performing replication of file " + file.getName() +
                            " from space " + fromSpaceId + " to space " +
-                           toSpaceId + " at host " + dcHost + " as " + dcUser);
+                           repSpaceId + " at host " + dcHost + " as " + dcUser);
 
         ContentStoreManager storeManager =
             new ContentStoreManagerImpl(dcHost, dcPort, dcContext);
@@ -65,42 +66,44 @@ public class RepMapper extends ProcessFileMapper {
         storeManager.login(credential);
 
         ContentStore primaryStore;
-        ContentStore toStore;
+        ContentStore repStore;
         try {
             primaryStore = storeManager.getPrimaryContentStore();
-            toStore = storeManager.getContentStore(toStoreId);
+            repStore = storeManager.getContentStore(repStoreId);
         } catch(ContentStoreException e) {
             throw new IOException(e);
         }
 
         if(primaryStore == null) {
             throw new IOException("Could not connect to FROM store");
-        } else if(toStore == null) {
+        } else if(repStore == null) {
             throw new IOException("Could not connect to TO store");
         }
 
         System.out.println("Connected to both to and from stores");
 
-        String contentId = file.getName();
+        String contentId = file.getName(); // TODO: Support path contentIds
 
         Exception exception = null;
         int attempts;
-        for(attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
+        for(attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
             try {
                 Map<String, String> metadata =
                     primaryStore.getContentMetadata(fromSpaceId, contentId);
                 try {
-                    replicate(toStore, toSpaceId, contentId, file, metadata);
+                    replicate(repStore, repSpaceId, contentId, file, metadata);
                     break;
                 } catch(NotFoundException e) {
                     System.out.println("NFE: " + e.getMessage());
-                    checkSpace(primaryStore, toStore, toSpaceId, fromSpaceId);
+                    checkSpace(primaryStore, repStore, repSpaceId, fromSpaceId);
                 }
             } catch(ContentStoreException e) {
                 System.out.println("CSE: " + e.getMessage());
                 exception = e;
             }
         }
+
+        resultInfo.put(REP_ATTEMPTS, String.valueOf(attempts));        
 
         if(attempts >= MAX_ATTEMPTS && exception != null) {
             throw new IOException("Unable to replication file " +
@@ -184,6 +187,7 @@ public class RepMapper extends ProcessFileMapper {
         String result = super.collectResult();
         result += ", " + REP_RESULT + "=" +  resultInfo.get(REP_RESULT);
         result += ", " + SRC_SIZE + "=" +  resultInfo.get(SRC_SIZE);
+        result += ", " + REP_ATTEMPTS + "=" + resultInfo.get(REP_ATTEMPTS);
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String now = format.format(new Date(System.currentTimeMillis()));

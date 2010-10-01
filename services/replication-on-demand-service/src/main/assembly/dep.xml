@@ -1,0 +1,28 @@
+<assembly>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <dependencySets>
+    <dependencySet>
+      <scope>provided</scope>
+      <includes>
+        <include>org.duracloud.services:replication-on-demand-service</include>
+        <include>org.duracloud.services:amazonmapreduce-servicescommon</include>
+        <include>org.duracloud:storeclient</include>
+        <include>org.duracloud:storageprovider</include>
+        <include>org.jdom:com.springsource.org.jdom</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <scope>provided</scope>
+      <outputFileNameMapping>replication-processor.hjar</outputFileNameMapping>
+      <includes>
+        <include>org.duracloud.services.hadoop:replication-processor</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
+

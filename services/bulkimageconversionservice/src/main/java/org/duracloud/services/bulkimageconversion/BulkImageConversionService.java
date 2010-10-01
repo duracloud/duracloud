@@ -70,6 +70,7 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
         return "bulk-image-conversion";
     }
 
+    @Override
     protected Map<String, String> collectTaskParams() {
         Map<String, String> taskParams = super.collectTaskParams();
 

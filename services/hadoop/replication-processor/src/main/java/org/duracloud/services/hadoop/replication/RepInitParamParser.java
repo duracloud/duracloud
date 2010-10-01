@@ -17,9 +17,9 @@ import org.duracloud.services.hadoop.base.InitParamParser;
  */
 public class RepInitParamParser extends InitParamParser {
 
-    public static final String TO_STORE_ID = "toStoreId";
-    public static final String TO_SPACE_ID = "toSpaceId";
-    public static final String FROM_SPACE_ID = "fromSpaceId";
+    public static final String SOURCE_SPACE_ID = "sourceSpaceId";
+    public static final String REP_STORE_ID = "repStoreId";
+    public static final String REP_SPACE_ID = "repSpaceId";
     public static final String DC_HOST = "dcHost";
     public static final String DC_PORT = "dcPort";
     public static final String DC_CONTEXT = "dcContext";
@@ -32,24 +32,24 @@ public class RepInitParamParser extends InitParamParser {
     protected Options createOptions() {
         Options options = super.createOptions();
 
-        String toStoreDesc = "The DuraCloud store to which files will be " +
-                             "replicated";
-        Option toStoreOption = new Option("r", TO_STORE_ID, true, toStoreDesc);
-        toStoreOption.setRequired(true);
-        options.addOption(toStoreOption);
-
-        String toSpaceDesc = "The DuraCloud space to which files will be " +
-                             "replicated";
-        Option toSpaceOption = new Option("s", TO_SPACE_ID, true, toSpaceDesc);
-        toSpaceOption.setRequired(true);
-        options.addOption(toSpaceOption);
-
         String fromSpaceDesc = "The DuraCloud space from which files will be " +
                                "replicated";
         Option fromSpaceOption =
-            new Option("f", FROM_SPACE_ID, true, fromSpaceDesc);
+            new Option("s", SOURCE_SPACE_ID, true, fromSpaceDesc);
         fromSpaceOption.setRequired(true);
-        options.addOption(fromSpaceOption);        
+        options.addOption(fromSpaceOption);
+
+        String repStoreDesc = "The DuraCloud store to which files will be " +
+                             "replicated";
+        Option repStoreOption = new Option("t", REP_STORE_ID, true, repStoreDesc);
+        repStoreOption.setRequired(true);
+        options.addOption(repStoreOption);
+
+        String repSpaceDesc = "The DuraCloud space to which files will be " +
+                              "replicated";
+        Option repSpaceOption = new Option("e", REP_SPACE_ID, true, repSpaceDesc);
+        repSpaceOption.setRequired(true);
+        options.addOption(repSpaceOption);        
 
         String dcHostDesc = "The host name used to connect to DuraCloud";
         Option dcHostOption = new Option("h", DC_HOST, true, dcHostDesc);
@@ -57,7 +57,7 @@ public class RepInitParamParser extends InitParamParser {
         options.addOption(dcHostOption);
 
         String dcPortDesc = "The port used to connect to DuraCloud";
-        Option dcPortOption = new Option("t", DC_PORT, true, dcPortDesc);
+        Option dcPortOption = new Option("r", DC_PORT, true, dcPortDesc);
         dcPortOption.setRequired(false);
         options.addOption(dcPortOption);
 
