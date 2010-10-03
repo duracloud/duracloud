@@ -275,7 +275,7 @@ public class StorageProvidersTestCore
 
     }
 
-    public void testGetSpaceAccess(StorageProvider provider, String spaceId0)
+    public void testGetSpaceAccess(final StorageProvider provider, final String spaceId0)
             throws StorageException {
         AccessType access = null;
 
@@ -293,77 +293,28 @@ public class StorageProvidersTestCore
         // Open access, and test again.
         provider.setSpaceAccess(spaceId0, AccessType.OPEN);
 
-        boolean callComplete = false;
-        int maxTries = 5;
-        int tries = 0;
-        while (!callComplete && tries < maxTries) {
-            access = provider.getSpaceAccess(spaceId0);
-
-            if (access.equals(AccessType.OPEN)) {
-                callComplete = true;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    // do nothing
-                }
-                tries++;
+        StoreCaller<AccessType> caller = new StoreCaller<AccessType>() {
+            protected AccessType doCall() throws Exception {
+                return provider.getSpaceAccess(spaceId0);
             }
-        }
-
-        Assert.assertEquals(AccessType.OPEN, access);
-        log.info("Test 1 passed in " + tries + " retries");
-
+        };
+        caller.call(AccessType.OPEN);
 
         // ...also check Access in user metadata.
-        callComplete = false;
-        tries = 0;
-        while (!callComplete && tries < maxTries) {
-            spaceMd = provider.getSpaceMetadata(spaceId0);
-            assertNotNull(spaceMd);
-            prop = spaceMd.get(StorageProvider.METADATA_SPACE_ACCESS);
-            assertNotNull(prop);
-
-            if (prop.equals(AccessType.OPEN.toString())) {
-                callComplete = true;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    // do nothing
-                }
-                tries++;
-
+        StoreCaller metadataCaller = new StoreCaller<String>() {
+            protected String doCall() throws Exception {
+                Map<String, String> md = provider.getSpaceMetadata(spaceId0);
+                return md.get(StorageProvider.METADATA_SPACE_ACCESS);
             }
-        }
-
-        assertEquals(AccessType.OPEN.toString(), prop);
-        log.info("Test 2 passed in " + tries + " retries");
+        };
+        metadataCaller.call(AccessType.OPEN.toString());
 
         // Set to Closed via metadata, test again
         spaceMd.put(StorageProvider.METADATA_SPACE_ACCESS,
                     AccessType.CLOSED.toString());
         provider.setSpaceMetadata(spaceId0, spaceMd);
 
-        callComplete = false;
-        tries = 0;
-        while (!callComplete && tries < maxTries) {
-            access = provider.getSpaceAccess(spaceId0);
-
-            if (access.equals(AccessType.CLOSED)) {
-                callComplete = true;
-            } else {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    // do nothing
-                }
-                tries++;
-            }
-        }
-
-        Assert.assertEquals(AccessType.CLOSED, access);
-        log.info("Test 3 passed in " + tries + " retries");
+        caller.call(AccessType.CLOSED);
     }
 
     public void testAddAndGetContent(StorageProvider provider,
@@ -740,5 +691,37 @@ public class StorageProvidersTestCore
     //        }
     //    }
 
+    /**
+     * This nested class spins on the abstract doCall() until the expected
+     * result is returned or the maximum number of tries has been reached.
+     *
+     * @param <T> object type returned from abstract doCall()
+     */
+    private static abstract class StoreCaller<T> {
+
+        public void call(T expected) {
+            boolean callComplete = false;
+            int maxTries = 5;
+            int tries = 0;
+
+            while (!callComplete && tries < maxTries) {
+                try {
+                    callComplete = expected.equals(doCall());
+                } catch (Exception e) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        // do nothing
+                    }
+                    tries++;
+                }
+            }
+            Assert.assertTrue(
+                expected + " not found after " + tries + " tries.",
+                callComplete);
+        }
+
+        protected abstract T doCall() throws Exception;
+    }
 
 }
