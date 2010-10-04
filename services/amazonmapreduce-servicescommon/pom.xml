@@ -53,6 +53,12 @@
 
     <!-- other -->
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>com.springsource.org.apache.commons.io</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>

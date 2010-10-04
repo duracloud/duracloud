@@ -10,6 +10,7 @@ package org.duracloud.services.bulkimageconversion;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
+import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +58,9 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
     @Override
     protected AmazonMapReduceJobWorker getPostJobWorker() {
         if (null == postWorker) {
-            postWorker = new PostJobWorker(getJobWorker(),
-                                           getContentStore(),
-                                           getToFormat(),
-                                           getDestSpaceId());
+            postWorker = new MimePostJobWorker(getJobWorker(),
+                                               getContentStore(),
+                                               getDestSpaceId());
         }
         return postWorker;
     }

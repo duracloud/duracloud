@@ -10,6 +10,9 @@ package org.duracloud.services.amazonfixity;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
+import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,35 +28,52 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
     private final Logger log = LoggerFactory.getLogger(AmazonFixityService.class);
 
     private AmazonMapReduceJobWorker worker;
-    private AmazonMapReduceJobWorker postWorker; // todo: add header to csv file and set mime
+    private AmazonMapReduceJobWorker postWorker;
 
     @Override
     protected AmazonMapReduceJobWorker getJobWorker() {
         if (null == worker) {
             worker = new AmazonFixityJobWorker(getContentStore(),
-                                         getWorkSpaceId(),
-                                         collectTaskParams(),
-                                         getServiceWorkDir());
+                                               getWorkSpaceId(),
+                                               collectTaskParams(),
+                                               getServiceWorkDir());
         }
         return worker;
     }
 
     @Override
     protected AmazonMapReduceJobWorker getPostJobWorker() {
-        return null;
+        if (null == postWorker) {
+            // FIXME: this contentId value is currently hard-coded into the
+            // FixityOutputFormat.
+            // The dynamic population of this value could be passed in as a
+            // service parameter, but the FixityOutputFormat is passed into
+            // hadoop as a class, not an object.
+            String contentId = "fixity-service-results.csv";
+            String header = "space-id,content-id,hash";
+            AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
+                getJobWorker(),
+                getContentStore(),
+                getServiceWorkDir(),
+                getDestSpaceId(),
+                contentId,
+                header);
+
+            AmazonMapReduceJobWorker mimeWorker = new MimePostJobWorker(
+                headerWorker,
+                getContentStore(),
+                getDestSpaceId());
+
+            postWorker = new MultiPostJobWorker(getJobWorker(),
+                                                headerWorker,
+                                                mimeWorker);
+        }
+        return postWorker;
     }
 
     @Override
     protected String getJobType() {
         return "amazon-fixity";
-    }
-
-    public void setWorker(AmazonMapReduceJobWorker worker) {
-        this.worker = worker;
-    }
-
-    public void setPostWorker(AmazonMapReduceJobWorker postWorker) {
-        this.postWorker = postWorker;
     }
 
 }
