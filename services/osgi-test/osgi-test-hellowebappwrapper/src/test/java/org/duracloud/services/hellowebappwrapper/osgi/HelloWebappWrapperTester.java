@@ -30,7 +30,7 @@ public class HelloWebappWrapperTester {
     private int port = 18080;
 
     private String urlOrig = "http://example.org";
-    private String urlRunning = "http://127.\\d.\\d.1:" + port + "/" + context;
+    private String urlRunning = "http://\\d+.\\d+.\\d+.\\d+:" + port + "/" + context;
     private HelloWebappWrapper wrapper;
 
     public HelloWebappWrapperTester(HelloWebappWrapper wrapper)
