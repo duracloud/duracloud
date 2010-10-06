@@ -64,7 +64,8 @@ $(document).ready(function(){
 		
 		dc.service.GetJ2kBaseURL = function(callback){
 			dc.service.GetDeployedServices({ 
-				success: function(services){
+				success: function(data){
+					var services = data.services;
 					var i,service,deployment;
 		            for (i = 0; i < services.length; i++) {
 		            	service = services[i];
