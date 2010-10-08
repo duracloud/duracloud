@@ -713,8 +713,8 @@ public class StorageProvidersTestCore
                     } catch (InterruptedException e1) {
                         // do nothing
                     }
-                    tries++;
                 }
+                tries++;
             }
             Assert.assertTrue(
                 expected + " not found after " + tries + " tries.",
