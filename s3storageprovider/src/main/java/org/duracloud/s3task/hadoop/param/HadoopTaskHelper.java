@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.s3task.hadoop;
+package org.duracloud.s3task.hadoop.param;
 
 import java.util.List;
 import java.util.Map;

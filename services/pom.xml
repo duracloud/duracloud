@@ -35,12 +35,12 @@
     <module>imageconversionservice</module>
     <module>mediastreamingservice</module>
     <module>fixityservice</module>
-    <module>osgi-test</module>
     <module>hadoop</module>
     <module>amazonmapreduce-servicescommon</module>
     <module>bulkimageconversionservice</module>
     <module>amazonfixityservice</module>
     <module>replication-on-demand-service</module>
+    <module>osgi-test</module>
   </modules>
 
   <build>

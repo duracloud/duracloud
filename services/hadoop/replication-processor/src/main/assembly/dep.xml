@@ -9,7 +9,6 @@
     <dependencySet>
       <excludes>
         <exclude>org.apache.hadoop:hadoop-core</exclude>
-        <exclude>org.jdom:com.springsource.org.jdom</exclude>
         <exclude>org.slf4j:jcl-over-slf4j</exclude>
         <exclude>org.slf4j:log4j-over-slf4j</exclude>
       </excludes>

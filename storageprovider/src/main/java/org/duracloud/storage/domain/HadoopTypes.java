@@ -19,58 +19,51 @@ public class HadoopTypes {
     public static final String DESCRIBE_JOB_TASK_NAME = "describe-hadoop-job";
 
     public enum TASK_PARAMS {
-        JOB_TYPE,
-        WORKSPACE_ID,
-        BOOTSTRAP_CONTENT_ID,
-        JAR_CONTENT_ID,
-        SOURCE_SPACE_ID,
-        DEST_SPACE_ID,
-        INSTANCE_TYPE,
-        NUM_INSTANCES,
-        MAPPERS_PER_INSTANCE,
+        JOB_TYPE("-"),
+        WORKSPACE_ID("-"),
+        BOOTSTRAP_CONTENT_ID("-"),
+        JAR_CONTENT_ID("-"),
+        SOURCE_SPACE_ID("sourceSpaceId"),
+        DEST_SPACE_ID("destSpaceId"),
+        INSTANCE_TYPE("-"),
+        NUM_INSTANCES("-"),
+        MAPPERS_PER_INSTANCE("-"),
         // image conversion params
-        DEST_FORMAT,
-        COLOR_SPACE,
-        NAME_PREFIX,
-        NAME_SUFFIX,
+        DEST_FORMAT("destFormat"),
+        COLOR_SPACE("colorSpace"),
+        NAME_PREFIX("namePrefix"),
+        NAME_SUFFIX("nameSuffix"),
         // replication on demand params
-        REP_STORE_ID,
-        REP_SPACE_ID,
-        DC_HOST,
-        DC_PORT,
-        DC_CONTEXT,
-        DC_USERNAME,
-        DC_PASSWORD;        
+        REP_STORE_ID("repStoreId"),
+        REP_SPACE_ID("repSpaceId"),
+        DC_HOST("dcHost"),
+        DC_PORT("dcPort"),
+        DC_CONTEXT("dcContext"),
+        DC_USERNAME("dcUsername"),
+        DC_PASSWORD("dcPassword"),
+        DC_STORE_ID("dcStoreId"), // TODO: not currently used.
+        INPUT_PATH("inputPath"),
+        OUTPUT_PATH("outputPath");
+
+        private String jarParam;
+
+        TASK_PARAMS(String jarParam) {
+            this.jarParam = jarParam;
+        }
+
+        public String getLongForm() {
+            return jarParam;
+        }
+
+        public String getCliForm() {
+            return "-" + getLongForm();
+        }
     }
 
-    public enum HJAR_PARAMS {
-        INPUT_PATH("-i"),
-        OUTPUT_PATH("-o"),
-        // image conversion params
-        DEST_FORMAT("-f"),
-        NAME_PREFIX("-p"),
-        NAME_SUFFIX("-s"),
-        COLOR_SPACE("-c"),
-        // replication on demand params
-        SOURCE_SPACE_ID("-sourceSpaceId"),
-        DEST_SPACE_ID("-destSpaceId"),
-        REP_STORE_ID("-repStoreId"),
-        REP_SPACE_ID("-repSpaceId"),
-        DC_HOST("-dcHost"),
-        DC_PORT("-dcPort"),
-        DC_CONTEXT("-dcContext"),
-        DC_USERNAME("-dcUsername"),
-        DC_PASSWORD("-dcPassword");
-
-        private String param;
-
-        HJAR_PARAMS(String param) {
-            this.param = param;
-        }
-
-        public String getParam() {
-            return param;
-        }
+    public enum JOB_TYPES {
+        BULK_IMAGE_CONVERSION,
+        AMAZON_FIXITY,
+        REP_ON_DEMAND;
     }
 
     public enum TASK_OUTPUTS {

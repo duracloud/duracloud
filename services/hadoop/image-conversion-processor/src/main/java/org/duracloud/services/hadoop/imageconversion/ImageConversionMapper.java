@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.duracloud.storage.domain.HadoopTypes.*;
+
 /**
  * Mapper used to perform image conversion.
  *
@@ -46,8 +48,8 @@ public class ImageConversionMapper extends ProcessFileMapper {
         throws IOException {
         resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
 
-        String destFormat = jobConf.get(ICInitParamParser.DEST_FORMAT);
-        String colorSpace = jobConf.get(ICInitParamParser.COLOR_SPACE);
+        String destFormat = jobConf.get(TASK_PARAMS.DEST_FORMAT.getLongForm());
+        String colorSpace = jobConf.get(TASK_PARAMS.COLOR_SPACE.getLongForm());
 
         File workDir = file.getParentFile();
         File script = createScript(workDir, colorSpace);

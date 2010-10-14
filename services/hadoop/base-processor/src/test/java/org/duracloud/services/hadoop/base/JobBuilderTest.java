@@ -11,12 +11,14 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobConf;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
+import static org.duracloud.storage.domain.HadoopTypes.*;
 
 /**
  * @author: Bill Branan
@@ -30,8 +32,8 @@ public class JobBuilderTest {
         String outputPath = "file://outputPath";
 
         Map<String, String> initParams = new HashMap<String, String>();
-        initParams.put(InitParamParser.INPUT_PATH, inputPath);
-        initParams.put(InitParamParser.OUTPUT_PATH, outputPath);
+        initParams.put(TASK_PARAMS.INPUT_PATH.getLongForm(), inputPath);
+        initParams.put(TASK_PARAMS.OUTPUT_PATH.getLongForm(), outputPath);
 
         String testParamName = "testName";
         String testParamValue = "testValue";

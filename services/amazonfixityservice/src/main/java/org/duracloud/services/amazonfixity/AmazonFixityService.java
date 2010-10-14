@@ -13,9 +13,12 @@ import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * This service runs the fixity service in the Amazon elastic map reduce framework.
@@ -73,7 +76,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
 
     @Override
     protected String getJobType() {
-        return "amazon-fixity";
+        return HadoopTypes.JOB_TYPES.AMAZON_FIXITY.name();
     }
 
 }

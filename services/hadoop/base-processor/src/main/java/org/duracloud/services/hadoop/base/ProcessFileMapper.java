@@ -15,11 +15,18 @@ import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.hadoop.store.JobContentStoreManagerFactory;
+import org.duracloud.services.hadoop.store.UriPathUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.duracloud.storage.domain.HadoopTypes.*;
 
 /**
  * Mapper used to process files.
@@ -36,8 +43,12 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
     public static final String RESULT_PATH = "result-file-path";
     public static final String ERR_MESSAGE = "error-message";
 
+    protected static final UriPathUtil pathUtil = new UriPathUtil();
+
     protected JobConf jobConf;
     protected Map<String, String> resultInfo;
+
+    private ContentStoreManager storeManager;
 
     public ProcessFileMapper() {
         resultInfo = new HashMap<String, String>();
@@ -46,6 +57,9 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
     @Override
     public void configure(JobConf job) {
         this.jobConf = job;
+
+        JobContentStoreManagerFactory factory = new JobContentStoreManagerFactory();
+        setStoreManager(factory.getContentStoreManager(jobConf));
     }
 
     /**
@@ -71,7 +85,7 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
             localFile = copyFileLocal(remotePath, reporter);
 
             // Determine the contentId
-            String contentId = getContentId(filePath);
+            String contentId = pathUtil.getContentId(filePath);
             if(contentId == null) {
                 contentId = remotePath.getName();
             }
@@ -117,26 +131,6 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
 
             reporter.setStatus("Processing complete for file: " + filePath);
         }
-    }
-
-    /**
-     * Determines the contentId based on a full path.
-     *
-     * @returns the contentId or null if the contentId cannot be determined
-     */
-    protected String getContentId(String path) {
-        String contentId = null;
-        if (null != path) {
-            String proto = "://";
-            int protoIndex = path.indexOf(proto);
-            if (protoIndex > -1) {
-                int slashIndex = path.indexOf('/', protoIndex + proto.length());
-                if (slashIndex > -1) {
-                    contentId = path.substring(slashIndex + 1);
-                }
-            }
-        }
-        return contentId;
     }
 
     /**
@@ -237,14 +231,29 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
     private void doCopy(File localFile,
                         Path remotePath,
                         boolean toLocal,
-                        Reporter reporter) {
-        FileCopier copier = new FileCopier(localFile, remotePath, toLocal);
+                        Reporter reporter) throws IOException {
+        ContentStore store = getContentStore();
+        FileCopier copier = new FileCopier(localFile,
+                                           remotePath,
+                                           toLocal,
+                                           store);
         Thread thread = new Thread(copier);
         thread.start();
 
         while (thread.isAlive()) {
             sleep(500);
             reporter.progress();
+        }
+    }
+
+    protected ContentStore getContentStore() throws IOException {
+        String storeId = getStoreId();
+        try {
+            return getStoreManager().getContentStore(storeId);
+
+        } catch (ContentStoreException e) {
+            System.out.println("Error getting content store: " + storeId);
+            throw new IOException(e);
         }
     }
 
@@ -269,7 +278,7 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
     /**
      * Retrieves a temporary directory on the local file system.
      */
-    public File getTempDir() {
+    private File getTempDir() {
         return new File(System.getProperty("java.io.tmpdir"));
     }
 
@@ -279,6 +288,30 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
         } catch (InterruptedException e) {
             // do nothing
         }
+    }
+
+    public ContentStoreManager getStoreManager() {
+        return storeManager;
+    }
+
+    public void setStoreManager(ContentStoreManager storeManager) {
+        this.storeManager = storeManager;
+    }
+
+    private String getStoreId() throws IOException {
+        String id = jobConf.get(TASK_PARAMS.DC_STORE_ID.getLongForm());
+        if (null == id) {
+            try {
+                id = getStoreManager().getPrimaryContentStore().getStoreId();
+
+            } catch (ContentStoreException e) {
+                System.out.println("Unable the get store id.");
+                e.printStackTrace();
+                throw new IOException(e);
+            }
+        }
+
+        return id;
     }
 
 }

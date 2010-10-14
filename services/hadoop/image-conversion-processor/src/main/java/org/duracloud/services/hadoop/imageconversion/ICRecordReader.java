@@ -12,6 +12,9 @@ import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
 import org.duracloud.services.hadoop.base.SimpleFileRecordReader;
+import org.duracloud.storage.domain.HadoopTypes;
+
+import static org.duracloud.storage.domain.HadoopTypes.*;
 
 /**
  * @author: Bill Branan
@@ -27,8 +30,8 @@ public class ICRecordReader extends SimpleFileRecordReader {
 
     @Override
     protected boolean verifyProcessFile(String filePath) {
-        String namePrefix = jobConf.get(ICInitParamParser.NAME_PREFIX);
-        String nameSuffix = jobConf.get(ICInitParamParser.NAME_SUFFIX);
+        String namePrefix = jobConf.get(TASK_PARAMS.NAME_PREFIX.getLongForm());
+        String nameSuffix = jobConf.get(TASK_PARAMS.NAME_SUFFIX.getLongForm());
 
         String fileName = new Path(filePath).getName();
 

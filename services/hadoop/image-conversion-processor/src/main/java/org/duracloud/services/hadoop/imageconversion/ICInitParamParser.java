@@ -11,16 +11,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.duracloud.services.hadoop.base.InitParamParser;
 
+import static org.duracloud.storage.domain.HadoopTypes.*;
+
 /**
  * @author: Bill Branan
  * Date: Aug 13, 2010
  */
 public class ICInitParamParser extends InitParamParser {
-
-    public static final String DEST_FORMAT = "destFormat";
-    public static final String COLOR_SPACE = "colorSpace";
-    public static final String NAME_PREFIX = "namePrefix";
-    public static final String NAME_SUFFIX = "nameSuffix";    
 
     /**
      * {@inheritDoc}
@@ -31,14 +28,14 @@ public class ICInitParamParser extends InitParamParser {
         String destFormatDesc = "The destination format for the conversion, " +
                                 "e.g. GIF, JPG, JP2, etc";
         Option destFormatOption =
-            new Option("f", DEST_FORMAT, true, destFormatDesc);
+            new Option("f", TASK_PARAMS.DEST_FORMAT.getLongForm(), true, destFormatDesc);
         destFormatOption.setRequired(true);
         options.addOption(destFormatOption);
 
         String colorSpaceDesc = "Output color space, either source or sRGB, " +
             "if this parameter is not included, source is assumed";
         Option colorSpaceOption =
-            new Option("c", COLOR_SPACE, true, colorSpaceDesc);
+            new Option("c", TASK_PARAMS.COLOR_SPACE.getLongForm(), true, colorSpaceDesc);
         colorSpaceOption.setRequired(false);
         options.addOption(colorSpaceOption);
 
@@ -46,7 +43,7 @@ public class ICInitParamParser extends InitParamParser {
             "converted, if this parameter is not included all prefix " +
             "values are included in the conversion";
         Option namePrefixOption =
-            new Option("p", NAME_PREFIX, true, namePrefixDesc);
+            new Option("b", TASK_PARAMS.NAME_PREFIX.getLongForm(), true, namePrefixDesc);
         namePrefixOption.setRequired(false);
         options.addOption(namePrefixOption);
 
@@ -54,7 +51,7 @@ public class ICInitParamParser extends InitParamParser {
             "converted, if this parameter is not included all suffix " +
             "values are included in the conversion";
         Option nameSuffixOption =
-            new Option("s", NAME_SUFFIX, true, nameSuffixDesc);
+            new Option("a", TASK_PARAMS.NAME_SUFFIX.getLongForm(), true, nameSuffixDesc);
         nameSuffixOption.setRequired(false);
         options.addOption(nameSuffixOption);
 

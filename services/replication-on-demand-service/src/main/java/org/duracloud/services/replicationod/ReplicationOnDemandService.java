@@ -10,6 +10,7 @@ package org.duracloud.services.replicationod;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
 
     @Override
     protected String getJobType() {
-        return "replication-on-demand";
+        return HadoopTypes.JOB_TYPES.REP_ON_DEMAND.name();
     }
 
     @Override

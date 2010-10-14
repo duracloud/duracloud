@@ -52,6 +52,8 @@ public class HashFinderMapper extends ProcessFileMapper {
         System.out.println("file: " + file.getPath() + ", hash: " + hash);
         super.resultInfo.put(HASH, hash);
 
+        
+
         return null;
     }
 
@@ -60,60 +62,12 @@ public class HashFinderMapper extends ProcessFileMapper {
         String path = super.resultInfo.get(INPUT_PATH);
 
         StringBuilder sb = new StringBuilder();
-        sb.append(getSpaceId(path));
+        sb.append(pathUtil.getSpaceId(path));
         sb.append(",");
-        sb.append(getContentId(path));
+        sb.append(pathUtil.getContentId(path));
         sb.append(",");
         sb.append(super.resultInfo.get(HASH));
         return sb.toString();
-    }
-
-    /**
-     * protected for unit testing
-     */
-    protected String getSpaceId(String path) {
-        if (null == path) {
-            return "null-space";
-        }
-
-        int protoIndex = path.indexOf("://");
-        if (protoIndex == -1) {
-            return "malformed-path-no-proto-" + path;
-        }
-
-        int dotIndex = path.indexOf('.', protoIndex);
-        if (dotIndex == -1) {
-            return "malformed-path-no-dot-" + path;
-        }
-
-        int slashIndex = path.indexOf('/', dotIndex);
-        if (slashIndex == -1) {
-            return "malformed-path-no-slash-" + path;
-        }
-
-        return path.substring(dotIndex + 1, slashIndex);
-    }
-
-    /**
-     * protected for unit testing
-     */
-    protected String getContentId(String path) {
-        if (null == path) {
-            return "null-content-id";
-        }
-
-        String proto = "://";
-        int protoIndex = path.indexOf(proto);
-        if (protoIndex == -1) {
-            return "malformed-path-no-proto-" + path;
-        }
-
-        int slashIndex = path.indexOf('/', protoIndex + proto.length());
-        if (slashIndex == -1) {
-            return "malformed-path-no-slash-" + path;
-        }
-
-        return path.substring(slashIndex + 1);
     }
 
     private void closeQuietly(InputStream... streams) {

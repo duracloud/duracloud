@@ -39,10 +39,16 @@
 
     </plugins>
 
-  </build> 
+  </build>
 
   <dependencies>
-  
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storeclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>    
+
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-core</artifactId>

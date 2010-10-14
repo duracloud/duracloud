@@ -26,6 +26,7 @@ import java.util.Map;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
+import static org.duracloud.storage.domain.HadoopTypes.JOB_TYPES.BULK_IMAGE_CONVERSION;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
@@ -33,6 +34,8 @@ import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
  * Date: Aug 23, 2010
  */
 public class RunHadoopJobTaskRunnerTest {
+
+    private RunHadoopJobTaskRunner runner;
 
     private S3StorageProvider s3Provider;
     private AmazonS3Client s3Client;
@@ -43,6 +46,8 @@ public class RunHadoopJobTaskRunnerTest {
         s3Provider = createS3ProviderMock();
         s3Client = createS3ClientMock();
         emrClient = createEMRClientMock();
+
+        runner = new RunHadoopJobTaskRunner(s3Provider, s3Client, emrClient);
     }
 
     @After
@@ -100,26 +105,23 @@ public class RunHadoopJobTaskRunnerTest {
             .andReturn(result)
             .times(1);
 
-        EasyMock.replay(mock);        
+        EasyMock.replay(mock);
         return mock;
     }
 
     @Test
     public void testPerformTask() {
-        RunHadoopJobTaskRunner runner =
-            new RunHadoopJobTaskRunner(s3Provider, s3Client, emrClient);
-
-        Map<String, String> taskParams = new HashMap<String, String>();
+         Map<String, String> taskParams = new HashMap<String, String>();
         String params = SerializationUtil.serializeMap(taskParams);
-
         try {
             runner.performTask(params);
             fail("Exception expected performing task with no params");
-        } catch(RuntimeException expected) {
+
+        } catch (RuntimeException expected) {
             assertNotNull(expected);
         }
 
-        taskParams.put(TASK_PARAMS.JOB_TYPE.name(), "bulk-image-conversion");
+        taskParams.put(TASK_PARAMS.JOB_TYPE.name(), BULK_IMAGE_CONVERSION.name());
         taskParams.put(TASK_PARAMS.WORKSPACE_ID.name(), "work");
         taskParams.put(TASK_PARAMS.SOURCE_SPACE_ID.name(), "source");
         taskParams.put(TASK_PARAMS.DEST_SPACE_ID.name(), "dest");
@@ -130,6 +132,11 @@ public class RunHadoopJobTaskRunnerTest {
         taskParams.put(TASK_PARAMS.DEST_FORMAT.name(), "png");
         taskParams.put(TASK_PARAMS.COLOR_SPACE.name(), "sRGB");
         taskParams.put(TASK_PARAMS.MAPPERS_PER_INSTANCE.name(), "1");
+        taskParams.put(TASK_PARAMS.DC_HOST.name(), "host");
+        taskParams.put(TASK_PARAMS.DC_USERNAME.name(), "user");
+        taskParams.put(TASK_PARAMS.DC_PASSWORD.name(), "pass");
+        taskParams.put(TASK_PARAMS.DC_PORT.name(), "port");
+        taskParams.put(TASK_PARAMS.DC_CONTEXT.name(), "context");
 
         params = SerializationUtil.serializeMap(taskParams);
         String result = runner.performTask(params);

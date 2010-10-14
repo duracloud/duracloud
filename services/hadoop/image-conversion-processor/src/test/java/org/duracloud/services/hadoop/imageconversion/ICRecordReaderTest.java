@@ -11,10 +11,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.duracloud.storage.domain.HadoopTypes.*;
 
 /**
  * @author: Bill Branan
@@ -29,8 +31,8 @@ public class ICRecordReaderTest {
         FileSplit split = new FileSplit(new Path(inputPath), 0, 10, conf);
 
         // Both prefix and suffix set
-        conf.set(ICInitParamParser.NAME_PREFIX, "test");
-        conf.set(ICInitParamParser.NAME_SUFFIX, ".txt");
+        conf.set(TASK_PARAMS.NAME_PREFIX.getLongForm(), "test");
+        conf.set(TASK_PARAMS.NAME_SUFFIX.getLongForm(), ".txt");
 
         ICRecordReader reader = new ICRecordReader(split, conf, Reporter.NULL);
 
@@ -43,8 +45,8 @@ public class ICRecordReaderTest {
         assertFalse(reader.verifyProcessFile("my-test.txt"));
 
         // Only prefix set
-        conf.set(ICInitParamParser.NAME_PREFIX, "test");
-        conf.set(ICInitParamParser.NAME_SUFFIX, "");
+        conf.set(TASK_PARAMS.NAME_PREFIX.getLongForm(), "test");
+        conf.set(TASK_PARAMS.NAME_SUFFIX.getLongForm(), "");
 
         reader = new ICRecordReader(split, conf, Reporter.NULL);
 
@@ -58,8 +60,8 @@ public class ICRecordReaderTest {
         assertFalse(reader.verifyProcessFile("my-test.txt"));
 
         // Only suffix set
-        conf.set(ICInitParamParser.NAME_PREFIX, "");
-        conf.set(ICInitParamParser.NAME_SUFFIX, ".txt");
+        conf.set(TASK_PARAMS.NAME_PREFIX.getLongForm(), "");
+        conf.set(TASK_PARAMS.NAME_SUFFIX.getLongForm(), ".txt");
 
         reader = new ICRecordReader(split, conf, Reporter.NULL);
 

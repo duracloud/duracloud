@@ -7,21 +7,26 @@
  */
 package org.duracloud.services.amazonfixity;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.storage.domain.HadoopTypes;
+import org.duracloud.services.ComputeService;
 import org.easymock.classextension.EasyMock;
-import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
+import static org.duracloud.storage.domain.HadoopTypes.JOB_TYPES;
 
 /**
  * @author Andrew Woods
@@ -30,28 +35,50 @@ import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 public class AmazonFixityServiceTest {
 
     private AmazonFixityService service;
+    private ContentStore contentStore;
+
+    private File serviceWorkDir = new File("target", "test-fixity-service");
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         service = new AmazonFixityService();
-        service.setContentStore(createMockContentStore());
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @Test
+    public void testGetJobType() {
+        String jobType = service.getJobType();
+        Assert.assertNotNull(jobType);
+        Assert.assertEquals(JOB_TYPES.AMAZON_FIXITY.name(), jobType);
     }
 
     @Test
     public void testStart() throws Exception {
+        setUpStart();
+
         service.start();
+        ComputeService.ServiceStatus status = service.getServiceStatus();
+        Assert.assertNotNull(status);
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
+
+        verifyStart();
     }
 
-    @Test
-    public void testStop() throws Exception {
-    }
+    private void setUpStart() throws Exception {
+        service.setWorkSpaceId("work-space-id");
 
-    @Test
-    public void testGetServiceProps() throws Exception {
+        contentStore = createMockContentStore();
+        service.setContentStore(contentStore);
+
+        String workDir = serviceWorkDir.getAbsolutePath();
+        if (!serviceWorkDir.exists()) {
+            Assert.assertTrue(workDir, serviceWorkDir.mkdir());
+        }
+        service.setServiceWorkDir(workDir);
+
+        OutputStream hjar = FileUtils.openOutputStream(new File(workDir,
+                                                                "fixity-processor.hjar"));
+        IOUtils.write("hello", hjar);
+        IOUtils.closeQuietly(hjar);
     }
 
     private ContentStore createMockContentStore() throws ContentStoreException {
@@ -73,9 +100,14 @@ public class AmazonFixityServiceTest {
                                                 EasyMock.<String>isNull(),
                                                 EasyMock.<Map<String, String>>isNull()))
             .andReturn(null)
-            .times(2);
+            .times(1);
 
         EasyMock.replay(contentStore);
         return contentStore;
     }
+
+    private void verifyStart() {
+        EasyMock.verify(contentStore);
+    }
+
 }

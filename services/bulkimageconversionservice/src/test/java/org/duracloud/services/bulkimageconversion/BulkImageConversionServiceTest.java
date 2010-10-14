@@ -36,7 +36,8 @@ public class BulkImageConversionServiceTest {
         service.setNumInstances("8");
 
         Map<String, String> params =  service.collectTaskParams();
-        assertEquals("bulk-image-conversion", params.get(TASK_PARAMS.JOB_TYPE.name()));
+        assertEquals(HadoopTypes.JOB_TYPES.BULK_IMAGE_CONVERSION.name(),
+                     params.get(TASK_PARAMS.JOB_TYPE.name()));
         assertEquals("test-work", params.get(TASK_PARAMS.WORKSPACE_ID.name()));
         assertEquals("test-source", params.get(TASK_PARAMS.SOURCE_SPACE_ID.name()));
         assertEquals("test-dest", params.get(TASK_PARAMS.DEST_SPACE_ID.name()));

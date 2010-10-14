@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import static org.duracloud.storage.domain.HadoopTypes.*;
+
 /**
  * Mapper used to perform replication.
  *
@@ -50,14 +52,14 @@ public class RepMapper extends ProcessFileMapper {
         throws IOException {
         resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
 
-        String dcHost = jobConf.get(RepInitParamParser.DC_HOST);
-        String dcPort = jobConf.get(RepInitParamParser.DC_PORT);
-        String dcContext = jobConf.get(RepInitParamParser.DC_CONTEXT);
-        String dcUser = jobConf.get(RepInitParamParser.DC_USERNAME);
-        String dcPass = jobConf.get(RepInitParamParser.DC_PASSWORD);
-        String repStoreId = jobConf.get(RepInitParamParser.REP_STORE_ID);
-        String repSpaceId = jobConf.get(RepInitParamParser.REP_SPACE_ID);
-        String fromSpaceId = jobConf.get(RepInitParamParser.SOURCE_SPACE_ID);
+        String dcHost = jobConf.get(TASK_PARAMS.DC_HOST.getLongForm());
+        String dcPort = jobConf.get(TASK_PARAMS.DC_PORT.getLongForm());
+        String dcContext = jobConf.get(TASK_PARAMS.DC_CONTEXT.getLongForm());
+        String dcUser = jobConf.get(TASK_PARAMS.DC_USERNAME.getLongForm());
+        String dcPass = jobConf.get(TASK_PARAMS.DC_PASSWORD.getLongForm());
+        String repStoreId = jobConf.get(TASK_PARAMS.REP_STORE_ID.getLongForm());
+        String repSpaceId = jobConf.get(TASK_PARAMS.REP_SPACE_ID.getLongForm());
+        String fromSpaceId = jobConf.get(TASK_PARAMS.SOURCE_SPACE_ID.getLongForm());
 
         System.out.println("Performing replication of file " + file.getName() +
                            " from space " + fromSpaceId + " to space " +

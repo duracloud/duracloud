@@ -7,13 +7,14 @@
  */
 package org.duracloud.services.hadoop.base;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
+import static org.duracloud.storage.domain.HadoopTypes.*;
+
 
 /**
  * @author: Bill Branan
@@ -21,51 +22,107 @@ import static junit.framework.Assert.fail;
  */
 public class InitParamParserTest {
 
+    private InitParamParser paramParser;
+
+    private static final String inputVal = "/input/path";
+    private static final String outputVal = "/output/path";
+    private static final String usernameVal = "username";
+    private static final String passwordVal = "password";
+    private static final String hostVal = "host";
+
+    @Before
+    public void setUp() {
+        paramParser = new InitParamParser();
+    }
+
     @Test
-    public void testParseInitParams() throws Exception {
-        InitParamParser paramParser = new InitParamParser();
+    public void testNull() throws Exception {
         try {
             paramParser.parseInitParams(null);
-            fail("Job Runner should fail when no arguments are provided");
-        } catch(Exception expected) {
-            assertNotNull(expected);
+            Assert.fail("Job Runner should fail when no arguments are provided");
+        } catch (Exception expected) {
+            Assert.assertNotNull(expected);
         }
+    }
 
-        String inputVal = "/input/path";
-        String outputVal = "/output/path";
+    @Test
+    public void testNoOutPath() throws Exception {
 
-        String[] argsInput = {"-inputPath", inputVal};
+        String[] argsInput = {TASK_PARAMS.INPUT_PATH.getCliForm(),
+                              inputVal};
         try {
             paramParser.parseInitParams(argsInput);
-            fail("Job Runner should fail when output argument is missing");
-        } catch(Exception expected) {
-            assertNotNull(expected);
+            Assert.fail("Job Runner should fail when output argument is missing");
+        } catch (Exception expected) {
+            Assert.assertNotNull(expected);
         }
+    }
 
-        String[] argsOutput = {"-outputPath", outputVal};
+    @Test
+    public void testNoInPath() throws Exception {
+        String[] argsOutput = {TASK_PARAMS.OUTPUT_PATH.getCliForm(),
+                               outputVal};
         try {
             paramParser.parseInitParams(argsOutput);
-            fail("Job Runner should fail when input arguments is missing");
-        } catch(Exception expected) {
-            assertNotNull(expected);
+            Assert.fail("Job Runner should fail when input arguments is missing");
+        } catch (Exception expected) {
+            Assert.assertNotNull(expected);
         }
+    }
 
-        String[] args = {"-inputPath", inputVal, "-outputPath", outputVal};
-        paramParser.parseInitParams(args);
-
-        String[] argsShort = {"-i", inputVal, "-o", outputVal};
-        paramParser.parseInitParams(argsShort);
-
+    @Test
+    public void testParseLongArgs() throws Exception {
+        String[] args = {TASK_PARAMS.INPUT_PATH.getCliForm(),
+                         inputVal,
+                         TASK_PARAMS.OUTPUT_PATH.getCliForm(),
+                         outputVal,
+                         TASK_PARAMS.DC_HOST.getCliForm(),
+                         hostVal,
+                         TASK_PARAMS.DC_USERNAME.getCliForm(),
+                         usernameVal,
+                         TASK_PARAMS.DC_PASSWORD.getCliForm(),
+                         passwordVal};
         Map<String, String> params = paramParser.parseInitParams(args);
-        assertNotNull(params);
+        verifyParams(params);
+    }
 
-        String inputPath = params.get("inputPath");
-        assertNotNull(inputPath);
-        assertEquals(inputPath, inputVal);
+    @Test
+    public void testParseShortArgs() throws Exception {
+        String[] argsShort = {"-i",
+                              inputVal,
+                              "-o",
+                              outputVal,
+                              "-h",
+                              hostVal,
+                              "-u",
+                              usernameVal,
+                              "-p",
+                              passwordVal};
+        Map<String, String> params = paramParser.parseInitParams(argsShort);
+        verifyParams(params);
+    }
 
-        String outputPath = params.get("outputPath");
-        assertNotNull(outputPath);
-        assertEquals(outputPath, outputVal);
+    private void verifyParams(Map<String, String> params) {
+        Assert.assertNotNull(params);
+        String inputPath = params.get(TASK_PARAMS.INPUT_PATH.getLongForm());
+        Assert.assertNotNull(inputPath);
+        Assert.assertEquals(inputPath, inputVal);
+
+        String outputPath = params.get(TASK_PARAMS.OUTPUT_PATH.getLongForm());
+        Assert.assertNotNull(outputPath);
+        Assert.assertEquals(outputPath, outputVal);
+
+        String host = params.get(TASK_PARAMS.DC_HOST.getLongForm());
+        Assert.assertNotNull(host);
+        Assert.assertEquals(host, hostVal);
+
+        String username = params.get(TASK_PARAMS.DC_USERNAME.getLongForm());
+        Assert.assertNotNull(username);
+        Assert.assertEquals(username, usernameVal);
+
+        String password = params.get(TASK_PARAMS.DC_PASSWORD.getLongForm());
+        Assert.assertNotNull(password);
+        Assert.assertEquals(password, passwordVal);
     }
 
 }

@@ -11,6 +11,7 @@ import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
 
     @Override
     protected String getJobType() {
-        return "bulk-image-conversion";
+        return HadoopTypes.JOB_TYPES.BULK_IMAGE_CONVERSION.name();
     }
 
     @Override

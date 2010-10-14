@@ -112,6 +112,14 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         }
         taskParams.put(TASK_PARAMS.MAPPERS_PER_INSTANCE.name(), mappers);
 
+        taskParams.put(TASK_PARAMS.DC_HOST.name(), getDuraStoreHost());
+        taskParams.put(TASK_PARAMS.DC_PORT.name(), getDuraStorePort());
+        taskParams.put(TASK_PARAMS.DC_CONTEXT.name(), getDuraStoreContext());
+        taskParams.put(TASK_PARAMS.DC_USERNAME.name(), getUsername());
+        taskParams.put(TASK_PARAMS.DC_PASSWORD.name(), getPassword());
+        // TODO: we should allow users to specify storageprovider:id
+        // taskParams.put(TASK_PARAMS.DC_STORE_ID.name(), getPassword());
+
         return taskParams;
     }
 

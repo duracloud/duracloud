@@ -19,6 +19,9 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3task.hadoop.param.BulkImageConversionTaskHelper;
+import org.duracloud.s3task.hadoop.param.HadoopTaskHelper;
+import org.duracloud.s3task.hadoop.param.ReplicationOnDemandTaskHelper;
 import org.duracloud.storage.domain.HadoopTypes;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
@@ -30,8 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.duracloud.storage.domain.HadoopTypes.HJAR_PARAMS;
 import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
+import static org.duracloud.storage.domain.HadoopTypes.JOB_TYPES.BULK_IMAGE_CONVERSION;
+import static org.duracloud.storage.domain.HadoopTypes.JOB_TYPES.REP_ON_DEMAND;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
@@ -54,9 +58,6 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     private S3StorageProvider s3Provider;
     private AmazonS3Client s3Client;
     private AmazonElasticMapReduceClient emrClient;
-
-    private static final String IMG_CONV_JOB_TYPE = "bulk-image-conversion";
-    private static final String REP_O_D_JOB_TYPE = "replication-on-demand";
 
     public RunHadoopJobTaskRunner(S3StorageProvider s3Provider,
                                   AmazonS3Client s3Client,
@@ -83,6 +84,12 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         String instanceType = taskParams.get(TASK_PARAMS.INSTANCE_TYPE.name());
         String numInstances = taskParams.get(TASK_PARAMS.NUM_INSTANCES.name());
         String mappersPerInstance = taskParams.get(TASK_PARAMS.MAPPERS_PER_INSTANCE.name());
+        String dcHost = taskParams.get(TASK_PARAMS.DC_HOST.name());
+        String dcPort = taskParams.get(TASK_PARAMS.DC_PORT.name());
+        String dcContext = taskParams.get(TASK_PARAMS.DC_CONTEXT.name());
+        String dcStoreId = taskParams.get(TASK_PARAMS.DC_STORE_ID.name());
+        String dcUsername = taskParams.get(TASK_PARAMS.DC_USERNAME.name());
+        String dcPassword = taskParams.get(TASK_PARAMS.DC_PASSWORD.name());
 
         log.info("Performing " + HadoopTypes.RUN_HADOOP_TASK_NAME +
                  " with the following parameters:" +
@@ -94,22 +101,27 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
                  " destSpaceId=" + destSpaceId +
                  " instanceType=" + instanceType +
                  " numInstances=" + numInstances +
-                 " mappersPerInstance=" + mappersPerInstance);
+                 " mappersPerInstance=" + mappersPerInstance +
+                 " dcHost=" + dcHost +
+                 " dcPort=" + dcPort +
+                 " dcContext=" + dcContext +
+                 " dcStoreId=" + dcStoreId +
+                 " dcUsername=" + dcUsername);
 
         // Verify a known job type
         HadoopTaskHelper taskHelper = null;
-        if(jobType != null && jobType.equals(IMG_CONV_JOB_TYPE)) {
+        if(jobType != null && jobType.equals(BULK_IMAGE_CONVERSION.name())) {
             taskHelper = new BulkImageConversionTaskHelper();
-        } else if(jobType != null && jobType.equals(REP_O_D_JOB_TYPE)) {
+        } else if(jobType != null && jobType.equals(REP_ON_DEMAND.name())) {
             taskHelper = new ReplicationOnDemandTaskHelper();
         } else {
             log.info("No TaskHelper for Job Type: "+ jobType);
         }
 
         // Verify required params were provided
-        if(workSpaceId == null || sourceSpaceId == null ||
-           destSpaceId == null || jarContentId == null)
-        {
+        if (workSpaceId == null || sourceSpaceId == null ||
+            destSpaceId == null || jarContentId == null || dcHost == null ||
+            dcUsername == null || dcPassword == null) {
             throw new RuntimeException("All required parameters not provided");
         }
 
@@ -192,10 +204,29 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         String outputPath = "s3n://" + destBucketName + "/";
 
         List<String> jarParams = new ArrayList<String>();
-        jarParams.add(HJAR_PARAMS.INPUT_PATH.getParam());
+        jarParams.add(TASK_PARAMS.INPUT_PATH.getCliForm());
         jarParams.add(inputPath);
-        jarParams.add(HJAR_PARAMS.OUTPUT_PATH.getParam());
+        jarParams.add(TASK_PARAMS.OUTPUT_PATH.getCliForm());
         jarParams.add(outputPath);
+
+        jarParams.add(TASK_PARAMS.DC_HOST.getCliForm());
+        jarParams.add(dcHost);
+        if (dcPort != null && !dcPort.equals("")) {
+            jarParams.add(TASK_PARAMS.DC_PORT.getCliForm());
+            jarParams.add(dcPort);
+        }
+        if (dcContext != null && !dcContext.equals("")) {
+            jarParams.add(TASK_PARAMS.DC_CONTEXT.getCliForm());
+            jarParams.add(dcContext);
+        }
+        if (dcStoreId != null && !dcStoreId.equals("")) {
+            jarParams.add(TASK_PARAMS.DC_STORE_ID.getCliForm());
+            jarParams.add(dcStoreId);
+        }
+        jarParams.add(TASK_PARAMS.DC_USERNAME.getCliForm());
+        jarParams.add(dcUsername);
+        jarParams.add(TASK_PARAMS.DC_PASSWORD.getCliForm());
+        jarParams.add(dcPassword);
 
         // Add job-type specific jar parameters
         if(taskHelper != null) {

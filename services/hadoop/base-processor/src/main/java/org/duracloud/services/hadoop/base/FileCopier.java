@@ -7,12 +7,21 @@
  */
 package org.duracloud.services.hadoop.base;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
+import org.duracloud.client.ContentStore;
+import org.duracloud.domain.Content;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.hadoop.store.MimeTypeUtil;
+import org.duracloud.services.hadoop.store.UriPathUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * This class can be run as a separate thread to copy a file either from the
@@ -24,16 +33,22 @@ import java.io.IOException;
  */
 public class FileCopier implements Runnable {
 
-    public static final String LOCAL_FS = "file://";
-
     private File localFile;
     private Path remotePath;
     private boolean toLocal;
+    private ContentStore store;
 
-    public FileCopier(File localFile, Path remotePath, boolean toLocal) {
+    private static final UriPathUtil pathUtil = new UriPathUtil();
+    private static final MimeTypeUtil mimeUtil = new MimeTypeUtil();
+
+    public FileCopier(File localFile,
+                      Path remotePath,
+                      boolean toLocal,
+                      ContentStore store) {
         this.localFile = localFile;
         this.remotePath = remotePath;
         this.toLocal = toLocal;
+        this.store = store;
     }
 
     @Override
@@ -46,21 +61,34 @@ public class FileCopier implements Runnable {
                 copyFileFromLocal();
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             log("Error copying file: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void copyFileToLocal() throws IOException {
+        InputStream remoteInStream = null;
+        OutputStream localOutStream = null;
+
         String fileName = remotePath.getName();
         FileSystem fs = remotePath.getFileSystem(new JobConf());
 
         if (fs.isFile(remotePath)) {
             log("Copying file (" + fileName + ") to local file system");
 
-            Path localPath = new Path(LOCAL_FS + localFile.getAbsolutePath());
-            fs.copyToLocalFile(remotePath, localPath);
+            try {
+                remoteInStream = getRemoteContent(remotePath);
+                localOutStream = FileUtils.openOutputStream(localFile);
+                IOUtils.copy(remoteInStream, localOutStream);
+
+            } catch (Exception e) {
+                log("Error copying content: " + e.getMessage());
+
+            } finally {
+                IOUtils.closeQuietly(remoteInStream);
+                IOUtils.closeQuietly(localOutStream);
+            }
 
             if (localFile.exists()) {
                 log("File moved to local storage successfully.");
@@ -86,17 +114,53 @@ public class FileCopier implements Runnable {
         }
     }
 
-    private void copyFileFromLocal() throws IOException {
-        Path localPath = new Path(LOCAL_FS + localFile.getAbsolutePath());
+    private InputStream getRemoteContent(Path remotePath)
+        throws ContentStoreException, IOException {
 
+        Content content = store.getContent(getSpaceId(), getContentId());
+        if (null != content && null != content.getStream()) {
+            return content.getStream();
+
+        } else {
+            throw new IOException("Null content for: " + remotePath);
+        }
+    }
+
+    private void copyFileFromLocal() throws IOException {
         StringBuilder sb = new StringBuilder("Moving file: ");
-        sb.append(localPath.toString());
+        sb.append(localFile.getAbsolutePath());
         sb.append(" to output ");
         sb.append(remotePath.toString());
         log(sb.toString());
 
-        FileSystem outputFS = remotePath.getFileSystem(new JobConf());
-        outputFS.moveFromLocalFile(localPath, remotePath);
+        putContent(FileUtils.openInputStream(localFile));
+    }
+
+    private void putContent(InputStream localInStream) throws IOException {
+        try {
+            store.addContent(getSpaceId(),
+                             getContentId(),
+                             localInStream,
+                             localFile.length(),
+                             mimeUtil.guessMimeType(getContentId()),
+                             null,
+                             null);
+
+        } catch (ContentStoreException e) {
+            e.printStackTrace();
+            throw new IOException("Error adding content: " + e.getMessage());
+
+        } finally {
+            IOUtils.closeQuietly(localInStream);
+        }
+    }
+
+    private String getSpaceId() {
+        return pathUtil.getSpaceId(remotePath.toString());
+    }
+
+    private String getContentId() {
+        return pathUtil.getContentId(remotePath.toString());
     }
 
     private void log(String msg) {

@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.replicationod;
 
+import org.duracloud.storage.domain.HadoopTypes;
 import org.junit.Test;
 
 import java.util.Map;
@@ -22,7 +23,7 @@ public class ReplicationOnDemandServiceTest {
 
     @Test
     public void testCollectTaskParams() {
-        String jobType = "replication-on-demand";
+        String jobType = HadoopTypes.JOB_TYPES.REP_ON_DEMAND.name();
         String workSpaceId = "test-work";
         String sourceSpaceId = "test-source";
         String repStoreId = "0";

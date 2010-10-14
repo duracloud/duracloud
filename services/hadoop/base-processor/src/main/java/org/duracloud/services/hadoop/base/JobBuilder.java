@@ -10,10 +10,13 @@ package org.duracloud.services.hadoop.base;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
+import org.duracloud.storage.domain.HadoopTypes;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Map;
+
+import static org.duracloud.storage.domain.HadoopTypes.*;
 
 /**
  * This class constructs a hadoop job to process files.
@@ -38,8 +41,8 @@ public class JobBuilder {
      * Constructs the JobConf to be used to run the map reduce job.
      */
     public JobConf getJobConf() throws IOException, ParseException {
-        String inputPathPrefix = initParams.get(InitParamParser.INPUT_PATH);
-        String outputPath = initParams.get(InitParamParser.OUTPUT_PATH);
+        String inputPathPrefix = initParams.get(TASK_PARAMS.INPUT_PATH.getLongForm());
+        String outputPath = initParams.get(TASK_PARAMS.OUTPUT_PATH.getLongForm());
 
         inputPathPrefix = appendTrailingSlash(inputPathPrefix);
         outputPath = appendTrailingSlash(outputPath);

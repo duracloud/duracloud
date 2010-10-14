@@ -52,19 +52,6 @@ public class ProcessFileMapperTest {
     }
 
     @Test
-    public void testGetContentId() throws Exception {
-        ProcessFileMapper mapper = new ProcessFileMapper();
-
-        String noPathId = "s3n://abcd.test-bucket-name/test.txt";
-        assertEquals("test.txt", mapper.getContentId(noPathId));
-
-        String withPathId = 
-            "s3n://abcd.test-bucket-name/top/level/folder/test.txt";
-        assertEquals("top/level/folder/test.txt",
-                     mapper.getContentId(withPathId));
-    }
-
-    @Test
     public void testProcessFile() throws Exception {
         ProcessFileMapper mapper = new ProcessFileMapper();
 
