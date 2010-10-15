@@ -12,6 +12,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
+import org.duracloud.services.hadoop.store.FileWithMD5;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +61,8 @@ public class ProcessFileMapperTest {
         testFiles.add(fileToProcess);
         FileUtils.writeStringToFile(fileToProcess, fileContent);
 
-        ProcessResult result = mapper.processFile(fileToProcess, "file.txt");
+        FileWithMD5 fileWithMD5 = new FileWithMD5(fileToProcess, null);
+        ProcessResult result = mapper.processFile(fileWithMD5, "file.txt");
         assertNotNull(result);
         File resultFile = result.getFile();
         testFiles.add(resultFile);
@@ -111,13 +113,13 @@ public class ProcessFileMapperTest {
 
     private class MockProcessFileMapper extends ProcessFileMapper {
         @Override
-        protected File copyFileLocal(Path remotePath, Reporter reporter)
+        protected FileWithMD5 copyFileLocal(Path remotePath, Reporter reporter)
             throws IOException {
-            return new File("/local/file");
+            return new FileWithMD5(new File("/local/file"), null);
         }
 
         @Override
-        protected ProcessResult processFile(File file, String origContentId)
+        protected ProcessResult processFile(FileWithMD5 file, String origContentId)
             throws IOException {
             return new ProcessResult(new File("/processed/file"), "file");
         }

@@ -15,10 +15,12 @@ import org.apache.hadoop.mapred.JobConf;
 import org.duracloud.client.ContentStore;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.hadoop.store.MD5Util;
 import org.duracloud.services.hadoop.store.MimeTypeUtil;
 import org.duracloud.services.hadoop.store.UriPathUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,13 +35,18 @@ import java.io.OutputStream;
  */
 public class FileCopier implements Runnable {
 
+    public static final String LOCAL_FS = "file://";
+
     private File localFile;
     private Path remotePath;
     private boolean toLocal;
     private ContentStore store;
 
+    private String md5;
+
     private static final UriPathUtil pathUtil = new UriPathUtil();
     private static final MimeTypeUtil mimeUtil = new MimeTypeUtil();
+    private static final MD5Util md5Util = new MD5Util();
 
     public FileCopier(File localFile,
                       Path remotePath,
@@ -61,34 +68,67 @@ public class FileCopier implements Runnable {
                 copyFileFromLocal();
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             log("Error copying file: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void copyFileToLocal() throws IOException {
-        InputStream remoteInStream = null;
-        OutputStream localOutStream = null;
+        int tries = 0;
+        int maxTries = 5;
+        boolean md5Valid = false;
+        while (!md5Valid && tries++ < maxTries) {
+            try {
+                doCopyFileToLocal();
+                String md5Local = getMd5FromLocal();
+                String md5Remote = getMd5FromMetadata();
+                if (md5Local.equals(md5Remote)) {
+                    md5Valid = true;
+                    setMd5(md5Local);
+                    log("MD5s match for: " + remotePath + ": " + md5Remote);
 
+                } else {
+                    StringBuilder sb = new StringBuilder("md5 mismatch [");
+                    sb.append(remotePath);
+                    sb.append(":");
+                    sb.append(md5Remote);
+                    sb.append("], [");
+                    sb.append(localFile.getAbsolutePath());
+                    sb.append(":");
+                    sb.append(md5Local);
+                    sb.append("] download again.");
+                    log(sb.toString());
+                }
+            } catch (IOException e) {
+                log("Error copying: " + remotePath + ", " + e.getMessage());
+            }
+        }
+
+        if (!md5Valid) {
+            throw new IOException("Unable to download valid: " + remotePath);
+        }
+    }
+
+    private String getMd5FromLocal() {
+        return md5Util.getMd5(localFile);
+    }
+
+    private String getMd5FromMetadata() {
+        String spaceId = pathUtil.getSpaceId(remotePath.toString());
+        String contentId = pathUtil.getContentId(remotePath.toString());
+        return md5Util.getMd5(store, spaceId, contentId);
+    }
+
+    private void doCopyFileToLocal() throws IOException {
         String fileName = remotePath.getName();
         FileSystem fs = remotePath.getFileSystem(new JobConf());
 
         if (fs.isFile(remotePath)) {
             log("Copying file (" + fileName + ") to local file system");
 
-            try {
-                remoteInStream = getRemoteContent(remotePath);
-                localOutStream = FileUtils.openOutputStream(localFile);
-                IOUtils.copy(remoteInStream, localOutStream);
-
-            } catch (Exception e) {
-                log("Error copying content: " + e.getMessage());
-
-            } finally {
-                IOUtils.closeQuietly(remoteInStream);
-                IOUtils.closeQuietly(localOutStream);
-            }
+            Path localPath = new Path(LOCAL_FS + localFile.getAbsolutePath());
+            fs.copyToLocalFile(remotePath, localPath);
 
             if (localFile.exists()) {
                 log("File moved to local storage successfully.");
@@ -114,53 +154,25 @@ public class FileCopier implements Runnable {
         }
     }
 
-    private InputStream getRemoteContent(Path remotePath)
-        throws ContentStoreException, IOException {
-
-        Content content = store.getContent(getSpaceId(), getContentId());
-        if (null != content && null != content.getStream()) {
-            return content.getStream();
-
-        } else {
-            throw new IOException("Null content for: " + remotePath);
-        }
-    }
-
     private void copyFileFromLocal() throws IOException {
+        Path localPath = new Path(LOCAL_FS + localFile.getAbsolutePath());
+
         StringBuilder sb = new StringBuilder("Moving file: ");
-        sb.append(localFile.getAbsolutePath());
+        sb.append(localPath.toString());
         sb.append(" to output ");
         sb.append(remotePath.toString());
         log(sb.toString());
 
-        putContent(FileUtils.openInputStream(localFile));
+        FileSystem outputFS = remotePath.getFileSystem(new JobConf());
+        outputFS.copyFromLocalFile(localPath, remotePath);
     }
 
-    private void putContent(InputStream localInStream) throws IOException {
-        try {
-            store.addContent(getSpaceId(),
-                             getContentId(),
-                             localInStream,
-                             localFile.length(),
-                             mimeUtil.guessMimeType(getContentId()),
-                             null,
-                             null);
-
-        } catch (ContentStoreException e) {
-            e.printStackTrace();
-            throw new IOException("Error adding content: " + e.getMessage());
-
-        } finally {
-            IOUtils.closeQuietly(localInStream);
-        }
+    public String getMd5() {
+        return md5;
     }
 
-    private String getSpaceId() {
-        return pathUtil.getSpaceId(remotePath.toString());
-    }
-
-    private String getContentId() {
-        return pathUtil.getContentId(remotePath.toString());
+    private void setMd5(String md5) {
+        this.md5 = md5;
     }
 
     private void log(String msg) {

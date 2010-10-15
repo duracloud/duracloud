@@ -60,7 +60,17 @@ public class AmazonFixityServiceTest {
         Assert.assertNotNull(status);
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
 
+        sleep(1000); // do some work
+
         verifyStart();
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing.
+        }
     }
 
     private void setUpStart() throws Exception {
@@ -99,9 +109,13 @@ public class AmazonFixityServiceTest {
                                                 EasyMock.isA(String.class),
                                                 EasyMock.<String>isNull(),
                                                 EasyMock.<Map<String, String>>isNull()))
-            .andReturn(null)
-            .times(1);
+            .andReturn(null);
 
+        EasyMock.expect(contentStore.performTask(EasyMock.isA(String.class),
+                                                 EasyMock.isA(String.class)))
+            .andReturn(null);
+
+        EasyMock.makeThreadSafe(contentStore, true);
         EasyMock.replay(contentStore);
         return contentStore;
     }

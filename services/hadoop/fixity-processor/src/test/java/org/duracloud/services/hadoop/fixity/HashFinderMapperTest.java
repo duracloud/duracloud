@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.services.hadoop.base.ProcessResult;
+import org.duracloud.services.hadoop.store.FileWithMD5;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +69,8 @@ public class HashFinderMapperTest {
 
     @Test
     public void testProcessFile() throws IOException {
-        ProcessResult processResult = mapper.processFile(file, contentId);
+        FileWithMD5 fileWithMD5 = new FileWithMD5(file, null);
+        ProcessResult processResult = mapper.processFile(fileWithMD5, contentId);
         Assert.assertNull(processResult);
 
         String result = mapper.collectResult();

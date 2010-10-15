@@ -15,6 +15,7 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.services.hadoop.base.ProcessFileMapper;
 import org.duracloud.services.hadoop.base.ProcessResult;
+import org.duracloud.services.hadoop.store.FileWithMD5;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,13 +44,14 @@ public class RepMapper extends ProcessFileMapper {
     /**
      * Replicate a file to another storage location
      *
-     * @param file the file to be replicated
+     * @param fileWithMD5 the file to be replicated
      * @param origContentId the original ID of the file
      * @return null (there is no resultant file)
      */
     @Override
-    protected ProcessResult processFile(File file, String origContentId) 
+    protected ProcessResult processFile(FileWithMD5 fileWithMD5, String origContentId)
         throws IOException {
+        File file = fileWithMD5.getFile();
         resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
 
         String dcHost = jobConf.get(TASK_PARAMS.DC_HOST.getLongForm());
@@ -96,7 +98,7 @@ public class RepMapper extends ProcessFileMapper {
                 Map<String, String> metadata =
                     primaryStore.getContentMetadata(fromSpaceId, contentId);
                 try {
-                    replicate(repStore, repSpaceId, contentId, file, metadata);
+                    replicate(repStore, repSpaceId, contentId, fileWithMD5, metadata);
                     break;
                 } catch(NotFoundException e) {
                     System.out.println("NFE: " + e.getMessage());
@@ -137,16 +139,25 @@ public class RepMapper extends ProcessFileMapper {
     private void replicate(ContentStore toStore,
                            String toSpaceId,
                            String contentId,
-                           File file,
+                           FileWithMD5 fileWithMD5,
                            Map<String, String> origMetadata)
         throws ContentStoreException, IOException {
         System.out.println("Replicating " + contentId + " to " + toSpaceId);        
+
+        if (null == fileWithMD5 || null == fileWithMD5.getFile()) {
+            throw new IOException("arg file is null");
+        }
+        File file = fileWithMD5.getFile();
 
         String origMimetype = "application/octet-stream";
         String origChecksum = "";
         if(null != origMetadata) {
             origMimetype = origMetadata.get(ContentStore.CONTENT_MIMETYPE);
             origChecksum = origMetadata.get(ContentStore.CONTENT_CHECKSUM);
+        }
+
+        if (null == origChecksum) {
+            origChecksum = fileWithMD5.getMd5();
         }
 
         // Check to see if file already exists

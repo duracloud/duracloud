@@ -18,6 +18,7 @@ import org.apache.hadoop.mapred.Reporter;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.hadoop.store.FileWithMD5;
 import org.duracloud.services.hadoop.store.JobContentStoreManagerFactory;
 import org.duracloud.services.hadoop.store.UriPathUtil;
 
@@ -73,7 +74,7 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
         String filePath = key.toString();
         String outputPath = value.toString();
 
-        File localFile = null;
+        FileWithMD5 localFile = null;
         File resultFile = null;
         try {
             reporter.setStatus("Processing file: " + filePath);
@@ -118,8 +119,8 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
             e.printStackTrace(System.err);
         } finally {
             // Delete the local file
-            if (localFile != null && localFile.exists()) {
-                FileUtils.deleteQuietly(localFile);
+            if (localFile != null && localFile.getFile().exists()) {
+                FileUtils.deleteQuietly(localFile.getFile());
             }
 
             // Delete the result file
@@ -139,7 +140,7 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
      * @param remotePath path to remote file
      * @return local file
      */
-    protected File copyFileLocal(Path remotePath, Reporter reporter)
+    protected FileWithMD5 copyFileLocal(Path remotePath, Reporter reporter)
         throws IOException {
         reporter.setStatus("Copying file to local");
 
@@ -147,8 +148,8 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
         File localFile = new File(getTempDir(), fileName);
         boolean toLocal = true;
 
-        doCopy(localFile, remotePath, toLocal, reporter);
-        return localFile;
+        String md5 = doCopy(localFile, remotePath, toLocal, reporter);
+        return new FileWithMD5(localFile, md5);
     }
 
     /**
@@ -158,14 +159,15 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
      * A default implementation is provided, but this method should be
      * overridden by subclasses.
      *
-     * @param file the file to be processed
+     * @param fileWithMD5 the file to be processed
      * @param origContentId the original ID of the file
      * @return ProcessResult including the file resulting from the processing
      *         to be moved to output along with its corresponding content ID
      *         or null if no file result exists
      */
-    protected ProcessResult processFile(File file, String origContentId)
+    protected ProcessResult processFile(FileWithMD5 fileWithMD5, String origContentId)
         throws IOException {
+        File file = fileWithMD5.getFile();
         String fileName = "result-" + file.getName();
         if (!fileName.endsWith(".txt")) {
             fileName += ".txt";
@@ -228,7 +230,7 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
      * By default, hadoop times-out after ten minutes if it does not hear back
      * from a work node.
      */
-    private void doCopy(File localFile,
+    private String doCopy(File localFile,
                         Path remotePath,
                         boolean toLocal,
                         Reporter reporter) throws IOException {
@@ -244,6 +246,8 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
             sleep(500);
             reporter.progress();
         }
+
+        return copier.getMd5();
     }
 
     protected ContentStore getContentStore() throws IOException {

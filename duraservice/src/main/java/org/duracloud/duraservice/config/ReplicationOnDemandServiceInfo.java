@@ -80,7 +80,7 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
 
         // Number of instances
         List<Option> numInstancesOptions = new ArrayList<Option>();
-        for(int i = 1; i<=20; i++) {
+        for(int i = 1; i<20; i++) {
             Option op = new Option(String.valueOf(i), String.valueOf(i), false);
             numInstancesOptions.add(op);
         }

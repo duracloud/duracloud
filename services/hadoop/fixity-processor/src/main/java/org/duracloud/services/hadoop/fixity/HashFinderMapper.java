@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.services.hadoop.base.ProcessFileMapper;
 import org.duracloud.services.hadoop.base.ProcessResult;
+import org.duracloud.services.hadoop.store.FileWithMD5;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,26 +34,29 @@ public class HashFinderMapper extends ProcessFileMapper {
     /**
      * Runs Fixity service on file.
      *
-     * @param file the file to have checksum determined
+     * @param fileWithMD5 the file to have checksum determined
      * @param origContentId the original ID of the file
      * @return null file
      */
     @Override
-    protected ProcessResult processFile(File file, String origContentId)
+    protected ProcessResult processFile(FileWithMD5 fileWithMD5, String origContentId)
         throws IOException {
-        if (null == file) {
+        if (null == fileWithMD5 || null == fileWithMD5.getFile()) {
             super.resultInfo.put(HASH, "null-file");
             return null;
         }
 
-        InputStream fileStream = new FileInputStream(file);
-        String hash = checksumUtil.generateChecksum(fileStream);
-        closeQuietly(fileStream);
+        File file = fileWithMD5.getFile();
+
+        String hash = fileWithMD5.getMd5();
+        if (null == hash) {
+            InputStream fileStream = new FileInputStream(file);
+            hash = checksumUtil.generateChecksum(fileStream);
+            closeQuietly(fileStream);
+        }
 
         System.out.println("file: " + file.getPath() + ", hash: " + hash);
         super.resultInfo.put(HASH, hash);
-
-        
 
         return null;
     }

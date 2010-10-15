@@ -12,6 +12,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.services.hadoop.base.ProcessFileMapper;
 import org.duracloud.services.hadoop.base.ProcessResult;
+import org.duracloud.services.hadoop.store.FileWithMD5;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,13 +40,17 @@ public class ImageConversionMapper extends ProcessFileMapper {
     /**
      * Converts an image file.
      *
-     * @param file the file to be converted
+     * @param fileWithMD5 the file to be converted
      * @param origContentId the original ID of the file
      * @return the converted file
      */
     @Override
-    protected ProcessResult processFile(File file, String origContentId)
+    protected ProcessResult processFile(FileWithMD5 fileWithMD5, String origContentId)
         throws IOException {
+        if (null == fileWithMD5 || null == fileWithMD5.getFile()) {
+            throw new IOException("arg file is null.");
+        }
+        File file = fileWithMD5.getFile();
         resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
 
         String destFormat = jobConf.get(TASK_PARAMS.DEST_FORMAT.getLongForm());
