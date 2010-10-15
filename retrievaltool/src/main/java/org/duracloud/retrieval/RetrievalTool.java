@@ -7,13 +7,17 @@
  */
 package org.duracloud.retrieval;
 
+import org.duracloud.client.ContentStore;
 import org.duracloud.retrieval.config.RetrievalToolConfig;
 import org.duracloud.retrieval.config.RetrievalToolConfigParser;
+import org.duracloud.retrieval.mgmt.CSVFileOutputWriter;
+import org.duracloud.retrieval.mgmt.OutputWriter;
 import org.duracloud.retrieval.mgmt.RetrievalManager;
 import org.duracloud.retrieval.mgmt.StatusManager;
 import org.duracloud.retrieval.source.DuraStoreRetrievalSource;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.duracloud.retrieval.util.LogUtil;
+import org.duracloud.retrieval.util.StoreClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +46,7 @@ public class RetrievalTool {
     private final Logger logger = LoggerFactory.getLogger(RetrievalTool.class);
     private RetrievalToolConfig retConfig;
     private ExecutorService executor;
+    private OutputWriter outWriter;
     private RetrievalManager retManager;
     private RetrievalSource retSource;
     private LogUtil logUtil;
@@ -50,6 +55,10 @@ public class RetrievalTool {
         RetrievalToolConfigParser retConfigParser =
             new RetrievalToolConfigParser();
         retConfig = retConfigParser.processCommandLine(args);
+
+        logger.info("Running Retrieval Tool with configuration: " +
+                    retConfig.getPrintableConfig());
+
         return retConfig;
     }
 
@@ -65,19 +74,26 @@ public class RetrievalTool {
     }
 
     private void startRetrievalManager() {
+        StoreClientUtil clientUtil = new StoreClientUtil();
+        ContentStore contentStore =
+            clientUtil.createContentStore(retConfig.getHost(),
+                                          retConfig.getPort(),
+                                          retConfig.getContext(),
+                                          retConfig.getUsername(),
+                                          retConfig.getPassword(),
+                                          retConfig.getStoreId());
         retSource =
-            new DuraStoreRetrievalSource(retConfig.getHost(),
-                                         retConfig.getPort(),
-                                         retConfig.getContext(),
-                                         retConfig.getUsername(),
-                                         retConfig.getPassword(),
+            new DuraStoreRetrievalSource(contentStore,
                                          retConfig.getSpaces(),
                                          retConfig.isAllSpaces());
+
+        outWriter = new CSVFileOutputWriter(retConfig.getWorkDir());
         retManager = new RetrievalManager(retSource,
                                           retConfig.getContentDir(),
                                           retConfig.getWorkDir(),
                                           retConfig.isOverwrite(),
-                                          retConfig.getNumThreads());
+                                          retConfig.getNumThreads(),
+                                          outWriter);
 
         executor = Executors.newFixedThreadPool(1);
         executor.execute(retManager);
@@ -85,6 +101,7 @@ public class RetrievalTool {
 
     private void waitForExit() {
         StatusManager statusManager = StatusManager.getInstance();
+
         int loops = 0;
         while(!retManager.isComplete()) {
             if(loops >= 60) { // Print status every 10 minutes
@@ -95,6 +112,10 @@ public class RetrievalTool {
             }
             sleep(10000);
         }
+
+        logger.info("Shutting down the Retrieval Tool");
+        
+        outWriter.close();
         executor.shutdown();
         System.out.println("Retrieval Tool processing complete, final status:");
         System.out.println(statusManager.getPrintableStatus());

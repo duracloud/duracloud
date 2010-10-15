@@ -8,12 +8,9 @@
 package org.duracloud.retrieval.config;
 
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.duracloud.retrieval.RetrievalTestBase;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,25 +22,13 @@ import static junit.framework.Assert.fail;
  * @author: Bill Branan
  * Date: Oct 13, 2010
  */
-public class RetrievalToolConfigParserTest {
-
-    RetrievalToolConfigParser retConfigParser;
-    File tempDir;
-
-    @Before
-    public void setUp() throws Exception {
-        retConfigParser = new RetrievalToolConfigParser();
-        tempDir = new File("target/retconfig");
-        tempDir.mkdir();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        FileUtils.deleteDirectory(tempDir);
-    }
+public class RetrievalToolConfigParserTest extends RetrievalTestBase {
 
     @Test
     public void testStandardOptions() throws Exception {
+        RetrievalToolConfigParser retConfigParser =
+            new RetrievalToolConfigParser();
+
         HashMap<String, String> argsMap = getArgsMap();
 
         // Process configs, make sure values match
@@ -53,6 +38,7 @@ public class RetrievalToolConfigParserTest {
 
         // Remove optional params
         argsMap.remove("-r");
+        argsMap.remove("-i");
         argsMap.remove("-a");
         argsMap.remove("-o");
         argsMap.remove("-t");
@@ -70,14 +56,14 @@ public class RetrievalToolConfigParserTest {
         for(String arg : argsMap.keySet()) {
             String failMsg = "An exception should have been thrown due to " +
                              "missing arg: " + arg;
-            removeArgFailTest(argsMap, arg, failMsg);
+            removeArgFailTest(retConfigParser, argsMap, arg, failMsg);
         }
 
         // Make sure error is thrown when numerical args are not numerical
         String failMsg = "Port arg should require a numerical value";
-        addArgFailTest(argsMap, "-r", "nonNum", failMsg);
+        addArgFailTest(retConfigParser, argsMap, "-r", "nonNum", failMsg);
         failMsg = "Threads arg should require a numerical value";
-        addArgFailTest(argsMap, "-t", "nonNum", failMsg);
+        addArgFailTest(retConfigParser, argsMap, "-t", "nonNum", failMsg);
     }
 
     private HashMap<String, String> getArgsMap() {
@@ -86,6 +72,7 @@ public class RetrievalToolConfigParserTest {
         argsMap.put("-r", "8088");
         argsMap.put("-u", "user");
         argsMap.put("-p", "pass");
+        argsMap.put("-i", "0");
         argsMap.put("-s", "space1 space2 space3");
         argsMap.put("-a", "");
         argsMap.put("-c", tempDir.getAbsolutePath());
@@ -101,6 +88,7 @@ public class RetrievalToolConfigParserTest {
         assertEquals(argsMap.get("-r"), String.valueOf(retConfig.getPort()));
         assertEquals(argsMap.get("-u"), retConfig.getUsername());
         assertEquals(argsMap.get("-p"), retConfig.getPassword());
+        assertEquals(argsMap.get("-i"), retConfig.getStoreId());
 
         String spaces = "";
         for(String space : retConfig.getSpaces()) {
@@ -124,10 +112,11 @@ public class RetrievalToolConfigParserTest {
             list.add(key);
             list.add(map.get(key));
         }
-        return list.toArray(new String[0]);
+        return list.toArray(new String[list.size()]);
     }
 
-    private void addArgFailTest(HashMap<String, String> argsMap,
+    private void addArgFailTest(RetrievalToolConfigParser retConfigParser,
+                                HashMap<String, String> argsMap,
                                 String arg,
                                 String value,
                                 String failMsg) {
@@ -142,7 +131,8 @@ public class RetrievalToolConfigParserTest {
         }
     }
 
-    private void removeArgFailTest(HashMap<String, String> argsMap,
+    private void removeArgFailTest(RetrievalToolConfigParser retConfigParser,
+                                   HashMap<String, String> argsMap,
                                    String arg,
                                    String failMsg) {
         HashMap<String, String> cloneMap =

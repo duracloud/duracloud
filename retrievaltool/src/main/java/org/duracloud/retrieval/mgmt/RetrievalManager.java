@@ -42,14 +42,14 @@ public class RetrievalManager implements Runnable {
                             File contentDir,
                             File workDir,
                             boolean overwrite,
-                            int threads) {
+                            int threads,
+                            OutputWriter outWriter) {
         logger.info("Starting Retrieval Manager with " + threads + " threads");
         this.source = source;
         this.contentDir = contentDir;
         this.workDir = workDir;
         this.overwrite = overwrite;
-
-        outWriter = new OutputWriter(workDir);
+        this.outWriter = outWriter; 
 
         // Create thread pool for retrieval workers
         workerPool =

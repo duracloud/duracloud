@@ -24,6 +24,7 @@ public class RetrievalToolConfig implements Serializable {
     private String context;
     private String username;
     private String password;
+    private String storeId;
     private List<String> spaces;
     private boolean allSpaces;
     private File contentDir;
@@ -54,6 +55,11 @@ public class RetrievalToolConfig implements Serializable {
         config.append(getPort()).append("\n");
         config.append("DuraStore Username: ");
         config.append(getUsername()).append("\n");
+
+        if(storeId != null) {
+            config.append("DuraStore Store: ");
+            config.append(getStoreId()).append("\n");
+        }
 
         config.append("Retrieval Tool Content Directory: ");
         config.append(getContentDir().getAbsolutePath()).append("\n");
@@ -105,6 +111,14 @@ public class RetrievalToolConfig implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
     }
 
     public List<String> getSpaces() {

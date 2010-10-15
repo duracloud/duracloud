@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Handles the retrieving of a single file from DuraCloud.
@@ -77,7 +79,7 @@ public class RetrievalWorker implements Runnable {
                     } else {
                         renameFile(localFile);
                     }
-                    retrieveFile(localFile);
+                    retrieveToFile(localFile);
                     succeed(localFile.getAbsolutePath());
                 }
             } else { // File does not exist
@@ -86,7 +88,7 @@ public class RetrievalWorker implements Runnable {
                     parentDir.mkdirs();
                     parentDir.setWritable(true);
                 }
-                retrieveFile(localFile);
+                retrieveToFile(localFile);
                 succeed(localFile.getAbsolutePath());
             }
         } catch(Exception e) {
@@ -101,11 +103,17 @@ public class RetrievalWorker implements Runnable {
         }
     }
 
+    /*
+     * Gets the local storage file for the content item
+     */
     protected File getLocalFile() {
         File spaceDir = new File(contentDir, contentItem.getSpaceId());
         return new File(spaceDir, contentItem.getContentId());
     }
 
+    /*
+     * Checks to see if the checksums of the local file and remote file match
+     */
     protected boolean checksumsMatch(File localFile) throws IOException {
         ChecksumUtil checksumUtil =
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
@@ -114,7 +122,11 @@ public class RetrievalWorker implements Runnable {
         return localChecksum.equals(remoteChecksum);
     }
 
-    protected void renameFile(File localFile) throws IOException {
+    /*
+     * Renames the given file, returns the copied file. Does not change
+     * the original passed in file path.
+     */
+    protected File renameFile(File localFile) throws IOException {
         File origFile = new File(localFile.getAbsolutePath());
         File copiedFile = new File(localFile.getParent(),
                                    localFile.getName() + COPY);
@@ -123,16 +135,35 @@ public class RetrievalWorker implements Runnable {
                                   localFile.getName() + COPY + "-" + i);
         }
         FileUtils.moveFile(origFile, copiedFile);
+        return copiedFile;
     }
 
+    /*
+     * Deletes a local file
+     */
     protected void deleteFile(File localFile) throws IOException {
-        File origFile = new File(localFile.getAbsolutePath());
-        origFile.delete();
+        localFile.delete();
     }
 
-    protected void retrieveFile(File localFile) throws IOException {
+    /*
+     * Transfers the remote file stream to the local file
+     */
+    protected void retrieveToFile(File localFile) throws IOException {
         ContentStream content = source.getSourceContent(contentItem);
-        IOUtils.copyLarge(content.getStream(), new FileOutputStream(localFile));
+
+        InputStream inStream = content.getStream();
+        OutputStream outStream = new FileOutputStream(localFile);
+        try {
+            IOUtils.copyLarge(inStream, outStream);
+        } finally {
+            if(inStream != null) {
+                inStream.close();
+            }
+
+            if(outStream != null) {
+                outStream.close();
+            }
+        }
     }
 
     protected void noChangeNeeded(String localFilePath) {
@@ -149,17 +180,17 @@ public class RetrievalWorker implements Runnable {
             logger.debug("Successfully retrieved " + contentItem.toString() +
                          " to local file " + localFilePath);
         }
-        outWriter.writeSuccess(contentItem, localFilePath);
+        outWriter.writeSuccess(contentItem, localFilePath, attempts);
         statusManager.successfulCompletion();
     }
 
     protected void fail(String errMsg) {
-        String error = "Attempt to retrieve " + contentItem.toString() +
-                       " failed after " + MAX_ATTEMPTS +
+        String error = "Failed to retrieve " + contentItem.toString() +
+                       " after " + attempts +
                        " attempts. Last error message was: " + errMsg;
         logger.error(error);
         System.err.println(error);
-        outWriter.writeFailure(contentItem, error);
+        outWriter.writeFailure(contentItem, error, attempts);
         statusManager.failedCompletion();
     }
 

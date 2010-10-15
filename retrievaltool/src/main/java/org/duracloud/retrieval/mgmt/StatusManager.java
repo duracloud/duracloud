@@ -7,12 +7,9 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Singleton class which tracks the status of the retrieval activity
@@ -40,10 +37,15 @@ public class StatusManager {
         return instance;
     }
 
+    private StatusManager() {
+        reset();
+    }
+
     /*
      * Not to be used outside of tests
      */
-    protected StatusManager() {
+    protected void reset() {
+        inWork = 0;
         noChange = 0;
         succeeded = 0;
         failed = 0;

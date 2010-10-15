@@ -8,9 +8,6 @@
 package org.duracloud.retrieval.source;
 
 import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.common.model.Credential;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
@@ -34,23 +31,10 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     private String currentSpaceId = null;
     private Iterator<String> currentContentList = null;
 
-    public DuraStoreRetrievalSource(String host,
-                                    int port,
-                                    String context,
-                                    String username,
-                                    String password,
+    public DuraStoreRetrievalSource(ContentStore store,
                                     List<String> spaces,
                                     boolean allSpaces) {
-        ContentStoreManager storeManager =
-            new ContentStoreManagerImpl(host, String.valueOf(port), context);
-        storeManager.login(new Credential(username, password));
-
-        try {
-            contentStore = storeManager.getPrimaryContentStore();
-        } catch(ContentStoreException e) {
-            throw new RuntimeException("Could not create connection to " +
-                "DuraStore due to " + e.getMessage(), e);
-        }
+        this.contentStore = store;
 
         if(allSpaces) {
             try {
@@ -66,7 +50,6 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
             throw new RuntimeException("Spaces list is empty, there is " +
                                        "no content to retrieve");
         }
-
     }
 
     @Override

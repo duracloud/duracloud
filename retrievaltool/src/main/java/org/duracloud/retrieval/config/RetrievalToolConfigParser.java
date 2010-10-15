@@ -71,6 +71,12 @@ public class RetrievalToolConfigParser {
        passwordOption.setRequired(true);
        cmdOptions.addOption(passwordOption);
 
+        Option storeIdOption =
+            new Option("i", "store-id", true,
+                       "the Store ID for the DuraCloud storage provider");
+        storeIdOption.setRequired(false);
+        cmdOptions.addOption(storeIdOption);
+
        Option spaces =
            new Option("s", "spaces", true,
                       "the space or spaces from which content will be " +
@@ -157,6 +163,10 @@ public class RetrievalToolConfigParser {
             }
         } else {
             config.setPort(DEFAULT_PORT);
+        }
+
+        if(cmd.hasOption("i")) {
+            config.setStoreId(cmd.getOptionValue("i"));
         }
 
         if(!cmd.hasOption("s") && !cmd.hasOption("a")) {
