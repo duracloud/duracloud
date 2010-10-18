@@ -52,6 +52,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
     private static final String DEFAULT_INSTANCE_TYPE = INSTANCES.SMALL.getId();
     private static final Integer DEFAULT_NUM_MAPPERS = new Integer(1);
 
+    private static final String EC2_KEYNAME = "EC2_KEYNAME";
     private static final String CONFIG_HADOOP_BOOTSTRAP_ACTION =
         "s3://elasticmapreduce/bootstrap-actions/configure-hadoop";
 
@@ -305,6 +306,11 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         instancesConfig.setMasterInstanceType(instanceType);
         instancesConfig.setSlaveInstanceType(instanceType);
         instancesConfig.setHadoopVersion("0.20");
+
+        String keyname = getEc2KeyName();
+        if (null != keyname) {
+            instancesConfig.setEc2KeyName(keyname);
+        }
         jobFlow.setInstances(instancesConfig);
 
         // Set job steps
@@ -321,6 +327,10 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
 
         RunJobFlowResult result = emrClient.runJobFlow(jobFlow);
         return result.getJobFlowId();
+    }
+
+    private String getEc2KeyName() {
+        return System.getProperty(EC2_KEYNAME);
     }
 
     private BootstrapActionConfig createBootstrapAction(String bootstrapName,

@@ -13,6 +13,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.ComputeService;
+import org.duracloud.storage.domain.HadoopTypes;
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,6 +50,23 @@ public class AmazonFixityServiceTest {
         String jobType = service.getJobType();
         Assert.assertNotNull(jobType);
         Assert.assertEquals(JOB_TYPES.AMAZON_FIXITY.name(), jobType);
+    }
+
+    @Test
+    public void testGetNumMappers() {
+        String num = service.getNumMappers(HadoopTypes.INSTANCES.SMALL.getId());
+        verifyNumMappers(num, "2");
+
+        num = service.getNumMappers(HadoopTypes.INSTANCES.LARGE.getId());
+        verifyNumMappers(num, "4");
+
+        num = service.getNumMappers(HadoopTypes.INSTANCES.XLARGE.getId());
+        verifyNumMappers(num, "8");
+    }
+
+    private void verifyNumMappers(String num, String expected) {
+        Assert.assertNotNull(num);
+        Assert.assertEquals(expected, num);
     }
 
     @Test

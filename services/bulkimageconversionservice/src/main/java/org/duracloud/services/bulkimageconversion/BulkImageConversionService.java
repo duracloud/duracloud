@@ -72,6 +72,18 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
     }
 
     @Override
+    protected String getNumMappers(String instanceType) {
+        String mappers = "1";
+        if (HadoopTypes.INSTANCES.LARGE.getId().equals(instanceType)) {
+            mappers = "2";
+
+        } else if (HadoopTypes.INSTANCES.XLARGE.getId().equals(instanceType)) {
+            mappers = "4";
+        }
+        return mappers;
+    }
+
+    @Override
     protected Map<String, String> collectTaskParams() {
         Map<String, String> taskParams = super.collectTaskParams();
 

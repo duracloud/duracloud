@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS.MAPPERS_PER_INSTANCE;
 
 /**
  * Service which replicates content from one space to another.
@@ -60,8 +61,23 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     }
 
     @Override
+    protected String getNumMappers(String instanceType) {        
+        String mappers = "2";
+        if (HadoopTypes.INSTANCES.LARGE.getId().equals(instanceType)) {
+            mappers = "4";
+
+        } else if (HadoopTypes.INSTANCES.XLARGE.getId().equals(instanceType)) {
+            mappers = "8";
+        }
+        return mappers;
+    }
+
+    @Override
     protected Map<String, String> collectTaskParams() {
         Map<String, String> taskParams = super.collectTaskParams();
+
+        String mappers = "20";
+        taskParams.put(MAPPERS_PER_INSTANCE.name(), mappers);
 
         taskParams.put(TASK_PARAMS.REP_STORE_ID.name(), repStoreId);
         taskParams.put(TASK_PARAMS.REP_SPACE_ID.name(), repSpaceId);

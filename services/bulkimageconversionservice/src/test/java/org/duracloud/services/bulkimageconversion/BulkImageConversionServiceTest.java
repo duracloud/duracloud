@@ -8,6 +8,7 @@
 package org.duracloud.services.bulkimageconversion;
 
 import org.duracloud.storage.domain.HadoopTypes;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
@@ -127,6 +128,25 @@ public class BulkImageConversionServiceTest {
         assertEquals("1", service.getMappersPerInstance());
         service.setMappersPerInstance("8");
         assertEquals("8", service.getMappersPerInstance());        
+    }
+
+    @Test
+    public void testGetNumMappers() {
+        BulkImageConversionService service = new BulkImageConversionService();
+
+        String num = service.getNumMappers(HadoopTypes.INSTANCES.SMALL.getId());
+        verifyNumMappers(num, "1");
+
+        num = service.getNumMappers(HadoopTypes.INSTANCES.LARGE.getId());
+        verifyNumMappers(num, "2");
+
+        num = service.getNumMappers(HadoopTypes.INSTANCES.XLARGE.getId());
+        verifyNumMappers(num, "4");
+    }
+
+    private void verifyNumMappers(String num, String expected) {
+        Assert.assertNotNull(num);
+        Assert.assertEquals(expected, num);
     }
 
 }

@@ -8,6 +8,7 @@
 package org.duracloud.services.replicationod;
 
 import org.duracloud.storage.domain.HadoopTypes;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
@@ -137,4 +138,22 @@ public class ReplicationOnDemandServiceTest {
         assertEquals("8", service.getMappersPerInstance());        
     }
 
+    @Test
+    public void testGetNumMappers() {
+        ReplicationOnDemandService service = new ReplicationOnDemandService();
+
+        String num = service.getNumMappers(HadoopTypes.INSTANCES.SMALL.getId());
+        verifyNumMappers(num, "2");
+
+        num = service.getNumMappers(HadoopTypes.INSTANCES.LARGE.getId());
+        verifyNumMappers(num, "4");
+
+        num = service.getNumMappers(HadoopTypes.INSTANCES.XLARGE.getId());
+        verifyNumMappers(num, "8");
+    }
+
+    private void verifyNumMappers(String num, String expected) {
+        Assert.assertNotNull(num);
+        Assert.assertEquals(expected, num);
+    }
 }

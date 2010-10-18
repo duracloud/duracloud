@@ -20,6 +20,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.LARGE;
+import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.XLARGE;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS.*;
+
 /**
  * This service runs the fixity service in the Amazon elastic map reduce framework.
  *
@@ -77,6 +81,18 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
     @Override
     protected String getJobType() {
         return HadoopTypes.JOB_TYPES.AMAZON_FIXITY.name();
+    }
+
+    @Override
+    protected String getNumMappers(String instanceType) {
+        String mappers = "2";
+        if (HadoopTypes.INSTANCES.LARGE.getId().equals(instanceType)) {
+            mappers = "4";
+
+        } else if (HadoopTypes.INSTANCES.XLARGE.getId().equals(instanceType)) {
+            mappers = "8";
+        }
+        return mappers;
     }
 
 }

@@ -51,7 +51,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     private static final String DEFAULT_WORK_SPACE_ID = "service-work";
     private static final String DEFAULT_NUM_INSTANCES = "1";
     private static final String DEFAULT_INSTANCE_TYPE = SMALL.getId();
-    private static final String DEFAULT_NUM_MAPPERS = "1";
+    protected static final String DEFAULT_NUM_MAPPERS = "1";
 
     private String duraStoreHost;
     private String duraStorePort;
@@ -72,6 +72,8 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     protected abstract AmazonMapReduceJobWorker getPostJobWorker();
 
     protected abstract String getJobType();
+
+    protected abstract String getNumMappers(String instanceType);
 
     @Override
     public void start() throws Exception {
@@ -101,16 +103,8 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         taskParams.put(TASK_PARAMS.INSTANCE_TYPE.name(), instanceType);
         taskParams.put(TASK_PARAMS.NUM_INSTANCES.name(), numInstances);
 
-        // Set max mappers based on instance type if the value is default
-        String mappers = mappersPerInstance;
-        if (DEFAULT_NUM_MAPPERS.equals(mappers)) {
-            if (INSTANCES.LARGE.getId().equals(instanceType)) {
-                mappers = "2";
-            } else if (INSTANCES.XLARGE.getId().equals(instanceType)) {
-                mappers = "4";
-            }
-        }
-        taskParams.put(TASK_PARAMS.MAPPERS_PER_INSTANCE.name(), mappers);
+        taskParams.put(TASK_PARAMS.MAPPERS_PER_INSTANCE.name(), getNumMappers(
+            instanceType));
 
         taskParams.put(TASK_PARAMS.DC_HOST.name(), getDuraStoreHost());
         taskParams.put(TASK_PARAMS.DC_PORT.name(), getDuraStorePort());
