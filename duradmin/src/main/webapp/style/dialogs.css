@@ -132,7 +132,7 @@
 #available-services-dialog
 {
 	margin-bottom:10px;
-	overflow: auto;
+	overflow: auto !important;
 }
 
 
