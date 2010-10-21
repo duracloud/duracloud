@@ -7,21 +7,21 @@
  */
 package org.duracloud.services.image;
 
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.domain.Content;
-import org.duracloud.client.ContentStore;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.domain.Content;
+import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.util.Map;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -79,7 +79,8 @@ public class ConversionWorker implements Runnable {
             File sourceFile = null;
             File convertedFile = null;
             try {
-                sourceFile = writeSourceToFile(sourceStream, contentId);
+                String sourceFileName = getSourceFileName(contentId);
+                sourceFile = writeSourceToFile(sourceStream, sourceFileName);
                 sourceSize = sourceFile.length();
 
                 // Perform conversion
@@ -87,8 +88,12 @@ public class ConversionWorker implements Runnable {
                 convertedFile = convertImage(sourceFile);
                 conversionTime = System.currentTimeMillis() - startConTime;
 
+                String destContentId =
+                    getDestContentId(contentId, convertedFile);
+
                 // Store the converted file in the destination space
                 storeConvertedContent(convertedFile,
+                                      destContentId,
                                       sourceContent.getMetadata());
             } finally {
                 // Delete source and converted files from work directory
@@ -107,6 +112,7 @@ public class ConversionWorker implements Runnable {
         } catch(Exception e) {
             sendResult(false, e.getMessage(), startTime, conversionTime,
                        sourceSize);
+            return;
         }
         sendResult(true, null, startTime, conversionTime, sourceSize);
     }
@@ -125,7 +131,7 @@ public class ConversionWorker implements Runnable {
         resultListener.processConversionResult(result);
     }
 
-    private File writeSourceToFile(InputStream sourceStream,
+    protected File writeSourceToFile(InputStream sourceStream,
                                      String fileName) throws IOException {
         File sourceFile = new File(workDir, fileName);
         if(sourceFile.exists()) {
@@ -145,6 +151,13 @@ public class ConversionWorker implements Runnable {
             sourceOut.close();
         }
         return sourceFile;
+    }
+
+    protected String getSourceFileName(String contentId) {
+        return contentId
+            .replace("/", "_")
+            .replace("\\", "_")
+            .replace(" ", "_");
     }
 
     /*
@@ -178,7 +191,14 @@ public class ConversionWorker implements Runnable {
         }
     }
 
+    protected String getDestContentId(String sourceContentId,
+                                      File destFile) {
+        String destExt = FilenameUtils.getExtension(destFile.getName());
+        return FilenameUtils.removeExtension(sourceContentId) + "." + destExt;
+    }
+
     private void storeConvertedContent(File convertedFile,
+                                       String destContentId,
                                        Map<String, String> metadata)
         throws IOException, ContentStoreException {
         ContentStoreException exception = null;
@@ -195,7 +215,7 @@ public class ConversionWorker implements Runnable {
 
             try {
                 contentStore.addContent(destSpaceId,
-                                        convertedFile.getName(),
+                                        destContentId,
                                         convertedFileStream,
                                         convertedFile.length(),
                                         mimetype,

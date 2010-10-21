@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.hadoop.replication;
 
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -20,11 +21,12 @@ import org.duracloud.services.hadoop.store.FileWithMD5;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import static org.duracloud.storage.domain.HadoopTypes.*;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * Mapper used to perform replication.
@@ -187,9 +189,11 @@ public class RepMapper extends ProcessFileMapper {
         } else {
             System.out.println("Adding " + contentId + " to " + toSpaceId);
             // Replicate content
+            InputStream content =
+                new AutoCloseInputStream(new FileInputStream(file));
             toStore.addContent(toSpaceId,
                                contentId,
-                               new FileInputStream(file),
+                               content,
                                file.length(),
                                origMimetype,
                                origChecksum,
