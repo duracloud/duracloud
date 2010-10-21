@@ -76,9 +76,6 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     protected Map<String, String> collectTaskParams() {
         Map<String, String> taskParams = super.collectTaskParams();
 
-        String mappers = "20";
-        taskParams.put(MAPPERS_PER_INSTANCE.name(), mappers);
-
         taskParams.put(TASK_PARAMS.REP_STORE_ID.name(), repStoreId);
         taskParams.put(TASK_PARAMS.REP_SPACE_ID.name(), repSpaceId);
         taskParams.put(TASK_PARAMS.DC_HOST.name(), getDuraStoreHost());
