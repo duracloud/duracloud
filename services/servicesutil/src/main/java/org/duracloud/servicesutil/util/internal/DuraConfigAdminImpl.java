@@ -10,6 +10,7 @@ package org.duracloud.servicesutil.util.internal;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,6 +20,10 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Andrew Woods
+ *         Date: Jan 1, 2010
+ */
 public class DuraConfigAdminImpl
         implements DuraConfigAdmin {
 
@@ -55,55 +60,27 @@ public class DuraConfigAdminImpl
      */
     public void updateConfiguration(String configId, Map<String, String> props)
             throws Exception {
-        boolean delete = false;
-        doUpdateConfiguration(configId, props, delete);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeConfigurationElements(String configId,
-                                            Map<String, String> props)
-            throws Exception {
-        boolean delete = true;
-        doUpdateConfiguration(configId, props, delete);
+        doUpdateConfiguration(configId, props);
     }
 
     private void doUpdateConfiguration(String configId,
-                                       Map<String, String> props,
-                                       boolean delete) throws Exception {
+                                       Map<String, String> props) throws Exception {
         // Exit if no meaningful properties provided.
-        if (props == null || props.size() == 0) {
+        if (props == null) {
             return;
         }
 
-        Configuration config = getOsgiConfigAdmin().getConfiguration(configId);
-        Dictionary<String, String> dictionary = getExistingProperties(config);
-
+        Dictionary<String, String> dictionary = new Hashtable<String, String>();
         for (String key : props.keySet()) {
             String val = props.get(key);
-
-            if (delete) {
-                dictionary.remove(key);
-            } else {
-                dictionary.put(key, val);
-            }
+            dictionary.put(key, val);
         }
 
         // Push the update into the osgi-container.
         log.debug("1. before config push to container: " + configId);
+        Configuration config = getOsgiConfigAdmin().getConfiguration(configId);
         config.update(dictionary);
         log.debug("2. after  config push to container: " + configId);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Dictionary<String, String> getExistingProperties(Configuration config)
-            throws Exception {
-        Dictionary dictionary = config.getProperties();
-        if (dictionary == null) {
-            dictionary = new Properties();
-        }
-        return dictionary;
     }
 
     public ConfigurationAdmin getOsgiConfigAdmin() {

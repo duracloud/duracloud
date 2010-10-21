@@ -9,6 +9,10 @@ package org.duracloud.servicesutil.util;
 
 import java.util.Map;
 
+/**
+ * @author Andrew Woods
+ *         Date: Jan 1, 2010
+ */
 public interface DuraConfigAdmin {
 
     @SuppressWarnings("unchecked")
@@ -16,36 +20,14 @@ public interface DuraConfigAdmin {
             throws Exception;
 
     /**
-     * <pre>
-     * The update policy for arg properties is that:
-     *   1. All arg props will be appended to existing set of properties.
-     *   2. A new configuration will be created if there is no existing properties.
-     *   3. If an arg prop has the key of an existing property,
-     *          the existing property will be overwritten.
-     *   4. If a null or empty arg props is provided,
-     *          no updates will occur.
-     * </pre>
-     *
-     * @param configPid
+     * This method replaces any existing properties associated with the arg
+     * configId with the properties provided in arg props.
+     * @param configId
      * @param props
      * @throws Exception
      */
     public abstract void updateConfiguration(String configId,
                                              Map<String, String> props)
-            throws Exception;
-
-    /**
-     * <pre>
-     * Each existing property having a key matching a key found in arg props
-     *  will be removed from the existing properties.
-     * </pre>
-     *
-     * @param configPid
-     * @param props
-     * @throws Exception
-     */
-    public abstract void removeConfigurationElements(String configId,
-                                                     Map<String, String> props)
-            throws Exception;
+        throws Exception;
 
 }

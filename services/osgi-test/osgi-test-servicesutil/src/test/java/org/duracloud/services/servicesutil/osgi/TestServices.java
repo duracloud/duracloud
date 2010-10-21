@@ -27,6 +27,10 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author Andrew Woods
+ *         Date: Jan 1, 2010
+ */
 public class TestServices extends AbstractDuracloudOSGiTestBasePax {
 
     private final Logger log = LoggerFactory.getLogger(TestServices.class);
@@ -150,8 +154,7 @@ public class TestServices extends AbstractDuracloudOSGiTestBasePax {
     public void testConfigAdmin() throws Exception {
         log.debug("testing ConfigurationAdmin");
 
-        ConfigAdminTester tester = new ConfigAdminTester(getConfigAdmin(),
-                                                         getHelloService());
+        ConfigAdminTester tester = new ConfigAdminTester(getConfigAdmin());
         tester.testConfigAdmin();
     }
 

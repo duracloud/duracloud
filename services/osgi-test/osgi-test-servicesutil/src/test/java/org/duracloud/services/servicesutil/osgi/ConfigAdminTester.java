@@ -8,76 +8,82 @@
 package org.duracloud.services.servicesutil.osgi;
 
 import junit.framework.Assert;
+
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+
 import org.duracloud.services.ComputeService;
 import org.duracloud.servicesutil.util.DuraConfigAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
+/**
+ * @author Andrew Woods
+ *         Date: Jan 1, 2010
+ */
 public class ConfigAdminTester {
 
     private final Logger log = LoggerFactory.getLogger(ConfigAdminTester.class);
 
     private final DuraConfigAdmin configAdmin;
 
-    private final ComputeService hello;
-
     private final static String PROJECT_VERSION_PROP = "PROJECT_VERSION";
 
-    public ConfigAdminTester(DuraConfigAdmin configAdmin, ComputeService hello) {
+    public ConfigAdminTester(DuraConfigAdmin configAdmin) {
         assertNotNull(configAdmin);
-        assertNotNull(hello);
 
         this.configAdmin = configAdmin;
-        this.hello = hello;
     }
 
     public void testConfigAdmin() throws Exception {
         StringBuffer sb = new StringBuffer("testing ConfigAdmin\n");
 
-        String newValue = "tester.text";
-        String key = "text";
+        String key0 = "key-0";
+        String key1 = "key-1";
+        String val0 = "tester.text-0";
+        String val1 = "tester.text-1";
+        String val2 = "tester.text-2";
 
-        String origText = hello.describe();
-        assertNotNull(sb.toString(), origText);
-        sb.append("origText: '" + origText + "'\n");
+        Map<String, String> config = new HashMap<String, String>();
+        configAdmin.updateConfiguration(getConfigPID(), config);
 
         Map<String, String> props = configAdmin.getConfiguration(getConfigPID());
         assertNotNull(sb.toString(), props);
+        int baseSize = props.size();
 
-        props.put(key, "tester.text");
+        config.put(key0, val0);
+        config.put(key1, val1);
+        verifyConfigUpdate(config, baseSize);
 
-        configAdmin.updateConfiguration(getConfigPID(), props);
+        config = new HashMap<String, String>();
+        config.put(key0, val2);
+        verifyConfigUpdate(config, baseSize);
+
+        config = new HashMap<String, String>();
+        verifyConfigUpdate(config, baseSize);
+    }
+
+    private void verifyConfigUpdate(Map<String, String> config, int baseSize)
+        throws Exception {
+        configAdmin.updateConfiguration(getConfigPID(), config);
 
         // Make sure thread updating container props has time to complete.
         Thread.sleep(100);
 
-        String newText = hello.describe();
-        assertNotNull(sb.toString(), newText);
-        sb.append("newText : '" + newText + "'\n");
-
-        Assert.assertTrue(sb.toString(), !newText.equals(origText));
-        Assert.assertTrue(sb.toString(), newText.indexOf(newValue) > -1);
-
-        if (log.isDebugEnabled()) {
-            sb.append(configDetailsText());
-        }
-        log.debug(sb.toString());
-    }
-
-    private String configDetailsText() throws Exception {
-        StringBuffer sb = new StringBuffer();
         Map<String, String> props = configAdmin.getConfiguration(getConfigPID());
-        sb.append("\tProps: ");
         assertNotNull(props);
-        for (String key : props.keySet()) {
-            String val = props.get(key);
-            sb.append(" [" + key + "|" + val + "]");
+        Assert.assertEquals(config.toString() + " ?= " + props.toString(),
+                            baseSize + config.size(),
+                            props.size());
+        for (String key : config.keySet()) {
+            String val = config.get(key);
+            Assert.assertTrue(key, props.containsKey(key));
+            Assert.assertTrue(val, props.containsValue(val));
         }
-        sb.append("\n");
-        return sb.toString();
     }
 
     private String getConfigPID() {
