@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 public interface OutputWriter {
 
     public static final DateFormat DATE_FORMAT =
-        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     public void writeSuccess(ContentItem contentItem,
                              String localFilePath,

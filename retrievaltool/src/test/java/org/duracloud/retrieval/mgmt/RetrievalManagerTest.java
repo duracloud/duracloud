@@ -7,6 +7,7 @@
  */
 package org.duracloud.retrieval.mgmt;
 
+import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.retrieval.RetrievalTestBase;
 import org.duracloud.retrieval.source.ContentItem;
 import org.duracloud.retrieval.source.ContentStream;
@@ -16,6 +17,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import static junit.framework.Assert.assertEquals;
@@ -69,14 +71,30 @@ public class RetrievalManagerTest extends RetrievalTestBase {
 
         @Override
         public String getSourceChecksum(ContentItem contentItem) {
-            return String.valueOf(items);
+            return getChecksum(getStream(contentItem.getContentId()));
         }
 
         @Override
         public ContentStream getSourceContent(ContentItem contentItem) {
-            String value = String.valueOf(items);
-            InputStream stream = new ByteArrayInputStream(value.getBytes());
-            return new ContentStream(stream, value);
+            InputStream stream = getStream(contentItem.getContentId());
+            return new ContentStream(stream, getChecksum(stream));
+        }
+
+        private InputStream getStream(String contentId) {
+            return new ByteArrayInputStream(contentId.getBytes());
+        }
+
+        private String getChecksum(InputStream stream) {
+            stream.mark(100);
+            ChecksumUtil checksumUtil =
+                new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+            String checksum = checksumUtil.generateChecksum(stream);
+            try {
+                stream.reset();
+            } catch(IOException e) {
+                throw new RuntimeException(e);
+            }
+            return checksum;
         }
     }
     

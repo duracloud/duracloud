@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -157,11 +158,31 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertTrue(localFile.exists());
         String fileValue = FileUtils.readFileToString(localFile);
         assertEquals(fileValue, contentValue);
+
+        // Test failure
+        worker = createBrokenRetrievalWorker(true);
+        localFile = new File(tempDir, "retrieve-to-file-failure-test");
+        assertFalse(localFile.exists());
+
+        try {
+            worker.retrieveToFile(localFile);
+            fail("Exception expected with non-matching checksum");
+        } catch(IOException expected) {
+            assertNotNull(expected);
+        }
     }
 
     private RetrievalWorker createRetrievalWorker(boolean overwrite) {
         return new RetrievalWorker(new ContentItem(spaceId, contentId),
                                    new MockRetrievalSource(),
+                                   tempDir,
+                                   overwrite,
+                                   createMockOutputWriter());
+    }
+
+    private RetrievalWorker createBrokenRetrievalWorker(boolean overwrite) {
+        return new RetrievalWorker(new ContentItem(spaceId, contentId),
+                                   new BrokenMockRetrievalSource(),
                                    tempDir,
                                    overwrite,
                                    createMockOutputWriter());
@@ -186,7 +207,20 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         public ContentStream getSourceContent(ContentItem contentItem) {
             InputStream stream =
                 new ByteArrayInputStream(contentValue.getBytes());
-            return new ContentStream(stream, contentValue);
+            return new ContentStream(stream, getSourceChecksum(contentItem));
+        }
+    }
+
+    /*
+     * Create a retrieval source that will always provide content streams
+     * with checksums that do not match
+     */
+    private class BrokenMockRetrievalSource extends MockRetrievalSource {
+        @Override
+        public ContentStream getSourceContent(ContentItem contentItem) {
+            InputStream stream =
+                new ByteArrayInputStream(contentValue.getBytes());
+            return new ContentStream(stream, "invalid-checksum");
         }
     }
 

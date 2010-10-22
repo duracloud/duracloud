@@ -115,10 +115,18 @@ public class RetrievalWorker implements Runnable {
      * Checks to see if the checksums of the local file and remote file match
      */
     protected boolean checksumsMatch(File localFile) throws IOException {
+       return checksumsMatch(localFile, null); 
+    }
+
+    private boolean checksumsMatch(File localFile, String remoteChecksum)
+        throws IOException {
         ChecksumUtil checksumUtil =
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String localChecksum = checksumUtil.generateChecksum(localFile);
-        String remoteChecksum = source.getSourceChecksum(contentItem);
+
+        if(remoteChecksum == null || remoteChecksum.equals("")) {
+            remoteChecksum = source.getSourceChecksum(contentItem);
+        }
         return localChecksum.equals(remoteChecksum);
     }
 
@@ -163,6 +171,12 @@ public class RetrievalWorker implements Runnable {
             if(outStream != null) {
                 outStream.close();
             }
+        }
+
+        if(!checksumsMatch(localFile, content.getChecksum())) {
+            deleteFile(localFile);
+            throw new IOException("Calculated checksum value for retrieved " +
+                                  "file does not match metadata checksum.");
         }
     }
 
