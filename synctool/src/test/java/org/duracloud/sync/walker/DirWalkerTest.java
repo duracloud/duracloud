@@ -29,7 +29,7 @@ public class DirWalkerTest extends SyncTestBase {
 
     @Test
     public void testDirWalker() {
-        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempDir = new File("target");
         List<File> dirs = new ArrayList<File>();
         dirs.add(tempDir);
 
