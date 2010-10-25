@@ -65,8 +65,9 @@ public class NamedFilterListTest {
         List<NamedFilterList.NamedFilter> namedFilters = new ArrayList<NamedFilterList.NamedFilter>();
         namedFilters.add(namedFilter0);
         namedFilters.add(namedFilter1);
-        namedFilters.add(namedFilter2);
         list = new NamedFilterList(namedFilters);
+        
+        list.add(namedFilter2);
     }
 
     @After

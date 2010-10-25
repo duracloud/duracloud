@@ -92,9 +92,11 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
     public URL filteredDeploy(String serviceId,
                               InputStream war,
                               Map<String, String> env,
-                              List<String> filterNames) {
+                              List<String> filterNames,
+                              NamedFilterList.NamedFilter filter) {
         Integer port = getNextPort();
         NamedFilterList filterList = createFilters(filterNames, port);
+        filterList.add(filter);
         InputStream filteredWar = new FilteredWar(war, filterList);
 
         return doDeploy(serviceId, filteredWar, env, port);

@@ -8,6 +8,7 @@
 package org.duracloud.services.webapputil;
 
 import org.apache.commons.io.FileUtils;
+import org.duracloud.services.common.model.NamedFilterList;
 import org.duracloud.services.webapputil.internal.WebAppUtilImpl;
 import org.duracloud.services.webapputil.osgi.WebAppUtilTestBase;
 import org.duracloud.services.webapputil.tomcat.TomcatUtil;
@@ -15,11 +16,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import org.junit.Assert;
 
 /**
  * @author Andrew Woods
@@ -34,6 +46,9 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
     private String binariesName = "apache-tomcat-6.0.20.zip";
     private String warName = "hellowebapp-" + getVersion() + ".war";
     private int port = 18080;
+
+    private String filterName1 = "filter1.txt";
+    private String filterName2 = "filter2.txt";
 
     @Before
     public void setUp() throws IOException {
@@ -59,8 +74,10 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
         File binaries = new File(testResources, binariesName);
         File warFile = new File(testResources, warName);
 
+        // Add two files to be filtered to the war file
+        addFilesToWarAndCopy(warFile, serviceWorkDir);
+
         FileUtils.copyFileToDirectory(binaries, serviceWorkDir);
-        FileUtils.copyFileToDirectory(warFile, serviceWorkDir);
 
         return serviceWorkDir;
     }
@@ -76,6 +93,55 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
         Thread.sleep(3000);
 
         verifyDeployment(url, true);
+    }
+
+    @Test
+    public void testFilteredDeploy() throws Exception {
+        Map<String, String> env = new HashMap<String, String>();
+        env.put("argEnv", "argVal");
+
+        List<String> filterNames = new ArrayList<String>();
+        filterNames.add(filterName1);
+
+        Map<String, String> filters = new HashMap<String, String>();
+        filters.put("$DURA_HOST$", getLocalHost());
+
+        url = webappUtil.filteredDeploy(serviceId,
+                                        war,
+                                        env,
+                                        filterNames,
+                                        new NamedFilterList.NamedFilter(filterName2,
+                                                             filters));
+        Thread.sleep(3000);
+
+        verifyDeployment(url, true);
+
+        File file = new File(webappUtil.getServiceWorkDir(), "tomcat");
+        Assert.assertTrue("Path should exist:" + file.getAbsolutePath(),
+                          file.exists());
+        file = new File(file, serviceId + "-" + port);
+        Assert.assertTrue("Path should exist:" + file.getAbsolutePath(),
+                          file.exists());
+        file = new File(file, "apache-tomcat-6.0.20");
+        Assert.assertTrue("Path should exist:" + file.getAbsolutePath(),
+                          file.exists());
+        file = new File(file, "webapps");
+        Assert.assertTrue("Path should exist:" + file.getAbsolutePath(),
+                          file.exists());
+        file = new File(file, "hello");
+        Assert.assertTrue("Path should exist:" + file.getAbsolutePath(),
+                          file.exists());
+
+        File file1 = new File(file, filterName1);
+        Assert.assertTrue("File 1 should exist:" + file1.getAbsolutePath(),
+                          file1.exists());
+
+        File file2 = new File(file, filterName2);
+        Assert.assertTrue("File 2 should exist:" + file2.getAbsolutePath(),
+                          file2.exists());
+
+        verifyContains(file1, getLocalHost());
+        verifyContains(file2, getLocalHost());
     }
 
     @Test
@@ -98,4 +164,55 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
         verifyDeployment(url, false);
     }
 
+    private String getLocalHost() throws Exception {
+        return InetAddress.getLocalHost().getHostAddress();
+    }
+
+    private void verifyContains(File file, String text)
+        throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+
+        boolean found = false;
+        String line;
+        while ((line = br.readLine()) != null) {
+            if (line.contains(text)) {
+                found = true;
+            }
+        }
+        Assert.assertTrue(text, found);
+    }
+
+    private void addFilesToWarAndCopy(File warFile, File copyToDir) throws IOException {
+        File newWar = new File(copyToDir, warFile.getName());
+
+		ZipInputStream zin = new ZipInputStream(new FileInputStream(warFile));
+		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(newWar));
+
+        int len;
+        byte[] buf = new byte[1024];
+
+		ZipEntry entry = zin.getNextEntry();
+		while (entry != null) {
+			out.putNextEntry(new ZipEntry(entry.getName()));
+
+            while ((len = zin.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+			entry = zin.getNextEntry();
+		}
+		zin.close();
+
+        String value = "$DURA_HOST$:$DURA_PORT$";
+        buf = value.getBytes();
+
+        out.putNextEntry(new ZipEntry(filterName1));
+        out.write(buf, 0, buf.length);
+        out.closeEntry();
+
+        out.putNextEntry(new ZipEntry(filterName2));
+        out.write(buf, 0, buf.length);
+        out.closeEntry();
+
+        out.close();
+    }
 }

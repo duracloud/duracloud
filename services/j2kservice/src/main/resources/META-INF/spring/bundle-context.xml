@@ -11,7 +11,7 @@
   <bean id="srvJ2kWrapper" class="org.duracloud.services.j2kservice.J2kWebappWrapper"
    destroy-method="stop">
    <!-- init-method="start" destroy-method="stop"> -->
-    <osgix:managed-properties persistent-id="j2kservice-${project.version}.jar"
+    <osgix:managed-properties persistent-id="j2kservice-${project.version}.zip"
         update-strategy="container-managed"/>
     <property name="serviceId" value="j2kservice-${project.version}" />
     <property name="warName" value="adore-djatoka.war" />
@@ -19,6 +19,11 @@
     <property name="platform" value="Linux-x86-32" />
     <property name="j2kZipName" value="adore-djatoka-1.1.zip" />
     <property name="url" value="http://example.org" />
+    <property name="propFile" value="WEB-INF/classes/urlAuth.properties" />
+    <property name="host" value="localhost" />
+    <property name="port" value="8080" />
+    <property name="username" value="no-username" />
+    <property name="password" value="no-password" />
   </bean>
   
 
