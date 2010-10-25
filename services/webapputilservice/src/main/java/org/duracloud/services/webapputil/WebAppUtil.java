@@ -8,7 +8,6 @@
 package org.duracloud.services.webapputil;
 
 import org.duracloud.services.ComputeService;
-import org.duracloud.services.common.model.NamedFilterList;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -48,15 +47,12 @@ public interface WebAppUtil extends ComputeService {
      *                    host and port. Any text in the named files with the
      *                    Strings $DURA_HOST$ or $DURA_PORT$ will be swapped
      *                    with the host and port of the compute instance.
-     * @param filter      a NamedFilter with the file name and the
-     *                    filters to be processed on that file
      * @return URL of deployed webapp
      */
     public URL filteredDeploy(String serviceId,
                               InputStream war,
                               Map<String, String> env,
-                              List<String> filterNames,
-                              NamedFilterList.NamedFilter filter);
+                              List<String> filterNames);
 
     /**
      * This method undeploys the webapp currently running at the arg url and

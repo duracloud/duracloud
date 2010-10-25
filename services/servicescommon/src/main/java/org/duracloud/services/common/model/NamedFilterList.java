@@ -29,11 +29,6 @@ public class NamedFilterList {
         this.namedFilters = namedFilters;
     }
 
-    public void add(NamedFilter namedFilter)
-    {
-        namedFilters.add(namedFilter);
-    }
-
     /**
      * This method returns all names of contained filters.
      *
