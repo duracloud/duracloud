@@ -81,12 +81,13 @@ public class ConfigAdminImplTest {
         additionalProps.put("keyX", "newValX");
         additionalProps.put("keyY", "newValY");
         additionalProps.put("keyZ", "newValZ");
+        int numAdditionalProps = additionalProps.size();
 
         configAdmin.updateConfiguration(PID, additionalProps);
         props = configAdmin.getConfiguration(PID);
-        verifySize(props, additionalProps.size());
+        verifySize(props, numPropsV1 + numAdditionalProps);
 
-        verifyFirstFoundInSecond(newPropsV1, props, false);
+        verifyFirstFoundInSecond(newPropsV1, props, true);
         verifyFirstFoundInSecond(additionalProps, props, true);
 
         // Modify subset of existing props and verify.
@@ -94,10 +95,11 @@ public class ConfigAdminImplTest {
         newPropsV2.put("key0", "newValFinal0");
         newPropsV2.put("key2", "newValFinal2");
         newPropsV2.put("keyY", "newValFinalY");
+        int numPropsV2 = newPropsV2.size();
 
         configAdmin.updateConfiguration(PID, newPropsV2);
         props = configAdmin.getConfiguration(PID);
-        verifySize(props, newPropsV2.size());
+        verifySize(props, numPropsV2 + numAdditionalProps);
 
         verifyFirstFoundInSecond(newPropsV2, props, true);
     }

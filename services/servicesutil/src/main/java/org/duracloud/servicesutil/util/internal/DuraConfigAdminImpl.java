@@ -24,8 +24,7 @@ import org.slf4j.LoggerFactory;
  * @author Andrew Woods
  *         Date: Jan 1, 2010
  */
-public class DuraConfigAdminImpl
-        implements DuraConfigAdmin {
+public class DuraConfigAdminImpl implements DuraConfigAdmin {
 
     private final Logger log = LoggerFactory.getLogger(DuraConfigAdminImpl.class);
 
@@ -36,7 +35,7 @@ public class DuraConfigAdminImpl
      */
     @SuppressWarnings("unchecked")
     public Map<String, String> getConfiguration(String configId)
-            throws Exception {
+        throws Exception {
         Map<String, String> props = new HashMap<String, String>();
 
         // A new Configuration is created if one does not already exist.
@@ -59,18 +58,22 @@ public class DuraConfigAdminImpl
      * {@inheritDoc}
      */
     public void updateConfiguration(String configId, Map<String, String> props)
-            throws Exception {
+        throws Exception {
         doUpdateConfiguration(configId, props);
     }
 
     private void doUpdateConfiguration(String configId,
-                                       Map<String, String> props) throws Exception {
+                                       Map<String, String> props)
+        throws Exception {
         // Exit if no meaningful properties provided.
         if (props == null) {
+            log.warn("arg props is null");
             return;
         }
+        log.debug("arg props for {}: {}", configId, props.toString());
 
-        Dictionary<String, String> dictionary = new Hashtable<String, String>();
+        Configuration config = getOsgiConfigAdmin().getConfiguration(configId);
+        Dictionary<String, String> dictionary = getExistingProperties(config);
         for (String key : props.keySet()) {
             String val = props.get(key);
             dictionary.put(key, val);
@@ -78,9 +81,18 @@ public class DuraConfigAdminImpl
 
         // Push the update into the osgi-container.
         log.debug("1. before config push to container: " + configId);
-        Configuration config = getOsgiConfigAdmin().getConfiguration(configId);
         config.update(dictionary);
         log.debug("2. after  config push to container: " + configId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Dictionary<String, String> getExistingProperties(Configuration config)
+        throws Exception {
+        Dictionary dictionary = config.getProperties();
+        if (dictionary == null) {
+            dictionary = new Properties();
+        }
+        return dictionary;
     }
 
     public ConfigurationAdmin getOsgiConfigAdmin() {

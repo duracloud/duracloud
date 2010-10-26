@@ -220,6 +220,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
     }
 
     public void setDestSpaceId(String destSpaceId) {
+        log.debug("setting destSpaceId: {}->{}", this.destSpaceId, destSpaceId);
         if(destSpaceId != null && !destSpaceId.equals("")) {
             this.destSpaceId = destSpaceId;
         } else {
@@ -235,6 +236,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
     }
 
     public void setNamePrefix(String namePrefix) {
+        log.debug("setting namePrefix: {}->{}", this.namePrefix, namePrefix);
         if(namePrefix != null) {
             this.namePrefix = namePrefix;
         } else {

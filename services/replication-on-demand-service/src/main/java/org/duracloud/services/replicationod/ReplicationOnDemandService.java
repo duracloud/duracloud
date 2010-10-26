@@ -56,6 +56,12 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     }
 
     @Override
+    public void stop() throws Exception {
+        super.stop();
+        worker = null;
+    }
+
+    @Override
     protected String getJobType() {
         return HadoopTypes.JOB_TYPES.REP_ON_DEMAND.name();
     }

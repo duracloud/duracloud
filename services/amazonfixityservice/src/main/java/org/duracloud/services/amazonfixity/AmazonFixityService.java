@@ -79,6 +79,13 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
     }
 
     @Override
+    public void stop() throws Exception {
+        super.stop();
+        worker = null;
+        postWorker = null;
+    }
+
+    @Override
     protected String getJobType() {
         return HadoopTypes.JOB_TYPES.AMAZON_FIXITY.name();
     }

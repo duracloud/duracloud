@@ -57,20 +57,20 @@ public class ConfigAdminTester {
 
         config.put(key0, val0);
         config.put(key1, val1);
+        configAdmin.updateConfiguration(getConfigPID(), config);
         verifyConfigUpdate(config, baseSize);
 
-        config = new HashMap<String, String>();
         config.put(key0, val2);
+        configAdmin.updateConfiguration(getConfigPID(), config);
         verifyConfigUpdate(config, baseSize);
 
-        config = new HashMap<String, String>();
+        Map<String, String> empty = new HashMap<String, String>();
+        configAdmin.updateConfiguration(getConfigPID(), empty);
         verifyConfigUpdate(config, baseSize);
     }
 
     private void verifyConfigUpdate(Map<String, String> config, int baseSize)
         throws Exception {
-        configAdmin.updateConfiguration(getConfigPID(), config);
-
         // Make sure thread updating container props has time to complete.
         Thread.sleep(100);
 

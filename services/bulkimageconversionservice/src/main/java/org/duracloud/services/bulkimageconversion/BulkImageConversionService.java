@@ -9,6 +9,7 @@ package org.duracloud.services.bulkimageconversion;
 
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
+import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
 import org.duracloud.storage.domain.HadoopTypes;
@@ -88,10 +89,10 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
         Map<String, String> taskParams = super.collectTaskParams();
 
         taskParams.put(TASK_PARAMS.DEST_FORMAT.name(), toFormat);
-        if (namePrefix != null && !namePrefix.equals("")) {
+        if (namePrefix != null) {
             taskParams.put(TASK_PARAMS.NAME_PREFIX.name(), namePrefix);
         }
-        if (nameSuffix != null && !nameSuffix.equals("")) {
+        if (nameSuffix != null) {
             taskParams.put(TASK_PARAMS.NAME_SUFFIX.name(), nameSuffix);
         }
         if (colorSpace != null) {
@@ -99,6 +100,13 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
         }
 
         return taskParams;
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        worker = null;
+        postWorker = null;
     }
 
     public String getToFormat() {
@@ -135,6 +143,7 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
     }
 
     public void setNamePrefix(String namePrefix) {
+        log.debug("setting namePrefix: {}->{}", this.namePrefix, namePrefix);
         if (namePrefix != null) {
             this.namePrefix = namePrefix;
         } else {
@@ -149,6 +158,7 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
     }
 
     public void setNameSuffix(String nameSuffix) {
+        log.debug("setting nameSuffix: {}->{}", this.nameSuffix, nameSuffix);
         if (nameSuffix != null) {
             this.nameSuffix = nameSuffix;
         } else {

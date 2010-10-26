@@ -873,6 +873,8 @@ public class ServiceManager {
             error = "Unable to update service bundle config." + contentId;
             checkResponse(response, error);
 
+            waitUntilConfigured(contentId, config, servicesAdmin);
+
             response = servicesAdmin.startServiceBundle(contentId);
             error = "Unable to re-start service bundle." + contentId;
             checkResponse(response, error);

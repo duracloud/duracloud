@@ -265,6 +265,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     }
 
     public void setDestSpaceId(String destSpaceId) {
+        log.debug("setting destSpaceId: {}->{}", this.destSpaceId, destSpaceId);
         if (destSpaceId != null && !destSpaceId.equals("")) {
             this.destSpaceId = destSpaceId;
         } else {
