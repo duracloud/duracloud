@@ -22,16 +22,18 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         ServiceInfo icService = new ServiceInfo();
         icService.setId(index);
         icService.setContentId("bulkimageconversionservice-" + version + ".zip");
-        String desc = "The Bulk Image Conversion service provides a simple " +
-            "way to convert image files from one format to another in bulk. " +
+        String desc = "The Bulk Image Transformer provides a simple " +
+            "way to transform image files from one format to another in bulk. " +
             "A space is selected from which image files will be read and " +
-            "converted to the chosen format. The converted image files will " +
+            "converted to the chosen format. The transformed image files will " +
             "be stored in the destination space along with a file which " +
-            "details the results of the conversion process. The working " +
+            "details the results of the transformation process. The working " +
             "space will be used to store files used for processing and logs; " +
-            "the working space should not be the same as the output space.";
+            "the working space should not be the same as the output space. " +
+            "Note that this service can only be used for content stored in " +
+            "Amazon.";
         icService.setDescription(desc);
-        icService.setDisplayName("Bulk Image Conversion Service");
+        icService.setDisplayName("Bulk Image Transformer");
         icService.setUserConfigVersion("1.0");
         icService.setServiceVersion(version);
         icService.setMaxDeploymentsAllowed(1);

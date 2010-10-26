@@ -22,16 +22,16 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
         ServiceInfo icService = new ServiceInfo();
         icService.setId(index);
         icService.setContentId("imageconversionservice-" + version + ".zip");
-        String desc = "The Image Conversion service provides a simple way to " +
-            "convert image files from one format to another. A space is " +
+        String desc = "The Image Transformer provides a simple way to " +
+            "transform image files from one format to another. A space is " +
             "selected from which image files will be read and converted to " +
-            "the chosen format. The converted image files will be stored in " +
+            "the chosen format. The transformed image files will be stored in " +
             "the destination space along with a file which details the " +
-            "results of the conversion process. Note that the ImageMagick " +
-            "service must be deployed prior to using the Image Conversion " +
-            "service";
+            "results of the transformation process. Note that the System " +
+            "Transformer Utility must be deployed prior to using the Image " +
+            "Transformer.";
         icService.setDescription(desc);
-        icService.setDisplayName("Image Conversion Service");
+        icService.setDisplayName("Image Transformer");
         icService.setUserConfigVersion("1.0");
         icService.setServiceVersion(version);
         icService.setMaxDeploymentsAllowed(1);
@@ -75,9 +75,10 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
         toFormatOptions.add(pdf);
         toFormatOptions.add(psd);
 
-        SingleSelectUserConfig toFormat = new SingleSelectUserConfig("toFormat",
-                                                                     "Destination Format",
-                                                                     toFormatOptions);
+        SingleSelectUserConfig toFormat =
+            new SingleSelectUserConfig("toFormat",
+                                       "Destination Format",
+                                       toFormatOptions);
 
         List<Option> colorSpaceOptions = new ArrayList<Option>();
         colorSpaceOptions.add(new Option("Source Image Color Space",
@@ -91,16 +92,18 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
             colorSpaceOptions);
 
         // Name Prefix
-        TextUserConfig namePrefix = new TextUserConfig("namePrefix",
-                                                       "Source file name prefix, only files " +
-                                                           "beginning with this value will be converted.",
-                                                       "");
+        TextUserConfig namePrefix =
+            new TextUserConfig("namePrefix",
+                               "Source file name prefix, only files " +
+                               "beginning with this value will be transformed.",
+                               "");
 
         // Name Suffix
-        TextUserConfig nameSuffix = new TextUserConfig("nameSuffix",
-                                                       "Source file name suffix, only files ending " +
-                                                           "with this value will be converted.",
-                                                       "");
+        TextUserConfig nameSuffix =
+            new TextUserConfig("nameSuffix",
+                               "Source file name suffix, only files ending " +
+                               "with this value will be transformed.",
+                               "");
 
         icServiceUserConfig.add(sourceSpace);
         icServiceUserConfig.add(destSpace);

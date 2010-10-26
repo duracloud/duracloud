@@ -18,18 +18,18 @@ import java.util.List;
 public class FixityServiceInfo extends AbstractServiceInfo {
 
     private final String userConfigVersion = "1.0";
-    private final String displayName = "Fixity Service";
+    private final String displayName = "Bit Integrity Checker";
 
     private enum Mode {
         ALL_IN_ONE_LIST("all-in-one-for-list",
-                        "Verify the fixity of a list of items"),
+                        "Verify the integrity of a list of items"),
         ALL_IN_ONE_SPACE("all-in-one-for-space",
-                         "Verify the fixity of an entire Space"),
+                         "Verify the integrity of an entire Space"),
         GENERATE_LIST("generate-for-list",
-                      "Generate fixity information for a list of items"),
+                      "Generate integrity information for a list of items"),
         GENERATE_SPACE("generate-for-space",
-                       "Generate fixity information for an entire Space"),
-        COMPARE("compare", "Compare two different fixity reports");
+                       "Generate integrity information for an entire Space"),
+        COMPARE("compare", "Compare two different integrity reports");
 
         private String key;
         private String desc;
@@ -71,7 +71,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     }
 
     private String getDescription() {
-        return "The Fixity service provides the ability to verify " +
+        return "The Bit Integrity Checker provides the ability to verify " +
             "that the content held within DuraCloud has maintained its bit " +
             "integrity. There are five modes of operation: " +
             "(1) All-in-one generation of system MD5s for items in provided " +
@@ -158,7 +158,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
                                          false));
 
         return new SingleSelectUserConfig("hashApproach",
-                                          "Get fixity information from...",
+                                          "Get integrity information from...",
                                           trustLevelOptions,
                                           or(Mode.ALL_IN_ONE_LIST,
                                              Mode.ALL_IN_ONE_SPACE,
@@ -276,7 +276,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     private UserConfig getContentIdOfReportConfig() {
         return new TextUserConfig("reportContentId",
                                   "Output report name",
-                                  "fixity-report.csv",
+                                  "integrity-report.csv",
                                   or(Mode.ALL_IN_ONE_LIST,
                                      Mode.ALL_IN_ONE_SPACE,
                                      Mode.COMPARE));

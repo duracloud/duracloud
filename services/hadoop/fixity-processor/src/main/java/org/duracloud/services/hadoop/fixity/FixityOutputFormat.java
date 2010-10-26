@@ -17,7 +17,7 @@ public class FixityOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "fixity-service-results.csv";
+        return "bulk-bit-integrity-checker-results.csv";
     }
 
 }

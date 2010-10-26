@@ -20,8 +20,8 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
         ServiceInfo msService = new ServiceInfo();
         msService.setId(index);
         msService.setContentId("mediastreamingservice-" + version + ".zip");
-        String desc = "The Media Streaming service provides streaming " +
-            "capabilities for video and audio files. The service takes " +
+        String desc = "The Media Streamer provides streaming " +
+            "for video and audio files. This service takes " +
             "advantage of the Amazon Cloudfront streaming capabilities, " +
             "so files to be streamed must be within a space on an Amazon " +
             "provider. All media to be streamed by this service needs to be " +
@@ -32,7 +32,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
             "as well as example html files which can be used to display a " +
             "viewer.";
         msService.setDescription(desc);
-        msService.setDisplayName("Media Streaming Service");
+        msService.setDisplayName("Media Streamer");
         msService.setUserConfigVersion("1.0");
         msService.setServiceVersion(version);
         msService.setMaxDeploymentsAllowed(1);

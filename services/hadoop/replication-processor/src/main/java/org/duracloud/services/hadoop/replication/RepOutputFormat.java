@@ -17,7 +17,7 @@ public class RepOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "bulk-replication-service-results.csv";
+        return "duplicate-on-demand-results.csv";
     }
 
 }

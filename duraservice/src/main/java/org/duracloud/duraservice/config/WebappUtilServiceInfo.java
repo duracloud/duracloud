@@ -14,12 +14,12 @@ public class WebappUtilServiceInfo extends AbstractServiceInfo {
         webappUtilService.setId(index);
         webappUtilService.setContentId(
             "webapputilservice-" + version + ".zip");
-        String desc = "The Web App Utility service coordinates the " +
+        String desc = "The System WebApp Utility coordinates the " +
             "(de)installation and startup/shutdown of Apache Tomcat instances" +
             " that are created to run web application services that deployed " +
             "externally to the hosting OSGi container.";
         webappUtilService.setDescription(desc);
-        webappUtilService.setDisplayName("Web App Utility Service");
+        webappUtilService.setDisplayName("System WebApp Utility");
         webappUtilService.setUserConfigVersion("1.0");
         webappUtilService.setServiceVersion(version);
         webappUtilService.setMaxDeploymentsAllowed(1);

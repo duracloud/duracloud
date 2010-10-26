@@ -47,7 +47,7 @@ public class FixityServiceXmlTest {
         Assert.assertNotNull(description);
 
         Assert.assertEquals("fixityservice-" + version + ".zip", contentId);
-        Assert.assertEquals("Fixity Service", displayName);
+        Assert.assertEquals("Bit Integrity Checker", displayName);
         Assert.assertEquals(version, serviceVersion);
         Assert.assertEquals("1.0", userConfigVersion);
         Assert.assertTrue(description.length() > 20);

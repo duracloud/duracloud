@@ -22,19 +22,19 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
         ServiceInfo repService = new ServiceInfo();
         repService.setId(index);
         repService.setContentId("replication-on-demand-service-" + version + ".zip");
-        String desc = "The Replication On Demand service provides a simple " +
-            "way to replicate content from one space to anther. This service " +
-            "is primarily focused on allowing the replication of content " +
-            "from the primary storage provider to a secondary provider.  " +
+        String desc = "Duplicate on Demand provides a simple " +
+            "way to copy content from one space to anther. This service " +
+            "is primarily focused on copying content from a space " +
+            "in the Amazon storage provider to a space in another provider. " +
             "To begin, a source space is chosen, along with a store and " +
-            "space to which content will be replicated. The service then " +
+            "space to which content will be copied. The service then " +
             "performs a copy of all content and metadata in the source space " +
-            "to the replicated space, creating the space if necessary. " +
+            "to the destination space, creating the space if necessary. " +
             "When the service has completed its work, a results file will be " +
             "stored in the chosen space and a set of files (primarily logs) " +
             "created as part of the process will be stored in the work space.";
         repService.setDescription(desc);
-        repService.setDisplayName("Replication On Demand Service");
+        repService.setDisplayName("Duplicate on Demand");
         repService.setUserConfigVersion("1.0");
         repService.setServiceVersion(version);
         repService.setMaxDeploymentsAllowed(1);
@@ -62,11 +62,11 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
 
         SingleSelectUserConfig repStore =
             new SingleSelectUserConfig("repStoreId",
-                                       "Replicate to this store",
+                                       "Copy to this store",
                                        storeOptions);
 
         TextUserConfig repSpace =
-            new TextUserConfig("repSpaceId", "Replicate to this space");
+            new TextUserConfig("repSpaceId", "Copy to this space");
 
         SingleSelectUserConfig destSpace =
             new SingleSelectUserConfig("destSpaceId",

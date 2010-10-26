@@ -17,7 +17,7 @@ public class ICOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "bulk-image-conversion-service-results.csv";
+        return "bulk-image-transformer-results.csv";
     }
 
 }

@@ -12,11 +12,11 @@ public class ImageMagickServiceInfo extends AbstractServiceInfo {
         ServiceInfo imService = new ServiceInfo();
         imService.setId(index);
         imService.setContentId("imagemagickservice-" + version + ".zip");
-        String desc = "The ImageMagick service deploys the ImageMagick " +
+        String desc = "The System Transformer Utility deploys the ImageMagick " +
             "application which allows other services to take advantage of " +
             "its features.";
         imService.setDescription(desc);
-        imService.setDisplayName("ImageMagick Service");
+        imService.setDisplayName("System Transformer Utility");
         imService.setUserConfigVersion("1.0");
         imService.setServiceVersion(version);
         imService.setMaxDeploymentsAllowed(1);

@@ -38,8 +38,8 @@ public class RepMapper extends ProcessFileMapper {
 
     public static final String DATE = "date";
     public static final String SRC_SIZE = "source-file-bytes";
-    public static final String REP_RESULT = "replication-result";
-    public static final String REP_ATTEMPTS = "replication-attempts";
+    public static final String REP_RESULT = "duplication-result";
+    public static final String REP_ATTEMPTS = "duplication-attempts";
 
     private static final int MAX_ATTEMPTS = 5;
 

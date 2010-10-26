@@ -23,11 +23,12 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
         ServiceInfo info = new ServiceInfo();
         info.setId(index);
         info.setContentId("amazonfixityservice-" + version + ".zip");
-        String desc = "The Amazon Fixity service provides a simple way to " +
+        String desc = "The Bulk Bit Integrity Checker provides a simple way to " +
             "determine checksums (MD5s) for all content items in any " +
-            "particular space by leveraging an Amazon Hadoop cluster.";
+            "particular space by leveraging an Amazon Hadoop cluster. Note " +
+            "that this service can only be run over content stored in Amazon.";
         info.setDescription(desc);
-        info.setDisplayName("Amazon Fixity Service");
+        info.setDisplayName("Bulk Bit Integrity Checker");
         info.setUserConfigVersion("1.0");
         info.setServiceVersion(version);
         info.setMaxDeploymentsAllowed(1);
