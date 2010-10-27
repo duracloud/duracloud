@@ -4,14 +4,14 @@
   <parent>
     <artifactId>services</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>0.7.0</version>
+    <version>0.8.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud.services</groupId>
   <artifactId>hadoop</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0-SNAPSHOT</version>
   <name>org.duracloud.services.hadoop</name>
   <description>DuraCloud Hadoop Processing</description>
 
