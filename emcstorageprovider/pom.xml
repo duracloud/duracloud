@@ -3,13 +3,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>emcstorageprovider</artifactId>
   <packaging>jar</packaging>
-  <version>0.7.0-SNAPSHOT</version>
+  <version>0.7.0</version>
   <name>EMC Storage Provider</name>
   
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>0.7.0-SNAPSHOT</version>
+    <version>0.7.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
