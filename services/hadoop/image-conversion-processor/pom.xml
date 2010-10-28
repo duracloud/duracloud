@@ -4,13 +4,13 @@
   <groupId>org.duracloud.services.hadoop</groupId>
   <artifactId>image-conversion-processor</artifactId>
   <packaging>jar</packaging>
-  <version>0.7.0</version>
+  <version>0.8.0-SNAPSHOT</version>
   <name>Image Conversion Processor</name>
 
   <parent>
     <artifactId>hadoop</artifactId>
     <groupId>org.duracloud.services</groupId>
-    <version>0.7.0</version>
+    <version>0.8.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
