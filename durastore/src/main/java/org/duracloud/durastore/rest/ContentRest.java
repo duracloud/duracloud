@@ -211,9 +211,9 @@ public class ContentRest extends BaseRest {
                     if(!contentSizeSet) {
                         response.header(metadataName, metadataValue);
                     }
-                } else if(metadataName.equals(HttpHeaders.CONTENT_MD5)) {
+                } else if(metadataName.equalsIgnoreCase(HttpHeaders.CONTENT_MD5)) {
                     if(!contentChecksumSet) {
-                        response.header(metadataName, metadataValue);
+                        response.header(HttpHeaders.CONTENT_MD5, metadataValue);
                     }
                 } else if(metadataName.equals(HttpHeaders.ETAG)) {
                     if(!contentChecksumSet) {

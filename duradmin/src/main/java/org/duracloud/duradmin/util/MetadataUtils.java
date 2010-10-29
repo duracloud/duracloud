@@ -7,21 +7,19 @@
  */
 package org.duracloud.duradmin.util;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 public class MetadataUtils {
 
-    static final String NAME_KEY_PREFIX = "ext-metadata-";
     private static Logger log = LoggerFactory.getLogger(MetadataUtils.class);
     
     
@@ -74,11 +72,8 @@ public class MetadataUtils {
         List<NameValuePair> extendedMetadata = new LinkedList<NameValuePair>();
         if (extendedMetadata != null) {
             for (String name : metadata.keySet()) {
-                if (name.startsWith(NAME_KEY_PREFIX)) {
-                    extendedMetadata.add(new NameValuePair(name
-                            .substring(NAME_KEY_PREFIX.length()), metadata
-                            .get(name)));
-                }
+                extendedMetadata.add(new NameValuePair(name, metadata
+                        .get(name)));
             }
         }
 
@@ -86,18 +81,18 @@ public class MetadataUtils {
     }
 
     public static Object remove(String name, Map<String, String> metadata) {
-        return metadata.remove(MetadataUtils.NAME_KEY_PREFIX + name);
+        return metadata.remove(name);
     }
 
     public static Object add(String name,
                              String value,
                              Map<String, String> metadata) {
-        return metadata.put(NAME_KEY_PREFIX + name, value);
+        return metadata.put(name, value);
 
     }
 
     public static Object getValue(String key, Map<String, String> metadata) {
-        return metadata.get(NAME_KEY_PREFIX+key);
+        return metadata.get(key);
     }
 
 	public static void handle(String method, String context, Map<String, String> metadata,

@@ -7,14 +7,6 @@
  */
 package org.duracloud.duradmin.mock.contentstore;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.codec.binary.Hex;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -24,6 +16,14 @@ import org.duracloud.domain.Space;
 import org.duracloud.duradmin.contentstore.ContentStoreManagerFactory;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MockContentStoreManagerFactoryImpl
         implements ContentStoreManagerFactory {
@@ -111,6 +111,7 @@ public class MockContentStoreManagerFactoryImpl
                 Map<String, String> metadata = new HashMap<String, String>();
                 metadata.put(ContentStore.SPACE_COUNT, String.valueOf(i % 4));
                 metadata.put(ContentStore.SPACE_CREATED, new Date().toString());
+                metadata.put(ContentStore.SPACE_SIZE, String.valueOf(i % 10));
                 metadata.put(ContentStore.SPACE_ACCESS, AccessType.OPEN.name());
                 s.setMetadata(metadata);
 
@@ -176,6 +177,7 @@ public class MockContentStoreManagerFactoryImpl
                 spaceMetadata.put(ContentStore.SPACE_COUNT, String.valueOf(0));
                 spaceMetadata.put(ContentStore.SPACE_CREATED, new Date()
                         .toString());
+                spaceMetadata.put(ContentStore.SPACE_SIZE, String.valueOf(0));
                 spaceMetadata.put(ContentStore.SPACE_ACCESS, AccessType.OPEN
                         .name());
             }

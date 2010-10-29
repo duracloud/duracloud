@@ -36,6 +36,10 @@ public interface ContentStore {
     public static final String SPACE_COUNT =
             StorageProvider.METADATA_SPACE_COUNT;
 
+    /** Basic space metadata: Size of space */
+    public static final String SPACE_SIZE =
+            StorageProvider.METADATA_SPACE_SIZE;
+
     /** Basic space metadata: Space access (OPEN or CLOSED) */
     public static final String SPACE_ACCESS =
             StorageProvider.METADATA_SPACE_ACCESS;

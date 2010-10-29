@@ -24,6 +24,8 @@ public class SpaceMetadata
 
     private String count;
 
+    private String size;
+
     private int queryCount;
 
     private Set<String> tags;
@@ -50,6 +52,14 @@ public class SpaceMetadata
 
     public void setCount(String count) {
         this.count = count;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 
     public Set<String> getTags() {

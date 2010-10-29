@@ -7,16 +7,16 @@
  */
 package org.duracloud.duradmin.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 
 public class MetadataUtilsTest {
@@ -25,7 +25,7 @@ public class MetadataUtilsTest {
     @Before
     public void setUp() throws Exception {
         metadata = new HashMap<String,String>();
-        metadata.put(MetadataUtils.NAME_KEY_PREFIX+"test-key", "test-value");
+        metadata.put("test-key", "test-value");
 
     }
 

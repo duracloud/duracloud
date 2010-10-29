@@ -18,16 +18,10 @@ import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.loadMetadata;
-import static org.duracloud.storage.util.StorageProviderUtil.storeMetadata;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,6 +34,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import static org.duracloud.storage.util.StorageProviderUtil.loadMetadata;
+import static org.duracloud.storage.util.StorageProviderUtil.storeMetadata;
 
 /**
  * Provides content storage backed by Rackspace's Cloud Files service.
@@ -355,7 +355,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         spaceMetadata.put(METADATA_SPACE_COUNT,
                           String.valueOf(visibleObjectCount));
 
-        spaceMetadata.put("space-total-size", String.valueOf(containerInfo
+        spaceMetadata.put(METADATA_SPACE_SIZE, String.valueOf(containerInfo
                 .getTotalSize()));
 
         return spaceMetadata;

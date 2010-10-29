@@ -7,13 +7,6 @@
  */
 package org.duracloud.duradmin.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ServicesManager;
 import org.duracloud.common.web.EncodeUtil;
@@ -23,6 +16,12 @@ import org.duracloud.duradmin.domain.ContentMetadata;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceMetadata;
 import org.duracloud.error.ContentStoreException;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Map;
 
 /**
  * Provides utility methods for spaces.
@@ -43,10 +42,11 @@ public class SpaceUtil {
 
     private static SpaceMetadata getSpaceMetadata(Map<String, String> spaceProps) {
         SpaceMetadata spaceMetadata = new SpaceMetadata();
-        spaceMetadata.setCreated(spaceProps.get(ContentStore.SPACE_CREATED));
-        spaceMetadata.setCount(spaceProps.get(ContentStore.SPACE_COUNT));
-        spaceMetadata.setAccess(spaceProps.get(ContentStore.SPACE_ACCESS));
-        spaceMetadata.setTags(TagUtil.parseTags(spaceProps.get(TagUtil.TAGS)));
+        spaceMetadata.setCreated(spaceProps.remove(ContentStore.SPACE_CREATED));
+        spaceMetadata.setCount(spaceProps.remove(ContentStore.SPACE_COUNT));
+        spaceMetadata.setSize(spaceProps.remove(ContentStore.SPACE_SIZE));
+        spaceMetadata.setAccess(spaceProps.remove(ContentStore.SPACE_ACCESS));
+        spaceMetadata.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
         return spaceMetadata;
     }
 
@@ -83,13 +83,13 @@ public class SpaceUtil {
     private static ContentMetadata populateContentMetadata(Map<String, String> contentMetadata) {
         ContentMetadata metadata = new ContentMetadata();
         metadata
-                .setMimetype(contentMetadata.get(ContentStore.CONTENT_MIMETYPE));
-        metadata.setSize(contentMetadata.get(ContentStore.CONTENT_SIZE));
+                .setMimetype(contentMetadata.remove(ContentStore.CONTENT_MIMETYPE));
+        metadata.setSize(contentMetadata.remove(ContentStore.CONTENT_SIZE));
         metadata
-                .setChecksum(contentMetadata.get(ContentStore.CONTENT_CHECKSUM));
+                .setChecksum(contentMetadata.remove(ContentStore.CONTENT_CHECKSUM));
         metadata
-                .setModified(contentMetadata.get(ContentStore.CONTENT_MODIFIED));
-        metadata.setTags(TagUtil.parseTags(contentMetadata.get(TagUtil.TAGS)));
+                .setModified(contentMetadata.remove(ContentStore.CONTENT_MODIFIED));
+        metadata.setTags(TagUtil.parseTags(contentMetadata.remove(TagUtil.TAGS)));
        
         return metadata;
     }

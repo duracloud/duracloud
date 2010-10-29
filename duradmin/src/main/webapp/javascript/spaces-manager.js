@@ -1582,6 +1582,7 @@ $(document).ready(function() {
 		return [ 
 					['Items', (space.itemCount == null || space.itemCount == undefined  ? space.metadata.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
 					['Created', space.metadata.created],
+                    ['Size', space.metadata.size],                    
 			   ];
 	};
 
