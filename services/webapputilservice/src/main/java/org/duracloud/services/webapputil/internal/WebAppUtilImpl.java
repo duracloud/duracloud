@@ -14,10 +14,10 @@ import org.duracloud.services.webapputil.WebAppUtil;
 import org.duracloud.services.webapputil.error.WebAppDeployerException;
 import org.duracloud.services.webapputil.tomcat.TomcatInstance;
 import org.duracloud.services.webapputil.tomcat.TomcatUtil;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.osgi.service.cm.ManagedService;
-import org.osgi.service.cm.ConfigurationException;
 
 import java.io.File;
 import java.io.InputStream;
@@ -26,11 +26,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Dictionary;
-import java.util.Enumeration;
 
 /**
  * This class abstracts the details of managing appservers used to host
@@ -92,9 +92,11 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
     public URL filteredDeploy(String serviceId,
                               InputStream war,
                               Map<String, String> env,
-                              List<String> filterNames) {
+                              List<String> filterNames,
+                              NamedFilterList.NamedFilter filter) {
         Integer port = getNextPort();
         NamedFilterList filterList = createFilters(filterNames, port);
+        filterList.add(filter);
         InputStream filteredWar = new FilteredWar(war, filterList);
 
         return doDeploy(serviceId, filteredWar, env, port);

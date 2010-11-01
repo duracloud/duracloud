@@ -8,11 +8,10 @@
 package org.duracloud.services.j2kservice;
 
 import org.apache.commons.io.FilenameUtils;
-import static org.duracloud.common.web.NetworkUtil.waitForShutdown;
-import static org.duracloud.common.web.NetworkUtil.waitForStartup;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.common.error.ServiceRuntimeException;
+import org.duracloud.services.common.model.NamedFilterList;
 import org.duracloud.services.j2kservice.error.J2kWrapperException;
 import org.duracloud.services.webapputil.WebAppUtil;
 import org.osgi.service.cm.ConfigurationException;
@@ -27,8 +26,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.duracloud.common.web.NetworkUtil.waitForShutdown;
+import static org.duracloud.common.web.NetworkUtil.waitForStartup;
 
 /**
  * This class acts at the OSGi service representative of Djatoka webapp deployed
@@ -46,6 +49,12 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
     private String warName;
     private String j2kZipName;
     private String platform;
+    private String propFile;
+
+    private String host;
+    private String port;
+    private String username;
+    private String password;
 
     private WebAppUtil webappUtil;
 
@@ -70,10 +79,22 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
         url = getWebappUtil().filteredDeploy(context,
                                              new FileInputStream(war),
                                              env,
-                                             filterNames);
+                                             filterNames,
+                                             getFilter());
 
         waitForStartup(url.toString());
         this.setServiceStatus(ServiceStatus.STARTED);
+    }
+
+    private NamedFilterList.NamedFilter getFilter() {
+        Map<String, String> filters = new HashMap<String, String>();
+            filters.put("$DURA_HOST$", getHost());
+            filters.put("$DURA_PORT$", getPort());
+            filters.put("$DURA_USERNAME$", getUsername());
+            filters.put("$DURA_PASSWORD$", getPassword());
+
+            return new NamedFilterList.NamedFilter(getPropFile(),
+                                                             filters);
     }
 
     private List<String> getFilterNames() {
@@ -224,4 +245,43 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
         this.j2kZipName = j2kZipName;
     }
 
+    public String getPropFile() {
+        return propFile;
+    }
+
+    public void setPropFile(String propFile) {
+        this.propFile = propFile;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
