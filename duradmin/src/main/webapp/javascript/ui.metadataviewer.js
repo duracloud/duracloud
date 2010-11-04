@@ -138,8 +138,7 @@ $.widget("ui.metadataviewer",
 							.html("<div><input type='text' value='[value]' class='value-txt' size='20'/><input type='button' value='+'/><div class='dc-expando-status'></div></div>")
 					);
 				
-				
-				$("input", controls).focus(function(){
+				$("input[type=text]", controls).focus(function(){
 					$(this).val('');
 				});
 				
