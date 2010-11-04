@@ -1698,6 +1698,15 @@ $(document).ready(function() {
 	};
 
 	var contentItemListStatusId = "#content-item-list-status";
+	
+	var showContentItemListStatus = function(text){
+		if(text == null || text == undefined || text == ''){
+			$(contentItemListStatusId).fadeOut("fast").html('');
+		}else{
+			$(contentItemListStatusId).html("Loading...").fadeIn("slow");
+		}
+	};
+	
 	var getFilterText = function(){
 		var val = $("#content-item-filter").val();
 		if(val == DEFAULT_FILTER_TEXT){
@@ -1708,6 +1717,7 @@ $(document).ready(function() {
 	
 	var getSpace = function(spaceId, loadHandler){
 		clearContents();
+		clearPageHistory();
 		$("#detail-pane").fadeOut("slow");
 		dc.store.GetSpace(
 			getCurrentProviderStoreId(),
@@ -1715,7 +1725,7 @@ $(document).ready(function() {
 			{
 				begin: function(){
 					dc.busy("Loading space...");
-					$(contentItemListStatusId).html("Loading...").fadeIn("slow");
+					showContentItemListStatus("Loading...");
 				},
 				success: function(space){
 					dc.done();
@@ -1725,7 +1735,7 @@ $(document).ready(function() {
 						setHash(space);
 						loadHandler(space);
 					}
-					$(contentItemListStatusId).fadeOut("fast");
+					showContentItemListStatus();
 				}, 
 				failure:function(info){
 					dc.done();
@@ -1770,15 +1780,15 @@ $(document).ready(function() {
 				getCurrentSpaceId(), 
 				{
 					begin: function(){
-						$(contentItemListStatusId).html("Loading contents...").fadeIn("slow");
+						showContentItemListStatus("Loading contents...");
 					},
 					success: function(space){
 						dc.done();
 						if(space == undefined || space == null){
-							$(contentItemListStatusId).html("Error: space not found.").fadeIn("slow");
+							showContentItemListStatus("Error: space not found.");
 						}else{
 							handler(space);
-							$(contentItemListStatusId).fadeOut("fast");
+							showContentItemListStatus();
 						}
 					}, 
 					failure:function(info){
@@ -1793,6 +1803,7 @@ $(document).ready(function() {
 	};
 
 	var refreshButtonState = null;
+	var clearPageHistory = null;
 	(function(){
 		var list = $("#content-item-list");
 		var previousList = new Array();
@@ -1804,18 +1815,50 @@ $(document).ready(function() {
 		var previousButton = $("#content-item-list-view .previous"); 
 		var nextButton = $("#content-item-list-view .next")
 		
+		clearPageHistory = function(){
+			previousList = new Array();
+			previousButton.makeHidden();
+			nextButton.makeHidden();
+		};
+
 		refreshButtonState = function(){
-			if(previousList.length == 0 ){
-				previousButton.removeClass("featured");
-			}else{
-				previousButton.addClass("featured");
+			previousButton.makeVisible(previousList.length > 0);
+			var itemData = list.selectablelist("lastItemData");
+			var marker = null;
+
+			if(itemData != null){
+				marker = itemData.contentId;
+			}
+			
+			//if there are no items in the current view
+			if(marker == null){
+				//get previous page marker
+				if(previousList.length > 0){
+					marker = previousList[previousList.length-1];
+				}
 			}
 
-			if(list.selectablelist("length") == 0){
-				nextButton.removeClass("featured");
-			}else{
-				nextButton.addClass("featured");
-			}
+			var prefix = getFilterText();
+			
+			dc.store.GetSpace(
+				getCurrentProviderStoreId(),
+				getCurrentSpaceId(), 
+				{	
+					begin: function(){
+						nextButton.makeHidden();
+					},
+					success: function(space){
+						nextButton.makeVisible(space.contents.length > 0);
+						showContentItemListStatus();
+					}, 
+					failure:function(info){
+						alert("next page failed: " + info);
+						showContentItemListStatus();
+
+					},
+				},
+				{prefix: prefix, marker: marker}						
+			);
 		};
 		
 		previousButton.click(function(){
@@ -1834,29 +1877,44 @@ $(document).ready(function() {
 							//pop the first one off the end- it's the current page
 							previousList.pop();
 							loadContentItems(space.contents,true);
-							refreshButtonState();
 						});
 			}
 		});
 		
 		nextButton.click(function(){
 			var that = this;
-			var marker = list.selectablelist("lastItemData").contentId;
+			var itemData =  list.selectablelist("lastItemData");
+			var marker = null;
+			if(itemData != null){
+				marker = itemData.contentId;
+			}
+			
 			if(marker != null){
-				//get the second to last marker (marks the previous page)
+				reloadContents(
+					getCurrentSpaceId(), 
+					marker,
+					function(space){
+						previousList.push(marker);
+						loadContentItems(space.contents,true);	
+					}
+				);
+			}else{
+				//it means that there weren't any items in the list
+				//in this case grap the previous marker if there was one.
+				if(previousList.length > 0){
+					//get the last marker (marks the previous page)
+					marker = previousList[previousList.length-1];
+				}				
+
 				reloadContents(
 					getCurrentSpaceId(), 
 					marker,
 					function(space){
 						loadContentItems(space.contents,true);	
-						previousList.push(marker);
-						refreshButtonState();
-					});
+					}
+				);
 			}
 		});
-		
-
-		
 	})();
 
 	var loadContentItems = function(contentItems, fadeIn){

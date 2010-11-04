@@ -221,6 +221,15 @@ h3 { font-size:1em; }
 	width:130px;	
 }
 
+.item-scroll-action:hover {
+	color:#EEE;
+	font-weight:bold;	
+}
+
+.item-scroll-action{
+	text-decoration: none;	
+}
+
 .ui-layout-pane	
 { 
 	color:#fff;

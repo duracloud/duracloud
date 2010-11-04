@@ -18,12 +18,12 @@ $(document).ready(function(){
 		////////////////////////////////////////////////////////////////////
 		//jquery extensions
 		///////////////////////////////////////////////////////////////////
-		$.fn.makeVisible = function() {
-			return $(this).css("visibility", "visible");
+		$.fn.makeVisible = function(isvisible) {
+			return $(this).css("visibility", (isvisible == undefined || isvisible) ? "visible":"hidden");
 		};
 		
 		$.fn.makeHidden = function() {
-			return $(this).css("visibility", "hidden");
+			return $(this).makeVisible(false);
 		};
 		
 		$.fn.nearestOfClass = function(className){
@@ -45,9 +45,9 @@ $(document).ready(function(){
 		$.fn.scrollTo = function(element){
 			var top = $(element).position().top;
 			this.animate({scrollTop: top});
-
 		};
-		
+
+
 		////////////////////////////
 		//this method loads the children of the new contents
 		//into the target after emptying the contents

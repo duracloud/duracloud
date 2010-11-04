@@ -81,10 +81,10 @@
 						<input id="content-item-filter" class="dc-item-list-filter" value="filter" 	type="text" />
 					</span> 
 					<input id="check-all-content-items" class="dc-check-all" type="checkbox" /> 
-					<button class="previous">&lt; Previous</button>
-					<button class="next">Next &gt;</button>
+					<a href="javascript:void(0)" class="previous item-scroll-action" style="visibility:hidden">&lt; prev</a>
+					<a href="javascript:void(0)" class="next item-scroll-action" style="visibility:hidden" >next &gt;</a>
 					
-					<span id="content-item-list-status" class="dc-status" style="display: none"></span>
+					<span id="content-item-list-status" class="dc-status" ></span>
 					</div>
 				</div>
 
