@@ -8,9 +8,6 @@
 package org.duracloud.sync.endpoint;
 
 import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.MimetypeUtil;
 import org.duracloud.error.ContentStoreException;
@@ -44,26 +41,11 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private boolean syncDeletes;
     private MimetypeUtil mimeUtil;
 
-    public DuraStoreSyncEndpoint(String host,
-                                 int port,
-                                 String context,
-                                 String username,
-                                 String password,
+    public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String spaceId,
                                  boolean syncDeletes) {
-        ContentStoreManager storeManager =
-            new ContentStoreManagerImpl(host, String.valueOf(port), context);
-        storeManager.login(new Credential(username, password));
-
-        try {
-            contentStore = storeManager.getPrimaryContentStore();
-        } catch(ContentStoreException e) {
-            throw new RuntimeException("Could not create connection to " +
-                "DuraStore due to " + e.getMessage(), e);
-        }
-
-        mimeUtil = new MimetypeUtil();
-
+        this.mimeUtil = new MimetypeUtil();
+        this.contentStore = contentStore;
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
         ensureSpaceExists();

@@ -24,12 +24,7 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
     @Test
     public void testChunkSyncDeletesOn() throws Exception {
         DuraStoreChunkSyncEndpoint endpoint =
-            new DuraStoreChunkSyncEndpoint(SyncIntegrationTestBase.host,
-                                           Integer.parseInt(
-                                               SyncIntegrationTestBase.port),
-                                           SyncIntegrationTestBase.context,
-                                           SyncIntegrationTestBase.getRootCredential().getUsername(),
-                                           SyncIntegrationTestBase.getRootCredential().getPassword(),
+            new DuraStoreChunkSyncEndpoint(getContentStore(),
                                            SyncIntegrationTestBase.spaceId,
                                            true,
                                            maxFileSize);
@@ -53,15 +48,11 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
     @Test
     public void testChunkSyncDeletesOff() throws Exception {
         DuraStoreChunkSyncEndpoint endpoint =
-            new DuraStoreChunkSyncEndpoint(SyncIntegrationTestBase.host,
-                                           Integer.parseInt(
-                                               SyncIntegrationTestBase.port),
-                                           SyncIntegrationTestBase.context,
-                                           SyncIntegrationTestBase.getRootCredential().getUsername(),
-                                           SyncIntegrationTestBase.getRootCredential().getPassword(),
+            new DuraStoreChunkSyncEndpoint(getContentStore(),
                                            SyncIntegrationTestBase.spaceId,
                                            false,
                                            maxFileSize);
         testSyncNoDeletes(endpoint);
     }
+
 }

@@ -19,21 +19,13 @@ public class TestDuraStoreSyncEndpoint extends DuraStoreSyncTestBase {
     @Test
     public void testDuraStoreSyncEndpoint() throws Exception {
         DuraStoreSyncEndpoint endpoint =
-            new DuraStoreSyncEndpoint(SyncIntegrationTestBase.host,
-                                      Integer.parseInt(SyncIntegrationTestBase.port),
-                                      SyncIntegrationTestBase.context,
-                                      SyncIntegrationTestBase.getRootCredential().getUsername(),
-                                      SyncIntegrationTestBase.getRootCredential().getPassword(),
+            new DuraStoreSyncEndpoint(getContentStore(),
                                       SyncIntegrationTestBase.spaceId,
                                       true);
         testSync(endpoint);
 
         endpoint =
-            new DuraStoreSyncEndpoint(SyncIntegrationTestBase.host,
-                                      Integer.parseInt(SyncIntegrationTestBase.port),
-                                      SyncIntegrationTestBase.context,
-                                      SyncIntegrationTestBase.getRootCredential().getUsername(),
-                                      SyncIntegrationTestBase.getRootCredential().getPassword(),
+            new DuraStoreSyncEndpoint(getContentStore(),
                                       SyncIntegrationTestBase.spaceId,
                                       false);
         testSyncNoDeletes(endpoint);

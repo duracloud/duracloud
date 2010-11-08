@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
@@ -62,11 +63,12 @@ public class SyncToolConfigParserTest {
 
         // Remove optional params
         argsMap.remove("-f");
-        argsMap.remove("-p");
+        argsMap.remove("-r");
+        argsMap.remove("-i");
         argsMap.remove("-t");
         argsMap.remove("-m");
+        argsMap.remove("-d");
         argsMap.remove("-x");
-        argsMap.remove("-e");
 
         // Process configs, make sure optional params are set to defaults
         syncConfig =
@@ -74,6 +76,7 @@ public class SyncToolConfigParserTest {
         assertEquals(SyncToolConfigParser.DEFAULT_POLL_FREQUENCY,
                      syncConfig.getPollFrequency());
         assertEquals(SyncToolConfigParser.DEFAULT_PORT, syncConfig.getPort());
+        assertNull(syncConfig.getStoreId());
         assertEquals(SyncToolConfigParser.DEFAULT_NUM_THREADS,
                      syncConfig.getNumThreads());
         assertEquals(SyncToolConfigParser.DEFAULT_MAX_FILE_SIZE *
@@ -93,7 +96,7 @@ public class SyncToolConfigParserTest {
         String failMsg = "Frequency arg should require a numerical value";
         addArgFailTest(argsMap, "-f", "nonNum", failMsg);
         failMsg = "Port arg should require a numerical value";
-        addArgFailTest(argsMap, "-p", "nonNum", failMsg);
+        addArgFailTest(argsMap, "-r", "nonNum", failMsg);
         failMsg = "Threads arg should require a numerical value";
         addArgFailTest(argsMap, "-t", "nonNum", failMsg);
         failMsg = "Max file size arg should require a numerical value";
@@ -105,36 +108,38 @@ public class SyncToolConfigParserTest {
 
     private HashMap<String, String> getArgsMap() {
         HashMap<String, String> argsMap = new HashMap<String, String>();
-        argsMap.put("-b", tempDir.getAbsolutePath());
+        argsMap.put("-w", tempDir.getAbsolutePath());
         argsMap.put("-f", "1000");
         argsMap.put("-h", "localhost");
-        argsMap.put("-p", "8088");
-        argsMap.put("-d", tempDir.getAbsolutePath());
+        argsMap.put("-r", "8088");
+        argsMap.put("-i", "0");
+        argsMap.put("-c", tempDir.getAbsolutePath());
         argsMap.put("-t", "5");
         argsMap.put("-u", "user");
-        argsMap.put("-w", "pass");
+        argsMap.put("-p", "pass");
         argsMap.put("-s", "mySpace");
         argsMap.put("-m", "2");
+        argsMap.put("-d", "");
         argsMap.put("-x", "");
-        argsMap.put("-e", "");
         return argsMap;
     }
 
     private void checkStandardOptions(HashMap<String, String> argsMap,
                                       SyncToolConfig syncConfig) {
-        assertEquals(argsMap.get("-b"),
-                     syncConfig.getBackupDir().getAbsolutePath());
+        assertEquals(argsMap.get("-w"),
+                     syncConfig.getWorkDir().getAbsolutePath());
         assertEquals(argsMap.get("-f"),
                      String.valueOf(syncConfig.getPollFrequency()));
         assertEquals(argsMap.get("-h"), syncConfig.getHost());
-        assertEquals(argsMap.get("-p"),
+        assertEquals(argsMap.get("-r"),
                      String.valueOf(syncConfig.getPort()));
-        assertEquals(argsMap.get("-d"),
-                     syncConfig.getSyncDirs().get(0).getAbsolutePath());
+        assertEquals(argsMap.get("-i"), syncConfig.getStoreId());
+        assertEquals(argsMap.get("-c"),
+                     syncConfig.getContentDirs().get(0).getAbsolutePath());
         assertEquals(argsMap.get("-t"),
                      String.valueOf(syncConfig.getNumThreads()));
         assertEquals(argsMap.get("-u"), syncConfig.getUsername());
-        assertEquals(argsMap.get("-w"), syncConfig.getPassword());
+        assertEquals(argsMap.get("-p"), syncConfig.getPassword());
         assertEquals(argsMap.get("-s"), syncConfig.getSpaceId());
         assertEquals(argsMap.get("-m"),
                      String.valueOf(syncConfig.getMaxFileSize() /
@@ -250,12 +255,12 @@ public class SyncToolConfigParserTest {
         SyncToolConfig syncConfig =
             syncConfigParser.processStandardOptions(args);
         // Create config backup file
-        syncConfigParser.backupConfig(syncConfig.getBackupDir(), args);
+        syncConfigParser.backupConfig(syncConfig.getWorkDir(), args);
         File backupFile = getBackupFile();
 
-        // Create arg map including only -c option, pointing to config file
+        // Create arg map including only -g option, pointing to config file
         argsMap = new HashMap<String, String>();
-        argsMap.put("-c", backupFile.getAbsolutePath());
+        argsMap.put("-g", backupFile.getAbsolutePath());
 
         // Process using config file
         syncConfigParser = new SyncToolConfigParser();

@@ -67,7 +67,7 @@ public class SyncToolConfigParser {
        cmdOptions.addOption(hostOption);
 
        Option portOption =
-           new Option("p", "port", true,
+           new Option("r", "port", true,
                       "the port of the DuraCloud DuraStore application " +
                       "(optional, default value is " + DEFAULT_PORT + ")");
        portOption.setRequired(false);
@@ -80,10 +80,16 @@ public class SyncToolConfigParser {
        cmdOptions.addOption(usernameOption);
 
        Option passwordOption =
-           new Option("w", "password", true,
+           new Option("p", "password", true,
                       "the password necessary to perform writes to DuraStore");
        passwordOption.setRequired(true);
        cmdOptions.addOption(passwordOption);
+
+        Option storeIdOption =
+            new Option("i", "store-id", true,
+                       "the Store ID for the DuraCloud storage provider");
+        storeIdOption.setRequired(false);
+        cmdOptions.addOption(storeIdOption);        
 
        Option spaceId =
            new Option("s", "space", true,
@@ -92,19 +98,19 @@ public class SyncToolConfigParser {
        spaceId.setRequired(true);
        cmdOptions.addOption(spaceId);
 
-       Option backupDirOption =
-           new Option("b", "backup-dir", true,
+       Option workDirOption =
+           new Option("w", "work-dir", true,
                       "the state of the sync tool is persisted to " +
                       "this directory");
-       backupDirOption.setRequired(true);
-       cmdOptions.addOption(backupDirOption);
+       workDirOption.setRequired(true);
+       cmdOptions.addOption(workDirOption);
 
-       Option syncDirs =
-           new Option("d", "sync-dirs", true,
+       Option contentDirs =
+           new Option("c", "content-dir", true,
                       "the directory paths to monitor and sync with DuraCloud");
-       syncDirs.setRequired(true);
-       syncDirs.setArgs(Option.UNLIMITED_VALUES);
-       cmdOptions.addOption(syncDirs);
+       contentDirs.setRequired(true);
+       contentDirs.setArgs(Option.UNLIMITED_VALUES);
+       cmdOptions.addOption(contentDirs);
 
        Option pollFrequency =
            new Option("f", "poll-frequency", true,
@@ -132,7 +138,7 @@ public class SyncToolConfigParser {
         cmdOptions.addOption(maxFileSize);
 
        Option syncDeletes =
-           new Option("x", "sync-deletes", false,
+           new Option("d", "sync-deletes", false,
                       "indicates that deletes performed on files within the " +
                       "sync directories should also be performed on those " +
                       "files in DuraCloud; if this option is not included " +
@@ -141,9 +147,9 @@ public class SyncToolConfigParser {
         cmdOptions.addOption(syncDeletes);
 
        Option exitOnCompletion =
-           new Option("e", "exit-on-completion", false,
+           new Option("x", "exit-on-completion", false,
                       "indicates that the sync tool should exit once it has " +
-                      "completed a scan of the backup directories and synced " +
+                      "completed a scan of the content directories and synced " +
                       "all files; if this option is included, the sync tool " +
                       "will not continue to monitor the sync dirs " +
                       "(optional, not set by default)");
@@ -154,10 +160,10 @@ public class SyncToolConfigParser {
        configFileOptions = new Options();
 
        Option configFileOption =
-           new Option("c", "config-file", true,
+           new Option("g", "config-file", true,
                       "read configuration from this file (a file containing " +
                       "the most recently used configuration can be found in " +
-                      "the backup-dir, named " + BACKUP_FILE_NAME + ")");
+                      "the work-dir, named " + BACKUP_FILE_NAME + ")");
        configFileOption.setRequired(true);
        configFileOptions.addOption(configFileOption);
     }
@@ -187,7 +193,7 @@ public class SyncToolConfigParser {
             CommandLineParser parser = new PosixParser();
             CommandLine cmd = parser.parse(configFileOptions, args);
 
-            String configFilePath = cmd.getOptionValue("c");
+            String configFilePath = cmd.getOptionValue("g");
             File configFile = new File(configFilePath);
             if(!configFile.exists()) {
                 throw new ParseException("No configuration file exists at " +
@@ -205,7 +211,7 @@ public class SyncToolConfigParser {
     private SyncToolConfig processAndBackup(String[] args)
         throws ParseException {
         SyncToolConfig config = processStandardOptions(args);
-        backupConfig(config.getBackupDir(), args);
+        backupConfig(config.getWorkDir(), args);
         return config;
     }
 
@@ -218,38 +224,47 @@ public class SyncToolConfigParser {
         config.setContext(context);
         config.setHost(cmd.getOptionValue("h"));
         config.setUsername(cmd.getOptionValue("u"));
-        config.setPassword(cmd.getOptionValue("w"));
+        config.setPassword(cmd.getOptionValue("p"));
         config.setSpaceId(cmd.getOptionValue("s"));
 
-        if(cmd.hasOption("p")) {
+        if(cmd.hasOption("i")) {
+            config.setStoreId(cmd.getOptionValue("i"));
+        }
+
+        if(cmd.hasOption("r")) {
             try {
-                config.setPort(Integer.valueOf(cmd.getOptionValue("p")));
+                config.setPort(Integer.valueOf(cmd.getOptionValue("r")));
             } catch(NumberFormatException e) {
-                throw new ParseException("The value for port (-p) must be " +
+                throw new ParseException("The value for port (-r) must be " +
                                          "a number.");
             }
         } else {
             config.setPort(DEFAULT_PORT);
         }
 
-        File backupDir = new File(cmd.getOptionValue("b"));
-        if(!backupDir.exists() || !backupDir.isDirectory()) {
-            throw new ParseException("Backup Dir paramter must provide " +
-                                     "the full path to a directory.");
-        }
-        config.setBackupDir(backupDir);
-
-        String[] syncDirPaths = cmd.getOptionValues("d");
-        List<File> syncDirs = new ArrayList<File>();
-        for(String path : syncDirPaths) {
-            File syncDir = new File(path);
-            if(!syncDir.exists() || !syncDir.isDirectory()) {
-                throw new ParseException("Each sync dir value must provide " +
-                                         "the full path to a directory.");
+        File workDir = new File(cmd.getOptionValue("w"));
+        if(workDir.exists()) {
+            if(!workDir.isDirectory()) {
+                throw new ParseException("Work Dir paramter must provide " +
+                                         "the path to a directory.");
             }
-            syncDirs.add(syncDir);
+        } else {
+            workDir.mkdirs();
         }
-        config.setSyncDirs(syncDirs);
+        workDir.setWritable(true);
+        config.setWorkDir(workDir);
+
+        String[] contentDirPaths = cmd.getOptionValues("c");
+        List<File> contentDirs = new ArrayList<File>();
+        for(String path : contentDirPaths) {
+            File contentDir = new File(path);
+            if(!contentDir.exists() || !contentDir.isDirectory()) {
+                throw new ParseException("Each content dir value must provide " +
+                                         "the path to a directory.");
+            }
+            contentDirs.add(contentDir);
+        }
+        config.setContentDirs(contentDirs);
 
         if(cmd.hasOption("f")) {
             try {
@@ -290,13 +305,13 @@ public class SyncToolConfigParser {
             config.setMaxFileSize(DEFAULT_MAX_FILE_SIZE * GIGABYTE);
         }
 
-        if(cmd.hasOption("x")) {
+        if(cmd.hasOption("d")) {
             config.setSyncDeletes(true);
         } else {
             config.setSyncDeletes(false);
         }
 
-        if(cmd.hasOption("e")) {
+        if(cmd.hasOption("x")) {
             config.setExitOnCompletion(true);
         } else {
             config.setExitOnCompletion(false);

@@ -7,10 +7,10 @@
  */
 package org.duracloud.sync.endpoint;
 
-import static junit.framework.Assert.assertEquals;
-
+import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.SyncIntegrationTestBase;
+import org.duracloud.sync.util.StoreClientUtil;
 import org.junit.After;
 import org.junit.Assert;
 
@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author: Bill Branan
@@ -125,6 +127,21 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
         }
         return metadata;
     }
+
+    protected ContentStore getContentStore() throws Exception {
+        StoreClientUtil storeUtil = new StoreClientUtil();
+        return storeUtil.createContentStore(SyncIntegrationTestBase.host,
+                                            Integer.parseInt(
+                                                SyncIntegrationTestBase.port),
+                                            SyncIntegrationTestBase.context,
+                                            SyncIntegrationTestBase.
+                                                getRootCredential().
+                                                getUsername(),
+                                            SyncIntegrationTestBase.
+                                                getRootCredential().
+                                                getPassword(),
+                                            null);
+    }    
 
     private void sleep(long millis) {
         try {

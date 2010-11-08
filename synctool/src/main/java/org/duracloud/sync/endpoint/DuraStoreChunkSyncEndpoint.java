@@ -10,6 +10,7 @@ package org.duracloud.sync.endpoint;
 import org.duracloud.chunk.FileChunker;
 import org.duracloud.chunk.FileChunkerOptions;
 import org.duracloud.chunk.writer.DuracloudContentWriter;
+import org.duracloud.client.ContentStore;
 
 import java.io.File;
 
@@ -22,15 +23,11 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     private long maxFileSize;
     private FileChunker chunker;
 
-    public DuraStoreChunkSyncEndpoint(String host,
-                                      int port,
-                                      String context,
-                                      String username,
-                                      String password,
+    public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
                                       String spaceId,
                                       boolean syncDeletes,
                                       long maxFileSize) {
-        super(host, port, context, username, password, spaceId, syncDeletes);
+        super(contentStore, spaceId, syncDeletes);
 
         if(maxFileSize % 1024 != 0) {
             throw new RuntimeException("Max file size must be a " +

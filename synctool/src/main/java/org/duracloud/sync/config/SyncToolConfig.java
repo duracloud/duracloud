@@ -24,9 +24,10 @@ public class SyncToolConfig implements Serializable {
     private String context;
     private String username;
     private String password;
+    private String storeId;
     private String spaceId;
-    private File backupDir;
-    private List<File> syncDirs;
+    private File workDir;
+    private List<File> contentDirs;
     private long pollFrequency;
     private int numThreads;
     private long maxFileSize;
@@ -40,8 +41,8 @@ public class SyncToolConfig implements Serializable {
         config.append(" Sync Tool Configuration");
         config.append("\n--------------------------------------\n");
 
-        config.append("Sync Directories:\n");
-        for(File dir : getSyncDirs()) {
+        config.append("Content Directories:\n");
+        for(File dir : getContentDirs()) {
             config.append("  ").append(dir.getAbsolutePath()).append("\n");
         }
 
@@ -51,10 +52,16 @@ public class SyncToolConfig implements Serializable {
         config.append(getPort()).append("\n");
         config.append("DuraStore Username: ");
         config.append(getUsername()).append("\n");
+
+        if(getStoreId() != null) {
+            config.append("DuraCloud Store ID: ");
+            config.append(getStoreId()).append("\n");
+        }
+
         config.append("DuraCloud Space ID: ");
         config.append(getSpaceId()).append("\n");
-        config.append("SyncTool Backup Directory: ");
-        config.append(getBackupDir()).append("\n");
+        config.append("SyncTool Work Directory: ");
+        config.append(getWorkDir()).append("\n");
         config.append("SyncTool Poll Frequency: ");
         config.append(getPollFrequency());
         config.append("\n");
@@ -111,6 +118,14 @@ public class SyncToolConfig implements Serializable {
         this.password = password;
     }
 
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+
     public String getSpaceId() {
         return spaceId;
     }
@@ -119,20 +134,20 @@ public class SyncToolConfig implements Serializable {
         this.spaceId = spaceId;
     }
 
-    public File getBackupDir() {
-        return backupDir;
+    public File getWorkDir() {
+        return workDir;
     }
 
-    public void setBackupDir(File backupDir) {
-        this.backupDir = backupDir;
+    public void setWorkDir(File workDir) {
+        this.workDir = workDir;
     }
 
-    public List<File> getSyncDirs() {
-        return syncDirs;
+    public List<File> getContentDirs() {
+        return contentDirs;
     }
 
-    public void setSyncDirs(List<File> syncDirs) {
-        this.syncDirs = syncDirs;
+    public void setContentDirs(List<File> contentDirs) {
+        this.contentDirs = contentDirs;
     }
 
     public long getPollFrequency() {

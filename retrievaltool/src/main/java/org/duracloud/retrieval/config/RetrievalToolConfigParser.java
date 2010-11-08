@@ -206,7 +206,7 @@ public class RetrievalToolConfigParser {
         File workDir = new File(cmd.getOptionValue("w"));
         if(workDir.exists()) {
             if(!workDir.isDirectory()) {
-                throw new ParseException("Wirk Dir paramter must provide " +
+                throw new ParseException("Work Dir paramter must provide " +
                                          "the path to a directory.");
             }
         } else {

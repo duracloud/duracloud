@@ -7,6 +7,7 @@
  */
 package org.duracloud.sync;
 
+import org.duracloud.client.ContentStore;
 import org.duracloud.sync.backup.SyncBackupManager;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.config.SyncToolConfigParser;
@@ -17,6 +18,7 @@ import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
 import org.duracloud.sync.util.LogUtil;
+import org.duracloud.sync.util.StoreClientUtil;
 import org.duracloud.sync.walker.DeleteChecker;
 import org.duracloud.sync.walker.DirWalker;
 import org.duracloud.sync.walker.RestartDirWalker;
@@ -41,7 +43,7 @@ import java.io.InputStreamReader;
  * directories and make updates as needed.
  *
  * If the Sync Tool is turned off or exits for some reason, and is started again
- * pointing to the same backup directory it will load its previous state and
+ * pointing to the same work directory it will load its previous state and
  * look through the local file system for files which have changed since it
  * performed its last backup, which it will then sync with DuraCloud.
  *
@@ -73,10 +75,10 @@ public class SyncTool {
     private boolean restartPossible() {
         SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
         SyncToolConfig prevConfig =
-            syncConfigParser.retrievePrevConfig(syncConfig.getBackupDir());
+            syncConfigParser.retrievePrevConfig(syncConfig.getWorkDir());
 
         if(prevConfig != null) {
-            return syncConfig.getSyncDirs().equals(prevConfig.getSyncDirs());
+            return syncConfig.getContentDirs().equals(prevConfig.getContentDirs());
         } else {
             return false;
         }
@@ -84,20 +86,25 @@ public class SyncTool {
 
     private void setupLogging(){
         logUtil = new LogUtil();
-        logUtil.setupLogger(syncConfig.getBackupDir());
+        logUtil.setupLogger(syncConfig.getWorkDir());
     }
 
     private void startSyncManager() {
+        StoreClientUtil clientUtil = new StoreClientUtil();
+        ContentStore contentStore =
+            clientUtil.createContentStore(syncConfig.getHost(),
+                                          syncConfig.getPort(),
+                                          syncConfig.getContext(),
+                                          syncConfig.getUsername(),
+                                          syncConfig.getPassword(),
+                                          syncConfig.getStoreId());
+
         syncEndpoint = 
-            new DuraStoreChunkSyncEndpoint(syncConfig.getHost(),
-                                           syncConfig.getPort(),
-                                           syncConfig.getContext(),
-                                           syncConfig.getUsername(),
-                                           syncConfig.getPassword(),
+            new DuraStoreChunkSyncEndpoint(contentStore,
                                            syncConfig.getSpaceId(),
                                            syncConfig.syncDeletes(),
                                            syncConfig.getMaxFileSize());
-        syncManager = new SyncManager(syncConfig.getSyncDirs(),
+        syncManager = new SyncManager(syncConfig.getContentDirs(),
                                       syncEndpoint,
                                       syncConfig.getNumThreads(),
                                       syncConfig.getPollFrequency());
@@ -106,7 +113,7 @@ public class SyncTool {
 
     private long startSyncBackupManager(boolean restart) {
         syncBackupManager =
-            new SyncBackupManager(syncConfig.getBackupDir(),
+            new SyncBackupManager(syncConfig.getWorkDir(),
                                   syncConfig.getPollFrequency());
         long lastBackup = 0;
         if(restart) {
@@ -117,20 +124,20 @@ public class SyncTool {
     }
 
     private void startDirWalker() {
-        dirWalker = DirWalker.start(syncConfig.getSyncDirs());
+        dirWalker = DirWalker.start(syncConfig.getContentDirs());
     }
 
     private void startRestartDirWalker(long lastBackup) {
-        dirWalker = RestartDirWalker.start(syncConfig.getSyncDirs(), lastBackup);
+        dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(), lastBackup);
     }
 
     private void startDeleteChecker() {
         DeleteChecker.start(syncEndpoint.getFilesList(),
-                            syncConfig.getSyncDirs());
+                            syncConfig.getContentDirs());
     }
 
     private void startDirMonitor() {
-        dirMonitor = new DirectoryUpdateMonitor(syncConfig.getSyncDirs(),
+        dirMonitor = new DirectoryUpdateMonitor(syncConfig.getContentDirs(),
                                                 syncConfig.getPollFrequency(),
                                                 syncConfig.syncDeletes());
         dirMonitor.startMonitor();
