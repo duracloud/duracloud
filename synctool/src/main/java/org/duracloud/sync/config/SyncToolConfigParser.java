@@ -92,7 +92,7 @@ public class SyncToolConfigParser {
         cmdOptions.addOption(storeIdOption);        
 
        Option spaceId =
-           new Option("s", "space", true,
+           new Option("s", "space-id", true,
                       "the ID of the DuraCloud space where content " +
                       "will be stored");
        spaceId.setRequired(true);
@@ -106,7 +106,7 @@ public class SyncToolConfigParser {
        cmdOptions.addOption(workDirOption);
 
        Option contentDirs =
-           new Option("c", "content-dir", true,
+           new Option("c", "content-dirs", true,
                       "the directory paths to monitor and sync with DuraCloud");
        contentDirs.setRequired(true);
        contentDirs.setArgs(Option.UNLIMITED_VALUES);
