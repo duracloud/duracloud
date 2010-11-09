@@ -8,12 +8,26 @@
 package org.duracloud.duraservice.mgmt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
+import org.duracloud.duraservice.domain.ServiceComputeInstance;
 import org.duracloud.duraservice.domain.UserStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.serviceconfig.DeploymentOption;
+import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
+import org.duracloud.serviceconfig.user.Option;
+import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
+import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.duracloud.serviceconfig.xml.ServiceDocumentBinding;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -28,9 +42,26 @@ public class ServiceConfigUtilTest {
 
     private ServiceConfigUtil util;
     private ContentStoreManagerUtil contentStoreManagerUtil;
+    private List<ServiceComputeInstance> serviceComputeInstances;
+
+    private Map<String, ContentStore> contentStores;
+    private final int NUM_CONTENT_STORES = 2;
+
+    private List<String> spaces;
+    private final String space0 = "space0";
+    private final String space1 = "space1";
+    private final String space2 = "space2";
+
+    private ServiceInfo service;
+    private List<UserConfigModeSet> modeSets;
+    private final String modeSetNameIn = "mode.name.in";
+    private final String modeSetNameOut = "mode.name.out";
 
     private UserStore userStore;
     private List<SystemConfig> systemConfig;
+
+    private final String computeHostName = "compute.host.name";
+    private final String computeDisplayName = "compute.display.name";
 
     private final String hostName = "test.host.name";
     private final String portName = "test.port.name";
@@ -63,7 +94,18 @@ public class ServiceConfigUtilTest {
 
     @Before
     public void setUp() throws Exception {
+        contentStores = createContentStores();
         contentStoreManagerUtil = createMockContentStoreManagerUtil();
+        util = new ServiceConfigUtil(contentStoreManagerUtil);
+
+        serviceComputeInstances = new ArrayList<ServiceComputeInstance>();
+        serviceComputeInstances.add(new ServiceComputeInstance(computeHostName,
+                                                               computeDisplayName,
+                                                               null));
+
+        service = new ServiceInfo();
+        service.setDeploymentOptions(new ArrayList<DeploymentOption>());
+        service.setModeSets(createModeSets());
 
         userStore = new UserStore();
         userStore.setHost(host);
@@ -94,6 +136,55 @@ public class ServiceConfigUtilTest {
         systemConfig.add(config5);
     }
 
+    private Map<String, ContentStore> createContentStores()
+        throws ContentStoreException {
+        spaces = new ArrayList<String>();
+        spaces.add(space0);
+        spaces.add(space1);
+        spaces.add(space2);
+
+        contentStores = new HashMap<String, ContentStore>();
+        for (int i = 0; i < NUM_CONTENT_STORES; ++i) {
+            contentStores.put("id_" + i, createMockContentStore(i));
+        }
+
+        return contentStores;
+    }
+
+    private ContentStore createMockContentStore(int i)
+        throws ContentStoreException {
+        ContentStore contentStore = EasyMock.createMock("ContentStore",
+                                                        ContentStore.class);
+        EasyMock.expect(contentStore.getStorageProviderType()).andReturn(
+            StorageProviderType.AMAZON_S3.name()).anyTimes();
+        EasyMock.expect(contentStore.getSpaces()).andReturn(spaces).anyTimes();
+
+        EasyMock.replay(contentStore);
+        return contentStore;
+    }
+
+    private List<UserConfigModeSet> createModeSets() {
+        UserConfigMode mode = new UserConfigMode();
+        mode.setDisplayName(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
+
+        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+        modes.add(mode);
+
+        UserConfigModeSet modeSetIn = new UserConfigModeSet();
+        modeSetIn.setName(modeSetNameIn);
+        modeSetIn.setModes(modes);
+
+        UserConfigModeSet modeSetOut = new UserConfigModeSet();
+        modeSetOut.setName(modeSetNameOut);
+        modeSetOut.setModes(modes);
+
+        modeSets = new ArrayList<UserConfigModeSet>();
+        modeSets.add(modeSetIn);
+        modeSets.add(modeSetOut);
+
+        return modeSets;
+    }
+
     @After
     public void tearDown() {
         contentStoreManagerUtil = null;
@@ -102,13 +193,87 @@ public class ServiceConfigUtilTest {
     }
 
     @Test
-    public void testPopulateService() {
-        Assert.assertTrue("Implementation needed", true);
+    public void testPopulateService() throws ContentStoreException {
+        ServiceInfo serviceInfo = util.populateService(service,
+                                                       serviceComputeInstances,
+                                                       userStore,
+                                                       computeHostName);
+
+        List<UserConfigModeSet> testModeSets = serviceInfo.getModeSets();
+        Assert.assertNotNull("modeSets is null", testModeSets);
+
+        Assert.assertEquals(2, testModeSets.size());
+        boolean foundIn = false;
+        boolean foundOut = false;
+        for (UserConfigModeSet testModeSet : testModeSets) {
+            String name = testModeSet.getName();
+            Assert.assertNotNull("mode set name is null", name);
+
+            if (modeSetNameIn.equals(name)) {
+                foundIn = true;
+            } else if (modeSetNameOut.equals(name)) {
+                foundOut = true;
+            }
+
+            List<UserConfigMode> testModes = testModeSet.getModes();
+            Assert.assertNotNull("mode list is null", testModes);
+
+            Assert.assertEquals(NUM_CONTENT_STORES, testModes.size());
+            for (UserConfigMode testMode : testModes) {
+                String modeName = testMode.getDisplayName();
+                Assert.assertNotNull("mode name is null", modeName);
+                Assert.assertEquals(StorageProviderType.AMAZON_S3.name(),
+                                    modeName);
+
+                List<UserConfig> userConfigs = testMode.getUserConfigs();
+                Assert.assertNotNull(userConfigs);
+
+                Assert.assertEquals(1, userConfigs.size());
+                for (UserConfig userConfig : userConfigs) {
+                    String configName = userConfig.getName();
+                    String configDisplayName = userConfig.getDisplayName();
+                    Assert.assertNotNull(configName);
+                    Assert.assertNotNull(configDisplayName);
+
+                    Assert.assertEquals(configName, configDisplayName);
+                    Assert.assertTrue(configName,
+                                      configName.startsWith(modeName));
+
+                    Assert.assertTrue(userConfig instanceof SingleSelectUserConfig);
+                    SingleSelectUserConfig singleSelectUserConfig = (SingleSelectUserConfig) userConfig;
+                    List<Option> options = singleSelectUserConfig.getOptions();
+                    Assert.assertNotNull(options);
+
+                    Assert.assertEquals(spaces.size(), options.size());
+                    boolean foundSpace0 = false;
+                    boolean foundSpace1 = false;
+                    boolean foundSpace2 = false;
+                    for (Option option : options) {
+                        if (space0.equals(option.getDisplayName())) {
+                            foundSpace0 = true;
+                        } else if (space1.equals(option.getDisplayName())) {
+                            foundSpace1 = true;
+                        } else if (space2.equals(option.getDisplayName())) {
+                            foundSpace2 = true;
+                        }
+                    }
+                    Assert.assertTrue("space 0 not found", foundSpace0);
+                    Assert.assertTrue("space 1 not found", foundSpace1);
+                    Assert.assertTrue("space 2 not found", foundSpace2);
+
+                }
+
+                Assert.assertNull(testMode.getUserConfigModeSets());
+            }
+
+        }
+
+        Assert.assertTrue("mode-in not found", foundIn);
+        Assert.assertTrue("mode-out not found", foundOut);
     }
 
     @Test
     public void testResolveSystemConfigVars() throws ContentStoreException {
-        util = new ServiceConfigUtil(contentStoreManagerUtil);
         List<SystemConfig> newConfig = util.resolveSystemConfigVars(userStore,
                                                                     systemConfig);
         Assert.assertNotNull(newConfig);
@@ -177,7 +342,18 @@ public class ServiceConfigUtilTest {
     private ContentStoreManagerUtil createMockContentStoreManagerUtil()
         throws Exception {
         ContentStoreManagerUtil util = EasyMock.createMock(
+            "ContentStoreManagerUtil",
             ContentStoreManagerUtil.class);
+
+        ContentStoreManager contentStoreManager = EasyMock.createMock(
+            ContentStoreManager.class);
+        EasyMock.expect(contentStoreManager.getContentStores()).andReturn(
+            contentStores).anyTimes();
+        EasyMock.replay(contentStoreManager);
+
+        EasyMock.expect(util.getContentStoreManager(EasyMock.isA(UserStore.class)))
+            .andReturn(contentStoreManager)
+            .anyTimes();
         EasyMock.expect(util.getCurrentUser())
             .andReturn(new Credential(username, password))
             .anyTimes();

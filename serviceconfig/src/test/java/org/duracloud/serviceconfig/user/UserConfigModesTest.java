@@ -187,6 +187,7 @@ public class UserConfigModesTest {
 
         UserConfigModeSet modeSet = new UserConfigModeSet();
         modeSet.setId(id);
+        modeSet.setName(buildName(id));
 
         List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
         for (int i = 0; i < count; ++i) {
@@ -224,7 +225,6 @@ public class UserConfigModesTest {
         }
 
         mode.setDisplayName(display + id);
-        mode.setValue(val + id);
         if (isFirstMode(id)) {
             mode.setSelected(true);
         }
@@ -311,6 +311,7 @@ public class UserConfigModesTest {
     private void verifyModeSet(Def d, UserConfigModeSet modeSet) {
         Assert.assertNotNull(modeSet);
         Assert.assertEquals(d.id, modeSet.getId());
+        Assert.assertEquals(d.name, modeSet.getName());
 
         List<UserConfigMode> modes = modeSet.getModes();
         for (int i = 0; i < d.modeCount; ++i) {
@@ -330,8 +331,6 @@ public class UserConfigModesTest {
     private void verifyMode(int modeId, UserConfigMode mode) {
         Assert.assertNotNull(mode);
         Assert.assertEquals(display + modeId, mode.getDisplayName());
-        Assert.assertEquals(val + modeId, mode.getValue());
-
         Assert.assertEquals(isFirstMode(modeId), mode.isSelected());
     }
 
@@ -347,12 +346,14 @@ public class UserConfigModesTest {
 
     private class Def {
         private int id = -1;
+        private String name = "";
         private int configCount = 0;
         private int modeSetCount = 0;
         private int modeCount = 0;
 
         public Def(int id) {
             this.id = id;
+            this.name = buildName(id);
         }
 
         public String toString() {
@@ -367,5 +368,9 @@ public class UserConfigModesTest {
             sb.append("]");
             return sb.toString();
         }
+    }
+
+    private String buildName(int id) {
+        return "name_" + id;
     }
 }

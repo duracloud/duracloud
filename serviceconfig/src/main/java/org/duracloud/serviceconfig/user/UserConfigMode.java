@@ -19,7 +19,6 @@ public class UserConfigMode {
      * These fields describe this config mode.
      */
     private String displayName;
-    private String value;
     private boolean selected;
 
     /**
@@ -34,14 +33,6 @@ public class UserConfigMode {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public boolean isSelected() {

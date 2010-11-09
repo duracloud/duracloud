@@ -23,6 +23,8 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SelectableUserConfig;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,7 @@ public class ServiceConfigUtil {
     // User Config Variables
     public static final String STORES_VAR = "$STORES";
     public static final String SPACES_VAR = "$SPACES";
+    public static final String ALL_STORE_SPACES_VAR = "$ALL_STORE_SPACES";
     public static final String EXCLUSION_DEFINITION = "EXCLUSION_DEFINITION";
 
     // System Config Variables
@@ -80,17 +83,25 @@ public class ServiceConfigUtil {
         ServiceInfo srvClone = service.clone();
 
         // Populate deployment options
-        List<DeploymentOption> populatedDeploymentOptions =
-            populateDeploymentOptions(srvClone.getDeploymentOptions(),
-                                      serviceComputeInstances,
-                                      primaryHostName);
+        List<DeploymentOption> populatedDeploymentOptions = populateDeploymentOptions(
+            srvClone.getDeploymentOptions(),
+            serviceComputeInstances,
+            primaryHostName);
         srvClone.setDeploymentOptions(populatedDeploymentOptions);
 
-        // Populate variables in user config ($STORES and $SPACES)
         ContentStoreManager userStoreManager = getUserStoreManager(userStore);
-        List<UserConfig> populatedUserConfigs =
-            populateVariables(userStoreManager, srvClone.getUserConfigs());
+
+        // Populate variables in user config ($STORES and $SPACES)
+        List<UserConfig> populatedUserConfigs = populateUserConfigVariables(
+            userStoreManager,
+            srvClone.getUserConfigs());
         srvClone.setUserConfigs(populatedUserConfigs);
+
+        // Populate variables in mode sets ($ALL_STORE_SPACES)
+        List<UserConfigModeSet> populatedModeSets = populateModeSetVariables(
+            userStoreManager,
+            srvClone.getModeSets());
+        srvClone.setModeSets(populatedModeSets);
 
         // Remove system configs
         srvClone.setSystemConfigs(null);
@@ -116,8 +127,8 @@ public class ServiceConfigUtil {
      * @param userConfigs user configuration for a service
      * @return the populated user configuration list
      */
-    private List<UserConfig> populateVariables(ContentStoreManager userStoreManager,
-                                               List<UserConfig> userConfigs) {
+    private List<UserConfig> populateUserConfigVariables(ContentStoreManager userStoreManager,
+                                                         List<UserConfig> userConfigs) {
         List<UserConfig> newUserConfigs = new ArrayList<UserConfig>();
         if(userConfigs != null){
             for(UserConfig config : userConfigs) {
@@ -216,6 +227,85 @@ public class ServiceConfigUtil {
             }
         }
         return newOptionsList;
+    }
+
+    private List<UserConfigModeSet> populateModeSetVariables(ContentStoreManager userStoreManager,
+                                                             List<UserConfigModeSet> modeSets) {
+        List<UserConfigModeSet> newModeSets = new ArrayList<UserConfigModeSet>();
+
+        for (UserConfigModeSet modeSet : modeSets) {
+            UserConfigModeSet newModeSet = new UserConfigModeSet();
+            newModeSet.setName(modeSet.getName());
+
+            List<UserConfigMode> newModes = new ArrayList<UserConfigMode>();
+            for (UserConfigMode mode : modeSet.getModes()) {
+
+                // Does the current mode represent all contentStores and their spaces?
+                if (ALL_STORE_SPACES_VAR.equals(mode.getDisplayName())) {
+
+                    // add a new mode for each contentStore
+                    Map<String, ContentStore> contentStores = getContentStores(
+                        userStoreManager);
+                    for (String storeId : contentStores.keySet()) {
+                        ContentStore contentStore = contentStores.get(storeId);
+                        newModes.add(createModeForStore(contentStore));
+                    }
+
+                } else {
+                    newModes.add(mode);
+                }
+            }
+
+            newModeSet.setModes(newModes);
+            newModeSets.add(newModeSet);
+        }
+
+        return newModeSets;
+    }
+
+    private UserConfigMode createModeForStore(ContentStore contentStore) {
+        String storeName = contentStore.getStorageProviderType();
+
+        UserConfigMode newMode = new UserConfigMode();
+        newMode.setDisplayName(storeName);
+
+        // add option for each space of current contentStore
+        List<Option> spaceOptions = new ArrayList<Option>();
+        List<String> spaces = getSpaces(contentStore);
+        for (String space : spaces) {
+            spaceOptions.add(new Option(space, space, false));
+        }
+
+        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
+        String configName = storeName + " space";
+        userConfigs.add(new SingleSelectUserConfig(configName,
+                                                   configName,
+                                                   spaceOptions));
+        newMode.setUserConfigs(userConfigs);
+        return newMode;
+    }
+
+    private Map<String, ContentStore> getContentStores(ContentStoreManager userStoreManager) {
+        try {
+            return userStoreManager.getContentStores();
+
+        } catch (ContentStoreException e) {
+            String msg = "Error retrieving contentStores.";
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    private List<String> getSpaces(ContentStore contentStore) {
+        try {
+            return contentStore.getSpaces();
+
+        } catch (ContentStoreException e) {
+            String msg = "Error retrieving spaces for contentStore: " +
+                contentStore.getStorageProviderType();
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
     }
 
     /*

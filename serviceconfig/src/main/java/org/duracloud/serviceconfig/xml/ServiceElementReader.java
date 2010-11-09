@@ -248,6 +248,7 @@ public class ServiceElementReader {
         UserConfigModeSet modeSet = new UserConfigModeSet();
 
         modeSet.setId(modeSetType.getId());
+        modeSet.setName(modeSetType.getDisplayName());
 
         ModeType[] modeTypes = modeSetType.getModeArray();
         if (null != modeTypes && modeTypes.length > 0) {
@@ -266,7 +267,6 @@ public class ServiceElementReader {
         UserConfigMode mode = new UserConfigMode();
 
         mode.setDisplayName(modeType.getDisplayName());
-        mode.setValue(modeType.getValue());
         mode.setSelected(modeType.getSelected());
 
         UserPropertyType[] userPropertyTypes = modeType.getPropertyArray();
