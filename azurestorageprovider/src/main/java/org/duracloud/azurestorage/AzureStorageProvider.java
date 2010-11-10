@@ -319,7 +319,7 @@ public class AzureStorageProvider extends StorageProviderBase {
             spaceMetadata.put(key, val);
         }
 
-        int count = -1;
+        int count = 0;
         Iterator<IBlobProperties> blobs = blobContainer.listBlobs("", false);
 
         while (blobs != null && blobs.hasNext()) {

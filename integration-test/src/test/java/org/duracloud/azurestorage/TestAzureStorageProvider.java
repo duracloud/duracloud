@@ -87,12 +87,13 @@ public class TestAzureStorageProvider {
 
     @Test
     public void testAzureStorageProvider() throws Exception {
+        int count = 0;
         /* Test Spaces */
 
         // test createSpace()
         log.debug("Test createSpace()");
         azureProvider.createSpace(SPACE_ID);
-        testSpaceMetadata(SPACE_ID, AccessType.CLOSED);
+        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, count);
 
         // test setSpaceMetadata()
         log.debug("Test setSpaceMetadata()");
@@ -103,7 +104,7 @@ public class TestAzureStorageProvider {
         // test getSpaceMetadata()
         log.debug("Test getSpaceMetadata()");
         Map<String, String> sMetadata =
-                testSpaceMetadata(SPACE_ID, AccessType.CLOSED);
+                testSpaceMetadata(SPACE_ID, AccessType.CLOSED, count);
         assertTrue(sMetadata.containsKey(SPACE_META_NAME));
         assertEquals(SPACE_META_VALUE, sMetadata.get(SPACE_META_NAME));
 
@@ -140,6 +141,7 @@ public class TestAzureStorageProvider {
         // test addContent()
         log.debug("Test addContent()");
         addContent(SPACE_ID, CONTENT_ID, CONTENT_MIME_VALUE, false);
+        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, ++count);
 
         // test getContentMetadata()
         log.debug("Test getContentMetadata()");
@@ -154,8 +156,10 @@ public class TestAzureStorageProvider {
         // add additional content for getContents tests
         String testContent2 = "test-content-2";
         addContent(SPACE_ID, testContent2, CONTENT_MIME_VALUE, false);
+        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, ++count);
         String testContent3 = "test-content-3";
         addContent(SPACE_ID, testContent3, null, true);
+        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, ++count);
 
         // test getSpaceContents()
         log.debug("Test getSpaceContents()");
@@ -252,6 +256,7 @@ public class TestAzureStorageProvider {
         azureProvider.deleteContent(SPACE_ID, CONTENT_ID);
         spaceContents = azureProvider.getSpaceContents(SPACE_ID, null);
         assertFalse(contains(spaceContents, CONTENT_ID));
+        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, --count);
 
         // test deleteSpace()
         log.debug("Test deleteSpace()");
@@ -290,7 +295,8 @@ public class TestAzureStorageProvider {
     }
 
     private Map<String, String> testSpaceMetadata(String spaceId,
-                                                  AccessType access) {
+                                                  AccessType access,
+                                                  int count) {
         Map<String, String> sMetadata =
                 azureProvider.getSpaceMetadata(spaceId);
 
@@ -301,7 +307,8 @@ public class TestAzureStorageProvider {
         assertTrue(sMetadata.containsKey(
                 StorageProvider.METADATA_SPACE_COUNT));
         assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_COUNT));
-
+        assertEquals(String.valueOf(count), sMetadata.get(StorageProvider.METADATA_SPACE_COUNT));
+        
         assertTrue(sMetadata.containsKey(
                 StorageProvider.METADATA_SPACE_ACCESS));
         String spaceAccess =
