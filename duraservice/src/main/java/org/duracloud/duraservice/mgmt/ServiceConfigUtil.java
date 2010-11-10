@@ -232,6 +232,9 @@ public class ServiceConfigUtil {
     private List<UserConfigModeSet> populateModeSetVariables(ContentStoreManager userStoreManager,
                                                              List<UserConfigModeSet> modeSets) {
         List<UserConfigModeSet> newModeSets = new ArrayList<UserConfigModeSet>();
+        if (null == modeSets) {
+            return newModeSets;
+        }
 
         for (UserConfigModeSet modeSet : modeSets) {
             UserConfigModeSet newModeSet = new UserConfigModeSet();

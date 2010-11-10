@@ -193,6 +193,25 @@ public class ServiceConfigUtilTest {
     }
 
     @Test
+    public void testPopulateServiceNull() {
+        boolean success = false;
+
+        service.setModeSets(null);
+        try {
+            util.populateService(service,
+                                 serviceComputeInstances,
+                                 userStore,
+                                 computeHostName);
+            success = true;
+            
+        } catch (Exception e) {
+            Assert.fail("Exception not expected: " + e.getMessage());
+        }
+
+        Assert.assertTrue(success);
+    }
+
+    @Test
     public void testPopulateService() throws ContentStoreException {
         ServiceInfo serviceInfo = util.populateService(service,
                                                        serviceComputeInstances,
