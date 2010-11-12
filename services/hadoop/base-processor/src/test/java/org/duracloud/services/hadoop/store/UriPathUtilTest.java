@@ -32,6 +32,13 @@ public class UriPathUtilTest {
     }
 
     @Test
+    public void testGetBucketId() throws Exception {
+        String id = pathUtil.getBucketId(path);
+        Assert.assertNotNull(id);
+        Assert.assertEquals(uid + "." + spaceId, id);
+    }
+
+    @Test
     public void testGetSpaceId() throws Exception {
         String id = pathUtil.getSpaceId(path);
         Assert.assertNotNull(id);

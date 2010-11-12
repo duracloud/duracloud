@@ -10,10 +10,7 @@ package org.duracloud.services.hadoop.base;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.Path;
-import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,10 +19,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 
 /**
  * @author Andrew Woods
@@ -40,7 +33,6 @@ public class FileCopierTest {
     private File localFile = new File(testDir, "localFile.txt");
     private File remoteFile = new File(testDir, "remoteFile.txt");
     private boolean toLocal;
-    private ContentStore store;
 
     @Before
     public void setUp() {
@@ -51,7 +43,6 @@ public class FileCopierTest {
 
     @After
     public void tearDown() {
-        EasyMock.verify(store);
     }
 
     @Test
@@ -65,37 +56,14 @@ public class FileCopierTest {
         createContent(remoteFile);
         Path remotePath = new Path(remoteFile.getAbsolutePath());
         toLocal = true;
-        store = createMockStoreToLocal();
 
-        copier = new FileCopier(localFile, remotePath, toLocal, store);
+        copier = new TestFileCopier(localFile, remotePath, toLocal, remoteFile);
     }
 
     private void createContent(File file) throws IOException {
         OutputStream out = FileUtils.openOutputStream(file);
         IOUtils.write("hello", out);
         IOUtils.closeQuietly(out);
-    }
-
-    private ContentStore createMockStoreToLocal() throws Exception {
-        ContentStore store = EasyMock.createMock(ContentStore.class);
-
-        String md5 = new ChecksumUtil(MD5).generateChecksum(remoteFile);
-
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(StorageProvider.METADATA_CONTENT_CHECKSUM, md5);
-        EasyMock.expect(store.getContentMetadata(EasyMock.isA(String.class),
-                                                 EasyMock.isA(String.class)))
-            .andReturn(metadata);
-
-        EasyMock.expect(store.getContentMetadata(EasyMock.isA(String.class),
-                                                 EasyMock.isA(String.class)))
-            .andReturn(null);
-        EasyMock.expect(store.getContentMetadata(EasyMock.isA(String.class),
-                                                 EasyMock.isA(String.class)))
-            .andReturn(metadata);
-
-        EasyMock.replay(store);
-        return store;
     }
 
     @Test
@@ -108,15 +76,27 @@ public class FileCopierTest {
         createContent(localFile);
         Path remotePath = new Path(remoteFile.getAbsolutePath());
         toLocal = false;
-        store = createMockStoreFromLocal();
 
-        copier = new FileCopier(localFile, remotePath, toLocal, store);
+        copier = new FileCopier(localFile, remotePath, toLocal);
     }
 
-    private ContentStore createMockStoreFromLocal() {
-        ContentStore store = EasyMock.createMock(ContentStore.class);
-        // nothing to do.
-        EasyMock.replay(store);
-        return store;
+    private class TestFileCopier extends FileCopier {
+        File file;
+
+        public TestFileCopier(File localFile,
+                              Path remotePath,
+                              boolean toLocal,
+                              File file) {
+            super(localFile, remotePath, toLocal);
+            this.file = file;
+        }
+
+        @Override
+        protected String getMd5FromMetadata() throws IOException {
+            ChecksumUtil checksumUtil =
+                new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+            return checksumUtil.generateChecksum(file);
+        }
     }
+
 }

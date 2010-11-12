@@ -7,23 +7,15 @@
  */
 package org.duracloud.services.hadoop.base;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.s3.S3Credentials;
 import org.apache.hadoop.mapred.JobConf;
-import org.duracloud.client.ContentStore;
-import org.duracloud.domain.Content;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.hadoop.store.MD5Util;
-import org.duracloud.services.hadoop.store.MimeTypeUtil;
 import org.duracloud.services.hadoop.store.UriPathUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * This class can be run as a separate thread to copy a file either from the
@@ -35,27 +27,23 @@ import java.io.OutputStream;
  */
 public class FileCopier implements Runnable {
 
-    public static final String LOCAL_FS = "file://";
+    public static final String LOCAL_FS = "file:///";
 
     private File localFile;
     private Path remotePath;
     private boolean toLocal;
-    private ContentStore store;
 
     private String md5;
 
     private static final UriPathUtil pathUtil = new UriPathUtil();
-    private static final MimeTypeUtil mimeUtil = new MimeTypeUtil();
     private static final MD5Util md5Util = new MD5Util();
 
     public FileCopier(File localFile,
                       Path remotePath,
-                      boolean toLocal,
-                      ContentStore store) {
+                      boolean toLocal) {
         this.localFile = localFile;
         this.remotePath = remotePath;
         this.toLocal = toLocal;
-        this.store = store;
     }
 
     @Override
@@ -114,10 +102,15 @@ public class FileCopier implements Runnable {
         return md5Util.getMd5(localFile);
     }
 
-    private String getMd5FromMetadata() {
-        String spaceId = pathUtil.getSpaceId(remotePath.toString());
+    protected String getMd5FromMetadata() throws IOException {
+        JobConf job = new JobConf();
+        FileSystem fs = remotePath.getFileSystem(job);
+        S3Credentials s3Credentials = new S3Credentials();
+        s3Credentials.initialize(fs.getUri(), job);
+
+        String bucketId = pathUtil.getBucketId(remotePath.toString());
         String contentId = pathUtil.getContentId(remotePath.toString());
-        return md5Util.getMd5(store, spaceId, contentId);
+        return md5Util.getMd5(s3Credentials, bucketId, contentId);
     }
 
     private void doCopyFileToLocal() throws IOException {

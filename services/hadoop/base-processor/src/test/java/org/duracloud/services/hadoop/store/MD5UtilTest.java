@@ -9,11 +9,13 @@ package org.duracloud.services.hadoop.store;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.duracloud.client.ContentStore;
+import org.apache.hadoop.fs.s3.S3Credentials;
 import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.classextension.EasyMock;
+import org.jets3t.service.S3Service;
+import org.jets3t.service.S3ServiceException;
+import org.jets3t.service.model.S3Bucket;
+import org.jets3t.service.model.S3Object;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,8 +24,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 
@@ -76,46 +76,59 @@ public class MD5UtilTest {
 
     @Test
     public void testGetMd5Remote() throws Exception {
-        ContentStore store = createMockStore();
+        S3Service s3Service = createMockS3Service();
+        util = new TestMD5Util(s3Service);
+
+        S3Credentials s3Credentials = new S3Credentials();
         String spaceId = "space-id";
         String contentId = "content-id";
 
-        String md5 = util.getMd5(store, spaceId, contentId);
+        String md5 = util.getMd5(s3Credentials, spaceId, contentId);
         Assert.assertNotNull(md5);
-        Assert.assertEquals("item-not-found", md5);
+        Assert.assertEquals("item-md5-not-found", md5);
 
-        md5 = util.getMd5(store, spaceId, contentId);
+        md5 = util.getMd5(s3Credentials, spaceId, contentId);
         Assert.assertNotNull(md5);
-        Assert.assertEquals(expectedMd5, md5);
+        Assert.assertEquals(expectedMd5, md5);        
 
-        md5 = util.getMd5(store, spaceId, contentId);
-        Assert.assertNotNull(md5);
-        Assert.assertEquals("md5-not-found", md5);
-
-        EasyMock.verify(store);
+        EasyMock.verify(s3Service);
     }
 
-    private ContentStore createMockStore() throws Exception {
-        ContentStore store = EasyMock.createMock(ContentStore.class);
+    private class TestMD5Util extends MD5Util {
+        S3Service s3Service;
 
-        EasyMock.expect(store.getContentMetadata(EasyMock.isA(String.class),
-                                                 EasyMock.isA(String.class)))
-            .andThrow(new ContentStoreException("test"));
+        public TestMD5Util(S3Service s3Service) {
+            this.s3Service = s3Service;
+        }
 
-        String md5 = new ChecksumUtil(MD5).generateChecksum(file);
+        @Override
+        protected S3Service getS3Service(S3Credentials s3Credentials)
+            throws S3ServiceException {
+            return s3Service;
+        }
+    }
 
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(StorageProvider.METADATA_CONTENT_MD5, md5);
-        EasyMock.expect(store.getContentMetadata(EasyMock.isA(String.class),
-                                                 EasyMock.isA(String.class)))
-            .andReturn(metadata);
+    private S3Service createMockS3Service() {
+        S3Service s3Service = EasyMock.createMock(S3Service.class);
 
-        EasyMock.expect(store.getContentMetadata(EasyMock.isA(String.class),
-                                                 EasyMock.isA(String.class)))
-            .andReturn(new HashMap<String, String>());
+        S3Object s3Object = new S3Object();
+        s3Object.setETag(expectedMd5);
+        try {
+            EasyMock.expect(
+                s3Service.getObjectDetails(EasyMock.isA(S3Bucket.class),
+                                           EasyMock.isA(String.class)))
+                .andThrow(new S3ServiceException(""));
 
-        EasyMock.replay(store);
-        return store;
+            EasyMock.expect(
+                s3Service.getObjectDetails(EasyMock.isA(S3Bucket.class),
+                                           EasyMock.isA(String.class)))
+                .andReturn(s3Object);
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        EasyMock.replay(s3Service);
+        return s3Service;
     }
     
 }

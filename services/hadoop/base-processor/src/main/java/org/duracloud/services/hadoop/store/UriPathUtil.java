@@ -13,12 +13,32 @@ package org.duracloud.services.hadoop.store;
  */
 public class UriPathUtil {
 
+    private static final String proto = "://";
+
+    public String getBucketId(String path) {
+        if (null == path) {
+            return "null-space";
+        }
+
+        int protoIndex = path.indexOf(proto);
+        if (protoIndex == -1) {
+            return "malformed-path-no-proto-" + path;
+        }
+
+        int slashIndex = path.indexOf('/', protoIndex + proto.length());
+        if (slashIndex == -1) {
+            return "malformed-path-no-slash-" + path;
+        }
+
+        return path.substring(protoIndex + proto.length(), slashIndex);
+    }
+
     public String getSpaceId(String path) {
         if (null == path) {
             return "null-space";
         }
 
-        int protoIndex = path.indexOf("://");
+        int protoIndex = path.indexOf(proto);
         if (protoIndex == -1) {
             return "malformed-path-no-proto-" + path;
         }
@@ -41,7 +61,6 @@ public class UriPathUtil {
             return "null-content-id";
         }
 
-        String proto = "://";
         int protoIndex = path.indexOf(proto);
         if (protoIndex == -1) {
             return "malformed-path-no-proto-" + path;

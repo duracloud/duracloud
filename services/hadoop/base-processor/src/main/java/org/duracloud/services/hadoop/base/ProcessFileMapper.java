@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.duracloud.storage.domain.HadoopTypes.*;
+import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
  * Mapper used to process files.
@@ -234,11 +234,9 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
                         Path remotePath,
                         boolean toLocal,
                         Reporter reporter) throws IOException {
-        ContentStore store = getContentStore();
         FileCopier copier = new FileCopier(localFile,
                                            remotePath,
-                                           toLocal,
-                                           store);
+                                           toLocal);
         Thread thread = new Thread(copier);
         thread.start();
 
