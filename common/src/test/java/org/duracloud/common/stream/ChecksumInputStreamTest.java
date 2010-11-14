@@ -45,11 +45,23 @@ public class ChecksumInputStreamTest {
         doTest(null);
     }
 
+    @Test
+    public void testCallTwice() throws IOException {
+        ChecksumInputStream stream = new ChecksumInputStream(contentStream,
+                                                             null);
+        read(stream);
+        verifyMD5(stream);
+        verifyMD5(stream);
+    }
+
     private void doTest(String checksum) throws IOException {
         ChecksumInputStream stream =
             new ChecksumInputStream(contentStream, checksum);
         read(stream);
+        verifyMD5(stream);
+    }
 
+    private void verifyMD5(ChecksumInputStream stream) {
         String md5 = stream.getMD5();
         assertNotNull(md5);
         assertEquals(trueChecksum, md5);
