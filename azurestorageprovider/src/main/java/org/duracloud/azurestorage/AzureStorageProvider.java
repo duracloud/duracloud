@@ -454,8 +454,7 @@ public class AzureStorageProvider extends StorageProviderBase {
                             wrappedContent);
 
         // Compare checksum
-        String finalChecksum = wrappedContent.getMD5();
-        return compareChecksum(this, spaceId, contentId, finalChecksum);
+        return wrappedContent.getMD5();
     }
 
     private void storeStreamedObject(String contentId,
@@ -476,6 +475,10 @@ public class AzureStorageProvider extends StorageProviderBase {
             IBlobProperties blobProperties = new BlobProperties(contentId);
 
             blobProperties.setContentType(contentMimeType);
+
+            NameValueCollection metadata = new NameValueCollection();
+            metadata.put(METADATA_CONTENT_CHECKSUM, wrappedContent.getMD5());
+            blobProperties.setMetadata(metadata);
 
             /* Set Blob Contents */
             IBlobContents blobContents = new BlobContents(wrappedContent);
@@ -663,14 +666,6 @@ public class AzureStorageProvider extends StorageProviderBase {
         String contentLength = Long.toString(length);
         if (contentLength != null) {
             resultMap.put(METADATA_CONTENT_SIZE, contentLength);
-        }
-        // CHECKSUM
-        ChecksumUtil cksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
-        String checksum = cksumUtil.generateChecksum(getContent(spaceId,
-                                                                contentId));
-
-        if (checksum != null) {
-            resultMap.put(METADATA_CONTENT_CHECKSUM, checksum);
         }
 
         // MODIFIED DATE

@@ -38,10 +38,9 @@ public class ChecksumInputStream extends FilterInputStream {
 
     public String getMD5() {
         if (providedChecksum == null) {
-            return ChecksumUtil.getChecksum((DigestInputStream) this.in);
-        } else {
-            return providedChecksum;
+            providedChecksum = ChecksumUtil.getChecksum((DigestInputStream) this.in);
         }
+        return providedChecksum;
     }
     
 }
