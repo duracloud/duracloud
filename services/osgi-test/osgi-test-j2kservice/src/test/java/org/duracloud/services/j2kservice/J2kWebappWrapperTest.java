@@ -58,7 +58,6 @@ public class J2kWebappWrapperTest extends J2kWebappWrapperTestBase {
         wrapper.setWarName(warName);
         wrapper.setWebappUtil(webappUtil);
         wrapper.setServiceWorkDir(bundleHome.getServiceWork(serviceId).getAbsolutePath());
-        wrapper.setPlatform(getPlatform());
         wrapper.setJ2kZipName(zipName);
 
         File tomcatZip = new File(resourceDir, tomcatZipName);
