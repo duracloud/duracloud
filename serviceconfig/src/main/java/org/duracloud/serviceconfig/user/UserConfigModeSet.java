@@ -17,6 +17,8 @@ public class UserConfigModeSet {
 
     private int id = -1;
     private String name;
+    private String displayName;
+    private String value;
     private List<UserConfigMode> modes;
 
     public int getId() {
@@ -33,6 +35,22 @@ public class UserConfigModeSet {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public List<UserConfigMode> getModes() {

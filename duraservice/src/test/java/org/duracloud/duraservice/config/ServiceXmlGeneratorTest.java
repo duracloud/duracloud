@@ -11,11 +11,15 @@ import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -172,9 +176,13 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyFixity(ServiceInfo serviceInfo) {
-        int numUserConfigs = 12;
+        int numUserConfigs = 0;
         int numSystemConfigs = 5;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+
+        List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
+        setsModesConfigs.add(Arrays.asList(4, 4, 3, 2, 3));
+        verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
     private void verifyBulkImageconversion(ServiceInfo serviceInfo) {
@@ -207,6 +215,42 @@ public class ServiceXmlGeneratorTest {
         Assert.assertEquals(numSystemConfigs, systemConfigs.size());
 
         verifyDurastoreCredential(systemConfigs);
+    }
+
+    private void verifyServiceModes(List<List<Integer>> setsModesConfigs,
+                                    ServiceInfo serviceInfo) {
+        List<UserConfigModeSet> modeSets = serviceInfo.getModeSets();
+
+        int numModeSets = setsModesConfigs.size();
+        if (numModeSets > 0) {
+            Assert.assertNotNull(modeSets);
+            Assert.assertEquals(numModeSets, modeSets.size());
+        } else {
+            return;
+        }
+
+        for (int i = 0; i < numModeSets; ++i) {
+            List<Integer> modesConfigsI = setsModesConfigs.get(i);
+            int numModes = modesConfigsI.size();
+            if (numModes > 0) {
+                UserConfigModeSet modeSet = modeSets.get(i);
+                Assert.assertNotNull(modeSet);
+
+                List<UserConfigMode> modes = modeSet.getModes();
+                Assert.assertNotNull(modes);
+                Assert.assertEquals(numModes, modes.size());
+                if (numModes > 0) {
+                    for (int j = 0; j < numModes; ++j) {
+                        UserConfigMode mode = modes.get(j);
+                        Assert.assertNotNull(mode);
+
+                        int numConfigsJ = modesConfigsI.get(j);
+                        Assert.assertEquals(numConfigsJ,
+                                            mode.getUserConfigs().size());
+                    }
+                }
+            }
+        }
     }
 
     private void verifyDurastoreCredential(List<SystemConfig> systemConfigs) {

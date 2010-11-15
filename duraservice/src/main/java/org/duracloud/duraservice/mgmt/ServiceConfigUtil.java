@@ -131,11 +131,15 @@ public class ServiceConfigUtil {
                                                          List<UserConfig> userConfigs) {
         List<UserConfig> newUserConfigs = new ArrayList<UserConfig>();
         if(userConfigs != null){
+            Map<String, ContentStore> storesMap = getContentStores(userStoreManager);
+            ContentStore primaryStore = getPrimaryContentStore(userStoreManager);
+            String primaryStoreId = primaryStore.getStoreId();
+
             for(UserConfig config : userConfigs) {
                 if(config instanceof SelectableUserConfig) {
                     List<Option> options = ((SelectableUserConfig) config).getOptions();
-                    options = populateStoresVariable(userStoreManager, options);
-                    options = populateSpacesVariable(userStoreManager, options);
+                    options = populateStoresVariable(primaryStoreId, storesMap, options);
+                    options = populateSpacesVariable(primaryStore, options);
                     if (config instanceof SingleSelectUserConfig) {
                         SingleSelectUserConfig newConfig = new SingleSelectUserConfig(
                             config.getName(),
@@ -162,36 +166,47 @@ public class ServiceConfigUtil {
         return newUserConfigs;
     }
 
+    private ContentStore getPrimaryContentStore(ContentStoreManager userStoreManager) {
+        try {
+            return userStoreManager.getPrimaryContentStore();
+
+        } catch (ContentStoreException e) {
+            String msg = "Error retrieving primaryContentStore.";
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    private Map<String, ContentStore> getContentStores(ContentStoreManager userStoreManager) {
+        try {
+            return userStoreManager.getContentStores();
+
+        } catch (ContentStoreException e) {
+            String msg = "Error retrieving contentStores.";
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
     /*
      * Populates the $STORES variable
      */
-    private List<Option> populateStoresVariable(ContentStoreManager userStoreManager,
+    private List<Option> populateStoresVariable(String primaryStoreId,
+                                                Map<String, ContentStore> contentStores,
                                                 List<Option> options) {
         List<Option> newOptionsList = new ArrayList<Option>();
         for (Option option : options) {
             String value = option.getValue();
             if (value.equals(STORES_VAR)) {
-                try {
-                    Map<String, ContentStore> contentStores =
-                        userStoreManager.getContentStores();
-                    String primaryId =
-                        userStoreManager.getPrimaryContentStore().getStoreId();
-                    for (String storeId : contentStores.keySet()) {
-                        ContentStore contentStore =
-                            userStoreManager.getContentStore(storeId);
-                        String type = contentStore.getStorageProviderType();
-                        String displayName = type + " (" + storeId + ")";
-                        boolean primary = storeId.equals(primaryId);
-                        Option storeOption = new Option(displayName,
-                                                        storeId,
-                                                        primary);
-                        newOptionsList.add(storeOption);
-                    }
-                } catch (ContentStoreException cse) {
-                    String error =
-                        "Error encountered attempting to construct user" +
-                            " content stores options " + cse.getMessage();
-                    throw new RuntimeException(error, cse);
+                for (String storeId : contentStores.keySet()) {
+                    ContentStore contentStore = contentStores.get(storeId);
+                    String type = contentStore.getStorageProviderType();
+                    String displayName = type + " (" + storeId + ")";
+                    boolean primary = storeId.equals(primaryStoreId);
+                    Option storeOption = new Option(displayName,
+                                                    storeId,
+                                                    primary);
+                    newOptionsList.add(storeOption);
                 }
             } else {
                 newOptionsList.add(option);
@@ -203,15 +218,13 @@ public class ServiceConfigUtil {
     /*
      * Populates the $SPACES variable
      */
-    private List<Option> populateSpacesVariable(ContentStoreManager userStoreManager,
+    private List<Option> populateSpacesVariable(ContentStore primaryStore,
                                                 List<Option> options) {
         List<Option> newOptionsList = new ArrayList<Option>();
         for (Option option : options) {
             String value = option.getValue();
             if (value.equals(SPACES_VAR)) {
                 try {
-                    ContentStore primaryStore =
-                        userStoreManager.getPrimaryContentStore();
                     List<String> spaces = primaryStore.getSpaces();
                     for(String spaceId : spaces) {
                         Option storeOption = new Option(spaceId, spaceId, false);
@@ -237,26 +250,19 @@ public class ServiceConfigUtil {
         }
 
         for (UserConfigModeSet modeSet : modeSets) {
+            List<UserConfigMode> modes = modeSet.getModes();
+            List<UserConfigMode> newModes = null;
+
             UserConfigModeSet newModeSet = new UserConfigModeSet();
             newModeSet.setName(modeSet.getName());
+            newModeSet.setDisplayName(modeSet.getDisplayName());
 
-            List<UserConfigMode> newModes = new ArrayList<UserConfigMode>();
-            for (UserConfigMode mode : modeSet.getModes()) {
+            String value = modeSet.getValue();
+            if (null != value && value.equals(ALL_STORE_SPACES_VAR)) {
+                newModes = createModeForEachStore(userStoreManager, modes);
 
-                // Does the current mode represent all contentStores and their spaces?
-                if (ALL_STORE_SPACES_VAR.equals(mode.getDisplayName())) {
-
-                    // add a new mode for each contentStore
-                    Map<String, ContentStore> contentStores = getContentStores(
-                        userStoreManager);
-                    for (String storeId : contentStores.keySet()) {
-                        ContentStore contentStore = contentStores.get(storeId);
-                        newModes.add(createModeForStore(contentStore));
-                    }
-
-                } else {
-                    newModes.add(mode);
-                }
+            } else {
+                newModes = populateModeVariables(userStoreManager, modes);
             }
 
             newModeSet.setModes(newModes);
@@ -266,37 +272,59 @@ public class ServiceConfigUtil {
         return newModeSets;
     }
 
-    private UserConfigMode createModeForStore(ContentStore contentStore) {
+    private List<UserConfigMode> createModeForEachStore(ContentStoreManager userStoreManager,
+                                                        List<UserConfigMode> modes) {
+        List<UserConfigMode> newModes = new ArrayList<UserConfigMode>();
+
+        Map<String, ContentStore> contentStores = getContentStores(
+            userStoreManager);
+        for (String storeId : contentStores.keySet()) {
+            ContentStore contentStore = contentStores.get(storeId);
+            newModes.add(createModeForStore(contentStore,
+                                            userStoreManager,
+                                            modes));
+        }
+
+        return newModes;
+    }
+
+    private UserConfigMode createModeForStore(ContentStore contentStore,
+                                              ContentStoreManager userStoreManager,
+                                              List<UserConfigMode> modes) {
         String storeName = contentStore.getStorageProviderType();
 
         UserConfigMode newMode = new UserConfigMode();
+        newMode.setName(storeName);
         newMode.setDisplayName(storeName);
 
-        // add option for each space of current contentStore
-        List<Option> spaceOptions = new ArrayList<Option>();
-        List<String> spaces = getSpaces(contentStore);
-        for (String space : spaces) {
-            spaceOptions.add(new Option(space, space, false));
-        }
+        if (null != modes) {
+            for (UserConfigMode mode : modes) {
+                List<UserConfig> userConfigs = populateUserConfigVariables(
+                    userStoreManager,
+                    mode.getUserConfigs());
 
-        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
-        String configName = storeName + " space";
-        userConfigs.add(new SingleSelectUserConfig(configName,
-                                                   configName,
-                                                   spaceOptions));
-        newMode.setUserConfigs(userConfigs);
+                newMode.setUserConfigs(userConfigs);
+            }
+        }
+        
         return newMode;
     }
 
-    private Map<String, ContentStore> getContentStores(ContentStoreManager userStoreManager) {
-        try {
-            return userStoreManager.getContentStores();
-
-        } catch (ContentStoreException e) {
-            String msg = "Error retrieving contentStores.";
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
+    private List<UserConfigMode> populateModeVariables(ContentStoreManager userStoreManager,
+                                                       List<UserConfigMode> modes) {
+        List<UserConfigMode> newModes = new ArrayList<UserConfigMode>();
+        if (null == modes) {
+            return newModes;
         }
+
+        for (UserConfigMode mode : modes) {
+            mode.setUserConfigModeSets(populateModeSetVariables(userStoreManager,
+                                                                mode.getUserConfigModeSets()));
+
+            newModes.add(mode);
+        }
+
+        return newModes;
     }
 
     private List<String> getSpaces(ContentStore contentStore) {

@@ -164,6 +164,16 @@ public class ServiceElementWriter {
             modeSetType.setDisplayName(name);
         }
 
+        String displayName = modeSet.getDisplayName();
+        if (!StringUtils.isBlank(displayName)) {
+            modeSetType.setDisplayName(displayName);
+        }
+        
+        String value = modeSet.getValue();
+        if (!StringUtils.isBlank(value)) {
+            modeSetType.setValue(value);
+        }
+
         List<UserConfigMode> modes = modeSet.getModes();
         if (modes != null && modes.size() > 0) {
             populateUserConfigModes(modeSetType, modes);
@@ -174,6 +184,11 @@ public class ServiceElementWriter {
                                                 List<UserConfigMode> modes) {
         for (UserConfigMode mode : modes) {
             ModeType modeType = modeSetType.addNewMode();
+
+            String name = mode.getName();
+            if (null != name && !StringUtils.isBlank(name)) {
+                modeType.setName(name);
+            }
 
             String displayName = mode.getDisplayName();
             if (null != displayName && !StringUtils.isBlank(displayName)) {
