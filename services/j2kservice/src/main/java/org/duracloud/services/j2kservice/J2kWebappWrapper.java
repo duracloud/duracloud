@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.duracloud.common.web.NetworkUtil.waitForShutdown;
 import static org.duracloud.common.web.NetworkUtil.waitForStartup;
@@ -48,7 +49,6 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
 
     private String warName;
     private String j2kZipName;
-    private String platform;
     private String propFile;
 
     private String host;
@@ -197,6 +197,47 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
         return sb.toString();
     }
 
+    public String getPlatform() {
+        String platform;
+
+        final String linux32 = "Linux-x86-32";
+        final String linux64 = "Linux-x86-64";
+        final String win = "Win32";
+        final String mac = "Mac-x86";
+        final String defaultPlatform = linux32;
+
+        Properties props = System.getProperties();
+        String os = props.getProperty("os.name");
+
+        if (null == os || os.length() == 0) {
+            log.warn("os.name is null or empty.");
+            platform = defaultPlatform;
+
+        } else if (os.contains("Windows")) {
+            platform = win;
+
+        } else if (os.equals("Mac OS X")) {
+            platform = mac;
+
+        } else if (os.contains("Linux")) {
+            String arch = props.getProperty("sun.arch.data.model");
+            if (null == arch || arch.length() == 0) {
+                platform = defaultPlatform;
+            } else if (arch.equals("64")) {
+                platform = linux64;
+            } else {
+                platform = linux32;
+            }
+
+        } else {
+            log.warn("Unrecognized os.name = '" + os + "'");
+            platform = defaultPlatform;
+        }
+
+        log.info("Using platform: '" + platform + "'");
+        return platform;
+    }
+
     public WebAppUtil getWebappUtil() {
         return webappUtil;
     }
@@ -227,14 +268,6 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
 
     public void setWarName(String warName) {
         this.warName = warName;
-    }
-
-    public String getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
     }
 
     public String getJ2kZipName() {

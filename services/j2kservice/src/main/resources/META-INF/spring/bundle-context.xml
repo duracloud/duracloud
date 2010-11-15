@@ -16,7 +16,6 @@
     <property name="serviceId" value="j2kservice-${project.version}" />
     <property name="warName" value="adore-djatoka.war" />
     <property name="webappUtil" ref="osgiWebappUtilSrv" />
-    <property name="platform" value="Linux-x86-32" />
     <property name="j2kZipName" value="adore-djatoka-1.1.zip" />
     <property name="url" value="http://example.org" />
     <property name="propFile" value="WEB-INF/classes/urlAuth.properties" />
