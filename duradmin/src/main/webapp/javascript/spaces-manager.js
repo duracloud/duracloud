@@ -1708,11 +1708,7 @@ $(document).ready(function() {
 	};
 	
 	var getFilterText = function(){
-		var val = $("#content-item-filter").val();
-		if(val == DEFAULT_FILTER_TEXT){
-			val = null;
-		}
-		return val;
+		return $("#content-item-filter").val();
 	};
 	
 	var getSpace = function(spaceId, loadHandler){
@@ -2106,18 +2102,6 @@ $(document).ready(function() {
 	$("#content-item-list").selectablelist({selectable: true});
 	$("#spaces-list").selectablelist({selectable: true});
 
-	var DEFAULT_FILTER_TEXT = "filter";
-
-	$(".dc-item-list-filter").focus(function(){
-		if($(this).val() == DEFAULT_FILTER_TEXT){
-			$(this).val('');
-		};
-	}).blur(function(){
-		if($(this).val() == ""){
-			$(this).val(DEFAULT_FILTER_TEXT);
-		};
-	}).val(DEFAULT_FILTER_TEXT);
-	
 	// /////////////////////////////////////////
 	// /click on a space list item
 
@@ -2246,11 +2230,10 @@ $(document).ready(function() {
 	
 	var loadSpaces = function(spaces,filter) {
 		$("#spaces-list").selectablelist("clear");
-		
 		var firstMatchFound = false;
 		for(s in spaces){
 			var space = spaces[s];
-			if(filter === undefined || filter == DEFAULT_FILTER_TEXT || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1){
+			if(filter === undefined || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1){
 				addSpaceToList(space);
 				if(!firstMatchFound){
 					//$("#spaces-list").selectablelist('setCurrentItemById',space.spaceId);	   
@@ -2258,8 +2241,6 @@ $(document).ready(function() {
 				}
 			}
 		}
-		
-		
 	};
 	
 	var refreshSpaces = function(providerId, /*optional*/successFunc){
@@ -2277,7 +2258,7 @@ $(document).ready(function() {
 					spacesArray[s] = {spaceId: spaces[s], storeId: providerId};
 				}
 				// clear content filters
-				$("#content-item-filter").val(DEFAULT_FILTER_TEXT);
+				$("#content-item-filter").val('');
 				loadSpaces(spacesArray, $("#space-filter").val());
 				$("#space-list-status").fadeOut("fast");
 				
