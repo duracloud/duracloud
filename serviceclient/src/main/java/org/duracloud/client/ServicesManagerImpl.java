@@ -7,6 +7,11 @@
  */
 package org.duracloud.client;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.error.NotFoundException;
 import org.duracloud.client.error.ServicesException;
@@ -19,12 +24,7 @@ import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServicesConfigDocument;
-import org.duracloud.serviceconfig.user.UserConfig;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 /**
  * Allows for communication with DuraService
@@ -238,7 +238,7 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      */
     public int deployService(int serviceId,
                              String userConfigVersion,
-                             List<UserConfig> userConfigs,
+                             List<UserConfigModeSet> userConfigModeSets,
                              DeploymentOption deploymentSelection)
         throws NotFoundException, ServicesException {
         String url = buildServiceURL(serviceId);
@@ -253,7 +253,7 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
 
         // Create service for deployment
         ServiceInfo serviceToDeploy = new ServiceInfo();
-        serviceToDeploy.setUserConfigs(userConfigs);
+        serviceToDeploy.setUserConfigModeSets(userConfigModeSets);
         serviceToDeploy.setUserConfigVersion(userConfigVersion);
 
         ServicesConfigDocument configDoc = new ServicesConfigDocument();
@@ -293,13 +293,13 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
     public void updateServiceConfig(int serviceId,
                                     int deploymentId,
                                     String userConfigVersion,
-                                    List<UserConfig> userConfigs)
+                                    List<UserConfigModeSet> userConfigModeSets)
         throws NotFoundException, ServicesException {
         String url = buildDeployedServiceURL(serviceId, deploymentId);
 
         // Create service for config update
         ServiceInfo serviceForConfig = new ServiceInfo();
-        serviceForConfig.setUserConfigs(userConfigs);
+        serviceForConfig.setUserConfigModeSets(userConfigModeSets);
         serviceForConfig.setUserConfigVersion(userConfigVersion);
 
         ServicesConfigDocument configDoc = new ServicesConfigDocument();

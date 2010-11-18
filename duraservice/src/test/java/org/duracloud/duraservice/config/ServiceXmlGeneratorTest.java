@@ -206,9 +206,11 @@ public class ServiceXmlGeneratorTest {
     private void verifyServiceInfo(int numUserConfigs,
                                    int numSystemConfigs,
                                    ServiceInfo serviceInfo) {
-        List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
-        Assert.assertNotNull(userConfigs);
-        Assert.assertEquals(numUserConfigs, userConfigs.size());
+        List<UserConfigModeSet> userConfigModeSets = serviceInfo.getUserConfigModeSets();
+        Assert.assertNotNull(userConfigModeSets);
+		Assert.assertEquals(numUserConfigs, userConfigModeSets.get(0)
+											.getModes().get(0)
+											.getUserConfigs().size());
 
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);
@@ -219,7 +221,7 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyServiceModes(List<List<Integer>> setsModesConfigs,
                                     ServiceInfo serviceInfo) {
-        List<UserConfigModeSet> modeSets = serviceInfo.getModeSets();
+        List<UserConfigModeSet> modeSets = serviceInfo.getUserConfigModeSets();
 
         int numModeSets = setsModesConfigs.size();
         if (numModeSets > 0) {

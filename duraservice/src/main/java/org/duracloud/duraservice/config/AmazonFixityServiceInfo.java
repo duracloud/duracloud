@@ -1,16 +1,18 @@
 package org.duracloud.duraservice.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.duracloud.duraservice.mgmt.ServiceConfigUtil;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.duracloud.storage.domain.HadoopTypes.INSTANCES;
 
 /**
  * @author Andrew Woods
@@ -92,9 +94,7 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
         userConfigs.add(workSpace);
         userConfigs.add(numInstances);
         userConfigs.add(instanceType);
-
-        info.setUserConfigs(userConfigs);
-
+        info.setUserConfigModeSets(createDefaultModeSet(userConfigs));
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
 

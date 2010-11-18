@@ -7,6 +7,8 @@
  */
 package org.duracloud.duradmin.integration.selenium;
 
+import org.junit.Test;
+
 
 public class HomeTest
         extends SeleniumTestBase{
@@ -15,6 +17,7 @@ public class HomeTest
         setUp("http://localhost:8080/duradmin/", "*firefox");
     }
 
+    @Test
     public void testHome() throws Exception {
         goHome();
         assertTrue(selenium.isTextPresent("Welcome"));

@@ -119,14 +119,9 @@ public class ServiceElementReader {
 
         UserConfigType userConfigType = serviceType.getUserConfig();
         if (null != userConfigType) {
-            UserPropertyType[] userPropertyTypes = userConfigType.getPropertyArray();
-            if (null != userPropertyTypes && userPropertyTypes.length > 0) {
-                service.setUserConfigs(createUserConfigs(userPropertyTypes));
-            }
-
             ModeSetType[] modeSetTypes = userConfigType.getModeSetArray();
             if (null != modeSetTypes && modeSetTypes.length > 0) {
-                service.setModeSets(createUserConfigModeSets(modeSetTypes));
+                service.setUserConfigModeSets(createUserConfigModeSets(modeSetTypes));
             }
         }
 
@@ -342,11 +337,10 @@ public class ServiceElementReader {
 
                 UserConfigType userConfigType = deploymentType.getUserConfig();
                 if (null != userConfigType) {
-                    UserPropertyType[] userPropertyTypes = userConfigType.getPropertyArray();
-                    if (null != userPropertyTypes &&
-                        userPropertyTypes.length > 0) {
-                        deployment.setUserConfigs(createUserConfigs(
-                            userPropertyTypes));
+                	ModeSetType[] modeSetTypes = userConfigType.getModeSetArray();
+                    if (null != modeSetTypes &&
+                    		modeSetTypes.length > 0) {
+                        deployment.setUserConfigModeSets(createUserConfigModeSets(modeSetTypes));
                     }
                 }
 

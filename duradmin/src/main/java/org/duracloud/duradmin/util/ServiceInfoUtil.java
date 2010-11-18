@@ -20,6 +20,8 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 
 public class ServiceInfoUtil {
@@ -94,7 +96,7 @@ public class ServiceInfoUtil {
         }
     }
 
-    public static void applyValues(List<UserConfig> userConfigs,
+    public static void applyValues(List<UserConfigModeSet> userConfigModeSets,
            	HttpServletRequest request) {
     	Map<String,String> map = new HashMap<String,String>();
     	Map parameters = request.getParameterMap();
@@ -104,12 +106,29 @@ public class ServiceInfoUtil {
     		map.put(key, request.getParameter(key));
     	}
     	
-		for(UserConfig userConfig : userConfigs){
-			applyValues(userConfig,map);
+    	for(UserConfigModeSet userConfigModeSet : userConfigModeSets){
+    		applyValues(userConfigModeSet, map);
+    	}
+	}
+
+    private static void applyValues(UserConfigModeSet userConfigModeSet,
+			Map<String, String> map) {
+        String newValue = map.get(userConfigModeSet.getName());
+        userConfigModeSet.setValue(newValue);
+    	
+    	for(UserConfigMode mode : userConfigModeSet.getModes()){
+    		mode.setSelected(mode.getName().equals(newValue));
+    		for(UserConfig userConfig : mode.getUserConfigs()){
+    			applyValues(userConfig,map);
+    		}
+
+			for(UserConfigModeSet modeSet : mode.getUserConfigModeSets()){
+				applyValues(modeSet, map);
+			}
 		}
 	}
 
-    private static boolean applyValues(UserConfig userConfig,
+	private static boolean applyValues(UserConfig userConfig,
                                     Map<String, String> parameters) {
         if(userConfig instanceof TextUserConfig){
             return applyValues((TextUserConfig)userConfig, parameters);

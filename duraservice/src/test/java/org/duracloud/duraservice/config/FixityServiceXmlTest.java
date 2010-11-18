@@ -80,20 +80,17 @@ public class FixityServiceXmlTest {
 
         List<DeploymentOption> deploymentOptions = serviceInfo.getDeploymentOptions();
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
-        List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
-        List<UserConfigModeSet> modeSets = serviceInfo.getModeSets();
+        List<UserConfigModeSet> modeSets = serviceInfo.getUserConfigModeSets();
         List<Deployment> deployments = serviceInfo.getDeployments();
 
         Assert.assertNotNull(deploymentOptions);
         Assert.assertNotNull(systemConfigs);
-        Assert.assertNotNull(userConfigs);
         Assert.assertNotNull(modeSets);
         Assert.assertNull(deployments);
 
         Assert.assertEquals(3, deploymentOptions.size());
         Assert.assertEquals(5, systemConfigs.size());
         Assert.assertEquals(1, modeSets.size());
-        Assert.assertEquals(0, userConfigs.size());
 
 
         List<UserConfigMode> modes = modeSets.get(0).getModes();

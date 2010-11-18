@@ -91,17 +91,11 @@ public class ServiceConfigUtil {
 
         ContentStoreManager userStoreManager = getUserStoreManager(userStore);
 
-        // Populate variables in user config ($STORES and $SPACES)
-        List<UserConfig> populatedUserConfigs = populateUserConfigVariables(
-            userStoreManager,
-            srvClone.getUserConfigs());
-        srvClone.setUserConfigs(populatedUserConfigs);
-
         // Populate variables in mode sets ($ALL_STORE_SPACES)
         List<UserConfigModeSet> populatedModeSets = populateModeSetVariables(
             userStoreManager,
-            srvClone.getModeSets());
-        srvClone.setModeSets(populatedModeSets);
+            srvClone.getUserConfigModeSets());
+        srvClone.setUserConfigModeSets(populatedModeSets);
 
         // Remove system configs
         srvClone.setSystemConfigs(null);

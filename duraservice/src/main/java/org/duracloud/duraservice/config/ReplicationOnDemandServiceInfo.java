@@ -110,7 +110,7 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
         repServiceUserConfig.add(numInstances);
         repServiceUserConfig.add(instanceType);
 
-        repService.setUserConfigs(repServiceUserConfig);
+        repService.setUserConfigModeSets(createDefaultModeSet(repServiceUserConfig));
 
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();

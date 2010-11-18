@@ -114,7 +114,7 @@ public class ServiceConfigUtilTest {
 
         service = new ServiceInfo();
         service.setDeploymentOptions(new ArrayList<DeploymentOption>());
-        service.setModeSets(createModeSets());
+        service.setUserConfigModeSets(createModeSets());
 
         userStore = new UserStore();
         userStore.setHost(host);
@@ -261,7 +261,7 @@ public class ServiceConfigUtilTest {
     public void testPopulateServiceNull() {
         boolean success = false;
 
-        service.setModeSets(null);
+        service.setUserConfigModeSets(null);
         try {
             util.populateService(service,
                                  serviceComputeInstances,
@@ -283,7 +283,7 @@ public class ServiceConfigUtilTest {
                                                        userStore,
                                                        computeHostName);
 
-        List<UserConfigModeSet> testModeSets = serviceInfo.getModeSets();
+        List<UserConfigModeSet> testModeSets = serviceInfo.getUserConfigModeSets();
         Assert.assertNotNull("modeSets is null", testModeSets);
         Assert.assertEquals(1, testModeSets.size());
 

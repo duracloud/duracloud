@@ -7,8 +7,25 @@
  */
 package org.duracloud.serviceconfig.xml;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
-import org.duracloud.*;
+import org.duracloud.DeploymentOptionLocationType;
+import org.duracloud.DeploymentOptionStateType;
+import org.duracloud.DeploymentOptionType;
+import org.duracloud.DeploymentOptionsType;
+import org.duracloud.DeploymentStatusType;
+import org.duracloud.DeploymentType;
+import org.duracloud.DeploymentsType;
+import org.duracloud.ModeSetType;
+import org.duracloud.ModeType;
+import org.duracloud.OptionInputType;
+import org.duracloud.ServiceType;
+import org.duracloud.SingleServiceType;
+import org.duracloud.SystemConfigType;
+import org.duracloud.SystemPropertyType;
+import org.duracloud.UserConfigType;
+import org.duracloud.UserPropertyType;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -16,13 +33,11 @@ import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SelectableUserConfig;
-import org.duracloud.serviceconfig.user.UserConfigMode;
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
-
-import java.util.List;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 /**
  * This class is responsible for serializing ServiceInfo objects into
@@ -100,20 +115,10 @@ public class ServiceElementWriter {
             populateSystemConfig(systemConfigType, systemConfigs);
         }
 
-        UserConfigType userConfigType = null;
-        List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
-        if (userConfigs != null && userConfigs.size() > 0) {
-            if (null == userConfigType) {
-                userConfigType = service.addNewUserConfig();
-            }
-            populateUserConfigProperties(userConfigType, userConfigs);
-        }
 
-        List<UserConfigModeSet> userConfigModeSets = serviceInfo.getModeSets();
+        List<UserConfigModeSet> userConfigModeSets = serviceInfo.getUserConfigModeSets();
         if (userConfigModeSets != null && userConfigModeSets.size() > 0) {
-            if (null == userConfigType) {
-                userConfigType = service.addNewUserConfig();
-            }
+            UserConfigType  userConfigType = service.addNewUserConfig();
             populateUserConfigModeSets(userConfigType, userConfigModeSets);
         }
 
@@ -414,10 +419,10 @@ public class ServiceElementWriter {
                     populateSystemConfig(systemConfigType, systemConfigs);
                 }
 
-                List<UserConfig> userConfigs = deployment.getUserConfigs();
-                if (userConfigs != null && userConfigs.size() > 0) {
+                List<UserConfigModeSet> userConfigModeSets = deployment.getUserConfigModeSets();
+                if (userConfigModeSets != null && userConfigModeSets.size() > 0) {
                     UserConfigType userConfigType = deploymentType.addNewUserConfig();
-                    populateUserConfigProperties(userConfigType, userConfigs);
+                    populateUserConfigModeSets(userConfigType, userConfigModeSets);
                 }
             }
         }

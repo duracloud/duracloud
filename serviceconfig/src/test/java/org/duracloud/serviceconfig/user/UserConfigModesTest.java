@@ -30,7 +30,6 @@ public class UserConfigModesTest {
      * The structure below represents serviceInfo object created in this test.
      * <p/>
      * serviceInfo
-     * --userConfigs
      * <p/>
      * --modeSet10
      * ----mode100
@@ -82,8 +81,7 @@ public class UserConfigModesTest {
         serviceInfo = new ServiceInfo();
 
         Def d = getDef(1);
-        serviceInfo.setUserConfigs(createUserConfigs(d.id, d.configCount));
-        serviceInfo.setModeSets(createModeSets(d.id * 10, d.modeSetCount));
+        serviceInfo.setUserConfigModeSets(createModeSets(d.id * 10, d.modeSetCount));
     }
 
     private void createDefs() {
@@ -273,10 +271,8 @@ public class UserConfigModesTest {
 
     private void verifyServiceInfo(ServiceInfo info) {
         Def d = getDef(1);
-        List<UserConfig> userConfigs = info.getUserConfigs();
-        verifyUserConfigs(d, userConfigs);
 
-        List<UserConfigModeSet> modeSets = info.getModeSets();
+        List<UserConfigModeSet> modeSets = info.getUserConfigModeSets();
         verifyModeSets(d, modeSets);
     }
 

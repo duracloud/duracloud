@@ -145,8 +145,7 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         icServiceUserConfig.add(nameSuffix);
         icServiceUserConfig.add(numInstances);
         icServiceUserConfig.add(instanceType);
-
-        icService.setUserConfigs(icServiceUserConfig);
+        icService.setUserConfigModeSets(createDefaultModeSet(icServiceUserConfig));
 
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();

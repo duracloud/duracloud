@@ -26,15 +26,23 @@
 			
 		},
 		options: {},
-		_createControl: function(/*userConfig object*/uc){
+		_createControl: function(/* userConfig object */uc){
 			var inputType = uc.inputType;
 			if(inputType == "TEXT"){
-				return $.fn.create("input").attr("type", "text").attr("name", uc.name).attr("id",uc.name).val(uc.value != undefined && uc.value != null ? uc.value : '');
+				return $.fn.create("input")
+						   .attr("type", "text")
+						   .attr("name", uc.name)
+						   .attr("id",uc.name)
+						   .val(uc.value != undefined && uc.value != null ? uc.value : '');
 			}else if(inputType == "SINGLESELECT"){
-				var select =  $.fn.create("select").attr("name", uc.name).attr("id",uc.name);
+				var select =  $.fn.create("select")
+								  .attr("name", uc.name)
+								  .attr("id",uc.name);
 				for(i in uc.options){
 					var o = uc.options[i];
-					var option = $.fn.create("option").attr("value", o.value).html(o.displayName);
+					var option = $.fn.create("option")
+									 .attr("value", o.value)
+									 .html(o.displayName);
 					if(o.selected){
 						option.attr("selected", "true");
 					}
@@ -88,16 +96,89 @@
 			return result;
 		},
 		
-		_isExDef: function(uc){
-			return uc.exclusion == "EXCLUSION_DEFINITION";
+		_addUserConfig: function(userConfig, controlList){
+			var control = this._createControl(userConfig);
+			var item = this._createListItem(userConfig.name, userConfig.displayName);
+			item.append(control);
+			controlList.append(item);
 		},
 		
-		_isEx: function(uc){
-			var ex = uc.exclusion;
-			return ex != undefined  && ex != null && ex != '' && !this._isExDef(uc);			
+		_addMode: function(mode, controlList){
+			if(mode.userConfigs != undefined){
+				for(j = 0; j < mode.userConfigs.length; j++){
+					this._addUserConfig(mode.userConfigs[j], controlList);
+				}
+			}
+			
+			if(mode.userConfigModeSets != undefined){
+				for(j = 0; j < mode.userConfigModeSets.length; j++){
+					this._addModeSet(mode.userConfigModeSets[j], controlList);
+				}
+			}
 		},
+
+		_addModeSet: function(modeSet, controlList){
+			var modes = modeSet.modes;
+			
+			//if only a single mode, just add to the control list
+			if(modes.length == 1){
+				this._addMode(modes[0], controlList);
+				return;
+			}
+
+			var i,j, mode,modeSetId,modeSetSelect;
+			modeSetId = "modeset-" + modeSet.name;
+			modeSetSelect = $.fn.create("select").attr("id", modeSetId);
+			//for multiple modes
+			//first create a mode selection box
+			for(i = 0; i < modes.length; i++){
+				mode = modeSet.modes[i];
+				modeSetSelect.append($.fn.create("option")
+										 .attr("value",mode.name)
+										 .attr("selected", mode.selected ? "selected" : "")
+										 .html(mode.displayName));
+			}
+
+			//create a list item that will contain the mode panels (ie html uls)
+			var modeSetItem = this._createListItem(modeSetId, modeSet.displayName);
+			modeSetItem.addClass("dc-exclusion-group");
+			modeSetItem.append(modeSetSelect);
+			controlList.append(modeSetItem);
+			
+			//build and add mode panels
+			for(i = 0; i < modes.length; i++){
+				mode = modes[i];
+				// for each mode, create a list and add all the children to it.
+				var modeList, modeListId;
+				modeListId = modeSetId+"-"+mode.name;					
+				modeList = $.fn.create("ul")
+							   .attr("id", modeListId)
+							   .css("display", mode.selected ? "block": "none");
+				modeSetItem.append(modeList);
+				this._addMode(mode,modeList);
+			}
+			
+			// attach a change listener to the modeSet select control
+			// hide all but the selected list.
+			
+			var toggleVisibleMode = function(){
+				modeSetSelectChanged();
+				$("li[id="+ modeSetId + "] > ul").hide();
+				var modeName = modeSetSelect.val();
+				$("ul[id="+ modeSetId + "-" + modeName+"]").show();
+			};
+			
+			toggleVisibleMode();
+			
+			modeSetSelect.change(function(evt){
+				toggleVisibleMode();
+			});
+		},
+		
 		load: function(service, deployment){
 			var that = this;
+			
+			var i;
 			
 			if(service == undefined){
 				return this._service;
@@ -106,12 +187,11 @@
 			this._service = service;
 
 			dc.debug("loading service: " + service.id);
-			var userConfigs = service.userConfigs;
-
+			var modeSets = service.modeSets;
 			if(deployment != undefined){
 				this._deployment = deployment;
 				dc.debug("loading deployment: " + deployment.id);
-				userConfigs = deployment.userConfigs;
+				modeSets = deployment.modeSets;
 			}
 			
 			this._controlContainer.html("");
@@ -135,7 +215,7 @@
 			}else{
 				var dOptions = service.deploymentOptions;
 				var locationSelect = $.fn.create("select").attr("name","deploymentOption");
-				for(i in dOptions){
+				for(i = 0; i < dOptions.length;i++){
 					var o = dOptions[i];
 					locationSelect.append($.fn.create("option")
 												.attr("value", o.hostname + "-" + 
@@ -147,112 +227,11 @@
 					this._createListItem("location", "Location").append(locationSelect)
 				);
 			}
-
 			
-			if(userConfigs != undefined && userConfigs != null && userConfigs.length > 0){
-				var uc,ex,item,control,sublist;
-				var i;
-				for(i in userConfigs){
-					uc = userConfigs[i];
-					ex = uc.exclusion;
-					var isExDef = this._isExDef(uc);
-					var isEx = this._isEx(uc);
-
-					if( !isEx || isExDef){
-						control = this._createControl(uc);
-						item = this._createListItem(uc.name, uc.displayName);
-						item.append(control);
-						list.append(item);
-						if(isExDef){
-							item.addClass("dc-exclusion-group");
-							control.change(function(){
-								that._exclusionGroupChanged(userConfigs);
-							});
-
-							sublist = $.fn.create("ul");
-							item.append(sublist);
-							var exDefs = new Array();
-							for(j in uc.options){
-								exDefs.push(uc.options[j].value);
-							}
-
-							var j;
-							for(j in userConfigs){
-								uc = userConfigs[j];
-								if(this._isEx(uc) && !this._isExDef(uc)){
-									var exclusions = uc.exclusion.split("|");
-									var k;
-									for(k in exDefs){
-										if(exclusions[0] == exDefs[k]){
-											control = this._createControl(uc);
-											item = this._createListItem(uc.name, uc.displayName);
-											item.append(control);
-											sublist.append(item);
-											break;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-
-				that._exclusionGroupChanged(userConfigs);
+			for(i = 0; i < modeSets.length;i++){
+				this._addModeSet(modeSets[i],list);
 			}
 		},
-		
-		_exclusionGroupChanged: function(userConfigs){
-			//first extract exclusions and defs
-			var exDefs = new Array();
-			var exclusions = new Array();
-			var uc,ex;
-			
-			for( i in userConfigs){
-				uc = userConfigs[i];
-				ex = uc.exclusion;
-				if(ex == "EXCLUSION_DEFINITION"){
-					dc.debug("adding exclusion definition:" + uc.name + "; "+ex);
-					exDefs.push(uc);
-				}else if(ex != undefined){
-					dc.debug("adding exclusion:" + uc.name + "; " + ex);
-					exclusions.push(uc);
-				}
-			}
-
-			var selectedExclusions;
-			
-			for(i in exDefs){
-				selectedExclusions = new Array();
-				uc = exDefs[i];
-				var control = $("[name="+uc.name+"]");
-				if(uc.inputType == "SINGLESELECT"){
-					selectedExclusions.push(control.val());
-				}else if(uc.inputType == "MULTISELECT"){
-					$("[name="+uc.name+"]:checked").each(function(ii, selected){ 
-						selectedExclusions[ii] = $(selected).attr("name");
-					});
-				}else{
-					//ignore
-				}
-				
-				var exlist;
-				for(j in exclusions){
-					uc = exclusions[j];
-					exlist = uc.exclusion.split("|");
-					var visible = false;
-					for(x in exlist){
-						dc.debug("ex["+x+"]:" + exlist[x]);
-						for(y in selectedExclusions){
-							if(exlist[x] == selectedExclusions[y]){
-								visible = true;
-							}
-						}
-					}
-					$("#li-"+uc.name,this.element).css("display", visible ? "block":"none");
-				}
-			}
-		}
-		
 	});	
 })();
 

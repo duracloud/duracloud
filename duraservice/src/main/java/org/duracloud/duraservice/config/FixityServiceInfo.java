@@ -66,8 +66,9 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         fsService.setMaxDeploymentsAllowed(1); // single deployment until otherwise supported
 
         fsService.setSystemConfigs(getSystemConfigs());
-        fsService.setUserConfigs(getUserConfigs());
-        fsService.setModeSets(getModeSets());
+        List<UserConfigModeSet> modeSets = createDefaultModeSet(getUserConfigs());
+        modeSets.addAll(getModeSets());
+        fsService.setUserConfigModeSets(modeSets);
         fsService.setDeploymentOptions(getSimpleDeploymentOptions());
 
         return fsService;
