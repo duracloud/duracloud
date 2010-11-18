@@ -7,25 +7,8 @@
  */
 package org.duracloud.serviceconfig.xml;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
-import org.duracloud.DeploymentOptionLocationType;
-import org.duracloud.DeploymentOptionStateType;
-import org.duracloud.DeploymentOptionType;
-import org.duracloud.DeploymentOptionsType;
-import org.duracloud.DeploymentStatusType;
-import org.duracloud.DeploymentType;
-import org.duracloud.DeploymentsType;
-import org.duracloud.ModeSetType;
-import org.duracloud.ModeType;
-import org.duracloud.OptionInputType;
-import org.duracloud.ServiceType;
-import org.duracloud.SingleServiceType;
-import org.duracloud.SystemConfigType;
-import org.duracloud.SystemPropertyType;
-import org.duracloud.UserConfigType;
-import org.duracloud.UserPropertyType;
+import org.duracloud.*;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -33,11 +16,13 @@ import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SelectableUserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
-import org.duracloud.serviceconfig.user.UserConfigMode;
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
+
+import java.util.List;
 
 /**
  * This class is responsible for serializing ServiceInfo objects into
@@ -115,10 +100,20 @@ public class ServiceElementWriter {
             populateSystemConfig(systemConfigType, systemConfigs);
         }
 
+        UserConfigType userConfigType = null;
+        List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
+        if (userConfigs != null && userConfigs.size() > 0) {
+            if (null == userConfigType) {
+                userConfigType = service.addNewUserConfig();
+            }
+            populateUserConfigProperties(userConfigType, userConfigs);
+        }
 
-        List<UserConfigModeSet> userConfigModeSets = serviceInfo.getUserConfigModeSets();
+        List<UserConfigModeSet> userConfigModeSets = serviceInfo.getModeSets();
         if (userConfigModeSets != null && userConfigModeSets.size() > 0) {
-            UserConfigType  userConfigType = service.addNewUserConfig();
+            if (null == userConfigType) {
+                userConfigType = service.addNewUserConfig();
+            }
             populateUserConfigModeSets(userConfigType, userConfigModeSets);
         }
 
@@ -169,16 +164,6 @@ public class ServiceElementWriter {
             modeSetType.setDisplayName(name);
         }
 
-        String displayName = modeSet.getDisplayName();
-        if (!StringUtils.isBlank(displayName)) {
-            modeSetType.setDisplayName(displayName);
-        }
-        
-        String value = modeSet.getValue();
-        if (!StringUtils.isBlank(value)) {
-            modeSetType.setValue(value);
-        }
-
         List<UserConfigMode> modes = modeSet.getModes();
         if (modes != null && modes.size() > 0) {
             populateUserConfigModes(modeSetType, modes);
@@ -189,11 +174,6 @@ public class ServiceElementWriter {
                                                 List<UserConfigMode> modes) {
         for (UserConfigMode mode : modes) {
             ModeType modeType = modeSetType.addNewMode();
-
-            String name = mode.getName();
-            if (null != name && !StringUtils.isBlank(name)) {
-                modeType.setName(name);
-            }
 
             String displayName = mode.getDisplayName();
             if (null != displayName && !StringUtils.isBlank(displayName)) {
@@ -419,10 +399,10 @@ public class ServiceElementWriter {
                     populateSystemConfig(systemConfigType, systemConfigs);
                 }
 
-                List<UserConfigModeSet> userConfigModeSets = deployment.getUserConfigModeSets();
-                if (userConfigModeSets != null && userConfigModeSets.size() > 0) {
+                List<UserConfig> userConfigs = deployment.getUserConfigs();
+                if (userConfigs != null && userConfigs.size() > 0) {
                     UserConfigType userConfigType = deploymentType.addNewUserConfig();
-                    populateUserConfigModeSets(userConfigType, userConfigModeSets);
+                    populateUserConfigProperties(userConfigType, userConfigs);
                 }
             }
         }

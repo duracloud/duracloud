@@ -112,7 +112,7 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
         icServiceUserConfig.add(namePrefix);
         icServiceUserConfig.add(nameSuffix);
 
-        icService.setUserConfigModeSets(createDefaultModeSet(icServiceUserConfig));
+        icService.setUserConfigs(icServiceUserConfig);
 
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();

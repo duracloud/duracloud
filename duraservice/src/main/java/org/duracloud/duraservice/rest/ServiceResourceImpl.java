@@ -89,7 +89,7 @@ public class ServiceResourceImpl implements ServiceResource {
         return serviceManager.deployService(serviceId,
                                             serviceHost,
                                             service.getUserConfigVersion(),
-                                            service.getUserConfigModeSets());
+                                            service.getUserConfigs());
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ServiceResourceImpl implements ServiceResource {
         serviceManager.updateServiceConfig(serviceId,
                                            deploymentId,
                                            service.getUserConfigVersion(),
-                                           service.getUserConfigModeSets());
+                                           service.getUserConfigs());
     }
 
     @Override

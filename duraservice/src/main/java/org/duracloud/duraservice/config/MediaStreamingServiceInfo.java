@@ -61,7 +61,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
         msServiceUserConfig.add(mediaSourceSpace);
         msServiceUserConfig.add(mediaViewerSpace);
 
-        msService.setUserConfigModeSets(createDefaultModeSet(msServiceUserConfig));
+        msService.setUserConfigs(msServiceUserConfig);
 
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();

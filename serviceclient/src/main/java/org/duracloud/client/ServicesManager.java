@@ -7,15 +7,15 @@
  */
 package org.duracloud.client;
 
-import java.util.List;
-import java.util.Map;
-
 import org.duracloud.client.error.NotFoundException;
 import org.duracloud.client.error.ServicesException;
 import org.duracloud.common.model.Securable;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.duracloud.serviceconfig.user.UserConfig;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Allows for communication with DuraService
@@ -98,7 +98,7 @@ public interface ServicesManager extends Securable {
      */
     public int deployService(int serviceId,
                              String userConfigVersion,
-                             List<UserConfigModeSet> userConfigModeSets,
+                             List<UserConfig> userConfigs,
                              DeploymentOption deploymentSelection)
         throws NotFoundException, ServicesException;
 
@@ -115,7 +115,7 @@ public interface ServicesManager extends Securable {
     public void updateServiceConfig(int serviceId,
                                     int deploymentId,
                                     String userConfigVersion,
-                                    List<UserConfigModeSet> userConfigModeSets)
+                                    List<UserConfig> userConfigs)
         throws NotFoundException, ServicesException;
 
     /**

@@ -26,6 +26,7 @@ import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.duracloud.serviceconfig.xml.ServiceDocumentBinding;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -53,18 +54,8 @@ public class ServiceConfigUtilTest {
 
     private ServiceInfo service;
     private List<UserConfigModeSet> modeSets;
-    private final String modeSetNameTop = "modeset.name.top";
-    private final String modeSetNameIn = "modeset.name.in";
-    private final String modeSetNameOut = "modeset.name.out";
-
-    private final String modeNameOn = "mode.name.on";
-    private final String modeNameOff = "mode.name.off";
-
-    private final String optName0 = "option.name.0";
-    private final String optName1 = "option.name.1";
-
-    private final String configName0 = "config.name.0";
-    private final String configName1 = "config.name.1";
+    private final String modeSetNameIn = "mode.name.in";
+    private final String modeSetNameOut = "mode.name.out";
 
     private UserStore userStore;
     private List<SystemConfig> systemConfig;
@@ -114,7 +105,7 @@ public class ServiceConfigUtilTest {
 
         service = new ServiceInfo();
         service.setDeploymentOptions(new ArrayList<DeploymentOption>());
-        service.setUserConfigModeSets(createModeSets());
+        service.setModeSets(createModeSets());
 
         userStore = new UserStore();
         userStore.setHost(host);
@@ -167,85 +158,29 @@ public class ServiceConfigUtilTest {
         EasyMock.expect(contentStore.getStorageProviderType()).andReturn(
             StorageProviderType.AMAZON_S3.name()).anyTimes();
         EasyMock.expect(contentStore.getSpaces()).andReturn(spaces).anyTimes();
-        EasyMock.expect(contentStore.getStoreId()).andReturn("stId").anyTimes();
 
         EasyMock.replay(contentStore);
         return contentStore;
     }
 
     private List<UserConfigModeSet> createModeSets() {
-
-        // bottom-level modes
-        List<Option> options0 = new ArrayList<Option>();
-        List<Option> options1 = new ArrayList<Option>();
-        options0.add(new Option(optName0, ServiceConfigUtil.SPACES_VAR, false));
-        options1.add(new Option(optName1, ServiceConfigUtil.SPACES_VAR, false));
-
-        List<UserConfig> userConfigs0 = new ArrayList<UserConfig>();
-        userConfigs0.add(new SingleSelectUserConfig(configName0,
-                                                   configName0,
-                                                   options0));
-
-        List<UserConfig> userConfigs1 = new ArrayList<UserConfig>();
-        userConfigs1.add(new SingleSelectUserConfig(configName1,
-                                                   configName1,
-                                                   options1));
-
-        UserConfigMode modeSrc = new UserConfigMode();
-        modeSrc.setName("not-used");
-        modeSrc.setDisplayName("not-used");
-        modeSrc.setUserConfigs(userConfigs0);
-
-        UserConfigMode modeDest = new UserConfigMode();
-        modeDest.setName("not-used");
-        modeDest.setDisplayName("not-used");
-        modeDest.setUserConfigs(userConfigs1);
+        UserConfigMode mode = new UserConfigMode();
+        mode.setDisplayName(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
 
         List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
-        modes.add(modeSrc);
-        modes.add(modeDest);
+        modes.add(mode);
 
-        // second-level modesets
         UserConfigModeSet modeSetIn = new UserConfigModeSet();
-        modeSetIn.setValue(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
-        modeSetIn.setDisplayName(modeSetNameIn);
         modeSetIn.setName(modeSetNameIn);
         modeSetIn.setModes(modes);
 
         UserConfigModeSet modeSetOut = new UserConfigModeSet();
-        modeSetOut.setValue(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
-        modeSetOut.setDisplayName(modeSetNameOut);
         modeSetOut.setName(modeSetNameOut);
         modeSetOut.setModes(modes);
 
-        List<UserConfigModeSet> modeSetsB = new ArrayList<UserConfigModeSet>();
-        modeSetsB.add(modeSetIn);
-        modeSetsB.add(modeSetOut);
-
-
-        // top-level modeset
-        UserConfigMode modeOn = new UserConfigMode();
-        modeOn.setName(modeNameOn);
-        modeOn.setDisplayName(modeNameOn);
-
-        UserConfigMode modeOff = new UserConfigMode();
-        modeOff.setName(modeNameOff);
-        modeOff.setDisplayName(modeNameOff);
-
-        List<UserConfigMode> modesOnOff = new ArrayList<UserConfigMode>();
-        modesOnOff.add(modeOn);
-        modesOnOff.add(modeOff);
-
-        UserConfigModeSet modeSetTop = new UserConfigModeSet();
-        modeSetTop.setDisplayName(modeSetNameTop);
-        modeSetTop.setName(modeSetNameTop);
-        modeSetTop.setModes(modesOnOff);
-
-        modeOn.setUserConfigModeSets(modeSetsB);
-        modeOff.setUserConfigModeSets(modeSetsB);
-
         modeSets = new ArrayList<UserConfigModeSet>();
-        modeSets.add(modeSetTop);
+        modeSets.add(modeSetIn);
+        modeSets.add(modeSetOut);
 
         return modeSets;
     }
@@ -261,7 +196,7 @@ public class ServiceConfigUtilTest {
     public void testPopulateServiceNull() {
         boolean success = false;
 
-        service.setUserConfigModeSets(null);
+        service.setModeSets(null);
         try {
             util.populateService(service,
                                  serviceComputeInstances,
@@ -283,68 +218,29 @@ public class ServiceConfigUtilTest {
                                                        userStore,
                                                        computeHostName);
 
-        List<UserConfigModeSet> testModeSets = serviceInfo.getUserConfigModeSets();
+        List<UserConfigModeSet> testModeSets = serviceInfo.getModeSets();
         Assert.assertNotNull("modeSets is null", testModeSets);
-        Assert.assertEquals(1, testModeSets.size());
 
-        UserConfigModeSet testModeSet = testModeSets.get(0);
-        Assert.assertEquals(modeSetNameTop, testModeSet.getName());
-        Assert.assertEquals(modeSetNameTop, testModeSet.getDisplayName());
-        Assert.assertNull(testModeSet.getValue());
-
-        List<UserConfigMode> testModes = testModeSet.getModes();
-        Assert.assertNotNull(testModes);
-        Assert.assertEquals(2, testModes.size());
-
-        for (UserConfigMode testMode : testModes) {
-            Assert.assertEquals(testMode.getDisplayName(), testMode.getName());
-            if (modeNameOn.equals(testMode.getDisplayName())) {
-                Assert.assertEquals(modeNameOn, testMode.getName());
-
-            } else if (modeNameOff.equals(testMode.getDisplayName())) {
-                Assert.assertEquals(modeNameOff, testMode.getName());
-
-            } else {
-                Assert.fail("Unexpected modeName:'" + testMode.getName() + "'");
-            }
-
-            Assert.assertNull(testMode.getUserConfigs());
-            verifyModeSets(testMode.getUserConfigModeSets());
-        }
-    }
-
-    private void verifyModeSets(List<UserConfigModeSet> testModeSets) {
-        Assert.assertNotNull(testModeSets);
         Assert.assertEquals(2, testModeSets.size());
-
+        boolean foundIn = false;
+        boolean foundOut = false;
         for (UserConfigModeSet testModeSet : testModeSets) {
             String name = testModeSet.getName();
-            String displayName = testModeSet.getDisplayName();
             Assert.assertNotNull("mode set name is null", name);
-            Assert.assertNotNull("mode set displayName is null", displayName);
 
-            Assert.assertEquals(name, displayName);
             if (modeSetNameIn.equals(name)) {
-                Assert.assertEquals(modeSetNameIn, displayName);
-
+                foundIn = true;
             } else if (modeSetNameOut.equals(name)) {
-                Assert.assertEquals(modeSetNameOut, displayName);
-
-            } else {
-                Assert.fail("Unexpected name: " + name);
+                foundOut = true;
             }
 
             List<UserConfigMode> testModes = testModeSet.getModes();
             Assert.assertNotNull("mode list is null", testModes);
 
-            Assert.assertEquals(2, testModes.size());
+            Assert.assertEquals(NUM_CONTENT_STORES, testModes.size());
             for (UserConfigMode testMode : testModes) {
-                String modeName = testMode.getName();
-                String modeDisplayName = testMode.getDisplayName();
+                String modeName = testMode.getDisplayName();
                 Assert.assertNotNull("mode name is null", modeName);
-                Assert.assertNotNull("mode display is null", modeDisplayName);
-
-                Assert.assertEquals(modeName, modeDisplayName);
                 Assert.assertEquals(StorageProviderType.AMAZON_S3.name(),
                                     modeName);
 
@@ -352,50 +248,47 @@ public class ServiceConfigUtilTest {
                 Assert.assertNotNull(userConfigs);
 
                 Assert.assertEquals(1, userConfigs.size());
-                UserConfig userConfig = userConfigs.get(0);
+                for (UserConfig userConfig : userConfigs) {
+                    String configName = userConfig.getName();
+                    String configDisplayName = userConfig.getDisplayName();
+                    Assert.assertNotNull(configName);
+                    Assert.assertNotNull(configDisplayName);
 
-                String configName = userConfig.getName();
-                String configDisplayName = userConfig.getDisplayName();
-                Assert.assertNotNull(configName);
-                Assert.assertNotNull(configDisplayName);
+                    Assert.assertEquals(configName, configDisplayName);
+                    Assert.assertTrue(configName,
+                                      configName.startsWith(modeName));
 
-                Assert.assertEquals(configName, configDisplayName);
+                    Assert.assertTrue(userConfig instanceof SingleSelectUserConfig);
+                    SingleSelectUserConfig singleSelectUserConfig = (SingleSelectUserConfig) userConfig;
+                    List<Option> options = singleSelectUserConfig.getOptions();
+                    Assert.assertNotNull(options);
 
-                if (configName0.equals(configName)) {
-                    Assert.assertEquals(configName0, configDisplayName);
-
-                } else if (configName1.equals(configName)) {
-                    Assert.assertEquals(configName1, configDisplayName);
-
-                } else {
-                    Assert.fail("Unexpected name: " + configName);
-                }
-
-                Assert.assertTrue(userConfig instanceof SingleSelectUserConfig);
-                SingleSelectUserConfig singleSelectUserConfig = (SingleSelectUserConfig) userConfig;
-                List<Option> options = singleSelectUserConfig.getOptions();
-                Assert.assertNotNull(options);
-
-                Assert.assertEquals(spaces.size(), options.size());
-                boolean foundSpace0 = false;
-                boolean foundSpace1 = false;
-                boolean foundSpace2 = false;
-                for (Option option : options) {
-                    if (space0.equals(option.getDisplayName())) {
-                        foundSpace0 = true;
-                    } else if (space1.equals(option.getDisplayName())) {
-                        foundSpace1 = true;
-                    } else if (space2.equals(option.getDisplayName())) {
-                        foundSpace2 = true;
+                    Assert.assertEquals(spaces.size(), options.size());
+                    boolean foundSpace0 = false;
+                    boolean foundSpace1 = false;
+                    boolean foundSpace2 = false;
+                    for (Option option : options) {
+                        if (space0.equals(option.getDisplayName())) {
+                            foundSpace0 = true;
+                        } else if (space1.equals(option.getDisplayName())) {
+                            foundSpace1 = true;
+                        } else if (space2.equals(option.getDisplayName())) {
+                            foundSpace2 = true;
+                        }
                     }
+                    Assert.assertTrue("space 0 not found", foundSpace0);
+                    Assert.assertTrue("space 1 not found", foundSpace1);
+                    Assert.assertTrue("space 2 not found", foundSpace2);
+
                 }
-                Assert.assertTrue("space 0 not found", foundSpace0);
-                Assert.assertTrue("space 1 not found", foundSpace1);
-                Assert.assertTrue("space 2 not found", foundSpace2);
 
                 Assert.assertNull(testMode.getUserConfigModeSets());
             }
+
         }
+
+        Assert.assertTrue("mode-in not found", foundIn);
+        Assert.assertTrue("mode-out not found", foundOut);
     }
 
     @Test
@@ -472,12 +365,9 @@ public class ServiceConfigUtilTest {
             ContentStoreManagerUtil.class);
 
         ContentStoreManager contentStoreManager = EasyMock.createMock(
-            "ContentStoreManager",
             ContentStoreManager.class);
         EasyMock.expect(contentStoreManager.getContentStores()).andReturn(
             contentStores).anyTimes();
-        EasyMock.expect(contentStoreManager.getPrimaryContentStore()).andReturn(
-            createMockContentStore(0)).anyTimes();
         EasyMock.replay(contentStoreManager);
 
         EasyMock.expect(util.getContentStoreManager(EasyMock.isA(UserStore.class)))

@@ -2,12 +2,8 @@ package org.duracloud.duraservice.config;
 
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
-import org.duracloud.serviceconfig.user.UserConfig;
-import org.duracloud.serviceconfig.user.UserConfigMode;
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,19 +37,5 @@ public abstract class AbstractServiceInfo {
 
         return depOptions;
     }
-
-		protected List<UserConfigModeSet> createDefaultModeSet(List<UserConfig> userConfig) {
-		    UserConfigMode mode = new UserConfigMode();
-		    mode.setSelected(true);
-		    mode.setName("defaultMode");
-		    mode.setDisplayName("Default Mode");
-		    mode.setUserConfigs(userConfig);
-		    UserConfigModeSet userConfigModeSet = new UserConfigModeSet();
-		    userConfigModeSet.setDisplayName("Default Mode Set");
-		    userConfigModeSet.setName("defaultModeSet");
-		    userConfigModeSet.setValue(mode.getName());
-		    userConfigModeSet.setModes(Arrays.asList(new UserConfigMode[]{mode}));
-		    return Arrays.asList(new UserConfigModeSet[]{userConfigModeSet});
-		}
 
 }

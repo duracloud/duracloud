@@ -7,8 +7,6 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
-import org.duracloud.serviceconfig.user.UserConfigMode;
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     private final String userConfigVersion = "1.0";
     private final String displayName = "Bit Integrity Checker";
 
-    protected enum ModeType {
+    private enum Mode {
         ALL_IN_ONE_LIST("all-in-one-for-list",
                         "Verify the integrity of a list of items"),
         ALL_IN_ONE_SPACE("all-in-one-for-space",
@@ -36,7 +34,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         private String key;
         private String desc;
 
-        private ModeType(String key, String desc) {
+        private Mode(String key, String desc) {
             this.key = key;
             this.desc = desc;
         }
@@ -49,8 +47,8 @@ public class FixityServiceInfo extends AbstractServiceInfo {
             return key;
         }
 
-        protected String getDesc() {
-            return desc;
+        protected Option asOption() {
+            return new Option(this.desc, this.key, false);
         }
     }
 
@@ -66,9 +64,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         fsService.setMaxDeploymentsAllowed(1); // single deployment until otherwise supported
 
         fsService.setSystemConfigs(getSystemConfigs());
-        List<UserConfigModeSet> modeSets = createDefaultModeSet(getUserConfigs());
-        modeSets.addAll(getModeSets());
-        fsService.setUserConfigModeSets(modeSets);
+        fsService.setUserConfigs(getUserConfigs());
         fsService.setDeploymentOptions(getSimpleDeploymentOptions());
 
         return fsService;
@@ -115,111 +111,38 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     }
 
     private List<UserConfig> getUserConfigs() {
-        return new ArrayList<UserConfig>();
+        List<UserConfig> fsServiceUserConfig = new ArrayList<UserConfig>();
+
+        fsServiceUserConfig.add(getModeDefinitionSelection());
+        fsServiceUserConfig.add(getHashMethodSelection());
+        fsServiceUserConfig.add(getSaltConfig());
+        //fsServiceUserConfig.add(getFailFastBoolean()); option may not be needed.
+        fsServiceUserConfig.add(getStorageProviderSelection());
+        fsServiceUserConfig.add(getSpaceOfProvidedListingSelection());
+        fsServiceUserConfig.add(getSpaceOfProvidedListingBSelection());
+        fsServiceUserConfig.add(getSpaceOfGeneratedHashListingSelection());
+        fsServiceUserConfig.add(getContentIdOfProvidedListingConfig());
+        fsServiceUserConfig.add(getContentIdOfProvidedListingBConfig());
+        fsServiceUserConfig.add(getSpaceOfOutputConfig());
+        fsServiceUserConfig.add(getContentIdOfGeneratedListingConfig());
+        fsServiceUserConfig.add(getContentIdOfReportConfig());
+
+        return fsServiceUserConfig;
     }
 
-    private List<UserConfigModeSet> getModeSets() {
-        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+    private SingleSelectUserConfig getModeDefinitionSelection() {
+        List<Option> modeOptions = new ArrayList<Option>();
+        modeOptions.add(Mode.ALL_IN_ONE_LIST.asOption());
+        modeOptions.add(Mode.ALL_IN_ONE_SPACE.asOption());
+        modeOptions.add(Mode.GENERATE_LIST.asOption());
+        modeOptions.add(Mode.GENERATE_SPACE.asOption());
+        modeOptions.add(Mode.COMPARE.asOption());
 
-        modes.add(getMode(ModeType.ALL_IN_ONE_LIST));
-        modes.add(getMode(ModeType.ALL_IN_ONE_SPACE));
-        modes.add(getMode(ModeType.GENERATE_LIST));
-        modes.add(getMode(ModeType.GENERATE_SPACE));
-        modes.add(getMode(ModeType.COMPARE));
-
-        UserConfigModeSet modeSet = new UserConfigModeSet();
-        modeSet.setModes(modes);
-        modeSet.setName("mode");
-        modeSet.setDisplayName("Service Mode");
-
-        List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
-        modeSets.add(modeSet);
-        return modeSets;
-    }
-
-    private UserConfigMode getMode(ModeType modeType) {
-        List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
-        modeSets.add(getStorageProviderSelection(modeType));
-
-        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
-        switch (modeType) {
-            case ALL_IN_ONE_LIST:
-                userConfigs.add(getHashMethodSelection());
-                userConfigs.add(getContentIdOfProvidedListingConfig());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
-                userConfigs.add(getContentIdOfReportConfig());
-                break;
-            case ALL_IN_ONE_SPACE:
-                userConfigs.add(getHashMethodSelection());
-                userConfigs.add(getContentIdOfProvidedListingConfig());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
-                userConfigs.add(getContentIdOfReportConfig());
-                break;
-            case GENERATE_LIST:
-                userConfigs.add(getHashMethodSelection());
-                userConfigs.add(getContentIdOfProvidedListingConfig());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
-                break;
-            case GENERATE_SPACE:
-                userConfigs.add(getHashMethodSelection());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
-                break;
-            case COMPARE:
-                userConfigs.add(getContentIdOfProvidedListingConfig());
-                userConfigs.add(getContentIdOfProvidedListingBConfig());
-                userConfigs.add(getContentIdOfReportConfig());
-                break;
-            default:
-                throw new RuntimeException("Unexpected ModeType: " + modeType);
-        }
-
-        UserConfigMode mode = new UserConfigMode();
-        mode.setDisplayName(modeType.getDesc());
-        mode.setName(modeType.getKey());
-        mode.setUserConfigs(userConfigs);
-        mode.setUserConfigModeSets(modeSets);
-        return mode;
-    }
-
-    private UserConfigModeSet getStorageProviderSelection(ModeType modeType) {
-        UserConfigModeSet modeSet = new UserConfigModeSet();
-        modeSet.setName("stores");
-        modeSet.setDisplayName("Stores");
-        modeSet.setValue(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
-
-        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
-        switch (modeType) {
-            case ALL_IN_ONE_LIST:
-                userConfigs.add(getSpaceOfProvidedListingSelection());
-                break;
-            case ALL_IN_ONE_SPACE:
-                userConfigs.add(getSpaceOfProvidedListingSelection());
-                userConfigs.add(getSpaceOfGeneratedHashListingSelection());
-                break;
-            case GENERATE_LIST:
-                userConfigs.add(getSpaceOfProvidedListingSelection());
-                break;
-            case GENERATE_SPACE:
-                userConfigs.add(getSpaceOfGeneratedHashListingSelection());
-                break;
-            case COMPARE:
-                userConfigs.add(getSpaceOfProvidedListingSelection());
-                userConfigs.add(getSpaceOfProvidedListingBSelection());
-                break;
-            default:
-                throw new RuntimeException("Unexpected ModeType: " + modeType);
-        }
-
-        userConfigs.add(getSpaceOfOutputConfig());
-
-        UserConfigMode mode = new UserConfigMode();
-        mode.setUserConfigs(userConfigs);
-
-        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
-        modes.add(mode);
-
-        modeSet.setModes(modes);
-        return modeSet;
+        SingleSelectUserConfig modeSelection = new SingleSelectUserConfig("mode",
+                                                                          "Service Mode",
+                                                                          modeOptions,
+                                                                          ServiceConfigUtil.EXCLUSION_DEFINITION);
+        return modeSelection;
     }
 
     private SingleSelectUserConfig getHashMethodSelection() {
@@ -236,18 +159,31 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
         return new SingleSelectUserConfig("hashApproach",
                                           "Get integrity information from...",
-                                          trustLevelOptions);
+                                          trustLevelOptions,
+                                          or(Mode.ALL_IN_ONE_LIST,
+                                             Mode.ALL_IN_ONE_SPACE,
+                                             Mode.GENERATE_LIST,
+                                             Mode.GENERATE_SPACE));
     }
 
     private UserConfig getSaltConfig() {
         String emptyValue = "";
-        return new TextUserConfig("salt", "Salt", emptyValue);
+        return new TextUserConfig("salt",
+                                  "Salt",
+                                  emptyValue,
+                                  or(Mode.ALL_IN_ONE_SPACE,
+                                     Mode.ALL_IN_ONE_LIST,
+                                     Mode.GENERATE_SPACE,
+                                     Mode.GENERATE_LIST));
     }
 
     private SingleSelectUserConfig getFailFastBoolean() {
         return new SingleSelectUserConfig("failFast",
                                           "Exit Immediately on Failure or Error",
-                                          getBooleanOptions());
+                                          getBooleanOptions(),
+                                          or(Mode.ALL_IN_ONE_SPACE,
+                                             Mode.ALL_IN_ONE_LIST,
+                                             Mode.COMPARE));
     }
 
     private List<Option> getBooleanOptions() {
@@ -269,38 +205,54 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     private SingleSelectUserConfig getSpaceOfProvidedListingSelection() {
         return new SingleSelectUserConfig("providedListingSpaceIdA",
                                           "Space with input listing",
-                                          getSpaceOptions());
+                                          getSpaceOptions(),
+                                          or(Mode.ALL_IN_ONE_SPACE,
+                                             Mode.ALL_IN_ONE_LIST,
+                                             Mode.GENERATE_LIST,
+                                             Mode.COMPARE));
     }
 
     private SingleSelectUserConfig getSpaceOfProvidedListingBSelection() {
         return new SingleSelectUserConfig("providedListingSpaceIdB",
                                           "Space with second input listing",
                                           getSpaceOptions(),
-                                          ModeType.COMPARE.getKey());
+                                          Mode.COMPARE.getKey());
     }
 
     private SingleSelectUserConfig getSpaceOfGeneratedHashListingSelection() {
         return new SingleSelectUserConfig("targetSpaceId",
                                           "Space containing content items",
-                                          getSpaceOptions());
+                                          getSpaceOptions(),
+                                          or(Mode.GENERATE_SPACE,
+                                             Mode.ALL_IN_ONE_SPACE));
     }
 
     private TextUserConfig getContentIdOfProvidedListingConfig() {
         return new TextUserConfig("providedListingContentIdA",
                                   "Input listing name",
-                                  "item-listing.csv");
+                                  "item-listing.csv",
+                                  or(Mode.ALL_IN_ONE_LIST,
+                                     Mode.ALL_IN_ONE_SPACE,
+                                     Mode.GENERATE_LIST,
+                                     Mode.COMPARE));
     }
 
     private TextUserConfig getContentIdOfProvidedListingBConfig() {
         return new TextUserConfig("providedListingContentIdB",
                                   "Second input listing name",
-                                  "fingerprints.csv");
+                                  "fingerprints.csv",
+                                  Mode.COMPARE.getKey());
     }
 
     private SingleSelectUserConfig getSpaceOfOutputConfig() {
         return new SingleSelectUserConfig("outputSpaceId",
                                           "Output space",
-                                          getSpaceOptions());
+                                          getSpaceOptions(),
+                                          or(Mode.ALL_IN_ONE_LIST,
+                                             Mode.ALL_IN_ONE_SPACE,
+                                             Mode.GENERATE_LIST,
+                                             Mode.GENERATE_SPACE,
+                                             Mode.COMPARE));
     }
 
     private List<Option> getSpaceOptions() {
@@ -314,13 +266,30 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     private TextUserConfig getContentIdOfGeneratedListingConfig() {
         return new TextUserConfig("outputContentId",
                                   "Output listing name",
-                                  "fingerprints.csv");
+                                  "fingerprints.csv",
+                                  or(Mode.ALL_IN_ONE_LIST,
+                                     Mode.ALL_IN_ONE_SPACE,
+                                     Mode.GENERATE_LIST,
+                                     Mode.GENERATE_SPACE));
     }
 
     private UserConfig getContentIdOfReportConfig() {
         return new TextUserConfig("reportContentId",
                                   "Output report name",
-                                  "integrity-report.csv");
+                                  "integrity-report.csv",
+                                  or(Mode.ALL_IN_ONE_LIST,
+                                     Mode.ALL_IN_ONE_SPACE,
+                                     Mode.COMPARE));
+    }
+
+    private String or(Mode... modes) {
+        StringBuilder sb = new StringBuilder();
+        for (Mode mode : modes) {
+            sb.append(mode.getKey());
+            sb.append("|");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 
 }

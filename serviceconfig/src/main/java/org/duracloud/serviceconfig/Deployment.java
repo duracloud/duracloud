@@ -7,10 +7,10 @@
  */
 package org.duracloud.serviceconfig;
 
+import org.duracloud.serviceconfig.user.UserConfig;
+
 import java.io.Serializable;
 import java.util.List;
-
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 /**
  * This class holds the name, status, and configuration of an deployed service.
@@ -39,7 +39,7 @@ public class Deployment implements Serializable {
     private List<SystemConfig> systemConfigs;
 
     /** The user configuration settings for this deployed service */
-    private List<UserConfigModeSet> userConfigModeSets;
+    private List<UserConfig> userConfigs;
 
     public int getId() {
         return id;
@@ -73,14 +73,12 @@ public class Deployment implements Serializable {
         this.systemConfigs = systemConfigs;
     }
 
-	public List<UserConfigModeSet> getUserConfigModeSets() {
-		return userConfigModeSets;
-	}
+    public List<UserConfig> getUserConfigs() {
+        return userConfigs;
+    }
 
-	public void setUserConfigModeSets(List<UserConfigModeSet> userConfigModeSets) {
-		this.userConfigModeSets = userConfigModeSets;
-	}
-
-
+    public void setUserConfigs(List<UserConfig> userConfigs) {
+        this.userConfigs = userConfigs;
+    }
 
 }

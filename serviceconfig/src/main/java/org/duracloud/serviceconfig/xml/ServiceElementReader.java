@@ -119,9 +119,14 @@ public class ServiceElementReader {
 
         UserConfigType userConfigType = serviceType.getUserConfig();
         if (null != userConfigType) {
+            UserPropertyType[] userPropertyTypes = userConfigType.getPropertyArray();
+            if (null != userPropertyTypes && userPropertyTypes.length > 0) {
+                service.setUserConfigs(createUserConfigs(userPropertyTypes));
+            }
+
             ModeSetType[] modeSetTypes = userConfigType.getModeSetArray();
             if (null != modeSetTypes && modeSetTypes.length > 0) {
-                service.setUserConfigModeSets(createUserConfigModeSets(modeSetTypes));
+                service.setModeSets(createUserConfigModeSets(modeSetTypes));
             }
         }
 
@@ -244,8 +249,6 @@ public class ServiceElementReader {
 
         modeSet.setId(modeSetType.getId());
         modeSet.setName(modeSetType.getDisplayName());
-        modeSet.setDisplayName(modeSetType.getDisplayName());
-        modeSet.setValue(modeSetType.getValue());
 
         ModeType[] modeTypes = modeSetType.getModeArray();
         if (null != modeTypes && modeTypes.length > 0) {
@@ -263,7 +266,6 @@ public class ServiceElementReader {
     private static UserConfigMode createUserConfigMode(ModeType modeType) {
         UserConfigMode mode = new UserConfigMode();
 
-        mode.setName(modeType.getName());
         mode.setDisplayName(modeType.getDisplayName());
         mode.setSelected(modeType.getSelected());
 
@@ -337,10 +339,11 @@ public class ServiceElementReader {
 
                 UserConfigType userConfigType = deploymentType.getUserConfig();
                 if (null != userConfigType) {
-                	ModeSetType[] modeSetTypes = userConfigType.getModeSetArray();
-                    if (null != modeSetTypes &&
-                    		modeSetTypes.length > 0) {
-                        deployment.setUserConfigModeSets(createUserConfigModeSets(modeSetTypes));
+                    UserPropertyType[] userPropertyTypes = userConfigType.getPropertyArray();
+                    if (null != userPropertyTypes &&
+                        userPropertyTypes.length > 0) {
+                        deployment.setUserConfigs(createUserConfigs(
+                            userPropertyTypes));
                     }
                 }
 

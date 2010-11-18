@@ -10,6 +10,7 @@ package org.duracloud.serviceconfig.user;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceInfoVerifyHelper;
 import org.duracloud.serviceconfig.ServicesConfigDocument;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,7 @@ public class UserConfigModesTest {
      * The structure below represents serviceInfo object created in this test.
      * <p/>
      * serviceInfo
+     * --userConfigs
      * <p/>
      * --modeSet10
      * ----mode100
@@ -81,7 +83,8 @@ public class UserConfigModesTest {
         serviceInfo = new ServiceInfo();
 
         Def d = getDef(1);
-        serviceInfo.setUserConfigModeSets(createModeSets(d.id * 10, d.modeSetCount));
+        serviceInfo.setUserConfigs(createUserConfigs(d.id, d.configCount));
+        serviceInfo.setModeSets(createModeSets(d.id * 10, d.modeSetCount));
     }
 
     private void createDefs() {
@@ -185,8 +188,6 @@ public class UserConfigModesTest {
         UserConfigModeSet modeSet = new UserConfigModeSet();
         modeSet.setId(id);
         modeSet.setName(buildName(id));
-        modeSet.setDisplayName(buildName(id));
-        modeSet.setValue(buildName(id));
 
         List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
         for (int i = 0; i < count; ++i) {
@@ -223,7 +224,6 @@ public class UserConfigModesTest {
             mode.setUserConfigModeSets(modeSets);
         }
 
-        mode.setName(display + id);
         mode.setDisplayName(display + id);
         if (isFirstMode(id)) {
             mode.setSelected(true);
@@ -271,8 +271,10 @@ public class UserConfigModesTest {
 
     private void verifyServiceInfo(ServiceInfo info) {
         Def d = getDef(1);
+        List<UserConfig> userConfigs = info.getUserConfigs();
+        verifyUserConfigs(d, userConfigs);
 
-        List<UserConfigModeSet> modeSets = info.getUserConfigModeSets();
+        List<UserConfigModeSet> modeSets = info.getModeSets();
         verifyModeSets(d, modeSets);
     }
 
@@ -310,8 +312,6 @@ public class UserConfigModesTest {
         Assert.assertNotNull(modeSet);
         Assert.assertEquals(d.id, modeSet.getId());
         Assert.assertEquals(d.name, modeSet.getName());
-        Assert.assertEquals(d.name, modeSet.getDisplayName());
-        Assert.assertEquals(d.name, modeSet.getValue());
 
         List<UserConfigMode> modes = modeSet.getModes();
         for (int i = 0; i < d.modeCount; ++i) {
@@ -330,7 +330,6 @@ public class UserConfigModesTest {
 
     private void verifyMode(int modeId, UserConfigMode mode) {
         Assert.assertNotNull(mode);
-        Assert.assertEquals(display + modeId, mode.getName());
         Assert.assertEquals(display + modeId, mode.getDisplayName());
         Assert.assertEquals(isFirstMode(modeId), mode.isSelected());
     }

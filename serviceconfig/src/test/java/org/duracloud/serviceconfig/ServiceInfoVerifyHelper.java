@@ -7,12 +7,12 @@
  */
 package org.duracloud.serviceconfig;
 
-import java.util.List;
-
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.Assert;
+
+import java.util.List;
 
 /**
  * This class helps other unit tests check an expected ServiceInfo object
@@ -82,9 +82,9 @@ public class ServiceInfoVerifyHelper {
 
         verifyEqual(expected.getSystemConfigs(),
                     serviceInfo.getSystemConfigs());
-        verifyEqual(expected.getUserConfigModeSets(), serviceInfo.getUserConfigModeSets());
-        verifyUserConfigModeSetsEqual(expected.getUserConfigModeSets(),
-                                      serviceInfo.getUserConfigModeSets());
+        verifyEqual(expected.getUserConfigs(), serviceInfo.getUserConfigs());
+        verifyUserConfigModeSetsEqual(expected.getModeSets(),
+                                      serviceInfo.getModeSets());
         verifyEqual(expected.getDeploymentOptions(),
                     serviceInfo.getDeploymentOptions());
         verifyDeploymentsEqual(expected.getDeployments(),
@@ -229,8 +229,8 @@ public class ServiceInfoVerifyHelper {
 
                     verifyEqual(expectedElem.getSystemConfigs(),
                                 deployment.getSystemConfigs());
-                    verifyEqual(expectedElem.getUserConfigModeSets(),
-                                deployment.getUserConfigModeSets());
+                    verifyEqual(expectedElem.getUserConfigs(),
+                                deployment.getUserConfigs());
                 }
             }
             Assert.assertTrue("Id: " + expectedElem.getId(), found);

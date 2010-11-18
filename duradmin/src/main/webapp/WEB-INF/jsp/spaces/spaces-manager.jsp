@@ -59,7 +59,7 @@
 				<h2>Spaces</h2>
 				</div>
 				<div class="header-section"><span class="float-r"><input
-					id="space-filter" class="dc-item-list-filter " value="" placeholder="filter"
+					id="space-filter" class="dc-item-list-filter " value="filter"
 					type="text" /></span> <input id="check-all-spaces" class="dc-check-all"
 					type="checkbox" /> <span id="space-list-status" class="dc-status"
 					style="display: none"></span></div>
@@ -78,7 +78,7 @@
 				</div>
 				<div class="header-section">
 					<span class="float-r">
-						<input id="content-item-filter" class="dc-item-list-filter" value="" placeholder="filter" 	type="text" />
+						<input id="content-item-filter" class="dc-item-list-filter" value="filter" 	type="text" />
 					</span> 
 					<input id="check-all-content-items" class="dc-check-all" type="checkbox" /> 
 					<a href="javascript:void(0)" class="previous item-scroll-action" style="visibility:hidden">&lt; prev</a>

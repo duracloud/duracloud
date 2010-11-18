@@ -60,37 +60,6 @@
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>profile-clover</id>
-
-      <properties>
-        <tomcat.port>${tomcat.port.default}</tomcat.port>
-        <database.home>${database.home.default}</database.home>
-      </properties>
-
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.atlassian.maven.plugins</groupId>
-            <artifactId>maven-clover2-plugin</artifactId>
-            <version>2.6.2</version>
-            <configuration>
-              <licenseLocation>${cloverLicense}</licenseLocation>
-              <targetPercentage>50%</targetPercentage>
-              <includes>
-                <include>**/*.java</include>
-              </includes>
-              <generateHtml>true</generateHtml>
-              <generateHistorical>true</generateHistorical>
-              <historyDir>${user.home}/.clover/history/${project.artifact}</historyDir>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
   <dependencies>
     <dependency>
       <groupId>org.osgi</groupId>

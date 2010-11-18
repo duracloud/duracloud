@@ -97,7 +97,7 @@ public class ReplicationServiceInfo extends AbstractServiceInfo {
         repServiceUserConfig.add(repMimeTypes);
         */
 
-        repService.setUserConfigModeSets(createDefaultModeSet(repServiceUserConfig));
+        repService.setUserConfigs(repServiceUserConfig);
 
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();

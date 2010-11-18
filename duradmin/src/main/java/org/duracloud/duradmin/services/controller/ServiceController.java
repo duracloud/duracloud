@@ -26,7 +26,6 @@ import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.DeploymentOption.Location;
 import org.duracloud.serviceconfig.user.UserConfig;
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
@@ -109,10 +108,10 @@ public class ServiceController implements Controller {
         List<ServiceInfo> services = this.servicesManager.getDeployedServices();
         ServiceInfo serviceInfo = getServiceInfo(serviceId, services);
         Deployment deployment = getDeployment(serviceInfo, deploymentId);
-        List<UserConfigModeSet> userConfigModeSets = deployment.getUserConfigModeSets();
+        List<UserConfig> userConfigs = deployment.getUserConfigs();
         
-        if(userConfigModeSets!=null){
-            ServiceInfoUtil.applyValues(userConfigModeSets, request);
+        if(userConfigs!=null){
+            ServiceInfoUtil.applyValues(userConfigs, request);
         }
 
         String version = serviceInfo.getUserConfigVersion();
@@ -123,7 +122,7 @@ public class ServiceController implements Controller {
                           version,
                           deploymentId));
 
-        this.servicesManager.updateServiceConfig(serviceId, deploymentId, version, userConfigModeSets);
+        this.servicesManager.updateServiceConfig(serviceId, deploymentId, version, userConfigs);
         log.info(MessageFormat
                  .format("redeployed service [id={0}, userConfigVersion={1}, deployment[{2}] -  id returned: [{3}] ",
                          serviceInfo.getId(),
@@ -163,7 +162,7 @@ public class ServiceController implements Controller {
 	private ModelAndView deploy(Integer serviceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		List<ServiceInfo> services = this.servicesManager.getAvailableServices();
 		ServiceInfo serviceInfo = getServiceInfo(serviceId,services);
-		List<UserConfigModeSet> userConfigs = serviceInfo.getUserConfigModeSets();
+		List<UserConfig> userConfigs = serviceInfo.getUserConfigs();
 		
 		if(userConfigs!=null){
 			ServiceInfoUtil.applyValues(userConfigs, request);

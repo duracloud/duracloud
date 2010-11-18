@@ -62,7 +62,8 @@ public class ServicesConfigDocumentTest {
         serviceInfo.setMaxDeploymentsAllowed(maxDeploymentsAllowed + tag);
 
         serviceInfo.setSystemConfigs(createSystemConfigs(tag, COUNT));
-        serviceInfo.setUserConfigModeSets(createUserConfigModeSets(tag));
+        serviceInfo.setUserConfigs(createUserConfigs(tag, COUNT));
+        serviceInfo.setModeSets(createUserConfigModeSets(tag));
         serviceInfo.setDeploymentOptions(createDeploymentOptions(tag, COUNT));
         serviceInfo.setDeployments(createDeployments(tag, COUNT));
 
@@ -205,7 +206,7 @@ public class ServicesConfigDocumentTest {
             deployment.setHostname(deploymentHostname + newTag);
             deployment.setStatus(status(newTag));
             deployment.setSystemConfigs(createSystemConfigs(newTag, count));
-            deployment.setUserConfigModeSets(createUserConfigModeSets(newTag));
+            deployment.setUserConfigs(createUserConfigs(newTag, count));
             deployments.add(deployment);
         }
         return deployments;
