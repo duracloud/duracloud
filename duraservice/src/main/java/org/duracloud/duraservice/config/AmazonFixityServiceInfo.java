@@ -95,6 +95,7 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
         userConfigs.add(numInstances);
         userConfigs.add(instanceType);
         info.setUserConfigModeSets(createDefaultModeSet(userConfigs));
+
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
 

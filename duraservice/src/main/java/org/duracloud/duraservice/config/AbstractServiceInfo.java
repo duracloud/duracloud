@@ -42,18 +42,18 @@ public abstract class AbstractServiceInfo {
         return depOptions;
     }
 
-		protected List<UserConfigModeSet> createDefaultModeSet(List<UserConfig> userConfig) {
-		    UserConfigMode mode = new UserConfigMode();
-		    mode.setSelected(true);
-		    mode.setName("defaultMode");
-		    mode.setDisplayName("Default Mode");
-		    mode.setUserConfigs(userConfig);
-		    UserConfigModeSet userConfigModeSet = new UserConfigModeSet();
-		    userConfigModeSet.setDisplayName("Default Mode Set");
-		    userConfigModeSet.setName("defaultModeSet");
-		    userConfigModeSet.setValue(mode.getName());
-		    userConfigModeSet.setModes(Arrays.asList(new UserConfigMode[]{mode}));
-		    return Arrays.asList(new UserConfigModeSet[]{userConfigModeSet});
-		}
+    protected List<UserConfigModeSet> createDefaultModeSet(List<UserConfig> userConfig) {
+        UserConfigMode mode = new UserConfigMode();
+        mode.setSelected(true);
+        mode.setName("defaultMode");
+        mode.setDisplayName("Default Mode");
+        mode.setUserConfigs(userConfig);
+        UserConfigModeSet userConfigModeSet = new UserConfigModeSet();
+        userConfigModeSet.setDisplayName("Default Mode Set");
+        userConfigModeSet.setName("defaultModeSet");
+        userConfigModeSet.setValue(mode.getName());
+        userConfigModeSet.setModes(Arrays.asList(new UserConfigMode[]{mode}));
+        return Arrays.asList(new UserConfigModeSet[]{userConfigModeSet});
+    }
 
 }
