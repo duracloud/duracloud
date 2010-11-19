@@ -491,7 +491,7 @@ public class ContentStoreImpl implements ContentStore{
         String task = "get metadata";
         String url = buildContentURL(spaceId, contentId);
         try {
-            HttpResponse response = restHelper.get(url);
+            HttpResponse response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
             return mergeMaps(extractMetadataFromHeaders(response),
                              extractNonMetadataHeaders(response));
