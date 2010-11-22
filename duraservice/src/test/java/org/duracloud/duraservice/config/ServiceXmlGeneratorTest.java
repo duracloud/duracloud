@@ -208,11 +208,16 @@ public class ServiceXmlGeneratorTest {
                                    ServiceInfo serviceInfo) {
         List<UserConfigModeSet> userConfigModeSets = serviceInfo.getUserConfigModeSets();
         Assert.assertNotNull(userConfigModeSets);
-        Assert.assertEquals(numUserConfigs,
-                            userConfigModeSets.get(0)
-                                .getModes()
-                                .get(0)
-                                .getUserConfigs().size());
+
+        UserConfigModeSet userConfigModeSet = userConfigModeSets.get(0);
+        if (0 == numUserConfigs) {
+            Assert.assertFalse(userConfigModeSet.hasOnlyUserConfigs());
+        } else {
+            Assert.assertTrue(userConfigModeSet.hasOnlyUserConfigs());
+            Assert.assertEquals(1, userConfigModeSets.size());
+            Assert.assertEquals(numUserConfigs,
+                                userConfigModeSet.getWrappedUserConfigs().size());
+        }
 
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);

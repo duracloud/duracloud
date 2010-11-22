@@ -16,9 +16,11 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SelectableUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -117,9 +119,14 @@ public class TestServicesManagerWithServicesAdmin
 
         ServiceInfo service = servicesManager.getService(testServiceId);
         assertNotNull(service);
-        List<UserConfig> userConfigs =
-            service.getDeployments().get(0).getUserConfigs();
-        for(UserConfig config : userConfigs) {
+        List<UserConfigModeSet> userConfigModeSets = service.getUserConfigModeSets();
+        Assert.assertNotNull(userConfigModeSets);
+
+        Assert.assertEquals(1, userConfigModeSets.size());
+        Assert.assertTrue(userConfigModeSets.get(0).hasOnlyUserConfigs());
+
+        List<UserConfig> userConfigs = getDeploymentUserConfigs(service);
+        for (UserConfig config : userConfigs) {
             if(config instanceof TextUserConfig) {
                 assertEquals(textConfigValue,
                              ((TextUserConfig)config).getValue());
@@ -130,17 +137,29 @@ public class TestServicesManagerWithServicesAdmin
         servicesManager.updateServiceConfig(testServiceId,
                                             testDeploymentId,
                                             service.getUserConfigVersion(),
-                                            userConfigs);
+                                            userConfigModeSets);
 
         service = servicesManager.getService(testServiceId);
         assertNotNull(service);
-        userConfigs = service.getDeployments().get(0).getUserConfigs();
+        userConfigs = getDeploymentUserConfigs(service);
         for(UserConfig config : userConfigs) {
             if(config instanceof TextUserConfig) {
                 assertEquals(updatedTextConfigValue,
                              ((TextUserConfig)config).getValue());
             }
         }
+    }
+
+    private List<UserConfig> getDeploymentUserConfigs(ServiceInfo service) {
+        List<UserConfigModeSet> deploymentConfigModeSets = service.getDeployments()
+            .get(0)
+            .getUserConfigModeSets();
+        Assert.assertNotNull(deploymentConfigModeSets);
+        Assert.assertEquals(1, deploymentConfigModeSets.size());
+        Assert.assertTrue(deploymentConfigModeSets.get(0).hasOnlyUserConfigs());
+        List<UserConfig> deploymenUserConfigs = deploymentConfigModeSets.get(0)
+            .getWrappedUserConfigs();
+        return deploymenUserConfigs;
     }
 
     /*
@@ -188,7 +207,7 @@ public class TestServicesManagerWithServicesAdmin
 
         String userConfigVer = serviceToDeploy.getUserConfigVersion();
 
-        List<UserConfig> userConfigs = serviceToDeploy.getUserConfigs();
+        List<UserConfig> userConfigs = getDeploymentUserConfigs(serviceToDeploy);
         for(UserConfig config : userConfigs) {
             if(config instanceof TextUserConfig) {
                 ((TextUserConfig)config).setValue(textConfigValue);
@@ -202,11 +221,11 @@ public class TestServicesManagerWithServicesAdmin
             }
         }
 
-        testDeploymentId =
-             servicesManager.deployService(testServiceId,
-                                             userConfigVer,
-                                             userConfigs,
-                                             null);
+        List<UserConfigModeSet> userConfigModeSets = serviceToDeploy.getUserConfigModeSets();
+        testDeploymentId = servicesManager.deployService(testServiceId,
+                                                         userConfigVer,
+                                                         userConfigModeSets,
+                                                         null);
     }
 
     private ServiceInfo findService(int serviceId, List<ServiceInfo> services) {

@@ -18,6 +18,7 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,6 +32,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -139,7 +141,13 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
 
         service = serviceManager.getService(2);
         assertNotNull(service);
-        List<UserConfig> userConfigList = service.getUserConfigs();
+
+        List<UserConfigModeSet> userConfigModeSets = service.getUserConfigModeSets();
+        Assert.assertNotNull(userConfigModeSets);
+        Assert.assertEquals(1, userConfigModeSets.size());
+
+        List<UserConfig> userConfigList = userConfigModeSets.get(0)
+            .getWrappedUserConfigs();
         assertNotNull(userConfigList);
         boolean storesOptions = false;
         boolean spacesOptions = false;
@@ -183,9 +191,11 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
     public void testGetDeployedServiceProps() throws Exception {
         int serviceId = 1;
         ServiceInfo service1 = serviceManager.getService(serviceId);
-        List<UserConfig> userConfigs = service1.getUserConfigs();
-        int deploymentId =
-            serviceManager.deployService(serviceId, null, "1.0", userConfigs);
+        List<UserConfigModeSet> userConfigModeSets = service1.getUserConfigModeSets();
+        int deploymentId = serviceManager.deployService(serviceId,
+                                                        null,
+                                                        "1.0",
+                                                        userConfigModeSets);
 
         Map<String, String> serviceProps =
             serviceManager.getDeployedServiceProps(serviceId, deploymentId);
@@ -196,15 +206,21 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
     public void testDeployService() throws Exception {
         int serviceId = 1;
         ServiceInfo service1 = serviceManager.getService(serviceId);
-        List<UserConfig> userConfigs = service1.getUserConfigs();
-        serviceManager.deployService(serviceId, null, "1.0", userConfigs);
+        List<UserConfigModeSet> userConfigModeSets = service1.getUserConfigModeSets();
+        serviceManager.deployService(serviceId,
+                                     null,
+                                     "1.0",
+                                     userConfigModeSets);
         List<ServiceInfo> services = serviceManager.getDeployedServices();
         assertTrue(services.size() == 1);
         ServiceInfo deployedService = services.get(0);
         Assert.assertEquals(serviceId, deployedService.getId());
         assertTrue(deployedService.getDeployments().size() == 1);
 
-        serviceManager.deployService(serviceId, null, "1.0", userConfigs);
+        serviceManager.deployService(serviceId,
+                                     null,
+                                     "1.0",
+                                     userConfigModeSets);
         services = serviceManager.getDeployedServices();
         assertTrue(services.size() == 1);
         deployedService = services.get(0);
@@ -216,7 +232,7 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
             serviceManager.deployService(invalidServiceId,
                                          null,
                                          "1.0",
-                                         userConfigs);
+                                         userConfigModeSets);
             fail("Should throw an exception trying to deploy invalid service");
         } catch (NoSuchServiceException expected) {
             assertNotNull(expected);
@@ -224,7 +240,10 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
 
         try {
             String invalidHost = "invalidHost";
-            serviceManager.deployService(1, invalidHost, "1.0", userConfigs);
+            serviceManager.deployService(1,
+                                         invalidHost,
+                                         "1.0",
+                                         userConfigModeSets);
             fail("Should throw an exception trying to deploy to invalid host");
         } catch (NoSuchServiceComputeInstanceException expected) {
             assertNotNull(expected);
@@ -232,7 +251,10 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
 
         serviceId = 2;
         try {
-            serviceManager.deployService(serviceId, null, "1.0", userConfigs);
+            serviceManager.deployService(serviceId,
+                                         null,
+                                         "1.0",
+                                         userConfigModeSets);
             fail("Should throw an exception trying to deploy to service 2 to " +
                 "the primary host");
         } catch (RuntimeException expected) {
@@ -242,7 +264,7 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
         serviceManager.deployService(serviceId,
                                      ServiceManager.NEW_SERVICE_HOST,
                                      "1.0",
-                                     userConfigs);
+                                     userConfigModeSets);
         services = serviceManager.getDeployedServices();
         assertTrue(services.size() == 2);
         Assert.assertEquals(serviceId, services.get(1).getId());
@@ -253,36 +275,48 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
         // Deploy service 1 with standard user config set
         int serviceId = 1;
         ServiceInfo service1 = serviceManager.getService(serviceId);
-        List<UserConfig> userConfigs = service1.getUserConfigs();
-        int deploymentId =
-            serviceManager.deployService(serviceId, null, "1.0", userConfigs);
+        List<UserConfigModeSet> userConfigModeSets = service1.getUserConfigModeSets();
+        int deploymentId = serviceManager.deployService(serviceId,
+                                                        null,
+                                                        "1.0",
+                                                        userConfigModeSets);
 
         // Check config
-        ServiceInfo deployedService =
-            serviceManager.getDeployedService(serviceId, deploymentId);
-        assertTrue(userConfigs.size() ==
-                   deployedService.getUserConfigs().size());
+        ServiceInfo deployedService = serviceManager.getDeployedService(
+            serviceId,
+            deploymentId);
+        assertTrue(userConfigModeSets.size() ==
+            deployedService.getUserConfigModeSets().size());
 
         // Create new config set and update service
         List<UserConfig> newConfigs = new ArrayList<UserConfig>();
         newConfigs.add(new TextUserConfig("newConfig", "New Config", "new"));
-        serviceManager.updateServiceConfig(1, deploymentId, "1.0", newConfigs);
+        List<UserConfigModeSet> newUserConfigModeSets = Arrays.asList(new UserConfigModeSet[]{
+            new UserConfigModeSet(newConfigs)});
+        serviceManager.updateServiceConfig(serviceId,
+                                           deploymentId,
+                                           "1.0",
+                                           newUserConfigModeSets);
 
         // Check config
-        deployedService =
-            serviceManager.getDeployedService(serviceId, deploymentId);
+        deployedService = serviceManager.getDeployedService(serviceId,
+                                                            deploymentId);
         List<Deployment> deployments = deployedService.getDeployments();
-        List<UserConfig> deployedConfig = deployments.get(0).getUserConfigs();
-        assertTrue(newConfigs.size() == deployedConfig.size());
+        List<UserConfigModeSet> deployedConfigModeSets = deployments.get(0)
+            .getUserConfigModeSets();
+        assertTrue(
+            newUserConfigModeSets.size() == deployedConfigModeSets.size());
     }
 
     @Test
     public void testUnDeployService() throws Exception {
         int serviceId = 1;
         ServiceInfo service1 = serviceManager.getService(serviceId);
-        List<UserConfig> userConfigs = service1.getUserConfigs();
-        int deploymentId =
-            serviceManager.deployService(serviceId, null, "1.0", userConfigs);
+        List<UserConfigModeSet> userConfigModeSets = service1.getUserConfigModeSets();
+        int deploymentId = serviceManager.deployService(serviceId,
+                                                        null,
+                                                        "1.0",
+                                                        userConfigModeSets);
 
         ServiceInfo deployedService =
             serviceManager.getDeployedService(serviceId, deploymentId);

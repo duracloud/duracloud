@@ -82,7 +82,6 @@ public class ServiceInfoVerifyHelper {
 
         verifyEqual(expected.getSystemConfigs(),
                     serviceInfo.getSystemConfigs());
-        verifyEqual(expected.getUserConfigModeSets(), serviceInfo.getUserConfigModeSets());
         verifyUserConfigModeSetsEqual(expected.getUserConfigModeSets(),
                                       serviceInfo.getUserConfigModeSets());
         verifyEqual(expected.getDeploymentOptions(),
@@ -229,8 +228,12 @@ public class ServiceInfoVerifyHelper {
 
                     verifyEqual(expectedElem.getSystemConfigs(),
                                 deployment.getSystemConfigs());
-                    verifyEqual(expectedElem.getUserConfigModeSets(),
-                                deployment.getUserConfigModeSets());
+
+                    List<UserConfigModeSet> expectedModeSets = expectedElem.getUserConfigModeSets();
+                    List<UserConfigModeSet> deploymentModeSets = deployment.getUserConfigModeSets();
+
+                    verifyUserConfigModeSetsEqual(expectedModeSets,
+                                                  deploymentModeSets);
                 }
             }
             Assert.assertTrue("Id: " + expectedElem.getId(), found);

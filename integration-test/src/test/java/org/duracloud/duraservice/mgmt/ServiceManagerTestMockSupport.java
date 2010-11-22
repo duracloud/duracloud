@@ -24,6 +24,7 @@ import org.duracloud.duraservice.domain.Store;
 import org.duracloud.duraservice.domain.UserStore;
 import org.duracloud.duraservice.domain.ServiceComputeInstance;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.servicesadminclient.ServicesAdminClient;
 import org.easymock.classextension.EasyMock;
 import org.easymock.IAnswer;
@@ -32,6 +33,7 @@ import org.junit.Assert;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -137,7 +139,9 @@ public class ServiceManagerTestMockSupport {
         service1UserConfig.add(config2);
         service1UserConfig.add(config3);
 
-        service1.setUserConfigs(service1UserConfig);
+        List<UserConfigModeSet> userConfigModeSets = Arrays.asList(new UserConfigModeSet[]{
+            new UserConfigModeSet(service1UserConfig)});
+        service1.setUserConfigModeSets(userConfigModeSets);
 
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
         systemConfig.add(new SystemConfig("sysConfig1", null, "default"));
@@ -189,7 +193,9 @@ public class ServiceManagerTestMockSupport {
         service2UserConfig.add(config2);
         service2UserConfig.add(config3);
 
-        service2.setUserConfigs(service2UserConfig);
+        List<UserConfigModeSet> userConfigModeSets = Arrays.asList(new UserConfigModeSet[]{
+            new UserConfigModeSet(service2UserConfig)});
+        service2.setUserConfigModeSets(userConfigModeSets);
 
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
         systemConfig.add(new SystemConfig("sysConfig1",
@@ -222,7 +228,9 @@ public class ServiceManagerTestMockSupport {
         service3.setMaxDeploymentsAllowed(-1);
 
         List<UserConfig> service3UserConfig = new ArrayList<UserConfig>();
-        service3.setUserConfigs(service3UserConfig);
+        List<UserConfigModeSet> userConfigModeSets = Arrays.asList(new UserConfigModeSet[]{
+            new UserConfigModeSet(service3UserConfig)});
+        service3.setUserConfigModeSets(userConfigModeSets);
 
         DeploymentOption depOp1 = new DeploymentOption();
         depOp1.setLocation(DeploymentOption.Location.PRIMARY);
@@ -390,8 +398,11 @@ public class ServiceManagerTestMockSupport {
             // remove system-config
             arg.setSystemConfigs(null);
 
-            List<UserConfig> userConfigs = arg.getUserConfigs();
-            if (userConfigs != null) {
+            List<UserConfigModeSet> userConfigModeSets = arg.getUserConfigModeSets();
+            if (null != userConfigModeSets && userConfigModeSets.size() == 1 &&
+                userConfigModeSets.get(0).hasOnlyUserConfigs()) {
+                List<UserConfig> userConfigs = userConfigModeSets.get(0)
+                    .getWrappedUserConfigs();
 
                 List<UserConfig> newConfigs = new ArrayList<UserConfig>();
                 for (UserConfig config : userConfigs) {
@@ -431,8 +442,10 @@ public class ServiceManagerTestMockSupport {
                         newConfigs.add(config);
                     }
                 }
-                arg.setUserConfigs(newConfigs);
 
+                List<UserConfigModeSet> newUserConfigModeSets = Arrays.asList(
+                    new UserConfigModeSet[]{new UserConfigModeSet(newConfigs)});
+                arg.setUserConfigModeSets(newUserConfigModeSets);
             }
             return arg;
         }

@@ -33,6 +33,8 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.servicesadminclient.ServicesAdminClient;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -318,7 +320,7 @@ public class ServiceManager {
      * @param serviceId the ID of the service to be deployed
      * @param serviceHost the server host on which the service is to be deployed
      * @param userConfigVersion version of the user configuration
-     * @param userConfig user configuration settings for the service
+     * @param userConfigModeSets user configuration settings for the service
      * @return the deployment ID of the newly deployed service
      * @throws NoSuchServiceException if there is no service with ID = serviceId
      * @throws NoSuchServiceComputeInstanceException if there is no services compute instance at serviceHost
@@ -326,7 +328,7 @@ public class ServiceManager {
     public int deployService(int serviceId,
                              String serviceHost,
                              String userConfigVersion,
-                             List<UserConfig> userConfig)
+                             List<UserConfigModeSet> userConfigModeSets)
         throws NoSuchServiceException, NoSuchServiceComputeInstanceException  {
         checkConfigured();
         refreshServicesList();
@@ -356,7 +358,7 @@ public class ServiceManager {
         }
 
         Map<String, String> serviceConfig =
-            createServiceConfig(userConfig, systemConfig);
+            createServiceConfig(userConfigModeSets, systemConfig);
 
         serviceConfig = cleanMap(serviceConfig);
 
@@ -401,7 +403,7 @@ public class ServiceManager {
 
         return storeDeployedService(srvToDeploy,
                                     computeInstance.getHostName(),
-                                    userConfig,
+                                    userConfigModeSets,
                                     systemConfig);
     }
 
@@ -601,44 +603,47 @@ public class ServiceManager {
      * Creates a name/value map of user and system config to be used
      * for configuring a service
      */
-    private Map<String, String> createServiceConfig(List<UserConfig> userServiceConfig,
+    private Map<String, String> createServiceConfig(List<UserConfigModeSet> userConfigModeSets,
                                                     List<SystemConfig> systemServiceConfig) {
         Map<String, String> serviceConfig = new HashMap<String, String>();
 
         // Add User Config
-        if(userServiceConfig != null) {
-            for(UserConfig userConfig : userServiceConfig) {
-                if(userConfig instanceof TextUserConfig) {
-                    TextUserConfig textConfig = (TextUserConfig) userConfig;
-                    serviceConfig.put(textConfig.getName(),
-                                      textConfig.getValue());
-                } else if(userConfig instanceof SingleSelectUserConfig) {
-                    SingleSelectUserConfig singleConfig =
-                        (SingleSelectUserConfig) userConfig;
-                    String value = null;
-                    for(Option option : singleConfig.getOptions()) {
-                        if(option.isSelected()) {
-                            value = option.getValue();
-                        }
-                    }
-                    if(value != null) {
-                        serviceConfig.put(singleConfig.getName(), value);
-                    }
-                } else if(userConfig instanceof MultiSelectUserConfig) {
-                    MultiSelectUserConfig multiConfig =
-                        (MultiSelectUserConfig) userConfig;
-                    StringBuilder valueBuilder = new StringBuilder();
-                    for(Option option : multiConfig.getOptions()) {
-                        if(option.isSelected()) {
-                            if(valueBuilder.length() > 0) {
-                                valueBuilder.append(",");
+        if (userConfigModeSets != null) {
+            for (UserConfigModeSet userConfigModeSet : userConfigModeSets) {
+                for (UserConfigMode mode : userConfigModeSet.getModes()) {
+                    for (UserConfig userConfig : mode.getUserConfigs()) {
+                        if (userConfig instanceof TextUserConfig) {
+                            TextUserConfig textConfig = (TextUserConfig) userConfig;
+                            serviceConfig.put(textConfig.getName(),
+                                              textConfig.getValue());
+                        } else if (userConfig instanceof SingleSelectUserConfig) {
+                            SingleSelectUserConfig singleConfig = (SingleSelectUserConfig) userConfig;
+                            String value = null;
+                            for (Option option : singleConfig.getOptions()) {
+                                if (option.isSelected()) {
+                                    value = option.getValue();
+                                }
                             }
-                            valueBuilder.append(option.getValue());
+                            if (value != null) {
+                                serviceConfig.put(singleConfig.getName(),
+                                                  value);
+                            }
+                        } else if (userConfig instanceof MultiSelectUserConfig) {
+                            MultiSelectUserConfig multiConfig = (MultiSelectUserConfig) userConfig;
+                            StringBuilder valueBuilder = new StringBuilder();
+                            for (Option option : multiConfig.getOptions()) {
+                                if (option.isSelected()) {
+                                    if (valueBuilder.length() > 0) {
+                                        valueBuilder.append(",");
+                                    }
+                                    valueBuilder.append(option.getValue());
+                                }
+                            }
+                            if (valueBuilder.length() > 0) {
+                                serviceConfig.put(multiConfig.getName(),
+                                                  valueBuilder.toString());
+                            }
                         }
-                    }
-                    if(valueBuilder.length() > 0) {
-                        serviceConfig.put(multiConfig.getName(),
-                                          valueBuilder.toString());
                     }
                 }
             }
@@ -688,7 +693,7 @@ public class ServiceManager {
      */
     private int storeDeployedService(ServiceInfo serviceToStore,
                                       String serviceHost,
-                                      List<UserConfig> userConfig,
+                                      List<UserConfigModeSet> userConfigModeSets,
                                       List<SystemConfig> systemConfig) {
         ServiceInfo service = serviceToStore.clone();
         int deploymentId = generateDeploymentId();
@@ -696,7 +701,7 @@ public class ServiceManager {
         Deployment deployment = new Deployment();
         deployment.setId(deploymentId);
         deployment.setHostname(serviceHost);
-        deployment.setUserConfigs(userConfig);
+        deployment.setUserConfigModeSets(userConfigModeSets);
         deployment.setSystemConfigs(systemConfig);
         deployment.setStatus(Deployment.Status.STARTED);
 
@@ -836,13 +841,13 @@ public class ServiceManager {
      * @param serviceId the ID of the service to update
      * @param deploymentId the ID of the service deployment to update
      * @param userConfigVersion version of the user configuration
-     * @param userConfig the updated user configuration for this service deployment
+     * @param userConfigModeSets the updated user configuration for this service deployment
      * @throws NoSuchDeployedServiceException if either service or deployment does not exist
      */
     public void updateServiceConfig(int serviceId,
                                     int deploymentId,
                                     String userConfigVersion,
-                                    List<UserConfig> userConfig)
+                                    List<UserConfigModeSet> userConfigModeSets)
         throws NoSuchDeployedServiceException {
         checkConfigured();
 
@@ -855,8 +860,8 @@ public class ServiceManager {
 
         log.info("Configuring service: " + serviceId);
 
-        Map<String, String> config =
-            createServiceConfig(userConfig, deployedService.getSystemConfigs());
+        Map<String, String> config = createServiceConfig(userConfigModeSets,
+                                                         deployedService.getSystemConfigs());
 
         config = cleanMap(config);
 
@@ -888,7 +893,7 @@ public class ServiceManager {
 
         List<Deployment> deployments = deployedService.getDeployments();
         deployments.remove(serviceDeployment);
-        serviceDeployment.setUserConfigs(userConfig);
+        serviceDeployment.setUserConfigModeSets(userConfigModeSets);
         deployments.add(serviceDeployment);
     }
 

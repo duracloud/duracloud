@@ -66,11 +66,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         fsService.setMaxDeploymentsAllowed(1); // single deployment until otherwise supported
 
         fsService.setSystemConfigs(getSystemConfigs());
-
-        // FIXME: revisit modeSet creation
-        List<UserConfigModeSet> modeSets = createDefaultModeSet(getUserConfigs());
-        modeSets.addAll(getModeSets());
-        fsService.setUserConfigModeSets(modeSets);
+        fsService.setUserConfigModeSets(getModeSets());
         fsService.setDeploymentOptions(getSimpleDeploymentOptions());
 
         return fsService;
@@ -114,10 +110,6 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         systemConfig.add(username);
         systemConfig.add(password);
         return systemConfig;
-    }
-
-    private List<UserConfig> getUserConfigs() {
-        return new ArrayList<UserConfig>();
     }
 
     private List<UserConfigModeSet> getModeSets() {

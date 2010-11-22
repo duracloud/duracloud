@@ -17,6 +17,8 @@ import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServicesConfigDocument;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.services.beans.ComputeServiceBean;
 import org.duracloud.services.util.ServiceSerializer;
 import org.duracloud.services.util.XMLServiceSerializerImpl;
@@ -27,11 +29,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -157,15 +162,15 @@ public class TestServiceRestWithServicesAdmin {
 
         // Create User Config
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
-        assertNotNull(userConfigs);
-
         String userConfigName = "test-name";
         String userConfigValue = "test-value";
         TextUserConfig newUserConfig =
             new TextUserConfig(userConfigName, "Test Config");
         newUserConfig.setValue(userConfigValue);
         userConfigs.add(newUserConfig);
-        service.setUserConfigs(userConfigs);
+
+        List<UserConfigModeSet> userConfigModeSets = Arrays.asList(new UserConfigModeSet(userConfigs));
+        service.setUserConfigModeSets(userConfigModeSets);
         String serviceXml = ServicesConfigDocument.getServiceAsXML(service);
 
         // Update config
@@ -185,7 +190,15 @@ public class TestServiceRestWithServicesAdmin {
         assertFalse(deployments.isEmpty());
 
         Deployment dep = findDeployment(deployments, deploymentId);
-        userConfigs = dep.getUserConfigs();
+
+        userConfigModeSets = dep.getUserConfigModeSets();
+        Assert.assertEquals(1, userConfigModeSets.size());
+
+        UserConfigModeSet userConfigModeSet = userConfigModeSets.get(0);
+        List<UserConfigMode> userConfigModes = userConfigModeSet.getModes();
+        Assert.assertEquals(1, userConfigModes.size());
+
+        userConfigs = userConfigModes.get(0).getUserConfigs();
         assertNotNull(userConfigs);
         assertFalse(userConfigs.isEmpty());
         for(UserConfig config : userConfigs) {

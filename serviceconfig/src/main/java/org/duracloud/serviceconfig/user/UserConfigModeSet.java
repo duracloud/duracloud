@@ -7,6 +7,7 @@
  */
 package org.duracloud.serviceconfig.user;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,6 +21,41 @@ public class UserConfigModeSet {
     private String displayName;
     private String value;
     private List<UserConfigMode> modes;
+
+    public UserConfigModeSet() {
+    }
+
+    public UserConfigModeSet(List<UserConfig> userConfigs) {
+        UserConfigMode mode = new UserConfigMode();
+        mode.setSelected(true);
+        mode.setName("defaultMode");
+        mode.setDisplayName("Default Mode");
+        mode.setUserConfigs(userConfigs);
+        this.displayName = "Default Mode Set";
+        this.name = "defaultModeSet";
+        this.value = mode.getName();
+        this.modes = Arrays.asList(new UserConfigMode[]{mode});
+    }
+
+    public boolean hasOnlyUserConfigs() {
+        if (null != modes) {
+            if (modes.size() == 1) {
+                UserConfigMode mode = modes.get(0);
+                if (null == mode.getUserConfigModeSets()) {
+                    return (null != mode.getUserConfigs() &&
+                        mode.getUserConfigs().size() > 0);
+                }
+            }
+        }
+        return false;
+    }
+
+    public List<UserConfig> getWrappedUserConfigs() {
+        if (!hasOnlyUserConfigs()) {
+            throw new RuntimeException("Not a UserConfigs wrapper object.");
+        }
+        return modes.get(0).getUserConfigs();
+    }
 
     public int getId() {
         return id;
