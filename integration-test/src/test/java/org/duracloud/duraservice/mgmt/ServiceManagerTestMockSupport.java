@@ -60,6 +60,9 @@ public class ServiceManagerTestMockSupport {
     private final String config3Name = "config3";
     private final String config1Value = "Config Value";
 
+    protected final String configNewName = "newConfig";
+    protected final String configNewValue = "new";
+
     private String getServiceSpaceId() {
         String version = System.getProperty(PROJECT_VERSION_PROP);
         Assert.assertNotNull(version);
@@ -461,6 +464,7 @@ public class ServiceManagerTestMockSupport {
             config.put(config1Name, config1Value);
             config.put(config2Name, USER_CONTENT_STORE);
             config.put(config3Name, USER_SPACE_1 + "," + USER_SPACE_2);
+            config.put(configNewName, configNewValue);
 
             return config;
         }

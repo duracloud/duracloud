@@ -18,6 +18,7 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
@@ -285,12 +286,17 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
         ServiceInfo deployedService = serviceManager.getDeployedService(
             serviceId,
             deploymentId);
-        assertTrue(userConfigModeSets.size() ==
-            deployedService.getUserConfigModeSets().size());
+
+        List<UserConfigModeSet> deployedModeSets = getDeployedModeSets(
+            deployedService);
+        assertTrue(userConfigModeSets.size() == deployedModeSets.size());
+        verifyContains(deployedModeSets, configNewName, false);
 
         // Create new config set and update service
         List<UserConfig> newConfigs = new ArrayList<UserConfig>();
-        newConfigs.add(new TextUserConfig("newConfig", "New Config", "new"));
+        newConfigs.add(new TextUserConfig(configNewName,
+                                          "New Config",
+                                          configNewValue));
         List<UserConfigModeSet> newUserConfigModeSets = Arrays.asList(new UserConfigModeSet[]{
             new UserConfigModeSet(newConfigs)});
         serviceManager.updateServiceConfig(serviceId,
@@ -301,11 +307,33 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
         // Check config
         deployedService = serviceManager.getDeployedService(serviceId,
                                                             deploymentId);
+        deployedModeSets = getDeployedModeSets(deployedService);
+        assertTrue(newUserConfigModeSets.size() == deployedModeSets.size());
+        verifyContains(deployedModeSets, configNewName, true);
+    }
+
+    private List<UserConfigModeSet> getDeployedModeSets(ServiceInfo deployedService) {
         List<Deployment> deployments = deployedService.getDeployments();
-        List<UserConfigModeSet> deployedConfigModeSets = deployments.get(0)
+        Assert.assertEquals(1, deployments.size());
+        List<UserConfigModeSet> deployedModeSets = deployments.get(0)
             .getUserConfigModeSets();
-        assertTrue(
-            newUserConfigModeSets.size() == deployedConfigModeSets.size());
+        return deployedModeSets;
+    }
+
+    private void verifyContains(List<UserConfigModeSet> modeSets,
+                                String configName,
+                                boolean expected) {
+        boolean found = false;
+        for (UserConfigModeSet modeSet : modeSets) {
+            for (UserConfigMode mode : modeSet.getModes()) {
+                for (UserConfig config : mode.getUserConfigs()) {
+                    if (configName.equals(config.getName())) {
+                        found = true;
+                    }
+                }
+            }
+        }
+        Assert.assertEquals(configName + " found: " + found, expected, found);
     }
 
     @Test
