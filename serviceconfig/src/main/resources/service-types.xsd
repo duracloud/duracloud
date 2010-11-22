@@ -39,7 +39,6 @@
   <!-- User configuration -->
   <xs:complexType name="userConfigType">
     <xs:sequence>
-      <xs:element name="property" type="userPropertyType" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="modeSet" type="modeSetType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>    
     <xs:attribute name="id" type="xs:int" use="optional"/>

@@ -242,14 +242,6 @@ public class ServiceElementWriter {
 
     }
 
-    private static void populateUserConfigProperties(UserConfigType userConfigType,
-                                                     List<UserConfig> userConfigs) {
-        for (UserConfig userConfig : userConfigs) {
-            UserPropertyType userPropertyType = userConfigType.addNewProperty();
-            populateUserConfigProperty(userConfig, userPropertyType);
-        }
-    }
-
     private static void populateUserConfigProperties(ModeType modeType,
                                                      List<UserConfig> userConfigs) {
         for (UserConfig userConfig : userConfigs) {
