@@ -13,7 +13,7 @@
 
 var dc;
 
-$(document).ready(function(){
+$(function(){
 	(function(){
 		////////////////////////////////////////////////////////////////////
 		//jquery extensions
@@ -183,6 +183,8 @@ $(document).ready(function(){
 							}
 						},
 						error: function(xhr, textStatus, errorThrown){
+							dc.error(xhr.responseText);
+							
 							if(innerCallback.failure != undefined){
 								innerCallback.failure(textStatus, xhr, errorThrown);
 							}else{

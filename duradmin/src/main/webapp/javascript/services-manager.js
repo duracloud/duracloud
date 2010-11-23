@@ -357,6 +357,10 @@ $(document).ready(function() {
 		open: function(e){	
 			var that = this;
 			
+			var showMessage = function(text){
+				$(".dc-message", that).html(text);
+			};
+			
 			if(!dialogLayout){
 				dialogLayout = $(this).layout({
 					resizeWithWindow:	false	// resizes with the dialog, not the window
@@ -391,10 +395,10 @@ $(document).ready(function() {
 					$("#available-services-dialog .dc-message").html("Loading...");
 				},
 				success: function(data){
-					$("#available-services-dialog .dc-message").html("");
+					showMessage("");
 					var services = data.services;
 					if(services == undefined){
-						$("#available-services-dialog .dc-message").html("There are no available services.");
+						showMessage("There are no available services.");
 						return;
 					}
 					for(i in services){
@@ -409,9 +413,8 @@ $(document).ready(function() {
 
 					}
 				},
-				failure: function(text){
-					$("#available-services-dialog .dc-message").hide();
-					$("#available-services-dialog .dc-message").html("Unable to load services: " + text);
+				failure: function(text, xhr){
+					showMessage("Unable to load services: " + xhr.responseText);
 				},
 			});
 			
