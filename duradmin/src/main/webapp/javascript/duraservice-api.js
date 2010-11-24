@@ -4,7 +4,7 @@
  */
 
 var dc; 
-$(document).ready(function(){
+$(function(){
 	
 	$.require("jquery.dc.commons.js");
 	

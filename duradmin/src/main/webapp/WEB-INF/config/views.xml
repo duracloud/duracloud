@@ -11,7 +11,6 @@
 	    <property name="jsonWriter"><ref bean="jsonlibJsonWriter"/></property>
     	<property name="jsonErrors">
 	    	<list>
-	        	<ref bean="statusError" />
 	        	<ref bean="modelflagError" />
 	        </list>
         </property>
@@ -28,7 +27,6 @@
 	    <property name="jsonWriter"><ref bean="jsonlibJsonWriter"/></property>
     	<property name="jsonErrors">
 	    	<list>
-	        	<ref bean="statusError" />
 	        	<ref bean="modelflagError" />
 	        </list>
         </property>
@@ -39,13 +37,12 @@
 	 -->    
     <bean name="jsonlibJsonWriter" class="org.springframework.web.servlet.view.json.writer.jsonlib.JsonlibJsonStringWriter">
     	<property name="convertAllMapValues"><value>true</value></property>
+        <property name="keepNullProperties"><value>true</value></property>
     </bean>
 	
-	<bean name="statusError" class="org.springframework.web.servlet.view.json.error.HttpStatusError">
-		<property name="errorCode"><value>311</value></property>
-	</bean>
 	<bean name="modelflagError" class="org.springframework.web.servlet.view.json.error.ModelFlagError">
-		<property name="name"><value>failure</value></property>
-		<property name="value"><value>true</value></property>
+      <property name="name"><value>failure</value></property>
+      <property name="value"><value>true</value></property>
 	</bean>
+  
 </beans>

@@ -7,15 +7,17 @@
  */
 package org.duracloud.serviceconfig.user;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Andrew Woods
  *         Date: Aug 23, 2010
  */
-public class UserConfigMode {
+public class UserConfigMode implements Serializable {
 
-    /**
+	private static final long serialVersionUID = 1L;
+	/**
      * These fields describe this config mode.
      */
     private String name;

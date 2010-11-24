@@ -28,6 +28,8 @@
 		options: {},
 		_createControl: function(/* userConfig object */uc){
 			var inputType = uc.inputType;
+			var i;
+			
 			if(inputType == "TEXT"){
 				return $.fn.create("input")
 						   .attr("type", "text")
@@ -38,7 +40,8 @@
 				var select =  $.fn.create("select")
 								  .attr("name", uc.name)
 								  .attr("id",uc.name);
-				for(i in uc.options){
+				
+				for(i = 0; i < uc.options.length; i++){
 					var o = uc.options[i];
 					var option = $.fn.create("option")
 									 .attr("value", o.value)
@@ -53,7 +56,7 @@
 
 			}else if(inputType == "MULTISELECT"){
 				var select =  $.fn.create("ul");
-				for(i in uc.options){
+				for(i = 0; i < uc.options.length; i++){
 					var o = uc.options[i];
 					var li = $.fn.create("li");
 					var id = o.id + "-" + i;
@@ -162,7 +165,6 @@
 			// hide all but the selected list.
 			
 			var toggleVisibleMode = function(){
-				modeSetSelectChanged();
 				$("li[id="+ modeSetId + "] > ul").hide();
 				var modeName = modeSetSelect.val();
 				$("ul[id="+ modeSetId + "-" + modeName+"]").show();
@@ -187,11 +189,11 @@
 			this._service = service;
 
 			dc.debug("loading service: " + service.id);
-			var modeSets = service.modeSets;
+			var modeSets = service.userConfigModeSets;
 			if(deployment != undefined){
 				this._deployment = deployment;
 				dc.debug("loading deployment: " + deployment.id);
-				modeSets = deployment.modeSets;
+				modeSets = deployment.userConfigModeSets;
 			}
 			
 			this._controlContainer.html("");

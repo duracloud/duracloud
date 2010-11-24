@@ -29,7 +29,6 @@ $(function(){
 	  return  value == null || value == '' || /^(\w[-]?)*\w\/(\w[-]?)*\w$/.test(value); 
 	}, "Invalid Mimetype");
 
-	
 	$.validator
 	.addMethod("startswith", function(value, element) { 
 	  return  /^[a-z0-9]/.test(value); 
@@ -39,10 +38,13 @@ $(function(){
 		.addMethod("endswith", function(value, element) { 
 		  return  /[a-z0-9.]$/.test(value); 
 		}, "Invalid");
+	
 	$.validator.addMethod("spacelower", function(value,element){return /^[a-z0-9.-]*$/.test(value);}, 
 			"Invalid");
+	
 	$.validator.addMethod("notip", function(value,element){return !(/^[0-9]+.[0-9]+.[0-9]+.[0-9]+$/.test(value));}, 
 			"Invalid");
+	
 	$.validator.addMethod("misc", function(value,element){return !(/^.*([.][-]|[-][.]|[.][.]).*$/.test(value));}, 
 			"Invalid");
 
@@ -1167,9 +1169,9 @@ $(function(){
 								}
 								
 							},
-							failure: function(text){
-								
-								alert("add space failed: " + text);
+							failure: function(text,xhr,errorThrown){
+								var response = $.parseJSON(xhr.responseText);
+								alert("add space failed: " + response.exception.message);
 							},
 						}
 					);

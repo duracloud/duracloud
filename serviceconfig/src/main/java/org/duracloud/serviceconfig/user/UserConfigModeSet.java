@@ -7,6 +7,7 @@
  */
 package org.duracloud.serviceconfig.user;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,9 +15,10 @@ import java.util.List;
  * @author Andrew Woods
  *         Date: Aug 23, 2010
  */
-public class UserConfigModeSet {
+public class UserConfigModeSet implements Serializable {
 
-    private int id = -1;
+	private static final long serialVersionUID = 1L;
+	private int id = -1;
     private String name;
     private String displayName;
     private String value;
@@ -50,7 +52,7 @@ public class UserConfigModeSet {
         return false;
     }
 
-    public List<UserConfig> getWrappedUserConfigs() {
+    public List<UserConfig> wrappedUserConfigs() {
         if (!hasOnlyUserConfigs()) {
             throw new RuntimeException("Not a UserConfigs wrapper object.");
         }

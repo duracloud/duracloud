@@ -117,7 +117,22 @@
     <bean id="basePreparer" class="org.duracloud.duradmin.view.BaseViewPreparer">
 		<property name="contentStoreProvider" ref="contentStoreProvider"/>
 	</bean>
-	
+
+
+   <bean id="exceptionResolver" class="org.springframework.web.servlet.view.json.exception.JsonExceptionResolver">
+     <property name="exceptionView"><value>jsonView</value></property>
+            <property name="exceptionHandler">
+            <list>
+              <ref bean="exceptionMessageExceptionHandler" />
+            </list>
+     </property>
+   </bean>
+  
+  <bean name="exceptionMessageExceptionHandler" 
+     class="org.springframework.web.servlet.view.json.exception.ExceptionMessageExceptionHandler">
+  </bean>
+  
+  <!-- 
   <bean id="exceptionResolver" class="org.duracloud.duradmin.common.SimpleExceptionResolver">
     <property name="exceptionMappings">
       <props>
@@ -126,7 +141,8 @@
     </property>
     <property name="order" value="2" />
   </bean>
-
+ -->  
+  
   <!-- Enables plain Controllers -->
   <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter" />
   

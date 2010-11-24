@@ -174,16 +174,16 @@ public class SpaceController extends  AbstractRestController<Space> {
 	protected ModelAndView post(HttpServletRequest request,
 			HttpServletResponse response, Space space,
 			BindException errors) throws Exception {
-		String spaceId = space.getSpaceId();
-        ContentStore contentStore = getContentStore(space);
-        contentStore.createSpace(spaceId, null);
-        contentStore.setSpaceAccess(spaceId, AccessType.valueOf(space
-                .getAccess()));
-        SpaceUtil.populateSpace(space, contentStore.getSpace(spaceId,
-                                                             null,
-                                                             0,
-                                                             null));
-        return createModel(space);
+			String spaceId = space.getSpaceId();
+	        ContentStore contentStore = getContentStore(space);
+	        contentStore.createSpace(spaceId, null);
+	        contentStore.setSpaceAccess(spaceId, AccessType.valueOf(space
+	                .getAccess()));
+	        SpaceUtil.populateSpace(space, contentStore.getSpace(spaceId,
+	                                                             null,
+	                                                             0,
+	                                                             null));
+			return createModel(space);
 	}
 
 	

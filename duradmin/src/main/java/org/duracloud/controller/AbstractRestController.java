@@ -23,6 +23,8 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  * @author Daniel Bernstein
  */
 public class AbstractRestController<T> extends AbstractCommandController{
+	public static final int DC_ERROR_DUPLICATE_ID = 1000;
+
 	public AbstractRestController(String commandName){
 		super();
 		Class commandClass = (((Class)((ParameterizedType)this.getClass().
