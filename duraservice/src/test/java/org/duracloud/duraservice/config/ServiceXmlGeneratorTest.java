@@ -216,7 +216,7 @@ public class ServiceXmlGeneratorTest {
             Assert.assertTrue(userConfigModeSet.hasOnlyUserConfigs());
             Assert.assertEquals(1, userConfigModeSets.size());
             Assert.assertEquals(numUserConfigs,
-                                userConfigModeSet.getWrappedUserConfigs().size());
+                                userConfigModeSet.wrappedUserConfigs().size());
         }
 
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();

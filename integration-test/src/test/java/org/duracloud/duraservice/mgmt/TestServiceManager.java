@@ -148,7 +148,7 @@ public class TestServiceManager extends ServiceManagerTestMockSupport {
         Assert.assertEquals(1, userConfigModeSets.size());
 
         List<UserConfig> userConfigList = userConfigModeSets.get(0)
-            .getWrappedUserConfigs();
+            .wrappedUserConfigs();
         assertNotNull(userConfigList);
         boolean storesOptions = false;
         boolean spacesOptions = false;

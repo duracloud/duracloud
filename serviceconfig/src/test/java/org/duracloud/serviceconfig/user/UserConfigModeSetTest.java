@@ -120,7 +120,7 @@ public class UserConfigModeSetTest {
         List<UserConfig> userConfigs = null;
         boolean isValid = true;
         try {
-            userConfigs = modeSet.getWrappedUserConfigs();
+            userConfigs = modeSet.wrappedUserConfigs();
 
         } catch (Exception e) {
             isValid = false;

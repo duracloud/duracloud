@@ -405,7 +405,7 @@ public class ServiceManagerTestMockSupport {
             if (null != userConfigModeSets && userConfigModeSets.size() == 1 &&
                 userConfigModeSets.get(0).hasOnlyUserConfigs()) {
                 List<UserConfig> userConfigs = userConfigModeSets.get(0)
-                    .getWrappedUserConfigs();
+                    .wrappedUserConfigs();
 
                 List<UserConfig> newConfigs = new ArrayList<UserConfig>();
                 for (UserConfig config : userConfigs) {

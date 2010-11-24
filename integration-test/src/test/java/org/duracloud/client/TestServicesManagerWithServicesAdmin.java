@@ -158,7 +158,7 @@ public class TestServicesManagerWithServicesAdmin
         Assert.assertEquals(1, deploymentConfigModeSets.size());
         Assert.assertTrue(deploymentConfigModeSets.get(0).hasOnlyUserConfigs());
         List<UserConfig> deploymenUserConfigs = deploymentConfigModeSets.get(0)
-            .getWrappedUserConfigs();
+            .wrappedUserConfigs();
         return deploymenUserConfigs;
     }
 
