@@ -166,7 +166,7 @@ public class ServiceElementWriter {
 
         String name = modeSet.getName();
         if (!StringUtils.isBlank(name)) {
-            modeSetType.setDisplayName(name);
+            modeSetType.setName(name);
         }
 
         String displayName = modeSet.getDisplayName();
