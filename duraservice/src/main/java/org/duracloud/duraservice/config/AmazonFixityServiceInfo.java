@@ -30,7 +30,7 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
             "particular space by leveraging an Amazon Hadoop cluster. Note " +
             "that this service can only be run over content stored in Amazon.";
         info.setDescription(desc);
-        info.setDisplayName("Bulk Bit Integrity Checker");
+        info.setDisplayName("Bit Integrity Checker - Bulk");
         info.setUserConfigVersion("1.0");
         info.setServiceVersion(version);
         info.setMaxDeploymentsAllowed(1);

@@ -19,7 +19,7 @@ public class WebappUtilServiceInfo extends AbstractServiceInfo {
             " that are created to run web application services that deployed " +
             "externally to the hosting OSGi container.";
         webappUtilService.setDescription(desc);
-        webappUtilService.setDisplayName("System WebApp Utility");
+        webappUtilService.setDisplayName("System Utility - WebApp");
         webappUtilService.setUserConfigVersion("1.0");
         webappUtilService.setServiceVersion(version);
         webappUtilService.setMaxDeploymentsAllowed(1);

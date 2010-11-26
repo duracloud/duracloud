@@ -27,17 +27,17 @@ public class ServiceXmlGenerator {
      * repository XML service configuration file.
      */
     private AbstractServiceInfo[] serviceInfos = {//new HelloServiceInfo(),
+                                                new FixityServiceInfo(),
+                                                new AmazonFixityServiceInfo(),
+                                                new ReplicationOnDemandServiceInfo(),
                                                 new ReplicationServiceInfo(),
-                                                new ImageMagickServiceInfo(),
-                                                new WebappUtilServiceInfo(),
                                                 //new HelloWebappWrapperServiceInfo(),
                                                 new J2kServiceInfo(),
                                                 new ImageConversionServiceInfo(),
-                                                new MediaStreamingServiceInfo(),
-                                                new FixityServiceInfo(),
                                                 new BulkImageConversionServiceInfo(),
-                                                new AmazonFixityServiceInfo(),
-                                                new ReplicationOnDemandServiceInfo()};
+                                                new MediaStreamingServiceInfo(),
+                                                new ImageMagickServiceInfo(),
+                                                new WebappUtilServiceInfo()};
 
     private String version;
 

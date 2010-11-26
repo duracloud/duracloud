@@ -16,7 +16,7 @@ public class ImageMagickServiceInfo extends AbstractServiceInfo {
             "application which allows other services to take advantage of " +
             "its features.";
         imService.setDescription(desc);
-        imService.setDisplayName("System Transformer Utility");
+        imService.setDisplayName("System Utility - Transformer");
         imService.setUserConfigVersion("1.0");
         imService.setServiceVersion(version);
         imService.setMaxDeploymentsAllowed(1);

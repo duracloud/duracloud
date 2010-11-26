@@ -33,7 +33,7 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
             "Note that this service can only be used for content stored in " +
             "Amazon.";
         icService.setDescription(desc);
-        icService.setDisplayName("Bulk Image Transformer");
+        icService.setDisplayName("Image Transformer - Bulk");
         icService.setUserConfigVersion("1.0");
         icService.setServiceVersion(version);
         icService.setMaxDeploymentsAllowed(1);
