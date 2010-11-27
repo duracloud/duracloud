@@ -7,7 +7,6 @@
  */
 package org.duracloud.servicesadminclient.webapp;
 
-import org.apache.commons.io.FilenameUtils;
 import org.duracloud.services.ComputeService;
 import org.duracloud.servicesadminclient.ServicesAdminClient;
 import org.junit.Assert;
@@ -35,7 +34,7 @@ public class ServiceStatusReporterTester extends ServiceInstallTestBase {
         // Allow test-service to come up.
         Thread.sleep(5000);
 
-        String serviceId = FilenameUtils.getBaseName(getTestBundle().getName());
+        String serviceId = getTestBundle().getName();
 
         ComputeService.ServiceStatus status = getClient().getServiceStatus(serviceId);
         Assert.assertNotNull(status);

@@ -36,6 +36,29 @@ public class ServiceInstallUninstallFlowTester extends ServiceInstallTestBase {
         // Allow tomcat to come up.
         Thread.sleep(5000);
 
+        doTestOne();
+        doTestAll();
+    }
+
+    private void doTestOne() throws Exception {
+        installTestBundleAndVerify();
+
+        // uninstall service
+        uninstallTestBundle();
+
+        verifyTestBundleUninstalled();
+    }
+
+    private void doTestAll() throws Exception {
+        installTestBundleAndVerify();
+
+        // uninstall service
+        uninstallAllTestBundles();
+
+        verifyTestBundleUninstalled();
+    }
+
+    private void installTestBundleAndVerify() throws Exception {
         // check new service does not exist
         verifyTestServiceIsListed(false);
 
@@ -47,10 +70,9 @@ public class ServiceInstallUninstallFlowTester extends ServiceInstallTestBase {
 
         // check new service exists and available in container
         verifyTestServiceIsListed(true);
+    }
 
-        // uninstall service
-        uninstallTestBundle();
-
+    private void verifyTestBundleUninstalled() throws Exception {
         // Allow test-service to go down.
         Thread.sleep(5000);
 

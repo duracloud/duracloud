@@ -30,6 +30,8 @@ public class ServicesAdminClient {
 
     private final Logger log = LoggerFactory.getLogger(ServicesAdminClient.class);
 
+    private static final String ALL_SERVICES = "all";
+
     private RestHttpHelper rester;
 
     private ServiceSerializer serializer;
@@ -53,11 +55,12 @@ public class ServicesAdminClient {
 
     public HttpResponse deleteServiceBundle(String bundleId) throws Exception {
         log.debug("BUNDLE-ID: " + bundleId);
+        return getRester().delete(getUninstallURL(bundleId));
+    }
 
-        String requestContent = getSerializedBean(bundleId);
-        Map<String, String> headers = null;
-
-        return getRester().post(getUninstallURL(), requestContent, headers);
+    public HttpResponse deleteAllServiceBundles() throws Exception {
+        log.debug("BUNDLE-ID: " + ALL_SERVICES);
+        return getRester().delete(getUninstallURL(ALL_SERVICES));
     }
 
     public HttpResponse startServiceBundle(String bundleId) throws Exception {
@@ -164,9 +167,8 @@ public class ServicesAdminClient {
     private String getInstallURL() {
         return this.baseURL + "/services/install";
     }
-
-    private String getUninstallURL() {
-        return this.baseURL + "/services/uninstall";
+    private String getUninstallURL(String serviceId) {
+        return this.baseURL + "/services/uninstall/" + serviceId;
     }
 
     private String getListURL() {

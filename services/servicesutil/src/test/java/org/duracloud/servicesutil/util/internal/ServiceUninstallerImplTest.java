@@ -25,6 +25,10 @@ public class ServiceUninstallerImplTest extends ServiceInstallImplTestBase {
     private ServiceInstallerImpl installer;
     private ServiceUninstallerImpl uninstaller;
 
+    private File container;
+    private File attic;
+    private File workDir;
+
     private InputStream bagZip;
 
     @Before
@@ -34,6 +38,10 @@ public class ServiceUninstallerImplTest extends ServiceInstallImplTestBase {
 
         uninstaller = new ServiceUninstallerImpl();
         uninstaller.setBundleHome(new BundleHome());
+
+        container = installer.getBundleHome().getContainer();
+        attic = installer.getBundleHome().getAttic();
+        workDir = installer.getBundleHome().getWork();
 
         bagZip = createBagZip();
     }
@@ -58,10 +66,6 @@ public class ServiceUninstallerImplTest extends ServiceInstallImplTestBase {
         // Install
         installer.install(nameZip, bagZip);
 
-        File container = installer.getBundleHome().getContainer();
-        File attic = installer.getBundleHome().getAttic();
-        File workDir = installer.getBundleHome().getWork();
-
         File atticBag = new File(attic, nameZip);
         verifyExists(true, atticBag);
 
@@ -78,6 +82,34 @@ public class ServiceUninstallerImplTest extends ServiceInstallImplTestBase {
 
         // Uninstall
         uninstaller.uninstall(nameZip);
+
+        verifyExists(false, atticBag);
+        verifyExists(false, bundle);
+        verifyExists(false, noBundle);
+        verifyExists(false, serviceWorkDir);
+        verifyExists(false, war);
+    }
+
+    @Test
+    public void testUninstallAll() throws Exception {
+        installer.install(nameZip, bagZip);
+
+        File atticBag = new File(attic, nameZip);
+        verifyExists(true, atticBag);
+
+        File bundle = new File(container, entryName0);
+        verifyExists(true, bundle);
+
+        File noBundle = new File(container, entryName1);
+        verifyExists(false, noBundle);
+
+        File serviceWorkDir = new File(workDir, name); // no extension
+        verifyExists(true, serviceWorkDir);
+        File war = new File(serviceWorkDir, entryName2);
+        verifyExists(true, war);
+
+        // Uninstall
+        uninstaller.uninstallAll();
 
         verifyExists(false, atticBag);
         verifyExists(false, bundle);

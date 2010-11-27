@@ -21,10 +21,15 @@ import org.duracloud.services.util.XMLServiceSerializerImpl;
 import org.easymock.EasyMock;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class HttpRequestHelperTest
-        extends TestCase {
+/**
+ * @author Andrew Woods
+ *         Date: Jan 01, 2010
+ */
+public class HttpRequestHelperTest {
 
     private HttpRequestHelper helper;
 
@@ -36,10 +41,8 @@ public class HttpRequestHelperTest
 
     private Map<String, String> config;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
         helper = new HttpRequestHelper();
         helper.setSerializer(new XMLServiceSerializerImpl());
 
@@ -51,34 +54,45 @@ public class HttpRequestHelperTest
         config.put("key2", "val2");
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         helper = null;
         bean = null;
         config = null;
     }
 
+    @Test
     public void testGetServiceIdParameter() throws Exception {
         String id = helper.getServiceIdParameter(mockGetServiceRequest());
         Assert.assertNotNull(id);
         Assert.assertEquals(serviceId, id);
     }
 
+    @Test
     public void testGetConfigIdFromRestURL() throws Exception {
-        String id = helper.getConfigIdFromRestURL(mockGetConfigIdRequest());
-        assertNotNull(id);
-        assertEquals(configId, id);
+        String path = "/configure/" + configId;
+        String id = helper.getConfigIdFromRestURL(mockRequest(path));
+        Assert.assertNotNull(id);
+        Assert.assertEquals(configId, id);
     }
 
+    @Test
+    public void testGetServiceIdFromUninstallURL() throws Exception {
+        String path = "/uninstall/" + serviceId;
+        String id = helper.getServiceIdFromUninstallURL(mockRequest(path));
+        Assert.assertNotNull(id);
+        Assert.assertEquals(serviceId, id);
+    }
+
+    @Test
     public void testGetConfigProps() throws Exception {
         Map<String, String> props =
                 helper.getConfigProps(mockGetConfigPropsRequest());
         Assert.assertNotNull(props);
 
-        assertEquals(config.size(), props.size());
+        Assert.assertEquals(config.size(), props.size());
         for (String key : config.keySet()) {
-            assertEquals(config.get(key), props.get(key));
+            Assert.assertEquals(config.get(key), props.get(key));
         }
     }
 
@@ -129,11 +143,10 @@ public class HttpRequestHelperTest
         };
     }
 
-    private HttpServletRequest mockGetConfigIdRequest() throws Exception {
+    private HttpServletRequest mockRequest(String path) throws Exception {
         HttpServletRequest request =
                 EasyMock.createMock(HttpServletRequest.class);
-        EasyMock.expect(request.getPathInfo()).andReturn("/configure/"
-                + configId);
+        EasyMock.expect(request.getPathInfo()).andReturn(path);
 
         EasyMock.replay(request);
         return request;

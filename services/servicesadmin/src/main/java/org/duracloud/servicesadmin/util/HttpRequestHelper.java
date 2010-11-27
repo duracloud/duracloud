@@ -35,6 +35,12 @@ public class HttpRequestHelper {
         return getSuffixFromURL(request, prefix);
     }
 
+    public String getServiceIdFromUninstallURL(HttpServletRequest request)
+        throws Exception {
+        String prefix = "uninstall/";
+        return getSuffixFromURL(request, prefix);
+    }
+
     public String getConfigIdFromRestURL(HttpServletRequest request)
         throws Exception {
         String prefix = "configure/";

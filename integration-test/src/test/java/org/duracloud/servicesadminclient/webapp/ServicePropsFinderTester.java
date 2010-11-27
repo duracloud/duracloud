@@ -37,7 +37,7 @@ public class ServicePropsFinderTester extends ServiceInstallTestBase {
         // Allow test-service to come up.
         Thread.sleep(5000);
 
-        String serviceId = FilenameUtils.getBaseName(getTestBundle().getName());
+        String serviceId = getTestBundle().getName();
 
         Map<String, String> props = getClient().getServiceProps(serviceId);
         Assert.assertNotNull(props);

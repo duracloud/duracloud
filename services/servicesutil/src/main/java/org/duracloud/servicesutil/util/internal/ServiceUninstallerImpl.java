@@ -29,6 +29,14 @@ public class ServiceUninstallerImpl extends ServiceInstallBase
 
     private final Logger log = LoggerFactory.getLogger(ServiceUninstallerImpl.class);
 
+    public void uninstallAll() throws Exception {
+        File attic = getBundleHome().getAttic();
+        for (File file : attic.listFiles()) {
+            String fileName = file.getName();
+            log.debug("uninstall " + attic.getPath() + ": '" + fileName + "'");
+            uninstall(fileName);
+        }
+    }
 
     public void uninstall(String name) throws Exception {
         log.info("bundleHome: '" + getBundleHome().getBaseDir() + "'");

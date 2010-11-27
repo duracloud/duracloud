@@ -45,12 +45,25 @@ public class ServiceInstallTestBase {
     }
 
     protected void uninstallTestBundle() throws Exception {
+        String bundleId = getTestBundle().getName();
         RestHttpHelper.HttpResponse response = getClient().deleteServiceBundle(
-            getTestBundle().getName());
+            bundleId);
         assertNotNull(response);
 
         int statusCode = response.getStatusCode();
         assertEquals(HttpURLConnection.HTTP_OK, statusCode);
+
+        Assert.assertEquals(response.getResponseBody(), bundleId + " uninstalled");
+    }
+
+    protected void uninstallAllTestBundles() throws Exception {
+        RestHttpHelper.HttpResponse response = getClient().deleteAllServiceBundles();
+        assertNotNull(response);
+
+        int statusCode = response.getStatusCode();
+        assertEquals(HttpURLConnection.HTTP_OK, statusCode);
+
+        Assert.assertEquals(response.getResponseBody(), "all uninstalled");
     }
 
     protected File getTestBundle() {

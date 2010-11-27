@@ -13,7 +13,7 @@
       <props>
         <prop key="list">listController</prop>
         <prop key="install">installController</prop>
-        <prop key="uninstall">uninstallController</prop>
+        <prop key="uninstall/*">uninstallController</prop>
         <prop key="start">startController</prop>
         <prop key="stop">stopController</prop>
         <prop key="status/*">statusController</prop>
@@ -36,7 +36,7 @@
   
   <bean id="uninstallController" class="org.duracloud.servicesadmin.control.UninstallController" >
     <property name="serviceUninstaller" ref="srvUninstaller" />
-    <property name="supportedMethods" value="POST" />
+    <property name="supportedMethods" value="DELETE" />
     <property name="requestHelper" ref="httpRequestHelper" />
   </bean>
   

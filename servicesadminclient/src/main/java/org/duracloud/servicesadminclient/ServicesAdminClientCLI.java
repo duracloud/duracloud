@@ -55,35 +55,35 @@ public class ServicesAdminClientCLI {
     }
 
     public static enum SERVICE {
-        HELLO("h", "[h]elloservice", "helloservice-" + version, "jar"),
+        HELLO("h", "[h]elloservice", "helloservice", "jar"),
         HELLOWEBAPP("hellow",
                     "[hellow]ebapp",
-                    "hellowebappwrapper-" + version,
+                    "hellowebappwrapper",
                     "zip"),
         REPLICATION("rep",
                     "[rep]licationservice",
-                    "replicationservice-" + version,
+                    "replicationservice",
                     "zip"),
         WEBAPPUTIL("util",
                    "webapp[util]",
-                   "webapputilservice-" + version,
+                   "webapputilservice",
                    "zip"),
-        J2K("j", "[j]2k", "j2kservice-" + version, "zip"),
+        J2K("j", "[j]2k", "j2kservice", "zip"),
         IMAGECONVERSION("i",
                         "[i]mageconversion",
-                        "imageconversionservice-" + version,
+                        "imageconversionservice",
                         "zip"),
         IMAGEMAGICK("magick",
                     "image[magick]",
-                    "imagemagickservice-" + version,
+                    "imagemagickservice",
                     "zip"),
         AMAZON_FIXITY("af",
                     "amazonfixity[af]",
-                    "amazonfixityservice-" + version,
+                    "amazonfixityservice",
                     "zip"),
         UNKNOWN("?", "unknown", "unknown-id", "no-ext");
 
-        private File basePackageRepository = new File("../services/packages");
+        private File baseServiceDir = new File("../services/");
 
         private String shorthand;
         private String description;
@@ -101,12 +101,12 @@ public class ServicesAdminClientCLI {
             return description;
         }
 
-        public String getServiceId() {
-            return id + "." + getExt();
+        private String getId() {
+            return id;
         }
 
-        public String getPackageName() {
-            return getServiceId() + "." + getExt();
+        public String getServiceId() {
+            return id + "-" + version + "." + getExt();
         }
 
         private String getExt() {
@@ -114,7 +114,9 @@ public class ServicesAdminClientCLI {
         }
 
         public File getPackage() {
-            return new File(basePackageRepository, getPackageName());
+            File base = new File(baseServiceDir, getId());
+            File target = new File(base, "target");
+            return new File(target, getServiceId());
         }
 
         public static SERVICE fromString(String s) {
@@ -224,7 +226,7 @@ public class ServicesAdminClientCLI {
 
     private void uninstallService(SERVICE service) {
         try {
-            client.deleteServiceBundle(service.getPackageName());
+            client.deleteServiceBundle(service.getServiceId());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

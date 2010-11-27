@@ -8,13 +8,12 @@
 package org.duracloud.servicesadminclient;
 
 import junit.framework.Assert;
+import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.services.util.XMLServiceSerializerImpl;
-import org.easymock.EasyMock;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
+import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +21,10 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Andrew Woods
+ *         Date: Jan 01, 2010
+ */
 public class ServicesAdminClientTest {
 
     private ServicesAdminClient client;
@@ -43,8 +46,51 @@ public class ServicesAdminClientTest {
         //        fail("Not yet implemented");
     }
 
-    public void testDeleteServiceBundle() {
-        //        fail("Not yet implemented");
+    @Test
+    public void testDeleteServiceBundle() throws Exception {
+        String serviceId = "some-service-0.8.0.zip";
+
+        client.setRester(mockRestHttpHelperDeleteBundle(serviceId));
+        HttpResponse response = client.deleteServiceBundle(serviceId);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        Assert.assertEquals(serviceId + " deleted", response.getResponseBody());
+    }
+
+    @Test
+    public void testDeleteAllServiceBundles() throws Exception {
+        client.setRester(mockRestHttpHelperDeleteBundle("all"));
+        HttpResponse response = client.deleteAllServiceBundles();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        Assert.assertEquals("all bundles deleted", response.getResponseBody());
+    }
+
+    private RestHttpHelper mockRestHttpHelperDeleteBundle(String serviceId)
+        throws Exception {
+        HttpResponse mockResponse = EasyMock.createMock("HttpResponse",
+                                                        HttpResponse.class);
+
+        if (serviceId.equals("all")) {
+            EasyMock.expect(mockResponse.getResponseBody()).andReturn(
+                "all bundles deleted").anyTimes();
+
+        } else {
+            EasyMock.expect(mockResponse.getResponseBody()).andReturn(
+                serviceId + " deleted").anyTimes();
+        }
+
+        EasyMock.expect(mockResponse.getStatusCode()).andReturn(HttpStatus.SC_OK)
+            .anyTimes();
+        EasyMock.replay(mockResponse);
+
+        RestHttpHelper helper = EasyMock.createMock("RestHttpHelper",
+                                                    RestHttpHelper.class);
+        EasyMock.expect(helper.delete(EasyMock.isA(String.class))).andReturn(
+            mockResponse);
+
+        EasyMock.replay(helper);
+        return helper;
     }
 
     public void testGetServiceListing() {
@@ -78,15 +124,15 @@ public class ServicesAdminClientTest {
 
     private RestHttpHelper mockRestHttpHelperConfigGET(String xml)
             throws Exception {
-        HttpResponse mockResponse = createMock(HttpResponse.class);
+        HttpResponse mockResponse = EasyMock.createMock(HttpResponse.class);
         EasyMock.expect(mockResponse.getResponseBody()).andReturn(xml)
                 .anyTimes();
-        replay(mockResponse);
+        EasyMock.replay(mockResponse);
 
-        RestHttpHelper helper = createMock(RestHttpHelper.class);
+        RestHttpHelper helper = EasyMock.createMock(RestHttpHelper.class);
         EasyMock.expect(helper.get(EasyMock.isA(String.class)))
                 .andReturn(mockResponse);
-        replay(helper);
+        EasyMock.replay(helper);
 
         return helper;
     }

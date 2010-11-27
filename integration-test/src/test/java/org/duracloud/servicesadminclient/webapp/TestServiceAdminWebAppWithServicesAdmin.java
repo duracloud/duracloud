@@ -61,7 +61,7 @@ public class TestServiceAdminWebAppWithServicesAdmin {
 
     private File getTestBundleFromResourceDir() throws Exception {
         String baseDir = System.getProperty(BASE_DIR_PROP);
-        Assert.assertNotNull(baseDir);
+        Assert.assertNotNull("prop is null: " + BASE_DIR_PROP, baseDir);
 
         String resourceDir = baseDir + File.separator + "src/test/resources/";
 
@@ -94,7 +94,7 @@ public class TestServiceAdminWebAppWithServicesAdmin {
 
     private String getVersion() {
         String version = System.getProperty(PROJECT_VERSION_PROP);
-        Assert.assertNotNull(version);
+        Assert.assertNotNull("prop is null: " + PROJECT_VERSION_PROP, version);
         return version;
     }
 }
