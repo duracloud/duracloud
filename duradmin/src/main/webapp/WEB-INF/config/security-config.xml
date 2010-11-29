@@ -21,7 +21,6 @@
     <intercept-url pattern="/images/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/javascript/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/jquery/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-
     <intercept-url pattern="/**" access="ROLE_USER"  />
     <form-login login-page="/login" always-use-default-target="false"  authentication-failure-url="/login?error=true" />
     <anonymous />

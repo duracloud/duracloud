@@ -45,4 +45,8 @@
       <property name="value"><value>true</value></property>
 	</bean>
   
+    <bean name="statusError" class="org.springframework.web.servlet.view.json.error.HttpStatusError">
+      <property name="errorCode"><value>500</value></property>
+    </bean>
+  
 </beans>
