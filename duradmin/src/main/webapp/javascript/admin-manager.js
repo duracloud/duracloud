@@ -250,9 +250,5 @@ $(document).ready(function() {
 
 	$("#change-password-dialog input").bindEnterKey(_changePassword);
 
-	$(".ui-dialog-titlebar").hide();
-
-	$("#page-content").glasspane({});
-	
 	loadUserList(users);
 });

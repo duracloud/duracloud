@@ -936,33 +936,11 @@ span.label,
 	background: url('../images/loading-bar-green.gif') no-repeat center center;
 }
 
-.ui-glasspane {
-	/*
-	filter:alpha(opacity=0.25);
-	-moz-opacity:0.25;
-	-khtml-opacity: 0.25;
-	opacity: 0.25;
-	*/
-	background: #2886c0 url('../images/bg_L1.png') no-repeat top right;
-	position: absolute;
-	text-align:center;
-	vertical-align:middle;
-	
-}
-
-div.ui-glasspane-message {
-	border: 1px solid blue;
-	background: white url('../images/loading-bar-green.gif') no-repeat center center;
-	min-width:300px;	
-	min-height:125px;
-	float:right;
-}
-
-
-.ui-glasspane h1 {
-	font-size: 1.5em;
-	padding:5px;
-	text-align:left;	
+/*
+* hiding the jquery-ui dialog title bars globally.
+*/
+.ui-dialog-titlebar{
+	display:none;	
 }
 
 

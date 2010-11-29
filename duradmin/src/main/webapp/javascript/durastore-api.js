@@ -72,15 +72,16 @@ var dc;
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
 	dc.store.AddSpace = function(space, callback){
-		dc.ajax({
-			url: "/duradmin/spaces/space", 
-			data: "storeId="+space.storeId+"&spaceId="+escape(space.spaceId)+"&access="+space.access,
-			type: "POST",
-			success: function(data){
-				callback.success(data.space)
-			},
-		    failure:callback.failure,
-		},callback);
+		dc.ajax(
+			{
+				url: "/duradmin/spaces/space", 
+				data: "storeId="+space.storeId+"&spaceId="+escape(space.spaceId)+"&access="+space.access,
+				type: "POST",
+				success: function(data){
+					callback.success(data.space)
+				},
+			    failure:callback.failure,
+			},callback);
 	};
 
 	/**
@@ -155,7 +156,11 @@ var dc;
 		},callback);
 	};
 
-	
+	/**
+	 * Adds a content item.  
+	 * @param Object/String a reference to a form dom node or the form's id
+	 * @param Object future an object implementing a success and failure method.
+	 */
 	dc.store.AddContentItem = function(form, future){
 		future.begin();
 		$(form).ajaxSubmit({
@@ -166,7 +171,7 @@ var dc;
 				future.success(data);
 		    },
 		    error: function(xhr, status, errorThrown){
-		    	future.failure(status);
+		    	future.failure(status,xhr);
 		    },
 		});
 	};
@@ -193,12 +198,17 @@ var dc;
 		});
 	};
 	
+	/**
+	 * 
+	 */
 	dc.store.formatJ2kViewerURL = function(/*string*/j2kViewerBaseURL, /*object*/contentItem){
 		return j2kViewerBaseURL + "/viewer.html?rft_id=" + escape(contentItem.durastoreURL);
 	};	
 
 	
-	
+	/**
+	 * 
+	 */
 	dc.store.formatThumbnail = function(/*object*/contentItem, /*int*/ size, /*optional - string*/j2kViewerBaseURL ){
     	return j2kViewerBaseURL+
     			"/resolver?url_ver=Z39.88-2004&rft_id="+escape(contentItem.durastoreURL)+"&" + 
@@ -208,7 +218,10 @@ var dc;
 
 
 	var GENERIC_THUMBNAIL_PREFIXES = ["image", "video", "text", "pdf"];
-
+	
+	/**
+	 * 
+	 */
     dc.store.formatGenericThumbnail = function(/*object*/contentItem){
         var mimetype = contentItem.metadata.mimetype;
     	var gtf,i;
@@ -220,7 +233,10 @@ var dc;
     	}
     	return "/duradmin/images/generic-thumb-other.png";
     };
-
+    
+    /**
+     * 
+     */
 	dc.store.formatDownloadURL = function(/*object*/contentItem, /*boolean*/ asAttachment){
 		if(asAttachment == undefined) asAttachment = true;
 		return "/duradmin/download/contentItem?spaceId=" +  contentItem.spaceId + 

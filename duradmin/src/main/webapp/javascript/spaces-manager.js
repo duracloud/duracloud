@@ -677,7 +677,6 @@ $(function(){
 				
 			}
 		});
-		hideDialogTitleBars();
 		var pane = $(".center", d);
 		pane.empty();
 		return d;
@@ -1124,12 +1123,10 @@ $(function(){
 	
 	poller(60*1000);
 
-	// /////////////////////////////////////////
-	// /open add space dialog
 	$.fx.speeds._default = 10;
 
-
-	
+	///////////////////////////////////////////
+	///Add Space Dialog Definition Start
 	$('#add-space-dialog').dialog({
 		autoOpen: false,
 		show: 'blind',
@@ -1168,10 +1165,6 @@ $(function(){
 									scrollToCurrentSpace();
 								}
 								
-							},
-							failure: function(text,xhr,errorThrown){
-								var response = $.parseJSON(xhr.responseText);
-								alert("add space failed: " + response.exception.message);
 							},
 						}
 					);
@@ -1220,9 +1213,15 @@ $(function(){
 			
 			
 			$("#add-space-form").resetForm();
+			setTimeout(function(){
+				$("#add-space-form #spaceId").focus();
+			});
 		}
 		
 	});
+	///////////////////////////////////////////
+	///Add Space Dialog Definition End ^
+	///////////////////////////////////////////
 
 	$('.add-space-button').live("click",
 			function(evt){
@@ -1245,6 +1244,9 @@ $(function(){
 		return provider.id;
 	};
 
+	///////////////////////////////////////////
+	///Add Content Item Dialog Definition Start
+	///////////////////////////////////////////
 
 	$('#add-content-item-dialog').dialog({
 		autoOpen: false,
@@ -1354,7 +1356,11 @@ $(function(){
 			$("#add-content-item-form").resetForm();
 		}
 	});
-	
+
+	///////////////////////////////////////////
+	///Add Content Item Dialog Definition End
+	///////////////////////////////////////////
+
 	$('#add-space-help-content').expandopanel({
 		
 	});
@@ -1408,8 +1414,6 @@ $(function(){
 				
 			}
 		});
-		
-		hideDialogTitleBars();
 		
 		d.dialog("open");
 		
@@ -2435,10 +2439,4 @@ $(function(){
 	
 	initSpacesManager();
 	
-	var hideDialogTitleBars = function(){
-		// hides the title bar on all dialogs;
-		$(".ui-dialog-titlebar").hide();
-	};
-	
-	hideDialogTitleBars();
 });

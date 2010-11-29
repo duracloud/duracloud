@@ -449,7 +449,7 @@ $(document).ready(function() {
 				
 				var form = $("#reconfigure-service-dialog form");
 				var formData = form.serialize();
-				dc.busy("Reploying " + data.service.displayName);
+				dc.busy("Reploying " + data.service.displayName, {modal:true});
 				dc.ajax({
 					url: "/duradmin/services/service?method=reconfigure",
 					data: formData, 
@@ -520,7 +520,7 @@ $(document).ready(function() {
 				
 				var form = $("#configure-service-dialog form");
 				var data = form.serialize();
-				dc.busy("Deploying " + service.displayName);
+				dc.busy("Deploying " + service.displayName, {modal:true});
 				dc.ajax({
 					url: "/duradmin/services/service?method=deploy",
 					data: data, 
@@ -530,11 +530,6 @@ $(document).ready(function() {
 						loadDeploymentDetail(data.serviceInfo, data.deployment);
 						refreshDeployedServices();
 					},
-				
-				    failure: function(textStatus){
-						dc.done();
-				    	alert("failed: " + textStatus);
-				    },
 				});
 
 			},
@@ -548,9 +543,6 @@ $(document).ready(function() {
 		},
 	});
 	
-
-	$(".ui-dialog-titlebar").hide();
-
 	setTimeout(function(){
 		refreshDeployedServices();
 	}, 1000);

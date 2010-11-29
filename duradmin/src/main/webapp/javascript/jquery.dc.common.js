@@ -165,6 +165,36 @@ $(function(){
 			}
 		};
 		
+		dc.displayErrorDialog = function(xhr, textStatus, errorThrown){
+			var errorText = xhr.responseText;
+			try{
+				var response = $.parseJSON(errorText);
+				errorText = response['exception.message'];
+			}catch(error){
+				
+			}
+
+			var errorDialog = $.fn.create("div");
+			$(document).append(errorDialog);
+			errorDialog.append("<h1>An unexpected error occurred:</h1><p>"+errorText+"</p>");
+			
+			errorDialog.dialog({
+				autoOpen: true,
+				show: 'fade',
+				hide: 'fade',
+				resizable: false,
+				height: 300,
+				width:500,
+				closeOnEscape:true,
+				modal: false,
+				buttons: {
+					"Close": function(){
+						$(this).dialog("close");
+					},
+				},
+			});
+		};
+
 		dc.ajax = function(innerCallback, outerCallback){
 			var callback = $.extend(
 					true, 
@@ -184,14 +214,15 @@ $(function(){
 						},
 						error: function(xhr, textStatus, errorThrown){
 							dc.error(xhr.responseText);
-							
 							if(innerCallback.failure != undefined){
 								innerCallback.failure(textStatus, xhr, errorThrown);
-							}else{
-								if(outerCallback != undefined 
+							}else if(outerCallback != undefined 
 										&& outerCallback.failure != undefined){
 									outerCallback.failure(textStatus, xhr, errorThrown);
-								}
+							}else{
+								//default error handler
+								dc.done();
+								dc.displayErrorDialog(xhr, textStatus, errorThrown);
 							}
 						},
 						 
@@ -361,9 +392,6 @@ $(function(){
 			
 			d.dialog(dOptions);
 			
-			$(".ui-dialog-titlebar").hide();
-			
-			//$("#page-content").glasspane("show", message);
 		   $("#busy-dialog-title").html(message);
 		   d.dialog("open");
 		};
@@ -391,7 +419,6 @@ $(function(){
 					open: function(e){},
 				});
 				
-				$(".ui-dialog-titlebar").hide();
 			   $("#message-dialog-title").html(message);
 			   d.dialog("open");
 			}
