@@ -125,6 +125,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
         modeSet.setModes(modes);
         modeSet.setName("mode");
         modeSet.setDisplayName("Service Mode");
+        modeSet.setName("serviceMode");
 
         List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
         modeSets.add(modeSet);
