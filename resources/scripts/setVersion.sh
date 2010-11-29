@@ -22,6 +22,6 @@ newVersion=$2
 
 for f in ${files[*]}
 do
-  perl -pi.bak -e "s/$oldVersion/$newVersion/" $f
+  perl -pi -e "s/$oldVersion/$newVersion/" $f
 done
 
