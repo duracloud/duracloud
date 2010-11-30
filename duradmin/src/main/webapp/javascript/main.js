@@ -1,7 +1,0 @@
-/**
- * 
- * created by Daniel Bernstein
- */
-
-
-

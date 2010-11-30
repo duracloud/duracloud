@@ -437,8 +437,8 @@ $(document).ready(function() {
 		show: 'fade',
 		hide: 'fade',
 		resizable: false,
-		height: 500,
-		width:700,
+		height: 600,
+		width:800,
 		closeOnEscape:true,
 		modal: true,
 		buttons: {
@@ -499,8 +499,8 @@ $(document).ready(function() {
 		show: 'fade',
 		hide: 'fade',
 		resizable: false,
-		height: 500,
-		width:700,
+		height: 600,
+		width:800,
 		closeOnEscape:true,
 		modal: true,
 		close: function() {

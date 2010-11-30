@@ -494,7 +494,7 @@ $(function(){
 		};
 		
 		
-		$(mp).bind("add", function(evt, future){
+		$(mp).bind("dc-add", function(evt, future){
 			evt.stopPropagation();
 			var value = future.value;
 			future.success();
@@ -502,7 +502,7 @@ $(function(){
 			removeValueFromList(value,metadataToBeRemoved, equals);
 			removeValueFromList(value,metadataToBeAdded, equals);
 			metadataToBeAdded.push(value);
-		}).bind("remove", function(evt, future){
+		}).bind("dc-remove", function(evt, future){
 			evt.stopPropagation();
 			future.success();
 			var value = future.value;
@@ -514,14 +514,14 @@ $(function(){
 
 		var tag = createTagPane(data.tags);
 
-		$(tag).bind("add", function(evt, future){
+		$(tag).bind("dc-add", function(evt, future){
 			evt.stopPropagation();
 			var value = future.value[0];
 			future.success();
 			removeValueFromList(value,tagsToBeRemoved);
 			removeValueFromList(value,tagsToBeAdded);
 			tagsToBeAdded.push(value);
-		}).bind("remove", function(evt, future){
+		}).bind("dc-remove", function(evt, future){
 			evt.stopPropagation();
 			var value = future.value;
 			future.success();
@@ -1578,19 +1578,19 @@ $(function(){
 		
 		var mp = loadMetadataPane(detail, space.extendedMetadata);
 		
-		$(mp).bind("add", function(evt, future){
+		$(mp).bind("dc-add", function(evt, future){
 				var value = future.value;
 				addSpaceMetadata(space.spaceId, value.name, value.value, future);
-			}).bind("remove", function(evt, future){
+			}).bind("dc-remove", function(evt, future){
 				removeSpaceMetadata(space.spaceId, future.value.name,future);
 			});
 		
 		var tag = loadTagPane(detail, space.metadata.tags);
 
-		$(tag).bind("add", function(evt, future){
+		$(tag).bind("dc-add", function(evt, future){
 			var value = future.value[0];
 			addSpaceTag(space.spaceId, value, future);
-		}).bind("remove", function(evt, future){
+		}).bind("dc-remove", function(evt, future){
 			var value = future.value;
 			removeSpaceTag(space.spaceId, value, future);
 		});
@@ -1674,19 +1674,19 @@ $(function(){
 		var mp = loadMetadataPane(pane, contentItem.extendedMetadata);
 		
 		
-		$(mp).bind("add", function(evt, future){
+		$(mp).bind("dc-add", function(evt, future){
 				var value = future.value;
 				addContentItemMetadata(contentItem.spaceId, contentItem.contentId, value.name, value.value, future);
-			}).bind("remove", function(evt, future){
+			}).bind("dc-remove", function(evt, future){
 				removeContentItemMetadata(contentItem.spaceId, contentItem.contentId, future.value.name,future);
 			});
 		
 		var tag = loadTagPane(pane, contentItem.metadata.tags);
 
-		$(tag).bind("add", function(evt, future){
+		$(tag).bind("dc-add", function(evt, future){
 			var value = future.value[0];
 			addContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
-		}).bind("remove", function(evt, future){
+		}).bind("dc-remove", function(evt, future){
 			var value = future.value;
 			removeContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
 		});

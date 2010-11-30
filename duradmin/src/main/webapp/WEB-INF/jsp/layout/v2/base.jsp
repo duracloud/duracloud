@@ -10,6 +10,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="language" content="en" />
     <title><spring:message code="application.title" /> :: <tiles:insertAttribute name="title"/></title>
+	<link rel="shortcut icon" href="${pageContext.request.contextPath}/favicon.ico" />
+	
 
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/base.css" type="text/css" />	
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/flex.css" type="text/css" />
@@ -17,29 +19,32 @@
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/buttons.css" type="text/css" />
 
 	<!-- jquery core, ui and css -->
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-ui.js"></script>
 	<!-- 3rd party jquery plugins start-->
-	<script type="text/javascript" src="http://layout.jquery-dev.net/download/jquery.layout.min-1.2.0.js"></script>
 	<script type="text/javascript"
-		src="${pageContext.request.contextPath}/jquery/plugins/jquery.ba-throttle-debounce/jquery.ba-throttle-debounce.min.js"></script>
-
-	<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.min.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/plugins/jquery.form/jquery.form-2.4.3.js"></script>
+		src="${pageContext.request.contextPath}/jquery/plugins/jquery.layout.js"></script>
+	<script type="text/javascript"
+		src="${pageContext.request.contextPath}/jquery/plugins/jquery.ba-throttle-debounce.js"></script>
+	<script type="text/javascript"
+		src="${pageContext.request.contextPath}/jquery/plugins/jquery.form.js"></script>
+	<script type="text/javascript"
+		src="${pageContext.request.contextPath}/jquery/plugins/jquery-validate/jquery.validate.js"></script>
 
 	<!-- 3rd party jquery plugins end-->
+	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/jquery.fn.ext.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/jquery.dc.common.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.glasspane.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.onoffswitch.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.selectablelist.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.listdetailviewer.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.expandopanel.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/durastore-api.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/duraservice-api.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/main.js"></script>
 	<script type="text/javascript">
-		/*REMOVE THIS $.require method when we upgrade jquery to 1.4.3+*/
+		/*REMOVE THIS $.require method when we upgrade jquery to 1.4.4+*/
+		/*NOT YET INCLUDED IN THE JQUERY BASE AS OF 1.4.4*/
 		/**
+		*
 		* require is used for on demand loading of JavaScript
 		*
 		* require r1 // 2008.02.05 // jQuery 1.2.2
@@ -96,10 +101,11 @@
 		})(jQuery);
 	
 	$.require('jquery.validate.min.js');
-	$.require('jquery.form-2.4.3.js');
+	$.require('jquery.form.js');
 	$.require('jquery.validate.min.js');
-	$.require('jquery.ba-throttle-debounce.min.js');
-	$.require('jquery.layout.min-1.2.0.js');
+	$.require('jquery.ba-throttle-debounce.js');
+	$.require('jquery.layout.js');
+	$.require('jquery.fn.ext.js');
 	$.require('jquery.dc.common.js');
 	$.require('ui.onoffswitch.js');
 	$.require('ui.selectablelist.js');
@@ -107,7 +113,7 @@
 	$.require('ui.expandopanel.js');
 	$.require('durastore-api.js');
 	$.require('duraservice-api.js');
-	$.require('main.js');
+
 	$(document).ready(function() {
 		///////////////////////////////////////////////////////////////////////
 		////controls rollovers on tags and metadata

@@ -36,7 +36,7 @@ $.widget("ui.metadataviewer",
 					
 					var triggerAdd = function(){
 						disableControls();
-						that.element.trigger("add", { 
+						that.element.trigger("dc-add", { 
 											  value: that._getValue(), 
 											  success: fSuccess,
 											  failure: function(text){
@@ -193,7 +193,7 @@ $.widget("ui.metadataviewer",
 					var value = data;
 					
 					child.addClass("dc-removing");
-					that.element.trigger("remove", { value: value, 
+					that.element.trigger("dc-remove", { value: value, 
 						  success: function(){
 							child.removeClass("dc-removing");
 							that._removeSuccess(that,data);
