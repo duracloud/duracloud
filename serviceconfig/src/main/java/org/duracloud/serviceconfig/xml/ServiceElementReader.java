@@ -243,7 +243,7 @@ public class ServiceElementReader {
         UserConfigModeSet modeSet = new UserConfigModeSet();
 
         modeSet.setId(modeSetType.getId());
-        modeSet.setName(modeSetType.getDisplayName());
+        modeSet.setName(modeSetType.getName());
         modeSet.setDisplayName(modeSetType.getDisplayName());
         modeSet.setValue(modeSetType.getValue());
 

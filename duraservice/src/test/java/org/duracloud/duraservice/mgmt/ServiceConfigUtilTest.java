@@ -308,9 +308,14 @@ public class ServiceConfigUtilTest {
                 Assert.fail("Unexpected modeName:'" + testMode.getName() + "'");
             }
 
-            Assert.assertNull(testMode.getUserConfigs());
+            verifyUserConfigs(0, testMode.getUserConfigs());
             verifyModeSets(testMode.getUserConfigModeSets());
         }
+    }
+
+    private void verifyUserConfigs(int size, List<UserConfig> userConfigs) {
+        Assert.assertNotNull(userConfigs);
+        Assert.assertEquals(size, userConfigs.size());
     }
 
     private void verifyModeSets(List<UserConfigModeSet> testModeSets) {

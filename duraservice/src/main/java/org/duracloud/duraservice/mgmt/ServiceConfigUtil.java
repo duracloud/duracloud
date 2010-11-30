@@ -45,7 +45,6 @@ public class ServiceConfigUtil {
     public static final String STORES_VAR = "$STORES";
     public static final String SPACES_VAR = "$SPACES";
     public static final String ALL_STORE_SPACES_VAR = "$ALL_STORE_SPACES";
-    public static final String EXCLUSION_DEFINITION = "EXCLUSION_DEFINITION";
 
     // System Config Variables
     public static final String STORE_HOST_VAR = "$DURASTORE-HOST";
@@ -121,19 +120,19 @@ public class ServiceConfigUtil {
      * @param userConfigs user configuration for a service
      * @return the populated user configuration list
      */
-    private List<UserConfig> populateUserConfigVariables(ContentStoreManager userStoreManager,
+    private List<UserConfig> populateUserConfigVariables(ContentStore contentStore,
+                                                         ContentStoreManager userStoreManager,
                                                          List<UserConfig> userConfigs) {
         List<UserConfig> newUserConfigs = new ArrayList<UserConfig>();
         if(userConfigs != null){
             Map<String, ContentStore> storesMap = getContentStores(userStoreManager);
-            ContentStore primaryStore = getPrimaryContentStore(userStoreManager);
-            String primaryStoreId = primaryStore.getStoreId();
+            String storeId = contentStore.getStoreId();
 
             for(UserConfig config : userConfigs) {
                 if(config instanceof SelectableUserConfig) {
                     List<Option> options = ((SelectableUserConfig) config).getOptions();
-                    options = populateStoresVariable(primaryStoreId, storesMap, options);
-                    options = populateSpacesVariable(primaryStore, options);
+                    options = populateStoresVariable(storeId, storesMap, options);
+                    options = populateSpacesVariable(contentStore, options);
                     if (config instanceof SingleSelectUserConfig) {
                         SingleSelectUserConfig newConfig = new SingleSelectUserConfig(
                             config.getName(),
@@ -286,14 +285,18 @@ public class ServiceConfigUtil {
                                               ContentStoreManager userStoreManager,
                                               List<UserConfigMode> modes) {
         String storeName = contentStore.getStorageProviderType();
+        String storeId = contentStore.getStoreId();
+        String primaryStoreId = getPrimaryContentStore(userStoreManager).getStoreId();
 
         UserConfigMode newMode = new UserConfigMode();
         newMode.setName(storeName);
         newMode.setDisplayName(storeName);
+        newMode.setSelected(primaryStoreId.equals(storeId));
 
         if (null != modes) {
             for (UserConfigMode mode : modes) {
                 List<UserConfig> userConfigs = populateUserConfigVariables(
+                    contentStore,
                     userStoreManager,
                     mode.getUserConfigs());
 
@@ -311,7 +314,11 @@ public class ServiceConfigUtil {
             return newModes;
         }
 
+        ContentStore primaryStore = getPrimaryContentStore(userStoreManager);
         for (UserConfigMode mode : modes) {
+            mode.setUserConfigs(populateUserConfigVariables(primaryStore,
+                                                            userStoreManager,
+                                                            mode.getUserConfigs()));
             mode.setUserConfigModeSets(populateModeSetVariables(userStoreManager,
                                                                 mode.getUserConfigModeSets()));
 
