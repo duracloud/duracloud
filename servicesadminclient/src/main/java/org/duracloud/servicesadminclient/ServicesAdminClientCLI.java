@@ -81,6 +81,8 @@ public class ServicesAdminClientCLI {
                     "amazonfixity[af]",
                     "amazonfixityservice",
                     "zip"),
+        FIXITY("fix", "[fix]ity", "fixityservice", "zip"),
+        FIXITY_TOOLS("tool", "fixity[tool]s", "fixityservice", "zip", "tools"),
         UNKNOWN("?", "unknown", "unknown-id", "no-ext");
 
         private File baseServiceDir = new File("../services/");
@@ -89,12 +91,22 @@ public class ServicesAdminClientCLI {
         private String description;
         private String id;
         private String ext;
+        private String classifier;
 
         private SERVICE(String shorthand, String desc, String id, String ext) {
+            this(shorthand, desc, id, ext, null);
+        }
+
+        private SERVICE(String shorthand,
+                        String desc,
+                        String id,
+                        String ext,
+                        String classifier) {
             this.shorthand = shorthand;
             this.description = desc;
             this.id = id;
             this.ext = ext;
+            this.classifier = classifier;
         }
 
         public String getDescription() {
@@ -106,7 +118,9 @@ public class ServicesAdminClientCLI {
         }
 
         public String getServiceId() {
-            return id + "-" + version + "." + getExt();
+            String prefix = id + "-" + version;
+            prefix += (null == classifier ? "" : "-" + classifier);
+            return prefix + "." + getExt();
         }
 
         private String getExt() {

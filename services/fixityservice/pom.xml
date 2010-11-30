@@ -14,25 +14,106 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <build>
-    
-    <plugins>
 
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-    </plugins>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
 
-  </build>
+      <properties>
+        <bundle.context.service.name>fixityservice-${project.version}</bundle.context.service.name>
+        <osgi.context.prop.duraservice>fixityservice</osgi.context.prop.duraservice>
+        <osgi.context.service.id>osgiFixityService</osgi.context.service.id>
+      </properties>
+
+      <build>
+        <plugins>
+
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/dep.xml</descriptor>
+                  </descriptors>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>tools</id>
+      <activation>
+        <property>
+          <name>tools</name>
+        </property>
+      </activation>
+
+      <properties>
+        <bundle.context.service.name>fixityservice-${project.version}-tools</bundle.context.service.name>
+        <osgi.context.prop.duraservice>fixityservicetools</osgi.context.prop.duraservice>
+        <osgi.context.service.id>osgiFixityServiceTools</osgi.context.service.id>
+      </properties>
+
+      <build>
+        <plugins>
+          
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/dep-tools.xml</descriptor>
+                  </descriptors>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <extensions>true</extensions>
+
+            <executions>
+              <execution>
+                <id>bundle-manifest</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>manifest</goal>
+                </goals>
+              </execution>
+            </executions>
+
+            <configuration>
+              <classifier>tools</classifier>
+              <instructions>
+                <Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}-tools</Bundle-SymbolicName>
+              </instructions>
+            </configuration>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
 
   <dependencies>
 

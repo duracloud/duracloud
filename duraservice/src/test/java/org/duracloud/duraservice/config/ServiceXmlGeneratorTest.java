@@ -39,7 +39,7 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> serviceInfos = serviceXmlGenerator.buildServiceList();
         Assert.assertNotNull(serviceInfos);
 
-        int NUM_SERVICES = 10;
+        int NUM_SERVICES = 11;
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
@@ -51,6 +51,7 @@ public class ServiceXmlGeneratorTest {
         boolean foundImageconversion = false;
         boolean foundMediaStreaming = false;
         boolean foundFixity = false;
+        boolean foundFixityTools = false;
         boolean foundBulkImageConversion = false;
         boolean foundAmazonFixity = false;
         boolean foundRepOnDemand = false;
@@ -98,6 +99,11 @@ public class ServiceXmlGeneratorTest {
                 verifyFixity(serviceInfo);
 
             } else if (contentId.equals(
+                "fixityservice-" + ver + "-tools.zip")) {
+                foundFixityTools = true;
+                verifyFixityTools(serviceInfo);
+
+            } else if (contentId.equals(
                 "bulkimageconversionservice-" + ver + ".zip")) {
                 foundBulkImageConversion = true;
                 verifyBulkImageconversion(serviceInfo);
@@ -126,6 +132,7 @@ public class ServiceXmlGeneratorTest {
         Assert.assertTrue(foundImageconversion);
         Assert.assertTrue(foundMediaStreaming);
         Assert.assertTrue(foundFixity);
+        Assert.assertTrue(foundFixityTools);
         Assert.assertTrue(foundBulkImageConversion);
         Assert.assertTrue(foundAmazonFixity);
         Assert.assertTrue(foundRepOnDemand);
@@ -182,6 +189,16 @@ public class ServiceXmlGeneratorTest {
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
         setsModesConfigs.add(Arrays.asList(4, 4, 3, 2, 3));
+        verifyServiceModes(setsModesConfigs, serviceInfo);
+    }
+
+    private void verifyFixityTools(ServiceInfo serviceInfo) {
+        int numUserConfigs = 0;
+        int numSystemConfigs = 5;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+
+        List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
+        setsModesConfigs.add(Arrays.asList(3, 2, 3));
         verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 

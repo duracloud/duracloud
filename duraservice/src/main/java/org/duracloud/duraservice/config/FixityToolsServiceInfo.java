@@ -15,18 +15,14 @@ import java.util.List;
 
 /**
  * @author Andrew Woods
- *         Date: Aug 3, 2010
+ *         Date: Nove 29, 2010
  */
-public class FixityServiceInfo extends AbstractServiceInfo {
+public class FixityToolsServiceInfo extends AbstractServiceInfo {
 
     private final String userConfigVersion = "1.0";
-    private final String displayName = "Bit Integrity Checker";
+    private final String displayName = "Bit Integrity Checker - Tools";
 
     protected enum ModeType {
-        ALL_IN_ONE_LIST("all-in-one-for-list",
-                        "Verify the integrity of a list of items"),
-        ALL_IN_ONE_SPACE("all-in-one-for-space",
-                         "Verify the integrity of an entire Space"),
         GENERATE_LIST("generate-for-list",
                       "Generate integrity information for a list of items"),
         GENERATE_SPACE("generate-for-space",
@@ -58,7 +54,7 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     public ServiceInfo getServiceXml(int index, String version) {
         ServiceInfo fsService = new ServiceInfo();
         fsService.setId(index);
-        fsService.setContentId("fixityservice-" + version + ".zip");
+        fsService.setContentId("fixityservice-" + version + "-tools.zip");
         fsService.setDescription(getDescription());
         fsService.setDisplayName(displayName);
         fsService.setUserConfigVersion(userConfigVersion);
@@ -73,16 +69,12 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     }
 
     private String getDescription() {
-        return "The Bit Integrity Checker provides the ability to verify " +
-            "that the content held within DuraCloud has maintained its bit " +
-            "integrity. There are five modes of operation: " +
-            "(1) All-in-one generation of system MD5s for items in provided " +
-            "listing and verification " +
-            "(2) All-in-one generation of system MD5s over entire space(s) " +
-            "and verification to provided listing " +
-            "(3) Generation of system MD5 listing for items in provided listing" +
-            "(4) Generation of system MD5 listing over entire space, and " +
-            "(5) Comparison of two provided MD5 listings.";
+        return "The Bit Integrity Checker Tools provides a set of utilities " +
+            "for generating listings of MD5s or comparing two pre-existing " +
+            "listing. There are three modes of operation: " +
+            "(1) Generation of system MD5 listing for items in provided listing" +
+            "(2) Generation of system MD5 listing over entire space, and " +
+            "(3) Comparison of two provided MD5 listings.";
     }
 
     private List<SystemConfig> getSystemConfigs() {
@@ -115,8 +107,6 @@ public class FixityServiceInfo extends AbstractServiceInfo {
     private List<UserConfigModeSet> getModeSets() {
         List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
 
-        modes.add(getMode(ModeType.ALL_IN_ONE_LIST));
-        modes.add(getMode(ModeType.ALL_IN_ONE_SPACE));
         modes.add(getMode(ModeType.GENERATE_LIST));
         modes.add(getMode(ModeType.GENERATE_SPACE));
         modes.add(getMode(ModeType.COMPARE));
@@ -137,18 +127,6 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
         switch (modeType) {
-            case ALL_IN_ONE_LIST:
-                userConfigs.add(getHashMethodSelection());
-                userConfigs.add(getContentIdOfProvidedListingConfig());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
-                userConfigs.add(getContentIdOfReportConfig());
-                break;
-            case ALL_IN_ONE_SPACE:
-                userConfigs.add(getHashMethodSelection());
-                userConfigs.add(getContentIdOfProvidedListingConfig());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
-                userConfigs.add(getContentIdOfReportConfig());
-                break;
             case GENERATE_LIST:
                 userConfigs.add(getHashMethodSelection());
                 userConfigs.add(getContentIdOfProvidedListingConfig());
@@ -183,13 +161,6 @@ public class FixityServiceInfo extends AbstractServiceInfo {
 
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
         switch (modeType) {
-            case ALL_IN_ONE_LIST:
-                userConfigs.add(getSpaceOfProvidedListingSelection());
-                break;
-            case ALL_IN_ONE_SPACE:
-                userConfigs.add(getSpaceOfProvidedListingSelection());
-                userConfigs.add(getSpaceOfGeneratedHashListingSelection());
-                break;
             case GENERATE_LIST:
                 userConfigs.add(getSpaceOfProvidedListingSelection());
                 break;

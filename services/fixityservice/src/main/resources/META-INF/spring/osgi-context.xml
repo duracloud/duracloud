@@ -11,13 +11,13 @@
     OSGi services which are available to external bundles are defined
     here.
   -->
-  <osgi:service id="osgiFixityService" ref="srvFixity" >
+  <osgi:service id="${osgi.context.service.id}" ref="srvFixity" >
     <osgi:interfaces>
       <value>org.osgi.service.cm.ManagedService</value>
       <value>org.duracloud.services.ComputeService</value>
     </osgi:interfaces>
     <osgi:service-properties>
-      <entry key="duraService" value="fixityservice"/>
+      <entry key="duraService" value="${osgi.context.prop.duraservice}"/>
     </osgi:service-properties>  
   </osgi:service>
   

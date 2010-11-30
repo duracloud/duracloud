@@ -11,9 +11,9 @@
   <bean id="srvFixity" class="org.duracloud.services.fixity.FixityService"
    destroy-method="stop">
    <!-- init-method="start" destroy-method="stop"> -->
-    <osgix:managed-properties persistent-id="fixityservice-${project.version}.zip"
+    <osgix:managed-properties persistent-id="${bundle.context.service.name}.zip"
         update-strategy="container-managed"/>
-    <property name="serviceId" value="fixityservice-${project.version}" />
+    <property name="serviceId" value="${bundle.context.service.name}" />
     <property name="serviceStatus" value="INSTALLED" />
   </bean>
   

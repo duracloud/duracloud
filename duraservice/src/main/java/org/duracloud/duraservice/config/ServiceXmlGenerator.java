@@ -29,6 +29,7 @@ public class ServiceXmlGenerator {
     private AbstractServiceInfo[] serviceInfos = {//new HelloServiceInfo(),
                                                 new FixityServiceInfo(),
                                                 new AmazonFixityServiceInfo(),
+                                                new FixityToolsServiceInfo(),
                                                 new ReplicationOnDemandServiceInfo(),
                                                 new ReplicationServiceInfo(),
                                                 //new HelloWebappWrapperServiceInfo(),
