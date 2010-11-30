@@ -12,29 +12,12 @@
     <version>0.8.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <repositories>
-    <repository>
-      <id>com.springsource.repository.bundles.release</id>
-      <name>SpringSource Enterprise Bundle Repository - SpringSource
-        Releases</name>
-      <url>http://repository.springsource.com/maven/bundles/release
-      </url>
-    </repository>
-    <repository>
-      <id>com.springsource.repository.bundles.external</id>
-      <name>SpringSource Enterprise Bundle Repository - External
-        Releases</name>
-      <url>http://repository.springsource.com/maven/bundles/external
-      </url>
-    </repository>
-    <repository>
-      <id>ibiblio</id>
-      <name>ibiblio</name>
-      <url>http://mirrors.ibiblio.org/pub/mirrors/maven2</url>
-    </repository>
-
-  </repositories>
+  <repositories/>
+  <properties>
+    <jquery.target.path>jquery/plugins</jquery.target.path>
+    <jquery.plugin.target.path>jquery/plugins</jquery.plugin.target.path>
   
+  </properties>
   <build>
     <plugins>
       <plugin>
@@ -56,7 +39,7 @@
               <groupId>org.duracloud</groupId>
               <artifactId>jquery</artifactId>
               <type>zip</type>
-              <targetPath>jquery</targetPath>
+              <targetPath>${jquery.target.path}</targetPath>
               <includes>
                 <include>jquery.js</include>
               </includes>
@@ -65,7 +48,7 @@
               <groupId>org.duracloud</groupId>
               <artifactId>jquery-ui</artifactId>
               <type>zip</type>
-              <targetPath>jquery</targetPath>
+              <targetPath>${jquery.target.path}</targetPath>
               <includes>
                 <include>jquery-ui.js</include>
               </includes>
@@ -75,7 +58,7 @@
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.fancybox</artifactId>
               <type>zip</type>
-              <targetPath>jquery/plugins</targetPath>
+              <targetPath>${jquery.plugin.target.path}</targetPath>
               <includes>
                 <include>**/fancybox/**</include>
               </includes>
@@ -84,7 +67,7 @@
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.ba-throttle-debounce</artifactId>
               <type>zip</type>
-              <targetPath>jquery/plugins</targetPath>
+              <targetPath>${jquery.plugin.target.path}</targetPath>
               <includes>
                 <include>jquery.ba-throttle-debounce.js</include>
               </includes>
@@ -93,7 +76,7 @@
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.form</artifactId>
               <type>zip</type>
-              <targetPath>jquery/plugins</targetPath>
+              <targetPath>${jquery.plugin.target.path}</targetPath>
               <includes>
                 <include>jquery.form.js</include>
               </includes>
@@ -102,7 +85,7 @@
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.layout</artifactId>
               <type>zip</type>
-              <targetPath>jquery/plugins</targetPath>
+              <targetPath>${jquery.plugin.target.path}</targetPath>
               <includes>
                 <include>jquery.layout.js</include>
               </includes>
@@ -111,7 +94,7 @@
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.validate</artifactId>
               <type>zip</type>
-              <targetPath>jquery/plugins</targetPath>
+              <targetPath>${jquery.plugin.target.path}</targetPath>
               <includes>
                 <include>jquery-validate/localization/*</include>
                 <include>jquery-validate/jquery.validate.js</include>
@@ -340,7 +323,6 @@
       <artifactId>com.springsource.org.apache.commons.io</artifactId>
       <scope>runtime</scope>
     </dependency>
-
 
     <!-- jquery plugins -->
     <dependency>

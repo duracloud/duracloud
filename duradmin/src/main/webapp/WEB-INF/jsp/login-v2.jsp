@@ -10,7 +10,7 @@
 	
 	<tiles:putAttribute name="body">
 		<script type="text/javascript">
-			$(document).ready(function(){
+			$(function(){
 				$("#username").focus();
 				
 				var login = function(){
@@ -40,9 +40,9 @@
 								alert("an unexpected error occurred: " + err);
 					  	 	}
 					  },
-					  error: function(){
+					  error: function( xhr,text, errorThrown){
 						  feedback.fadeOut();					
-						  alert("login error");
+						  dc.displayErrorDialog(xhr, text, errorThrown);
 					  },
 
 					});

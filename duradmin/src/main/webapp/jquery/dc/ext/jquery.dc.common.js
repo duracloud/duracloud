@@ -8,15 +8,13 @@
 
 /**
  * 
- * created by Daniel Bernstein
+ * @author "Daniel Bernstein (dbernstein@duraspace.org)"
  */
 
 var dc;
 
 $(function(){
 	(function(){
-
-		
 		///////////////////////////////////////////////////////////////////////
 		////duracloud js utils
 		///////////////////////////////////////////////////////////////////////
@@ -71,13 +69,13 @@ $(function(){
 
 			var errorDialog = $.fn.create("div");
 			$(document).append(errorDialog);
-			errorDialog.append("<h1>An unexpected error occurred:</h1><p>"+errorText+"</p>");
+			errorDialog.append("<h1>An unexpected error occurred:</h1><div style='overflow:auto;height:300px'>"+errorText+"</div>");
 			
 			errorDialog.dialog({
 				autoOpen: true,
 				show: 'fade',
 				hide: 'fade',
-				resizable: false,
+				resizable: true,
 				height: 300,
 				width:500,
 				closeOnEscape:true,

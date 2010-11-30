@@ -6,7 +6,7 @@
 
 	<tiles:putAttribute name="header-extensions">
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/javascript/dashboard-manager.js"></script>
+			src="${pageContext.request.contextPath}/js/dashboard-manager.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.jfeed/jquery.jfeed.pack.js"></script>
 

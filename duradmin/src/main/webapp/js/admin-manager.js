@@ -3,10 +3,11 @@
  * created by Daniel Bernstein
  */
 
-var centerLayout;
-var usersListPane;
-var detailPane;
-$(document).ready(function() {
+$(function() {
+
+	var centerLayout;
+	var usersListPane;
+	var detailPane;
 
 	//alert("starting jquery execution");
 	var userDetailPaneId = "#user-detail-pane";

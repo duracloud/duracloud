@@ -22,8 +22,7 @@
 					];
 		  });
 		</script>
-
-		<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/admin-manager.js"></script>
+		<script type="text/javascript" src="${pageContext.request.contextPath}/js/admin-manager.js"></script>
 		
 	</tiles:putAttribute>
 	

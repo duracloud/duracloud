@@ -130,8 +130,9 @@
 			}
 
 			var i,j, mode,modeSetId,modeSetSelect;
-			modeSetId = "modeset-" + modeSet.name;
-			modeSetSelect = $.fn.create("select").attr("id", modeSetId);
+			modeSetId = "modeset-" + modeSet.id + "- "+ modeSet.name;
+			modeSetSelect = $.fn.create("select").attr("id", modeSetId).attr("name", modeSet.name);
+
 			//for multiple modes
 			//first create a mode selection box
 			for(i = 0; i < modes.length; i++){

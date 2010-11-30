@@ -3,11 +3,14 @@
  * created by Daniel Bernstein
  */
 
-var centerLayout;
-var servicesListPane;
-var detailPane;
-$(document).ready(function() {
 
+$(function() {
+	$.require('dc/widget/ui.serviceconfig.js');
+
+	var centerLayout;
+	var servicesListPane;
+	var detailPane;
+	
 	//alert("starting jquery execution");
 	var serviceDetailPaneId = "#service-detail-pane";
 	var detailPaneId = "#detail-pane";

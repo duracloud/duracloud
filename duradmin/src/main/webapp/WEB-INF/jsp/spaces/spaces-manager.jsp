@@ -22,23 +22,29 @@
 		<link rel="stylesheet"
 			href="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.css"
 			type="text/css" media="screen" />
+		<!-- 
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.1.js"></script>
-
-		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/javascript/ui.metadataviewer.js"></script>
-		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/javascript/ui.tagsviewer.js"></script>
-		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/javascript/ui.flyoutselect.js"></script>
+		 -->
+		
         <script type='text/javascript' src='${pageContext.request.contextPath}/jwplayer/swfobject.js'></script>
+
+			<!-- 
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/javascript/dc.util.paralleltasks.js"></script>
+			src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.metadataviewer.js"></script>
+		<script type="text/javascript"
+			src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.tagsviewer.js"></script>
+		<script type="text/javascript"
+			src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.flyoutselect.js"></script>
+		<script type="text/javascript"
+			src="${pageContext.request.contextPath}/js/dc/jquery/api/dc.util.paralleltasks.js"></script>
+			 -->	
+
 			
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/javascript/spaces-manager.js"></script>
+			src="${pageContext.request.contextPath}/js/spaces-manager.js"></script>
 
 	</tiles:putAttribute>
 	<tiles:putAttribute name="body">

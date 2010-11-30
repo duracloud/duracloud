@@ -22,6 +22,7 @@
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-ui.js"></script>
 	<!-- 3rd party jquery plugins start-->
+<!-- 
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery.layout.js"></script>
 	<script type="text/javascript"
@@ -31,90 +32,93 @@
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery-validate/jquery.validate.js"></script>
 
-	<!-- 3rd party jquery plugins end-->
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/jquery.fn.ext.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/jquery.dc.common.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.onoffswitch.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.selectablelist.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.listdetailviewer.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/ui.expandopanel.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/durastore-api.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/javascript/duraservice-api.js"></script>
-	<script type="text/javascript">
-		/*REMOVE THIS $.require method when we upgrade jquery to 1.4.4+*/
-		/*NOT YET INCLUDED IN THE JQUERY BASE AS OF 1.4.4*/
-		/**
-		*
-		* require is used for on demand loading of JavaScript
-		*
-		* require r1 // 2008.02.05 // jQuery 1.2.2
-		*
-		* // basic usage (just like .accordion)
-		* $.require("comp1.js");
-		*
-	
-		* @param  jsFiles string array or string holding the js file names to load
-		* @param  params object holding parameter like browserType, callback, cache
-		* @return The jQuery object
-		* @author Manish Shanker
-		*/
-	
-		(function($){
-		$.require = function(jsFiles, params) {
-	
-		var params = params || {};
-		var bType = params.browserType===false?false:true;
-	
-		if (!bType){
-		return $;
-		}
-	
-		var cBack = params.callBack || function(){};
-		var eCache = params.cache===false?false:true;
-	
-		if (!$.require.loadedLib) $.require.loadedLib = {};
-	
-		if ( !$.scriptPath ) {
-		var path = $('script').attr('src');
-		$.scriptPath = path.replace(/\w+\.js$/, '');
-		}
-		if (typeof jsFiles === "string") {
-		jsFiles = new Array(jsFiles);
-		}
-		for (var n=0; n< jsFiles.length; n++) {
-		if (!$.require.loadedLib[jsFiles[n]]) {
-		$.ajax({
-		type: "GET",
-		url: $.scriptPath + jsFiles[n],
-		success: cBack,
-		dataType: "script",
-		cache: eCache,
-		async: false
-		});
-		$.require.loadedLib[jsFiles[n]] = true;
-		}
-		}
-		//console.dir($.require.loadedLib);
-	
-		return $;
-		};
-		})(jQuery);
-	
-	$.require('jquery.validate.min.js');
-	$.require('jquery.form.js');
-	$.require('jquery.validate.min.js');
-	$.require('jquery.ba-throttle-debounce.js');
-	$.require('jquery.layout.js');
-	$.require('jquery.fn.ext.js');
-	$.require('jquery.dc.common.js');
-	$.require('ui.onoffswitch.js');
-	$.require('ui.selectablelist.js');
-	$.require('ui.listdetailviewer.js');
-	$.require('ui.expandopanel.js');
-	$.require('durastore-api.js');
-	$.require('duraservice-api.js');
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/ext/jquery.fn.ext.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/ext/jquery.dc.common.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.onoffswitch.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.selectablelist.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.listdetailviewer.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.expandopanel.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/api/durastore-api.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/api/duraservice-api.js"></script>
+ -->
 
-	$(document).ready(function() {
+	<script type="text/javascript">
+
+	/*REMOVE THIS $.require method when we upgrade jquery to 1.4.4+*/
+	/*NOT YET INCLUDED IN THE JQUERY BASE AS OF 1.4.4*/
+	/**
+	*
+	* require is used for on demand loading of JavaScript
+	*
+	* require r1 // 2008.02.05 // jQuery 1.2.2
+	*
+	* // basic usage (just like .accordion)
+	* $.require("comp1.js");
+	*
+
+	* @param  jsFiles string array or string holding the js file names to load
+	* @param  params object holding parameter like browserType, callback, cache
+	* @return The jQuery object
+	* @author Manish Shanker
+	*/
+
+	(function($){
+	$.require = function(jsFiles, params) {
+
+	var params = params || {};
+	var bType = params.browserType===false?false:true;
+
+	if (!bType){
+	return $;
+	}
+
+	var cBack = params.callBack || function(){};
+	var eCache = params.cache===false?false:true;
+
+	if (!$.require.loadedLib) $.require.loadedLib = {};
+
+	if ( !$.scriptPath ) {
+	var path = $('script').attr('src');
+	$.scriptPath = path.replace(/\w+\.js$/, '');
+	}
+	if (typeof jsFiles === "string") {
+	jsFiles = new Array(jsFiles);
+	}
+	for (var n=0; n< jsFiles.length; n++) {
+	if (!$.require.loadedLib[jsFiles[n]]) {
+	$.ajax({
+	type: "GET",
+	url: $.scriptPath + jsFiles[n],
+	success: cBack,
+	dataType: "script",
+	cache: eCache,
+	async: false
+	});
+	$.require.loadedLib[jsFiles[n]] = true;
+	}
+	}
+	//console.dir($.require.loadedLib);
+
+	return $;
+	};
+	})(jQuery);
+
+
+	$(function() {
+
+		$.require('plugins/jquery-validate/jquery.validate.js');
+		$.require('plugins/jquery.form.js');
+		$.require('plugins/jquery.ba-throttle-debounce.js');
+		$.require('plugins/jquery.layout.js');
+		$.require('dc/ext/jquery.fn.ext.js');
+		$.require('dc/ext/jquery.dc.common.js');
+		$.require('dc/widget/ui.onoffswitch.js');
+		$.require('dc/widget/ui.selectablelist.js');
+		$.require('dc/widget/ui.listdetailviewer.js');
+		$.require('dc/widget/ui.expandopanel.js');
+		$.require('dc/api/durastore-api.js');
+		$.require('dc/api/duraservice-api.js');		
+					
 		///////////////////////////////////////////////////////////////////////
 		////controls rollovers on tags and metadata
 		///////////////////////////////////////////////////////////////////////
