@@ -4,8 +4,19 @@
 
 ;(function(){
 	$.widget('ui.serviceconfig', { 
+		/*
+		 * service info member variable
+		 */
 		_service: null,
+		
+		/*
+		 * 
+		 */
 		_controlContainer: null,
+		
+		/**
+		 * built in widget initialization method
+		 */
 		_init: function(){
 			this.element.html("");
 			this._controlContainer =  $.fn.create("fieldset");
@@ -13,7 +24,7 @@
 				$.fn.create("span").addClass("dc-message")
 			).append(
 				$.fn.create("form").append(
-					$.fn.create("div").addClass("form-fields h400").append(
+					$.fn.create("div").addClass("form-fields").append(
 							this._controlContainer
 					)
 				)
@@ -26,6 +37,11 @@
 			
 		},
 		options: {},
+		
+		/*
+		 * returns a form control appropriate to the user config object.
+		 * 
+		 */
 		_createControl: function(/* userConfig object */uc, /*string*/namespacePrefix){
 			var inputType = uc.inputType;
 			var i;
@@ -64,7 +80,7 @@
 					var li = $.fn.create("li");
 					var id = o.id + "-" + i;
 					var option = $.fn.create("input")
-									.attr("name", controlId)
+									.attr("name", controlId+"-"+checkbox+"-"+i)
 									.attr("type","checkbox")
 									.attr("value", o.value);
 					if(o.selected){
@@ -131,7 +147,7 @@
 			}
 		},
 
-		_addModeSet: function(modeSet, controlList, namespacePrefix){
+		_addModeSet: function(modeSet, controlList, /*optional - top level namespaces have no prefix*/ namespacePrefix){
 			var modes = modeSet.modes;
 			var prefix = (namespacePrefix == null || namespacePrefix == undefined)? 
 							modeSet.name: namespacePrefix +"."+modeSet.name;
@@ -194,7 +210,10 @@
 			toggleVisibleMode();
 		},
 		
-		load: function(service, deployment){
+		/**
+		 * loads the widget
+		 */
+		load: function(service, /*optional*/deployment){
 			var that = this;
 			
 			var i;
@@ -238,8 +257,8 @@
 					var o = dOptions[i];
 					locationSelect.append($.fn.create("option")
 												.attr("value", o.hostname + "-" + 
-																	o.locationType[0]).html(
-																			o.displayName + " - " + o.hostname + " (" + o.locationType+")"));
+																	o.location[0]).html(
+																			o.displayName + " - " + o.hostname + " (" + o.location+")"));
 				}
 				
 				list.append(

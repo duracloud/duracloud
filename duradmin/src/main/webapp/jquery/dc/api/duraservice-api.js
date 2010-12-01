@@ -6,7 +6,7 @@
 var dc; 
 $(function(){
 	
-	$.require("jquery.dc.common.js");
+	$.require("dc/ext/jquery.dc.common.js");
 	
 	(function(){
 		if(dc == undefined){
