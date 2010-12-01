@@ -14,7 +14,7 @@
   </parent>
   <repositories/>
   <properties>
-    <jquery.target.path>jquery/plugins</jquery.target.path>
+    <jquery.target.path>jquery</jquery.target.path>
     <jquery.plugin.target.path>jquery/plugins</jquery.plugin.target.path>
   
   </properties>
