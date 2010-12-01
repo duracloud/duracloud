@@ -268,9 +268,10 @@ public class ServiceManager {
             }
 
             if(availDeployment) {
-                ServiceInfo availService = populateService(service);
+                ServiceInfo availService = populateServiceKeepCache(service);
                 availableServices.add(availService);
             }
+            clearCache();
         }
 
         log.debug("getAvailableServices(): "+availableServices.size());
@@ -289,9 +290,10 @@ public class ServiceManager {
 
         List<ServiceInfo> populatedDepServices = new ArrayList<ServiceInfo>();
         for(ServiceInfo deployedService : deployedServices) {
-            ServiceInfo populatedDepService = populateService(deployedService);
+            ServiceInfo populatedDepService = populateServiceKeepCache(deployedService);
             populatedDepServices.add(populatedDepService);
         }
+        clearCache();
         return populatedDepServices;
     }
 
@@ -303,6 +305,17 @@ public class ServiceManager {
                                                  serviceComputeInstances,
                                                  userStore,
                                                  primaryHost);
+    }
+    
+    private ServiceInfo populateServiceKeepCache(ServiceInfo service) {
+        return serviceConfigUtil.populateServiceKeepCache(service,
+                                                          serviceComputeInstances,
+                                                          userStore,
+                                                          primaryHost);
+    }
+
+    public void clearCache() {
+        serviceConfigUtil.clearCache();
     }
 
     /*

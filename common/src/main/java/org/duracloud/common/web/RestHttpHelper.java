@@ -336,7 +336,7 @@ public class RestHttpHelper {
         }
     }
 
-    public class HttpResponse {
+    public static class HttpResponse {
 
         private final int statusCode;
 

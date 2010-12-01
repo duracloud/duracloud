@@ -57,6 +57,9 @@ public class ServiceConfigUtil {
     // Provides access to user storage
     private final ContentStoreManagerUtil contentStoreManagerUtil;
 
+    // Temporary cached elements
+    private ContentStoreManager contentStoreManager;
+
     /**
      * Creates a service config utility with access to a user's content store
      *
@@ -73,11 +76,34 @@ public class ServiceConfigUtil {
      *
      * @return a clone of the provided service with all variables resolved
      */
+    public ServiceInfo populateServiceKeepCache(ServiceInfo service,
+                                                List<ServiceComputeInstance> serviceComputeInstances,
+                                                UserStore userStore,
+                                                String primaryHostName) {
+        log.debug("populateServiceKeepCache: " + service.getContentId());
+        return doPopulateService(service,
+                                 serviceComputeInstances,
+                                 userStore,
+                                 primaryHostName);
+    }
+
     public ServiceInfo populateService(ServiceInfo service,
                                        List<ServiceComputeInstance> serviceComputeInstances,
                                        UserStore userStore,
                                        String primaryHostName) {
-        log.debug("populateService: "+service.getContentId());
+        log.debug("populateService: " + service.getContentId());
+        clearCache();
+        return doPopulateService(service,
+                                 serviceComputeInstances,
+                                 userStore,
+                                 primaryHostName);
+    }
+
+    private ServiceInfo doPopulateService(ServiceInfo service,
+                                         List<ServiceComputeInstance> serviceComputeInstances,
+                                         UserStore userStore,
+                                         String primaryHostName) {
+        log.debug("populateService: " + service.getContentId());
         // Perform a deep clone of the service (includes all configs and deployments)
         ServiceInfo srvClone = service.clone();
 
@@ -111,7 +137,15 @@ public class ServiceConfigUtil {
     }
 
     private ContentStoreManager getUserStoreManager(Store store) {
-        return contentStoreManagerUtil.getContentStoreManager(store);
+        if (null == this.contentStoreManager) {
+            this.contentStoreManager = contentStoreManagerUtil.getContentStoreManager(
+                store);
+        }
+        return this.contentStoreManager;
+    }
+
+    public void clearCache() {
+        this.contentStoreManager = null;
     }
 
     /**
@@ -211,14 +245,14 @@ public class ServiceConfigUtil {
     /*
      * Populates the $SPACES variable
      */
-    private List<Option> populateSpacesVariable(ContentStore primaryStore,
+    private List<Option> populateSpacesVariable(ContentStore contentStore,
                                                 List<Option> options) {
         List<Option> newOptionsList = new ArrayList<Option>();
         for (Option option : options) {
             String value = option.getValue();
             if (value.equals(SPACES_VAR)) {
                 try {
-                    List<String> spaces = primaryStore.getSpaces();
+                    List<String> spaces = contentStore.getSpaces();
                     for(String spaceId : spaces) {
                         Option storeOption = new Option(spaceId, spaceId, false);
                         newOptionsList.add(storeOption);

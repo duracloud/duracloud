@@ -8,9 +8,8 @@
 package org.duracloud.duraservice.mgmt;
 
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.client.impl.CachingContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
-import org.duracloud.duraservice.domain.ServiceStore;
 import org.duracloud.duraservice.domain.Store;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
@@ -43,9 +42,9 @@ public class ContentStoreManagerUtil {
     public ContentStoreManager getContentStoreManager(Store store,
                                                       Credential credential) {
         ContentStoreManager storeManager;
-        storeManager = new ContentStoreManagerImpl(store.getHost(),
-                                                   store.getPort(),
-                                                   store.getContext());
+        storeManager = new CachingContentStoreManagerImpl(store.getHost(),
+                                                          store.getPort(),
+                                                          store.getContext());
         storeManager.login(credential);
         return storeManager;
     }

@@ -8,8 +8,10 @@
 package org.duracloud.duraservice.mgmt;
 
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.impl.CachingContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.duraservice.domain.Store;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.easymock.classextension.EasyMock;
@@ -49,13 +51,22 @@ public class ContentStoreManagerUtilTest {
         doTestGetContentStoreManager(loggedIn);
     }
 
-    private void doTestGetContentStoreManager(boolean loggedIn)
+    private ContentStoreManager doTestGetContentStoreManager(boolean loggedIn)
         throws NoUserLoggedInException {
         SecurityContextUtil securityCxt = createMockSecurityContextUtil(loggedIn);
         ContentStoreManagerUtil util = new ContentStoreManagerUtil(securityCxt);
 
         ContentStoreManager storeMgr = util.getContentStoreManager(store);
         Assert.assertNotNull(storeMgr);
+
+        return storeMgr;
+    }
+
+    @Test
+    public void testCaching() throws Exception {
+        boolean loggedIn = true;
+        ContentStoreManager mgr = doTestGetContentStoreManager(loggedIn);
+        Assert.assertTrue(mgr instanceof CachingContentStoreManagerImpl);
     }
 
     @Test

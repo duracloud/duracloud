@@ -165,7 +165,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         }
     }
 
-    private ContentStore newContentStoreImpl(StorageAccount acct) {
+    protected ContentStore newContentStoreImpl(StorageAccount acct) {
         return new ContentStoreImpl(baseURL,
                                     acct.getType(),
                                     acct.getId(),
@@ -179,15 +179,18 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
                                     getRestHelper());
     }
 
+    protected String getBaseURL() {
+        return baseURL;
+    }
 
-    private RestHttpHelper getRestHelper() {
+    protected RestHttpHelper getRestHelper() {
         if (null == restHelper) {
             restHelper = new RestHttpHelper();
         }
         return restHelper;
     }
 
-    private void setRestHelper(RestHttpHelper restHelper) {
+    protected void setRestHelper(RestHttpHelper restHelper) {
         this.restHelper = restHelper;
     }
 }
