@@ -43,7 +43,7 @@ public class DeploymentOption implements Serializable {
         this.displayName = displayName;
     }
 
-    public Location getLocationType() {
+	public Location getLocationType() {
         return location;
     }
 
