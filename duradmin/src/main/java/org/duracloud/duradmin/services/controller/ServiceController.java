@@ -223,7 +223,7 @@ public class ServiceController implements Controller {
 	private DeploymentOption getDeployment(ServiceInfo serviceInfo,
 			String hostname, Location location) {
     	for(DeploymentOption o : serviceInfo.getDeploymentOptions()){
-    		if(o.getLocationType().equals(location) && o.getHostname().equals(hostname)){
+    		if(o.getLocation().equals(location) && o.getHostname().equals(hostname)){
     			return o;
     		}
     	}

@@ -560,7 +560,7 @@ public class ServiceManager {
 
         if(host.equals(primaryHost)) { // Primary Host
             for(DeploymentOption option : depOptions) {
-                if(option.getLocationType().equals(
+                if(option.getLocation().equals(
                     DeploymentOption.Location.PRIMARY)) {
                     if(option.getState().equals(
                         DeploymentOption.State.UNAVAILABLE)) {

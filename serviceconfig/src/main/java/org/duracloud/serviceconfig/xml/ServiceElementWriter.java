@@ -338,7 +338,7 @@ public class ServiceElementWriter {
                     deploymentOptionType.setDisplayName(displayName);
                 }
 
-                DeploymentOption.Location location = deploymentOption.getLocationType();
+                DeploymentOption.Location location = deploymentOption.getLocation();
                 if (location != null) {
                     if (location.equals(DeploymentOption.Location.PRIMARY)) {
                         deploymentOptionType.setLocation(
