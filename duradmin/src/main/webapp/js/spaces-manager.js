@@ -12,6 +12,7 @@
  * @author Daniel Bernstein
  */
 
+var centerLayout, listBrowserLayout, spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
 
 $(function(){
 	$.require("plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.js");
@@ -21,7 +22,6 @@ $(function(){
 	$.require("dc/widget/ui.flyoutselect.js");
 	$.require("dc/api/dc.util.paralleltasks.js");
 
-	var centerLayout, listBrowserLayout, spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
 
 	//reusable validators that are used with various forms.
 	//used in conjunctions with the jquery.validate.js and jquery.form

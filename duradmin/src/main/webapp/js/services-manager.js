@@ -3,13 +3,13 @@
  * created by Daniel Bernstein
  */
 
+var centerLayout;
+var servicesListPane;
+var detailPane;
+
 
 $(function() {
-	$.require('dc/widget/ui.serviceconfig.js');
 
-	var centerLayout;
-	var servicesListPane;
-	var detailPane;
 	
 	//alert("starting jquery execution");
 	var serviceDetailPaneId = "#service-detail-pane";
@@ -449,13 +449,12 @@ $(function() {
 		
 				var data = serviceConfig.serviceconfig("data");
 				$("#reconfigure-service-dialog").dialog("close");
-				
-				var form = $("#reconfigure-service-dialog form");
-				var formData = form.serialize();
+				var formValues = serviceConfig.serviceconfig("serializedFormValues");
+
 				dc.busy("Reploying " + data.service.displayName, {modal:true});
 				dc.ajax({
 					url: "/duradmin/services/service?method=reconfigure",
-					data: formData, 
+					data: formValues, 
 					type: "POST",
 					success: function(data){
 						dc.done();
@@ -520,9 +519,7 @@ $(function() {
 				
 				var service = deployServiceConfig.serviceconfig("data").service;
 				$("#configure-service-dialog").dialog("close");
-				
-				var form = $("#configure-service-dialog form");
-				var data = form.serialize();
+				var data = deployServiceConfig.serviceconfig("serializedFormValues");
 				dc.busy("Deploying " + service.displayName, {modal:true});
 				dc.ajax({
 					url: "/duradmin/services/service?method=deploy",

@@ -32,8 +32,8 @@ public class ServiceInfoUtil {
      * @param parameters
      * @return true if value changed
      */
-    public static boolean applyValues(TextUserConfig userConfig, Map<String,String> parameters){
-        String newValue = parameters.get(userConfig.getName());
+    public static boolean applyValues(TextUserConfig userConfig, Map<String,String> parameters, String namespace){
+        String newValue = parameters.get(namespace+"."+userConfig.getName());
         String oldValue = userConfig.getValue();
         userConfig.setValue(newValue);
 
@@ -46,8 +46,8 @@ public class ServiceInfoUtil {
      * @param parameters
      * @return true if value changed
      */
-    public static boolean applyValues(SingleSelectUserConfig userConfig, Map<String,String> parameters){
-        String newValue = parameters.get(userConfig.getName());
+    public static boolean applyValues(SingleSelectUserConfig userConfig, Map<String,String> parameters,String namespace){
+        String newValue = parameters.get(namespace+"."+userConfig.getName());
         String oldValue = userConfig.getSelectedValue();
         userConfig.select(newValue);
         return !StringUtils.equals(newValue, oldValue);
@@ -60,8 +60,8 @@ public class ServiceInfoUtil {
      * @param parameters
      * @return true if value changed
      */
-    public static boolean applyValues(MultiSelectUserConfig userConfig, Map<String,String> parameters){
-        String name = userConfig.getName();
+    public static boolean applyValues(MultiSelectUserConfig userConfig, Map<String,String> parameters,String namespace){
+        String name = namespace+"."+userConfig.getName();
         String oldValue = getValuesAsString(userConfig);
         userConfig.deselectAll();
 
@@ -89,13 +89,6 @@ public class ServiceInfoUtil {
     }
 
     
-    public static void applyValues(List<UserConfig> userConfigs,
-                                   Map<String, String> parameters) {
-        for(UserConfig userConfig : userConfigs){
-            applyValues(userConfig,parameters);
-        }
-    }
-
     public static void applyValues(List<UserConfigModeSet> userConfigModeSets,
            	HttpServletRequest request) {
     	Map<String,String> map = new HashMap<String,String>();
@@ -107,35 +100,44 @@ public class ServiceInfoUtil {
     	}
     	
     	for(UserConfigModeSet userConfigModeSet : userConfigModeSets){
-    		applyValues(userConfigModeSet, map);
+    		applyValues(userConfigModeSet, map,null);
     	}
 	}
 
     private static void applyValues(UserConfigModeSet userConfigModeSet,
-			Map<String, String> map) {
-        String newValue = map.get(userConfigModeSet.getName());
+			Map<String, String> map, String namespace) {
+    	String name = userConfigModeSet.getName();
+    	String key = (namespace == null ? name : namespace + "." + name); 
+    	String newValue = map.get(key);
         userConfigModeSet.setValue(newValue);
     	
     	for(UserConfigMode mode : userConfigModeSet.getModes()){
     		mode.setSelected(mode.getName().equals(newValue));
-    		for(UserConfig userConfig : mode.getUserConfigs()){
-    			applyValues(userConfig,map);
+    		String modeNameSpace = key + "." +  mode.getName();
+
+    		if(mode.getUserConfigs() != null){
+    			for(UserConfig userConfig : mode.getUserConfigs()){
+	    			applyValues(userConfig,map,modeNameSpace);
+	    		}
     		}
 
-			for(UserConfigModeSet modeSet : mode.getUserConfigModeSets()){
-				applyValues(modeSet, map);
-			}
+    		if(mode.getUserConfigModeSets() != null){
+    			for(UserConfigModeSet modeSet : mode.getUserConfigModeSets()){
+    				applyValues(modeSet, map, modeNameSpace);
+    			}
+    		}
 		}
 	}
 
 	private static boolean applyValues(UserConfig userConfig,
-                                    Map<String, String> parameters) {
+                                    Map<String, String> parameters,
+                                    String namespace) {
         if(userConfig instanceof TextUserConfig){
-            return applyValues((TextUserConfig)userConfig, parameters);
+            return applyValues((TextUserConfig)userConfig, parameters,namespace);
         }else if(userConfig instanceof SingleSelectUserConfig){
-            return applyValues((SingleSelectUserConfig)userConfig, parameters);
+            return applyValues((SingleSelectUserConfig)userConfig, parameters,namespace);
         }else if(userConfig instanceof MultiSelectUserConfig){
-            return applyValues((MultiSelectUserConfig)userConfig, parameters);
+            return applyValues((MultiSelectUserConfig)userConfig, parameters,namespace);
         }else{
             throw new UnsupportedOperationException(userConfig.getClass().getCanonicalName() + " not recognized.");
         }
