@@ -570,7 +570,7 @@ public class ServiceManager {
             }
         } else if(host.equalsIgnoreCase(NEW_SERVICE_HOST)) { // New Host
             for(DeploymentOption option : depOptions) {
-                if(option.getLocationType().equals(
+                if(option.getLocation().equals(
                     DeploymentOption.Location.NEW)) {
                     if(option.getState().equals(
                         DeploymentOption.State.AVAILABLE)) {

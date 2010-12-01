@@ -386,7 +386,7 @@ public class ServiceConfigUtil {
             new ArrayList<DeploymentOption>();
         for(DeploymentOption depOp : deploymentOptions) {
             if(depOp.getState().equals(DeploymentOption.State.AVAILABLE)) {
-                if(depOp.getLocationType().equals(DeploymentOption.Location.EXISTING)) {
+                if(depOp.getLocation().equals(DeploymentOption.Location.EXISTING)) {
                     for(ServiceComputeInstance computeInstance : serviceComputeInstances) {
                         String hostName = computeInstance.getHostName();
                         if(!hostName.equals(primaryHostName) &&
@@ -399,14 +399,14 @@ public class ServiceConfigUtil {
                             newDeploymentOptions.add(newDepOpt);
                         }
                     }
-                } else if(depOp.getLocationType().equals(DeploymentOption.Location.NEW)) {
+                } else if(depOp.getLocation().equals(DeploymentOption.Location.NEW)) {
                     DeploymentOption newDepOpt = new DeploymentOption();
                     newDepOpt.setHostname(ServiceManager.NEW_SERVICE_HOST);
                     newDepOpt.setDisplayName(ServiceManager.NEW_HOST_DISPLAY);
                     newDepOpt.setLocation(DeploymentOption.Location.NEW);
                     newDepOpt.setState(DeploymentOption.State.AVAILABLE);
                     newDeploymentOptions.add(newDepOpt);
-                } else if(depOp.getLocationType().equals(DeploymentOption.Location.PRIMARY)) {
+                } else if(depOp.getLocation().equals(DeploymentOption.Location.PRIMARY)) {
                     DeploymentOption newDepOpt = new DeploymentOption();
                     newDepOpt.setHostname(primaryHostName);
                     newDepOpt.setDisplayName(getPrimaryHostDisplay(serviceComputeInstances,
