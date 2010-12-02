@@ -936,6 +936,11 @@ span.label,
 	background: url('../images/loading-bar-green.gif') no-repeat center center;
 }
 
+.ui-serviceconfig > div {
+	height: 415px;
+	overflow: auto;	
+}
+
 /*
 * hiding the jquery-ui dialog title bars globally.
 */

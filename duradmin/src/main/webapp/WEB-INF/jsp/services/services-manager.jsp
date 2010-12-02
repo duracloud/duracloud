@@ -92,13 +92,13 @@
 				</div> 
 			</div>
 
-			<div id="reconfigure-service-dialog" class="dialog" title="Reconfigure Service">
+			<div id="reconfigure-service-dialog"  class="dialog ui-serviceconfig" title="Reconfigure Service">
 				<h1>Reconfigure the Service</h1>
 				<div id="reconfigure-service-config">
 				</div>
 			</div>
 
-			<div id="configure-service-dialog" class="dialog" title="Configure Service">
+			<div id="configure-service-dialog" class="dialog ui-serviceconfig" title="Configure Service">
 				<h1>Configure the Service</h1>
 				<p class="hint">Configure your service, then click "Deploy"</p>
 				<div id="deploy-service-config">
