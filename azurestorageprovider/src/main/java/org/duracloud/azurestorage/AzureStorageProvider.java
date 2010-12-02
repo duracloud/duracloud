@@ -8,7 +8,6 @@
 package org.duracloud.azurestorage;
 
 import org.duracloud.common.stream.ChecksumInputStream;
-import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
@@ -33,7 +32,6 @@ import java.util.*;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
 
 /**
  * Provides content storage backed by Azure's Cloud Files service.
@@ -165,7 +163,7 @@ public class AzureStorageProvider extends StorageProviderBase {
                     continue;
                 }
                 if (found == true) {
-                    contentItems.add(object.getName());
+                    contentItems.add(getContentId(object.getName()));
                     counter++;
                 }
             }
@@ -216,11 +214,12 @@ public class AzureStorageProvider extends StorageProviderBase {
 
     private void throwIfContentNotExist(String spaceId, String contentId) {
         String containerName = getContainerName(spaceId);
+        String contentName = getContentName(contentId);
 
         IBlobContainer blobContainer = blobStorage.getBlobContainer(
             containerName);
-        if (!blobContainer.isBlobExist(contentId)) {
-            String msg = "Error: Content does not exist: " + contentId;
+        if (!blobContainer.isBlobExist(contentName)) {
+            String msg = "Error: Content does not exist: " + contentName;
             throw new NotFoundException(msg);
 
         }
@@ -248,7 +247,7 @@ public class AzureStorageProvider extends StorageProviderBase {
         Map<String, String> spaceMetadata = new HashMap<String, String>();
         Date created = new Date(System.currentTimeMillis());
         spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
-        setSpaceMetadata(spaceId, spaceMetadata);
+        setSpaceMetadataInt(spaceId, spaceMetadata);
     }
 
     private String formattedDate(Date created) {
@@ -260,7 +259,7 @@ public class AzureStorageProvider extends StorageProviderBase {
         String containerName = getContainerName(spaceId);
 
         StringBuilder err = new StringBuilder(
-            "Could not create Azure " + "container with name " + containerName +
+            "Could not create Azure container with name " + containerName +
                 " due to error: ");
         try {
             blobStorage.createContainer(containerName);
@@ -366,6 +365,13 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
+        setSpaceMetadataInt(spaceId, spaceMetadata);
+    }
+
+    private void setSpaceMetadataInt(String spaceId,
+                                 Map<String, String> spaceMetadata) {
+        log.debug("setSpaceMetadata(" + spaceId + ")");
+
         // Ensure that space created date is included in the new metadata
         Date created = getCreationDate(spaceId, spaceMetadata);
         if (created != null) {
@@ -462,8 +468,10 @@ public class AzureStorageProvider extends StorageProviderBase {
                                      String spaceId,
                                      ChecksumInputStream wrappedContent) {
         String containerName = getContainerName(spaceId);
+        String contentName = getContentName(contentId);
+
         StringBuilder err = new StringBuilder(
-            "Could not add content " + contentId + " with type " +
+            "Could not add content " + contentName + " with type " +
                 contentMimeType + " to Azure container " + containerName +
                 " due to error: ");
 
@@ -472,7 +480,7 @@ public class AzureStorageProvider extends StorageProviderBase {
                 containerName);
 
             /* New Blob Properties */
-            IBlobProperties blobProperties = new BlobProperties(contentId);
+            IBlobProperties blobProperties = new BlobProperties(contentName);
 
             blobProperties.setContentType(contentMimeType);
 
@@ -483,7 +491,7 @@ public class AzureStorageProvider extends StorageProviderBase {
             /* Set Blob Contents */
             IBlobContents blobContents = new BlobContents(wrappedContent);
 
-            if (blobContainer.isBlobExist(contentId)) {
+            if (blobContainer.isBlobExist(contentName)) {
                 blobContainer.updateBlockBlob(blobProperties, blobContents);                
             }
             else
@@ -503,24 +511,25 @@ public class AzureStorageProvider extends StorageProviderBase {
         throwIfSpaceNotExist(spaceId);
 
         String containerName = getContainerName(spaceId);
+        String contentName = getContentName(contentId);
 
         StringBuilder err = new StringBuilder(
-            "Could not retrieve content " + contentId +
+            "Could not retrieve content " + contentName +
                 " from Azure container " + containerName + " due to error: ");
         try {
             IBlobContainer blobContainer = blobStorage.getBlobContainer(
                 containerName);
 
-            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentId);
+            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentName);
 
             IBlobProperties blobProperties = blockBlob.getProperties();
             if (null == blobProperties) {
-                String errMsg = createNotFoundMsg(spaceId, contentId);
+                String errMsg = createNotFoundMsg(spaceId, contentName);
                 throw new NotFoundException(errMsg);
             }
 
             String strBlobNameProp = blobProperties.getName();
-            if (!contentId.equals(strBlobNameProp)) {
+            if (!contentName.equals(strBlobNameProp)) {
                 throw new StorageException(err.append(String.format(
                     "Wrong blob: '%s'!",
                     strBlobNameProp)).toString());
@@ -566,15 +575,16 @@ public class AzureStorageProvider extends StorageProviderBase {
 
     private void deleteObject(String contentId, String spaceId) {
         String containerName = getContainerName(spaceId);
+        String contentName = getContentName(contentId);
         StringBuilder err = new StringBuilder(
-            "Could not delete content " + contentId + " from Azure container " +
+            "Could not delete content " + contentName + " from Azure container " +
                 containerName + " due to error: ");
 
         try {
             IBlobContainer blobContainer = blobStorage.getBlobContainer(
                 containerName);
 
-            boolean deleted = blobContainer.deleteBlob(contentId);
+            boolean deleted = blobContainer.deleteBlob(contentName);
             if (!deleted) {
                 throw new NotFoundException(err.toString());
             }
@@ -606,16 +616,17 @@ public class AzureStorageProvider extends StorageProviderBase {
                                        String contentId,
                                        Map<String, String> contentMetadata) {
         String containerName = getContainerName(spaceId);
+        String contentName = getContentName(contentId);
 
         StringBuilder err = new StringBuilder(
-            "Could not update metadata " + "for content " + contentId +
+            "Could not update metadata for content " + contentName +
                 " in Azure container " + containerName + " due to error: ");
 
         try {
             IBlobContainer blobContainer = blobStorage.getBlobContainer(
                 containerName);
 
-            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentId);
+            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentName);
             IBlobProperties blobProperties = blockBlob.getProperties();
 
             NameValueCollection metadata = new NameValueCollection();
@@ -626,8 +637,6 @@ public class AzureStorageProvider extends StorageProviderBase {
             blockBlob.setProperties(blobProperties);
         } catch (org.soyatec.windowsazure.error.StorageException e) {
             throwIfContentNotExist(spaceId, contentId);
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
         }
     }
 
@@ -688,9 +697,10 @@ public class AzureStorageProvider extends StorageProviderBase {
     private IBlobProperties getObjectMetadata(String spaceId,
                                               String contentId) {
         String containerName = getContainerName(spaceId);
+        String contentName = getContentName(contentId);
 
         StringBuilder err = new StringBuilder(
-            "Could not retrieve metadata" + " for content " + contentId +
+            "Could not retrieve metadata for content " + contentName +
                 " from Azure container " + containerName + " due to error: ");
 
         try {
@@ -698,7 +708,7 @@ public class AzureStorageProvider extends StorageProviderBase {
             IBlobContainer blobContainer = blobStorage.getBlobContainer(
                 containerName);
 
-            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentId);
+            IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentName);
 
             IBlobProperties blobProperties = blockBlob.getProperties();
 
@@ -736,5 +746,27 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
 
         return containerName;
+    }
+
+    /**
+     * Converts a provided content ID into a valid Azure content name.
+     * The container name must not contain spaces
+     *
+     * @param contentId user preferred ID of the content
+     * @return contentId converted to valid Azure content name
+     */
+    protected String getContentName(String contentId) {
+        return contentId.replaceAll(" ", "%20");
+    }
+
+    /**
+     * Converts a provided valid Azure content name into a content ID.
+     * The container id can contain spaces
+     *
+     * @param contentName valid Azure content name
+     * @return contentName converted to user preferred ID of the content
+     */
+    protected String getContentId(String contentName) {
+        return contentName.replaceAll("%20", " ");
     }
 }

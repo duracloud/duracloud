@@ -44,7 +44,7 @@ public class TestAzureStorageProvider {
     AzureStorageProvider azureProvider;
 
     private static String SPACE_ID = null;
-    private static final String CONTENT_ID = "duracloud-test-content";
+    private static final String CONTENT_ID = "duracloud test content";
     private static final String SPACE_META_NAME = "custom-space-metadata";
     private static final String SPACE_META_VALUE = "Testing Space";
     private static final String CONTENT_META_NAME = "custom-content-metadata";
