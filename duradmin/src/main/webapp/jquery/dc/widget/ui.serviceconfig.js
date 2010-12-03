@@ -261,12 +261,11 @@
 																			o.displayName + " - " + o.hostname + " (" + o.location+")"));
 				}
 
-                if(dOptions.length < 2)
-				    locationSelect.attr("disabled", true);
-
 				list.append(
 					this._createListItem("location", "Location").append(locationSelect)
 				);
+
+                $('#li-location').hide();
 			}
 			
 			for(i = 0; i < modeSets.length;i++){
