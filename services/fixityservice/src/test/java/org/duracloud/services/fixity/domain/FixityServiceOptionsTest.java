@@ -266,4 +266,19 @@ public class FixityServiceOptionsTest {
         serviceOptions.verify();
     }
 
+    @Test
+    public void testAutoGenerateMode() {
+        params = new HashMap<String, String>();
+        boolean auto;
+        for (FixityServiceOptions.Mode mode : FixityServiceOptions.Mode
+            .values()) {
+            params.put(modeKey, mode.getKey());
+            serviceOptions = createServiceOptions();
+
+            auto = mode.equals(FixityServiceOptions.Mode.ALL_IN_ONE_SPACE);
+            Assert.assertEquals(auto,
+                                serviceOptions.needsToAutoGenerateHashListing());
+        }
+    }
+
 }

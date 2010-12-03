@@ -51,6 +51,8 @@ public class ServiceConfigUtilTest {
     private final String space1 = "space1";
     private final String space2 = "space2";
 
+    private final String storeId = "store-id";
+
     private ServiceInfo service;
     private List<UserConfigModeSet> modeSets;
     private final String modeSetNameTop = "modeset.name.top";
@@ -167,7 +169,7 @@ public class ServiceConfigUtilTest {
         EasyMock.expect(contentStore.getStorageProviderType()).andReturn(
             StorageProviderType.AMAZON_S3.name()).anyTimes();
         EasyMock.expect(contentStore.getSpaces()).andReturn(spaces).anyTimes();
-        EasyMock.expect(contentStore.getStoreId()).andReturn("stId").anyTimes();
+        EasyMock.expect(contentStore.getStoreId()).andReturn(storeId).anyTimes();
 
         EasyMock.replay(contentStore);
         return contentStore;
@@ -349,9 +351,9 @@ public class ServiceConfigUtilTest {
                 Assert.assertNotNull("mode name is null", modeName);
                 Assert.assertNotNull("mode display is null", modeDisplayName);
 
-                Assert.assertEquals(modeName, modeDisplayName);
+                Assert.assertEquals(storeId, modeName);
                 Assert.assertEquals(StorageProviderType.AMAZON_S3.name(),
-                                    modeName);
+                                    modeDisplayName);
 
                 List<UserConfig> userConfigs = testMode.getUserConfigs();
                 Assert.assertNotNull(userConfigs);

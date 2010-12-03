@@ -113,6 +113,10 @@ public class FixityServiceOptions {
             mode.equals(Mode.GENERATE_LIST) || mode.equals(Mode.GENERATE_SPACE);
     }
 
+    public boolean needsToAutoGenerateHashListing() {
+        return getMode().equals(Mode.ALL_IN_ONE_SPACE);
+    }
+
     public boolean needsToCompare() {
         Mode mode = getMode();
         return mode.equals(Mode.ALL_IN_ONE_LIST) ||
@@ -167,7 +171,7 @@ public class FixityServiceOptions {
                 verifyNull(targetSpaceId, "targetSpaceId");
                 verifyNotNull(outputSpaceId, "outputSpaceId");
                 verifyNotNull(outputContentId, "outputContentId");
-                verifyNotNull(reportContentId, "reportContentId");
+                verifyNull(reportContentId, "reportContentId");
                 break;
             case GENERATE_SPACE:
                 verifyNotNull(hashApproach, "hashApproach");
@@ -181,7 +185,7 @@ public class FixityServiceOptions {
                 verifyNotNull(targetSpaceId, "targetSpaceId");
                 verifyNotNull(outputSpaceId, "outputSpaceId");
                 verifyNotNull(outputContentId, "outputContentId");
-                verifyNotNull(reportContentId, "reportContentId");
+                verifyNull(reportContentId, "reportContentId");
                 break;
             case COMPARE:
                 verifyNull(hashApproach, "hashApproach");

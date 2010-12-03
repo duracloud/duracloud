@@ -11,6 +11,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
@@ -49,6 +50,9 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
 
+    // This is also found in bundle-context.xml
+    private static final String TIMESTAMP = "$TIMESTAMP";
+
     private ServiceWorkManager workManager;
     private ContentStore contentStore;
 
@@ -81,6 +85,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
     @Override
     public void start() throws Exception {
         this.setServiceStatus(ServiceStatus.STARTING);
+        processingStatusMsg = null;
         keepWorking = true;
 
         StringBuilder sb = new StringBuilder("Starting Fixity Service as '");
@@ -90,8 +95,19 @@ public class FixityService extends BaseService implements ComputeService, Manage
         sb.append(" worker threads");
         log.info(sb.toString());
 
+        setUp();
         new Thread(new FixityServiceThread()).start();
         new Thread(new ProcessingStatusMonitorThread()).start();
+    }
+
+    private void setUp() {
+        if (null != outputSpaceId) {
+            try {
+                getContentStore().createSpace(outputSpaceId, null);
+            } catch (ContentStoreException e) {
+                log.debug("Ensuring output space exists: " + e.getMessage());
+            }
+        }
     }
 
     private class FixityServiceThread implements Runnable {
@@ -157,11 +173,30 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private void startHashing(ContentStore contentStore,
                               FixityServiceOptions serviceOptions,
                               File workDir,
-                              CountDownLatch doneHashing) {
+                              CountDownLatch doneHashing)
+        throws ServiceException {
+        
+        CountDownLatch doneAuto = new CountDownLatch(1);
+        if (serviceOptions.needsToAutoGenerateHashListing()) {
+            FixityServiceOptions autoOptions = getAutoHashingOptions();
+            doStartHashing(contentStore, autoOptions, workDir, doneAuto);
+
+        } else {
+            doneAuto.countDown();
+        }
+
+        waitForLatch(doneAuto);
+        doStartHashing(contentStore, serviceOptions, workDir, doneHashing);
+    }
+
+    private void doStartHashing(ContentStore contentStore,
+                                FixityServiceOptions serviceOptions,
+                                File workDir,
+                                CountDownLatch doneHashing) {
         ServiceResultProcessor resultListener = new ServiceResultProcessor(
             contentStore,
-            outputSpaceId,
-            outputContentId,
+            serviceOptions.getOutputSpaceId(),
+            serviceOptions.getOutputContentId(),
             PHASE_FIND,
             workDir);
 
@@ -186,16 +221,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                 File workDir,
                                 CountDownLatch doneHashing)
         throws ServiceException {
-        try {
-            doneHashing.await();
-
-        } catch (InterruptedException e) {
-            StringBuilder sb = new StringBuilder("Error: ");
-            sb.append("calling doneWorking.await(): ");
-            sb.append(e.getMessage());
-            log.error(sb.toString(), e);
-            throw new ServiceException(sb.toString(), e);
-        }
+        waitForLatch(doneHashing);
 
         String previousPhaseStatus = null;
         if (workManager != null) {
@@ -224,6 +250,19 @@ public class FixityService extends BaseService implements ComputeService, Manage
         workManager.start();
     }
 
+    private void waitForLatch(CountDownLatch doneHashing)
+        throws ServiceException {
+        try {
+            doneHashing.await();
+
+        } catch (InterruptedException e) {
+            StringBuilder sb = new StringBuilder("Error: ");
+            sb.append("calling doneWorking.await(): ");
+            sb.append(e.getMessage());
+            log.error(sb.toString(), e);
+            throw new ServiceException(sb.toString(), e);
+        }
+    }
 
     @Override
     public void stop() throws Exception {
@@ -285,6 +324,29 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                                              targetSpaceId,
                                                              outputSpaceId,
                                                              outputContentId,
+                                                             reportContentId);
+
+        opts.verify();
+        return opts;
+    }
+
+    private FixityServiceOptions getAutoHashingOptions() {
+        FixityServiceOptions.Mode m = FixityServiceOptions.Mode.GENERATE_SPACE;
+        FixityServiceOptions.HashApproach ha = FixityServiceOptions.HashApproach.STORED;
+        String outContentId = providedListingContentIdA;
+
+        FixityServiceOptions opts = new FixityServiceOptions(m.name(),
+                                                             ha.name(),
+                                                             salt,
+                                                             isFailFast,
+                                                             storeId,
+                                                             providedListingSpaceIdA,
+                                                             providedListingSpaceIdB,
+                                                             providedListingContentIdA,
+                                                             providedListingContentIdB,
+                                                             targetSpaceId,
+                                                             outputSpaceId,
+                                                             outContentId,
                                                              reportContentId);
 
         opts.verify();
@@ -383,11 +445,20 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     public void setOutputContentId(String outputContentId) {
-        log.info("set outputContentId(" + outputContentId + ")");
-        this.outputContentId = outputContentId;
+        if (null != outputContentId) {
+            outputContentId = filterTimestamp(outputContentId);
+            log.info("set outputContentId(" + outputContentId + ")");
+            this.outputContentId = outputContentId;
+        }
+    }
+
+    private String filterTimestamp(String contentId) {
+        String spaceId = targetSpaceId == null ? "" : "-" + targetSpaceId + "-";
+        return contentId.replace(spaceId + TIMESTAMP, DateUtil.nowShort());
     }
 
     public void setReportContentId(String reportContentId) {
+        reportContentId = filterTimestamp(reportContentId);
         log.info("set reportContentId(" + reportContentId + ")");
         this.reportContentId = reportContentId;
     }

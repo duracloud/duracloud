@@ -106,7 +106,7 @@ public class HashVerifierWorker implements Runnable {
         OutputStream output = null;
         InputStream input = null;
         try {
-            output = new FileOutputStream(file);
+            output = FileUtils.openOutputStream(file);
             input = content.getStream();
 
             BufferedReader br = new BufferedReader(new InputStreamReader(input));

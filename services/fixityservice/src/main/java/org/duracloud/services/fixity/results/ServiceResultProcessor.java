@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.fixity.results;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
@@ -106,6 +107,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
 
     private void writeToLocalResultsFile(ServiceResult result) {
         if (!resultsFile.exists()) {
+            mkdir(resultsFile);
             write(result.getHeader());
         }
         write(result.getEntry());
@@ -128,6 +130,14 @@ public class ServiceResultProcessor implements ServiceResultListener {
             sb.append(", exception: ");
             sb.append(e.getMessage());
             log.error(sb.toString());
+        }
+    }
+
+    private void mkdir(File file) {
+        try {
+            FileUtils.forceMkdir(file.getParentFile());
+        } catch (IOException e) {
+            // do nothing
         }
     }
 

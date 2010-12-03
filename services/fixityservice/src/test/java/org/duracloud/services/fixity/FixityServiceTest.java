@@ -404,6 +404,8 @@ public class FixityServiceTest {
                                          EasyMock.<Map<String, String>>isNull()))
             .andReturn("junk-md5")
             .anyTimes();
+        store.createSpace(outputSpaceId, null);
+        EasyMock.expectLastCall();
 
         EasyMock.makeThreadSafe(store, true);
 

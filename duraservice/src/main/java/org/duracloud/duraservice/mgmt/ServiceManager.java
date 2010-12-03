@@ -618,61 +618,98 @@ public class ServiceManager {
      */
     private Map<String, String> createServiceConfig(List<UserConfigModeSet> userConfigModeSets,
                                                     List<SystemConfig> systemServiceConfig) {
-        Map<String, String> serviceConfig = new HashMap<String, String>();
 
+        Map<String, String> userConfig = createServiceConfigUserData(
+            userConfigModeSets);
+        Map<String, String> sysConfig = createServiceConfigSystemData(
+            systemServiceConfig);
+
+        Map<String, String> serviceConfig = new HashMap<String, String>();
+        serviceConfig.putAll(userConfig);
+        serviceConfig.putAll(sysConfig);
+        return serviceConfig;
+    }
+
+    private Map<String, String> createServiceConfigUserData(List<UserConfigModeSet> userConfigModeSets) {
+        Map<String, String> serviceConfig = new HashMap<String, String>();
         // Add User Config
         if (userConfigModeSets != null) {
             for (UserConfigModeSet userConfigModeSet : userConfigModeSets) {
                 for (UserConfigMode mode : userConfigModeSet.getModes()) {
-                    for (UserConfig userConfig : mode.getUserConfigs()) {
-                        if (userConfig instanceof TextUserConfig) {
-                            TextUserConfig textConfig = (TextUserConfig) userConfig;
-                            serviceConfig.put(textConfig.getName(),
-                                              textConfig.getValue());
-                        } else if (userConfig instanceof SingleSelectUserConfig) {
-                            SingleSelectUserConfig singleConfig = (SingleSelectUserConfig) userConfig;
-                            String value = null;
-                            for (Option option : singleConfig.getOptions()) {
-                                if (option.isSelected()) {
-                                    value = option.getValue();
-                                }
-                            }
-                            if (value != null) {
-                                serviceConfig.put(singleConfig.getName(),
-                                                  value);
-                            }
-                        } else if (userConfig instanceof MultiSelectUserConfig) {
-                            MultiSelectUserConfig multiConfig = (MultiSelectUserConfig) userConfig;
-                            StringBuilder valueBuilder = new StringBuilder();
-                            for (Option option : multiConfig.getOptions()) {
-                                if (option.isSelected()) {
-                                    if (valueBuilder.length() > 0) {
-                                        valueBuilder.append(",");
-                                    }
-                                    valueBuilder.append(option.getValue());
-                                }
-                            }
-                            if (valueBuilder.length() > 0) {
-                                serviceConfig.put(multiConfig.getName(),
-                                                  valueBuilder.toString());
-                            }
+                    if (mode.isSelected()) {
+                        Map<String, String> modeConfig = createServiceConfigForMode(
+                            userConfigModeSet.getName(),
+                            mode);
+                        serviceConfig.putAll(modeConfig);
+                    }
+                }
+            }
+        }
+        return serviceConfig;
+    }
+
+    private Map<String, String> createServiceConfigForMode(String modeSetName,
+                                                           UserConfigMode mode) {
+        Map<String, String> serviceConfig = new HashMap<String, String>();
+
+        serviceConfig.put(modeSetName, mode.getName());
+        if (null != mode.getUserConfigs()) {
+            for (UserConfig userConfig : mode.getUserConfigs()) {
+                if (userConfig instanceof TextUserConfig) {
+                    TextUserConfig textConfig = (TextUserConfig) userConfig;
+                    serviceConfig.put(textConfig.getName(),
+                                      textConfig.getValue());
+                } else if (userConfig instanceof SingleSelectUserConfig) {
+                    SingleSelectUserConfig singleConfig = (SingleSelectUserConfig) userConfig;
+                    String value = null;
+                    for (Option option : singleConfig.getOptions()) {
+                        if (option.isSelected()) {
+                            value = option.getValue();
                         }
+                    }
+                    if (value != null) {
+                        serviceConfig.put(singleConfig.getName(), value);
+                    }
+                } else if (userConfig instanceof MultiSelectUserConfig) {
+                    MultiSelectUserConfig multiConfig = (MultiSelectUserConfig) userConfig;
+                    StringBuilder valueBuilder = new StringBuilder();
+                    for (Option option : multiConfig.getOptions()) {
+                        if (option.isSelected()) {
+                            if (valueBuilder.length() > 0) {
+                                valueBuilder.append(",");
+                            }
+                            valueBuilder.append(option.getValue());
+                        }
+                    }
+                    if (valueBuilder.length() > 0) {
+                        serviceConfig.put(multiConfig.getName(),
+                                          valueBuilder.toString());
                     }
                 }
             }
         }
 
+        if (null != mode.getUserConfigModeSets()) {
+            Map<String, String> modeSetConfig = createServiceConfigUserData(mode.getUserConfigModeSets());
+            serviceConfig.putAll(modeSetConfig);
+        }
+
+        return serviceConfig;
+    }
+
+    private Map<String, String> createServiceConfigSystemData(List<SystemConfig> systemServiceConfig) {
+        Map<String, String> serviceConfig = new HashMap<String, String>();
+
         // Add System Config
-        if(systemServiceConfig != null) {
-            for(SystemConfig systemConfig : systemServiceConfig) {
+        if (systemServiceConfig != null) {
+            for (SystemConfig systemConfig : systemServiceConfig) {
                 String value = systemConfig.getValue();
-                if(value == null || value.isEmpty()) {
+                if (value == null || value.isEmpty()) {
                     value = systemConfig.getDefaultValue();
                 }
                 serviceConfig.put(systemConfig.getName(), value);
             }
         }
-
         return serviceConfig;
     }
 

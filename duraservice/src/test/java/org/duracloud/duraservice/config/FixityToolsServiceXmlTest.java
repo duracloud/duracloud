@@ -1,9 +1,5 @@
 package org.duracloud.duraservice.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -15,32 +11,41 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
 /**
  * @author Andrew Woods
- *         Date: Aug 3, 2010
+ *         Date: Dec 3, 2010
  */
-public class FixityServiceXmlTest {
+public class FixityToolsServiceXmlTest {
 
     private int index = 5;
     private String version = "1.2.3";
 
-    private static Map<FixityServiceInfo.ModeType, Integer> modeToUserConfig;
-    private static Map<FixityServiceInfo.ModeType, Integer> modeToSpaceConfigs;
+    private static Map<FixityToolsServiceInfo.ModeType, Integer> modeToUserConfig;
+    private static Map<FixityToolsServiceInfo.ModeType, Integer> modeToSpaceConfigs;
 
     @BeforeClass
     public static void beforeClass() {
-        modeToUserConfig = new HashMap<FixityServiceInfo.ModeType, Integer>();
-        modeToUserConfig.put(FixityServiceInfo.ModeType.ALL_IN_ONE_LIST, 1);
-        modeToUserConfig.put(FixityServiceInfo.ModeType.ALL_IN_ONE_SPACE, 0);
+        modeToUserConfig = new HashMap<FixityToolsServiceInfo.ModeType, Integer>();
+        modeToUserConfig.put(FixityToolsServiceInfo.ModeType.GENERATE_SPACE, 1);
+        modeToUserConfig.put(FixityToolsServiceInfo.ModeType.GENERATE_LIST, 2);
+        modeToUserConfig.put(FixityToolsServiceInfo.ModeType.COMPARE, 2);
 
-        modeToSpaceConfigs = new HashMap<FixityServiceInfo.ModeType, Integer>();
-        modeToSpaceConfigs.put(FixityServiceInfo.ModeType.ALL_IN_ONE_LIST, 1);
-        modeToSpaceConfigs.put(FixityServiceInfo.ModeType.ALL_IN_ONE_SPACE, 1);
+        modeToSpaceConfigs = new HashMap<FixityToolsServiceInfo.ModeType, Integer>();
+        modeToSpaceConfigs.put(FixityToolsServiceInfo.ModeType.GENERATE_SPACE,
+                               1);
+        modeToSpaceConfigs.put(FixityToolsServiceInfo.ModeType.GENERATE_LIST,
+                               1);
+        modeToSpaceConfigs.put(FixityToolsServiceInfo.ModeType.COMPARE, 2);
     }
 
     @Test
     public void testGetServiceXml() throws Exception {
-        FixityServiceInfo xml = new FixityServiceInfo();
+        FixityToolsServiceInfo xml = new FixityToolsServiceInfo();
         ServiceInfo serviceInfo = xml.getServiceXml(index, version);
         Assert.assertNotNull(serviceInfo);
 
@@ -65,8 +70,9 @@ public class FixityServiceXmlTest {
         Assert.assertNotNull(userConfigVersion);
         Assert.assertNotNull(description);
 
-        Assert.assertEquals("fixityservice-" + version + ".zip", contentId);
-        Assert.assertEquals("Bit Integrity Checker", displayName);
+        Assert.assertEquals("fixityservice-" + version + "-tools.zip",
+                            contentId);
+        Assert.assertEquals("Bit Integrity Checker - Tools", displayName);
         Assert.assertEquals(version, serviceVersion);
         Assert.assertEquals("1.0", userConfigVersion);
         Assert.assertTrue(description.length() > 20);
@@ -93,14 +99,15 @@ public class FixityServiceXmlTest {
 
     private void verifyModes(List<UserConfigMode> modes) {
         Assert.assertNotNull(modes);
-        Assert.assertEquals(2, modes.size());
+        Assert.assertEquals(3, modes.size());
 
-        verifyMode(modes, FixityServiceInfo.ModeType.ALL_IN_ONE_LIST);
-        verifyMode(modes, FixityServiceInfo.ModeType.ALL_IN_ONE_SPACE);
+        verifyMode(modes, FixityToolsServiceInfo.ModeType.GENERATE_LIST);
+        verifyMode(modes, FixityToolsServiceInfo.ModeType.GENERATE_SPACE);
+        verifyMode(modes, FixityToolsServiceInfo.ModeType.COMPARE);
     }
 
     private void verifyMode(List<UserConfigMode> modes,
-                            FixityServiceInfo.ModeType modeType) {
+                            FixityToolsServiceInfo.ModeType modeType) {
         UserConfigMode mode = getMode(modeType, modes);
         Assert.assertNotNull(mode);
 
@@ -124,7 +131,7 @@ public class FixityServiceXmlTest {
         Assert.assertEquals(modeType.name(), numSpaceCfgs, spaceConfigs.size());
     }
 
-    private UserConfigMode getMode(FixityServiceInfo.ModeType modeType,
+    private UserConfigMode getMode(FixityToolsServiceInfo.ModeType modeType,
                                    List<UserConfigMode> modes) {
         for (UserConfigMode mode : modes) {
             if (mode.getName().equals(modeType.getKey())) {

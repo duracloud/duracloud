@@ -323,7 +323,7 @@ public class ServiceConfigUtil {
         String primaryStoreId = getPrimaryContentStore(userStoreManager).getStoreId();
 
         UserConfigMode newMode = new UserConfigMode();
-        newMode.setName(storeName);
+        newMode.setName(storeId);
         newMode.setDisplayName(storeName);
         newMode.setSelected(primaryStoreId.equals(storeId));
 

@@ -15,6 +15,12 @@
         update-strategy="container-managed"/>
     <property name="serviceId" value="${bundle.context.service.name}" />
     <property name="serviceStatus" value="INSTALLED" />
+    <property name="hashApproach" value="generated"/>
+    <property name="providedListingSpaceIdA" value="${service.output.spaceid}"/>
+    <property name="providedListingContentIdA" value="bitintegrity/fingerprints-auto.csv"/>
+    <property name="outputContentId" value="bitintegrity/fingerprints-$TIMESTAMP.csv"/>
+    <property name="reportContentId" value="bitintegrity/fixity-report-$TIMESTAMP.csv"/>
+    <property name="outputSpaceId" value="${service.output.spaceid}"/>
   </bean>
   
 </beans> 

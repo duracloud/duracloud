@@ -24,10 +24,10 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
 
     protected enum ModeType {
         GENERATE_LIST("generate-for-list",
-                      "Generate integrity information for a list of items"),
+                      "Generate integrity information for an item list"),
         GENERATE_SPACE("generate-for-space",
-                       "Generate integrity information for an entire Space"),
-        COMPARE("compare", "Compare two different integrity reports");
+                       "Generate integrity information for a Space"),
+        COMPARE("compare", "Compare two integrity reports");
 
         private String key;
         private String desc;
@@ -107,14 +107,14 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
     private List<UserConfigModeSet> getModeSets() {
         List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
 
-        modes.add(getMode(ModeType.GENERATE_LIST));
         modes.add(getMode(ModeType.GENERATE_SPACE));
+        modes.add(getMode(ModeType.GENERATE_LIST));
         modes.add(getMode(ModeType.COMPARE));
 
         UserConfigModeSet modeSet = new UserConfigModeSet();
         modeSet.setModes(modes);
         modeSet.setDisplayName("Service Mode");
-        modeSet.setName("serviceMode");
+        modeSet.setName("mode");
 
         List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
         modeSets.add(modeSet);
@@ -127,19 +127,16 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
 
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
         switch (modeType) {
+            case GENERATE_SPACE:
+                userConfigs.add(getHashMethodSelection());
+                break;
             case GENERATE_LIST:
                 userConfigs.add(getHashMethodSelection());
                 userConfigs.add(getContentIdOfProvidedListingConfig());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
-                break;
-            case GENERATE_SPACE:
-                userConfigs.add(getHashMethodSelection());
-                userConfigs.add(getContentIdOfGeneratedListingConfig());
                 break;
             case COMPARE:
                 userConfigs.add(getContentIdOfProvidedListingConfig());
                 userConfigs.add(getContentIdOfProvidedListingBConfig());
-                userConfigs.add(getContentIdOfReportConfig());
                 break;
             default:
                 throw new RuntimeException("Unexpected ModeType: " + modeType);
@@ -155,17 +152,17 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
 
     private UserConfigModeSet getStorageProviderSelection(ModeType modeType) {
         UserConfigModeSet modeSet = new UserConfigModeSet();
-        modeSet.setName("stores");
+        modeSet.setName("storeId");
         modeSet.setDisplayName("Stores");
         modeSet.setValue(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
 
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
         switch (modeType) {
-            case GENERATE_LIST:
-                userConfigs.add(getSpaceOfProvidedListingSelection());
-                break;
             case GENERATE_SPACE:
                 userConfigs.add(getSpaceOfGeneratedHashListingSelection());
+                break;
+            case GENERATE_LIST:
+                userConfigs.add(getSpaceOfProvidedListingSelection());
                 break;
             case COMPARE:
                 userConfigs.add(getSpaceOfProvidedListingSelection());
@@ -174,8 +171,6 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
             default:
                 throw new RuntimeException("Unexpected ModeType: " + modeType);
         }
-
-        userConfigs.add(getSpaceOfOutputConfig());
 
         UserConfigMode mode = new UserConfigMode();
         mode.setUserConfigs(userConfigs);
@@ -199,33 +194,6 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
         return new SingleSelectUserConfig("hashApproach",
                                           "Get integrity information from...",
                                           trustLevelOptions);
-    }
-
-    private UserConfig getSaltConfig() {
-        String emptyValue = "";
-        return new TextUserConfig("salt", "Salt", emptyValue);
-    }
-
-    private SingleSelectUserConfig getFailFastBoolean() {
-        return new SingleSelectUserConfig("failFast",
-                                          "Exit Immediately on Failure or Error",
-                                          getBooleanOptions());
-    }
-
-    private List<Option> getBooleanOptions() {
-        List<Option> booleanOptions = new ArrayList<Option>();
-        booleanOptions.add(new Option("true", "true", false));
-        booleanOptions.add(new Option("false", "false", false));
-        return booleanOptions;
-    }
-
-    private SingleSelectUserConfig getStorageProviderSelection() {
-        List<Option> storeOptions = new ArrayList<Option>();
-        Option stores = new Option("Stores",
-                                   ServiceConfigUtil.STORES_VAR,
-                                   false);
-        storeOptions.add(stores);
-        return new SingleSelectUserConfig("storeId", "Store", storeOptions);
     }
 
     private SingleSelectUserConfig getSpaceOfProvidedListingSelection() {
@@ -259,30 +227,12 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
                                   "fingerprints.csv");
     }
 
-    private SingleSelectUserConfig getSpaceOfOutputConfig() {
-        return new SingleSelectUserConfig("outputSpaceId",
-                                          "Output space",
-                                          getSpaceOptions());
-    }
-
     private List<Option> getSpaceOptions() {
         List<Option> spaceOptions = new ArrayList<Option>();
         spaceOptions.add(new Option("Spaces",
                                     ServiceConfigUtil.SPACES_VAR,
                                     false));
         return spaceOptions;
-    }
-
-    private TextUserConfig getContentIdOfGeneratedListingConfig() {
-        return new TextUserConfig("outputContentId",
-                                  "Output listing name",
-                                  "fingerprints.csv");
-    }
-
-    private UserConfig getContentIdOfReportConfig() {
-        return new TextUserConfig("reportContentId",
-                                  "Output report name",
-                                  "integrity-report.csv");
     }
 
 }
