@@ -260,7 +260,10 @@
 																	o.location[0]).html(
 																			o.displayName + " - " + o.hostname + " (" + o.location+")"));
 				}
-				
+
+                if(dOptions.length < 2)
+				    locationSelect.attr("disabled", true);
+
 				list.append(
 					this._createListItem("location", "Location").append(locationSelect)
 				);
