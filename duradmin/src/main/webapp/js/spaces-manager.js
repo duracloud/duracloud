@@ -147,11 +147,19 @@ $(function(){
 		clearContents();
 		// attach delete button listener
 		$(".delete-space-button",detail).click(function(evt){
-			if(!dc.confirm("Are you sure you want to delete multiple spaces?")){
-				return;
-			}
-			dc.busy("Deleting spaces", {modal: true});
-			var spaces = $("#spaces-list").selectablelist("getSelectedData");
+            var confirmText = "Are you sure you want to delete multiple spaces?";
+            var busyText = "Deleting spaces";
+            var spaces = $("#spaces-list").selectablelist("getSelectedData");
+            if(spaces.length < 2){
+                confirmText = "Are you sure you want to delete this space?";
+                busyText = "Deleting space";
+            }
+
+            if(!dc.confirm(confirmText)){
+                return;
+            }
+            dc.busy(busyText, {modal: true});
+
 			var job = dc.util.createJob("delete-spaces");	
 
 			for(i in spaces){
