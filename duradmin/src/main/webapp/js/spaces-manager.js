@@ -1136,6 +1136,43 @@ $(function(){
 
 	///////////////////////////////////////////
 	///Add Space Dialog Definition Start
+	
+	
+	var addSpaceButtonHandler = function(){
+		if($("#add-space-form").valid()){
+			var space = {
+				storeId: getCurrentProviderStoreId(),
+				spaceId: $("#add-space-dialog #spaceId").val(),
+				access:  $("#add-space-dialog #access").val(),
+			};
+			dc.store.AddSpace(
+				space,
+				{
+					begin: function(){
+						dc.busy( "Adding space...",{modal: true});
+					},
+					success: function(space){
+						dc.done();
+						if(space == undefined){
+							alert("error: space is undefined");
+						}else{
+							addSpaceToList(space);
+							spacesArray.push(space);
+							spacesArray.sort(function(a,b){
+							   return a.spaceId > b.spaceId;
+							});
+						
+							$("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
+							scrollToCurrentSpace();
+						}
+						
+					},
+				}
+			);
+			$("#add-space-dialog").dialog("close");
+		}
+	};
+	
 	$('#add-space-dialog').dialog({
 		autoOpen: false,
 		show: 'blind',
@@ -1147,40 +1184,11 @@ $(function(){
 		width:500,
 		buttons: {
 			'Add': function(evt) {
-				if($("#add-space-form").valid()){
-					var space = {
-						storeId: getCurrentProviderStoreId(),
-						spaceId: $("#add-space-dialog #spaceId").val(),
-						access:  $("#add-space-dialog #access").val(),
-					};
-					dc.store.AddSpace(
-						space,
-						{
-							begin: function(){
-								dc.busy( "Adding space...",{modal: true});
-							},
-							success: function(space){
-								dc.done();
-								if(space == undefined){
-									alert("error: space is undefined");
-								}else{
-									addSpaceToList(space);
-									spacesArray.push(space);
-									spacesArray.sort(function(a,b){
-									   return a.spaceId > b.spaceId;
-									});
-								
-									$("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
-									scrollToCurrentSpace();
-								}
-								
-							},
-						}
-					);
-				
-					$("#add-space-dialog").dialog("close");
-
-				}
+				//the handler is defined externally 
+				//to the dialog definition because it 
+				//is referenced in two different execution
+				//paths.
+				addSpaceButtonHandler();
 			},
 			Cancel: function(evt) {
 				$(this).dialog('close');
@@ -1192,42 +1200,56 @@ $(function(){
 		},
 		
 		open: function(e){
-			$("#add-space-dialog .access-switch").accessswitch({})
-				.bind("turnOn", function(evt, future){
-					future.success();
-					evt.stopPropagation();
-					$("#add-space-dialog #access").val("OPEN");
-					
-				}).bind("turnOff", function(evt, future){
-					future.success();
-					evt.stopPropagation();
-					$("#add-space-dialog #access").val("CLOSED");
-				}).accessswitch("on");
-			
-			$("#add-space-form").validate({
-				rules: {
-					spaceId: {
-						rangelength: [3,63],
-						startswith: true,
-						endswith: true,
-						spacelower: true,
-						notip: true,
-						misc: true,
-					},
-				},
-				messages: {
-						
-				}
-			});
-			
-			
 			$("#add-space-form").resetForm();
+
+			//wrapping in a setTimeout seems to be necessary 
+			//to get this to run properly:  the dialog must be 
+			//visible before the focus can be set.
 			setTimeout(function(){
 				$("#add-space-form #spaceId").focus();
 			});
 		}
 		
 	});
+
+	//the dialog is built only once - thus the follow is not called
+	//in the open function
+	$("#add-space-dialog .access-switch").accessswitch({})
+	.bind("turnOn", function(evt, future){
+		future.success();
+		evt.stopPropagation();
+		$("#add-space-dialog #access").val("OPEN");
+		
+	}).bind("turnOff", function(evt, future){
+		future.success();
+		evt.stopPropagation();
+		$("#add-space-dialog #access").val("CLOSED");
+	}).accessswitch("on");
+
+	$("#add-space-form").validate({
+		rules: {
+			spaceId: {
+				rangelength: [3,63],
+				startswith: true,
+				endswith: true,
+				spacelower: true,
+				notip: true,
+				misc: true,
+			},
+		},
+		messages: {
+				
+		}
+	});
+
+	//implements enter key behavior
+	$("#add-space-form #spaceId").bindEnterKey(
+		$.debounce(200, function(evt){
+			evt.stopPropagation();
+			addSpaceButtonHandler();
+		})
+	);
+	
 	///////////////////////////////////////////
 	///Add Space Dialog Definition End ^
 	///////////////////////////////////////////
