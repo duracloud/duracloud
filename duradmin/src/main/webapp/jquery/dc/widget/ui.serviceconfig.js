@@ -255,17 +255,29 @@
 				var locationSelect = $.fn.create("select").attr("name","deploymentOption");
 				for(i = 0; i < dOptions.length;i++){
 					var o = dOptions[i];
-					locationSelect.append($.fn.create("option")
-												.attr("value", o.hostname + "-" + 
-																	o.location[0]).html(
-																			o.displayName + " - " + o.hostname + " (" + o.location+")"));
+					locationSelect.append(
+						$.fn.create("option")
+							.attr("value", o.hostname + "-" + o.location[0])
+							.html(o.displayName + " - " + o.hostname + " (" + o.location+")"));
 				}
 
 				list.append(
 					this._createListItem("location", "Location").append(locationSelect)
 				);
 
-                $('#li-location').hide();
+
+                if(dOptions.length < 2){
+                	$('#li-location').hide();
+                };
+
+			}
+
+			if(modeSets.length == 0){
+				this._controlContainer.append(
+					$.fn.create("p")
+						.addClass("ui-serviceconfig-no-config")
+						.html("This service does not require any configuration.")
+				);
 			}
 			
 			for(i = 0; i < modeSets.length;i++){

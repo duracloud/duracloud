@@ -941,6 +941,11 @@ span.label,
 	overflow: auto;	
 }
 
+
+p.ui-serviceconfig-no-config{
+	padding: 10px 0px 10px 0px;
+}
+
 /*
 * hiding the jquery-ui dialog title bars globally.
 */

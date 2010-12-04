@@ -330,7 +330,7 @@ $(function() {
 		height: 500,
 		closeOnEscape:true,
 		modal: true,
-		width:700,
+		width:800,
 		
 		buttons: {
 			Cancel: function(){
@@ -445,6 +445,9 @@ $(function() {
 		closeOnEscape:true,
 		modal: true,
 		buttons: {
+			"Cancel": function(){
+				$("#reconfigure-service-dialog").dialog("close");
+			},
 			"Redeploy": function(){
 		
 				var data = serviceConfig.serviceconfig("data");
@@ -466,11 +469,8 @@ $(function() {
 				    },
 				});
 
-			},
-			
-			"Cancel": function(){
-				$("#reconfigure-service-dialog").dialog("close");
 			}
+			
 		},
 
 		close: function() {
@@ -514,6 +514,9 @@ $(function() {
 				$("#configure-service-dialog").dialog("close");
 				$("#available-services-dialog").dialog("open");
 			},
+			"Cancel": function(){
+				$("#configure-service-dialog").dialog("close");
+			},
 			
 			"Deploy": function(){
 				
@@ -532,11 +535,8 @@ $(function() {
 					},
 				});
 
-			},
-			
-			"Cancel": function(){
-				$("#configure-service-dialog").dialog("close");
 			}
+			
 		},
 		
 		open: function(e){
