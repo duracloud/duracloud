@@ -12,6 +12,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +22,8 @@ import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
+import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -88,5 +91,18 @@ public class ServiceInfoUtilTest {
         assertTrue(ServiceInfoUtil.applyValues(uc, params,namespace));
         assertFalse(ServiceInfoUtil.applyValues(uc, params,namespace));
     }
+    
+    @Test
+    public void testModeSetWithSingleMode() {
+    	List<Option> options = new LinkedList<Option>();
+        options.add(new Option("Value 1", "1", false));
+        SingleSelectUserConfig uc = new SingleSelectUserConfig("test","Test", options);
+        UserConfigModeSet ms = new UserConfigModeSet(Arrays.asList(new UserConfig[]{uc}));
+        ms.getModes().get(0).setSelected(false);
+        ServiceInfoUtil.applyValues(ms, new HashMap<String,String>(), null);
+        assertTrue(ms.getModes().get(0).isSelected());
+        
+    }
+
 
 }

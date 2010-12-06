@@ -104,15 +104,18 @@ public class ServiceInfoUtil {
     	}
 	}
 
-    private static void applyValues(UserConfigModeSet userConfigModeSet,
+    public static void applyValues(UserConfigModeSet userConfigModeSet,
 			Map<String, String> map, String namespace) {
     	String name = userConfigModeSet.getName();
     	String key = (namespace == null ? name : namespace + "." + name); 
     	String newValue = map.get(key);
         userConfigModeSet.setValue(newValue);
     	
+        boolean hasSingleMode = userConfigModeSet.getModes().size() == 1;
+
     	for(UserConfigMode mode : userConfigModeSet.getModes()){
-    		mode.setSelected(mode.getName().equals(newValue));
+    		
+    		mode.setSelected(hasSingleMode ?  true : mode.getName().equals(newValue));
     		String modeNameSpace = key + "." +  mode.getName();
 
     		if(mode.getUserConfigs() != null){
