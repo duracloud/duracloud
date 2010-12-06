@@ -8,8 +8,10 @@
 package org.duracloud.serviceconfig;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 /**
@@ -18,7 +20,7 @@ import org.duracloud.serviceconfig.user.UserConfigModeSet;
  * @author Bill Branan
  *         Date: Nov 9, 2009
  */
-public class Deployment implements Serializable {
+public class Deployment implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -5554753103296039412L;
 
@@ -81,6 +83,87 @@ public class Deployment implements Serializable {
 		this.userConfigModeSets = userConfigModeSets;
 	}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Deployment)) {
+            return false;
+        }
 
+        Deployment that = (Deployment) o;
+
+        if (id != that.id) {
+            return false;
+        }
+        if (hostname != null ? !hostname.equals(that.hostname) :
+            that.hostname != null) {
+            return false;
+        }
+        if (status != that.status) {
+            return false;
+        }
+        if (systemConfigs != null ? !systemConfigs.equals(that.systemConfigs) :
+            that.systemConfigs != null) {
+            return false;
+        }
+        if (userConfigModeSets !=
+            null ? !userConfigModeSets.equals(that.userConfigModeSets) :
+            that.userConfigModeSets != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (hostname != null ? hostname.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result +
+            (systemConfigs != null ? systemConfigs.hashCode() : 0);
+        result = 31 * result +
+            (userConfigModeSets != null ? userConfigModeSets.hashCode() : 0);
+        return result;
+    }
+
+    public Deployment clone() throws CloneNotSupportedException {
+        Deployment clone = (Deployment)super.clone();
+
+        clone.setHostname(this.hostname);
+        clone.setId(this.id);
+        clone.setStatus(this.status);
+
+        clone.setSystemConfigs(cloneSystemConfigs());
+        clone.setUserConfigModeSets(cloneUserConfigModeSets());
+
+        return clone;
+    }
+
+    private List<SystemConfig> cloneSystemConfigs()
+        throws CloneNotSupportedException {
+        List<SystemConfig> clones = null;
+        if (null != this.systemConfigs) {
+            clones = new ArrayList<SystemConfig>();
+            for (SystemConfig systemConfig : this.systemConfigs) {
+                clones.add(systemConfig.clone());
+            }
+        }
+        return clones;
+    }
+
+    private List<UserConfigModeSet> cloneUserConfigModeSets()
+        throws CloneNotSupportedException {
+        List<UserConfigModeSet> clones = null;
+        if (null != this.userConfigModeSets) {
+            clones = new ArrayList<UserConfigModeSet>();
+            for (UserConfigModeSet userConfigModeSet : this.userConfigModeSets) {
+                clones.add(userConfigModeSet.clone());
+            }
+        }
+        return clones;
+    }
 
 }

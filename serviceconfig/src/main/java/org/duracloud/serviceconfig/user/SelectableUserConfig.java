@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public abstract class SelectableUserConfig extends UserConfig {
+public abstract class SelectableUserConfig extends UserConfig implements Cloneable {
 
     private static final long serialVersionUID = 560564548722671194L;
 
@@ -128,5 +128,10 @@ public abstract class SelectableUserConfig extends UserConfig {
             sum += opt.hashCode();
         }
         return sum;
+    }
+
+    public SelectableUserConfig clone() throws CloneNotSupportedException {
+        SelectableUserConfig clone = (SelectableUserConfig)super.clone();
+        return clone;
     }
 }

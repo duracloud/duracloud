@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @author Andrew Woods
  *         Date: Nov 6, 2009
  */
-public class SystemConfig implements Serializable {
+public class SystemConfig implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -3280385789614105156L;
     private int id;
@@ -90,4 +90,14 @@ public class SystemConfig implements Serializable {
             31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
         return result;
     }
+
+    public SystemConfig clone() throws CloneNotSupportedException {
+        SystemConfig clone = (SystemConfig)super.clone();
+
+        clone.setId(this.id);
+        clone.setValue(this.value);
+
+        return clone;
+    }
+    
 }

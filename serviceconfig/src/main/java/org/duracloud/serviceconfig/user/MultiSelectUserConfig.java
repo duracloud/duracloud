@@ -10,7 +10,7 @@ package org.duracloud.serviceconfig.user;
 import java.util.List;
 
 
-public class MultiSelectUserConfig extends SelectableUserConfig {
+public class MultiSelectUserConfig extends SelectableUserConfig implements Cloneable{
 
     private static final long serialVersionUID = 8515015818197420269L;
 
@@ -30,6 +30,10 @@ public class MultiSelectUserConfig extends SelectableUserConfig {
     public InputType getInputType() {
         return InputType.MULTISELECT;
     }
-    
+
+    public MultiSelectUserConfig clone() throws CloneNotSupportedException {
+        MultiSelectUserConfig clone = (MultiSelectUserConfig) super.clone();
+        return clone;
+    }
 
 }

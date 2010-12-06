@@ -8,6 +8,7 @@
 package org.duracloud.serviceconfig.user;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * @author Andrew Woods
  *         Date: Aug 23, 2010
  */
-public class UserConfigModeSet implements Serializable {
+public class UserConfigModeSet implements Serializable, Cloneable {
 
 	private static final long serialVersionUID = 1L;
 	private int id = -1;
@@ -98,4 +99,73 @@ public class UserConfigModeSet implements Serializable {
     public void setModes(List<UserConfigMode> modes) {
         this.modes = modes;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UserConfigModeSet)) {
+            return false;
+        }
+
+        UserConfigModeSet that = (UserConfigModeSet) o;
+
+        if (id != that.id) {
+            return false;
+        }
+        if (displayName != null ? !displayName.equals(that.displayName) :
+            that.displayName != null) {
+            return false;
+        }
+        if (modes != null ? !modes.equals(that.modes) : that.modes != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result =
+            31 * result + (displayName != null ? displayName.hashCode() : 0);
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        result = 31 * result + (modes != null ? modes.hashCode() : 0);
+        return result;
+    }
+
+    public UserConfigModeSet clone() throws CloneNotSupportedException {
+        UserConfigModeSet clone = (UserConfigModeSet) super.clone();
+
+        clone.setDisplayName(this.displayName);
+        clone.setName(this.name);
+        clone.setValue(this.value);
+
+        clone.setId(this.id);
+
+        clone.setModes(cloneUserConfigModes());
+
+        return clone;
+    }
+
+    private List<UserConfigMode> cloneUserConfigModes()
+        throws CloneNotSupportedException {
+        List<UserConfigMode> clones = null;
+        if (null != this.modes) {
+            clones = new ArrayList<UserConfigMode>();
+            for (UserConfigMode userConfigMode : this.modes) {
+                clones.add(userConfigMode.clone());
+            }
+        }
+        return clones;
+    }
+
 }

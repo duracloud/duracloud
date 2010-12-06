@@ -7,6 +7,7 @@
  */
 package org.duracloud.serviceconfig.user;
 
+import org.duracloud.serviceconfig.SystemConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,6 +16,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author Andrew Woods
@@ -128,6 +130,77 @@ public class UserConfigModeSetTest {
         Assert.assertEquals(valid, isValid);
 
         return userConfigs;
+    }
+
+    private void setUp()
+    {
+        modeSet = new UserConfigModeSet();
+        modeSet.setDisplayName("displayName");
+        modeSet.setId(17);
+        modeSet.setModes(createModes());
+        modeSet.setName("name");
+        modeSet.setValue("value");
+    }
+
+    private List<UserConfigMode> createModes() {
+        UserConfigMode mode = new UserConfigMode();
+        mode.setName("name:" + new Random().nextInt());
+        
+        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+        modes.add(mode);
+        return modes;
+    }
+
+    @Test
+    public void testClone() throws Exception {
+        setUp();
+        verify(modeSet, modeSet, true);
+
+        UserConfigModeSet clone = modeSet.clone();
+        verify(modeSet, clone, true);
+        clone.setDisplayName("new-display-name");
+        verify(modeSet, clone, false);
+
+        clone = modeSet.clone();
+        verify(modeSet, clone, true);
+        clone.setId(34);
+        verify(modeSet, clone, false);
+
+        clone = modeSet.clone();
+        verify(modeSet, clone, true);
+        clone.setModes(new ArrayList<UserConfigMode>());
+        verify(modeSet, clone, false);
+
+        clone = modeSet.clone();
+        verify(modeSet, clone, true);
+        clone.setName("new-name");
+        verify(modeSet, clone, false);
+
+        clone = modeSet.clone();
+        verify(modeSet, clone, true);
+        clone.setValue("new-value");
+        verify(modeSet, clone, false);
+    }
+
+    private void verify(UserConfigModeSet source,
+                        UserConfigModeSet clone,
+                        boolean valid) {
+        boolean isValid = false;
+        try {
+            Assert.assertEquals(source.getDisplayName(),
+                                clone.getDisplayName());
+            Assert.assertEquals(source.getId(), clone.getId());
+            Assert.assertEquals(source.getModes(), clone.getModes());
+            Assert.assertEquals(source.getName(), clone.getName());
+            Assert.assertEquals(source.getValue(), clone.getValue());
+            isValid = true;
+
+        } catch (Throwable t) {
+            Assert.assertFalse(t.getMessage(), valid);
+        }
+        Assert.assertEquals("expected validity [" + valid + "]",
+                            valid,
+                            isValid);
     }
 
 }

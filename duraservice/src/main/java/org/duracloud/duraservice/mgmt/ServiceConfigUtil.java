@@ -13,6 +13,7 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.duraservice.domain.ServiceComputeInstance;
 import org.duracloud.duraservice.domain.Store;
 import org.duracloud.duraservice.domain.UserStore;
+import org.duracloud.duraservice.error.ServiceException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
@@ -105,7 +106,7 @@ public class ServiceConfigUtil {
                                          String primaryHostName) {
         log.debug("populateService: " + service.getContentId());
         // Perform a deep clone of the service (includes all configs and deployments)
-        ServiceInfo srvClone = service.clone();
+        ServiceInfo srvClone = getClone(service);
 
         // Populate deployment options
         List<DeploymentOption> populatedDeploymentOptions = populateDeploymentOptions(
@@ -134,6 +135,17 @@ public class ServiceConfigUtil {
         }
 
         return srvClone;
+    }
+
+    private ServiceInfo getClone(ServiceInfo service) {
+        try {
+            return service.clone();
+
+        } catch (CloneNotSupportedException e) {
+            String msg = "Error cloning: " + service + ", " + e.getMessage();
+            log.error(msg);
+            throw new ServiceException(msg, e);
+        }
     }
 
     private ContentStoreManager getUserStoreManager(Store store) {

@@ -124,6 +124,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
                 setError(err.toString());
                 setServiceStatus(ServiceStatus.INSTALLED);
+                keepWorking = false;
             }
         }
     }

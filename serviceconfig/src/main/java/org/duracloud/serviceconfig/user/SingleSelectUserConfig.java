@@ -11,7 +11,7 @@ import java.util.List;
 
 
 
-public class SingleSelectUserConfig extends SelectableUserConfig{
+public class SingleSelectUserConfig extends SelectableUserConfig implements Cloneable{
     private static final long serialVersionUID = -2912715735337021361L;
 
     public SingleSelectUserConfig(String name,
@@ -67,4 +67,8 @@ public class SingleSelectUserConfig extends SelectableUserConfig{
         return InputType.SINGLESELECT;
     }
 
+    public SingleSelectUserConfig clone() throws CloneNotSupportedException {
+        SingleSelectUserConfig clone = (SingleSelectUserConfig) super.clone();
+        return clone;
+    }
 }

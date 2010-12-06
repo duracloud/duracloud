@@ -7,7 +7,7 @@
  */
 package org.duracloud.serviceconfig.user;
 
-public class TextUserConfig extends UserConfig {
+public class TextUserConfig extends UserConfig implements Cloneable {
 
     private static final long serialVersionUID = 5635327521932472393L;
 
@@ -72,5 +72,13 @@ public class TextUserConfig extends UserConfig {
         int result = super.hashCode();
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
+    }
+
+    public TextUserConfig clone() throws CloneNotSupportedException {
+        TextUserConfig clone = (TextUserConfig)super.clone();
+
+        clone.setValue(this.value);
+
+        return clone;
     }
 }

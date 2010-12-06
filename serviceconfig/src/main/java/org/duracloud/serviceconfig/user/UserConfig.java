@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @author Andrew Woods
  *         Date: Nov 6, 2009
  */
-public abstract class UserConfig implements Serializable {
+public abstract class UserConfig implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -6727102713612538135L;
 
@@ -104,4 +104,15 @@ public abstract class UserConfig implements Serializable {
 
     public abstract String getDisplayValue();
 
+    public UserConfig clone() throws CloneNotSupportedException {
+        UserConfig clone = (UserConfig) super.clone();
+
+        clone.id = this.id;
+        clone.displayName = this.displayName;
+        clone.exclusion = this.exclusion;
+        clone.name = this.name;
+
+        return clone;
+    }
+    
 }

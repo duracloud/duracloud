@@ -13,7 +13,7 @@ import java.io.Serializable;
 /**
  * This class holds config option details.
  */
-public class Option implements Serializable {
+public class Option implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -2243245528826127669L;
 
@@ -85,4 +85,16 @@ public class Option implements Serializable {
         result = 31 * result + (selected ? 1 : 0);
         return result;
     }
+
+    public Option clone() throws CloneNotSupportedException {
+        Option clone = (Option) super.clone();
+
+        clone.setDisplayName(this.displayName);
+        clone.setValue(this.value);
+
+        clone.setSelected(this.selected);
+
+        return clone;
+    }
+    
 }

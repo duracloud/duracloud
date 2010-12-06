@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @author Andrew Woods
  *         Date: Nov 6, 2009
  */
-public class DeploymentOption implements Serializable {
+public class DeploymentOption implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -5554753103296039413L;
 
@@ -105,8 +105,23 @@ public class DeploymentOption implements Serializable {
         result = 31 * result + (state != null ? state.hashCode() : 0);
         return result;
     }
-    
-    public String toString(){
-        return "DeploymentOption([displayName="+this.displayName + ", hostname=" + this.hostname + ", location=" + this.location + ", state="+this.state+"])";
+
+    public String toString() {
+        return "DeploymentOption([displayName=" + this.displayName +
+            ", hostname=" + this.hostname + ", location=" + this.location +
+            ", state=" + this.state + "])";
     }
+
+    public DeploymentOption clone() throws CloneNotSupportedException {
+        DeploymentOption clone = (DeploymentOption) super.clone();
+
+        // all fields are immutable
+        clone.setDisplayName(this.getDisplayName());
+        clone.setHostname(this.getHostname());
+        clone.setLocation(this.getLocation());
+        clone.setState(this.getState());
+
+        return clone;
+    }
+
 }

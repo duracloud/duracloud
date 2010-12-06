@@ -8,6 +8,7 @@
 package org.duracloud.serviceconfig;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
@@ -157,9 +158,73 @@ public class ServiceInfo implements Serializable, Cloneable {
         return getDeploymentCount() < getMaxDeploymentsAllowed();
     }
 
-    public ServiceInfo clone() {
-        // TODO: Actually perform clone
-        return this;
+    public ServiceInfo clone() throws CloneNotSupportedException {
+        ServiceInfo clone = (ServiceInfo) super.clone();
+
+        // immutable fields. int
+        clone.setId(this.getId());
+        clone.setMaxDeploymentsAllowed(this.getMaxDeploymentsAllowed());
+
+        // immutable fields. String
+        clone.setContentId(this.getContentId());
+        clone.setDescription(this.getDescription());
+        clone.setDisplayName(this.getDisplayName());
+        clone.setServiceVersion(this.getServiceVersion());
+        clone.setUserConfigVersion(this.getUserConfigVersion());
+
+        // mutable fields
+        clone.setDeploymentOptions(cloneDeploymentOptions());
+        clone.setDeployments(cloneDeployments());
+        clone.setSystemConfigs(cloneSystemConfigs());
+        clone.setUserConfigModeSets(cloneUserConfigModeSets());
+
+        return clone;
     }
-    
+
+    private List<DeploymentOption> cloneDeploymentOptions()
+        throws CloneNotSupportedException {
+        List<DeploymentOption> clone = null;
+        if (null != this.getDeploymentOptions()) {
+            clone = new ArrayList<DeploymentOption>();
+            for (DeploymentOption source : this.getDeploymentOptions()) {
+                clone.add(source.clone());
+            }
+        }
+        return clone;
+    }
+
+    private List<Deployment> cloneDeployments()
+        throws CloneNotSupportedException {
+        List<Deployment> clone = null;
+        if (null != this.getDeployments()) {
+            clone = new ArrayList<Deployment>();
+            for (Deployment source : this.getDeployments()) {
+                clone.add(source.clone());
+            }
+        }
+        return clone;
+    }
+
+    private List<SystemConfig> cloneSystemConfigs() throws CloneNotSupportedException {
+        List<SystemConfig> clone = null;
+        if (null != this.systemConfigs) {
+            clone = new ArrayList<SystemConfig>();
+            for (SystemConfig source : this.systemConfigs) {
+                clone.add(source.clone());
+            }
+        }
+        return clone;
+    }
+
+    private List<UserConfigModeSet> cloneUserConfigModeSets() throws CloneNotSupportedException {
+        List<UserConfigModeSet> clone = null;
+        if (null != this.userConfigModeSets) {
+            clone = new ArrayList<UserConfigModeSet>();
+            for (UserConfigModeSet source : this.userConfigModeSets) {
+                clone.add(source.clone());
+            }
+        }
+        return clone;
+    }
+
 }

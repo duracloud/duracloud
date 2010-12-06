@@ -368,6 +368,7 @@ public class ServiceManager {
         if(systemConfig != null) {
             systemConfig = serviceConfigUtil.resolveSystemConfigVars(userStore,
                                                                      systemConfig);
+            srvToDeploy.setSystemConfigs(systemConfig);
         }
 
         Map<String, String> serviceConfig =
@@ -745,7 +746,7 @@ public class ServiceManager {
                                       String serviceHost,
                                       List<UserConfigModeSet> userConfigModeSets,
                                       List<SystemConfig> systemConfig) {
-        ServiceInfo service = serviceToStore.clone();
+        ServiceInfo service = getClone(serviceToStore);
         int deploymentId = generateDeploymentId();
 
         Deployment deployment = new Deployment();
@@ -780,6 +781,17 @@ public class ServiceManager {
         }
 
         return deploymentId;
+    }
+
+    private ServiceInfo getClone(ServiceInfo service) {
+        try {
+            return service.clone();
+            
+        } catch (CloneNotSupportedException e) {
+            String msg = "Error cloning: " + service + ", " + e.getMessage();
+            log.error(msg);
+            throw new ServiceException(msg, e);
+        }
     }
 
     /**
