@@ -125,7 +125,23 @@ $(function(){
 	var setObjectName = function(pane, name){
 		$(".object-name", pane).empty().prepend(name);	
 	};
-			
+
+	/*
+	 * sets value of hidden object id class
+	 */
+	var setObjectId = function(pane, objectId){
+		$(".object-id", pane).html(objectId);	
+	};
+
+	/*
+	 * tests if the specified id matches the id of the object loaded in 
+	 * the current detail view.
+	 */
+	var isObjectAlreadyDisplayedInDetail = function(objectId){
+		return(objectId == $("#detail-pane .object-id").html());
+	};
+
+	
 	// /////////////////////////////////////////
 	// /check/uncheck all spaces
 	$(".dc-check-all").click(
@@ -1560,6 +1576,7 @@ $(function(){
 	var loadSpace = function(space){
 		var detail = $("#spaceDetailPane").clone();
 		setObjectName(detail, space.spaceId);
+		setObjectId(detail,space.spaceId);
 		
 		var center = $(".center", detail);
 		
@@ -1661,6 +1678,7 @@ $(function(){
 		setHash(contentItem);
 		var pane = $("#contentItemDetailPane").clone();
 		setObjectName(pane, contentItem.contentId);
+		setObjectId(pane,contentItem.spaceId+"/"+contentItem.contentId);
 		$(".download-content-item-button", pane)
 			.attr("href", dc.store.formatDownloadURL(contentItem));
 
@@ -1765,8 +1783,11 @@ $(function(){
 	var getFilterText = function(){
 		return $("#content-item-filter").val();
 	};
-	
+
 	var getSpace = function(spaceId, loadHandler){
+		if(isObjectAlreadyDisplayedInDetail(spaceId)){
+			return;
+		}
 		clearContents();
 		clearPageHistory();
 		$("#detail-pane").fadeOut("slow");
@@ -1775,7 +1796,7 @@ $(function(){
 			spaceId, 
 			{
 				begin: function(){
-					dc.busy("Loading space...");
+					dc.busy("Loading...");
 					showContentItemListStatus("Loading...");
 				},
 				success: function(space){
@@ -1797,6 +1818,10 @@ $(function(){
 	};
 	
 	var getContentItem = function(storeId, spaceId, contentId,space){
+		if(isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
+			return;
+		}
+
 		dc.store.GetContentItem(storeId,spaceId,contentId,{
 			begin: function(){
 				dc.busy("Loading...");
@@ -2175,7 +2200,7 @@ $(function(){
 						dc.error("spaceId is undefined");
 					}
 				}else{
-					showGenericDetailPane();
+					//do nothing;
 				}
 			}else{
 				showMultiSpaceDetail();
@@ -2210,12 +2235,15 @@ $(function(){
 					var spaceId = getCurrentSpaceId();
 					if(spaceId != undefined){
 						var contentId = $(currentItem.item).attr("id");
+						if(isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
+							return;
+						}
 						dc.store.GetSpace(
 								getCurrentProviderStoreId(),
 								spaceId, 
 								{
 									begin: function(){
-										dc.busy("Loading space...");
+										dc.busy("Loading...");
 									},
 									success: function(space){
 										getContentItem(getCurrentProviderStoreId(),spaceId,contentId,space);
@@ -2231,7 +2259,7 @@ $(function(){
 						dc.error("spaceId is undefined");
 					}
 				}else{
-					showGenericDetailPane();
+					//do nothing
 				}
 			}else{
 				showMultiContentItemDetail();

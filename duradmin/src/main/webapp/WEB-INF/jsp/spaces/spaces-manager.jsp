@@ -22,25 +22,21 @@
 		<link rel="stylesheet"
 			href="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.css"
 			type="text/css" media="screen" />
-		<!-- 
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.js"></script>
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.1.js"></script>
-		 -->
+			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.pack.js"></script>
 		
         <script type='text/javascript' src='${pageContext.request.contextPath}/jwplayer/swfobject.js'></script>
 
-			<!-- 
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.metadataviewer.js"></script>
+			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.metadataviewer.js"></script>
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.tagsviewer.js"></script>
+			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.tagsviewer.js"></script>
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.flyoutselect.js"></script>
+			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.flyoutselect.js"></script>
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/js/dc/jquery/api/dc.util.paralleltasks.js"></script>
-			 -->	
+			src="${pageContext.request.contextPath}/jquery/dc/api/dc.util.paralleltasks.js"></script>
 
 			
 		<script type="text/javascript"
@@ -115,6 +111,7 @@
 						</div>
 					</div>
 					<div class="center"></div>
+					<span class="object-id"></span>
 				</div>
 
 				<div id="genericDetailPane" style="display: none">
@@ -156,7 +153,11 @@
 				<div id="contentItemDetailPane" style="display: none">
 					<div class="north header">
 						<h1>Content Detail</h1>
-						<h2 class="object-name">Content Name Here</h2>
+						<h2>
+							<a class="durastore-link" title="Links directly to content in DuraStore. This link will be publicly available only when the space is 'Open'.">
+								<span class="object-name">Object Name here</span>
+							</a>
+						</h2>
 						<div class="mime-type" id="mime-image">						
 							<div class="mime-type-image-holder float-l"></div>
 							<span class="label">Mime Type:</span> <span class="value">image/jpg</span>
@@ -167,10 +168,10 @@
 							<a class="button download-content-item-button"><i class="pre download"></i>Download</a>
 							<a class="button view-content-item-button" target="_blank" style="display:none"><i class="pre download"></i>View</a>
 							<button class="delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete</button>						
-							<a class="durastore-link">External Access</a>
 						</div>
 					</div>
 					<div class="center"></div>
+					<span class="object-id"></span>
 				</div>
 				
 				<div id="add-space-dialog" class="" title="Add Space">

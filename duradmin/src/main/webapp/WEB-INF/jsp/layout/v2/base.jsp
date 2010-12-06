@@ -22,7 +22,6 @@
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-ui.js"></script>
 	<!-- 3rd party jquery plugins start-->
-<!-- 
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery.layout.js"></script>
 	<script type="text/javascript"
@@ -32,15 +31,14 @@
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery-validate/jquery.validate.js"></script>
 
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/ext/jquery.fn.ext.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/ext/jquery.dc.common.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.onoffswitch.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.selectablelist.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.listdetailviewer.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/widget/ui.expandopanel.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/api/durastore-api.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/dc/jquery/api/duraservice-api.js"></script>
- -->
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/ext/jquery.fn.ext.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/ext/jquery.dc.common.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/widget/ui.onoffswitch.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/widget/ui.selectablelist.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/widget/ui.listdetailviewer.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/widget/ui.expandopanel.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/api/durastore-api.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/api/duraservice-api.js"></script>
 
 	<script type="text/javascript">
 

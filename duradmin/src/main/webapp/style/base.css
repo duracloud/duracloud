@@ -765,7 +765,9 @@ span.label,
 
  /* MISC **********************************************************/
  
- 
+ .object-id {
+ 	display:none;
+ }
  
  /*flyout select default styling ******************************************/
 
