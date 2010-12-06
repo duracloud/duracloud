@@ -111,11 +111,14 @@ public class ServiceInfoUtil {
     	String newValue = map.get(key);
         userConfigModeSet.setValue(newValue);
     	
-        boolean hasSingleMode = userConfigModeSet.getModes().size() == 1;
-
     	for(UserConfigMode mode : userConfigModeSet.getModes()){
     		
-    		mode.setSelected(hasSingleMode ?  true : mode.getName().equals(newValue));
+    		if(userConfigModeSet.hasOnlyUserConfigs()){
+    			mode.setSelected(true);
+    		}else{
+        		mode.setSelected(mode.getName().equals(newValue));
+    		}
+
     		String modeNameSpace = key + "." +  mode.getName();
 
     		if(mode.getUserConfigs() != null){
