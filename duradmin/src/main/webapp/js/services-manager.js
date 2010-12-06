@@ -146,7 +146,7 @@ $(function() {
 			$.fn.create("div")
 			.tabularexpandopanel(
 				{title: "Configuration", 
-				 data: convertUserConfigsToArray(deployment.userConfigs)
+				 data: convertUserConfigModeSetsToArray(deployment.userConfigModeSets)
                  }
 			)
 		);
@@ -180,47 +180,39 @@ $(function() {
 		}
 	};
 	
-	var convertUserConfigsToArray = function(userConfigs){
-		var a = new Array();
-		var defs = new Array();
-		var uc;
-		for(u in userConfigs){
-			uc = userConfigs[u];
-			if(uc.exclusion == "EXCLUSION_DEFINITION"){
-				defs.push(uc);
+	var convertUserConfigModeSetsToArray = function(userConfigModeSets, list){
+		var ms, m, u, modeSet, mode, uc, row;
+
+		if(list == undefined || list == null){
+			list = new Array();
+		}
+		
+		if(userConfigModeSets != undefined &&  userConfigModeSets != null){
+			for(ms in userConfigModeSets){
+				var modeSet = userConfigModeSets[ms];
+				for(m in modeSet.modes){
+					var mode = modeSet.modes[m];
+					if(!mode.selected){
+						break;
+					}else{
+						if(modeSet.modes.length > 1){
+							row = [modeSet.displayName, mode.displayName];
+							list.push(row);
+						}
+						
+						for(u in mode.userConfigs){
+							uc = mode.userConfigs[u];
+							row = [uc.displayName, resolveUserConfigValue(uc)];
+							list.push(row);
+						}
+						
+						convertUserConfigModeSetsToArray(mode.userConfigModeSets, list);
+					}
+				}
 			}
 		}
 		
-		for(u in userConfigs){
-			uc = userConfigs[u];
-			var row = [uc.displayName, resolveUserConfigValue(uc)];
-			var addRow = false;
-			if(uc.exclusion != undefined && uc.exclusion != "EXCLUSION_DEFINITION"){
-				var exclusions = uc.exclusion.split("|");
-				var k,m,n,defVals;
-				for(k in defs){
-					defVals = resolveUserConfigValue(defs[k], "|", true);
-					defVals = defVals.split("|");
-					for(m in exclusions){
-						for(n in defVals){
-							if(exclusions[m] == defVals[n]){
-								addRow = true;
-								break;
-							}
-						}
-						if(addRow) break;
-					}
-					if(addRow) break;
-				}
-			}else{
-				addRow = true;
-			}
-
-			if(addRow){
-				a.push(row);
-			}
-		}
-		return a;
+		return list;
 	};
 	
 	////////////////////////////////////////////////////////
