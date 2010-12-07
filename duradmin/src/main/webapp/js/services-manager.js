@@ -181,21 +181,21 @@ $(function() {
 	};
 	
 	var convertUserConfigModeSetsToArray = function(userConfigModeSets, list){
-		var ms, m, u, modeSet, mode, uc, row;
 
 		if(list == undefined || list == null){
 			list = new Array();
 		}
 		
 		if(userConfigModeSets != undefined &&  userConfigModeSets != null){
+
+			var ms, m, u, modeSet, mode, uc, row;
+			
 			for(ms in userConfigModeSets){
-				var modeSet = userConfigModeSets[ms];
+				modeSet = userConfigModeSets[ms];
 				for(m in modeSet.modes){
-					var mode = modeSet.modes[m];
-					if(!mode.selected){
-						break;
-					}else{
-						if(modeSet.modes.length > 1){
+					mode = modeSet.modes[m];
+					if(mode.selected){
+						if(mode.name != "defaultMode"){
 							row = [modeSet.displayName, mode.displayName];
 							list.push(row);
 						}
