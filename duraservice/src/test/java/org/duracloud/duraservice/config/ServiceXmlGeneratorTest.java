@@ -99,7 +99,7 @@ public class ServiceXmlGeneratorTest {
                 verifyFixity(serviceInfo);
 
             } else if (contentId.equals(
-                "fixityservice-" + ver + "-tools.zip")) {
+                "bitintegritytoolsservice-" + ver + ".zip")) {
                 foundFixityTools = true;
                 verifyFixityTools(serviceInfo);
 

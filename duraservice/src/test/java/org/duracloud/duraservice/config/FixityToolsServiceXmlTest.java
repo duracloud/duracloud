@@ -70,7 +70,7 @@ public class FixityToolsServiceXmlTest {
         Assert.assertNotNull(userConfigVersion);
         Assert.assertNotNull(description);
 
-        Assert.assertEquals("fixityservice-" + version + "-tools.zip",
+        Assert.assertEquals("bitintegritytoolsservice-" + version + ".zip",
                             contentId);
         Assert.assertEquals("Bit Integrity Checker - Tools", displayName);
         Assert.assertEquals(version, serviceVersion);

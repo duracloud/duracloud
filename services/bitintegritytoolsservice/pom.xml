@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud.services</groupId>
-  <artifactId>fixityservice</artifactId>
+  <artifactId>bitintegritytoolsservice</artifactId>
   <version>0.8.0-SNAPSHOT</version>
-  <name>DuraCloud Fixity Service Bundle</name>
+  <name>DuraCloud Bit Integrity Tools Service Bundle</name>
   <packaging>bundle</packaging>
 
   <parent>
@@ -23,9 +23,9 @@
       </activation>
 
       <properties>
-        <bundle.context.service.name>fixityservice-${project.version}</bundle.context.service.name>
-        <osgi.context.prop.duraservice>fixityservice</osgi.context.prop.duraservice>
-        <osgi.context.service.id>osgiFixityService</osgi.context.service.id>
+        <bundle.context.service.name>bitintegritytoolsservice-${project.version}</bundle.context.service.name>
+        <osgi.context.prop.duraservice>bitintegritytoolsservice</osgi.context.prop.duraservice>
+        <osgi.context.service.id>osgiBitIntegrityToolsService</osgi.context.service.id>
       </properties>
 
       <build>
@@ -52,79 +52,16 @@
       </build>
     </profile>
 
-    <profile>
-      <!--This profile creates a service package that exposes just the extra
-      tools from the fixityservice project.
-      Everything works well except in the OSGi configuration (serviceutil.DuraConfigAdminImpl).
-      When this 'tools' service is deployed before the standard fixityservice,
-      the fixityservice is unable to get a proper handle to its configuration
-      map. The ConfigAdmin assigns ownership of the fixityservice config map
-      to the servicesutil bundle.
-      The workaround is the creation of the separate bitintegritytoolsservice
-      project.-->
-      <id>tools</id>
-      <activation>
-        <property>
-          <name>tools</name>
-        </property>
-      </activation>
-
-      <properties>
-        <bundle.context.service.name>fixityservice-${project.version}-tools</bundle.context.service.name>
-        <osgi.context.prop.duraservice>fixityservicetools</osgi.context.prop.duraservice>
-        <osgi.context.service.id>osgiFixityServiceTools</osgi.context.service.id>
-      </properties>
-
-      <build>
-        <plugins>
-          
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>src/main/assembly/dep-tools.xml</descriptor>
-                  </descriptors>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>maven-bundle-plugin</artifactId>
-            <extensions>true</extensions>
-
-            <executions>
-              <execution>
-                <id>bundle-manifest</id>
-                <phase>process-classes</phase>
-                <goals>
-                  <goal>manifest</goal>
-                </goals>
-              </execution>
-            </executions>
-
-            <configuration>
-              <classifier>tools</classifier>
-              <instructions>
-                <Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}-tools</Bundle-SymbolicName>
-              </instructions>
-            </configuration>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-
   </profiles>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.duracloud.services</groupId>
+      <artifactId>fixityservice</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.duracloud.services</groupId>

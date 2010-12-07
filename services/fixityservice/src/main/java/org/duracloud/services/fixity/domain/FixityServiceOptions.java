@@ -7,9 +7,13 @@
  */
 package org.duracloud.services.fixity.domain;
 
+import org.apache.commons.io.FilenameUtils;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach.GENERATED;
 
 /**
  * @author Andrew Woods
@@ -17,6 +21,14 @@ import org.slf4j.LoggerFactory;
  */
 public class FixityServiceOptions {
     private final Logger log = LoggerFactory.getLogger(FixityServiceOptions.class);
+
+    private final static String timestamp = "$TIMESTAMP";
+    private final static String defaultPrefix = "bitintegrity";
+    private final static String defaultHashApproach = GENERATED.name();
+    private final static String defaultOutputContentId =
+        defaultPrefix + "/fingerprints-" + timestamp + ".csv";
+    private final static String defaultReportContentId =
+        defaultPrefix + "/fixity-report-" + timestamp + ".csv";
 
     private String mode;
     private String hashApproach;
@@ -104,6 +116,22 @@ public class FixityServiceOptions {
         this.outputContentId = outputContentId;
         this.reportContentId = reportContentId;
 
+        if (null == this.hashApproach) {
+            this.hashApproach = defaultHashApproach;
+        }
+        if (null == this.outputContentId) {
+            this.outputContentId = defaultOutputContentId;
+        }
+        if (null == this.reportContentId) {
+            this.reportContentId = defaultReportContentId;
+        }
+        if (null == this.providedListingSpaceIdA) {
+            // auto-generated listings are placed in the output space.
+            this.providedListingSpaceIdA = outputSpaceId;
+        }
+        if (null == this.providedListingContentIdA) {
+            this.providedListingContentIdA = getOutputContentId();
+        }
     }
 
     public boolean needsToHash() {
@@ -274,11 +302,39 @@ public class FixityServiceOptions {
     }
 
     public String getOutputContentId() {
-        return outputContentId;
+        return filterTimestamp(outputContentId);
     }
 
     public String getReportContentId() {
-        return reportContentId;
+        return filterTimestamp(reportContentId);
+    }
+
+    private String filterTimestamp(String contentId) {
+        if (!contentId.contains(timestamp)) {
+            return contentId;
+        }
+
+        String qualifier = "";
+        switch (getMode()) {
+            case GENERATE_SPACE:
+            case ALL_IN_ONE_SPACE:
+                qualifier = getTargetSpaceId();
+                break;
+
+            case GENERATE_LIST:
+            case ALL_IN_ONE_LIST:
+                qualifier = FilenameUtils.getBaseName(
+                    getProvidedListingContentIdA());
+                break;
+
+            case COMPARE:
+                qualifier = FilenameUtils.getBaseName(
+                    getProvidedListingContentIdA()) + "-vs-" +
+                    FilenameUtils.getBaseName(getProvidedListingContentIdB());
+        }
+
+        return contentId.replace(timestamp,
+                                 qualifier + "-" + DateUtil.nowShort());
     }
 
     public String toString() {

@@ -50,9 +50,6 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
 
-    // This is also found in bundle-context.xml
-    private static final String TIMESTAMP = "$TIMESTAMP";
-
     private ServiceWorkManager workManager;
     private ContentStore contentStore;
 
@@ -61,6 +58,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private String duraStoreContext;
     private String username;
     private String password;
+
+    private String defaultOutputSpaceId;
 
     private String mode;
     private String hashApproach;
@@ -101,9 +100,10 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     private void setUp() {
-        if (null != outputSpaceId) {
+        String outSpaceId = getServiceOptions().getOutputSpaceId();
+        if (null != outSpaceId) {
             try {
-                getContentStore().createSpace(outputSpaceId, null);
+                getContentStore().createSpace(outSpaceId, null);
             } catch (ContentStoreException e) {
                 log.debug("Ensuring output space exists: " + e.getMessage());
             }
@@ -231,8 +231,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
         ServiceResultListener resultListener = new ServiceResultProcessor(
             contentStore,
-            outputSpaceId,
-            reportContentId,
+            serviceOptions.getOutputSpaceId(),
+            serviceOptions.getReportContentId(),
             PHASE_COMPARE,
             previousPhaseStatus,
             workDir);
@@ -313,6 +313,10 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     private FixityServiceOptions getServiceOptions() {
+        if (null == outputSpaceId) {
+            this.outputSpaceId = this.defaultOutputSpaceId;
+        }
+
         FixityServiceOptions opts = new FixityServiceOptions(mode,
                                                              hashApproach,
                                                              salt,
@@ -332,6 +336,10 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     private FixityServiceOptions getAutoHashingOptions() {
+        if (null == outputSpaceId) {
+            this.outputSpaceId = this.defaultOutputSpaceId;
+        }
+        
         FixityServiceOptions.Mode m = FixityServiceOptions.Mode.GENERATE_SPACE;
         FixityServiceOptions.HashApproach ha = FixityServiceOptions.HashApproach.STORED;
         String outContentId = providedListingContentIdA;
@@ -384,6 +392,10 @@ public class FixityService extends BaseService implements ComputeService, Manage
     public void setPassword(String password) {
         log.info("set password(" + password + ")");
         this.password = password;
+    }
+
+    public void setDefaultOutputSpaceId(String defaultOutputSpaceId) {
+        this.defaultOutputSpaceId = defaultOutputSpaceId;
     }
 
     public void setMode(String mode) {
@@ -446,20 +458,11 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     public void setOutputContentId(String outputContentId) {
-        if (null != outputContentId) {
-            outputContentId = filterTimestamp(outputContentId);
-            log.info("set outputContentId(" + outputContentId + ")");
-            this.outputContentId = outputContentId;
-        }
-    }
-
-    private String filterTimestamp(String contentId) {
-        String spaceId = targetSpaceId == null ? "" : "-" + targetSpaceId + "-";
-        return contentId.replace(spaceId + TIMESTAMP, DateUtil.nowShort());
+        log.info("set outputContentId(" + outputContentId + ")");
+        this.outputContentId = outputContentId;
     }
 
     public void setReportContentId(String reportContentId) {
-        reportContentId = filterTimestamp(reportContentId);
         log.info("set reportContentId(" + reportContentId + ")");
         this.reportContentId = reportContentId;
     }

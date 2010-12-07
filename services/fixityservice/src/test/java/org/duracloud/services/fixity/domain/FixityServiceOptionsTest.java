@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.fixity.domain;
 
+import org.duracloud.common.util.DateUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -279,6 +280,82 @@ public class FixityServiceOptionsTest {
             Assert.assertEquals(auto,
                                 serviceOptions.needsToAutoGenerateHashListing());
         }
+    }
+
+    @Test
+    public void testDefaults()
+    {
+        // hash approach
+        params.put(hashApproachKey, null);
+        serviceOptions = createServiceOptions();
+
+        Assert.assertNotNull(serviceOptions.getHashApproach());
+        Assert.assertEquals(FixityServiceOptions.HashApproach.GENERATED,
+                            serviceOptions.getHashApproach());
+
+        // provided listing space id
+        params.put(outputSpaceIdKey, "some-output-space-id");
+        params.put(providedListingSpaceIdAKey, null);
+        serviceOptions = createServiceOptions();
+
+        Assert.assertNotNull(serviceOptions.getProvidedListingSpaceIdA());
+        Assert.assertEquals(serviceOptions.getOutputSpaceId(),
+                            serviceOptions.getProvidedListingSpaceIdA());
+
+        // provided listing content id
+        params.put(providedListingContentIdAKey, null);
+        serviceOptions = createServiceOptions();
+
+        Assert.assertNotNull(serviceOptions.getProvidedListingContentIdA());
+        Assert.assertEquals(outputContentId,
+                            serviceOptions.getProvidedListingContentIdA());
+    }
+
+    @Test
+    public void testTimestampDefaults()
+    {
+        // output content id
+        params.put(outputContentIdKey, null);
+        params.put(reportContentIdKey, null);
+
+        String now = DateUtil.nowShort();
+        String qualifier;
+
+        // all-in-one space
+        qualifier = targetSpaceId + "-" + now;
+        doTestTimestampDefaults(FixityServiceOptions.Mode.ALL_IN_ONE_SPACE,
+                                qualifier);
+
+        // generate space
+        doTestTimestampDefaults(FixityServiceOptions.Mode.GENERATE_SPACE,
+                                qualifier);
+
+        // all-in-one list
+        qualifier = providedListingContentIdA + "-" + now;
+        doTestTimestampDefaults(FixityServiceOptions.Mode.ALL_IN_ONE_LIST,
+                                qualifier);
+
+        // generate list
+        doTestTimestampDefaults(FixityServiceOptions.Mode.GENERATE_LIST,
+                                qualifier);
+
+        // compare
+        qualifier =
+            providedListingContentIdA + "-vs-" + providedListingContentIdB +
+                "-" + now;
+        doTestTimestampDefaults(FixityServiceOptions.Mode.COMPARE, qualifier);
+    }
+
+    private void doTestTimestampDefaults(FixityServiceOptions.Mode mode, String qualifier) {
+        params.put(modeKey, mode.name());
+        serviceOptions = createServiceOptions();
+
+        Assert.assertNotNull(serviceOptions.getOutputContentId());
+        Assert.assertNotNull(serviceOptions.getReportContentId());
+        Assert.assertEquals("bitintegrity/fingerprints-" + qualifier + ".csv",
+                            serviceOptions.getOutputContentId());
+        Assert.assertEquals("bitintegrity/fixity-report-" + qualifier + ".csv",
+                            serviceOptions.getReportContentId());
     }
 
 }

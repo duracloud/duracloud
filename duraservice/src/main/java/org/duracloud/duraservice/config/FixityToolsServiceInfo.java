@@ -54,7 +54,7 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
     public ServiceInfo getServiceXml(int index, String version) {
         ServiceInfo fsService = new ServiceInfo();
         fsService.setId(index);
-        fsService.setContentId("fixityservice-" + version + "-tools.zip");
+        fsService.setContentId("bitintegritytoolsservice-" + version + ".zip");
         fsService.setDescription(getDescription());
         fsService.setDisplayName(displayName);
         fsService.setUserConfigVersion(userConfigVersion);

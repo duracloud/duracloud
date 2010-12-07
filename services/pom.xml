@@ -35,6 +35,7 @@
     <module>imageconversionservice</module>
     <module>mediastreamingservice</module>
     <module>fixityservice</module>
+    <module>bitintegritytoolsservice</module>
     <module>hadoop</module>
     <module>amazonmapreduce-servicescommon</module>
     <module>bulkimageconversionservice</module>
