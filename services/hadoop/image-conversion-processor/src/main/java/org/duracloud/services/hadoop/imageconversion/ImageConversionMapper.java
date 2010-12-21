@@ -97,8 +97,16 @@ public class ImageConversionMapper extends ProcessFileMapper {
         throws IOException {
         String fileName = sourceFile.getName();
 
+        String name = fileName.trim();
+        name = name.replaceAll(" ", "_");
+
+        if(!fileName.equals(name)) {
+            File noSpaceFile = new File(workDir, name);
+            sourceFile.renameTo(noSpaceFile);
+        }
+
         ProcessBuilder pb =
-            new ProcessBuilder(convertScript, toFormat, fileName);
+            new ProcessBuilder(convertScript, toFormat, name);
         pb.directory(workDir);
         Process p = pb.start();
 
@@ -116,6 +124,14 @@ public class ImageConversionMapper extends ProcessFileMapper {
         String convertedFileName = FilenameUtils.getBaseName(fileName);
         convertedFileName += "." + toFormat;
         File convertedFile = new File(workDir, convertedFileName);
+
+        if(!fileName.equals(name)) {
+            File noSpaceFile = new File(workDir,
+                                        FilenameUtils.getBaseName(name) +
+                                            "." + toFormat);
+            noSpaceFile.renameTo(convertedFile);
+        }
+
         if(convertedFile.exists()) {
             return convertedFile;
         } else {
