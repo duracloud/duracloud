@@ -141,7 +141,14 @@ $(function(){
 		return(objectId == $("#detail-pane .object-id").html());
 	};
 
-	
+	// //////////////////////////////////////////
+	// sets contents of store-name class
+	// /
+	var setStore = function(pane, id){
+		$(".store-name").empty().prepend(getStoreName(id));
+        $(".store-name", pane).empty().prepend(getStoreName(id));
+	};
+
 	// /////////////////////////////////////////
 	// /check/uncheck all spaces
 	$(".dc-check-all").click(
@@ -1577,6 +1584,7 @@ $(function(){
 		var detail = $("#spaceDetailPane").clone();
 		setObjectName(detail, space.spaceId);
 		setObjectId(detail,space.spaceId);
+        setStore(detail,space.storeId);
 		
 		var center = $(".center", detail);
 		
@@ -1679,6 +1687,8 @@ $(function(){
 		var pane = $("#contentItemDetailPane").clone();
 		setObjectName(pane, contentItem.contentId);
 		setObjectId(pane,contentItem.spaceId+"/"+contentItem.contentId);
+        setStore(pane,space.storeId);
+        
 		$(".download-content-item-button", pane)
 			.attr("href", dc.store.formatDownloadURL(contentItem));
 
@@ -2312,6 +2322,7 @@ $(function(){
 	};
 	
 	var loadSpaces = function(spaces,filter) {
+        setStore("",getCurrentProviderStoreId());
 		$("#spaces-list").selectablelist("clear");
 		var firstMatchFound = false;
 		for(s in spaces){

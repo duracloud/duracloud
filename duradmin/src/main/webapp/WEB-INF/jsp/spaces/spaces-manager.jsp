@@ -58,7 +58,7 @@
 				<div class="north header list-header clearfix">
 				<div id="header-spaces-list" class="header-section clearfix">
 				<button class="featured float-r add-space-button"><i class="pre plus"></i>Add Space</button>
-				<h2>Spaces</h2>
+				<h2 class="store-name">Store Name Here</h2> <h2>Spaces</h2>
 				</div>
 				<div class="header-section"><span class="float-r"><input
 					id="space-filter" class="dc-item-list-filter " value="" placeholder="filter"
@@ -76,7 +76,7 @@
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
 				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add Content Item</button>
-				<h2>Content Items</h2>
+				<h2 class="store-name">Store Name Here</h2> <h2>Content Items</h2>
 				</div>
 				<div class="header-section">
 					<span class="float-r">
@@ -101,7 +101,7 @@
 				<div id="spaceDetailPane" class="dc-detail-pane" style="display: none">
 					<div class="north header">
 						<h1>Space Detail</h1>
-						<h2 class="object-name">Space Name Here</h2>
+						<h2 class="store-name">Store Name Here</h2> <h3 class="object-name">Space Name Here</h3>
 						<div class="toggle-control switch-holder">
 							<div class="r access-switch"></div>
 						</div>
@@ -153,11 +153,12 @@
 				<div id="contentItemDetailPane" style="display: none">
 					<div class="north header">
 						<h1>Content Detail</h1>
-						<h2>
+                        <h2 class="store-name">Store Name Here</h2>
+						<h3>
 							<a class="durastore-link" title="Links directly to content in DuraStore. This link will be publicly available only when the space is 'Open'.">
 								<span class="object-name">Object Name here</span>
 							</a>
-						</h2>
+						</h3>
 						<div class="mime-type" id="mime-image">						
 							<div class="mime-type-image-holder float-l"></div>
 							<span class="label">Mime Type:</span> <span class="value">image/jpg</span>

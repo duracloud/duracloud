@@ -235,6 +235,11 @@ h3 { font-size:1em; }
 	color:#fff;
 }
 
+.store-name
+{
+    color:orange;
+}
+
 .ui-layout-resizer
 { 
 	background-color:#4b4b4b;
@@ -596,7 +601,12 @@ input.dc-check-all
 
 .detail-pane h2
 {
-	color:#ccc;
+	margin-bottom:10px;
+}
+
+.detail-pane h3
+{
+	color:#fff;
 	margin-bottom:10px;
 }
 
