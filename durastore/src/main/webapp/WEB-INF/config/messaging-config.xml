@@ -20,16 +20,40 @@
   </bean>
   
   <bean id="ingestDestination" class="org.apache.activemq.command.ActiveMQTopic">
-    <constructor-arg index="0" value="org.duracloud.topic.ingest" />
+    <constructor-arg index="0" value="org.duracloud.topic.change.ingest" />
   </bean>
   
-  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+  <bean id="ingestJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
     <property name="connectionFactory" ref="connFactory" />
     <property name="defaultDestination" ref="ingestDestination" />
-    <property name="messageConverter" ref="msgConverter" />
+    <property name="messageConverter" ref="ingestMsgConverter" />
   </bean>
   
-  <bean id="msgConverter" class="org.duracloud.durastore.aop.IngestMessageConverter" />
+  <bean id="ingestMsgConverter" class="org.duracloud.durastore.aop.IngestMessageConverter" />
+
+  <bean id="updateDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.change.update" />
+  </bean>
+
+  <bean id="updateJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="updateDestination" />
+    <property name="messageConverter" ref="updateMsgConverter" />
+  </bean>
+
+  <bean id="updateMsgConverter" class="org.duracloud.durastore.aop.UpdateMessageConverter" />
+
+  <bean id="deleteDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.change.delete" />
+  </bean>
+
+  <bean id="deleteJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="deleteDestination" />
+    <property name="messageConverter" ref="deleteMsgConverter" />
+  </bean>
+
+  <bean id="deleteMsgConverter" class="org.duracloud.durastore.aop.DeleteMessageConverter" />
   
   <!-- Message Consumers -->
   <bean class="org.springframework.jms.listener.SimpleMessageListenerContainer" >
@@ -41,12 +65,28 @@
   <bean id="msgConsumerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter" >
     <property name="delegate" ref="msgConsumer" />
     <property name="defaultListenerMethod" value="onIngest" />
-    <property name="messageConverter" ref="msgConverter" />
+    <property name="messageConverter" ref="ingestMsgConverter" />
   </bean>
   
   <bean id="msgConsumer" class="org.duracloud.durastore.aop.MessageConsumer" >
-    <property name="jmsTemplate" ref="jmsTemplate" />
+    <property name="jmsTemplate" ref="ingestJmsTemplate" />
   </bean>
-  
+
+    <!-- Message Consumers -->
+  <bean class="org.springframework.jms.listener.SimpleMessageListenerContainer" >
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="destination" ref="updateDestination" />
+    <property name="messageListener" ref="updateMsgConsumerAdapter" />
+  </bean>
+
+  <bean id="updateMsgConsumerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter" >
+    <property name="delegate" ref="updateMsgConsumer" />
+    <property name="defaultListenerMethod" value="onUpdate" />
+    <property name="messageConverter" ref="updateMsgConverter" />
+  </bean>
+
+  <bean id="updateMsgConsumer" class="org.duracloud.durastore.aop.UpdateMessageConsumer" >
+    <property name="jmsTemplate" ref="updateJmsTemplate" />
+  </bean>
 
 </beans>

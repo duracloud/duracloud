@@ -26,14 +26,18 @@ public class MessagingTestSupport {
 
     protected String configString = "tcp://localhost:61617";
 
-    protected final String topicName = "org.duracloud.topic.ingest";
+    protected final String ingestTopicName = "org.duracloud.topic.change.ingest";
+
+    protected final String updateTopicName = "org.duracloud.topic.change.update";
+
+    protected final String deleteTopicName = "org.duracloud.topic.change.delete";
 
     protected Connection createConnection() throws Exception {
         return getConnectionFactory().createConnection();
     }
 
-    protected Destination createDestination() {
-        return new ActiveMQTopic(topicName);
+    protected Destination createDestination(String topicNamme) {
+        return new ActiveMQTopic(topicNamme);
     }
 
     private ActiveMQConnectionFactory getConnectionFactory() throws Exception {

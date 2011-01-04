@@ -16,10 +16,10 @@ import org.springframework.jms.core.JmsTemplate;
 import javax.jms.Destination;
 import java.lang.reflect.Method;
 
-public class IngestAdvice
+public class UpdateAdvice
         implements AfterReturningAdvice, Ordered {
 
-    private final Logger log = LoggerFactory.getLogger(IngestAdvice.class);
+    private final Logger log = LoggerFactory.getLogger(UpdateAdvice.class);
 
     protected static final int STORE_ID_INDEX = 1;
 
@@ -27,9 +27,7 @@ public class IngestAdvice
 
     protected static final int CONTENT_ID_INDEX = 3;
 
-    protected static final int MIMETYPE_INDEX = 4;
-
-    private JmsTemplate ingestJmsTemplate;
+    private JmsTemplate updateJmsTemplate;
 
     private Destination destination;
 
@@ -44,23 +42,21 @@ public class IngestAdvice
             doLogging(returnObj, method, methodArgs, targetObj);
         }
 
-        publishIngestEvent(createIngestMessage(methodArgs));
+        publishUpdateEvent(createUpdateMessage(methodArgs));
     }
 
-    private void publishIngestEvent(IngestMessage ingestEvent) {
-        getIngestJmsTemplate().convertAndSend(getDestination(), ingestEvent);
+    private void publishUpdateEvent(UpdateMessage updateEvent) {
+        getUpdateJmsTemplate().convertAndSend(getDestination(), updateEvent);
     }
 
-    private IngestMessage createIngestMessage(Object[] methodArgs) {
+    private UpdateMessage createUpdateMessage(Object[] methodArgs) {
         String storeId = getStoreId(methodArgs);
         String contentId = getContentId(methodArgs);
-        String contentMimeType = getMimeType(methodArgs);
         String spaceId = getSpaceId(methodArgs);
 
-        IngestMessage msg = new IngestMessage();
+        UpdateMessage msg = new UpdateMessage();
         msg.setStoreId(storeId);
         msg.setContentId(contentId);
-        msg.setContentMimeType(contentMimeType);
         msg.setSpaceId(spaceId);
 
         return msg;
@@ -76,11 +72,6 @@ public class IngestAdvice
         return (String) methodArgs[CONTENT_ID_INDEX];
     }
 
-    private String getMimeType(Object[] methodArgs) {
-        log.debug("Returning 'contentMimeType' at index: " + MIMETYPE_INDEX);
-        return (String) methodArgs[MIMETYPE_INDEX];
-    }
-
     private String getSpaceId(Object[] methodArgs) {
         log.debug("Returning 'spaceId' at index: " + SPACE_ID_INDEX);
         return (String) methodArgs[SPACE_ID_INDEX];
@@ -94,7 +85,7 @@ public class IngestAdvice
         String pre1 = pre0 + "--";
         String pre2 = pre1 + "--";
 
-        log.debug(pre0 + "advice: publish to ingest topic");
+        log.debug(pre0 + "advice: publish to update topic");
         if (targetObj != null && targetObj.getClass() != null) {
             log.debug(pre1 + "object: " + targetObj.getClass().getName());
         }
@@ -114,12 +105,12 @@ public class IngestAdvice
         }
     }
 
-    public JmsTemplate getIngestJmsTemplate() {
-        return ingestJmsTemplate;
+    public JmsTemplate getUpdateJmsTemplate() {
+        return updateJmsTemplate;
     }
 
-    public void setIngestJmsTemplate(JmsTemplate ingestJmsTemplate) {
-        this.ingestJmsTemplate = ingestJmsTemplate;
+    public void setUpdateJmsTemplate(JmsTemplate updateJmsTemplate) {
+        this.updateJmsTemplate = updateJmsTemplate;
     }
 
     public Destination getDestination() {
@@ -136,6 +127,6 @@ public class IngestAdvice
 
     public void setOrder(int order) {
         this.order = order;
-    }    
+    }
 
 }

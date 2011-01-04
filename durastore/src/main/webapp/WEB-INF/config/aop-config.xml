@@ -7,7 +7,7 @@
   
   <!-- AOP Advice - Ingest -->
   <bean id="ingestAdvice" class="org.duracloud.durastore.aop.IngestAdvice" >
-    <property name="jmsTemplate" ref="jmsTemplate" />
+    <property name="ingestJmsTemplate" ref="ingestJmsTemplate" />
     <property name="destination" ref="ingestDestination" />
     <property name="order" value="3" />
   </bean>
@@ -15,6 +15,30 @@
   <bean id="ingestAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice" ref="ingestAdvice"/>
     <property name="pattern" value=".*StatelessStorageProvider.addContent"/>
+  </bean>
+
+  <!-- AOP Advice - Update -->
+  <bean id="updateAdvice" class="org.duracloud.durastore.aop.UpdateAdvice" >
+    <property name="updateJmsTemplate" ref="updateJmsTemplate" />
+    <property name="destination" ref="updateDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="updateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="updateAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.setContentMetadata"/>
+  </bean>
+
+  <!-- AOP Advice - Delete -->
+  <bean id="deleteAdvice" class="org.duracloud.durastore.aop.DeleteAdvice" >
+    <property name="deleteJmsTemplate" ref="deleteJmsTemplate" />
+    <property name="destination" ref="deleteDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="deleteAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="deleteAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.deleteContent"/>
   </bean>
 
   <!-- AOP Advice - Retry -->
