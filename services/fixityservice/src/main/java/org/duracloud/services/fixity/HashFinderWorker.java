@@ -241,7 +241,7 @@ public class HashFinderWorker implements Runnable {
     private void throwRuntime(String msg) {
         StringBuilder sb = new StringBuilder("Error: ");
         sb.append(msg);
-        sb.append(", for: ");
+        sb.append(" for: ");
         sb.append(getSpaceId());
         sb.append("/");
         sb.append(getContentId());
