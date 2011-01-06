@@ -7,24 +7,20 @@
  */
 package org.duracloud.services.hadoop.replication;
 
-import org.apache.commons.io.input.AutoCloseInputStream;
+import org.apache.hadoop.mapred.Reporter;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
 import org.duracloud.services.hadoop.base.ProcessFileMapper;
 import org.duracloud.services.hadoop.base.ProcessResult;
 import org.duracloud.services.hadoop.store.FileWithMD5;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
@@ -51,7 +47,9 @@ public class RepMapper extends ProcessFileMapper {
      * @return null (there is no resultant file)
      */
     @Override
-    protected ProcessResult processFile(FileWithMD5 fileWithMD5, String origContentId)
+    protected ProcessResult processFile(FileWithMD5 fileWithMD5,
+                                        String origContentId,
+                                        Reporter reporter)
         throws IOException {
         File file = fileWithMD5.getFile();
         resultInfo.put(SRC_SIZE, String.valueOf(file.length()));
@@ -96,19 +94,25 @@ public class RepMapper extends ProcessFileMapper {
         Exception exception = null;
         int attempts;
         for(attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
-            try {
-                Map<String, String> metadata =
-                    primaryStore.getContentMetadata(fromSpaceId, contentId);
-                try {
-                    replicate(repStore, repSpaceId, contentId, fileWithMD5, metadata);
-                    break;
-                } catch(NotFoundException e) {
-                    System.out.println("NFE: " + e.getMessage());
-                    checkSpace(primaryStore, repStore, repSpaceId, fromSpaceId);
-                }
-            } catch(ContentStoreException e) {
-                System.out.println("CSE: " + e.getMessage());
-                exception = e;
+            Replicator replicator = new Replicator(primaryStore,
+                                                   fromSpaceId,
+                                                   contentId,
+                                                   repStore,
+                                                   repSpaceId,
+                                                   fileWithMD5,
+                                                   resultInfo);
+            Thread thread = new Thread(replicator);
+            thread.start();
+
+            while (thread.isAlive()) {
+                sleep(1000);
+                reporter.progress();
+            }
+
+            if(replicator.isSuccess()) {
+                break;
+            } else {
+                exception = replicator.getException();
             }
         }
 
@@ -123,82 +127,11 @@ public class RepMapper extends ProcessFileMapper {
         return null;
     }
 
-    private void checkSpace(ContentStore primaryStore,
-                            ContentStore toStore,
-                            String toSpaceId,
-                            String fromSpaceId)
-        throws ContentStoreException {
+    private void sleep(long millis) {
         try {
-            toStore.getSpaceMetadata(toSpaceId);
-        } catch(NotFoundException e) {
-            // Create Space
-            System.out.println("Creating space: " + toSpaceId);
-            toStore.createSpace(toSpaceId,
-                                primaryStore.getSpaceMetadata(fromSpaceId));
-        }
-    }
-
-    private void replicate(ContentStore toStore,
-                           String toSpaceId,
-                           String contentId,
-                           FileWithMD5 fileWithMD5,
-                           Map<String, String> origMetadata)
-        throws ContentStoreException, IOException {
-        System.out.println("Replicating " + contentId + " to " + toSpaceId);        
-
-        if (null == fileWithMD5 || null == fileWithMD5.getFile()) {
-            throw new IOException("arg file is null");
-        }
-        File file = fileWithMD5.getFile();
-
-        String origMimetype = "application/octet-stream";
-        String origChecksum = "";
-        if(null != origMetadata) {
-            origMimetype = origMetadata.get(ContentStore.CONTENT_MIMETYPE);
-            origChecksum = origMetadata.get(ContentStore.CONTENT_CHECKSUM);
-        }
-
-        if (null == origChecksum) {
-            origChecksum = fileWithMD5.getMd5();
-        }
-
-        // Check to see if file already exists
-        boolean exists = false;
-        if(null != origChecksum) {
-            Map<String, String> destMetadata = null;
-            try {
-                destMetadata = toStore.getContentMetadata(toSpaceId, contentId);
-            } catch(NotFoundException e) {
-                destMetadata = null;
-            }
-            if(null != destMetadata) {
-                String destChecksum =
-                    destMetadata.get(ContentStore.CONTENT_CHECKSUM);
-                if(null != destChecksum) {
-                    if(origChecksum.equals(destChecksum)) {
-                        exists = true;
-                    }
-                }
-            }
-        }
-
-        if(exists) {
-            System.out.println(contentId + " already exists in " + toSpaceId);
-            resultInfo.put(REP_RESULT,
-                           "file exists at destination, not replicated");
-        } else {
-            System.out.println("Adding " + contentId + " to " + toSpaceId);
-            // Replicate content
-            InputStream content =
-                new AutoCloseInputStream(new FileInputStream(file));
-            toStore.addContent(toSpaceId,
-                               contentId,
-                               content,
-                               file.length(),
-                               origMimetype,
-                               origChecksum,
-                               origMetadata);
-            resultInfo.put(REP_RESULT, "file replicated");
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing
         }
     }
 

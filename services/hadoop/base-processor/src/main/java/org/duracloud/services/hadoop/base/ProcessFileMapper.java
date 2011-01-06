@@ -92,7 +92,7 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
             }
 
             // Process the local file
-            ProcessResult result = processFile(localFile, contentId);
+            ProcessResult result = processFile(localFile, contentId, reporter);
             if(null != result) {
                 resultFile = result.getFile();
                 if (null != resultFile) {
@@ -161,11 +161,20 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
      *
      * @param fileWithMD5 the file to be processed
      * @param origContentId the original ID of the file
+     * @param reporter allows for reporting progress and status
      * @return ProcessResult including the file resulting from the processing
      *         to be moved to output along with its corresponding content ID
      *         or null if no file result exists
      */
-    protected ProcessResult processFile(FileWithMD5 fileWithMD5, String origContentId)
+    protected ProcessResult processFile(FileWithMD5 fileWithMD5,
+                                        String origContentId,
+                                        Reporter reporter)
+        throws IOException {
+        return processFile(fileWithMD5, origContentId);
+    }
+
+    protected ProcessResult processFile(FileWithMD5 fileWithMD5,
+                                        String origContentId)
         throws IOException {
         File file = fileWithMD5.getFile();
         String fileName = "result-" + file.getName();
