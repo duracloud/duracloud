@@ -8,6 +8,7 @@
 package org.duracloud.services.replication;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQTopic;
 import org.duracloud.common.model.Credential;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
@@ -132,6 +133,13 @@ public class ReplicationService extends BaseService
             log.debug("Message recieved in Replication Service: " + message);
         }
 
+        try {
+            String topic = ((ActiveMQTopic)message.getJMSDestination()).getTopicName();
+            log.debug("Message topic name- "+topic);
+        } catch(JMSException jmse) {
+            log.error("Error getting message topic name", jmse);
+        }
+        
         if (message instanceof MapMessage) {
             handleMapMessage((MapMessage) message);
         } else if (message instanceof TextMessage) {

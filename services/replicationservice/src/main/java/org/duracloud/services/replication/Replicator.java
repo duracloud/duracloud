@@ -60,10 +60,37 @@ public class Replicator {
         }
 
         try {
+            toStore.getSpaceMetadata(spaceId);
+            log.info("toSpace: " + spaceId);
+
             Map<String, String> spaceMeta = fromStore.getSpaceMetadata(spaceId);
-            toStore.createSpace(spaceId, spaceMeta);
+            toStore.setSpaceMetadata(spaceId, spaceMeta);
+        } catch(ContentStoreException cse) {
+            log.info("Space " + spaceId + " does not exist at " +
+                               toStore.getStorageProviderType());
+
+            try {
+                Map<String, String> spaceMeta = fromStore.getSpaceMetadata(spaceId);
+                toStore.createSpace(spaceId, spaceMeta);
+            } catch (ContentStoreException cs) {
+                String error = "Unable to replicate space " + spaceId +
+                               " due to error: " + cse.getMessage();
+                log.error(error, cs);
+                deleteSpace(spaceId);
+            }
+        }
+    }
+
+    public void deleteSpace(String spaceId) {
+        if(log.isDebugEnabled()) {
+            log.debug("Deleting space " + spaceId +
+                      " from " + toStore.getStorageProviderType());
+        }
+
+        try {
+            toStore.deleteSpace(spaceId);
         } catch (ContentStoreException cse) {
-            String error = "Unable to replicate space " + spaceId +
+            String error = "Unable to delete space " + spaceId +
                            " due to error: " + cse.getMessage();
             log.error(error, cse);
         }
@@ -76,17 +103,27 @@ public class Replicator {
                       " to " + toStore.getStorageProviderType());
         }
 
+        replicateSpace(spaceId);
+
+        Content content = null;
+
         try {
-            toStore.getSpaceMetadata(spaceId);
-            log.info("toSpace: " + spaceId);
+            content = fromStore.getContent(spaceId, contentId);
         } catch(ContentStoreException cse) {
-            log.info("Space " + spaceId + " does not exist at " +
-                               toStore.getStorageProviderType());
-            replicateSpace(spaceId);
+            String error = "Content " + contentId + " does not exist in space " +
+                           spaceId;
+            log.error(error, cse);
+
+            try {
+                toStore.deleteContent(spaceId, contentId);
+            } catch(ContentStoreException cs) {
+                error = "Unable to delete content " + contentId + " in space " +
+                                spaceId + " due to error: " + cse.getMessage();
+                log.error(error, cs);
+            }
         }
 
         try {
-            Content content = fromStore.getContent(spaceId, contentId);
             InputStream contentStream = content.getStream();
             if(contentStream != null) {
                 Map<String, String> metadata = content.getMetadata();

@@ -21,13 +21,13 @@ public class ReplicationServiceInfo extends AbstractServiceInfo {
         ServiceInfo repService = new ServiceInfo();
         repService.setId(index);
         repService.setContentId("replicationservice-" + version + ".zip");
-        String desc = "Duplicate on Upload provides a simple mechanism " +
-            "for copying your content to a secondary storage provider. When " +
-            "running, Duplicate on Upload will watch for file uploads in " +
-            "your primary storage provider and copy those files to a " +
+        String desc = "Duplicate on Change provides a simple mechanism " +
+            "for applying changes to a secondary storage provider. When " +
+            "running, Duplicate on Change will watch for changes in " +
+            "your primary storage provider and apply those changes to a " +
             "specified secondary provider.";
         repService.setDescription(desc);
-        repService.setDisplayName("Duplicate on Upload");
+        repService.setDisplayName("Duplicate on Change");
         repService.setUserConfigVersion("1.0");
         repService.setServiceVersion(version);
         repService.setMaxDeploymentsAllowed(1);
@@ -43,12 +43,12 @@ public class ReplicationServiceInfo extends AbstractServiceInfo {
 
         SingleSelectUserConfig fromStoreId =
             new SingleSelectUserConfig("fromStoreId",
-                                       "Watch this store for uploads",
+                                       "Watch this store for changes",
                                        storeOptions);
 
         SingleSelectUserConfig toStoreId =
             new SingleSelectUserConfig("toStoreId",
-                                       "Copy to this store",
+                                       "Apply to this store",
                                        storeOptions);
 
         /* These features have not been implemented as part of the service yet.

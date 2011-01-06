@@ -27,7 +27,7 @@
     <property name="replicationType" value="2"/>               
     <!-- <property name="jmsContainer" ref="jmsContainer" />  -->
     <property name="connectionFactory" ref="connFactory" />
-    <property name="destination" ref="ingestDestination" />
+    <property name="destination" ref="changeDestination" />
     <property name="serviceId" value="replicationservice-${project.version}" />
   </bean>
 
