@@ -26,11 +26,17 @@ public class MessagingTestSupport {
 
     protected String configString = "tcp://localhost:61617";
 
-    protected final String ingestTopicName = "org.duracloud.topic.change.ingest";
+    protected final String ingestTopicName = "org.duracloud.topic.change.content.ingest";
 
-    protected final String updateTopicName = "org.duracloud.topic.change.update";
+    protected final String contentUpdateTopicName = "org.duracloud.topic.change.content.update";
 
-    protected final String deleteTopicName = "org.duracloud.topic.change.delete";
+    protected final String contentDeleteTopicName = "org.duracloud.topic.change.content.delete";
+
+    protected final String spaceCreateTopicName = "org.duracloud.topic.change.space.create";
+
+    protected final String spaceUpdateTopicName = "org.duracloud.topic.change.space.update";
+
+    protected final String spaceDeleteTopicName = "org.duracloud.topic.change.space.delete";
 
     protected Connection createConnection() throws Exception {
         return getConnectionFactory().createConnection();

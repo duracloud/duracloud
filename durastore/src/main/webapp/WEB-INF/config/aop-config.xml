@@ -17,28 +17,64 @@
     <property name="pattern" value=".*StatelessStorageProvider.addContent"/>
   </bean>
 
-  <!-- AOP Advice - Update -->
-  <bean id="updateAdvice" class="org.duracloud.durastore.aop.UpdateAdvice" >
-    <property name="updateJmsTemplate" ref="updateJmsTemplate" />
-    <property name="destination" ref="updateDestination" />
+  <!-- AOP Advice - Content Update -->
+  <bean id="contentUpdateAdvice" class="org.duracloud.durastore.aop.ContentUpdateAdvice" >
+    <property name="contentJmsTemplate" ref="contentJmsTemplate" />
+    <property name="destination" ref="updateContentDestination" />
     <property name="order" value="3" />
   </bean>
 
-  <bean id="updateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
-    <property name="advice" ref="updateAdvice"/>
+  <bean id="contentUpdateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="contentUpdateAdvice"/>
     <property name="pattern" value=".*StatelessStorageProvider.setContentMetadata"/>
   </bean>
 
-  <!-- AOP Advice - Delete -->
-  <bean id="deleteAdvice" class="org.duracloud.durastore.aop.DeleteAdvice" >
-    <property name="deleteJmsTemplate" ref="deleteJmsTemplate" />
-    <property name="destination" ref="deleteDestination" />
+  <!-- AOP Advice - Content Delete -->
+  <bean id="contentDeleteAdvice" class="org.duracloud.durastore.aop.ContentDeleteAdvice" >
+    <property name="contentJmsTemplate" ref="contentJmsTemplate" />
+    <property name="destination" ref="deleteContentDestination" />
     <property name="order" value="3" />
   </bean>
 
-  <bean id="deleteAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
-    <property name="advice" ref="deleteAdvice"/>
+  <bean id="contentDeleteAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="contentDeleteAdvice"/>
     <property name="pattern" value=".*StatelessStorageProvider.deleteContent"/>
+  </bean>
+
+  <!-- AOP Advice - Space Create -->
+  <bean id="spaceCreateAdvice" class="org.duracloud.durastore.aop.SpaceCreateAdvice" >
+    <property name="spaceJmsTemplate" ref="spaceJmsTemplate" />
+    <property name="destination" ref="createSpaceDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="spaceCreateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="spaceCreateAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.createSpace"/>
+  </bean>
+
+  <!-- AOP Advice - Space Update -->
+  <bean id="spaceUpdateAdvice" class="org.duracloud.durastore.aop.SpaceUpdateAdvice" >
+    <property name="spaceJmsTemplate" ref="spaceJmsTemplate" />
+    <property name="destination" ref="updateSpaceDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="spaceUpdateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="spaceUpdateAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.setSpaceMetadata"/>
+  </bean>
+
+  <!-- AOP Advice - Space Delete -->
+  <bean id="spaceDeleteAdvice" class="org.duracloud.durastore.aop.SpaceDeleteAdvice" >
+    <property name="spaceJmsTemplate" ref="spaceJmsTemplate" />
+    <property name="destination" ref="deleteSpaceDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="spaceDeleteAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="spaceDeleteAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.deleteSpace"/>
   </bean>
 
   <!-- AOP Advice - Retry -->

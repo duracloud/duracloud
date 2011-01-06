@@ -7,20 +7,17 @@
  */
 package org.duracloud.durastore.aop;
 
-public class UpdateMessage {
+public class SpaceMessage {
 
     private String storeId;
 
     private String spaceId;
 
-    private String contentId;
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("UpdateMessage[");
+        StringBuilder sb = new StringBuilder("SpaceMessage[");
         sb.append("storeId:'" + storeId + "'");
         sb.append("|spaceId:'" + spaceId + "'");
-        sb.append("|contentId:'" + contentId + "'");
         sb.append("]\n");
         return sb.toString();
     }
@@ -40,13 +37,4 @@ public class UpdateMessage {
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
     }
-
-    public String getContentId() {
-        return contentId;
-    }
-
-    public void setContentId(String contentId) {
-        this.contentId = contentId;
-    }
-
 }

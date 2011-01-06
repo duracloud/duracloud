@@ -8,10 +8,8 @@
 package org.duracloud.durastore.aop;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
-import org.duracloud.durastore.rest.BaseRest;
 import org.duracloud.durastore.rest.RestTestHelper;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -27,21 +25,19 @@ import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 /**
  * <pre>
  *
- * This test exercises three elements of the update flow:
- * 1. actual content update
- * 2. aop publishing update event to topic
+ * This test exercises three elements of the delete flow:
+ * 1. actual space deletion
+ * 2. aop publishing delete event to topic
  * 3. topic consumer asynchronously receiving the event
  *
  * </pre>
  */
-public class TestUpdateAdvice
+public class TestSpaceDeleteAdvice
         extends MessagingTestSupport
         implements MessageListener {
 
@@ -55,16 +51,8 @@ public class TestUpdateAdvice
 
     private final long MAX_WAIT = 5000;
 
-    private static RestHttpHelper restHelper = RestTestHelper.getAuthorizedRestHelper();
-
-    private static final String CONTENT = "<junk/>";
 
     private static String spaceId;
-
-    static {
-        String random = String.valueOf(new Random().nextInt(99999));
-        spaceId = "update-advice-test-space-" + random;
-    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -72,24 +60,28 @@ public class TestUpdateAdvice
         HttpResponse response = RestTestHelper.initialize();
         int statusCode = response.getStatusCode();
         Assert.assertEquals(HttpStatus.SC_OK, statusCode);
-
-        // Add space
-        response = RestTestHelper.addSpace(spaceId);
-        statusCode = response.getStatusCode();
-        String responseText = response.getResponseBody();
-        Assert.assertEquals(responseText, HttpStatus.SC_CREATED, statusCode);
     }
 
     @Before
     public void setUp() throws Exception {
         conn = createConnection();
         session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        destination = createDestination(updateTopicName);
+        destination = createDestination(spaceDeleteTopicName);
         received = false;
+
+        // Add space
+        String random = String.valueOf(new Random().nextInt(99999));
+        spaceId = "delete-advice-test-space-" + random;
+        HttpResponse response = RestTestHelper.addSpace(spaceId);
+        int statusCode = response.getStatusCode();
+        String responseText = response.getResponseBody();
+        Assert.assertEquals(responseText, HttpStatus.SC_CREATED, statusCode);
     }
 
     @After
     public void tearDown() throws Exception {
+        RestTestHelper.deleteSpace(spaceId);
+
         if (conn != null) {
             conn.close();
             conn = null;
@@ -101,35 +93,43 @@ public class TestUpdateAdvice
         destination = null;
     }
 
-    @AfterClass
-    public static void afterClass() throws Exception {
-        // Delete space
-        HttpResponse response = RestTestHelper.deleteSpace(spaceId);
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusCode());
-        String responseText = response.getResponseBody();
-        assertNotNull(responseText);
-        assertTrue(responseText.contains(spaceId));
-    }
-
     @Test
-    public void testUpdateEventSelectorFail() throws Exception {
+    public void testDeleteEventFail() throws Exception {
         boolean successful = false;
-        String selector = UpdateMessageConverter.STORE_ID + " = 'invalidStoreId'";
-        doTestUpdateSelectorEvent(selector, successful);
+        doTestDeleteEvent(successful);
     }
 
     @Test
-    public void testUpdateEventSelectorPass() throws Exception {
+    public void testDeleteEventPass() throws Exception {
+        boolean successful = true;
+        doTestDeleteEvent(successful);
+    }
+
+    private void doTestDeleteEvent(boolean successful) throws Exception {
+        createEventListener(null);
+        publishDeleteEvent(successful);
+        verifyEventHeard(successful);
+    }
+
+    @Test
+    public void testDeleteEventSelectorFail() throws Exception {
+        boolean successful = false;
+        String selector = ContentMessageConverter.STORE_ID + " = 'invalidStoreId'";
+        doTestDeleteSelectorEvent(selector, successful);
+    }
+
+    @Test
+    public void testDeleteEventSelectorPass() throws Exception {
         boolean successful = true;
         // Store ID 1 is the ID for the default storage provider (Amazon S3)
-        String selector = UpdateMessageConverter.STORE_ID + " = '1'";
-        doTestUpdateSelectorEvent(selector, successful);
+        String selector = ContentMessageConverter.STORE_ID + " = '1'";
+        doTestDeleteSelectorEvent(selector, successful);
     }
 
-    private void doTestUpdateSelectorEvent(String selector,
+    private void doTestDeleteSelectorEvent(String selector,
                                            boolean successful) throws Exception {
         createEventListener(selector);
-        publishUpdateEvent(true);
+        publishDeleteEvent(true);
         verifyEventHeard(successful);
     }
 
@@ -147,32 +147,15 @@ public class TestUpdateAdvice
         conn.start();
     }
 
-    private void publishUpdateEvent(boolean successful) throws Exception {
-        // Add content
-        String suffix = "/" + spaceId + "/contentGOOD";
-        String url = RestTestHelper.getBaseUrl() + suffix;
-        HttpResponse response = restHelper.put(url, CONTENT, null);
-        int statusCode = response.getStatusCode();
-        String responseText = response.getResponseBody();
-        Assert.assertEquals(responseText, HttpStatus.SC_CREATED, statusCode);
-
-        if (!successful) {
-            suffix = "/" + spaceId + "-invalid-space-id/contentBAD";
-            url = RestTestHelper.getBaseUrl() + suffix;
+    private void publishDeleteEvent(boolean successful) throws Exception {
+        if (successful) {
+            // Delete space
+            HttpResponse response = RestTestHelper.deleteSpace(spaceId);
+            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+            String responseText = response.getResponseBody();
+            assertNotNull(responseText);
+            assertTrue(responseText.contains(spaceId));
         }
-
-        // Update metadata
-        Map<String, String> headers = new HashMap<String, String>();
-        String newContentMime = "text/plain";
-        headers.put(HttpHeaders.CONTENT_TYPE, newContentMime);
-        String newMetaName = BaseRest.HEADER_PREFIX + "new-metadata";
-        String newMetaValue = "New Metadata Value";
-        headers.put(newMetaName, newMetaValue);
-        
-        response = restHelper.post(url, null, headers);
-        statusCode = response.getStatusCode();
-        responseText = response.getResponseBody();
-        Assert.assertEquals(responseText, HttpStatus.SC_OK, statusCode);
     }
 
     private void verifyEventHeard(boolean successful) throws Exception {

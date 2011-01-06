@@ -16,18 +16,16 @@ import org.springframework.jms.core.JmsTemplate;
 import javax.jms.Destination;
 import java.lang.reflect.Method;
 
-public class UpdateAdvice
+public class SpaceCreateAdvice
         implements AfterReturningAdvice, Ordered {
 
-    private final Logger log = LoggerFactory.getLogger(UpdateAdvice.class);
+    private final Logger log = LoggerFactory.getLogger(SpaceCreateAdvice.class);
 
     protected static final int STORE_ID_INDEX = 1;
 
     protected static final int SPACE_ID_INDEX = 2;
 
-    protected static final int CONTENT_ID_INDEX = 3;
-
-    private JmsTemplate updateJmsTemplate;
+    private JmsTemplate spaceJmsTemplate;
 
     private Destination destination;
 
@@ -42,21 +40,19 @@ public class UpdateAdvice
             doLogging(returnObj, method, methodArgs, targetObj);
         }
 
-        publishUpdateEvent(createUpdateMessage(methodArgs));
+        publishCreateEvent(createCreateMessage(methodArgs));
     }
 
-    private void publishUpdateEvent(UpdateMessage updateEvent) {
-        getUpdateJmsTemplate().convertAndSend(getDestination(), updateEvent);
+    private void publishCreateEvent(SpaceMessage createEvent) {
+        getSpaceJmsTemplate().convertAndSend(getDestination(), createEvent);
     }
 
-    private UpdateMessage createUpdateMessage(Object[] methodArgs) {
+    private SpaceMessage createCreateMessage(Object[] methodArgs) {
         String storeId = getStoreId(methodArgs);
-        String contentId = getContentId(methodArgs);
         String spaceId = getSpaceId(methodArgs);
 
-        UpdateMessage msg = new UpdateMessage();
+        SpaceMessage msg = new SpaceMessage();
         msg.setStoreId(storeId);
-        msg.setContentId(contentId);
         msg.setSpaceId(spaceId);
 
         return msg;
@@ -65,11 +61,6 @@ public class UpdateAdvice
     private String getStoreId(Object[] methodArgs) {
         log.debug("Returning 'storeId' at index: " + STORE_ID_INDEX);
         return (String) methodArgs[STORE_ID_INDEX];
-    }
-
-    private String getContentId(Object[] methodArgs) {
-        log.debug("Returning 'contentId' at index: " + CONTENT_ID_INDEX);
-        return (String) methodArgs[CONTENT_ID_INDEX];
     }
 
     private String getSpaceId(Object[] methodArgs) {
@@ -85,7 +76,7 @@ public class UpdateAdvice
         String pre1 = pre0 + "--";
         String pre2 = pre1 + "--";
 
-        log.debug(pre0 + "advice: publish to update topic");
+        log.debug(pre0 + "advice: publish to space create topic");
         if (targetObj != null && targetObj.getClass() != null) {
             log.debug(pre1 + "object: " + targetObj.getClass().getName());
         }
@@ -105,12 +96,12 @@ public class UpdateAdvice
         }
     }
 
-    public JmsTemplate getUpdateJmsTemplate() {
-        return updateJmsTemplate;
+    public JmsTemplate getSpaceJmsTemplate() {
+        return spaceJmsTemplate;
     }
 
-    public void setUpdateJmsTemplate(JmsTemplate updateJmsTemplate) {
-        this.updateJmsTemplate = updateJmsTemplate;
+    public void setSpaceJmsTemplate(JmsTemplate spaceJmsTemplate) {
+        this.spaceJmsTemplate = spaceJmsTemplate;
     }
 
     public Destination getDestination() {

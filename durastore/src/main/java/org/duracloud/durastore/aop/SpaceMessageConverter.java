@@ -17,14 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 
-public class UpdateMessageConverter
+public class SpaceMessageConverter
         implements MessageConverter {
 
-    protected final Logger log = LoggerFactory.getLogger(UpdateMessageConverter.class);
+    protected final Logger log = LoggerFactory.getLogger(SpaceMessageConverter.class);
 
     protected static final String STORE_ID = "storeId";
-
-    protected static final String CONTENT_ID = "contentId";
 
     protected static final String SPACE_ID = "spaceId";
 
@@ -37,26 +35,24 @@ public class UpdateMessageConverter
         }
 
         MapMessage mapMsg = (MapMessage)msg;
-        UpdateMessage updateMsg = new UpdateMessage();
-        updateMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
-        updateMsg.setContentId(mapMsg.getString(CONTENT_ID));
-        updateMsg.setSpaceId(mapMsg.getString(SPACE_ID));
-        return updateMsg;
+        SpaceMessage spaceMsg = new SpaceMessage();
+        spaceMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
+        spaceMsg.setSpaceId(mapMsg.getString(SPACE_ID));
+        return spaceMsg;
     }
 
     public Message toMessage(Object obj, Session session) throws JMSException,
             MessageConversionException {
-        if (!(obj instanceof UpdateMessage)) {
-            String err = "Arg obj is not an instance of 'UpdateMessage': ";
+        if (!(obj instanceof SpaceMessage)) {
+            String err = "Arg obj is not an instance of 'SpaceMessage': ";
             log.error(err + obj);
             throw new MessageConversionException(err);
         }
-        UpdateMessage updateMsg = (UpdateMessage) obj;
+        SpaceMessage spaceMsg = (SpaceMessage) obj;
 
         MapMessage msg = session.createMapMessage();
-        msg.setStringProperty(STORE_ID, updateMsg.getStoreId());
-        msg.setString(CONTENT_ID, updateMsg.getContentId());
-        msg.setString(SPACE_ID, updateMsg.getSpaceId());
+        msg.setStringProperty(STORE_ID, spaceMsg.getStoreId());
+        msg.setString(SPACE_ID, spaceMsg.getSpaceId());
         return msg;
     }
 

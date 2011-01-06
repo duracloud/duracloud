@@ -22,8 +22,8 @@ public class UpdateMessageConsumer {
 
     private JmsTemplate jmsTemplate;
 
-    public void onUpdate(UpdateMessage updateMsg) {
-        log.info("message consumed from topic: " + updateMsg);
+    public void onUpdate(ContentMessage contentMsg) {
+        log.info("message consumed from topic: " + contentMsg);
     }
 
     public JmsTemplate getJmsTemplate() {

@@ -20,7 +20,7 @@ import javax.jms.Connection;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 
-public class TestUpdateMessageConverter
+public class TestContentMessageConverter
         extends MessagingTestSupport {
 
     private Connection conn;
@@ -31,7 +31,7 @@ public class TestUpdateMessageConverter
 
     private MapMessage mapMsg;
 
-    private UpdateMessage updateMsg;
+    private ContentMessage contentMsg;
 
     private final String STORE_ID = "testStoreId";
 
@@ -44,16 +44,16 @@ public class TestUpdateMessageConverter
         conn = createConnection();
         session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        converter = new UpdateMessageConverter();
+        converter = new ContentMessageConverter();
         mapMsg = session.createMapMessage();
-        mapMsg.setStringProperty(UpdateMessageConverter.STORE_ID, STORE_ID);
-        mapMsg.setString(UpdateMessageConverter.CONTENT_ID, CONTENT_ID);
-        mapMsg.setString(UpdateMessageConverter.SPACE_ID, SPACE_ID);
+        mapMsg.setStringProperty(ContentMessageConverter.STORE_ID, STORE_ID);
+        mapMsg.setString(ContentMessageConverter.CONTENT_ID, CONTENT_ID);
+        mapMsg.setString(ContentMessageConverter.SPACE_ID, SPACE_ID);
 
-        updateMsg = new UpdateMessage();
-        updateMsg.setStoreId(STORE_ID);
-        updateMsg.setContentId(CONTENT_ID);
-        updateMsg.setSpaceId(SPACE_ID);
+        contentMsg = new ContentMessage();
+        contentMsg.setStoreId(STORE_ID);
+        contentMsg.setContentId(CONTENT_ID);
+        contentMsg.setSpaceId(SPACE_ID);
     }
 
     @After
@@ -68,12 +68,12 @@ public class TestUpdateMessageConverter
         }
         converter = null;
         mapMsg = null;
-        updateMsg = null;
+        contentMsg = null;
     }
 
     @Test
     public void testFromMessage() throws Exception {
-        UpdateMessage msg = (UpdateMessage) converter.fromMessage(mapMsg);
+        ContentMessage msg = (ContentMessage) converter.fromMessage(mapMsg);
         assertNotNull(msg);
         Assert.assertEquals(STORE_ID, msg.getStoreId());
         Assert.assertEquals(CONTENT_ID, msg.getContentId());
@@ -82,11 +82,12 @@ public class TestUpdateMessageConverter
 
     @Test
     public void testToMessage() throws Exception {
-        MapMessage msg = (MapMessage) converter.toMessage(updateMsg, session);
+        MapMessage msg = (MapMessage) converter.toMessage(contentMsg, session);
         assertNotNull(msg);
-        Assert.assertEquals(STORE_ID, msg.getStringProperty(UpdateMessageConverter.STORE_ID));
-        Assert.assertEquals(CONTENT_ID, msg.getString(UpdateMessageConverter.CONTENT_ID));
-        Assert.assertEquals(SPACE_ID, msg.getString(UpdateMessageConverter.SPACE_ID));
+        Assert.assertEquals(STORE_ID, msg.getStringProperty(
+            ContentMessageConverter.STORE_ID));
+        Assert.assertEquals(CONTENT_ID, msg.getString(ContentMessageConverter.CONTENT_ID));
+        Assert.assertEquals(SPACE_ID, msg.getString(ContentMessageConverter.SPACE_ID));
     }
 
 }

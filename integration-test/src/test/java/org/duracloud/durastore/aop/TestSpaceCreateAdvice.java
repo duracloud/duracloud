@@ -8,8 +8,10 @@
 package org.duracloud.durastore.aop;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
+import org.duracloud.durastore.rest.BaseRest;
 import org.duracloud.durastore.rest.RestTestHelper;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -25,19 +27,21 @@ import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
  * <pre>
  *
- * This test exercises three elements of the delete flow:
- * 1. actual content deletion
- * 2. aop publishing delete event to topic
+ * This test exercises three elements of the create flow:
+ * 1. actual space creation
+ * 2. aop publishing create event to topic
  * 3. topic consumer asynchronously receiving the event
  *
  * </pre>
  */
-public class TestDeleteAdvice
+public class TestSpaceCreateAdvice
         extends MessagingTestSupport
         implements MessageListener {
 
@@ -53,14 +57,7 @@ public class TestDeleteAdvice
 
     private static RestHttpHelper restHelper = RestTestHelper.getAuthorizedRestHelper();
 
-    private static final String CONTENT = "<junk/>";
-
     private static String spaceId;
-
-    static {
-        String random = String.valueOf(new Random().nextInt(99999));
-        spaceId = "delete-advice-test-space-" + random;
-    }
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -68,24 +65,22 @@ public class TestDeleteAdvice
         HttpResponse response = RestTestHelper.initialize();
         int statusCode = response.getStatusCode();
         Assert.assertEquals(HttpStatus.SC_OK, statusCode);
-
-        // Add space
-        response = RestTestHelper.addSpace(spaceId);
-        statusCode = response.getStatusCode();
-        String responseText = response.getResponseBody();
-        Assert.assertEquals(responseText, HttpStatus.SC_CREATED, statusCode);
     }
 
     @Before
     public void setUp() throws Exception {
         conn = createConnection();
         session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        destination = createDestination(deleteTopicName);
+        destination = createDestination(spaceCreateTopicName);
         received = false;
     }
 
     @After
     public void tearDown() throws Exception {
+        if(spaceId != null)
+            // Delete space
+            RestTestHelper.deleteSpace(spaceId);
+        
         if (conn != null) {
             conn.close();
             conn = null;
@@ -97,53 +92,25 @@ public class TestDeleteAdvice
         destination = null;
     }
 
-    @AfterClass
-    public static void afterClass() throws Exception {
-        // Delete space
-        HttpResponse response = RestTestHelper.deleteSpace(spaceId);
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusCode());
-        String responseText = response.getResponseBody();
-        assertNotNull(responseText);
-        assertTrue(responseText.contains(spaceId));
-    }
-
     @Test
-    public void testDeleteEventFail() throws Exception {
+    public void testCreateEventSelectorFail() throws Exception {
         boolean successful = false;
-        doTestDeleteEvent(successful);
+        String selector = SpaceMessageConverter.STORE_ID + " = 'invalidStoreId'";
+        doTestCreateSelectorEvent(selector, successful);
     }
 
     @Test
-    public void testDeleteEventPass() throws Exception {
-        boolean successful = true;
-        doTestDeleteEvent(successful);
-    }
-
-    private void doTestDeleteEvent(boolean successful) throws Exception {
-        createEventListener(null);
-        publishDeleteEvent(successful);
-        verifyEventHeard(successful);
-    }
-
-    @Test
-    public void testDeleteEventSelectorFail() throws Exception {
-        boolean successful = false;
-        String selector = DeleteMessageConverter.STORE_ID + " = 'invalidStoreId'";
-        doTestDeleteSelectorEvent(selector, successful);
-    }
-
-    @Test
-    public void testDeleteEventSelectorPass() throws Exception {
+    public void testCreateEventSelectorPass() throws Exception {
         boolean successful = true;
         // Store ID 1 is the ID for the default storage provider (Amazon S3)
-        String selector = DeleteMessageConverter.STORE_ID + " = '1'";
-        doTestDeleteSelectorEvent(selector, successful);
+        String selector = SpaceMessageConverter.STORE_ID + " = '1'";
+        doTestCreateSelectorEvent(selector, successful);
     }
 
-    private void doTestDeleteSelectorEvent(String selector,
+    private void doTestCreateSelectorEvent(String selector,
                                            boolean successful) throws Exception {
         createEventListener(selector);
-        publishDeleteEvent(true);
+        publishCreateEvent(true);
         verifyEventHeard(successful);
     }
 
@@ -161,21 +128,15 @@ public class TestDeleteAdvice
         conn.start();
     }
 
-    private void publishDeleteEvent(boolean successful) throws Exception {
-        // Add content
-        String suffix = "/" + spaceId + "/content";
-        String url = RestTestHelper.getBaseUrl() + suffix;
-        HttpResponse response = restHelper.put(url, CONTENT, null);
-        int statusCode = response.getStatusCode();
-        String responseText = response.getResponseBody();
-        Assert.assertEquals(responseText, HttpStatus.SC_CREATED, statusCode);
+    private void publishCreateEvent(boolean successful) throws Exception {
+        spaceId = null;
 
-        if (!successful) {
-            suffix = "/" + spaceId + "/contentBAD";
+        if (successful) {
+            String random = String.valueOf(new Random().nextInt(99999));
+            spaceId = "create-advice-test-space-" + random;
+            // Add space
+            RestTestHelper.addSpace(spaceId);
         }
-
-        url = RestTestHelper.getBaseUrl() + suffix;
-        restHelper.delete(url);
     }
 
     private void verifyEventHeard(boolean successful) throws Exception {

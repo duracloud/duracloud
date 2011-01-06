@@ -20,7 +20,7 @@ import javax.jms.Connection;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 
-public class TestDeleteMessageConverter
+public class TestSpaceMessageConverter
         extends MessagingTestSupport {
 
     private Connection conn;
@@ -31,29 +31,25 @@ public class TestDeleteMessageConverter
 
     private MapMessage mapMsg;
 
-    private DeleteMessage deleteMsg;
+    private SpaceMessage spaceMsg;
 
     private final String STORE_ID = "testStoreId";
 
     private final String SPACE_ID = "testSpaceId";
-
-    private final String CONTENT_ID = "testContentId";
 
     @Before
     public void setUp() throws Exception {
         conn = createConnection();
         session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        converter = new DeleteMessageConverter();
+        converter = new SpaceMessageConverter();
         mapMsg = session.createMapMessage();
-        mapMsg.setStringProperty(DeleteMessageConverter.STORE_ID, STORE_ID);
-        mapMsg.setString(DeleteMessageConverter.CONTENT_ID, CONTENT_ID);
-        mapMsg.setString(DeleteMessageConverter.SPACE_ID, SPACE_ID);
+        mapMsg.setStringProperty(SpaceMessageConverter.STORE_ID, STORE_ID);
+        mapMsg.setString(SpaceMessageConverter.SPACE_ID, SPACE_ID);
 
-        deleteMsg = new DeleteMessage();
-        deleteMsg.setStoreId(STORE_ID);
-        deleteMsg.setContentId(CONTENT_ID);
-        deleteMsg.setSpaceId(SPACE_ID);
+        spaceMsg = new SpaceMessage();
+        spaceMsg.setStoreId(STORE_ID);
+        spaceMsg.setSpaceId(SPACE_ID);
     }
 
     @After
@@ -68,25 +64,24 @@ public class TestDeleteMessageConverter
         }
         converter = null;
         mapMsg = null;
-        deleteMsg = null;
+        spaceMsg = null;
     }
 
     @Test
     public void testFromMessage() throws Exception {
-        DeleteMessage msg = (DeleteMessage) converter.fromMessage(mapMsg);
+        SpaceMessage msg = (SpaceMessage) converter.fromMessage(mapMsg);
         assertNotNull(msg);
         Assert.assertEquals(STORE_ID, msg.getStoreId());
-        Assert.assertEquals(CONTENT_ID, msg.getContentId());
         Assert.assertEquals(SPACE_ID, msg.getSpaceId());
     }
 
     @Test
     public void testToMessage() throws Exception {
-        MapMessage msg = (MapMessage) converter.toMessage(deleteMsg, session);
+        MapMessage msg = (MapMessage) converter.toMessage(spaceMsg, session);
         assertNotNull(msg);
-        Assert.assertEquals(STORE_ID, msg.getStringProperty(DeleteMessageConverter.STORE_ID));
-        Assert.assertEquals(CONTENT_ID, msg.getString(DeleteMessageConverter.CONTENT_ID));
-        Assert.assertEquals(SPACE_ID, msg.getString(DeleteMessageConverter.SPACE_ID));
+        Assert.assertEquals(STORE_ID, msg.getStringProperty(
+            SpaceMessageConverter.STORE_ID));
+        Assert.assertEquals(SPACE_ID, msg.getString(SpaceMessageConverter.SPACE_ID));
     }
 
 }

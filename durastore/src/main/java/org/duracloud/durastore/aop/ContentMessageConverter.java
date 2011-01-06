@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 
-public class DeleteMessageConverter
+public class ContentMessageConverter
         implements MessageConverter {
 
-    protected final Logger log = LoggerFactory.getLogger(DeleteMessageConverter.class);
+    protected final Logger log = LoggerFactory.getLogger(ContentMessageConverter.class);
 
     protected static final String STORE_ID = "storeId";
 
@@ -37,26 +37,26 @@ public class DeleteMessageConverter
         }
 
         MapMessage mapMsg = (MapMessage)msg;
-        DeleteMessage deleteMsg = new DeleteMessage();
-        deleteMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
-        deleteMsg.setContentId(mapMsg.getString(CONTENT_ID));
-        deleteMsg.setSpaceId(mapMsg.getString(SPACE_ID));
-        return deleteMsg;
+        ContentMessage contentMsg = new ContentMessage();
+        contentMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
+        contentMsg.setContentId(mapMsg.getString(CONTENT_ID));
+        contentMsg.setSpaceId(mapMsg.getString(SPACE_ID));
+        return contentMsg;
     }
 
     public Message toMessage(Object obj, Session session) throws JMSException,
             MessageConversionException {
-        if (!(obj instanceof DeleteMessage)) {
-            String err = "Arg obj is not an instance of 'DeleteMessage': ";
+        if (!(obj instanceof ContentMessage)) {
+            String err = "Arg obj is not an instance of 'ContentMessage': ";
             log.error(err + obj);
             throw new MessageConversionException(err);
         }
-        DeleteMessage deleteMsg = (DeleteMessage) obj;
+        ContentMessage contentMsg = (ContentMessage) obj;
 
         MapMessage msg = session.createMapMessage();
-        msg.setStringProperty(STORE_ID, deleteMsg.getStoreId());
-        msg.setString(CONTENT_ID, deleteMsg.getContentId());
-        msg.setString(SPACE_ID, deleteMsg.getSpaceId());
+        msg.setStringProperty(STORE_ID, contentMsg.getStoreId());
+        msg.setString(CONTENT_ID, contentMsg.getContentId());
+        msg.setString(SPACE_ID, contentMsg.getSpaceId());
         return msg;
     }
 

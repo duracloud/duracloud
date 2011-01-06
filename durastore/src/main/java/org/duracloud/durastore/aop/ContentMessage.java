@@ -7,7 +7,7 @@
  */
 package org.duracloud.durastore.aop;
 
-public class DeleteMessage {
+public class ContentMessage {
 
     private String storeId;
 
@@ -17,7 +17,7 @@ public class DeleteMessage {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("DeleteMessage[");
+        StringBuilder sb = new StringBuilder("ContentMessage[");
         sb.append("storeId:'" + storeId + "'");
         sb.append("|spaceId:'" + spaceId + "'");
         sb.append("|contentId:'" + contentId + "'");
