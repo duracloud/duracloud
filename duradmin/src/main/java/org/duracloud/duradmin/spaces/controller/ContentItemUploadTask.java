@@ -8,15 +8,21 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.ProgressListener;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.controller.UploadTask;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.error.ContentStoreException;
@@ -47,14 +53,20 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
 		}
 
 		public void execute() throws ContentStoreException, IOException, FileUploadException, Exception{
+            File tmpFile = null;
+            InputStream tmpStream = null;
 			try{
 				log.info("executing file upload: {}" , contentItem);
-				this.startDate = new Date();
+				startDate = new Date();
 				state = State.RUNNING;
+
+                tmpFile = cacheStreamToFile(this.stream);
+                tmpStream = getStream(tmpFile);
+
 				contentStore.addContent(contentItem.getSpaceId(),
 	                    contentItem.getContentId(),
-	                    this.stream,
-	                    -1,
+	                    tmpStream,
+	                    tmpFile.length(),
 	                    contentItem.getContentMimetype(),
 	                    null,
 	                    null);
@@ -72,10 +84,35 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
 					state = State.FAILURE;
 					throw ex;
 				}
-			}
+
+			} finally {
+                FileUtils.deleteQuietly(tmpFile);
+                IOUtils.closeQuietly(tmpStream);
+            }
 		}
-		
-		public void update(long pBytesRead, long pContentLength,
+
+    private File cacheStreamToFile(InputStream inputStream) {
+        File file = null;
+        try {
+            file = File.createTempFile("upload-task",".tmp");
+            OutputStream outStream = FileUtils.openOutputStream(file);
+            IOUtils.copy(inputStream, outStream);
+
+        } catch (IOException e) {
+            throw new DuraCloudRuntimeException("Error caching stream.",e);
+        }
+        return file;
+    }
+
+    private InputStream getStream(File file) {
+        try {
+            return new AutoCloseInputStream(FileUtils.openInputStream(file));
+        } catch (IOException e) {
+            throw new DuraCloudRuntimeException("Error opening stream.",e);
+        }
+    }
+
+    public void update(long pBytesRead, long pContentLength,
 				int pItems) {
 			bytesRead = pBytesRead;
 			totalBytes = pContentLength;
