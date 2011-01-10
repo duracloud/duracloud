@@ -28,8 +28,8 @@ public class ImageConversionMapperTest {
         ImageConversionMapper mapper = new ImageConversionMapper();
         File workDir = new File("target/");
 
-        // No colorspace
-        File script = mapper.createScript(workDir, null);
+        // No colorspace, PNG
+        File script = mapper.createScript(workDir, null, "png");
 
         assertNotNull(script);
         assertTrue(script.exists());
@@ -39,9 +39,10 @@ public class ImageConversionMapperTest {
         assertTrue(scriptContents.contains("/bin/bash"));
         assertTrue(scriptContents.contains("sudo mogrify"));
         assertFalse(scriptContents.contains("sRGB.icm"));
+        assertFalse(scriptContents.contains("-define jp2"));
 
-        // With colorspace
-        script = mapper.createScript(workDir, "sRGB");
+        // With colorspace, JP2
+        script = mapper.createScript(workDir, "sRGB", "jp2");
 
         assertNotNull(script);
         assertTrue(script.exists());
@@ -50,7 +51,8 @@ public class ImageConversionMapperTest {
         scriptContents = FileUtils.readFileToString(script);
         assertTrue(scriptContents.contains("/bin/bash"));
         assertTrue(scriptContents.contains("sudo mogrify"));
-        assertTrue(scriptContents.contains("sRGB.icm"));        
+        assertTrue(scriptContents.contains("sRGB.icm"));
+        assertTrue(scriptContents.contains("-define jp2"));
     }
 
 }

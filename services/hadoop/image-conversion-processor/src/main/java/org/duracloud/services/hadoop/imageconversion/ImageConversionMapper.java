@@ -57,7 +57,7 @@ public class ImageConversionMapper extends ProcessFileMapper {
         String colorSpace = jobConf.get(TASK_PARAMS.COLOR_SPACE.getLongForm());
 
         File workDir = file.getParentFile();
-        File script = createScript(workDir, colorSpace);
+        File script = createScript(workDir, colorSpace, destFormat);
 
         long startProcTime = System.currentTimeMillis();
         File resultFile = convertImage(script.getAbsolutePath(),
@@ -143,17 +143,29 @@ public class ImageConversionMapper extends ProcessFileMapper {
     /*
      * Creates the script used to perform conversions
      */
-    protected File createScript(File workDir, String colorSpace)
+    protected File createScript(File workDir,
+                                String colorSpace,
+                                String destFormat)
         throws IOException {
         String fileName = "convert.sh";
         List<String> scriptLines = new ArrayList<String>();
         scriptLines.add("#!/bin/bash");
+
         if(colorSpace != null && colorSpace.equals("sRGB")) {
             String csFileName = "sRGB.icm";
             copyFileToWork(workDir, csFileName);
             scriptLines.add("sudo mogrify -profile "+csFileName+" $2");
         }
-        scriptLines.add("sudo mogrify -format $1 $2");
+
+        StringBuilder transformLine = new StringBuilder("sudo mogrify ");
+        if(destFormat.equalsIgnoreCase("jp2")) {
+            // Adds settings which limit the conversion memory footprint
+            transformLine.append("-define jp2:tilewidth=256 " +
+                                 "-define jp2:tileheight=256 ");
+        }
+        transformLine.append("-format $1 $2");
+
+        scriptLines.add(transformLine.toString());
 
         File scriptFile = new File(workDir, fileName);
         FileUtils.writeLines(scriptFile, scriptLines);
