@@ -346,6 +346,8 @@ public class RestHttpHelper {
 
         private final Header[] responseFooters;
 
+        private HttpMethod httpMethod;
+
         public HttpResponse(int statusCode,
                      Header[] responseHeaders,
                      Header[] responseFooters,
@@ -362,6 +364,8 @@ public class RestHttpHelper {
                  method.getResponseHeaders(),
                  method.getResponseFooters(),
                  method.getResponseBodyAsStream());
+            
+            this.httpMethod = method;
         }
 
         public int getStatusCode() {
@@ -404,6 +408,12 @@ public class RestHttpHelper {
                 }
             }
             return null;
+        }
+
+        public void close() {
+            if (null != httpMethod) {
+                httpMethod.releaseConnection();
+            }
         }
     }
 

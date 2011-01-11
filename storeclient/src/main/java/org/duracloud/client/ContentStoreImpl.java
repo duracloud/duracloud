@@ -490,8 +490,9 @@ public class ContentStoreImpl implements ContentStore{
             throws ContentStoreException {
         String task = "get metadata";
         String url = buildContentURL(spaceId, contentId);
+        HttpResponse response = null;
         try {
-            HttpResponse response = restHelper.head(url);
+            response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
             return mergeMaps(extractMetadataFromHeaders(response),
                              extractNonMetadataHeaders(response));
@@ -501,6 +502,10 @@ public class ContentStoreImpl implements ContentStore{
             throw new UnauthorizedException(task, spaceId, contentId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, contentId, e);
+        } finally {
+            if (null != response) {
+                response.close();
+            }
         }
     }
 
