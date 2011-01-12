@@ -90,6 +90,10 @@ public class BaseAmazonMapReduceJobWorkerTest {
             .andReturn(taskReturn)
             .anyTimes();
 
+        contentStore.createSpace(EasyMock.isA(String.class),
+                                 EasyMock.<Map<String, String>>isNull());
+        EasyMock.expectLastCall().times(2);
+
         EasyMock.expect(contentStore.addContent(EasyMock.isA(String.class),
                                                 EasyMock.isA(String.class),
                                                 EasyMock.isA(InputStream.class),

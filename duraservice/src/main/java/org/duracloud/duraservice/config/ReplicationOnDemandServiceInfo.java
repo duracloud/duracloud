@@ -31,7 +31,7 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
             "performs a copy of all content and metadata in the source space " +
             "to the destination space, creating the space if necessary. " +
             "When the service has completed its work, a results file will be " +
-            "stored in the chosen space and a set of files (primarily logs) " +
+            "stored and a set of files (primarily logs) " +
             "created as part of the process will be stored in the work space.";
         repService.setDescription(desc);
         repService.setDisplayName("Duplicate on Demand");
@@ -68,16 +68,6 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
         TextUserConfig repSpace =
             new TextUserConfig("repSpaceId", "Copy to this space");
 
-        SingleSelectUserConfig destSpace =
-            new SingleSelectUserConfig("destSpaceId",
-                                       "Store results file in this space",
-                                       spaceOptions);
-
-        SingleSelectUserConfig workSpace =
-            new SingleSelectUserConfig("workSpaceId",
-                                       "Working Space",
-                                       spaceOptions);
-
         // Number of instances
         List<Option> numInstancesOptions = new ArrayList<Option>();
         for(int i = 1; i<20; i++) {
@@ -105,8 +95,6 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
         repServiceUserConfig.add(sourceSpace);
         repServiceUserConfig.add(repStore);
         repServiceUserConfig.add(repSpace);
-        repServiceUserConfig.add(destSpace);
-        repServiceUserConfig.add(workSpace);
         repServiceUserConfig.add(numInstances);
         repServiceUserConfig.add(instanceType);
 

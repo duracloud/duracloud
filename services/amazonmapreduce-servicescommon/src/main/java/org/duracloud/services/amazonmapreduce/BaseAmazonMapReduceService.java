@@ -47,8 +47,6 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
     private static final String DEFAULT_SOURCE_SPACE_ID = "service-source";
-    private static final String DEFAULT_DEST_SPACE_ID = "service-dest";
-    private static final String DEFAULT_WORK_SPACE_ID = "service-work";
     private static final String DEFAULT_NUM_INSTANCES = "1";
     private static final String DEFAULT_INSTANCE_TYPE = SMALL.getId();
     protected static final String DEFAULT_NUM_MAPPERS = "1";
@@ -185,6 +183,16 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
             "Updates should occur via class setters.");
     }
 
+    public void createDestSpace() {
+        if (null != getDestSpaceId()) {
+            try {
+                getContentStore().createSpace(getDestSpaceId(), null);
+            } catch (ContentStoreException e) {
+                log.debug("Ensuring output space exists: " + e.getMessage());
+            }
+        }
+    }
+
     public String getDuraStoreHost() {
         return duraStoreHost;
     }
@@ -265,15 +273,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     }
 
     public void setDestSpaceId(String destSpaceId) {
-        log.debug("setting destSpaceId: {}->{}", this.destSpaceId, destSpaceId);
-        if (destSpaceId != null && !destSpaceId.equals("")) {
-            this.destSpaceId = destSpaceId;
-        } else {
-            log("Attempt made to set destSpaceId to to null or empty, " +
-                ", which is not valid. Setting value to default: " +
-                DEFAULT_DEST_SPACE_ID);
-            this.destSpaceId = DEFAULT_DEST_SPACE_ID;
-        }
+        this.destSpaceId = destSpaceId;
     }
 
     public String getWorkSpaceId() {
@@ -281,14 +281,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     }
 
     public void setWorkSpaceId(String workSpaceId) {
-        if (workSpaceId != null && !workSpaceId.equals("")) {
-            this.workSpaceId = workSpaceId;
-        } else {
-            log("Attempt made to set workSpaceId to null or empty, " +
-                ", which is not valid. Setting value to default: " +
-                DEFAULT_WORK_SPACE_ID);
-            this.workSpaceId = DEFAULT_WORK_SPACE_ID;
-        }
+        this.workSpaceId = workSpaceId;
     }
 
     public String getNumInstances() {

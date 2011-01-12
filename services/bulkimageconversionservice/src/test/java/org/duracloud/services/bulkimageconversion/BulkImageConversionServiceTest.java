@@ -91,12 +91,12 @@ public class BulkImageConversionServiceTest {
         assertEquals("test-source", service.getSourceSpaceId());
 
         service.setDestSpaceId(null);
-        assertEquals("service-dest", service.getDestSpaceId());
+        assertEquals(null, service.getDestSpaceId());
         service.setDestSpaceId("test-dest");
         assertEquals("test-dest", service.getDestSpaceId());
 
         service.setWorkSpaceId(null);
-        assertEquals("service-work", service.getWorkSpaceId());
+        assertEquals(null, service.getWorkSpaceId());
         service.setWorkSpaceId("test-work");
         assertEquals("test-work", service.getWorkSpaceId());
 

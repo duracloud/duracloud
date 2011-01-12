@@ -203,19 +203,19 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyBulkImageconversion(ServiceInfo serviceInfo) {
-        int numUserConfigs = 9;
+        int numUserConfigs = 8;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }
 
     private void verifyAmazonFixity(ServiceInfo serviceInfo) {
-        int numUserConfigs = 5;
+        int numUserConfigs = 3;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }
 
     private void verifyRepOnDemand(ServiceInfo serviceInfo) {
-        int numUserConfigs = 7;
+        int numUserConfigs = 5;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }

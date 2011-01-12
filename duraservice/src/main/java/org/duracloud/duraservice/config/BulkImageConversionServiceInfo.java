@@ -28,8 +28,7 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
             "converted to the chosen format. The transformed image files will " +
             "be stored in the destination space along with a file which " +
             "details the results of the transformation process. The working " +
-            "space will be used to store files used for processing and logs; " +
-            "the working space should not be the same as the output space. " +
+            "space will be used to store files used for processing and logs. " +
             "Note that this service can only be used for content stored in " +
             "Amazon.";
         icService.setDescription(desc);
@@ -56,11 +55,6 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         SingleSelectUserConfig destSpace = new SingleSelectUserConfig(
             "destSpaceId",
             "Destination Space",
-            spaceOptions);
-
-        SingleSelectUserConfig workSpace = new SingleSelectUserConfig(
-            "workSpaceId",
-            "Working Space",
             spaceOptions);
 
         // To Format
@@ -138,7 +132,6 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         // Include all user configs
         icServiceUserConfig.add(sourceSpace);
         icServiceUserConfig.add(destSpace);
-        icServiceUserConfig.add(workSpace);
         icServiceUserConfig.add(toFormat);
         icServiceUserConfig.add(colorSpace);
         icServiceUserConfig.add(namePrefix);

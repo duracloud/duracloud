@@ -21,8 +21,8 @@
     <property name="sourceSpaceId" value="replication-source"/>
     <property name="repStoreId" value="0"/>
     <property name="repSpaceId" value="replication-space"/>
-    <property name="destSpaceId" value="replication-dest"/>
-    <property name="workSpaceId" value="replication-work"/>
+    <property name="destSpaceId" value="${service.output.spaceid}"/>
+    <property name="workSpaceId" value="${service.work.spaceid}"/>
     <property name="numInstances" value="1"/>
     <property name="instanceType" value="m1.small"/>
     <property name="mappersPerInstance" value="1"/>

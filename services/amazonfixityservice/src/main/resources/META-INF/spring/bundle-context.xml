@@ -17,8 +17,8 @@
     <property name="duraStorePort" value="8080"/>
     <property name="duraStoreContext" value="durastore"/>
     <property name="sourceSpaceId" value="image-conversion-source"/>
-    <property name="destSpaceId" value="image-conversion-dest"/>
-    <property name="workSpaceId" value="image-conversion-work"/>
+    <property name="destSpaceId" value="${service.output.spaceid}"/>
+    <property name="workSpaceId" value="${service.work.spaceid}"/>
     <property name="numInstances" value="1"/>
     <property name="instanceType" value="m1.small"/>
     <property name="mappersPerInstance" value="1"/>

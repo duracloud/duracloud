@@ -50,16 +50,6 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
             "Source Space",
             spaceOptions);
 
-        SingleSelectUserConfig destSpace = new SingleSelectUserConfig(
-            "destSpaceId",
-            "Destination Space",
-            spaceOptions);
-
-        SingleSelectUserConfig workSpace = new SingleSelectUserConfig(
-            "workSpaceId",
-            "Working Space",
-            spaceOptions);
-
         // Number of instances
         List<Option> numInstancesOptions = new ArrayList<Option>();
         for (int i = 1; i < 20; i++) {
@@ -90,8 +80,6 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
 
         // Include all user configs
         userConfigs.add(sourceSpace);
-        userConfigs.add(destSpace);
-        userConfigs.add(workSpace);
         userConfigs.add(numInstances);
         userConfigs.add(instanceType);
         info.setUserConfigModeSets(createDefaultModeSet(userConfigs));

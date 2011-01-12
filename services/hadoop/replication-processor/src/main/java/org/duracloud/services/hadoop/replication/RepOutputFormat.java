@@ -17,7 +17,7 @@ public class RepOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "duplicate-on-demand-results.csv";
+        return "duplicateOnDemand/duplicate-results.csv";
     }
 
 }

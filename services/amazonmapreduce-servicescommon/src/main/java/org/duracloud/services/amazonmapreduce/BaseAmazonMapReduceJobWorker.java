@@ -114,6 +114,8 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
             contentId = resourceName.replace(".hjar", ".jar");
         }
 
+        createSpace();
+
         contentStore.addContent(workSpaceId,
                                 contentId,
                                 new FileInputStream(resourceFile),
@@ -123,6 +125,16 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
                                 null);
 
         return contentId;
+    }
+
+    private void createSpace() {
+        if (null != workSpaceId) {
+            try {
+                contentStore.createSpace(workSpaceId, null);
+            } catch (ContentStoreException e) {
+                log.debug("Ensuring output space exists: " + e.getMessage());
+            }
+        }
     }
 
     @Override

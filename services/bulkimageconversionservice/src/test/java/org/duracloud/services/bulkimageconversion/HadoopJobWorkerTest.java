@@ -64,6 +64,10 @@ public class HadoopJobWorkerTest {
             .andReturn(taskReturn)
             .times(1);
 
+        contentStore.createSpace(EasyMock.isA(String.class),
+                                 EasyMock.<Map<String, String>>isNull());
+        EasyMock.expectLastCall().times(2);
+
         EasyMock
             .expect(contentStore.addContent(EasyMock.isA(String.class),
                                             EasyMock.isA(String.class),

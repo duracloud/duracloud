@@ -56,6 +56,13 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     }
 
     @Override
+    public void start() throws Exception {
+        createDestSpace();
+
+        super.start();
+    }
+
+    @Override
     public void stop() throws Exception {
         super.stop();
         worker = null;

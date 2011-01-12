@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.amazonfixity;
 
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
@@ -56,7 +57,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             // The dynamic population of this value could be passed in as a
             // service parameter, but the FixityOutputFormat is passed into
             // hadoop as a class, not an object.
-            String contentId = "bulk-bit-integrity-checker-results.csv";
+            String contentId = "bitIntegrity-bulk/bitIntegrity-results.csv";
             String header = "space-id,content-id,hash";
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
                 getJobWorker(),
@@ -76,6 +77,13 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                                                 mimeWorker);
         }
         return postWorker;
+    }
+
+    @Override
+    public void start() throws Exception {
+        createDestSpace();
+
+        super.start();
     }
 
     @Override

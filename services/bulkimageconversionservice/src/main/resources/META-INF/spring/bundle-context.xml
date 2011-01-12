@@ -19,8 +19,8 @@
     <property name="toFormat" value="jp2"/>
     <property name="colorSpace" value="source"/>
     <property name="sourceSpaceId" value="image-conversion-source"/>
-    <property name="destSpaceId" value="image-conversion-dest"/>
-    <property name="workSpaceId" value="image-conversion-work"/>
+    <property name="destSpaceId" value="${service.output.spaceid}"/>
+    <property name="workSpaceId" value="${service.work.spaceid}"/>
     <property name="namePrefix" value=""/>
     <property name="nameSuffix" value=""/>
     <property name="numInstances" value="1"/>
