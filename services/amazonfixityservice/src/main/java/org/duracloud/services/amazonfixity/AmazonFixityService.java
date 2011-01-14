@@ -7,23 +7,19 @@
  */
 package org.duracloud.services.amazonfixity;
 
-import org.duracloud.error.ContentStoreException;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.amazonfixity.postprocessing.VerifyHashesPostJobWorker;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker;
+import org.duracloud.services.fixity.FixityService;
 import org.duracloud.storage.domain.HadoopTypes;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-
-import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.LARGE;
-import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.XLARGE;
-import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS.*;
 
 /**
  * This service runs the fixity service in the Amazon elastic map reduce framework.
@@ -37,6 +33,10 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
 
     private AmazonMapReduceJobWorker worker;
     private AmazonMapReduceJobWorker postWorker;
+
+    private String providedListingSpaceIdB;
+    private String providedListingContentIdB;
+    private String mode;
 
     @Override
     protected AmazonMapReduceJobWorker getJobWorker() {
@@ -67,13 +67,34 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                 contentId,
                 header);
 
-            AmazonMapReduceJobWorker mimeWorker = new MimePostJobWorker(
+            String prefix = "bitIntegrity-bulk/bitIntegrity-report-";
+            String reportContentId = prefix + DateUtil.nowShort() + ".csv";
+            VerifyHashesPostJobWorker verifyWorker = new VerifyHashesPostJobWorker(
                 headerWorker,
+                getContentStore(),
+                new FixityService(),
+                getServiceWorkDir(),
+                getDuraStoreHost(),
+                getDuraStorePort(),
+                getDuraStoreContext(),
+                getContentStore().getStoreId(),
+                getUsername(),
+                getPassword(),
+                getMode(),
+                contentId,
+                getProvidedListingSpaceIdB(),
+                getProvidedListingContentIdB(),
+                getDestSpaceId(),
+                reportContentId);
+
+            AmazonMapReduceJobWorker mimeWorker = new MimePostJobWorker(
+                verifyWorker,
                 getContentStore(),
                 getDestSpaceId());
 
             postWorker = new MultiPostJobWorker(getJobWorker(),
                                                 headerWorker,
+                                                verifyWorker,
                                                 mimeWorker);
         }
         return postWorker;
@@ -110,4 +131,27 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
         return mappers;
     }
 
+    public String getProvidedListingSpaceIdB() {
+        return providedListingSpaceIdB;
+    }
+
+    public void setProvidedListingSpaceIdB(String providedListingSpaceIdB) {
+        this.providedListingSpaceIdB = providedListingSpaceIdB;
+    }
+
+    public String getProvidedListingContentIdB() {
+        return providedListingContentIdB;
+    }
+
+    public void setProvidedListingContentIdB(String providedListingContentIdB) {
+        this.providedListingContentIdB = providedListingContentIdB;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
 }

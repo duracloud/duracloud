@@ -1,7 +1,6 @@
 package org.duracloud.duraservice.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.duracloud.duraservice.mgmt.ServiceConfigUtil;
@@ -9,6 +8,7 @@ import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
+import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
@@ -19,14 +19,42 @@ import org.duracloud.storage.domain.HadoopTypes.INSTANCES;
  *         Date: Sept 22, 2010
  */
 public class AmazonFixityServiceInfo extends AbstractServiceInfo {
+
+    protected enum ModeType {
+        SERVICE_PROVIDES_BOTH_LISTS("all-in-one-for-list",
+                                    "Verify integrity of a Space"),
+        USER_PROVIDES_ONE_OF_LISTS("compare",
+                                   "Verify integrity from an item list");
+
+        private String key;
+        private String desc;
+
+        private ModeType(String key, String desc) {
+            this.key = key;
+            this.desc = desc;
+        }
+
+        public String toString() {
+            return getKey();
+        }
+
+        protected String getKey() {
+            return key;
+        }
+
+        protected String getDesc() {
+            return desc;
+        }
+    }
+
     @Override
     public ServiceInfo getServiceXml(int index, String version) {
 
         ServiceInfo info = new ServiceInfo();
         info.setId(index);
         info.setContentId("amazonfixityservice-" + version + ".zip");
-        String desc = "The Bulk Bit Integrity Checker provides a simple way to " +
-            "determine checksums (MD5s) for all content items in any " +
+        String desc = "The Bulk Bit Integrity Checker provides a simple way " +
+            "to determine checksums (MD5s) for all content items in any " +
             "particular space by leveraging an Amazon Hadoop cluster. Note " +
             "that this service can only be run over content stored in Amazon.";
         info.setDescription(desc);
@@ -35,20 +63,56 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
         info.setServiceVersion(version);
         info.setMaxDeploymentsAllowed(1);
 
-        // User Configs
+        info.setUserConfigModeSets(getModeSets());
+        info.setSystemConfigs(getSystemConfigs());
+        info.setDeploymentOptions(getSimpleDeploymentOptions());
+
+        return info;
+    }
+
+    private List<UserConfigModeSet> getModeSets() {
+        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+
+        modes.add(getMode(ModeType.SERVICE_PROVIDES_BOTH_LISTS));
+        modes.add(getMode(ModeType.USER_PROVIDES_ONE_OF_LISTS));
+
+        UserConfigModeSet modeSet = new UserConfigModeSet();
+        modeSet.setModes(modes);
+        modeSet.setDisplayName("Service Mode");
+        modeSet.setName("mode");
+
+        List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
+        modeSets.add(modeSet);
+        return modeSets;
+    }
+
+    private UserConfigMode getMode(ModeType modeType) {
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
+        userConfigs.add(getTargetSpace());
 
-        // Source space
-        List<Option> spaceOptions = new ArrayList<Option>();
-        Option spaces = new Option("Spaces",
-                                   ServiceConfigUtil.SPACES_VAR,
-                                   false);
-        spaceOptions.add(spaces);
+        switch (modeType) {
+            case SERVICE_PROVIDES_BOTH_LISTS:
+                break;
+            case USER_PROVIDES_ONE_OF_LISTS:
+                userConfigs.add(getSpaceOfProvidedListingSelection());
+                userConfigs.add(getContentIdOfProvidedListingConfig());
+                break;
+            default:
+                throw new RuntimeException("Unexpected ModeType: " + modeType);
+        }
 
-        SingleSelectUserConfig sourceSpace = new SingleSelectUserConfig(
-            "sourceSpaceId",
-            "Source Space",
-            spaceOptions);
+        userConfigs.addAll(getHadoopConfigs());
+
+        UserConfigMode mode = new UserConfigMode();
+        mode.setDisplayName(modeType.getDesc());
+        mode.setName(modeType.getKey());
+        mode.setUserConfigs(userConfigs);
+        mode.setUserConfigModeSets(new ArrayList<UserConfigModeSet>());
+        return mode;
+    }
+
+    private List<UserConfig> getHadoopConfigs() {
+        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
 
         // Number of instances
         List<Option> numInstancesOptions = new ArrayList<Option>();
@@ -78,13 +142,38 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
             "Type of Server Instance",
             instanceTypeOptions);
 
-        // Include all user configs
-        userConfigs.add(sourceSpace);
         userConfigs.add(numInstances);
         userConfigs.add(instanceType);
-        info.setUserConfigModeSets(createDefaultModeSet(userConfigs));
+        return userConfigs;
+    }
 
-        // System Configs
+    private TextUserConfig getContentIdOfProvidedListingConfig() {
+        return new TextUserConfig("providedListingContentIdB",
+                                  "Input listing name",
+                                  "fingerprints.csv");
+    }
+
+    private SingleSelectUserConfig getSpaceOfProvidedListingSelection() {
+        return new SingleSelectUserConfig("providedListingSpaceIdB",
+                                          "Space with input listing",
+                                          getSpaceOptions());
+    }
+
+    private SingleSelectUserConfig getTargetSpace() {
+        return new SingleSelectUserConfig("sourceSpaceId",
+                                          "Space to verify",
+                                          getSpaceOptions());
+    }
+
+    private List<Option> getSpaceOptions() {
+        List<Option> spaceOptions = new ArrayList<Option>();
+        spaceOptions.add(new Option("Spaces",
+                                    ServiceConfigUtil.SPACES_VAR,
+                                    false));
+        return spaceOptions;
+    }
+
+    private List<SystemConfig> getSystemConfigs() {
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
 
         SystemConfig host = new SystemConfig("duraStoreHost",
@@ -112,11 +201,6 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
         systemConfig.add(username);
         systemConfig.add(password);
         systemConfig.add(mappersPerInstance);
-
-        info.setSystemConfigs(systemConfig);
-
-        info.setDeploymentOptions(getSimpleDeploymentOptions());
-
-        return info;
+        return systemConfig;
     }
 }

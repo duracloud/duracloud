@@ -8,6 +8,7 @@
     <dependencySet>
       <scope>provided</scope>
       <includes>
+        <include>org.duracloud.services:fixityservice</include>
         <include>org.duracloud.services:amazonfixityservice</include>
         <include>org.duracloud.services:amazonmapreduce-servicescommon</include>
         <include>org.duracloud:storeclient</include>

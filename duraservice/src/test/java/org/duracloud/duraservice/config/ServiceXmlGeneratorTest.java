@@ -209,9 +209,13 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyAmazonFixity(ServiceInfo serviceInfo) {
-        int numUserConfigs = 3;
+        int numUserConfigs = 0;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+
+        List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
+        setsModesConfigs.add(Arrays.asList(3, 5));
+        verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
     private void verifyRepOnDemand(ServiceInfo serviceInfo) {

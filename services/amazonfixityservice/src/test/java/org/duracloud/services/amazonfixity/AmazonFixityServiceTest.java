@@ -110,7 +110,8 @@ public class AmazonFixityServiceTest {
     }
 
     private ContentStore createMockContentStore() throws ContentStoreException {
-        ContentStore contentStore = EasyMock.createMock(ContentStore.class);
+        ContentStore contentStore = EasyMock.createMock("ContentStore",
+                                                        ContentStore.class);
 
         Map<String, String> taskReturnMap = new HashMap<String, String>();
         taskReturnMap.put(TASK_OUTPUTS.JOB_FLOW_ID.name(), "1");
@@ -124,6 +125,7 @@ public class AmazonFixityServiceTest {
                                  EasyMock.<Map<String, String>>isNull());
         EasyMock.expectLastCall().times(1);
 
+        EasyMock.expect(contentStore.getStoreId()).andReturn("0");
         EasyMock.expect(contentStore.addContent(EasyMock.isA(String.class),
                                                 EasyMock.isA(String.class),
                                                 EasyMock.isA(InputStream.class),
