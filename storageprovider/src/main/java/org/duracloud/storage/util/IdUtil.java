@@ -38,8 +38,20 @@ public class IdUtil {
         }
 
         if(spaceID.startsWith(".") || spaceID.startsWith("-")) {
-            String err = "A Space ID must begin with a lowercase " +
-                         "letter or number.";
+            String err = "A Space ID must begin with a lowercase letter.";
+            throw new InvalidIdException(err);
+        }
+
+        if(spaceID.matches("[0-9]+[a-z0-9.-]*")) {
+            String err = "A Space ID must begin with a lowercase letter.";
+            throw new InvalidIdException(err);
+        }
+
+        // This rule is required to conform with the spec for a URI host name,
+        // see RFC 2396.
+        if(spaceID.matches("[a-z0-9.-]*[.][0-9]+[a-z0-9-]*")) {
+            String err = "The last period in a Space ID may not be " +
+                         "immediately followed by a number.";
             throw new InvalidIdException(err);
         }
 

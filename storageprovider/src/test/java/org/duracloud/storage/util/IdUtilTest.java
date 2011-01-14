@@ -8,12 +8,13 @@
 package org.duracloud.storage.util;
 
 import org.duracloud.storage.error.InvalidIdException;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -36,6 +37,11 @@ public class IdUtilTest {
         invalidIds.add("test-space-test-space-test-space-" +
                        "test-space-test-space-test-spac)"); // Too long
         invalidIds.add("127.0.0.1");   // Formatted as an IP address
+        invalidIds.add("1-test-space");    // Begins with a number
+        invalidIds.add("1000-test-space"); // Begins with a number
+        invalidIds.add("1000");            // Begins with a number
+        invalidIds.add("test.space.1");    // Last period is followed by a number
+        invalidIds.add("a0.1b.2c.3d.4e");  // Last period is followed by a number
 
         for(String id : invalidIds) {
             checkInvalidSpaceId(id);
@@ -43,14 +49,16 @@ public class IdUtilTest {
 
         // Test valid space names
 
-        String id = "test-space.test.space";
-        IdUtil.validateSpaceId(id);
-
-        id = "tes";
-        IdUtil.validateSpaceId(id);
-
-        id = "test-space-test-space-test-space-test-space-test-space-test-spa";
-        IdUtil.validateSpaceId(id);
+        IdUtil.validateSpaceId("test-space.test.space");
+        IdUtil.validateSpaceId("test-space.");
+        IdUtil.validateSpaceId("test.1.space");
+        IdUtil.validateSpaceId("test-1-space");
+        IdUtil.validateSpaceId("test-1-space");
+        IdUtil.validateSpaceId("a.1.2.3.4.b");
+        IdUtil.validateSpaceId("a0.1b.2c.3d.4e.f6");
+        IdUtil.validateSpaceId("tes");
+        IdUtil.validateSpaceId("test-space-test-space-test-space-" +
+                               "test-space-test-space-test-spa");
     }
 
     private void checkInvalidSpaceId(String id) {
