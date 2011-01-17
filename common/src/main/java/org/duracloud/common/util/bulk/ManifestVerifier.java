@@ -298,7 +298,7 @@ public class ManifestVerifier {
         }
     }
 
-    private enum State {
+    public enum State {
         VALID, MISMATCH, MISSING_FROM_0, MISSING_FROM_1
     }
 

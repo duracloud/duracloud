@@ -31,7 +31,7 @@ public class FixityManifestVerifier extends ManifestVerifier {
 
     protected void addEntry(String line, Map<String, String> entries) {
         String[] cksumFilenamePair = line.split(",");
-        if (cksumFilenamePair == null || cksumFilenamePair.length != 3) {
+        if (!validEntry(cksumFilenamePair)) {
             throw new RuntimeException("Invalid manifest file: " + line);
         }
 
@@ -40,6 +40,31 @@ public class FixityManifestVerifier extends ManifestVerifier {
         String md5 = cksumFilenamePair[2].trim();
 
         entries.put(spaceId + "/" + contentId, md5);
+    }
+
+    private boolean validEntry(String[] cksumFilenamePair) {
+        if (cksumFilenamePair == null) {
+            return false;
+        }
+
+        if (cksumFilenamePair.length == 3) {
+            return true;
+        }
+
+        if (cksumFilenamePair.length == 5) {
+            return validState(cksumFilenamePair[4]);
+        }
+
+        return false;
+    }
+
+    private boolean validState(String name) {
+        try {
+            State.valueOf(name);
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     protected String titleOf(String name) {
