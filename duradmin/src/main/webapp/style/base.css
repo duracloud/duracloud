@@ -235,9 +235,27 @@ h3 { font-size:1em; }
 	color:#fff;
 }
 
-.store-name
+#provider-logo
 {
-    color:orange;
+    float:left;
+    margin-left:0;
+    height:39px;
+	width:182px;
+}
+
+.amazon_s3-logo
+{
+    background:url(../images/amazon.png) no-repeat;
+}
+
+.rackspace-logo
+{
+    background:url(../images/rackspace.png) no-repeat;
+}
+
+.microsoft_azure-logo
+{
+    background:url(../images/azure.png) no-repeat;
 }
 
 .ui-layout-resizer
@@ -599,9 +617,9 @@ input.dc-check-all
 	margin-bottom:10px;
 }
 
-.detail-pane h2
+h2
 {
-	margin-bottom:10px;
+    color:#999999;
 }
 
 .detail-pane h3

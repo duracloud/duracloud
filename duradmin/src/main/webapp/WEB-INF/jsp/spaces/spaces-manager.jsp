@@ -12,7 +12,8 @@
 							<c:forEach var="storeOption" items="${contentStores}">
 							{
 							id: ${storeOption.storeId},
-							label: '<spring:message code="${fn:toLowerCase(storeOption.storageProviderType)}"/>'
+							label: '<spring:message code="${fn:toLowerCase(storeOption.storageProviderType)}"/>',
+                            type: '${fn:toLowerCase(storeOption.storageProviderType)}'
 							},
 							</c:forEach>				
 						];
@@ -48,17 +49,17 @@
 			<tiles:putAttribute name="mainTab" value="spaces" />
 			<tiles:putAttribute name="main-content">
 				<div class="center-north" id="center-pane-north">
-					<div class="float-l">Provider: <span id="provider-select-box"
+					<div class="float-r">Provider: <span id="provider-select-box"
 						class="provider-widget"></span></div>
 	
-					<div class="float-r" id="pinned"></div>
+                    <div id="provider-logo" class="float-l"></div>
 				</div>
 				<div id="list-browser" class="list-browser">
 				<div id="spaces-list-view" class="dc-list-item-viewer">
 				<div class="north header list-header clearfix">
 				<div id="header-spaces-list" class="header-section clearfix">
 				<button class="featured float-r add-space-button"><i class="pre plus"></i>Add Space</button>
-				<h2 class="store-name">Store Name Here</h2> <h2>Spaces</h2>
+                    <h2>Spaces</h2>
 				</div>
 				<div class="header-section"><span class="float-r"><input
 					id="space-filter" class="dc-item-list-filter " value="" placeholder="filter"
@@ -76,13 +77,13 @@
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
 				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add Content Item</button>
-				<h2 class="store-name">Store Name Here</h2> <h2>Content Items</h2>
-				</div>
+				<h2>Content Items</h2>   
+                </div>
 				<div class="header-section">
 					<span class="float-r">
 						<input id="content-item-filter" class="dc-item-list-filter" value="" placeholder="filter" 	type="text" />
 					</span> 
-					<input id="check-all-content-items" class="dc-check-all" type="checkbox" /> 
+					<input id="check-all-content-items" class="dc-check-all" type="checkbox" />
 					<a href="javascript:void(0)" class="previous item-scroll-action" style="visibility:hidden">&lt; prev</a>
 					<a href="javascript:void(0)" class="next item-scroll-action" style="visibility:hidden" >next &gt;</a>
 					
@@ -101,7 +102,7 @@
 				<div id="spaceDetailPane" class="dc-detail-pane" style="display: none">
 					<div class="north header">
 						<h1>Space Detail</h1>
-						<h2 class="store-name">Store Name Here</h2> <h3 class="object-name">Space Name Here</h3>
+						<h3 class="object-name">Space Name Here</h3>
 						<div class="toggle-control switch-holder">
 							<div class="r access-switch"></div>
 						</div>
@@ -153,7 +154,6 @@
 				<div id="contentItemDetailPane" style="display: none">
 					<div class="north header">
 						<h1>Content Detail</h1>
-                        <h2 class="store-name">Store Name Here</h2>
 						<h3>
 							<a class="durastore-link" title="Links directly to content in DuraStore. This link will be publicly available only when the space is 'Open'.">
 								<span class="object-name">Object Name here</span>
