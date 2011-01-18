@@ -8,6 +8,8 @@
 package org.duracloud.services.fixity.util;
 
 import org.duracloud.common.util.bulk.ManifestVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
@@ -25,11 +27,19 @@ import java.util.Map;
  *         Date: Aug 12, 2010
  */
 public class FixityManifestVerifier extends ManifestVerifier {
+
+    private final Logger log = LoggerFactory.getLogger(FixityManifestVerifier.class);
+
     public FixityManifestVerifier(File file0, File file1) {
         super(file0, file1);
     }
 
     protected void addEntry(String line, Map<String, String> entries) {
+        if (null == line || line.equals("")) {
+            log.warn("Invalid line: " + line);
+            return;
+        }
+
         String[] cksumFilenamePair = line.split(",");
         if (!validEntry(cksumFilenamePair)) {
             throw new RuntimeException("Invalid manifest file: " + line);

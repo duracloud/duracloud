@@ -34,8 +34,8 @@ public class FixityManifestVerifierTest {
 
     @Test
     public void testAddEntry() {
-        String line = "";
-        verify(line, false);
+        String line = ""; // valid, but undesirable
+        verify(line, true);
 
         line = "a,b";
         verify(line, false);
