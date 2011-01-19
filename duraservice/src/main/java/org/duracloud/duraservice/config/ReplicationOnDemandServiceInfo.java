@@ -7,6 +7,9 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.duracloud.storage.domain.HadoopTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,67 +41,7 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
         repService.setUserConfigVersion("1.0");
         repService.setServiceVersion(version);
         repService.setMaxDeploymentsAllowed(1);
-
-        // User Configs
-        List<UserConfig> repServiceUserConfig = new ArrayList<UserConfig>();
-
-        // Space Options
-        List<Option> spaceOptions = new ArrayList<Option>();
-        Option spaces = new Option("Spaces",
-                                   ServiceConfigUtil.SPACES_VAR,
-                                   false);
-        spaceOptions.add(spaces);
-
-        // Store Options
-        List<Option> storeOptions = new ArrayList<Option>();
-        Option stores =
-            new Option("Stores", ServiceConfigUtil.STORES_VAR, false);
-        storeOptions.add(stores);
-
-        SingleSelectUserConfig sourceSpace = 
-            new SingleSelectUserConfig("sourceSpaceId",
-                                       "Source Space",
-                                       spaceOptions);
-
-        SingleSelectUserConfig repStore =
-            new SingleSelectUserConfig("repStoreId",
-                                       "Copy to this store",
-                                       storeOptions);
-
-        TextUserConfig repSpace =
-            new TextUserConfig("repSpaceId", "Copy to this space");
-
-        // Number of instances
-        List<Option> numInstancesOptions = new ArrayList<Option>();
-        for(int i = 1; i<20; i++) {
-            Option op = new Option(String.valueOf(i), String.valueOf(i), false);
-            numInstancesOptions.add(op);
-        }
-        SingleSelectUserConfig numInstances =
-            new SingleSelectUserConfig("numInstances",
-                                       "Number of Server Instances",
-                                       numInstancesOptions);
-
-        // Instance type
-        List<Option> instanceTypeOptions = new ArrayList<Option>();
-        instanceTypeOptions.add(new Option("Small Instance", "m1.small", true));
-        instanceTypeOptions.add(new Option("Large Instance", "m1.large", false));
-        instanceTypeOptions.add(
-            new Option("Extra Large Instance", "m1.xlarge", false));
-
-        SingleSelectUserConfig instanceType =
-            new SingleSelectUserConfig("instanceType",
-                                       "Type of Server Instance",
-                                       instanceTypeOptions);
-
-        // Include all user configs
-        repServiceUserConfig.add(sourceSpace);
-        repServiceUserConfig.add(repStore);
-        repServiceUserConfig.add(repSpace);
-        repServiceUserConfig.add(numInstances);
-        repServiceUserConfig.add(instanceType);
-
-        repService.setUserConfigModeSets(createDefaultModeSet(repServiceUserConfig));
+        repService.setUserConfigModeSets(getModeSets());
 
         // System Configs
         List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
@@ -130,9 +73,163 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
         systemConfig.add(mappersPerInstance);
 
         repService.setSystemConfigs(systemConfig);
-
         repService.setDeploymentOptions(getSimpleDeploymentOptions());
 
         return repService;
+    }
+
+    private List<UserConfigModeSet> getModeSets() {
+        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+
+        modes.add(getMode(ModeType.OPTIMIZE_STANDARD));
+        modes.add(getMode(ModeType.OPTIMIZE_ADVANCED));
+
+        UserConfigModeSet modeSet = new UserConfigModeSet();
+        modeSet.setModes(modes);
+        modeSet.setDisplayName("Configuration");
+        modeSet.setName("optimizeMode");
+
+        List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
+        modeSets.add(modeSet);
+        return modeSets;
+    }
+
+    private UserConfigMode getMode(ModeType modeType) {
+        List<UserConfig> userConfigs = getDefaultUserConfigs();
+        switch (modeType) {
+            case OPTIMIZE_ADVANCED:
+                userConfigs.add(getNumberOfInstancesSelection());
+                userConfigs.add(getTypeOfInstanceListingSelection());
+                break;
+            case OPTIMIZE_STANDARD:
+                userConfigs.add(getOptimizationSelection());
+                break;
+            default:
+                throw new RuntimeException("Unexpected ModeType: " + modeType);
+        }
+
+        UserConfigMode mode = new UserConfigMode();
+        mode.setDisplayName(modeType.getDesc());
+        mode.setName(modeType.getKey());
+        mode.setUserConfigs(userConfigs);
+        mode.setUserConfigModeSets(null);
+        return mode;
+    }
+
+    private List<UserConfig> getDefaultUserConfigs()
+    {
+        // User Configs
+        List<UserConfig> repServiceUserConfig = new ArrayList<UserConfig>();
+
+        // Space Options
+        List<Option> spaceOptions = new ArrayList<Option>();
+        Option spaces = new Option("Spaces",
+                                   ServiceConfigUtil.SPACES_VAR,
+                                   false);
+        spaceOptions.add(spaces);
+
+        // Store Options
+        List<Option> storeOptions = new ArrayList<Option>();
+        Option stores =
+            new Option("Stores", ServiceConfigUtil.STORES_VAR, false);
+        storeOptions.add(stores);
+
+        SingleSelectUserConfig sourceSpace =
+            new SingleSelectUserConfig("sourceSpaceId",
+                                       "Source Space",
+                                       spaceOptions);
+
+        SingleSelectUserConfig repStore =
+            new SingleSelectUserConfig("repStoreId",
+                                       "Copy to this store",
+                                       storeOptions);
+
+        TextUserConfig repSpace =
+            new TextUserConfig("repSpaceId", "Copy to this space");
+
+        // Include all user configs
+        repServiceUserConfig.add(sourceSpace);
+        repServiceUserConfig.add(repStore);
+        repServiceUserConfig.add(repSpace);
+
+        return repServiceUserConfig;
+    }
+
+    private SingleSelectUserConfig getNumberOfInstancesSelection() {
+        // Number of instances
+        List<Option> numInstancesOptions = new ArrayList<Option>();
+        for (int i = 1; i < 20; i++) {
+            Option op = new Option(String.valueOf(i), String.valueOf(i), false);
+            numInstancesOptions.add(op);
+        }
+
+        return new SingleSelectUserConfig(
+            "numInstances",
+            "Number of Server Instances",
+            numInstancesOptions);
+    }
+
+    private SingleSelectUserConfig getOptimizationSelection() {
+        List<Option> options = new ArrayList<Option>();
+        options.add(new Option("Optimize for cost",
+                               "optimize_for_cost",
+                               true));
+        options.add(new Option("Optimize for speed",
+                               "optimize_for_speed",
+                               false));
+
+        return new SingleSelectUserConfig(
+            "optimizeType",
+            "Optimize",
+            options);
+    }
+
+    private SingleSelectUserConfig getTypeOfInstanceListingSelection() {
+        // Instance type
+        List<Option> instanceTypeOptions = new ArrayList<Option>();
+        instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
+                                               .SMALL.getDescription(),
+                                           HadoopTypes.INSTANCES.SMALL.getId(),
+                                           true));
+        instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
+                                               .LARGE.getDescription(),
+                                           HadoopTypes.INSTANCES.LARGE.getId(),
+                                           false));
+        instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
+                                               .XLARGE.getDescription(),
+                                           HadoopTypes.INSTANCES.XLARGE.getId(),
+                                           false));
+
+        return new SingleSelectUserConfig(
+            "instanceType",
+            "Type of Server Instance",
+            instanceTypeOptions);
+    }
+
+    protected enum ModeType {
+        OPTIMIZE_ADVANCED("advanced",
+                          "Advanced"),
+        OPTIMIZE_STANDARD("standard",
+                          "Standard");
+
+        private String key;
+        private String desc;
+
+        private ModeType(String key, String desc) {
+            this.key = key;
+            this.desc = desc;
+        }
+
+        public String toString() {
+            return getKey();
+        }
+
+        protected String getKey() {
+            return key;
+        }
+
+        protected String getDesc() {
+            return desc;
+        }
     }
 }

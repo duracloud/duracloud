@@ -33,6 +33,7 @@ public class BulkImageConversionServiceTest {
         service.setNamePrefix("test-");
         service.setNameSuffix("-test");
         service.setColorSpace("sRGB");
+        service.setOptimizeMode("advanced");
         service.setInstanceType("c1.xlarge");
         service.setNumInstances("8");
 
@@ -128,6 +129,30 @@ public class BulkImageConversionServiceTest {
         assertEquals("1", service.getMappersPerInstance());
         service.setMappersPerInstance("8");
         assertEquals("8", service.getMappersPerInstance());        
+    }
+
+    @Test
+    public void testOptmizationConfig() {
+        String instanceType = "m1.xlarge";
+        String numOfInstances = "10";
+
+        BulkImageConversionService service = new BulkImageConversionService();
+        service.setOptimizeMode("standard");
+        service.setOptimizeType("optimize_for_speed");
+        service.setSpeedInstanceType(instanceType);
+        service.setSpeedNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
+
+        instanceType = "m1.large";
+        numOfInstances = "3";
+        service.setOptimizeType("optimize_for_cost");
+        service.setSpeedInstanceType(null);
+        service.setSpeedNumInstances(null);
+        service.setCostInstanceType(instanceType);
+        service.setCostNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
     }
 
     @Test

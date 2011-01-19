@@ -7,6 +7,9 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.duracloud.storage.domain.HadoopTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,85 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         icService.setServiceVersion(version);
         icService.setMaxDeploymentsAllowed(1);
 
+
+        icService.setUserConfigModeSets(getModeSets());
+
+        // System Configs
+        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+
+        SystemConfig host = new SystemConfig("duraStoreHost",
+                                             ServiceConfigUtil.STORE_HOST_VAR,
+                                             "localhost");
+        SystemConfig port = new SystemConfig("duraStorePort",
+                                             ServiceConfigUtil.STORE_PORT_VAR,
+                                             "8080");
+        SystemConfig context = new SystemConfig("duraStoreContext",
+                                                ServiceConfigUtil.STORE_CONTEXT_VAR,
+                                                "durastore");
+        SystemConfig username = new SystemConfig("username",
+                                                 ServiceConfigUtil.STORE_USER_VAR,
+                                                 "no-username");
+        SystemConfig password = new SystemConfig("password",
+                                                 ServiceConfigUtil.STORE_PWORD_VAR,
+                                                 "no-password");
+        SystemConfig mappersPerInstance = new SystemConfig("mappersPerInstance",
+                                                           "1",
+                                                           "1");
+
+        systemConfig.add(host);
+        systemConfig.add(port);
+        systemConfig.add(context);
+        systemConfig.add(username);
+        systemConfig.add(password);
+        systemConfig.add(mappersPerInstance);
+
+        icService.setSystemConfigs(systemConfig);
+
+        icService.setDeploymentOptions(getSimpleDeploymentOptions());
+
+        return icService;
+    }
+
+    private List<UserConfigModeSet> getModeSets() {
+        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+
+        modes.add(getMode(ModeType.OPTIMIZE_STANDARD));
+        modes.add(getMode(ModeType.OPTIMIZE_ADVANCED));
+
+        UserConfigModeSet modeSet = new UserConfigModeSet();
+        modeSet.setModes(modes);
+        modeSet.setDisplayName("Configuration");
+        modeSet.setName("optimizeMode");
+
+        List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
+        modeSets.add(modeSet);
+        return modeSets;
+    }
+
+    private UserConfigMode getMode(ModeType modeType) {
+        List<UserConfig> userConfigs = getDefaultUserConfigs();
+        switch (modeType) {
+            case OPTIMIZE_ADVANCED:
+                userConfigs.add(getNumberOfInstancesSelection());
+                userConfigs.add(getTypeOfInstanceListingSelection());
+                break;
+            case OPTIMIZE_STANDARD:
+                userConfigs.add(getOptimizationSelection());
+                break;
+            default:
+                throw new RuntimeException("Unexpected ModeType: " + modeType);
+        }
+
+        UserConfigMode mode = new UserConfigMode();
+        mode.setDisplayName(modeType.getDesc());
+        mode.setName(modeType.getKey());
+        mode.setUserConfigs(userConfigs);
+        mode.setUserConfigModeSets(null);
+        return mode;
+    }
+
+    private List<UserConfig> getDefaultUserConfigs()
+    {
         // User Configs
         List<UserConfig> icServiceUserConfig = new ArrayList<UserConfig>();
 
@@ -106,29 +188,6 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
                                "with this value will be converted.",
                                "");
 
-        // Number of instances
-        List<Option> numInstancesOptions = new ArrayList<Option>();
-        for(int i = 1; i<20; i++) {
-            Option op = new Option(String.valueOf(i), String.valueOf(i), false);
-            numInstancesOptions.add(op);
-        }
-        SingleSelectUserConfig numInstances =
-            new SingleSelectUserConfig("numInstances",
-                                       "Number of Server Instances",
-                                       numInstancesOptions);
-
-        // Instance type
-        List<Option> instanceTypeOptions = new ArrayList<Option>();
-        instanceTypeOptions.add(new Option("Small Instance", "m1.small", true));
-        instanceTypeOptions.add(new Option("Large Instance", "m1.large", false));
-        instanceTypeOptions.add(
-            new Option("Extra Large Instance", "m1.xlarge", false));
-
-        SingleSelectUserConfig instanceType =
-            new SingleSelectUserConfig("instanceType",
-                                       "Type of Server Instance",
-                                       instanceTypeOptions);
-
         // Include all user configs
         icServiceUserConfig.add(sourceSpace);
         icServiceUserConfig.add(destSpace);
@@ -136,43 +195,85 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         icServiceUserConfig.add(colorSpace);
         icServiceUserConfig.add(namePrefix);
         icServiceUserConfig.add(nameSuffix);
-        icServiceUserConfig.add(numInstances);
-        icServiceUserConfig.add(instanceType);
-        icService.setUserConfigModeSets(createDefaultModeSet(icServiceUserConfig));
 
-        // System Configs
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        return icServiceUserConfig;
+    }
 
-        SystemConfig host = new SystemConfig("duraStoreHost",
-                                             ServiceConfigUtil.STORE_HOST_VAR,
-                                             "localhost");
-        SystemConfig port = new SystemConfig("duraStorePort",
-                                             ServiceConfigUtil.STORE_PORT_VAR,
-                                             "8080");
-        SystemConfig context = new SystemConfig("duraStoreContext",
-                                                ServiceConfigUtil.STORE_CONTEXT_VAR,
-                                                "durastore");
-        SystemConfig username = new SystemConfig("username",
-                                                 ServiceConfigUtil.STORE_USER_VAR,
-                                                 "no-username");
-        SystemConfig password = new SystemConfig("password",
-                                                 ServiceConfigUtil.STORE_PWORD_VAR,
-                                                 "no-password");
-        SystemConfig mappersPerInstance = new SystemConfig("mappersPerInstance",
-                                                           "1",
-                                                           "1");
+    private SingleSelectUserConfig getNumberOfInstancesSelection() {
+        // Number of instances
+        List<Option> numInstancesOptions = new ArrayList<Option>();
+        for (int i = 1; i < 20; i++) {
+            Option op = new Option(String.valueOf(i), String.valueOf(i), false);
+            numInstancesOptions.add(op);
+        }
 
-        systemConfig.add(host);
-        systemConfig.add(port);
-        systemConfig.add(context);
-        systemConfig.add(username);
-        systemConfig.add(password);
-        systemConfig.add(mappersPerInstance);
+        return new SingleSelectUserConfig(
+            "numInstances",
+            "Number of Server Instances",
+            numInstancesOptions);
+    }
 
-        icService.setSystemConfigs(systemConfig);
+    private SingleSelectUserConfig getOptimizationSelection() {
+        List<Option> options = new ArrayList<Option>();
+        options.add(new Option("Optimize for cost",
+                               "optimize_for_cost",
+                               true));
+        options.add(new Option("Optimize for speed",
+                               "optimize_for_speed",
+                               false));
 
-        icService.setDeploymentOptions(getSimpleDeploymentOptions());
+        return new SingleSelectUserConfig(
+            "optimizeType",
+            "Optimize",
+            options);
+    }
 
-        return icService;
+    private SingleSelectUserConfig getTypeOfInstanceListingSelection() {
+        // Instance type
+        List<Option> instanceTypeOptions = new ArrayList<Option>();
+        instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
+                                               .SMALL.getDescription(),
+                                           HadoopTypes.INSTANCES.SMALL.getId(),
+                                           true));
+        instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
+                                               .LARGE.getDescription(),
+                                           HadoopTypes.INSTANCES.LARGE.getId(),
+                                           false));
+        instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
+                                               .XLARGE.getDescription(),
+                                           HadoopTypes.INSTANCES.XLARGE.getId(),
+                                           false));
+
+        return new SingleSelectUserConfig(
+            "instanceType",
+            "Type of Server Instance",
+            instanceTypeOptions);
+    }
+
+    protected enum ModeType {
+        OPTIMIZE_ADVANCED("advanced",
+                          "Advanced"),
+        OPTIMIZE_STANDARD("standard",
+                          "Standard");
+
+        private String key;
+        private String desc;
+
+        private ModeType(String key, String desc) {
+            this.key = key;
+            this.desc = desc;
+        }
+
+        public String toString() {
+            return getKey();
+        }
+
+        protected String getKey() {
+            return key;
+        }
+
+        protected String getDesc() {
+            return desc;
+        }
     }
 }

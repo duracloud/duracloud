@@ -203,9 +203,13 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyBulkImageconversion(ServiceInfo serviceInfo) {
-        int numUserConfigs = 8;
+        int numUserConfigs = 0;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+
+        List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
+        setsModesConfigs.add(Arrays.asList(7,8));
+        verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
     private void verifyAmazonFixity(ServiceInfo serviceInfo) {
@@ -214,14 +218,18 @@ public class ServiceXmlGeneratorTest {
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
-        setsModesConfigs.add(Arrays.asList(3, 5));
+        setsModesConfigs.add(Arrays.asList(2, 3));
         verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
     private void verifyRepOnDemand(ServiceInfo serviceInfo) {
-        int numUserConfigs = 5;
+        int numUserConfigs = 0;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+        
+        List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
+        setsModesConfigs.add(Arrays.asList(4,5));
+        verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
     private void verifyServiceInfo(int numUserConfigs,

@@ -37,6 +37,14 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
     private String providedListingSpaceIdB;
     private String providedListingContentIdB;
     private String mode;
+    private String optimizeMode;
+    private String optimizeType;
+    private String numInstances;
+    private String instanceType;
+    private String costNumInstances;
+    private String costInstanceType;
+    private String speedNumInstances;
+    private String speedInstanceType;
 
     @Override
     protected AmazonMapReduceJobWorker getJobWorker() {
@@ -131,6 +139,38 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
         return mappers;
     }
 
+    @Override
+    protected String getInstancesType() {
+        String instanceType = getInstanceType();
+
+        if(getOptimizeMode().equals(OPTIMIZE_MODE_STANDARD)) {
+            if(getOptimizeType().equals(OPTIMIZE_COST)) {
+                instanceType = getCostInstanceType();
+            }
+            else if(getOptimizeType().equals(OPTIMIZE_SPEED)) {
+                instanceType = getSpeedInstanceType();
+            }
+        }
+
+        return instanceType;
+    }
+
+    @Override
+    protected String getNumOfInstances() {
+        String numOfInstances = getNumInstances();
+
+        if(getOptimizeMode().equals(OPTIMIZE_MODE_STANDARD)) {
+            if(getOptimizeType().equals(OPTIMIZE_COST)) {
+                numOfInstances = getCostNumInstances();
+            }
+            else if(getOptimizeType().equals(OPTIMIZE_SPEED)) {
+                numOfInstances = getSpeedNumInstances();
+            }
+        }
+
+        return numOfInstances;
+    }
+
     public String getProvidedListingSpaceIdB() {
         return providedListingSpaceIdB;
     }
@@ -153,5 +193,93 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
 
     public void setMode(String mode) {
         this.mode = mode;
+    }
+
+    public String getOptimizeMode() {
+        return optimizeMode;
+    }
+
+    public void setOptimizeMode(String optimizeMode) {
+        this.optimizeMode = optimizeMode;
+    }
+
+    public String getNumInstances() {
+        return numInstances;
+    }
+
+    public void setNumInstances(String numInstances) {
+        if (numInstances != null && !numInstances.equals("")) {
+            try {
+                Integer.valueOf(numInstances);
+                this.numInstances = numInstances;
+            } catch (NumberFormatException e) {
+                log.warn(
+                    "Attempt made to set numInstances to a non-numerical " +
+                        "value, which is not valid. Setting value to default: " +
+                        DEFAULT_NUM_INSTANCES);
+                this.numInstances = DEFAULT_NUM_INSTANCES;
+            }
+        } else {
+            log.warn("Attempt made to set numInstances to to null or empty, " +
+                         ", which is not valid. Setting value to default: " +
+                         DEFAULT_NUM_INSTANCES);
+            this.numInstances = DEFAULT_NUM_INSTANCES;
+        }
+    }
+
+    public String getInstanceType() {
+        return instanceType;
+    }
+
+    public void setInstanceType(String instanceType) {
+
+        if (instanceType != null && !instanceType.equals("")) {
+            this.instanceType = instanceType;
+        } else {
+            log.warn("Attempt made to set typeOfInstance to null or empty, " +
+                         ", which is not valid. Setting value to default: " +
+                         DEFAULT_INSTANCE_TYPE);
+            this.instanceType = DEFAULT_INSTANCE_TYPE;
+        }
+    }
+
+    public String getOptimizeType() {
+        return optimizeType;
+    }
+
+    public void setOptimizeType(String optimizeType) {
+        this.optimizeType = optimizeType;
+    }
+
+    public String getCostNumInstances() {
+        return costNumInstances;
+    }
+
+    public void setCostNumInstances(String costNumInstances) {
+        this.costNumInstances = costNumInstances;
+    }
+
+    public String getCostInstanceType() {
+        return costInstanceType;
+    }
+
+    public void setCostInstanceType(String costInstanceType) {
+        this.costInstanceType = costInstanceType;
+    }
+
+    public String getSpeedNumInstances() {
+        return speedNumInstances;
+    }
+
+    public void setSpeedNumInstances(String speedNumInstances) {
+        this.speedNumInstances = speedNumInstances;
+    }
+
+    public String getSpeedInstanceType() {
+        return speedInstanceType;
+    }
+
+    public void setSpeedInstanceType(String speedInstanceType) {
+        this.speedInstanceType = speedInstanceType;
     }
 }

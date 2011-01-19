@@ -47,9 +47,13 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
     private static final String DEFAULT_SOURCE_SPACE_ID = "service-source";
-    private static final String DEFAULT_NUM_INSTANCES = "1";
-    private static final String DEFAULT_INSTANCE_TYPE = SMALL.getId();
+    protected static final String DEFAULT_NUM_INSTANCES = "1";
+    protected static final String DEFAULT_INSTANCE_TYPE = SMALL.getId();
     protected static final String DEFAULT_NUM_MAPPERS = "1";
+
+    protected static final String OPTIMIZE_MODE_STANDARD = "standard";
+    protected static final String OPTIMIZE_COST = "optimize_for_cost";
+    protected static final String OPTIMIZE_SPEED = "optimize_for_speed";
 
     private String duraStoreHost;
     private String duraStorePort;
@@ -59,8 +63,6 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     private String sourceSpaceId;
     private String destSpaceId;
     private String workSpaceId;
-    private String numInstances;
-    private String instanceType;
     private String mappersPerInstance;
 
     private ContentStore contentStore;
@@ -72,6 +74,10 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     protected abstract String getJobType();
 
     protected abstract String getNumMappers(String instanceType);
+
+    protected abstract String getInstancesType();
+
+    protected abstract String getNumOfInstances();
 
     @Override
     public void start() throws Exception {
@@ -98,11 +104,11 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         taskParams.put(TASK_PARAMS.WORKSPACE_ID.name(), workSpaceId);
         taskParams.put(TASK_PARAMS.SOURCE_SPACE_ID.name(), sourceSpaceId);
         taskParams.put(TASK_PARAMS.DEST_SPACE_ID.name(), destSpaceId);
-        taskParams.put(TASK_PARAMS.INSTANCE_TYPE.name(), instanceType);
-        taskParams.put(TASK_PARAMS.NUM_INSTANCES.name(), numInstances);
+        taskParams.put(TASK_PARAMS.INSTANCE_TYPE.name(), getInstancesType());
+        taskParams.put(TASK_PARAMS.NUM_INSTANCES.name(), getNumOfInstances());
 
         taskParams.put(TASK_PARAMS.MAPPERS_PER_INSTANCE.name(), getNumMappers(
-            instanceType));
+            getInstancesType()));
 
         taskParams.put(TASK_PARAMS.DC_HOST.name(), getDuraStoreHost());
         taskParams.put(TASK_PARAMS.DC_PORT.name(), getDuraStorePort());
@@ -282,45 +288,6 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
 
     public void setWorkSpaceId(String workSpaceId) {
         this.workSpaceId = workSpaceId;
-    }
-
-    public String getNumInstances() {
-        return numInstances;
-    }
-
-    public void setNumInstances(String numInstances) {
-        if (numInstances != null && !numInstances.equals("")) {
-            try {
-                Integer.valueOf(numInstances);
-                this.numInstances = numInstances;
-            } catch (NumberFormatException e) {
-                log("Attempt made to set numInstances to a non-numerical " +
-                    "value, which is not valid. Setting value to default: " +
-                    DEFAULT_NUM_INSTANCES);
-                this.numInstances = DEFAULT_NUM_INSTANCES;
-            }
-        } else {
-            log("Attempt made to set numInstances to to null or empty, " +
-                ", which is not valid. Setting value to default: " +
-                DEFAULT_NUM_INSTANCES);
-            this.numInstances = DEFAULT_NUM_INSTANCES;
-        }
-    }
-
-    public String getInstanceType() {
-        return instanceType;
-    }
-
-    public void setInstanceType(String instanceType) {
-
-        if (instanceType != null && !instanceType.equals("")) {
-            this.instanceType = instanceType;
-        } else {
-            log("Attempt made to set typeOfInstance to null or empty, " +
-                ", which is not valid. Setting value to default: " +
-                DEFAULT_INSTANCE_TYPE);
-            this.instanceType = DEFAULT_INSTANCE_TYPE;
-        }
     }
 
     public String getMappersPerInstance() {

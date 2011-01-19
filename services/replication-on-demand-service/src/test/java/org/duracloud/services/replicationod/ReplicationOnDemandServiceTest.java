@@ -30,6 +30,7 @@ public class ReplicationOnDemandServiceTest {
         String repStoreId = "0";
         String repSpaceId = "rep-space";
         String destSpaceId = "test-dest";
+        String optimizeMode = "advanced";
         String instanceType = "c1.xlarge";
         String numInstances = "8";
         String dcHost = "dchost";
@@ -44,6 +45,7 @@ public class ReplicationOnDemandServiceTest {
         service.setRepStoreId(repStoreId);
         service.setRepSpaceId(repSpaceId);
         service.setDestSpaceId(destSpaceId);
+        service.setOptimizeMode(optimizeMode);
         service.setInstanceType(instanceType);
         service.setNumInstances(numInstances);
         service.setDuraStoreHost(dcHost);
@@ -136,6 +138,30 @@ public class ReplicationOnDemandServiceTest {
         assertEquals("1", service.getMappersPerInstance());
         service.setMappersPerInstance("8");
         assertEquals("8", service.getMappersPerInstance());        
+    }
+
+    @Test
+    public void testOptmizationConfig() {
+        String instanceType = "m1.xlarge";
+        String numOfInstances = "10";
+
+        ReplicationOnDemandService service = new ReplicationOnDemandService();
+        service.setOptimizeMode("standard");
+        service.setOptimizeType("optimize_for_speed");
+        service.setSpeedInstanceType(instanceType);
+        service.setSpeedNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
+
+        instanceType = "m1.large";
+        numOfInstances = "3";
+        service.setOptimizeType("optimize_for_cost");
+        service.setSpeedInstanceType(null);
+        service.setSpeedNumInstances(null);
+        service.setCostInstanceType(instanceType);
+        service.setCostNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
     }
 
     @Test

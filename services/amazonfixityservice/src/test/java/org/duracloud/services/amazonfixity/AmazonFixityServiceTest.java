@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import static junit.framework.Assert.assertEquals;
 import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 import static org.duracloud.storage.domain.HadoopTypes.JOB_TYPES;
@@ -70,6 +71,30 @@ public class AmazonFixityServiceTest {
     }
 
     @Test
+    public void testOptmizationConfig() {
+        String instanceType = "m1.xlarge";
+        String numOfInstances = "10";
+
+        AmazonFixityService service = new AmazonFixityService();
+        service.setOptimizeMode("standard");
+        service.setOptimizeType("optimize_for_speed");
+        service.setSpeedInstanceType(instanceType);
+        service.setSpeedNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
+
+        instanceType = "m1.large";
+        numOfInstances = "3";
+        service.setOptimizeType("optimize_for_cost");
+        service.setSpeedInstanceType(null);
+        service.setSpeedNumInstances(null);
+        service.setCostInstanceType(instanceType);
+        service.setCostNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
+    }
+
+    @Test
     public void testStart() throws Exception {
         setUpStart();
 
@@ -93,6 +118,8 @@ public class AmazonFixityServiceTest {
 
     private void setUpStart() throws Exception {
         service.setWorkSpaceId("work-space-id");
+        service.setOptimizeMode("standard");
+        service.setOptimizeType("optimize_for_cost");
 
         contentStore = createMockContentStore();
         service.setContentStore(contentStore);

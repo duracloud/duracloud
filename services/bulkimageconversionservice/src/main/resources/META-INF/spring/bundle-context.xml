@@ -23,8 +23,10 @@
     <property name="workSpaceId" value="${service.work.spaceid}"/>
     <property name="namePrefix" value=""/>
     <property name="nameSuffix" value=""/>
-    <property name="numInstances" value="1"/>
-    <property name="instanceType" value="m1.small"/>
+    <property name="costNumInstances" value="3"/>
+    <property name="costInstanceType" value="m1.large"/>
+    <property name="speedNumInstances" value="10"/>
+    <property name="speedInstanceType" value="m1.xlarge"/>
     <property name="mappersPerInstance" value="1"/>
   </bean>
 
