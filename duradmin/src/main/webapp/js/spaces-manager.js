@@ -138,7 +138,8 @@ $(function(){
 	 * the current detail view.
 	 */
 	var isObjectAlreadyDisplayedInDetail = function(objectId){
-		return(objectId == $("#detail-pane .object-id").html());
+	    return false; // Require refresh of space/content 
+        //	return(objectId == $("#detail-pane .object-id").html());
 	};
 
 	// /////////////////////////////////////////
@@ -1608,8 +1609,8 @@ $(function(){
 
 		loadProperties(detail, extractSpaceProperties(space));
 		
-		if(space.itemCount == null){
-			//attach poller if itemCount is null
+		if(space.itemCount == null || space.itemCount < 0){
+			//attach poller if itemCount is null or -1
 			var pollItemCount = function(){
 				dc.store.GetSpace(
 						space.storeId,
@@ -1617,9 +1618,8 @@ $(function(){
 						{
 							success: function(s){
 								if(s != undefined && s != null){
-									if(s.itemCount != null){
-										loadProperties(center, extractSpaceProperties(s));
-									}else{
+                                    loadProperties(center, extractSpaceProperties(s));
+									if(s.itemCount == null || s.itemCount < 0){
 										setTimeout(pollItemCount, 5000);
 									}
 								}
@@ -1662,7 +1662,7 @@ $(function(){
 	
 	var extractSpaceProperties = function(space){
 		return [ 
-					['Items', (space.itemCount == null || space.itemCount == undefined  ? space.metadata.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
+					['Items', (space.itemCount == null || space.itemCount == undefined || space.itemCount < 0 ? space.metadata.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
 					['Created', space.metadata.created],
                     ['Size', space.metadata.size],                    
 			   ];

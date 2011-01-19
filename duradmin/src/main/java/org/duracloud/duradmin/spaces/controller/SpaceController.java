@@ -8,20 +8,15 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStore.AccessType;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.StoreCaller;
-import org.duracloud.client.ContentStore.AccessType;
-import org.duracloud.common.util.IteratorCounterThread;
+import org.duracloud.common.util.ExtendedIteratorCounterThread;
 import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.domain.Space;
+import org.duracloud.duradmin.domain.SpaceMetadata;
 import org.duracloud.duradmin.util.MetadataUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
@@ -32,6 +27,11 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 
@@ -116,8 +116,20 @@ public class SpaceController extends  AbstractRestController<Space> {
 	private void setItemCount(final Space space, HttpServletRequest request) throws ContentStoreException{
 		String key = space.getStoreId() + "/" + space.getSpaceId() + "/itemCountListener";
 		ItemCounter listener = (ItemCounter)request.getSession().getAttribute(key);
-		if(listener != null){
-			space.setItemCount(listener.getCount());
+		space.setItemCount(new Long(-1));
+        if(listener != null){
+            if(listener.isCountComplete()) {
+                space.setItemCount(listener.getCount());
+                request.getSession().removeAttribute(key);
+            } else {
+                SpaceMetadata metadata = space.getMetadata();
+                long interCount = listener.getIntermediaryCount();
+                if(interCount % 1000 != 0) {
+                    interCount += 1;
+                }
+                metadata.setCount(String.valueOf(interCount) + "+");
+                space.setMetadata(metadata);
+            }
 		}else{
 			request.getSession().setAttribute(key, listener = new ItemCounter());
 			final ContentStore contentStore = contentStoreManager.getContentStore(space.getStoreId());
@@ -130,8 +142,8 @@ public class SpaceController extends  AbstractRestController<Space> {
 	                   space.getSpaceId();
 	            }
 	        };
-	        
-	        new Thread(new IteratorCounterThread(caller.call(), listener)).start();
+
+	        new Thread(new ExtendedIteratorCounterThread(caller.call(), listener)).start();
 		}
 	}
 
