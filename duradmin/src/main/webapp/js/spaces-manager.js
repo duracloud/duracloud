@@ -2030,15 +2030,18 @@ $(function(){
 	var addContentItemToList = function(contentItem){
 		var node =  document.createElement("div");
 		var actions = document.createElement("div");
-		
+        var content = document.createElement("span");
+
 		var deleteButton = $("<button class='delete-space-button featured icon-only'><i class='pre trash'></i></button>");
 		deleteButton.click(function(evt){
 			deleteContentItem(evt,
 								contentItem);
 		});
 		$(actions).append(deleteButton);
+        $(content).attr("class", "dc-item-content")
+                  .html(contentItem.contentId);
 		$(node).attr("id", contentItem.contentId)
-			   .html(contentItem.contentId)
+			   .append(content)
 			   .append(actions);
 		$("#content-item-list").selectablelist('addItem',node, contentItem);	   
 	

@@ -452,6 +452,7 @@ ul.dc-user-config > li:last-child {
 }
 
 .dc-item {
+    position:relative;
 	min-height:20px;	
 }
 .dc-item-list td,
@@ -514,7 +515,9 @@ input.dc-check-all
 }
 
 .dc-item-list .dc-action-panel{
-	float:right;
+    position:absolute;
+    right:0;
+    top:4px;
 }
 
 .dc-action-panel
@@ -522,6 +525,9 @@ input.dc-check-all
 	/*margin-right:20px;*/
 }
 
+.dc-item-content {
+    padding-right: 30px;
+}
 
 .dc-item:hover,
 .dc-item:hover td
