@@ -93,6 +93,7 @@ button.primary,
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF37a9de, endColorstr=#FF2375b2); /* For Internet Explorer 5.5 - 7 */
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF37a9de, endColorstr=#FF2375b2)";	/* For Internet Explorer 8 */
 	color:#56ffff;
+    width:122px;
 }
 
 button.primary:hover,
