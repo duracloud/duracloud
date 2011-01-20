@@ -10,6 +10,7 @@ package org.duracloud.services.fixity;
 import org.duracloud.client.ContentStore;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.ServiceResult;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach.GENERATED;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
+
 
 /**
  * @author Andrew Woods
@@ -42,12 +44,22 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
                                     getHash(text));
     }
 
-    private void doInitialize() throws ContentStoreException {
+    private void doInitialize(ContentLocation contentLocation)
+        throws ContentStoreException {
         super.initialize(mode, hashApproach);
+
+        if (null == contentLocation) {
+            contentLocation = workItemLocation;
+        }
+
         worker = new HashFinderWorker(serviceOptions,
                                       contentStore,
-                                      workItemLocation,
+                                      contentLocation,
                                       resultListener);
+    }
+
+    private void doInitialize() throws ContentStoreException {
+        this.doInitialize(null);
     }
 
     @Test
@@ -68,6 +80,14 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
             exceptionThrown = true;
         }
         Assert.assertTrue("There should be an exception.", exceptionThrown);
+    }
+
+    @Test
+    public void testRunBADLine() throws ContentStoreException {
+        ContentLocation contentLocation = new ContentLocation(null,null);
+        doInitialize(contentLocation);
+
+        worker.run();
     }
 
     @Override

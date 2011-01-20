@@ -61,6 +61,10 @@ public class HashFinderWorker implements Runnable {
 
     @Override
     public void run() {
+        if (!workItemValid()) {
+            return;
+        }
+
         String hash = null;
         try {
             hash = getHash();
@@ -69,6 +73,10 @@ public class HashFinderWorker implements Runnable {
         } catch (Exception e) {
             sendResult(false, getSpaceId(), getContentId(), e.getMessage());
         }
+    }
+
+    private boolean workItemValid() {
+        return null != getSpaceId() && null != getContentId();
     }
 
     private void sendResult(boolean success,

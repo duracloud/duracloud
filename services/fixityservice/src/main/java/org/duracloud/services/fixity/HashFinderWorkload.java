@@ -293,8 +293,6 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
 
             if (null == spaceId || null == contentId) {
                 log.error("Invalid listing format: " + currentLine);
-                spaceId = "error-unknown-space-id";
-                contentId = "error-unknown-content-id";
             }
 
             currentLine = readLine();
