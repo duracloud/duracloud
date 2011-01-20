@@ -53,7 +53,7 @@
 			<tiles:putAttribute name="mainTab" value="spaces" />
 			<tiles:putAttribute name="main-content">
 				<div class="center-north" id="center-pane-north">
-					<div class="float-r">Provider: <span id="provider-select-box"
+					<div class="provider-float">Provider: <span id="provider-select-box"
 						class="provider-widget"></span></div>
 	
                     <div id="provider-logo" class="float-l"></div>

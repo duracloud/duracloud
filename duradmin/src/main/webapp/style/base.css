@@ -830,7 +830,7 @@ span.label,
 {
 	border-top:1px solid #2e9acc;
 	white-space:nowrap;
-	min-width:200px;
+	min-width:100px;
 }
 
 .provider-widget li a
@@ -872,6 +872,12 @@ span.label,
 {
 	color:#76e8ff !important;
 	min-width:150px;
+}
+
+.provider-float
+{
+    float: right;
+    margin-right: 25px;
 }
 
 .dc-expando-status {
