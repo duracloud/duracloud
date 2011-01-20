@@ -18,6 +18,10 @@
 							</c:forEach>				
 						];
 			  });
+
+              <c:if test="${error != null}">
+                  alert("<c:out value="${error}"/>");
+              </c:if>      
 			</script>
 			
 		<link rel="stylesheet"
