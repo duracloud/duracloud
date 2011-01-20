@@ -789,14 +789,23 @@ $(function(){
 						for(j in deployments){
 							var deployment = deployments[j];
 
-							var userConfigs = deployment.userConfigs;
-							var m;
-							for(m in userConfigs){
-								var uc = userConfigs[m];
-								if(uc.name == "mediaSourceSpaceId" && uc.displayValue == contentItem.spaceId){
-									sourceMediaSpace = true;
-									break;
-								}
+                            var modeSets = deployment.userConfigModeSets;
+                            for(k in modeSets){
+
+                                var modes = modeSets[k].modes;
+                                for(p in modes){
+                                    var mode = modes[p];
+
+                                    var userConfigs = mode.userConfigs;
+                                    var m;
+                                    for(m in userConfigs){
+                                        var uc = userConfigs[m];
+                                        if(uc.name == "mediaSourceSpaceId" && uc.displayValue == contentItem.spaceId){
+                                            sourceMediaSpace = true;
+                                            break;
+                                        }
+                                    }
+                                }
 							}
 
 							if(sourceMediaSpace){

@@ -88,6 +88,7 @@ public class HashFinderWorker implements Runnable {
         if (null == hashApproach) {
             throwRuntime("hash-approach is null");
         }
+        log.debug("hash approach: " + hashApproach);
 
         String hash = null;
         switch (hashApproach) {
