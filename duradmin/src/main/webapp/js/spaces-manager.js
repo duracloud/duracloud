@@ -15,8 +15,6 @@
 var centerLayout, listBrowserLayout, spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
 
 $(function(){
-	$.require("plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.js");
-	$.require("plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.pack.js");
 	$.require("dc/widget/ui.metadataviewer.js");
 	$.require("dc/widget/ui.tagsviewer.js");
 	$.require("dc/widget/ui.flyoutselect.js");
