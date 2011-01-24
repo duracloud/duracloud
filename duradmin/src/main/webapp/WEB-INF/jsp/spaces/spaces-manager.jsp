@@ -127,7 +127,7 @@
 				<div id="spaceMultiSelectPane" style="display: none">
 				<div class="north header">
 				<h1>Spaces</h1>
-				<h2 class="object-name">Multiple spaces selected</h2>
+				<h2 class="object-name">Space(s) selected</h2>
 				<div class="button-bar">
 					<button class="featured delete-space-button dc-delete-button"><i class="pre trash"></i>Delete Selected Spaces</button>
 					<button class="add-remove-metadata-button"><i class="pre pencil"></i>Edit Metadata</button>
@@ -142,7 +142,7 @@
 				<div id="contentItemMultiSelectPane" style="display: none">
 				<div class="north header">
 				<h1>Content Items</h1>
-				<h2 class="object-name">Multiple content items selected</h2>
+				<h2 class="object-name">Content item(s) selected</h2>
 				<div class="button-bar">
 					<button class="featured delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete</button>
 					<button class="edit-selected-content-items-button"><i class="pre pencil"></i>Edit</button>

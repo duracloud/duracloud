@@ -256,12 +256,22 @@ $(function(){
 		var detail = $("#contentItemMultiSelectPane").clone();
 		// attach delete button listener
 		$(".delete-content-item-button",detail).click(function(evt){
-			if(!dc.confirm("Are you sure you want to delete multiple content items?")){
+            var contentItems = getSelectedContentItems();
+
+            var confirmMessage = "Are you sure you want to delete multiple content items?";
+            var busyMessage = "Deleting content items...";
+
+            if(contentItems.length < 2)
+            {
+                confirmMessage = "Are you sure you want to delete the content item?";
+                busyMessage = "Deleting content item...";
+            }
+
+			if(!dc.confirm(confirmMessage)){
 				return;
 			}
-			dc.busy("Deleting content items...", {modal: true});
-			var contentItems = getSelectedContentItems();
-			var job = dc.util.createJob("delete-content-items");	
+			dc.busy(busyMessage, {modal: true});
+			var job = dc.util.createJob("delete-content-items");
 			var i;
 			for(i = 0; i < contentItems.length; i++){
 				job.addTask({
