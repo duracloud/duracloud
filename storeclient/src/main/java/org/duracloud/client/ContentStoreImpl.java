@@ -352,7 +352,7 @@ public class ContentStoreImpl implements ContentStore{
      */
     public void setSpaceAccess(String spaceId, AccessType spaceAccess)
             throws ContentStoreException {
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> metadata = getSpaceMetadata(spaceId);
         metadata.put(StorageProvider.METADATA_SPACE_ACCESS, spaceAccess.name());
         setSpaceMetadata(spaceId, metadata);
     }
