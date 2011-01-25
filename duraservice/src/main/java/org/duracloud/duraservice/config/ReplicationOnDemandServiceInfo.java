@@ -102,7 +102,8 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
                 userConfigs.add(getTypeOfInstanceListingSelection());
                 break;
             case OPTIMIZE_STANDARD:
-                userConfigs.add(getOptimizationSelection());
+                // Removed optimize selection for now
+                //userConfigs.add(getOptimizationSelection());
                 break;
             default:
                 throw new RuntimeException("Unexpected ModeType: " + modeType);

@@ -23,6 +23,7 @@
     <property name="workSpaceId" value="${service.work.spaceid}"/>
     <property name="namePrefix" value=""/>
     <property name="nameSuffix" value=""/>
+    <property name="optimizeType" value="optimize_for_speed"/>
     <property name="costNumInstances" value="3"/>
     <property name="costInstanceType" value="m1.large"/>
     <property name="speedNumInstances" value="10"/>

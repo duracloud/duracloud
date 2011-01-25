@@ -208,7 +208,7 @@ public class ServiceXmlGeneratorTest {
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
-        setsModesConfigs.add(Arrays.asList(7,8));
+        setsModesConfigs.add(Arrays.asList(6,8));
         verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
@@ -218,7 +218,7 @@ public class ServiceXmlGeneratorTest {
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
-        setsModesConfigs.add(Arrays.asList(2, 3));
+        setsModesConfigs.add(Arrays.asList(1, 3));
         verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
@@ -228,7 +228,7 @@ public class ServiceXmlGeneratorTest {
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
         
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
-        setsModesConfigs.add(Arrays.asList(4,5));
+        setsModesConfigs.add(Arrays.asList(3,5));
         verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
