@@ -24,6 +24,7 @@
     <module>computeservice</module>    
     <module>helloservice</module>    
     <module>replicationservice</module>
+    <module>duplicationservice</module>
     <module>tomcatconfig</module>
     <module>servicesutil</module>
     <module>servicesadmin</module>
