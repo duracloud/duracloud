@@ -307,7 +307,9 @@ public class FixityServiceOptionsTest {
         serviceOptions = createServiceOptions();
 
         Assert.assertNotNull(serviceOptions.getProvidedListingContentIdA());
-        Assert.assertEquals(outputContentId,
+        Assert.assertEquals(FixityServiceOptions.defaultGenContentId.replace(
+            "$TIMESTAMP",
+            null + "-" + DateUtil.nowShort()),
                             serviceOptions.getProvidedListingContentIdA());
     }
 

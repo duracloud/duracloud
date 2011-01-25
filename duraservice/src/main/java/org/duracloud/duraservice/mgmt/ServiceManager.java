@@ -635,6 +635,18 @@ public class ServiceManager {
         Map<String, String> serviceConfig = new HashMap<String, String>();
         // Add User Config
         if (userConfigModeSets != null) {
+            // Construct a map of all User Config options with empty values
+            for (UserConfigModeSet userConfigModeSet : userConfigModeSets) {
+                for (UserConfigMode mode : userConfigModeSet.getModes()) {
+                    if (!mode.isSelected()) {
+                        Map<String, String> modeConfig = createEmptyServiceConfigForMode(
+                            mode);
+                        serviceConfig.putAll(modeConfig);
+                    }
+                }
+            }
+
+            // Add to map all Selected User Config options.
             for (UserConfigModeSet userConfigModeSet : userConfigModeSets) {
                 for (UserConfigMode mode : userConfigModeSet.getModes()) {
                     if (mode.isSelected()) {
@@ -646,6 +658,29 @@ public class ServiceManager {
                 }
             }
         }
+        return serviceConfig;
+    }
+
+    private Map<String, String> createEmptyServiceConfigForMode(UserConfigMode mode) {
+        Map<String, String> serviceConfig = new HashMap<String, String>();
+        if (null != mode.getUserConfigs()) {
+            for (UserConfig userConfig : mode.getUserConfigs()) {
+                serviceConfig.put(userConfig.getName(), "");
+            }
+        }
+
+        List<UserConfigModeSet> userConfigModeSets = mode.getUserConfigModeSets();
+        log.info("cleared configs: " + serviceConfig);
+        if (null != userConfigModeSets) {
+            for (UserConfigModeSet userConfigModeSet : userConfigModeSets) {
+                for (UserConfigMode m : userConfigModeSet.getModes()) {
+                    Map<String, String> modeSetConfig = createEmptyServiceConfigForMode(
+                        m);
+                    serviceConfig.putAll(modeSetConfig);
+                }
+            }
+        }
+
         return serviceConfig;
     }
 

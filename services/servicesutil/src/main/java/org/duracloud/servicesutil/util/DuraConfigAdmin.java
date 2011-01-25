@@ -20,8 +20,16 @@ public interface DuraConfigAdmin {
             throws Exception;
 
     /**
-     * This method replaces any existing properties associated with the arg
-     * configId with the properties provided in arg props.
+     * <pre>
+     * The update policy for arg properties is that:
+     *   1. All arg props will be appended to existing set of properties.
+     *   2. A new configuration will be created if there is no existing properties.
+     *   3. If an arg prop has the key of an existing property,
+     *          the existing property will be overwritten.
+     *   4. If a null or empty arg props is provided,
+     *          no updates will occur.
+     * </pre>
+     *
      * @param configId
      * @param props
      * @throws Exception

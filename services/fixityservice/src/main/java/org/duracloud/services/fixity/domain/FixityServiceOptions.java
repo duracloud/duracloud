@@ -30,6 +30,9 @@ public class FixityServiceOptions {
     private final static String defaultReportContentId =
         defaultPrefix + "/fixity-report-" + timestamp + ".csv";
 
+    public final static String defaultGenContentId =
+        defaultPrefix + "/fingerprints-gen-" + timestamp + ".csv";
+
     private String mode;
     private String hashApproach;
     private String salt;
@@ -116,21 +119,21 @@ public class FixityServiceOptions {
         this.outputContentId = outputContentId;
         this.reportContentId = reportContentId;
 
-        if (null == this.hashApproach) {
+        if (null == this.hashApproach || this.hashApproach.equals("")) {
             this.hashApproach = defaultHashApproach;
         }
-        if (null == this.outputContentId) {
+        if (null == this.outputContentId || this.outputContentId.equals("")) {
             this.outputContentId = defaultOutputContentId;
         }
-        if (null == this.reportContentId) {
+        if (null == this.reportContentId || this.reportContentId.equals("")) {
             this.reportContentId = defaultReportContentId;
         }
-        if (null == this.providedListingSpaceIdA) {
+        if (null == this.providedListingSpaceIdA || this.providedListingSpaceIdA.equals("")) {
             // auto-generated listings are placed in the output space.
             this.providedListingSpaceIdA = outputSpaceId;
         }
-        if (null == this.providedListingContentIdA) {
-            this.providedListingContentIdA = getOutputContentId();
+        if (null == this.providedListingContentIdA || this.providedListingContentIdA.equals("")) {
+            this.providedListingContentIdA = getGenContentId();
         }
     }
 
@@ -303,6 +306,10 @@ public class FixityServiceOptions {
 
     public String getOutputContentId() {
         return filterTimestamp(outputContentId);
+    }
+
+    public String getGenContentId() {
+        return filterTimestamp(defaultGenContentId);
     }
 
     public String getReportContentId() {

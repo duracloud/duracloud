@@ -11,7 +11,6 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
@@ -313,7 +312,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     private FixityServiceOptions getServiceOptions() {
-        if (null == outputSpaceId) {
+        if (null == outputSpaceId || outputSpaceId.equals("")) {
             this.outputSpaceId = this.defaultOutputSpaceId;
         }
 
@@ -332,17 +331,18 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                                              reportContentId);
 
         opts.verify();
+        log.debug(opts.toString());
         return opts;
     }
 
     private FixityServiceOptions getAutoHashingOptions() {
-        if (null == outputSpaceId) {
+        if (null == outputSpaceId || outputSpaceId.equals("")) {
             this.outputSpaceId = this.defaultOutputSpaceId;
         }
         
         FixityServiceOptions.Mode m = FixityServiceOptions.Mode.GENERATE_SPACE;
         FixityServiceOptions.HashApproach ha = FixityServiceOptions.HashApproach.STORED;
-        String outContentId = providedListingContentIdA;
+        String outContentId = FixityServiceOptions.defaultGenContentId;
 
         FixityServiceOptions opts = new FixityServiceOptions(m.name(),
                                                              ha.name(),
@@ -359,6 +359,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                                              reportContentId);
 
         opts.verify();
+        log.debug(opts.toString());
         return opts;
     }
 
@@ -395,6 +396,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     public void setDefaultOutputSpaceId(String defaultOutputSpaceId) {
+        log.info("set defaultOutputSpaceId(" + defaultOutputSpaceId + ")");
         this.defaultOutputSpaceId = defaultOutputSpaceId;
     }
 
