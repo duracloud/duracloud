@@ -26,7 +26,9 @@ public class MessagingTestSupport {
 
     protected String configString = "tcp://localhost:61617";
 
-    protected final String ingestTopicName = "org.duracloud.topic.change.content.ingest";
+    // TODO: replace topic name when duplication-on-change is enabled
+    // protected final String ingestTopicName = "org.duracloud.topic.change.content.ingest";
+    protected final String ingestTopicName = "org.duracloud.topic.ingest";
 
     protected final String contentUpdateTopicName = "org.duracloud.topic.change.content.update";
 
