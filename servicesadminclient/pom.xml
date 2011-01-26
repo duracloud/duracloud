@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>servicesadminclient</artifactId>
   <packaging>jar</packaging>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.8.0</version>
   <name>Services Admin Client</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
