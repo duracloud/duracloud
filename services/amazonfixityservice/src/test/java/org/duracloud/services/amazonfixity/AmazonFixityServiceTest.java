@@ -13,6 +13,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.storage.domain.HadoopTypes;
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
@@ -68,30 +69,6 @@ public class AmazonFixityServiceTest {
     private void verifyNumMappers(String num, String expected) {
         Assert.assertNotNull(num);
         Assert.assertEquals(expected, num);
-    }
-
-    @Test
-    public void testOptmizationConfig() {
-        String instanceType = "m1.xlarge";
-        String numOfInstances = "10";
-
-        AmazonFixityService service = new AmazonFixityService();
-        service.setOptimizeMode("standard");
-        service.setOptimizeType("optimize_for_speed");
-        service.setSpeedInstanceType(instanceType);
-        service.setSpeedNumInstances(numOfInstances);
-        assertEquals(instanceType,service.getInstancesType());
-        assertEquals(numOfInstances,service.getNumOfInstances());
-
-        instanceType = "m1.large";
-        numOfInstances = "3";
-        service.setOptimizeType("optimize_for_cost");
-        service.setSpeedInstanceType(null);
-        service.setSpeedNumInstances(null);
-        service.setCostInstanceType(instanceType);
-        service.setCostNumInstances(numOfInstances);
-        assertEquals(instanceType,service.getInstancesType());
-        assertEquals(numOfInstances,service.getNumOfInstances());
     }
 
     @Test

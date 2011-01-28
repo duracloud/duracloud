@@ -150,8 +150,10 @@ public class ReplicationOnDemandServiceTest {
         service.setOptimizeType("optimize_for_speed");
         service.setSpeedInstanceType(instanceType);
         service.setSpeedNumInstances(numOfInstances);
-        assertEquals(instanceType,service.getInstancesType());
-        assertEquals(numOfInstances,service.getNumOfInstances());
+
+        Map<String, String> params =  service.collectTaskParams();
+        assertEquals(instanceType, params.get(TASK_PARAMS.INSTANCE_TYPE.name()));
+        assertEquals(numOfInstances, params.get(TASK_PARAMS.NUM_INSTANCES.name()));
 
         instanceType = "m1.large";
         numOfInstances = "3";
@@ -160,8 +162,10 @@ public class ReplicationOnDemandServiceTest {
         service.setSpeedNumInstances(null);
         service.setCostInstanceType(instanceType);
         service.setCostNumInstances(numOfInstances);
-        assertEquals(instanceType,service.getInstancesType());
-        assertEquals(numOfInstances,service.getNumOfInstances());
+        
+        params =  service.collectTaskParams();
+        assertEquals(instanceType, params.get(TASK_PARAMS.INSTANCE_TYPE.name()));
+        assertEquals(numOfInstances, params.get(TASK_PARAMS.NUM_INSTANCES.name()));
     }
 
     @Test
