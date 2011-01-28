@@ -585,7 +585,7 @@ public class S3StorageProvider extends StorageProviderBase {
             if (log.isDebugEnabled()) {
                 log.debug("[" + key + "|" + contentMetadata.get(key) + "]");
             }
-            objMetadata.addUserMetadata(key, contentMetadata.get(key));
+            objMetadata.addUserMetadata(getSpaceFree(key), contentMetadata.get(key));
         }
 
         // Set Content-Type
@@ -668,7 +668,7 @@ public class S3StorageProvider extends StorageProviderBase {
         Map<String, String> userMetadata = objMetadata.getUserMetadata();
         for(String metaName : userMetadata.keySet()) {
             String metaValue = userMetadata.get(metaName);
-            contentMetadata.put(metaName, metaValue);
+            contentMetadata.put(getWithSpace(metaName), metaValue);
         }
 
         // Set MIMETYPE
@@ -755,6 +755,26 @@ public class S3StorageProvider extends StorageProviderBase {
             isSpace = true;
         }
         return isSpace;
+    }
+
+    /**
+     * Replaces all spaces with "%20"
+     *
+     * @param name string with possible space
+     * @return converted to string without spaces
+     */
+    protected String getSpaceFree(String name) {
+        return name.replaceAll(" ", "%20");
+    }
+
+    /**
+     * Converts "%20" back to spaces
+     *
+     * @param name string
+     * @return converted to spaces
+     */
+    protected String getWithSpace(String name) {
+        return name.replaceAll("%20", " ");
     }
 
 }

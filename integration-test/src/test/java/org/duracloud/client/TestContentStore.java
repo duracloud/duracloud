@@ -518,7 +518,7 @@ public class TestContentStore {
         String content = "This is the information stored as content";
         InputStream contentStream = IOUtil.writeStringToStream(content);
         String contentMimeType = "text/plain";
-        String metaName = "test-content-metadata";
+        String metaName = "test content metadata";
         String metaValue = "Testing Content Metadata";
         Map<String, String> contentMetadata = new HashMap<String, String>();
         contentMetadata.put(metaName, metaValue);
