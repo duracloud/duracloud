@@ -1,0 +1,20 @@
+<assembly>
+  <id>driver</id>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>org.duracloud.services.hadoop:basic-processor</include>
+        <include>commons-io:commons-io</include>
+        <include>commons-cli:commons-cli</include>
+      </includes>
+      <unpack>true</unpack>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>
+
