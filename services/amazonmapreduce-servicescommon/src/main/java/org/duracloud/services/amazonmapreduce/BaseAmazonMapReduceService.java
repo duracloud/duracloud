@@ -126,7 +126,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         return taskParams;
     }
 
-    protected String getInstancesType() {
+    public String getInstancesType() {
         String instanceType = getInstanceType();
 
         if(getOptimizeMode().equals(OPTIMIZE_MODE_STANDARD)) {
@@ -141,7 +141,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         return instanceType;
     }
 
-    protected String getNumOfInstances() {
+    public String getNumOfInstances() {
         String numOfInstances = getNumInstances();
 
         if(getOptimizeMode().equals(OPTIMIZE_MODE_STANDARD)) {

@@ -72,6 +72,30 @@ public class AmazonFixityServiceTest {
     }
 
     @Test
+    public void testOptmizationConfig() {
+        String instanceType = "m1.xlarge";
+        String numOfInstances = "10";
+
+        AmazonFixityService service = new AmazonFixityService();
+        service.setOptimizeMode("standard");
+        service.setOptimizeType("optimize_for_speed");
+        service.setSpeedInstanceType(instanceType);
+        service.setSpeedNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
+
+        instanceType = "m1.large";
+        numOfInstances = "3";
+        service.setOptimizeType("optimize_for_cost");
+        service.setSpeedInstanceType(null);
+        service.setSpeedNumInstances(null);
+        service.setCostInstanceType(instanceType);
+        service.setCostNumInstances(numOfInstances);
+        assertEquals(instanceType,service.getInstancesType());
+        assertEquals(numOfInstances,service.getNumOfInstances());
+    }
+
+    @Test
     public void testStart() throws Exception {
         setUpStart();
 
