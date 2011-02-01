@@ -670,7 +670,7 @@ public class ServiceManager {
         }
 
         List<UserConfigModeSet> userConfigModeSets = mode.getUserConfigModeSets();
-        log.info("cleared configs: " + serviceConfig);
+        log.debug("cleared configs: " + serviceConfig);
         if (null != userConfigModeSets) {
             for (UserConfigModeSet userConfigModeSet : userConfigModeSets) {
                 for (UserConfigMode m : userConfigModeSet.getModes()) {

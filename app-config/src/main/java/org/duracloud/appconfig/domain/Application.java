@@ -8,6 +8,7 @@
 package org.duracloud.appconfig.domain;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.common.util.ExceptionUtil;
 import org.duracloud.common.web.RestHttpHelper;
@@ -40,6 +41,19 @@ public class Application {
         this.host = host;
         this.port = port;
         this.context = context;
+    }
+
+    public Application(String host,
+                       String port,
+                       String context,
+                       String username,
+                       String password) {
+        this.host = host;
+        this.port = port;
+        this.context = context;
+
+        Credential credential = new Credential(username,password);
+        this.restHelper = new RestHttpHelper(credential);
     }
 
     /**
