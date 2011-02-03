@@ -27,13 +27,23 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.exam</groupId>
   <artifactId>maven-paxexam-plugin</artifactId>
-  <version>1.1.0-duracloud</version>
+  <version>1.1.0-duracloud-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>OPS4J Pax Exam - Maven Plugin</name>
   <description>
     Goal: generate-config: Converts configuration done inside pom to be readable by the PaxExamPluginOption option.
   </description>
+
+  <distributionManagement>
+
+    <snapshotRepository>
+      <id>duraspace-snapshots</id>
+      <name>DuraSpace Snapshots Maven Repository</name>
+      <url>https://m2.duraspace.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+
+  </distributionManagement>
 
   <build>
     <plugins>

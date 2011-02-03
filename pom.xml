@@ -199,7 +199,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <distributionManagement />
+    <distributionManagement>
+
+      <snapshotRepository>
+        <id>duraspace-snapshots</id>
+        <name>DuraSpace Snapshots Maven Repository</name>
+        <url>https://m2.duraspace.org/content/repositories/snapshots</url>
+      </snapshotRepository>
+
+    </distributionManagement>
 
     <repositories>
 

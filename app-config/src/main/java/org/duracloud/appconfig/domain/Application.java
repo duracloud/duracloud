@@ -46,14 +46,11 @@ public class Application {
     public Application(String host,
                        String port,
                        String context,
-                       String username,
-                       String password) {
+                       RestHttpHelper restHelper) {
         this.host = host;
         this.port = port;
         this.context = context;
-
-        Credential credential = new Credential(username,password);
-        this.restHelper = new RestHttpHelper(credential);
+        this.restHelper = restHelper;
     }
 
     /**
