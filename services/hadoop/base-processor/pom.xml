@@ -46,7 +46,7 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
-      <version>${project.version}</version>
+      <version>${bundle.dependency.version}</version>
     </dependency>    
 
     <dependency>

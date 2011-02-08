@@ -148,42 +148,42 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
-      <version>${project.version}</version>
+      <version>${bundle.dependency.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>servicescommon</artifactId>
-      <version>${project.version}</version>
+      <version>${bundle.dependency.version}</version>
       <scope>provided</scope>
     </dependency>
  
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>computeservice</artifactId>
-      <version>${project.version}</version>
+      <version>${bundle.dependency.version}</version>
       <scope>provided</scope>
     </dependency>
  
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>servicesutil</artifactId>
-      <version>${project.version}</version>
+      <version>${bundle.dependency.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>tomcatconfig</artifactId>
-      <version>${project.version}</version>
+      <version>${bundle.dependency.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>amazonmapreduce-servicescommon</artifactId>
-      <version>${project.version}</version>
+      <version>${bundle.dependency.version}</version>
       <scope>provided</scope>
     </dependency>
 

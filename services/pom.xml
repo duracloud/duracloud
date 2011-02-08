@@ -218,6 +218,7 @@
     <spring.maven.artifact.version>2.5.6</spring.maven.artifact.version>
     <service.output.spaceid>x-service-out</service.output.spaceid>
     <service.work.spaceid>x-service-work</service.work.spaceid>
+    <bundle.dependency.version>${project.version}</bundle.dependency.version>
   </properties>
 
   <dependencyManagement>
