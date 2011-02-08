@@ -8,14 +8,20 @@
 package org.duracloud.services.fixity;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.StoreCaller;
@@ -112,7 +118,14 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
                     getContentId());
         }
 
-        return new ListingIterator(new AutoCloseInputStream(listingStream));
+        InputStream cacheStream = cacheToDiskInputStream(listingStream);
+        if (null == cacheStream) {
+            return noWorkload(
+                "Error: cache stream is null for: " + getSpaceId() + "/" +
+                    getContentId());
+        }
+
+        return new ListingIterator(new AutoCloseInputStream(cacheStream));
     }
 
     private Content getContent() {
@@ -141,6 +154,24 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
             contentId = "invalid-mode-for-content-id";
         }
         return contentId;
+    }
+
+    private InputStream cacheToDiskInputStream(InputStream listingStream) {
+        try {
+            File tmpFile = File.createTempFile("hash-finder-", ".csv");
+
+            OutputStream outputStream = FileUtils.openOutputStream(tmpFile);
+            IOUtils.copy(listingStream, outputStream);
+
+            IOUtils.closeQuietly(outputStream);
+            IOUtils.closeQuietly(listingStream);
+
+            return new FileInputStream(tmpFile);
+
+        } catch (IOException e) {
+            log.error("Error caching listingStream: " + e.getMessage());
+            return null;
+        }
     }
 
     private boolean findFromListing(Mode mode) {
@@ -267,7 +298,8 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
                 return reader.readLine();
 
             } catch (IOException e) {
-                log.error("Error reading next line from ListingIterator.");
+                log.error("Error reading next line from ListingIterator:" +
+                    e.getMessage());
                 return null;
             }
         }

@@ -391,7 +391,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     public void setPassword(String password) {
-        log.info("set password(" + password + ")");
+        log.info("set password(*)");
         this.password = password;
     }
 
