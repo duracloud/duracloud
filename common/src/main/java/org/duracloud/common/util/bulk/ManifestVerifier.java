@@ -23,7 +23,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -69,31 +71,24 @@ public class ManifestVerifier {
         sb.append("title,file," + cksum0 + "," + cksum1 + ",state");
         sb.append(newline);
 
-        sb.append(resultEntries());
+        write(out, sb.toString());
 
+        Iterator<ResultEntry> entries = resultEntries();
+        while (entries.hasNext()) {
+            write(out, entries.next().toString());
+        }
+    }
+
+    private void write(OutputStream out, String text) {
         try {
-            out.write(sb.toString().getBytes());
+            out.write(text.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String resultEntries() {
-        String newline = System.getProperty("line.separator");
-        StringBuilder sb = new StringBuilder();
-        for (ResultEntry result : results.values()) {
-            sb.append(result.getTitle());
-            sb.append(",");
-            sb.append(result.getFile());
-            sb.append(",");
-            sb.append(result.getChecksum0());
-            sb.append(",");
-            sb.append(result.getChecksum1());
-            sb.append(",");
-            sb.append(result.getState());
-            sb.append(newline);
-        }
-        return sb.toString();
+    public Iterator<ResultEntry> resultEntries() {
+        return results.values().iterator();
     }
 
     /**
@@ -250,7 +245,7 @@ public class ManifestVerifier {
     }
 
 
-    private class ResultEntry {
+    public class ResultEntry {
         private String title;
         private String file;
         private String checksum0 = "";
@@ -295,6 +290,24 @@ public class ManifestVerifier {
 
         public void setState(State state) {
             this.state = state;
+        }
+
+        public boolean isError() {
+            return !State.VALID.equals(state);
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this.getTitle());
+            sb.append(",");
+            sb.append(this.getFile());
+            sb.append(",");
+            sb.append(this.getChecksum0());
+            sb.append(",");
+            sb.append(this.getChecksum1());
+            sb.append(",");
+            sb.append(this.getState());
+            return sb.toString();
         }
     }
 

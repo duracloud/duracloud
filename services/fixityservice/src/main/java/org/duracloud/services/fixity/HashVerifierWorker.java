@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 /**
  * @author Andrew Woods
@@ -42,6 +43,8 @@ import java.io.OutputStream;
 public class HashVerifierWorker implements Runnable {
 
     private final Logger log = LoggerFactory.getLogger(HashVerifierWorker.class);
+
+    private final static int RESULTS_PER_UPDATE = 1000;
 
     private ContentStore contentStore;
     private ContentLocation workItemLocationA;
@@ -73,13 +76,51 @@ public class HashVerifierWorker implements Runnable {
             verifier = new FixityManifestVerifier(fileA, fileB);
             verifier.verify();
 
-            sendResult(true, verifier.resultEntries());
+            sendResult(verifier.resultEntries());
 
         } catch (ManifestVerifyException mve) {
-            sendResult(false, verifier.resultEntries());
+            sendResult(verifier.resultEntries());
 
         } catch (Exception e) {
             sendResult(false, e.getMessage());
+        }
+    }
+
+    private void sendResult(Iterator<ManifestVerifier.ResultEntry> results) {
+        String newline = System.getProperty("line.separator");
+
+        boolean success = true;
+        int count = 0;
+        StringBuilder sb = new StringBuilder();
+        while (results.hasNext()) {
+            ManifestVerifier.ResultEntry result = results.next();
+            sb.append(result.toString());
+            sb.append(newline);
+
+            success = success && !result.isError();
+            if (++count >= RESULTS_PER_UPDATE) {
+                log.info("send result batch of " + RESULTS_PER_UPDATE);
+                trimNewline(newline, sb);
+                sendResult(success, sb.toString());
+
+                // reset for next batch
+                success = true;
+                count = 0;
+                sb = new StringBuilder();
+            }
+        }
+
+        if (sb.length() > 0) {
+            log.info("send result remainder");
+            trimNewline(newline, sb);
+            sendResult(success, sb.toString());
+        }
+    }
+
+    private void trimNewline(String newline, StringBuilder sb) {
+        int index = sb.lastIndexOf(newline);
+        if (index == sb.length() - newline.length()) {
+            sb.delete(index, sb.length());
         }
     }
 
