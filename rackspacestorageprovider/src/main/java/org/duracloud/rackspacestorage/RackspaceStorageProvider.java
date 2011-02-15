@@ -587,6 +587,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         log.debug("setContentMetadata(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
+        throwIfContentNotExist(spaceId, contentId);        
 
         // Remove calculated properties
         contentMetadata.remove(METADATA_CONTENT_CHECKSUM);

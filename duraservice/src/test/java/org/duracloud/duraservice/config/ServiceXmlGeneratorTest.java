@@ -39,11 +39,12 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> serviceInfos = serviceXmlGenerator.buildServiceList();
         Assert.assertNotNull(serviceInfos);
 
-        int NUM_SERVICES = 11;
+        int NUM_SERVICES = 12;
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
         boolean foundReplication = false;
+        boolean foundDuplication = false;
         boolean foundImagemagick = false;
         boolean foundWebapputil = false;
         boolean foundHellowebappwrapper = false;
@@ -66,6 +67,10 @@ public class ServiceXmlGeneratorTest {
             } else if (contentId.equals("replicationservice-" + ver + ".zip")) {
                 foundReplication = true;
                 verifyReplication(serviceInfo);
+
+            } else if (contentId.equals("duplicationservice-" + ver + ".zip")) {
+                foundDuplication = true;
+                verifyDuplication(serviceInfo);
 
             } else if (contentId.equals("imagemagickservice-" + ver + ".zip")) {
                 foundImagemagick = true;
@@ -125,6 +130,7 @@ public class ServiceXmlGeneratorTest {
 
         //Assert.assertTrue(foundHello);
         Assert.assertTrue(foundReplication);
+        Assert.assertTrue(foundDuplication);
         Assert.assertTrue(foundImagemagick);
         Assert.assertTrue(foundWebapputil);
         //Assert.assertTrue(foundHellowebappwrapper);
@@ -143,6 +149,14 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyReplication(ServiceInfo serviceInfo) {
+        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
+        Assert.assertNotNull(systemConfigs);
+        Assert.assertEquals(6, systemConfigs.size());
+
+        verifyDurastoreCredential(systemConfigs);
+    }
+
+    private void verifyDuplication(ServiceInfo serviceInfo) {
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);
         Assert.assertEquals(6, systemConfigs.size());

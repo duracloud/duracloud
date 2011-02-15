@@ -9,7 +9,11 @@ package org.duracloud.services.duplication;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.osgi.service.cm.ConfigurationException;
@@ -55,7 +59,17 @@ public class DuplicationService extends BaseService
 
     private String toStoreId;
 
-    private String duplicationType;
+    private String spaceCreateTopic;
+
+    private String spaceUpdateTopic;
+
+    private String spaceDeleteTopic;
+
+    private String contentCreateTopic;
+
+    private String contentUpdateTopic;
+
+    private String contentDeleteTopic;
 
     private AbstractMessageListenerContainer jmsContainer;
 
@@ -63,7 +77,9 @@ public class DuplicationService extends BaseService
 
     private Destination destination;
 
-    private Duplicator duplicator;
+    private SpaceDuplicator spaceDuplicator;
+
+    private ContentDuplicator contentDuplicator;
 
     @Override
     public void start() throws Exception {
@@ -80,7 +96,6 @@ public class DuplicationService extends BaseService
         log.info("credential: " + credential);
         log.info("fromStoreId: " + fromStoreId);
         log.info("toStoreId: " + toStoreId);
-        log.info("duplicationType: " + duplicationType);
 
         jmsContainer = new DefaultMessageListenerContainer();
         connectionFactory.setBrokerURL(brokerURL);
@@ -91,12 +106,27 @@ public class DuplicationService extends BaseService
         jmsContainer.start();
         jmsContainer.initialize();
 
-        duplicator = new Duplicator(host,
-                                    port,
-                                    context,
-                                    credential,
-                                    fromStoreId,
-                                    toStoreId);
+        ContentStoreManager storeManager =
+            new ContentStoreManagerImpl(host, port, context);
+
+        storeManager.login(credential);
+
+        ContentStore fromStore = null;
+        ContentStore toStore = null;
+        try {
+            fromStore = storeManager.getContentStore(fromStoreId);
+            toStore = storeManager.getContentStore(toStoreId);
+        } catch(ContentStoreException cse) {
+            String error = "Unable to create connections to content " +
+            		       "stores for duplication " + cse.getMessage();
+            log.error(error);
+        }
+
+        spaceDuplicator = new SpaceDuplicator(fromStore,
+                                              toStore);
+
+        contentDuplicator = new ContentDuplicator(fromStore,
+                                              toStore);
 
         log.info("Listener container started: ");
         log.info("jmsContainer.isRunning()");
@@ -133,15 +163,17 @@ public class DuplicationService extends BaseService
             log.debug("Message recieved in Duplication Service: " + message);
         }
 
+        String topic = null;
+
         try {
-            String topic = ((ActiveMQTopic)message.getJMSDestination()).getTopicName();
+            topic = ((ActiveMQTopic)message.getJMSDestination()).getTopicName();
             log.debug("Message topic name- "+topic);
         } catch(JMSException jmse) {
             log.error("Error getting message topic name", jmse);
         }
         
         if (message instanceof MapMessage) {
-            handleMapMessage((MapMessage) message);
+            handleMapMessage((MapMessage) message, topic);
         } else if (message instanceof TextMessage) {
             handleTextMessage(((TextMessage) message));
         } else {
@@ -165,11 +197,29 @@ public class DuplicationService extends BaseService
         }
     }
 
-    private void handleMapMessage(MapMessage message) {
+    private void handleMapMessage(MapMessage message, String topic) {
         try {
             String spaceId = message.getString(SPACE_ID);
             String contentId = message.getString(CONTENT_ID);
-            duplicator.duplicateContent(spaceId, contentId);
+
+            if(getSpaceCreateTopic().equals(topic)) {
+                spaceDuplicator.createSpace(spaceId);
+            }
+            else if(getSpaceUpdateTopic().equals(topic)) {
+                spaceDuplicator.updateSpace(spaceId);
+            }
+            else if(getSpaceDeleteTopic().equals(topic)) {
+                spaceDuplicator.deleteSpace(spaceId);
+            }
+            else if(getContentCreateTopic().equals(topic)) {
+                contentDuplicator.createContent(spaceId, contentId);
+            }
+            else if(getContentUpdateTopic().equals(topic)) {
+                contentDuplicator.updateContent(spaceId, contentId);
+            }
+            else if(getContentDeleteTopic().equals(topic)) {
+                contentDuplicator.deleteContent(spaceId, contentId);
+            }
         } catch (JMSException je) {
             String error =
                     "Error occured processing map message: " + je.getMessage();
@@ -249,12 +299,52 @@ public class DuplicationService extends BaseService
         this.toStoreId = toStoreId;
     }
 
-    public String getDuplicationType() {
-        return duplicationType;
+    public String getSpaceCreateTopic() {
+        return spaceCreateTopic;
     }
 
-    public void setDuplicationType(String duplicationType) {
-        this.duplicationType = duplicationType;
+    public void setSpaceCreateTopic(String spaceCreateTopic) {
+        this.spaceCreateTopic = spaceCreateTopic;
+    }
+
+    public String getSpaceUpdateTopic() {
+        return spaceUpdateTopic;
+    }
+
+    public void setSpaceUpdateTopic(String spaceUpdateTopic) {
+        this.spaceUpdateTopic = spaceUpdateTopic;
+    }
+
+    public String getSpaceDeleteTopic() {
+        return spaceDeleteTopic;
+    }
+
+    public void setSpaceDeleteTopic(String spaceDeleteTopic) {
+        this.spaceDeleteTopic = spaceDeleteTopic;
+    }
+
+    public String getContentCreateTopic() {
+        return contentCreateTopic;
+    }
+
+    public void setContentCreateTopic(String contentCreateTopic) {
+        this.contentCreateTopic = contentCreateTopic;
+    }
+
+    public String getContentUpdateTopic() {
+        return contentUpdateTopic;
+    }
+
+    public void setContentUpdateTopic(String contentUpdateTopic) {
+        this.contentUpdateTopic = contentUpdateTopic;
+    }
+
+    public String getContentDeleteTopic() {
+        return contentDeleteTopic;
+    }
+
+    public void setContentDeleteTopic(String contentDeleteTopic) {
+        this.contentDeleteTopic = contentDeleteTopic;
     }
 
 }

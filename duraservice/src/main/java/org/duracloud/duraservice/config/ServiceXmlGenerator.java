@@ -32,6 +32,7 @@ public class ServiceXmlGenerator {
                                                 new FixityToolsServiceInfo(),
                                                 new ReplicationOnDemandServiceInfo(),
                                                 new ReplicationServiceInfo(),
+                                                new DuplicationServiceInfo(),
                                                 //new HelloWebappWrapperServiceInfo(),
                                                 new J2kServiceInfo(),
                                                 new ImageConversionServiceInfo(),

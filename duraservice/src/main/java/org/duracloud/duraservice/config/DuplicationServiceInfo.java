@@ -20,7 +20,7 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
 
         ServiceInfo repService = new ServiceInfo();
         repService.setId(index);
-        repService.setContentId("replicationservice-" + version + ".zip");
+        repService.setContentId("duplicationservice-" + version + ".zip");
         String desc = "Duplicate on Change provides a simple mechanism " +
             "for applying changes to a secondary storage provider. When " +
             "running, Duplicate on Change will watch for changes in " +
@@ -51,51 +51,8 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
                                        "Apply to this store",
                                        storeOptions);
 
-        /* These features have not been implemented as part of the service yet.
-        // Replication Type
-        List<Option> repTypeOptions = new ArrayList<Option>();
-        Option repType1 =
-            new Option("Sync Current Content", "1", false);
-        Option repType2 =
-            new Option("Replicate on Update", "2", false);
-        Option repType3 =
-            new Option("Sync Current Content then Replicate On Update",
-                       "3",
-                       false);
-        repTypeOptions.add(repType1);
-        repTypeOptions.add(repType2);
-        repTypeOptions.add(repType3);
-
-        SingleSelectUserConfig repType =
-            new SingleSelectUserConfig("replicationType",
-                                       "Replicataion Style",
-                                       repTypeOptions);
-
-        // Replicate spaces filter
-        List<Option> spaceOptions = new ArrayList<Option>();
-        Option spaces =
-            new Option("Spaces", ServiceConfigUtil.SPACES_VAR, false);
-        spaceOptions.add(spaces);
-
-        MultiSelectUserConfig repSpaces =
-            new MultiSelectUserConfig("replicateSpaces",
-                                      "Only replicate content in these spaces",
-                                      spaceOptions);
-
-        // Mime type filter
-        TextUserConfig repMimeTypes =
-            new TextUserConfig("replicateMimetypes",
-                               "Only replicate content with these MIME " +
-                                   "types (separate with commas)", "");
-        */
-
         repServiceUserConfig.add(fromStoreId);
         repServiceUserConfig.add(toStoreId);
-        /*
-        repServiceUserConfig.add(repType);
-        repServiceUserConfig.add(repSpaces);
-        repServiceUserConfig.add(repMimeTypes);
-        */
 
         repService.setUserConfigModeSets(createDefaultModeSet(repServiceUserConfig));
 
