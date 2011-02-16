@@ -42,5 +42,9 @@ public class ChecksumInputStream extends FilterInputStream {
         }
         return providedChecksum;
     }
+
+    public byte[]  getMD5Bytes() {
+        return ChecksumUtil.getChecksumBytes((DigestInputStream) this.in);
+    }
     
 }

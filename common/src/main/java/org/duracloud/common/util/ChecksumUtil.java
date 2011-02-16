@@ -107,10 +107,22 @@ public class ChecksumUtil {
     }
 
     /**
+     * Determines the checksum value of a DigestInputStream's underlying
+     * stream after the stream has been read.
+     *
+     * @param digestStream
+     * @return The checksum value of the stream's contents
+     */
+    public static byte[] getChecksumBytes(DigestInputStream digestStream) {
+        MessageDigest digest = digestStream.getMessageDigest();
+        return digest.digest();
+    }
+
+    /**
      * Converts a message digest byte array into a String based
      * on the hex values appearing in the array.
      */
-    private static String checksumBytesToString(byte[] digestBytes) {
+    public static String checksumBytesToString(byte[] digestBytes) {
         StringBuffer hexString = new StringBuffer();
         for (int i=0; i<digestBytes.length; i++) {
             String hex=Integer.toHexString(0xff & digestBytes[i]);

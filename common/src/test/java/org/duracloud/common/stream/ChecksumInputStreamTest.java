@@ -54,6 +54,20 @@ public class ChecksumInputStreamTest {
         verifyMD5(stream);
     }
 
+    @Test
+    public void testMd5Bytes() throws IOException {
+        ChecksumInputStream stream = new ChecksumInputStream(contentStream,
+                                                             null);
+        read(stream);
+
+        byte[] md5Bytes = stream.getMD5Bytes();
+        assertNotNull(md5Bytes);
+
+        String md5 = ChecksumUtil.checksumBytesToString(md5Bytes);
+        assertNotNull(md5);
+        assertEquals(trueChecksum, md5);
+    }
+
     private void doTest(String checksum) throws IOException {
         ChecksumInputStream stream =
             new ChecksumInputStream(contentStream, checksum);

@@ -117,6 +117,23 @@ public class ChecksumUtilTest {
     }
 
     @Test
+    public void testGetChecksumBytes() throws Exception {
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        String md5 = util.generateChecksum(getStream(content));
+
+        DigestInputStream wrappedStream =
+            ChecksumUtil.wrapStream(getStream(content), Algorithm.MD5);
+
+        while(wrappedStream.read() > -1) {
+            // Just read through the bytes
+        }
+
+        byte[] checksumBytes = ChecksumUtil.getChecksumBytes(wrappedStream);
+        String checksum = ChecksumUtil.checksumBytesToString(checksumBytes);
+        assertEquals(md5, checksum);
+    }
+
+    @Test
     public void testGetFileChecksum() throws Exception {
         File tempFile = File.createTempFile("checksum-util-test", "file");
         Writer writer = new FileWriter(tempFile);

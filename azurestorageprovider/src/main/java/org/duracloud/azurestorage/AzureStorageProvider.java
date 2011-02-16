@@ -5,9 +5,18 @@
  *
  *     http://duracloud.org/license/
  */
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
 package org.duracloud.azurestorage;
 
+import org.apache.commons.codec.binary.Base64;
 import org.duracloud.common.stream.ChecksumInputStream;
+import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
@@ -58,9 +67,8 @@ public class AzureStorageProvider extends StorageProviderBase {
             /*
             * Set retry policy for a time interval of 5 seconds.
             */
-            blobStorage.setRetryPolicy(RetryPolicies.retryN(1,
-                                                            TimeSpan.fromSeconds(
-                                                                5)));
+            blobStorage.setRetryPolicy(RetryPolicies.retryExponentialN(4,
+                                                                       TimeSpan.fromSeconds(30)));
         } catch (org.soyatec.windowsazure.error.StorageException e) {
             String err =
                 "Could not connect to Azure due to error: " + e.getMessage();
@@ -441,8 +449,8 @@ public class AzureStorageProvider extends StorageProviderBase {
                              String contentChecksum,
                              InputStream content) {
         log.debug("addContent(" + spaceId + ", " + contentId + ", " +
-            contentMimeType + ", " + contentSize + ", " + contentChecksum +
-            ")");
+                     contentMimeType + ", " + contentSize + ", " +
+                     contentChecksum + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -484,12 +492,13 @@ public class AzureStorageProvider extends StorageProviderBase {
 
             blobProperties.setContentType(contentMimeType);
 
-            NameValueCollection metadata = new NameValueCollection();
-            metadata.put(METADATA_CONTENT_CHECKSUM, wrappedContent.getMD5());
-            blobProperties.setMetadata(metadata);
-
             /* Set Blob Contents */
             IBlobContents blobContents = new BlobContents(wrappedContent);
+            
+            byte[] md5 = wrappedContent.getMD5Bytes();
+            // Base64 encode md5
+            String base64 = new String(Base64.encodeBase64(md5));
+            blobProperties.setContentMD5(base64);
 
             if (blobContainer.isBlobExist(contentName)) {
                 blobContainer.updateBlockBlob(blobProperties, blobContents);                
@@ -669,6 +678,14 @@ public class AzureStorageProvider extends StorageProviderBase {
         String mimetype = metadata.getContentType();
         if (mimetype != null) {
             metadataMap.put(METADATA_CONTENT_MIMETYPE, mimetype);
+        }
+        // MD5
+        String md5 = metadata.getContentMD5();
+        if (md5 != null) {
+            byte[] base64Decoded = Base64.decodeBase64(md5.getBytes());
+            String newMd5 = ChecksumUtil.checksumBytesToString(base64Decoded);
+
+            metadataMap.put(METADATA_CONTENT_CHECKSUM, newMd5);
         }
         // SIZE
         long length = metadata.getContentLength();
