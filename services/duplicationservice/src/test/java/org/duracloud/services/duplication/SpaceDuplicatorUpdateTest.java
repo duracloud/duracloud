@@ -112,8 +112,14 @@ public class SpaceDuplicatorUpdateTest {
 
     private void mockGetSpaceMetadataExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
-        EasyMock.expect(store.getSpaceMetadata(spaceId)).andReturn(
+        switch (cmd) {
+            case NULL_INPUT:
+                break;
+            default:
+                EasyMock.expect(store.getSpaceMetadata(spaceId)).andReturn(
                     createSpaceMetadata(cmd));
+                break;
+        }
     }
 
     private void mockGetSpaceAccessExpectation(Mode cmd, ContentStore store)
