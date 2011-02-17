@@ -201,17 +201,23 @@ var dc;
 	/**
 	 * 
 	 */
-	dc.store.formatJ2kViewerURL = function(/*string*/j2kViewerBaseURL, /*object*/contentItem){
-		return j2kViewerBaseURL + "/viewer.html?rft_id=" + escape(contentItem.durastoreURL);
+	dc.store.formatJ2kViewerURL = function(/*string*/j2kViewerBaseURL, /*object*/contentItem, /*boolean*/ openSpace){
+		var contentUrl = contentItem.durastoreURL;
+        if(!openSpace){
+            contentUrl = contentUrl.replace("http://", "https://");}
+        return j2kViewerBaseURL + "/viewer.html?rft_id=" + escape(contentUrl);
 	};	
 
 	
 	/**
 	 * 
 	 */
-	dc.store.formatThumbnail = function(/*object*/contentItem, /*int*/ size, /*optional - string*/j2kViewerBaseURL ){
-    	return j2kViewerBaseURL+
-    			"/resolver?url_ver=Z39.88-2004&rft_id="+escape(contentItem.durastoreURL)+"&" + 
+	dc.store.formatThumbnail = function(/*object*/contentItem, /*int*/ size, /*optional - string*/j2kViewerBaseURL, /*boolean*/ openSpace ){
+        var contentUrl = contentItem.durastoreURL;
+        if(!openSpace)
+            contentUrl = contentUrl.replace("http://", "https://");
+        return j2kViewerBaseURL+
+    			"/resolver?url_ver=Z39.88-2004&rft_id="+escape(contentUrl)+"&" +
                 "svc_id=info:lanl-repo/svc/getRegion&svc_val_fmt=info:ofi/fmt:kev:mtx:jpeg2000&" +
                 "svc.format=image/png&svc.level="+size+"&svc.rotate=0&svc.region=0,0,500,500";
     };

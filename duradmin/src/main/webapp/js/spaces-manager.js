@@ -903,9 +903,6 @@ $(function(){
 				'overlayShow'	:	false};
 
 		var open = space.metadata.access == "OPEN";
-        if(j2kBaseURL != null && !open){
-            j2kBaseURL = j2kBaseURL.replace("http://", "https://")
-        }
 		var externalViewer = j2kBaseURL != null;
 		if(externalViewer){
 			options['width'] = $(document).width()*0.8;
@@ -918,8 +915,8 @@ $(function(){
 		var viewerURL,thumbnailURL;
 		
 		if(externalViewer){
-			viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem);
-			thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL);
+			viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
+			thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL, open);
 		}else{
 			viewerURL = dc.store.formatDownloadURL(contentItem,false);
 			thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
