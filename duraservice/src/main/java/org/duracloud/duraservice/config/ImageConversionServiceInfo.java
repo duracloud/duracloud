@@ -77,7 +77,7 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
 
         SingleSelectUserConfig toFormat =
             new SingleSelectUserConfig("toFormat",
-                                       "Destination Format",
+                                       "Format",
                                        toFormatOptions);
 
         List<Option> colorSpaceOptions = new ArrayList<Option>();
@@ -88,7 +88,7 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
 
         SingleSelectUserConfig colorSpace = new SingleSelectUserConfig(
             "colorSpace",
-            "Destination Color Space",
+            "Color Space",
             colorSpaceOptions);
 
         // Name Prefix
@@ -106,11 +106,11 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
                                "");
 
         icServiceUserConfig.add(sourceSpace);
+        icServiceUserConfig.add(namePrefix);
+        icServiceUserConfig.add(nameSuffix);
         icServiceUserConfig.add(destSpace);
         icServiceUserConfig.add(toFormat);
         icServiceUserConfig.add(colorSpace);
-        icServiceUserConfig.add(namePrefix);
-        icServiceUserConfig.add(nameSuffix);
 
         icService.setUserConfigModeSets(createDefaultModeSet(icServiceUserConfig));
 

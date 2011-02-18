@@ -161,7 +161,7 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
 
         SingleSelectUserConfig toFormat =
             new SingleSelectUserConfig("toFormat",
-                                       "Destination Format",
+                                       "Format",
                                        toFormatOptions);
 
         List<Option> colorSpaceOptions = new ArrayList<Option>();
@@ -172,7 +172,7 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
 
         SingleSelectUserConfig colorSpace = new SingleSelectUserConfig(
             "colorSpace",
-            "Destination Color Space",
+            "Color Space",
             colorSpaceOptions);
 
         // Name Prefix
@@ -191,11 +191,11 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
 
         // Include all user configs
         icServiceUserConfig.add(sourceSpace);
+        icServiceUserConfig.add(namePrefix);
+        icServiceUserConfig.add(nameSuffix);
         icServiceUserConfig.add(destSpace);
         icServiceUserConfig.add(toFormat);
         icServiceUserConfig.add(colorSpace);
-        icServiceUserConfig.add(namePrefix);
-        icServiceUserConfig.add(nameSuffix);
 
         return icServiceUserConfig;
     }
