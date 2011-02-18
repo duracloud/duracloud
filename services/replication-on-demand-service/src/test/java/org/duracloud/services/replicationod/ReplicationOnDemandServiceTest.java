@@ -106,7 +106,7 @@ public class ReplicationOnDemandServiceTest {
         assertEquals("5", service.getRepStoreId());
 
         service.setRepSpaceId(null);
-        assertEquals("replication-space", service.getRepSpaceId());
+        assertEquals("test-source", service.getRepSpaceId());
         service.setRepSpaceId("test-rep");
         assertEquals("test-rep", service.getRepSpaceId());        
 

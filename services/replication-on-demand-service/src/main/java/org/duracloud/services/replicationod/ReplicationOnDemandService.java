@@ -89,8 +89,8 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     protected Map<String, String> collectTaskParams() {
         Map<String, String> taskParams = super.collectTaskParams();
 
-        taskParams.put(TASK_PARAMS.REP_STORE_ID.name(), repStoreId);
-        taskParams.put(TASK_PARAMS.REP_SPACE_ID.name(), repSpaceId);
+        taskParams.put(TASK_PARAMS.REP_STORE_ID.name(), getRepStoreId());
+        taskParams.put(TASK_PARAMS.REP_SPACE_ID.name(), getRepSpaceId());
         taskParams.put(TASK_PARAMS.DC_HOST.name(), getDuraStoreHost());
         taskParams.put(TASK_PARAMS.DC_PORT.name(), getDuraStorePort());
         taskParams.put(TASK_PARAMS.DC_CONTEXT.name(), getDuraStoreContext());
@@ -116,6 +116,9 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     }
 
     public String getRepSpaceId() {
+        if(DEFAULT_REP_SPACE_ID.equals(repSpaceId)) {
+            repSpaceId = getSourceSpaceId();
+        }
         return repSpaceId;
     }
 
