@@ -63,6 +63,7 @@ public class HadoopTypes {
     public enum JOB_TYPES {
         BULK_IMAGE_CONVERSION,
         AMAZON_FIXITY,
+        AMAZON_FIXITY_METADATA,
         REP_ON_DEMAND;
     }
 

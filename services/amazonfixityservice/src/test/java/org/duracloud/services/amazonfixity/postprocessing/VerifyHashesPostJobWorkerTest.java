@@ -54,7 +54,6 @@ public class VerifyHashesPostJobWorkerTest {
                                                arg,
                                                arg,
                                                arg,
-                                               arg,
                                                arg);
     }
 
@@ -80,9 +79,6 @@ public class VerifyHashesPostJobWorkerTest {
     private ContentStore createMockContentStore() throws ContentStoreException {
         ContentStore contentStore = EasyMock.createMock("ContentStore",
                                                         ContentStore.class);
-        contentStore.deleteContent(EasyMock.isA(String.class), EasyMock.isA(
-            String.class));
-        EasyMock.expectLastCall();
 
         EasyMock.replay(contentStore);
         return contentStore;

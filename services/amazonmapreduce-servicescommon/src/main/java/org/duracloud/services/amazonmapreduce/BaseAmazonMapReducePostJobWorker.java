@@ -28,7 +28,7 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
         BaseAmazonMapReducePostJobWorker.class);
 
     private AmazonMapReduceJobWorker predecessor;
-    private long sleepMillis;
+    protected long sleepMillis;
 
     protected JobStatus status = JobStatus.WAITING;
     protected String error;

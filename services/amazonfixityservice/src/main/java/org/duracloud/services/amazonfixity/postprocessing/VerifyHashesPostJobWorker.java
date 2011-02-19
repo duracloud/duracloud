@@ -34,11 +34,6 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
 
     private FixityService fixityService;
 
-    private ContentStore contentStore;
-
-    private String outputSpaceId;
-    private String outputContentId; // generated, interim hash listing
-
     public VerifyHashesPostJobWorker(AmazonMapReduceJobWorker predecessor,
                                      ContentStore contentStore,
                                      FixityService fixityService,
@@ -49,7 +44,6 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
                                      String storeId,
                                      String username,
                                      String password,
-                                     String mode,
                                      String providedListingContentIdA,
                                      String providedListingSpaceIdB,
                                      String providedListingContentIdB,
@@ -57,9 +51,6 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
                                      String reportContentId) {
         super(predecessor);
         log.debug("constructing");
-
-        this.contentStore = contentStore;
-        this.outputSpaceId = outputSpaceId;
 
         this.fixityService = fixityService;
         fixityService.setDuraStoreHost(duraStoreHost);
@@ -69,20 +60,9 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
         fixityService.setUsername(username);
         fixityService.setPassword(password);
 
-        String hashApproach;
-        if (mode != null && mode.equals("compare")) {
-            mode = FixityServiceOptions.Mode.COMPARE.name();
-
-            hashApproach = null;
-            this.outputContentId = null;
-
-        } else {
-            mode = FixityServiceOptions.Mode.ALL_IN_ONE_LIST.name();
-            hashApproach = HashApproach.STORED.name();
-
-            String now = DateUtil.nowShort();
-            this.outputContentId = "bitIntegrity-bulk/gen-hash-" + now + ".csv";
-        }
+        String hashApproach = null;
+        String mode = FixityServiceOptions.Mode.COMPARE.name();
+        String outputContentId = null;
 
         fixityService.setProvidedListingSpaceIdA(outputSpaceId);
         fixityService.setProvidedListingContentIdA(providedListingContentIdA);
@@ -133,10 +113,6 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
     protected void doWork() {
         log.debug("VerifyHashesPostJobWorker.doWork()");
         startFixityService();
-
-        if (null != outputContentId) {
-            removeArtifacts();
-        }
     }
 
     private void startFixityService() {
@@ -150,16 +126,6 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
 
         } catch (Exception e) {
             log.error("Error performing verification task", e);
-            throw new DuraCloudRuntimeException(e);
-        }
-    }
-
-    private void removeArtifacts() {
-        try {
-            contentStore.deleteContent(outputSpaceId, outputContentId);
-
-        } catch (ContentStoreException e) {
-            log.error("Error cleaning artifacts: " + outputContentId, e);
             throw new DuraCloudRuntimeException(e);
         }
     }
@@ -190,4 +156,15 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
 
         return false;
     }
+
+    @Override
+    public void shutdown() {
+        try {
+            super.shutdown();
+            fixityService.stop();
+        } catch (Exception e) {
+            log.warn("Error shutting down fixity-post-processor.", e);
+        }
+    }
+
 }

@@ -92,6 +92,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.duracloud.services.hadoop</groupId>
+      <artifactId>fixity-metadata-processor</artifactId>
+      <version>${bundle.dependency.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- other -->
     <dependency>
       <groupId>org.apache.commons</groupId>

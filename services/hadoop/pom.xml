@@ -21,6 +21,7 @@
     <module>base-processor</module>
     <module>image-conversion-processor</module>
     <module>fixity-processor</module>
+    <module>fixity-metadata-processor</module>
     <module>replication-processor</module>
   </modules>
 

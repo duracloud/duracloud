@@ -23,6 +23,13 @@
         <include>org.duracloud.services.hadoop:fixity-processor</include>
       </includes>
     </dependencySet>
+    <dependencySet>
+      <scope>provided</scope>
+      <outputFileNameMapping>fixity-metadata-processor.hjar</outputFileNameMapping>
+      <includes>
+        <include>org.duracloud.services.hadoop:fixity-metadata-processor</include>
+      </includes>
+    </dependencySet>
   </dependencySets>
 
 </assembly>
