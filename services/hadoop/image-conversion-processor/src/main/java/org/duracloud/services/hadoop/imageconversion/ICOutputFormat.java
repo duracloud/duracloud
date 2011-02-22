@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.hadoop.imageconversion;
 
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.services.hadoop.base.AltTextOutputFormat;
 
 /**
@@ -17,7 +18,8 @@ public class ICOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "imageTransformer-bulk/imageTransformer-results.csv";
+        return "image-transformer-bulk/image-transformer-results-" +
+            DateUtil.nowMid() + ".csv";
     }
 
 }

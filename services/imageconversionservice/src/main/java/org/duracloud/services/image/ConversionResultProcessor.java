@@ -9,6 +9,7 @@ package org.duracloud.services.image;
 
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * @author: Bill Branan
@@ -50,8 +50,8 @@ public class ConversionResultProcessor implements ConversionResultListener {
         unsuccessfulConversions = 0;
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        Date now = new Date(System.currentTimeMillis());
-        resultsId = "Conversion-Results-" + dateFormat.format(now) + ".csv";
+        resultsId = "image-transformer/image-transformer-results-" +
+            DateUtil.nowMid() + ".csv";
 
         String resultsHeader =
             "conversion-date, source-space-id, content-id, dest-space-id, " +

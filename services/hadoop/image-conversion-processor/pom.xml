@@ -61,7 +61,6 @@
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
       <version>${bundle.dependency.version}</version>
-      <scope>runtime</scope>
     </dependency>
 
     <dependency>

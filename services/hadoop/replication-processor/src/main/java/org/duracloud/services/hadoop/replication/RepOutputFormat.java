@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.hadoop.replication;
 
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.services.hadoop.base.AltTextOutputFormat;
 
 /**
@@ -17,7 +18,8 @@ public class RepOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "duplicateOnDemand/duplicate-results.csv";
+        return "duplicate-on-demand/duplicate-results-" + DateUtil.nowMid() +
+            ".csv";
     }
 
 }

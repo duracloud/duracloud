@@ -39,6 +39,12 @@ public class DateUtil {
         return dateFormat.format(now);
     }
 
+    public static String nowMid() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd:HH:mm");
+        Date now = new Date(System.currentTimeMillis());
+        return dateFormat.format(now);
+    }
+
     public static String nowShort() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date(System.currentTimeMillis());
