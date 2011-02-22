@@ -20,6 +20,7 @@
     <property name="colorSpace" value="source"/>
     <property name="sourceSpaceId" value="image-conversion-source"/>
     <property name="destSpaceId" value="image-conversion-dest"/>
+    <property name="outputSpaceId" value="${service.output.spaceid}"/>
     <property name="namePrefix" value=""/>
     <property name="nameSuffix" value=""/>
     <property name="threads" value="5"/>

@@ -53,6 +53,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
     private String colorSpace;
     private String sourceSpaceId;
     private String destSpaceId;
+    private String outputSpaceId;
     private String namePrefix;
     private String nameSuffix;
     private int threads;
@@ -77,6 +78,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
                                                 colorSpace,
                                                 sourceSpaceId,
                                                 destSpaceId,
+                                                outputSpaceId,
                                                 namePrefix,
                                                 nameSuffix,
                                                 threads);
@@ -229,6 +231,14 @@ public class ImageConversionService extends BaseService implements ComputeServic
                 DEFAULT_DEST_SPACE_ID);
             this.destSpaceId = DEFAULT_DEST_SPACE_ID;
         }
+    }
+
+    public String getOutputSpaceId() {
+        return outputSpaceId;
+    }
+
+    public void setOutputSpaceId(String outputSpaceId) {
+        this.outputSpaceId = outputSpaceId;
     }
 
     public String getNamePrefix() {

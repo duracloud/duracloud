@@ -48,6 +48,7 @@ public class ConversionManager {
     private String colorSpace;
     private String sourceSpaceId;
     private String destSpaceId;
+    private String outputSpaceId;
     private String namePrefix;
     private String nameSuffix;
 
@@ -61,6 +62,7 @@ public class ConversionManager {
                              String colorSpace,
                              String sourceSpaceId,
                              String destSpaceId,
+                             String outputSpaceId,
                              String namePrefix,
                              String nameSuffix,
                              int threads) {
@@ -70,6 +72,7 @@ public class ConversionManager {
         this.colorSpace = colorSpace;
         this.sourceSpaceId = sourceSpaceId;
         this.destSpaceId = destSpaceId;
+        this.outputSpaceId = outputSpaceId;
         this.namePrefix = namePrefix;
         this.nameSuffix = nameSuffix;
 
@@ -77,7 +80,7 @@ public class ConversionManager {
         loadExtMimeMap();
 
         resultProcessor =
-            new ConversionResultProcessor(contentStore, destSpaceId, workDir);
+            new ConversionResultProcessor(contentStore, outputSpaceId, workDir);
 
         workerPool =
             new ThreadPoolExecutor(threads,

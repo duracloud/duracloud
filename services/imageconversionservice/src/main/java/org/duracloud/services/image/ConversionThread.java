@@ -27,6 +27,7 @@ public class ConversionThread extends Thread {
                             String colorSpace,
                             String sourceSpaceId,
                             String destSpaceId,
+                            String outputSpaceId,
                             String namePrefix,
                             String nameSuffix,
                             int threads) {
@@ -36,6 +37,7 @@ public class ConversionThread extends Thread {
                                                   colorSpace,
                                                   sourceSpaceId,
                                                   destSpaceId,
+                                                  outputSpaceId,
                                                   namePrefix,
                                                   nameSuffix,
                                                   threads);
