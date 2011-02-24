@@ -163,16 +163,32 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
         return primaryInstance;
     }
 
+    public void setPrimaryInstance(PrimaryInstance primaryInstance) {
+        this.primaryInstance = primaryInstance;
+    }
+
     public UserStore getUserStore() {
         return userStore;
     }
 
+    public void setUserStore(UserStore userStore) {
+        this.userStore = userStore;
+    }
+    
     public ServiceStore getServiceStore() {
         return serviceStore;
     }
 
+    public void setServiceStore(ServiceStore serviceStore) {
+        this.serviceStore = serviceStore;
+    }
+
     public ServiceCompute getServiceCompute() {
         return serviceCompute;
+    }
+
+    public void setServiceCompute(ServiceCompute serviceCompute) {
+        this.serviceCompute = serviceCompute;
     }
 
     public static class PrimaryInstance {

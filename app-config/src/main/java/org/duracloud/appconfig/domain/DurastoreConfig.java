@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class holds the configuration elements for durastore.
@@ -38,7 +39,8 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String usernameKey = "username";
     protected static final String passwordKey = "password";
 
-    private Map<String, StorageAccount> storageAccounts = new HashMap<String, StorageAccount>();
+    private Map<String, StorageAccount> storageAccounts =
+        new HashMap<String, StorageAccount>();
 
     protected String getQualifier() {
         return QUALIFIER;
@@ -94,6 +96,20 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
     public Collection<StorageAccount> getStorageAccounts() {
         return storageAccounts.values();
+    }
+
+    /**
+     * Directly sets storage provider accounts. The list of storage accounts
+     * is cleared prior to the new set being applied, so no accounts included
+     * prior to this call will remain.
+     *
+     * @param storageAccts storage provider accounts to set
+     */
+    public void setStorageAccounts(Set<StorageAccount> storageAccts) {
+        this.storageAccounts = new HashMap<String, StorageAccount>();
+        for(StorageAccount storageAcct : storageAccts) {
+            this.storageAccounts.put(storageAcct.getId(), storageAcct);
+        }
     }
 
     public String asXml() {
