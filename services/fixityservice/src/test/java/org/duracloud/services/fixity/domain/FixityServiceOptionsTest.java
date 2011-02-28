@@ -309,7 +309,7 @@ public class FixityServiceOptionsTest {
         Assert.assertNotNull(serviceOptions.getProvidedListingContentIdA());
         Assert.assertEquals(FixityServiceOptions.defaultGenContentId.replace(
             "$TIMESTAMP",
-            null + "-" + DateUtil.nowShort()),
+            null + "-" + DateUtil.nowMid()),
                             serviceOptions.getProvidedListingContentIdA());
     }
 
@@ -320,7 +320,7 @@ public class FixityServiceOptionsTest {
         params.put(outputContentIdKey, null);
         params.put(reportContentIdKey, null);
 
-        String now = DateUtil.nowShort();
+        String now = DateUtil.nowMid();
         String qualifier;
 
         // all-in-one space
@@ -354,9 +354,9 @@ public class FixityServiceOptionsTest {
 
         Assert.assertNotNull(serviceOptions.getOutputContentId());
         Assert.assertNotNull(serviceOptions.getReportContentId());
-        Assert.assertEquals("bitintegrity/fingerprints-" + qualifier + ".csv",
+        Assert.assertEquals("bit-integrity/fingerprints-" + qualifier + ".csv",
                             serviceOptions.getOutputContentId());
-        Assert.assertEquals("bitintegrity/fixity-report-" + qualifier + ".csv",
+        Assert.assertEquals("bit-integrity/fixity-report-" + qualifier + ".csv",
                             serviceOptions.getReportContentId());
     }
 
