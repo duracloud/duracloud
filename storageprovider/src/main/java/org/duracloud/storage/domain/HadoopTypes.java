@@ -29,6 +29,7 @@ public class HadoopTypes {
         NUM_INSTANCES("-"),
         MAPPERS_PER_INSTANCE("-"),
         // image conversion params
+        OUTPUT_SPACE_ID("outputSpaceId"),
         DEST_FORMAT("destFormat"),
         COLOR_SPACE("colorSpace"),
         NAME_PREFIX("namePrefix"),

@@ -61,8 +61,7 @@ public class SimpleFileRecordReader implements RecordReader<Text, Text> {
                 if(verifyProcessFile(filePath)) {
                     key.set(filePath);
 
-                    Path outputPath = FileOutputFormat.getOutputPath(jobConf);
-                    value.set(outputPath.toString());
+                    value.set(getOutputPath());
 
                     result = true;
                 } else {
@@ -82,6 +81,11 @@ public class SimpleFileRecordReader implements RecordReader<Text, Text> {
         }
 
         return result;
+    }
+
+    protected String getOutputPath() {
+        Path outputPath = FileOutputFormat.getOutputPath(jobConf);
+        return outputPath.toString();
     }
 
     /**

@@ -68,7 +68,7 @@ public class RunHadoopJobTaskRunnerTest {
         EasyMock
             .expect(mock.getBucketName(EasyMock.isA(String.class)))
             .andReturn("bucket-name")
-            .times(3);
+            .times(4);
 
         EasyMock.replay(mock);
         return mock;
@@ -80,7 +80,7 @@ public class RunHadoopJobTaskRunnerTest {
         EasyMock
             .expect(mock.doesBucketExist(EasyMock.isA(String.class)))
             .andReturn(true)
-            .times(3);
+            .times(4);
 
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setHeader("key", "value");
@@ -125,6 +125,7 @@ public class RunHadoopJobTaskRunnerTest {
         taskParams.put(TASK_PARAMS.WORKSPACE_ID.name(), "work");
         taskParams.put(TASK_PARAMS.SOURCE_SPACE_ID.name(), "source");
         taskParams.put(TASK_PARAMS.DEST_SPACE_ID.name(), "dest");
+        taskParams.put(TASK_PARAMS.OUTPUT_SPACE_ID.name(), "out");
         taskParams.put(TASK_PARAMS.BOOTSTRAP_CONTENT_ID.name(), "boot");
         taskParams.put(TASK_PARAMS.JAR_CONTENT_ID.name(), "jar");
         taskParams.put(TASK_PARAMS.INSTANCE_TYPE.name(), "instance");

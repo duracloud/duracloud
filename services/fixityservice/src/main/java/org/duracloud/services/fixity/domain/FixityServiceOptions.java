@@ -23,7 +23,7 @@ public class FixityServiceOptions {
     private final Logger log = LoggerFactory.getLogger(FixityServiceOptions.class);
 
     private final static String timestamp = "$TIMESTAMP";
-    private final static String defaultPrefix = "bitintegrity";
+    private final static String defaultPrefix = "bit-integrity";
     private final static String defaultHashApproach = GENERATED.name();
     private final static String defaultOutputContentId =
         defaultPrefix + "/fingerprints-" + timestamp + ".csv";
@@ -341,7 +341,7 @@ public class FixityServiceOptions {
         }
 
         return contentId.replace(timestamp,
-                                 qualifier + "-" + DateUtil.nowShort());
+                                 qualifier + "-" + DateUtil.nowMid());
     }
 
     public String toString() {

@@ -55,6 +55,12 @@ public class ICInitParamParser extends InitParamParser {
         nameSuffixOption.setRequired(false);
         options.addOption(nameSuffixOption);
 
+        String outputSpaceId = "Space to put converted image files";
+        Option outputSpaceIdOption =
+            new Option("o", TASK_PARAMS.OUTPUT_SPACE_ID.getLongForm(), true, outputSpaceId);
+        nameSuffixOption.setRequired(true);
+        options.addOption(outputSpaceIdOption);
+
         return options;
     }
 }

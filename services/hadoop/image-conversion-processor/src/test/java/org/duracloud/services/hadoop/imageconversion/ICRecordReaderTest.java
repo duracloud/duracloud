@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertEquals;
+
 import static org.duracloud.storage.domain.HadoopTypes.*;
 
 /**
@@ -72,6 +74,18 @@ public class ICRecordReaderTest {
         assertTrue(reader.verifyProcessFile("my-test.txt"));
 
         assertFalse(reader.verifyProcessFile("test.jpg"));
+    }
+
+    @Test
+    public void testGetOutputPath() {
+        String inputPath = "file://inputPath";
+        JobConf conf = HadoopTestUtil.createJobConf();
+        FileSplit split = new FileSplit(new Path(inputPath), 0, 10, conf);
+
+        conf.set(TASK_PARAMS.OUTPUT_SPACE_ID.getLongForm(), "test");
+
+        ICRecordReader reader = new ICRecordReader(split, conf, Reporter.NULL);
+        assertEquals("test", reader.getOutputPath());
     }
 
 }

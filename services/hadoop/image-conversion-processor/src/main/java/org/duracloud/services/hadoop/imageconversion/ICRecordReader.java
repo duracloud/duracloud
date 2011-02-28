@@ -52,4 +52,11 @@ public class ICRecordReader extends SimpleFileRecordReader {
         return prefixVerified && suffixVerified;
     }
 
+    @Override
+    protected String getOutputPath() {
+        String outputSpaceId = jobConf.get(
+            TASK_PARAMS.OUTPUT_SPACE_ID.getLongForm());
+        return outputSpaceId;
+    }
+
 }

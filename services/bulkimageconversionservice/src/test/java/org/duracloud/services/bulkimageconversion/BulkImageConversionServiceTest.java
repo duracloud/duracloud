@@ -28,6 +28,7 @@ public class BulkImageConversionServiceTest {
         BulkImageConversionService service = new BulkImageConversionService();
         service.setWorkSpaceId("test-work");
         service.setSourceSpaceId("test-source");
+        service.setOutputSpaceId("test-output");
         service.setDestSpaceId("test-dest");
         service.setToFormat("png");
         service.setNamePrefix("test-");
@@ -42,6 +43,7 @@ public class BulkImageConversionServiceTest {
                      params.get(TASK_PARAMS.JOB_TYPE.name()));
         assertEquals("test-work", params.get(TASK_PARAMS.WORKSPACE_ID.name()));
         assertEquals("test-source", params.get(TASK_PARAMS.SOURCE_SPACE_ID.name()));
+        assertEquals("test-output", params.get(TASK_PARAMS.OUTPUT_SPACE_ID.name()));
         assertEquals("test-dest", params.get(TASK_PARAMS.DEST_SPACE_ID.name()));
         assertEquals("png", params.get(TASK_PARAMS.DEST_FORMAT.name()));
         assertEquals("test-", params.get(TASK_PARAMS.NAME_PREFIX.name()));

@@ -38,7 +38,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
 
     private final Logger log = LoggerFactory.getLogger(AmazonFixityService.class);
 
-    private static final String PREFIX = "bitIntegrity-bulk/bitIntegrity-";
+    private static final String PREFIX = "bit-integrity-bulk/bit-integrity-";
 
     private AmazonMapReduceJobWorker worker;
     private AmazonMapReduceJobWorker postWorker;

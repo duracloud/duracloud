@@ -136,7 +136,7 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
             spaceOptions);
 
         SingleSelectUserConfig destSpace = new SingleSelectUserConfig(
-            "destSpaceId",
+            "outputSpaceId",
             "Destination Space",
             spaceOptions);
 

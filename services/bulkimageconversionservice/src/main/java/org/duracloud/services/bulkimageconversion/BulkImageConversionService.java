@@ -38,6 +38,7 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
     private static final String DEFAULT_NAME_PREFIX = "";
     private static final String DEFAULT_NAME_SUFFIX = "";
 
+    private String outputSpaceId;
     private String toFormat;
     private String colorSpace;
     private String namePrefix;
@@ -98,6 +99,7 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
         if (colorSpace != null) {
             taskParams.put(TASK_PARAMS.COLOR_SPACE.name(), colorSpace);
         }
+        taskParams.put(TASK_PARAMS.OUTPUT_SPACE_ID.name(), outputSpaceId);
 
         return taskParams;
     }
@@ -107,6 +109,14 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
         super.stop();
         worker = null;
         postWorker = null;
+    }
+
+    public String getOutputSpaceId() {
+        return outputSpaceId;
+    }
+
+    public void setOutputSpaceId(String outputSpaceId) {
+        this.outputSpaceId = outputSpaceId;
     }
 
     public String getToFormat() {

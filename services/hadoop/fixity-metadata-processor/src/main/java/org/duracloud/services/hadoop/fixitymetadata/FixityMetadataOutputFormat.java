@@ -17,7 +17,7 @@ public class FixityMetadataOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "bitIntegrity-bulk/bitIntegrity-metadata-results.csv";
+        return "bit-integrity-bulk/bit-integrity-metadata-results.csv";
     }
 
 }

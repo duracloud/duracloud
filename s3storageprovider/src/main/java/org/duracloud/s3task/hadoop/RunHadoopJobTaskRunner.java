@@ -82,6 +82,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         String jarContentId = taskParams.get(TASK_PARAMS.JAR_CONTENT_ID.name());
         String sourceSpaceId = taskParams.get(TASK_PARAMS.SOURCE_SPACE_ID.name());
         String destSpaceId = taskParams.get(TASK_PARAMS.DEST_SPACE_ID.name());
+        String outputSpaceId = taskParams.get(TASK_PARAMS.OUTPUT_SPACE_ID.name());
         String instanceType = taskParams.get(TASK_PARAMS.INSTANCE_TYPE.name());
         String numInstances = taskParams.get(TASK_PARAMS.NUM_INSTANCES.name());
         String mappersPerInstance = taskParams.get(TASK_PARAMS.MAPPERS_PER_INSTANCE.name());
@@ -100,6 +101,7 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
                  " jarContentId=" + jarContentId +
                  " sourceSpaceId=" + sourceSpaceId +
                  " destSpaceId=" + destSpaceId +
+                 " outputSpaceId=" + outputSpaceId +
                  " instanceType=" + instanceType +
                  " numInstances=" + numInstances +
                  " mappersPerInstance=" + mappersPerInstance +
@@ -109,10 +111,28 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
                  " dcStoreId=" + dcStoreId +
                  " dcUsername=" + dcUsername);
 
+        List<String> jarParams = new ArrayList<String>();
+
         // Verify a known job type
         HadoopTaskHelper taskHelper = null;
         if(jobType != null && jobType.equals(BULK_IMAGE_CONVERSION.name())) {
             taskHelper = new BulkImageConversionTaskHelper();
+
+            // Verify required params were provided
+            if (outputSpaceId == null) {
+                throw new RuntimeException("All required parameters not provided");
+            }
+            // Verify buckets exist
+            String outputBucketName = s3Provider.getBucketName(outputSpaceId);
+            boolean outputExists = s3Client.doesBucketExist(outputBucketName);
+            if(!outputExists) {
+                throw new RuntimeException("Output" +
+                    "bucket must exist in order to run a hadoop job");
+            }
+            String outputPath = "s3n://" + outputBucketName + "/";
+
+            jarParams.add(TASK_PARAMS.OUTPUT_SPACE_ID.getCliForm());
+            jarParams.add(outputPath);
         } else if(jobType != null && jobType.equals(REP_ON_DEMAND.name())) {
             taskHelper = new ReplicationOnDemandTaskHelper();
         } else {
@@ -204,7 +224,6 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
         String inputPath = "s3n://" + sourceBucketName + "/";
         String outputPath = "s3n://" + destBucketName + "/";
 
-        List<String> jarParams = new ArrayList<String>();
         jarParams.add(TASK_PARAMS.INPUT_PATH.getCliForm());
         jarParams.add(inputPath);
         jarParams.add(TASK_PARAMS.OUTPUT_PATH.getCliForm());
