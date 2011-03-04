@@ -18,8 +18,7 @@ public class ICOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "image-transformer-bulk/image-transformer-results-" +
-            DateUtil.nowMid() + ".csv";
+        return "image-transformer-bulk/image-transformer-results.csv";
     }
 
 }

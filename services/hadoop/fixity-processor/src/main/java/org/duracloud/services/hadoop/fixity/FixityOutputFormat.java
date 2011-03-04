@@ -7,7 +7,6 @@
  */
 package org.duracloud.services.hadoop.fixity;
 
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.services.hadoop.base.AltTextOutputFormat;
 
 /**
@@ -18,8 +17,7 @@ public class FixityOutputFormat extends AltTextOutputFormat {
 
     @Override
     protected String getOutputFileName() {
-        return "bit-integrity-bulk/bit-integrity-results-" + DateUtil.nowMid() +
-            ".csv";
+        return "bit-integrity-bulk/bit-integrity-results.csv";
     }
 
 }

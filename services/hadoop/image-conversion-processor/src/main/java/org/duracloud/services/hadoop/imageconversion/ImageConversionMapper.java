@@ -75,13 +75,23 @@ public class ImageConversionMapper extends ProcessFileMapper {
 
     @Override
     protected String collectResult() throws IOException {                
-        String result = super.collectResult();
-        result += ", " + PROC_TIME + "=" + resultInfo.get(PROC_TIME);
-        result += ", " + SRC_SIZE + "=" +  resultInfo.get(SRC_SIZE);
+        String result = resultInfo.get(RESULT);
+
+        String errMsg = resultInfo.get(ERR_MESSAGE);
+        if (errMsg != null) {
+            result += "-" + errMsg;
+        }
+
+        result += ", " + resultInfo.get(INPUT_PATH);
+        result += ", " + resultInfo.get(RESULT_PATH);
+
+
+        result += ", " + resultInfo.get(PROC_TIME);
+        result += ", "+  resultInfo.get(SRC_SIZE);
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String now = format.format(new Date(System.currentTimeMillis()));
-        result += ", " + DATE + "=" + now;
+        result += ", " + now;
 
         return result;
     }

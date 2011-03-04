@@ -10,7 +10,12 @@ package org.duracloud.services.replicationod;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
+import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker;
 import org.duracloud.storage.domain.HadoopTypes;
+import org.duracloud.common.util.DateUtil;
+
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +43,7 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     private String repSpaceId;
 
     private ReplicationOnDemandJobWorker worker;
+    private AmazonMapReduceJobWorker postWorker;
     
     @Override
     protected AmazonMapReduceJobWorker getJobWorker() {
@@ -52,7 +58,34 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
 
     @Override
     protected AmazonMapReduceJobWorker getPostJobWorker() {
-        return null;
+        if (null == postWorker) {
+            String header = "result, input-file-path, result-file-path, " +
+                "duplication-result, source-file-bytes, duplication-attempts, date";
+
+            String preName = "duplicate-on-demand/duplicate-results";
+            String date = "-" + DateUtil.nowMid();
+            String postName = ".csv";
+
+            AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
+                getJobWorker(),
+                getContentStore(),
+                getServiceWorkDir(),
+                getDestSpaceId(),
+                preName + postName,
+                preName + date + postName,
+                header);
+
+            AmazonMapReduceJobWorker mimeWorker = new MimePostJobWorker(headerWorker,
+                                               getContentStore(),
+                                               getDestSpaceId());
+
+            AmazonMapReduceJobWorker[] postWorkers =
+                new AmazonMapReduceJobWorker[]{headerWorker,
+                                               mimeWorker};
+
+            postWorker = new MultiPostJobWorker(getJobWorker(), postWorkers);
+        }
+        return postWorker;
     }
 
     @Override

@@ -43,6 +43,7 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
     private String serviceWorkDir;
     private String spaceId;
     private String contentId;
+    private String newContentId;
     private String header;
 
     public HeaderPostJobWorker(AmazonMapReduceJobWorker predecessor,
@@ -50,9 +51,10 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
                                String serviceWorkDir,
                                String spaceId,
                                String contentId,
+                               String newContentId,
                                String header) {
         super(predecessor);
-        init(contentStore, serviceWorkDir, spaceId, contentId, header);
+        init(contentStore, serviceWorkDir, spaceId, contentId, newContentId, header);
     }
 
     public HeaderPostJobWorker(AmazonMapReduceJobWorker predecessor,
@@ -60,21 +62,24 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
                                String serviceWorkDir,
                                String spaceId,
                                String contentId,
+                               String newContentId,
                                String header,
                                long sleepMillis) {
         super(predecessor, sleepMillis);
-        init(contentStore, serviceWorkDir, spaceId, contentId, header);
+        init(contentStore, serviceWorkDir, spaceId, contentId, newContentId, header);
     }
 
     private void init(ContentStore contentStore,
                       String serviceWorkDir,
                       String spaceId,
                       String contentId,
+                      String newContentId,
                       String header) {
         this.contentStore = contentStore;
         this.serviceWorkDir = serviceWorkDir;
         this.spaceId = spaceId;
         this.contentId = contentId;
+        this.newContentId = newContentId;
         this.header = header;
     }
 
@@ -93,6 +98,8 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
         IOUtils.closeQuietly(originalStream);
 
         storeContentStream(fileWithHeader);
+
+        deleteOldContent();
     }
 
     private InputStream getContentStream() {
@@ -165,11 +172,27 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
         }
     }
 
+    private void deleteOldContent() {
+        try {
+            contentStore.deleteContent(spaceId, contentId);
+
+        } catch (ContentStoreException e) {
+            StringBuilder sb = new StringBuilder("Error: ");
+            sb.append("deleting content: ");
+            sb.append(spaceId);
+            sb.append("/");
+            sb.append(contentId);
+            sb.append(": ");
+            sb.append(e.getMessage());
+            log.error(sb.toString());
+        }
+    }
+
     private void storeContentStream(File file) {
         log.debug("storing content to storage-provider: " + file.getPath());
         try {
             contentStore.addContent(spaceId,
-                                    contentId,
+                                    newContentId,
                                     new FileInputStream(file),
                                     file.length(),
                                     null,
@@ -180,7 +203,7 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
             StringBuilder sb = new StringBuilder("Error adding content: ");
             sb.append(spaceId);
             sb.append("/");
-            sb.append(contentId);
+            sb.append(newContentId);
             sb.append(", from: ");
             sb.append(file.getPath());
             log.error(sb.toString());

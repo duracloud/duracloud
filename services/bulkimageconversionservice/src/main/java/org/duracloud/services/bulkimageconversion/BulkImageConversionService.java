@@ -12,7 +12,11 @@ import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker;
 import org.duracloud.storage.domain.HadoopTypes;
+import org.duracloud.common.util.DateUtil;
+
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +65,36 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
     @Override
     protected AmazonMapReduceJobWorker getPostJobWorker() {
         if (null == postWorker) {
-            postWorker = new MimePostJobWorker(getJobWorker(),
+            AmazonMapReduceJobWorker mimeWorker = new MimePostJobWorker(getJobWorker(),
+                                               getContentStore(),
+                                               getOutputSpaceId());
+
+            String header = "result, input-file-path, result-file-path, " +
+                "processing-time, source-file-bytes, date";
+
+            String preName = "image-transformer-bulk/image-transformer-results";
+            String date = "-" + DateUtil.nowMid();
+            String postName = ".csv";
+
+            AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
+                getJobWorker(),
+                getContentStore(),
+                getServiceWorkDir(),
+                getDestSpaceId(),
+                preName + postName,
+                preName + date + postName,
+                header);
+
+            AmazonMapReduceJobWorker mimeWorker2 = new MimePostJobWorker(headerWorker,
                                                getContentStore(),
                                                getDestSpaceId());
+
+            AmazonMapReduceJobWorker[] postWorkers =
+                new AmazonMapReduceJobWorker[]{headerWorker,
+                                               mimeWorker,
+                                               mimeWorker2};
+
+            postWorker = new MultiPostJobWorker(getJobWorker(), postWorkers);
         }
         return postWorker;
     }

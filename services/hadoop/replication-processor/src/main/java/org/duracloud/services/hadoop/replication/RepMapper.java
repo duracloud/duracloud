@@ -137,14 +137,23 @@ public class RepMapper extends ProcessFileMapper {
 
     @Override
     protected String collectResult() throws IOException {
-        String result = super.collectResult();
-        result += ", " + REP_RESULT + "=" +  resultInfo.get(REP_RESULT);
-        result += ", " + SRC_SIZE + "=" +  resultInfo.get(SRC_SIZE);
-        result += ", " + REP_ATTEMPTS + "=" + resultInfo.get(REP_ATTEMPTS);
+        String result = resultInfo.get(RESULT);
+
+        String errMsg = resultInfo.get(ERR_MESSAGE);
+        if (errMsg != null) {
+            result += "-" + errMsg;
+        }
+
+        result += ", " + resultInfo.get(INPUT_PATH);
+        result += ", " + resultInfo.get(RESULT_PATH);
+
+        result += ", " +  resultInfo.get(REP_RESULT);
+        result += ", " +  resultInfo.get(SRC_SIZE);
+        result += ", " + resultInfo.get(REP_ATTEMPTS);
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String now = format.format(new Date(System.currentTimeMillis()));
-        result += ", " + DATE + "=" + now;
+        result += ", " + now;
 
         return result;
     }

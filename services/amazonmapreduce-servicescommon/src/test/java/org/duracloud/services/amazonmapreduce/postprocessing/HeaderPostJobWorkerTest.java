@@ -45,6 +45,7 @@ public class HeaderPostJobWorkerTest {
     private String header = "space-id,content-id,hash";
     private String csvSpaceId = "csv-space-id";
     private String csvContentId = "dir0/dir1/report.csv";
+    private String csvNewContentId = "dir0/dir1/report-date.csv";
     private long sleepMillis = 100;
     private static final int NUM_LINES = 4;
 
@@ -60,6 +61,7 @@ public class HeaderPostJobWorkerTest {
                                          serviceWorkDir,
                                          csvSpaceId,
                                          csvContentId,
+                                         csvNewContentId,
                                          header,
                                          sleepMillis);
     }
@@ -94,6 +96,10 @@ public class HeaderPostJobWorkerTest {
                                                 EasyMock.<String>isNull(),
                                                 EasyMock.<Map<String, String>>isNull()))
             .andReturn(null);
+
+        contentStore.deleteContent(EasyMock.isA(String.class),
+                                   EasyMock.isA(String.class));
+        EasyMock.expectLastCall();
 
         EasyMock.replay(contentStore);
         return contentStore;

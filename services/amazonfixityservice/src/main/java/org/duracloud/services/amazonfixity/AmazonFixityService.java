@@ -69,7 +69,9 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             // FIXME: this metadataMd5ContentId value is currently hard-coded
             // into the FixityMetadataOutputFormat.java.
             String genMd5ContentId = PREFIX + "results.csv";
+            String newContentId = PREFIX + "results-" + DateUtil.nowMid() + ".csv";
             String metadataMd5ContentId = PREFIX + "metadata-results.csv";
+            String newMetadatContentId = PREFIX + "metadata-results-" + DateUtil.nowMid() + ".csv";
             String header = "space-id,content-id,hash";
 
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
@@ -78,6 +80,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                 getServiceWorkDir(),
                 getDestSpaceId(),
                 genMd5ContentId,
+                newContentId,
                 header);
 
             AmazonMapReduceJobWorker previousWorker = headerWorker;
@@ -108,6 +111,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                                                         getServiceWorkDir(),
                                                         getDestSpaceId(),
                                                         metadataMd5ContentId,
+                                                        newMetadatContentId,
                                                         header);
 
                 previousWorker = headerWorker2;
@@ -129,7 +133,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                 getContentStore().getStoreId(),
                 getUsername(),
                 getPassword(),
-                genMd5ContentId,
+                newContentId,
                 providedListingSpaceIdB,
                 providedListingContentIdB,
                 getDestSpaceId(),
