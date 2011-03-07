@@ -68,10 +68,11 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             // hadoop as a class, not an object.
             // FIXME: this metadataMd5ContentId value is currently hard-coded
             // into the FixityMetadataOutputFormat.java.
+            String date = DateUtil.nowMid();
             String genMd5ContentId = PREFIX + "results.csv";
-            String newContentId = PREFIX + "results-" + DateUtil.nowMid() + ".csv";
+            String newContentId = PREFIX + "results-" + date + ".csv";
             String metadataMd5ContentId = PREFIX + "metadata-results.csv";
-            String newMetadatContentId = PREFIX + "metadata-results-" + DateUtil.nowMid() + ".csv";
+            String newMetadatContentId = PREFIX + "metadata-results-" + date + ".csv";
             String header = "space-id,content-id,hash";
 
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
@@ -100,9 +101,6 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                     collectTaskParamsPostProcessor(),
                     getServiceWorkDir());
 
-                providedListingSpaceIdB = getDestSpaceId();
-                providedListingContentIdB = metadataMd5ContentId;
-
                 wrapperWorker = new WrapperPostJobWorker(headerWorker,
                                                          metadataWorker);
 
@@ -114,14 +112,16 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                                                         newMetadatContentId,
                                                         header);
 
+
+                providedListingSpaceIdB = getDestSpaceId();
+                providedListingContentIdB = newMetadatContentId;
                 previousWorker = headerWorker2;
 
             } else {
                 log.info("second hadoop worker not added: " + mode);
             }
 
-            String prefix = PREFIX + "report-";
-            String reportContentId = prefix + DateUtil.nowMid() + ".csv";
+            String reportContentId = PREFIX + "report-" + date + ".csv";
             VerifyHashesPostJobWorker verifyWorker = new VerifyHashesPostJobWorker(
                 previousWorker,
                 getContentStore(),
