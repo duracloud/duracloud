@@ -58,6 +58,8 @@
         <module>mavenplugins</module>
         <module>common</module>
         <module>mimeutil</module>
+        <module>email</module>
+        <module>email-amazon</module>
         <module>common-db</module>
         <module>common-rest</module>
         <module>serviceconfig</module>
@@ -927,6 +929,18 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>com.springsource.org.apache.commons.codec</artifactId>
                 <version>1.3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk</artifactId>
+                <version>1.1.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
         </dependencies>
