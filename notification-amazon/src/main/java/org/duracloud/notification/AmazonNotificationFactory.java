@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.email;
+package org.duracloud.notification;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -21,10 +21,10 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: 3/11/11
  */
-public class AmazonEmailerFactory implements EmailerFactory {
+public class AmazonNotificationFactory implements NotificationFactory {
 
     private static final Logger log = LoggerFactory.getLogger(
-        AmazonEmailerFactory.class);
+        AmazonNotificationFactory.class);
 
     private AmazonSimpleEmailService emailService;
     private Map<String, Emailer> emailerMap = new HashMap<String, Emailer>();
@@ -38,7 +38,7 @@ public class AmazonEmailerFactory implements EmailerFactory {
     @Override
     public Emailer getEmailer(String fromAddress) {
         if (null == fromAddress || !fromAddress.matches("\\w+@\\w+\\.\\w+")) {
-            String msg = "fromAddress not valid email: " + fromAddress;
+            String msg = "fromAddress not valid notification: " + fromAddress;
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }

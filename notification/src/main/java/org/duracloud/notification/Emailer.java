@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.email;
+package org.duracloud.notification;
 
 /**
  * @author Andrew Woods
@@ -14,20 +14,20 @@ package org.duracloud.email;
 public interface Emailer {
 
     /**
-     * This method sends an email to the listed recipients in text format
+     * This method sends an notification to the listed recipients in text format
      *
-     * @param subject    of email
-     * @param body       of email
-     * @param recipients of email
+     * @param subject    of notification
+     * @param body       of notification
+     * @param recipients of notification
      */
     public void send(String subject, String body, String... recipients);
 
     /**
-     * This method sends an email to the listed recipients in HTML format
+     * This method sends an notification to the listed recipients in HTML format
      *
-     * @param subject    of email
-     * @param body       of email
-     * @param recipients of email
+     * @param subject    of notification
+     * @param body       of notification
+     * @param recipients of notification
      */
     public void sendAsHtml(String subject, String body, String... recipients);
 }

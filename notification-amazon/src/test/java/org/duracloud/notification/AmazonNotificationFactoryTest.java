@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.email;
+package org.duracloud.notification;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,19 +15,19 @@ import org.junit.Test;
  * @author Andrew Woods
  *         Date: 3/11/11
  */
-public class AmazonEmailerFactoryTest {
+public class AmazonNotificationFactoryTest {
 
-    private AmazonEmailerFactory factory;
+    private AmazonNotificationFactory factory;
 
     @Before
     public void setUp() throws Exception {
-        factory = new AmazonEmailerFactory();
+        factory = new AmazonNotificationFactory();
         factory.initialize("accessKey", "secretAccessKey");
     }
 
     @Test
     public void testCreateEmailer() throws Exception {
-        AmazonEmailerFactory emailerFactory = new AmazonEmailerFactory();
+        AmazonNotificationFactory emailerFactory = new AmazonNotificationFactory();
 
         String from = "a@g.com";
 

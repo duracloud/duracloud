@@ -5,25 +5,21 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.email;
+package org.duracloud.notification;
 
 /**
  * @author Andrew Woods
  *         Date: 3/11/11
  */
-public interface EmailerFactory {
+public interface NotificationFactory {
 
     /**
-     * This method creates an Emailer which connects to an underlying email
+     * This method creates an Emailer which connects to an underlying notification
      * provider
      *
-     * @param username    for underlying email provider
-     * @param password    for underlying email provider
      * @param fromAddress of all emails sent with resultant Emailer
      * @return Emailer
      */
-    public Emailer createEmailer(String username,
-                                 String password,
-                                 String fromAddress);
+    public Emailer getEmailer(String fromAddress);
 
 }

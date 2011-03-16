@@ -58,8 +58,8 @@
         <module>mavenplugins</module>
         <module>common</module>
         <module>mimeutil</module>
-        <module>email</module>
-        <module>email-amazon</module>
+        <module>notification</module>
+        <module>notification-amazon</module>
         <module>common-db</module>
         <module>common-rest</module>
         <module>serviceconfig</module>
