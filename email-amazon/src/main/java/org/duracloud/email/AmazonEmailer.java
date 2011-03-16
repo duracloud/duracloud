@@ -7,25 +7,49 @@
  */
 package org.duracloud.email;
 
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
+import com.amazonaws.services.simpleemail.model.*;
+
+import java.util.Arrays;
+
 /**
  * @author Andrew Woods
  *         Date: 3/11/11
  */
 public class AmazonEmailer implements Emailer {
 
-    public AmazonEmailer(String username, String password, String fromAddress) {
+    private AmazonSimpleEmailService emailService;
+    private String fromAddress;
 
+    public AmazonEmailer(AmazonSimpleEmailService emailService,
+                         String fromAddress) {
+        this.emailService = emailService;
+        this.fromAddress = fromAddress;
     }
 
     @Override
     public void send(String subject, String body, String... recipients) {
-        // Default method body
-
+        Body requestBody = new Body().withText(new Content(body));
+        sendEmail(subject, requestBody, recipients);
     }
 
     @Override
     public void sendAsHtml(String subject, String body, String... recipients) {
-        // Default method body
+        Body requestBody = new Body().withHtml(new Content(body));
+        sendEmail(subject, requestBody, recipients);
+    }
 
+    private void sendEmail(String subject, Body body, String... recipients) {
+        Destination destination = new Destination(Arrays.asList(recipients));
+        Message msg = new Message().
+            withBody(body).
+            withSubject(new Content(subject));
+
+        SendEmailRequest request = new SendEmailRequest().
+            withSource(fromAddress).
+            withDestination(destination).
+            withMessage(msg);
+
+        emailService.sendEmail(request);
     }
 }
