@@ -134,6 +134,17 @@ public class ChecksumUtilTest {
     }
 
     @Test
+    public void testHexStringToByteArray() throws Exception {
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        String md5 = util.generateChecksum(getStream(content));
+
+        byte[] checksumBytes = ChecksumUtil.hexStringToByteArray(md5);
+        String checksum = ChecksumUtil.checksumBytesToString(checksumBytes);
+
+        assertEquals(md5, checksum);
+    }
+
+    @Test
     public void testGetFileChecksum() throws Exception {
         File tempFile = File.createTempFile("checksum-util-test", "file");
         Writer writer = new FileWriter(tempFile);

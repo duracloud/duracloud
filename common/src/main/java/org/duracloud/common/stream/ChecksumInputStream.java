@@ -44,7 +44,11 @@ public class ChecksumInputStream extends FilterInputStream {
     }
 
     public byte[]  getMD5Bytes() {
-        return ChecksumUtil.getChecksumBytes((DigestInputStream) this.in);
+        if (providedChecksum == null) {
+            return ChecksumUtil.getChecksumBytes((DigestInputStream) this.in);
+        }
+
+        return ChecksumUtil.hexStringToByteArray(providedChecksum);
     }
-    
+
 }
