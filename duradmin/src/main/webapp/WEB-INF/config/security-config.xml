@@ -30,10 +30,19 @@
 
   <!-- AuthN Manager -->
   <authentication-manager alias="authenticationManager"/>
+  <authentication-provider user-service-ref="userDetailsSvc">
+    <password-encoder ref="passwordEncoder"/>
+  </authentication-provider>
   <authentication-provider user-service-ref="userDetailsSvc"/>
+
   <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl"/>
 
-	<beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+  <beans:bean id="passwordEncoder"
+    class="org.springframework.security.providers.encoding.ShaPasswordEncoder" >
+   <beans:constructor-arg value="256"/>
+  </beans:bean>
+
+  <beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
 		<beans:property name="loginFormUrl" value="/login" />
 		<beans:property name="serverSideRedirect" value="true" />
 	</beans:bean>

@@ -15,6 +15,7 @@ public class RootUserCredential extends Credential {
 
     private static final String defaultUsername = "root";
     private static final String defaultPassword = "rpw";
+    private static final String encodedPassword = "6dde532e82159e351f3b9b685073aa8531b0f11d64a13d6c7947e66e0fb0ef5c";
 
     public RootUserCredential() {
         super(getRootUsername(), getRootPassword());
@@ -34,6 +35,10 @@ public class RootUserCredential extends Credential {
             password = defaultPassword;
         }
         return password;
+    }
+
+    static public String getRootEncodedPassword() {
+        return encodedPassword;
     }
 
 }

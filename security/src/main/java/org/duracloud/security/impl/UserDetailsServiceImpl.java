@@ -40,7 +40,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     private Map<String, User> usersTable = new HashMap<String, User>();
 
     private static final Credential systemUser = new SystemUserCredential();
-    private static final Credential rootUser = new RootUserCredential();
+    private static final RootUserCredential rootUser = new RootUserCredential();
 
     public UserDetailsServiceImpl() {
         initializeUsers();
@@ -63,7 +63,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
         grants.add("ROLE_ADMIN");
         grants.add("ROLE_USER");
         SecurityUserBean root = new SecurityUserBean(rootUser.getUsername(),
-                                                     rootUser.getPassword(),
+                                                     rootUser.getRootEncodedPassword(),
                                                      grants);
         addUser(system);
         addUser(root);
@@ -157,5 +157,5 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
         }
         return grants;
     }
-
+    
 }

@@ -19,6 +19,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.web.RestHttpHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -64,12 +65,17 @@ public class ApplicationInitializer extends BaseConfig {
     private Map<String, ApplicationWithConfig> appsWithConfigs = new HashMap<String, ApplicationWithConfig>();
 
     public ApplicationInitializer(File propsFile) throws IOException {
+        ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
         Properties p = new Properties();
         p.load(new FileInputStream(propsFile));
 
         Map<String, String> props = new HashMap<String, String>();
         for (String key : p.stringPropertyNames()) {
-            props.put(key, p.get(key).toString());
+            String value = p.get(key).toString();
+            if(key.startsWith("security.user.") && key.endsWith(".password")) {
+                value = passwordEncoder.encodePassword(value, null);
+            }
+            props.put(key, value);
         }
         this.load(props);
     }

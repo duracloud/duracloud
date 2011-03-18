@@ -78,7 +78,14 @@
   </bean>
   <bean id="manageSecurityUsersController" class="org.duracloud.duradmin.control.ManageSecurityUsersController">
     <property name="userDetailsService" ref="userDetailsSvc" />
+    <property name="passwordEncoder" ref="passwordEncoder" />
   </bean>
+
+  <bean id="passwordEncoder"
+    class="org.springframework.security.providers.encoding.ShaPasswordEncoder" >
+   <constructor-arg value="256"/>
+  </bean>
+
   <bean id="tilesConfigurer" class="org.duracloud.duradmin.view.tiles2.TilesConfigurer">
     <property name="preparerFactoryClass" value="org.springframework.web.servlet.view.tiles2.SpringBeanPreparerFactory">
     </property>

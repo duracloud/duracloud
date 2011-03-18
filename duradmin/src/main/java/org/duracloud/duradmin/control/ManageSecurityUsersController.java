@@ -20,6 +20,7 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
@@ -35,6 +36,8 @@ public class ManageSecurityUsersController extends AbstractCommandController {
 
     private DuracloudUserDetailsService userDetailsService;
 
+    private PasswordEncoder passwordEncoder;
+
     public ManageSecurityUsersController() {
         setCommandClass(SecurityUserCommand.class);
         setCommandName("users");
@@ -49,8 +52,8 @@ public class ManageSecurityUsersController extends AbstractCommandController {
         cmd.setUsers(this.userDetailsService.getUsers());
         String verb = cmd.getVerb();
         String username = cmd.getUsername();
-        String password = cmd.getPassword();
-
+        String password = passwordEncoder.encodePassword(cmd.getPassword(), null);
+        
         if (verb.equalsIgnoreCase("add")) {
             List<String> grants = new ArrayList<String>();
             grants.add("ROLE_USER");
@@ -131,5 +134,13 @@ public class ManageSecurityUsersController extends AbstractCommandController {
 
     public void setUserDetailsService(DuracloudUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
+    }
+
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
     }
 }
