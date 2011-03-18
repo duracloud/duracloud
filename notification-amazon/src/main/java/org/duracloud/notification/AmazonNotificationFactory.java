@@ -29,6 +29,7 @@ public class AmazonNotificationFactory implements NotificationFactory {
     private AmazonSimpleEmailService emailService;
     private Map<String, Emailer> emailerMap = new HashMap<String, Emailer>();
 
+    @Override
     public void initialize(String accessKey, String secretKey) {
         emailService = new AmazonSimpleEmailServiceAsyncClient(new BasicAWSCredentials(
             accessKey,

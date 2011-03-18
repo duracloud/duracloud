@@ -14,6 +14,15 @@ package org.duracloud.notification;
 public interface NotificationFactory {
 
     /**
+     * This method initializes the factory with credentials for underlying
+     * notification platform.
+     *
+     * @param username of notification service
+     * @param password of notification service
+     */
+    public void initialize(String username, String password);
+
+    /**
      * This method creates an Emailer which connects to an underlying notification
      * provider
      *
