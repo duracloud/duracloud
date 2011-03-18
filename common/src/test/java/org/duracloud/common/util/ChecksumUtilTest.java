@@ -161,4 +161,15 @@ public class ChecksumUtilTest {
         }
     }
 
+    @Test
+    public void testGenerateChecksumString() throws Exception {
+        ChecksumUtil util = new ChecksumUtil(Algorithm.SHA_256);
+        String stream = util.generateChecksum(getStream(content));
+
+        String string = util.generateChecksum(content);
+
+        assertEquals(stream, string);
+    }
+
+
 }

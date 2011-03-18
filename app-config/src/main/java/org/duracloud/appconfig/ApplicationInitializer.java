@@ -17,9 +17,9 @@ import org.duracloud.appconfig.domain.SecurityConfig;
 import org.duracloud.appconfig.support.ApplicationWithConfig;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.common.util.ChecksumUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -65,7 +65,7 @@ public class ApplicationInitializer extends BaseConfig {
     private Map<String, ApplicationWithConfig> appsWithConfigs = new HashMap<String, ApplicationWithConfig>();
 
     public ApplicationInitializer(File propsFile) throws IOException {
-        ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+        ChecksumUtil util = new ChecksumUtil(ChecksumUtil.Algorithm.SHA_256);
         Properties p = new Properties();
         p.load(new FileInputStream(propsFile));
 
@@ -73,7 +73,7 @@ public class ApplicationInitializer extends BaseConfig {
         for (String key : p.stringPropertyNames()) {
             String value = p.get(key).toString();
             if(key.startsWith("security.user.") && key.endsWith(".password")) {
-                value = passwordEncoder.encodePassword(value, null);
+                value = util.generateChecksum(value);
             }
             props.put(key, value);
         }

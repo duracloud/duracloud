@@ -58,6 +58,16 @@ public class ChecksumUtil {
         return checksumBytesToString(digest.digest());
     }
 
+    /**
+     * This method generates checksum of content in string.
+     * @param string Content used as target of checksum.
+     * @return string representation of the generated checksum.
+     */
+    public String generateChecksum(String string) {
+        digest.update(string.getBytes());
+        return checksumBytesToString(digest.digest());
+    }
+
     private int readFromStream(InputStream inStream, byte[] buf) {
         int numRead = -1;
         try {
