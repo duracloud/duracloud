@@ -14,6 +14,90 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <profiles>
+    <profile>
+      <id>package-client</id>
+
+      <activation>
+        <property>
+          <name>package</name>
+          <value>client</value>
+        </property>
+      </activation>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.6.1</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+                  <jarOutputDirectory>${project.build.directory}</jarOutputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>install</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <finalName>service-client</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+            </configuration>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <!--These dependencies are added as 'compile' scope for the assembly plugin-->
+      <dependencies>
+
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>com.springsource.org.apache.commons.lang</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>com.springsource.org.apache.commons.io</artifactId>
+          <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>com.thoughtworks.xstream</groupId>
+          <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+          <scope>compile</scope>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+  </profiles>
+
   <dependencies>
   
     <!-- internal projects -->
