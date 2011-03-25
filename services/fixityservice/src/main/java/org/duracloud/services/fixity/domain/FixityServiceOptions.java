@@ -123,14 +123,14 @@ public class FixityServiceOptions {
             this.hashApproach = defaultHashApproach;
         }
         if (null == this.outputContentId || this.outputContentId.equals("")) {
-            this.outputContentId = defaultOutputContentId;
+            this.outputContentId = filterTimestamp(defaultOutputContentId);
         }
         if (null == this.reportContentId || this.reportContentId.equals("")) {
-            this.reportContentId = defaultReportContentId;
+            this.reportContentId = filterTimestamp(defaultReportContentId);
         }
         if (null == this.providedListingSpaceIdA || this.providedListingSpaceIdA.equals("")) {
             // auto-generated listings are placed in the output space.
-            this.providedListingSpaceIdA = outputSpaceId;
+            this.providedListingSpaceIdA = this.outputSpaceId;
         }
         if (null == this.providedListingContentIdA || this.providedListingContentIdA.equals("")) {
             this.providedListingContentIdA = getGenContentId();
@@ -308,7 +308,7 @@ public class FixityServiceOptions {
         return filterTimestamp(outputContentId);
     }
 
-    public String getGenContentId() {
+    private String getGenContentId() {
         return filterTimestamp(defaultGenContentId);
     }
 
