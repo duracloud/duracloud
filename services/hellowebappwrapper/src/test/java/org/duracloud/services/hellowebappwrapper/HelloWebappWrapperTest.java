@@ -100,7 +100,8 @@ public class HelloWebappWrapperTest {
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
 
         String context = FilenameUtils.getBaseName(warName);
-        String newURL = "http://localhost:" + port + "/" + context;
+        String newURL =
+            "http://(?:localhost|\\d+.\\d+.\\d+.\\d+):" + port + "/" + context;
         verifyURL(newURL);
 
         wrapper.stop();

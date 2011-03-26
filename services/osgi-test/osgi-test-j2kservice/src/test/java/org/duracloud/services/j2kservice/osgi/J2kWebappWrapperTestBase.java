@@ -31,7 +31,7 @@ public class J2kWebappWrapperTestBase {
     protected String warName = "adore-djatoka.war";
     protected String zipName = "adore-djatoka-1.1.zip";
 
-    protected String urlRunningBase = "http://localhost";
+    protected String urlRunningBase = "http://(?:localhost|\\d+.\\d+.\\d+.\\d+)";
     protected String context = FilenameUtils.getBaseName(warName);
 
     private String imageSuffix = "resolver?url_ver=Z39.88-2004&rft_id=" +
