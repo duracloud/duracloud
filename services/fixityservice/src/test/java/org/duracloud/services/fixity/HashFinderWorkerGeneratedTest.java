@@ -64,6 +64,7 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
 
     @Test
     public void testRun() throws Exception {
+        // This test has one retry on content retrieval.
         doInitialize();
         worker.run();
     }
@@ -93,7 +94,9 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
     @Override
     protected ContentStore createContentStore() throws ContentStoreException {
         InputStream inputStream = getInputStream(text);
+        InputStream badStream = getInputStream("bad-text");
         Content content = EasyMock.createMock("Content", Content.class);
+        EasyMock.expect(content.getStream()).andReturn(badStream);
         EasyMock.expect(content.getStream()).andReturn(inputStream);
         EasyMock.replay(content);
 
@@ -101,7 +104,12 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
                                                  ContentStore.class);
         EasyMock.expect(store.getContent(providedListingSpaceIdA,
                                          providedListingContentIdA)).andReturn(
-            content);
+            content).times(2);
+
+        EasyMock.expect(store.getContentMetadata(providedListingSpaceIdA,
+                                                 providedListingContentIdA))
+            .andReturn(getMetadata(getHash(text)));
+
         EasyMock.replay(store);
 
         return store;

@@ -159,6 +159,36 @@ public class HashFinderWorker implements Runnable {
     }
 
     private String getGeneratedHash() {
+        String hashMetadata = null;
+        try {
+            hashMetadata = getStoredHash();
+
+        } catch (Exception e) {
+            log.warn("Unable to retrieve stored MD5 for {}", workitemLocation);
+        }
+
+        String hashGenerate = doGetGeneratedHash();
+
+        // Keep trying for new download of content stream if getting
+        // hash-metadata succeeded &&
+        // the generated hash does not match the stored metadata hash.
+        boolean hashesMatch = hashMetadata == null ? true : hashMetadata.equals(
+            hashGenerate);
+        
+        int tries = 0;
+        final int maxTries = 3;
+        while (!hashesMatch && tries < maxTries) {
+            hashGenerate = doGetGeneratedHash();
+            if (null != hashGenerate && null != hashMetadata) {
+                hashesMatch = hashGenerate.equals(hashMetadata);
+            }
+            tries++;
+        }
+
+        return hashGenerate;
+    }
+
+    private String doGetGeneratedHash() {
         Content content = getContent();
         if (null == content) {
             throwRuntime("content is null");

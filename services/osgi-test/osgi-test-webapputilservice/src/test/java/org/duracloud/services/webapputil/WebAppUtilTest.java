@@ -198,12 +198,7 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
     }
 
     private String getLocalHost() {
-        String host = null;
-        try {
-            host = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-        }
-        return host;
+        return "localhost";
     }
 
     private void verifyContains(File file, String text)

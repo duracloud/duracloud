@@ -73,7 +73,7 @@ public class HashFinderWorkerStoredTest extends HashFinderWorkerTestBase {
 
     @Override
     protected ContentStore createContentStore() throws ContentStoreException {
-        Map<String, String> metadata = getMetadata();
+        Map<String, String> metadata = getMetadata(hash);
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
         EasyMock.expect(store.getContentMetadata(providedListingSpaceIdA,
@@ -82,12 +82,6 @@ public class HashFinderWorkerStoredTest extends HashFinderWorkerTestBase {
         EasyMock.replay(store);
 
         return store;
-    }
-
-    private Map<String, String> getMetadata() {
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(StorageProvider.METADATA_CONTENT_MD5, hash);
-        return metadata;
     }
 
     @Override

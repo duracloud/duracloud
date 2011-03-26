@@ -39,7 +39,7 @@ public class ServiceUninstallerImpl extends ServiceInstallBase
     }
 
     public void uninstall(String name) throws Exception {
-        log.info("bundleHome: '" + getBundleHome().getBaseDir() + "'");
+        log.debug("uninstall: '" + name + "'");
 
         if (isJar(name)) {
             uninstallBundleFromHomeAndAttic(name);
@@ -101,7 +101,7 @@ public class ServiceUninstallerImpl extends ServiceInstallBase
             String fileName = file.getName();
             log.debug("found in " + dir.getPath() + ": '" + fileName + "'");
 
-            if (fileName.contains(name)) {
+            if (fileName.equalsIgnoreCase(name)) {
                 log.debug("about to delete: " + fileName);
                 success = file.delete();
                 break;

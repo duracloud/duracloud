@@ -14,9 +14,12 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
+import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach;
@@ -83,6 +86,12 @@ public abstract class HashFinderWorkerTestBase {
 
     protected InputStream getInputStream(String text) {
         return new AutoCloseInputStream(new ByteArrayInputStream(text.getBytes()));
+    }
+
+    protected Map<String, String> getMetadata(String hash) {
+        Map<String, String> metadata = new HashMap<String, String>();
+        metadata.put(StorageProvider.METADATA_CONTENT_MD5, hash);
+        return metadata;
     }
 
     protected abstract ContentStore createContentStore()

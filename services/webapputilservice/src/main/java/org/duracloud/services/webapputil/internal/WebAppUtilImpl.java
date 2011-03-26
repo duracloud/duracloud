@@ -192,13 +192,7 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
     }
 
     private String getLocalHost() {
-        String host = null;
-        try {
-            host = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            log.warn(e.getMessage());
-        }
-        return host;
+        return "localhost";
     }
 
     /**
