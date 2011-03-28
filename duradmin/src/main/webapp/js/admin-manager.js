@@ -65,10 +65,11 @@ $(function() {
 		
 		//set the title of the pane
 		$(".user-name", userDetailPane.first()).html(user.username);
+		$(".roles", userDetailPane.first()).html(user.grantedAuthorities);
 		
 		var centerPane = $(".center",userDetailPane.first());
 		centerPane.html("");
-		
+
 
 		$(".change-password-button", userDetailPane).click(function(evt){
 			var d = $("#change-password-dialog");
