@@ -181,6 +181,10 @@ public class HashFinderWorker implements Runnable {
             hashGenerate = doGetGeneratedHash();
             if (null != hashGenerate && null != hashMetadata) {
                 hashesMatch = hashGenerate.equals(hashMetadata);
+
+                if (!hashesMatch) {
+                    log.info("retry! hash-mismatch: " + workitemLocation);
+                }
             }
             tries++;
         }
