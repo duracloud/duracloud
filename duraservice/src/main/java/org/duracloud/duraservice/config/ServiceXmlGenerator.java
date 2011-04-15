@@ -56,7 +56,8 @@ public class ServiceXmlGenerator {
      * @throws IOException
      */
     public void generateServiceXml(String dirPath) throws IOException {
-        String filePath = dirPath + File.separator + getRepositoryName();
+        String sep = File.separator;
+        String filePath = dirPath + sep + getRepositoryName() + ".xml";
         System.out.println("Writing Services Xml File to: " + filePath);
         File servicesXmlFile = new File(filePath);
         FileUtils.writeStringToFile(servicesXmlFile,
