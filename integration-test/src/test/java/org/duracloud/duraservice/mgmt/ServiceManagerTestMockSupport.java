@@ -8,6 +8,7 @@
 package org.duracloud.duraservice.mgmt;
 
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.ServiceRegistryName;
 import org.duracloud.domain.Content;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -66,7 +67,7 @@ public class ServiceManagerTestMockSupport {
     private String getServiceSpaceId() {
         String version = System.getProperty(PROJECT_VERSION_PROP);
         Assert.assertNotNull(version);
-        return "duracloud-" + version.toLowerCase() + "-service-repo";
+        return new ServiceRegistryName(version).getName();
     }
 
     public Content getServiceInfoFile() throws Exception {

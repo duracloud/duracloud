@@ -8,6 +8,7 @@
 package org.duracloud.duraservice.config;
 
 import org.apache.commons.io.FileUtils;
+import org.duracloud.common.model.ServiceRegistryName;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServicesConfigDocument;
 
@@ -64,8 +65,7 @@ public class ServiceXmlGenerator {
     }
 
     private String getRepositoryName() {
-        String name = "duracloud-" + version + "-service-repo.xml";
-        return name.toLowerCase();
+        return new ServiceRegistryName(version).getName();
     }
 
     private String getServicesListAsXml() {

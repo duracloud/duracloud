@@ -7,6 +7,7 @@
  */
 package org.duracloud.duraservice.rest;
 
+import org.duracloud.common.model.ServiceRegistryName;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.common.model.Credential;
@@ -95,8 +96,7 @@ public class RestTestHelper {
         String serviceStorageHost = "localhost";
         String serviceStoragePort = getPort();
         String serviceStorageContext = "durastore";
-        String serviceStorageSpaceId =
-            "duracloud-" + getVersion().toLowerCase() + "-service-repo";
+        String serviceStorageSpaceId = new ServiceRegistryName(getVersion()).getName();
 
         String serviceComputeMgrType = "AMAZON_EC2";
         String serviceComputeMgrImage = "1234";
