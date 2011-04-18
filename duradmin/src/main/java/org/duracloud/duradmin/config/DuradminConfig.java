@@ -100,6 +100,11 @@ public class DuradminConfig
         return config.getDuraServiceContext();
     }
 
+    public String getAmaUrl() {
+        checkInitialized();
+        return config.getAmaUrl();
+    }
+    
     private static void checkInitialized() {
         if(config == null) {
             initFromProperties();
@@ -114,6 +119,7 @@ public class DuradminConfig
         config.setDuraServiceHost(getPropsHost());
         config.setDuraServicePort(getPropsPort());
         config.setDuraServiceContext(getPropsDuraServiceContext());
+        config.setAmaUrl(null); // default is null.
     }
 
 }

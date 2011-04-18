@@ -24,12 +24,13 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     private static final String INIT_RESOURCE = "/init";
 
     public static final String QUALIFIER = "duradmin";
-    protected static final String duraStoreHostKey = "durastore-host";
-    protected static final String duraStorePortKey = "durastore-port";
-    protected static final String duraStoreContextKey = "durastore-context";
-    protected static final String duraServiceHostKey = "duraservice-host";
-    protected static final String duraServicePortKey = "duraservice-port";
-    protected static final String duraServiceContextKey = "duraservice-context";
+    public static final String duraStoreHostKey = "durastore-host";
+    public static final String duraStorePortKey = "durastore-port";
+    public static final String duraStoreContextKey = "durastore-context";
+    public static final String duraServiceHostKey = "duraservice-host";
+    public static final String duraServicePortKey = "duraservice-port";
+    public static final String duraServiceContextKey = "duraservice-context";
+    public static final String amaUrlKey = "ama-url";
 
     private String durastoreHost;
     private String durastorePort;
@@ -37,6 +38,7 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     private String duraserviceHost;
     private String duraservicePort;
     private String duraserviceContext;
+    private String amaUrl;
 
     public String asXml() {
         return DuradminInitDocumentBinding.createDocumentFrom(this);
@@ -69,6 +71,9 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
         } else if (key.equalsIgnoreCase(duraServiceContextKey)) {
             this.duraserviceContext = value;
+
+        } else if (key.equalsIgnoreCase(amaUrlKey)) {
+            this.amaUrl = value;
 
         } else {
             String msg = "unknown key: " + key + " (" + value + ")";
@@ -125,4 +130,11 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
         this.duraserviceContext = duraserviceContext;
     }
 
+    public String getAmaUrl() {
+        return amaUrl;
+    }
+
+    public void setAmaUrl(String amaUrl) {
+        this.amaUrl = amaUrl;
+    }
 }

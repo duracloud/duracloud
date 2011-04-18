@@ -28,6 +28,7 @@ public class DuradminConfigTest {
     private String duraserviceHost = "duraserviceHost";
     private String duraservicePort = "duraservicePort";
     private String duraserviceContext = "duraserviceContext";
+    private String amaUrl = "amaUrl";
 
     @Test
     public void testLoad() {
@@ -51,6 +52,7 @@ public class DuradminConfigTest {
         props.put(p + DuradminConfig.duraServiceHostKey, duraserviceHost);
         props.put(p + DuradminConfig.duraServicePortKey, duraservicePort);
         props.put(p + DuradminConfig.duraServiceContextKey, duraserviceContext);
+        props.put(p + DuradminConfig.amaUrlKey, amaUrl);
 
         return props;
     }
@@ -63,6 +65,7 @@ public class DuradminConfigTest {
         Assert.assertNotNull(config.getDuraserviceHost());
         Assert.assertNotNull(config.getDuraservicePort());
         Assert.assertNotNull(config.getDuraserviceContext());
+        Assert.assertNotNull(config.getAmaUrl());
 
         Assert.assertEquals(durastoreHost, config.getDurastoreHost());
         Assert.assertEquals(durastorePort, config.getDurastorePort());
@@ -70,6 +73,7 @@ public class DuradminConfigTest {
         Assert.assertEquals(duraserviceHost, config.getDuraserviceHost());
         Assert.assertEquals(duraservicePort, config.getDuraservicePort());
         Assert.assertEquals(duraserviceContext, config.getDuraserviceContext());
+        Assert.assertEquals(amaUrl, config.getAmaUrl());
     }
     
 }

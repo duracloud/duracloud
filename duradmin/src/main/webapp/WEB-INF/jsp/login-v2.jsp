@@ -78,7 +78,6 @@
 								<input type="password" name="j_password" class="field"/>
 							</li>
 							<li class="clearfix">
-								<label><a href="#" id="forgot-password" class="helper-link">Forgot Password?</a></label>
 								<button id="button-login" class="primary  float-r">Login</button>											
 								<span id="feedback" style="display:none; color:white" class="primary  float-r"><img src="/duradmin/images/wait.gif"/>Logging in...</span>											
 

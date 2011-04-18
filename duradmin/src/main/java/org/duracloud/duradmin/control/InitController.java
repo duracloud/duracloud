@@ -75,11 +75,12 @@ public class InitController extends BaseCommandController {
         throws Exception {
         AdminInit init = new AdminInit();
         init.setDuraServiceHost(config.getDuraserviceHost());
-        init.setDuraServicePort(config.getDurastorePort());
+        init.setDuraServicePort(config.getDuraservicePort());
         init.setDuraServiceContext(config.getDuraserviceContext());
         init.setDuraStoreHost(config.getDurastoreHost());
         init.setDuraStorePort(config.getDurastorePort());
         init.setDuraStoreContext(config.getDurastoreContext());
+        init.setAmaUrl(config.getAmaUrl());
 
         DuradminConfig.setConfig(init);
 

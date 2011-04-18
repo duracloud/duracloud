@@ -47,6 +47,7 @@ public class DuradminInitDocumentBinding {
             config.setDuraserviceHost(root.getChildText("duraserviceHost"));
             config.setDuraservicePort(root.getChildText("duraservicePort"));
             config.setDuraserviceContext(root.getChildText("duraserviceContext"));
+            config.setAmaUrl(root.getChildText("amaUrl"));
 
         } catch (Exception e) {
             String error = "Error encountered attempting to parse " +
@@ -74,6 +75,7 @@ public class DuradminInitDocumentBinding {
             String duraserviceHost = duradminConfig.getDuraserviceHost();
             String duraservicePort = duradminConfig.getDuraservicePort();
             String duraserviceContext = duradminConfig.getDuraserviceContext();
+            String amaUrl = duradminConfig.getAmaUrl();
 
             xml.append("<duradminConfig>");
             xml.append("  <durastoreHost>" + durastoreHost);
@@ -88,6 +90,8 @@ public class DuradminInitDocumentBinding {
             xml.append("</duraservicePort>");
             xml.append("  <duraserviceContext>" + duraserviceContext);
             xml.append("</duraserviceContext>");
+            xml.append("  <amaUrl>" + amaUrl);
+            xml.append("</amaUrl>");
             xml.append("</duradminConfig>");
         }
         return xml.toString();
