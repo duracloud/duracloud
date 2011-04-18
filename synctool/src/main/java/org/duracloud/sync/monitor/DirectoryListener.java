@@ -7,7 +7,7 @@
  */
 package org.duracloud.sync.monitor;
 
-import org.apache.commons.io.monitor.FilesystemListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.duracloud.sync.mgmt.ChangedList;
 
 import java.io.File;
@@ -19,7 +19,7 @@ import java.io.File;
  * @author: Bill Branan
  * Date: Mar 12, 2010
  */
-public class DirectoryListener extends FilesystemListenerAdaptor {
+public class DirectoryListener extends FileAlterationListenerAdaptor {
 
     private ChangedList changedList;
     private boolean syncDeletes;

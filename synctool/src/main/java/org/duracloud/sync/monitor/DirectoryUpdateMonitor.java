@@ -7,8 +7,8 @@
  */
 package org.duracloud.sync.monitor;
 
-import org.apache.commons.io.monitor.FilesystemMonitor;
-import org.apache.commons.io.monitor.FilesystemObserver;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class DirectoryUpdateMonitor {
 
     private final Logger logger = LoggerFactory.getLogger(SyncManager.class);
 
-    private FilesystemMonitor monitor;
+    private FileAlterationMonitor monitor;
 
     /**
      * Creates a directory update monitor which, when started, will notify
@@ -38,11 +38,12 @@ public class DirectoryUpdateMonitor {
     public DirectoryUpdateMonitor(List<File> directories,
                                   long pollFrequency,
                                   boolean syncDeletes) {
-        monitor = new FilesystemMonitor(pollFrequency);
+        monitor = new FileAlterationMonitor(pollFrequency);
 
         for (File watchDir : directories) {
             if (watchDir.exists() && watchDir.isDirectory()) {
-                FilesystemObserver observer = new FilesystemObserver(watchDir);
+                FileAlterationObserver observer =
+                    new FileAlterationObserver(watchDir);
                 observer.addListener(new DirectoryListener(syncDeletes));
                 monitor.addObserver(observer);
             } else {
