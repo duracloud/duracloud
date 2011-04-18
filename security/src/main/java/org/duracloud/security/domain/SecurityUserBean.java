@@ -125,4 +125,16 @@ public class SecurityUserBean {
         }
         this.grantedAuthorities.add(grantedAuthority);
     }
+
+    public String getTopAuthorityDisplay() {
+        List<String> authrorities = getGrantedAuthorities();
+        if (authrorities.contains("ROLE_OWNER")) {
+            return "Owner";
+        } else if (authrorities.contains("ROLE_ADMIN")) {
+            return "Administrator";
+        } else {
+            return "User";
+        }
+    }
+
 }

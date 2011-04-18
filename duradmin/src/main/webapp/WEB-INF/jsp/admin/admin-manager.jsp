@@ -16,7 +16,7 @@
 							enabled: '${user.enabled}',
 							accountNonExpired: '${user.accountNonExpired}',
 							accountNonLocked: '${user.accountNonLocked}',
-							grantedAuthorities: '${user.grantedAuthorities}'
+							grantedAuthorities: '${user.topAuthorityDisplay}'
 						},
 						</c:forEach>				
 					];
