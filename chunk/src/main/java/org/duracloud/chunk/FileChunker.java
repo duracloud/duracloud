@@ -263,7 +263,7 @@ public class FileChunker {
      * @return DigestInputStream of test file
      * @throws IOException on error
      */
-    protected static DigestInputStream createTestContent(File outFile,
+    public static DigestInputStream createTestContent(File outFile,
                                                          long size)
         throws IOException {
         final int BUF_SZ = 8192;
