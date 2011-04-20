@@ -7,6 +7,9 @@
  */
 package org.duracloud.security;
 
+import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.RootUserCredential;
+import org.duracloud.common.model.SystemUserCredential;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -158,6 +161,37 @@ public class UserDetailsServiceImplTest {
         Assert.assertTrue(foundUsers.contains(usernameA));
         Assert.assertTrue(foundUsers.contains(usernameB));
         Assert.assertTrue(foundUsers.contains(usernameC));
+    }
+
+    @Test
+    public void testFailures() {
+        Credential cred = new RootUserCredential();
+        verifyFailure(cred);
+
+        cred = new SystemUserCredential();
+        verifyFailure(cred);
+    }
+
+    private void verifyFailure(Credential cred) {
+        SecurityUserBean user = new SecurityUserBean(cred.getUsername(),
+                                                     cred.getPassword(),
+                                                     true,
+                                                     true,
+                                                     true,
+                                                     true,
+                                                     grantsA);
+
+        users = new ArrayList<SecurityUserBean>();
+        users.add(user);
+
+        boolean thrown = false;
+        try {
+            userDetailsService.setUsers(users);
+            Assert.fail("exception expected");
+        } catch (Exception e) {
+            thrown = true;
+        }
+        Assert.assertTrue(thrown);
     }
 
 }

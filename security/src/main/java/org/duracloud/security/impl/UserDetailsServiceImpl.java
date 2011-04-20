@@ -7,6 +7,7 @@
  */
 package org.duracloud.security.impl;
 
+import org.duracloud.common.error.InvalidUsernameException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.common.model.SystemUserCredential;
@@ -29,7 +30,6 @@ import java.util.Map;
 /**
  * This class acts as the repository of username/password/role info for access
  * to this DuraCloud application.
- * The actual info-content is stored in a flat file within DuraCloud itself.
  *
  * @author Andrew Woods
  *         Date: Mar 11, 2010
@@ -96,6 +96,10 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     public void setUsers(List<SecurityUserBean> users) {
         initializeUsers();
         for (SecurityUserBean u : users) {
+            if (!isCustomUser(u)) {
+                throw new InvalidUsernameException(u.getUsername());
+            }
+            
             addUser(u);
         }
     }

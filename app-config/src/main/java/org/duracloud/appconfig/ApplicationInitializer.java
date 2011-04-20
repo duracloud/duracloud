@@ -282,9 +282,12 @@ public class ApplicationInitializer extends BaseConfig {
      * This method sets the security users from the loaded configuration.
      */
     public void setSecurityUsers() {
+        RestHttpHelper.HttpResponse response = null;
+
         for (ApplicationWithConfig appWithConfig : appsWithConfigs.values()) {
             Application app = appWithConfig.getApplication();
-            app.setSecurityUsers(securityConfig.getUsers());
+            response = app.setSecurityUsers(securityConfig.getUsers());
+            validate(response, appWithConfig.getName());
         }
     }
 

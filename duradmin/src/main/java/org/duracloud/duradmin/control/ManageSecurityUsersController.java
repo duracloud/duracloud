@@ -28,7 +28,10 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
 /**
  * @author Andrew Woods
  *         Date: Apr 23, 2010
+ * @deprecated This class may no longer be needed as the "Administration" tab
+ *             is now read-only.
  */
+@Deprecated
 public class ManageSecurityUsersController extends AbstractCommandController {
 
     private final Logger log = LoggerFactory.getLogger(
