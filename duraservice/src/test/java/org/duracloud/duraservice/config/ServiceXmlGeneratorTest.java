@@ -39,7 +39,7 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> serviceInfos = serviceXmlGenerator.buildServiceList();
         Assert.assertNotNull(serviceInfos);
 
-        int NUM_SERVICES = 12;
+        int NUM_SERVICES = 11;
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
@@ -129,7 +129,7 @@ public class ServiceXmlGeneratorTest {
         }
 
         //Assert.assertTrue(foundHello);
-        Assert.assertTrue(foundReplication);
+        //Assert.assertTrue(foundReplication);
         Assert.assertTrue(foundDuplication);
         Assert.assertTrue(foundImagemagick);
         Assert.assertTrue(foundWebapputil);

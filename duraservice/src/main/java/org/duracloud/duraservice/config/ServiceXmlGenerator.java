@@ -32,7 +32,7 @@ public class ServiceXmlGenerator {
                                                 new AmazonFixityServiceInfo(),
                                                 new FixityToolsServiceInfo(),
                                                 new ReplicationOnDemandServiceInfo(),
-                                                new ReplicationServiceInfo(),
+                                                //new ReplicationServiceInfo(),
                                                 new DuplicationServiceInfo(),
                                                 //new HelloWebappWrapperServiceInfo(),
                                                 new J2kServiceInfo(),
