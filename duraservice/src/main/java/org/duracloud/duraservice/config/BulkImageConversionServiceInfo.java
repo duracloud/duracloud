@@ -233,10 +233,6 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         // Instance type
         List<Option> instanceTypeOptions = new ArrayList<Option>();
         instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
-                                               .SMALL.getDescription(),
-                                           HadoopTypes.INSTANCES.SMALL.getId(),
-                                           true));
-        instanceTypeOptions.add(new Option(HadoopTypes.INSTANCES
                                                .LARGE.getDescription(),
                                            HadoopTypes.INSTANCES.LARGE.getId(),
                                            false));
