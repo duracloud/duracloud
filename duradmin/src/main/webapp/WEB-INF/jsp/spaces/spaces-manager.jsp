@@ -192,6 +192,7 @@
 						<li>Do NOT start or end with a dash</li>
 						<li>Do NOT format as an IP address, like 10.1.10.8</li>
 						<li>Do NOT use these combinations of period and dashes: '..' '-.' or '.-'</li>
+                        <li>The last period may not be immediately followed by a number</li>
 					</ul>
 				</div>
 				<form id="add-space-form">

@@ -43,7 +43,10 @@ $(function(){
 	
 	$.validator.addMethod("notip", function(value,element){return !(/^[0-9]+.[0-9]+.[0-9]+.[0-9]+$/.test(value));}, 
 			"Invalid");
-	
+
+    $.validator.addMethod("dotnum", function(value,element){return !(/^.*([.][0-9])[^.]*$/.test(value));},
+            "Invalid");   
+
 	$.validator.addMethod("misc", function(value,element){return !(/^.*([.][-]|[-][.]|[.][.]).*$/.test(value));}, 
 			"Invalid");
 
@@ -1278,6 +1281,7 @@ $(function(){
 				endswith: true,
 				spacelower: true,
 				notip: true,
+                dotnum: true,
 				misc: true,
 			},
 		},
