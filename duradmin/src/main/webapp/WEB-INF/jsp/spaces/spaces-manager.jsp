@@ -260,7 +260,7 @@
 				<div id="add-remove-metadata-dialog" class="dialog" style="display:none;overflow:auto"
 					title="Add/Remove Metadata and Tags">
 				<h1 class="dc-dialog-title">Add/Remove Metadata and Tags</h1>
-				<p class="hint">[dialog instructions here]</p>
+				<p class="hint"></p>
 					<div class="center">
 					
 					</div>				
