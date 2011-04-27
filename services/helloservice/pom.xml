@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>computeservice</artifactId>
-      <version>${bundle.dependency.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>

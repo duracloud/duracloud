@@ -54,25 +54,25 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
-      <version>${bundle.dependency.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storageprovider</artifactId>
-      <version>${bundle.dependency.version}</version>
+      <version>${project.version}</version>
     </dependency>
     
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
-      <version>${bundle.dependency.version}</version>
+      <version>${project.version}</version>
     </dependency>    
 
     <dependency>
       <groupId>org.duracloud.services.hadoop</groupId>
       <artifactId>base-processor</artifactId>
-      <version>${bundle.dependency.version}</version>
+      <version>${project.version}</version>
     </dependency>
   
     <dependency>
