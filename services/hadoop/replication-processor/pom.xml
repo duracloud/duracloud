@@ -4,13 +4,13 @@
   <groupId>org.duracloud.services.hadoop</groupId>
   <artifactId>replication-processor</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.9.0</version>
   <name>Replication Processor</name>
 
   <parent>
     <artifactId>hadoop</artifactId>
     <groupId>org.duracloud.services</groupId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.9.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
