@@ -22,6 +22,7 @@
   <properties>
     <spring.osgi.version>1.2.0</spring.osgi.version>
     <equinox.ver>3.2.1</equinox.ver>
+    <pax.provision.executor>script</pax.provision.executor>
   </properties>
 
   <build>
@@ -78,7 +79,7 @@
           <framework>equinox</framework>
           <provision>
             <param>mvn:org.springframework.osgi/spring-osgi-web-extender/1.2.0@6</param>
-            <param>--executor=script</param>
+            <param>--executor=${pax.provision.executor}</param>
             <param>--vmOptions=-Xms512M -Xmx768M -DBUNDLE_HOME=$BUNDLE_HOME -Dlogback.configurationFile=$BUNDLE_HOME/logback.xml -Dfelix.fileinstall.dir=$BUNDLE_HOME/container -DWITH_APACHE=$WITH_APACHE</param>
           </provision>
         </configuration>
