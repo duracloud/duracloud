@@ -203,6 +203,12 @@
 
     <distributionManagement>
 
+      <repository>
+        <id>duraspace-releases</id>
+        <name>DuraSpace Release Maven Repository</name>
+        <url>https://m2.duraspace.org/content/repositories/releases</url>
+      </repository>
+
       <snapshotRepository>
         <id>duraspace-snapshots</id>
         <name>DuraSpace Snapshots Maven Repository</name>
