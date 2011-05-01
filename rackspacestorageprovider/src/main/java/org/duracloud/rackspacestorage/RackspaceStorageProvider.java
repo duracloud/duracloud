@@ -603,8 +603,16 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         // Note: It is not currently possible to set MIME type on a
         // Rackspace object directly, so setting a custom field instead.
         contentMetadata.put(METADATA_CONTENT_MIMETYPE, contentMimeType);
+
+        Map<String, String> newContentMetadata = new HashMap<String, String>();
+        for (String key : contentMetadata.keySet()) {
+            if (log.isDebugEnabled()) {
+                log.debug("[" + key + "|" + contentMetadata.get(key) + "]");
+            }
+            newContentMetadata.put(getSpaceFree(key), contentMetadata.get(key));
+        }
         
-        updateContentMetadata(spaceId, contentId, contentMetadata);
+        updateContentMetadata(spaceId, contentId, newContentMetadata);
     }
 
     private void updateContentMetadata(String spaceId,
@@ -674,7 +682,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         while (keys.hasNext()) {
             String key = keys.next();
             String val = metadataMap.get(key);
-            resultMap.put(key.toLowerCase(), val);
+            resultMap.put(getWithSpace(key.toLowerCase()), val);
         }
 
         return resultMap;
@@ -733,6 +741,26 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         }
 
         return containerName;
+    }
+
+    /**
+     * Replaces all spaces with "%20"
+     *
+     * @param name string with possible space
+     * @return converted to string without spaces
+     */
+    protected String getSpaceFree(String name) {
+        return name.replaceAll(" ", "%20");
+    }
+
+    /**
+     * Converts "%20" back to spaces
+     *
+     * @param name string
+     * @return converted to spaces
+     */
+    protected String getWithSpace(String name) {
+        return name.replaceAll("%20", " ");
     }
 
 }
