@@ -119,6 +119,7 @@ h3 { font-size:1em; }
 
 #page-header
 {
+	height:87px;
 	min-width:960px;
 	padding-top:10px;
 }

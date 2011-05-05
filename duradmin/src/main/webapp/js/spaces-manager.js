@@ -19,44 +19,8 @@ $(function(){
 	$.require("dc/widget/ui.tagsviewer.js");
 	$.require("dc/widget/ui.flyoutselect.js");
 	$.require("dc/api/dc.util.paralleltasks.js");
-
-
-	//reusable validators that are used with various forms.
-	//used in conjunctions with the jquery.validate.js and jquery.form
-	$.validator
-	.addMethod("mimetype", function(value, element) { 
-	  return  value == null || value == '' || /^(\w[-]?)*\w\/(\w[-]?)*\w$/.test(value); 
-	}, "Invalid Mimetype");
-
-	$.validator
-	.addMethod("startswith", function(value, element) { 
-	  return  /^[a-z0-9]/.test(value); 
-	}, "Invalid");
-
-	$.validator
-		.addMethod("endswith", function(value, element) { 
-		  return  /[a-z0-9.]$/.test(value); 
-		}, "Invalid");
 	
-	$.validator.addMethod("spacelower", function(value,element){return /^[a-z0-9.-]*$/.test(value);}, 
-			"Invalid");
-	
-	$.validator.addMethod("notip", function(value,element){return !(/^[0-9]+.[0-9]+.[0-9]+.[0-9]+$/.test(value));}, 
-			"Invalid");
-
-    $.validator.addMethod("dotnum", function(value,element){return !(/^.*([.][0-9])[^.]*$/.test(value));},
-            "Invalid");   
-
-	$.validator.addMethod("misc", function(value,element){return !(/^.*([.][-]|[-][.]|[.][.]).*$/.test(value));}, 
-			"Invalid");
-
-	$.validator
-	.addMethod("illegalchars", function(value, element) { 
-	  return  /^[^\\?]*$/.test(value); 
-	}, "A Content ID cannot contain  '?' or '\\'");
-	//end validator definitions
-
-	
+	//perform layout first
 	centerLayout = $('#page-content').layout({
 	// minWidth: 300 // ALL panes
 		north__size: 			50	
@@ -119,6 +83,80 @@ $(function(){
 	
 	
 	detailPane = $('#detail-pane').layout(spaceDetailLayoutOptions);
+
+	
+	
+	var initProviderStoreSelectbox = function(){
+		////////////////////////////////////////////
+		// initialize provider selection
+		////////////////////////////////////////////
+		
+		var PROVIDER_SELECT_ID = "provider-select-box";
+		var PROVIDER_COOKIE_ID = "providerId";
+		var options = {
+			data: storeProviders, // this variable is defined in a script in
+									// the head of spaces-manager.jsp
+			selectedIndex: 0
+		};
+
+		var currentProviderId = options.data[options.selectedIndex].id;
+		var cookie = dc.cookie(PROVIDER_COOKIE_ID);
+		
+		if(cookie != undefined){
+			for(i in options.data)
+			{
+				var pid = options.data[i].id;
+				if(pid == cookie){
+					options.selectedIndex = i;
+					currentProviderId = pid; 
+					break;
+				}
+			}
+		}
+		
+		$("#"+PROVIDER_SELECT_ID).flyoutselect(options).bind("changed",function(evt,state){
+			dc.cookie(PROVIDER_COOKIE_ID, state.value.id);
+			//dc.debug("value changed: new value=" + state.value.label);
+			refreshSpaces(state.value.id);
+		});		 	
+	};
+	
+	
+	initProviderStoreSelectbox();		
+	//reusable validators that are used with various forms.
+	//used in conjunctions with the jquery.validate.js and jquery.form
+	$.validator
+	.addMethod("mimetype", function(value, element) { 
+	  return  value == null || value == '' || /^(\w[-]?)*\w\/(\w[-]?)*\w$/.test(value); 
+	}, "Invalid Mimetype");
+
+	$.validator
+	.addMethod("startswith", function(value, element) { 
+	  return  /^[a-z0-9]/.test(value); 
+	}, "Invalid");
+
+	$.validator
+		.addMethod("endswith", function(value, element) { 
+		  return  /[a-z0-9.]$/.test(value); 
+		}, "Invalid");
+	
+	$.validator.addMethod("spacelower", function(value,element){return /^[a-z0-9.-]*$/.test(value);}, 
+			"Invalid");
+	
+	$.validator.addMethod("notip", function(value,element){return !(/^[0-9]+.[0-9]+.[0-9]+.[0-9]+$/.test(value));}, 
+			"Invalid");
+
+    $.validator.addMethod("dotnum", function(value,element){return !(/^.*([.][0-9])[^.]*$/.test(value));},
+            "Invalid");   
+
+	$.validator.addMethod("misc", function(value,element){return !(/^.*([.][-]|[-][.]|[.][.]).*$/.test(value));}, 
+			"Invalid");
+
+	$.validator
+	.addMethod("illegalchars", function(value, element) { 
+	  return  /^[^\\?]*$/.test(value); 
+	}, "A Content ID cannot contain  '?' or '\\'");
+	//end validator definitions
 	
 	// //////////////////////////////////////////
 	// sets contents of object-name class
@@ -2396,7 +2434,6 @@ $(function(){
 		});
 	};
 
-	var PROVIDER_SELECT_ID = "provider-select-box";
 	
 	var setHash = function(obj){
 		window.location.hash = buildHash(obj);
@@ -2471,7 +2508,11 @@ $(function(){
 		return inprogress;
 	};
 	
+	
+	
+	
 	var initSpacesManager =  function(){
+	
 		////////////////////////////////////////////
 		//alert user if they are navigating away from 
 		//spaces manager while an upload is still underway
@@ -2489,39 +2530,6 @@ $(function(){
 			}
 		});
 		
-		////////////////////////////////////////////
-		// initialize provider selection
-		////////////////////////////////////////////
-		var PROVIDER_COOKIE_ID = "providerId";
-		var options = {
-			data: storeProviders, // this variable is defined in a script in
-									// the head of spaces-manager.jsp
-			selectedIndex: 0
-		};
-
-		var currentProviderId = options.data[options.selectedIndex].id;
-		var cookie = dc.cookie(PROVIDER_COOKIE_ID);
-		
-		if(cookie != undefined){
-			for(i in options.data)
-			{
-				var pid = options.data[i].id;
-				if(pid == cookie){
-					options.selectedIndex = i;
-					currentProviderId = pid; 
-					break;
-				}
-			}
-		}
-		
-		
-		$("#"+PROVIDER_SELECT_ID).flyoutselect(options).bind("changed",function(evt,state){
-			dc.cookie(PROVIDER_COOKIE_ID, state.value.id);
-			//dc.debug("value changed: new value=" + state.value.label);
-			refreshSpaces(state.value.id);
-		});		 
-
-
 		var phash = parseHash(window.location.hash);
 		
 
@@ -2530,10 +2538,8 @@ $(function(){
 			return;
 		}
 
-		refreshSpaces(currentProviderId);
+		refreshSpaces(getCurrentProviderStoreId());
 	};
 	
-	
 	initSpacesManager();
-	
 });

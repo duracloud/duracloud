@@ -3,10 +3,10 @@
  * 
  * @author Daniel Bernstein
  */
-var centerLayout
+var centerLayout;
 
 
-$(document).ready(function() {
+$(function() {
 	centerLayout = $('#page-content').layout({
 	// minWidth: 300 // ALL panes
 		north__size: 			50	

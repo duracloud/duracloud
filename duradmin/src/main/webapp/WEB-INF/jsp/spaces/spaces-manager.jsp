@@ -58,7 +58,7 @@
 	
                     <div id="provider-logo" class="float-l"></div>
 				</div>
-				<div id="list-browser" class="list-browser">
+				<div id="list-browser" class="list-browser" style="visibility:hidden">
 				<div id="spaces-list-view" class="dc-list-item-viewer">
 				<div class="north header list-header clearfix">
 				<div id="header-spaces-list" class="header-section clearfix">
@@ -71,7 +71,6 @@
 					type="checkbox" /> <span id="space-list-status" class="dc-status"
 					style="display: none"></span></div>
 				</div>
-
 
 				<div class="center dc-item-list-wrapper">
 				<div class="dc-item-list" id="spaces-list"></div>
@@ -179,7 +178,7 @@
 					<span class="object-id"></span>
 				</div>
 				
-				<div id="add-space-dialog" class="" title="Add Space">
+				<div id="add-space-dialog" class="" title="Add Space" style="display:none">
 				<h1>Add Space</h1>
 				<p class="hint">Add a Space to the current provider. All fields
 				are required.</p>
@@ -212,7 +211,7 @@
 				</div>
 
 				<div id="add-content-item-dialog" class="dialog"
-					title="Add Content Item">
+					title="Add Content Item" style="display:none">
 				<h1>Add Content Item</h1>
 				<p class="hint">Add a Content Item to the currently selected
 				Space. All fields are required.</p>
@@ -276,7 +275,7 @@
 						<span id="upload-status-label">Upload Status:</span> 
 					</a>
 				</div>
-				<div id="upload-viewer">
+				<div id="upload-viewer" style="display:none">
 					<h1>Uploads</h1>
 					<div id="upload-list-wrapper"></div>
 				</div>
