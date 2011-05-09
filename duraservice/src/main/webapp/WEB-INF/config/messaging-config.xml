@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:amq="http://activemq.apache.org/schema/core"  
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://activemq.apache.org/schema/core 
+           http://activemq.apache.org/schema/core/activemq-core.xsd">
+           
+  <!--  Embedded ActiveMQ Broker -->
+  <amq:broker useJmx="false" persistent="false">
+    <amq:transportConnectors>
+      <amq:transportConnector uri="tcp://localhost:61618" />
+    </amq:transportConnectors>
+  </amq:broker>
+           
+  <bean id="connFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL" value="tcp://localhost:61618" />
+  </bean>
+  
+  <bean id="deployDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.deploy" />
+  </bean>
+  
+  <bean id="deployJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="deployDestination" />
+    <property name="messageConverter" ref="deployMsgConverter" />
+  </bean>
+  
+  <bean id="deployMsgConverter" class="org.duracloud.duraservice.aop.DeployMessageConverter" />
+
+  <bean id="undeployDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.undeploy" />
+  </bean>
+
+  <bean id="undeployJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="undeployDestination" />
+    <property name="messageConverter" ref="serviceMsgConverter" />
+  </bean>
+
+  <bean id="serviceMsgConverter" class="org.duracloud.duraservice.aop.ServiceMessageConverter" />
+
+  <bean id="updateConfigDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.updateConfig" />
+  </bean>
+
+  <bean id="updateConfigJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="updateConfigDestination" />
+    <property name="messageConverter" ref="serviceMsgConverter" />
+  </bean>
+
+  <bean id="getDeployedDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.getDeployed" />
+  </bean>
+
+  <bean id="getDeployedJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="getDeployedDestination" />
+    <property name="messageConverter" ref="serviceMsgConverter" />
+  </bean>
+
+  <bean id="getDeployedPropsDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.getDeployedProps" />
+  </bean>
+
+  <bean id="getDeployedPropsJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="getDeployedPropsDestination" />
+    <property name="messageConverter" ref="serviceMsgConverter" />
+  </bean>
+
+  <bean id="getServiceDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.getService" />
+  </bean>
+
+  <bean id="getServiceJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="getServiceDestination" />
+    <property name="messageConverter" ref="serviceMsgConverter" />
+  </bean>
+
+  <bean id="getDeployedServicesDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.getDeployedServices" />
+  </bean>
+
+  <bean id="getDeployedServicesJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="getDeployedServicesDestination" />
+    <property name="messageConverter" ref="serviceMsgConverter" />
+  </bean>
+
+  <bean id="getAvailableServicesDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.getAvailableServices" />
+  </bean>
+
+  <bean id="getAvailableServicesJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="getAvailableServicesDestination" />
+    <property name="messageConverter" ref="serviceMsgConverter" />
+  </bean>
+  
+  <!-- Message Consumers -->
+  <bean class="org.springframework.jms.listener.SimpleMessageListenerContainer" >
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="destination" ref="deployDestination" />
+    <property name="messageListener" ref="msgConsumerAdapter" />
+  </bean>
+  
+  <bean id="msgConsumerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter" >
+    <property name="delegate" ref="msgConsumer" />
+    <property name="defaultListenerMethod" value="onDeploy" />
+    <property name="messageConverter" ref="deployMsgConverter" />
+  </bean>
+  
+  <bean id="msgConsumer" class="org.duracloud.duraservice.aop.MessageConsumer" >
+    <property name="jmsTemplate" ref="deployJmsTemplate" />
+  </bean>
+
+</beans>

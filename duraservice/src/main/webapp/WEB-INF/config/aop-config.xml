@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+  
+  <!-- AOP Advice - Deploy -->
+  <bean id="deployAdvice" class="org.duracloud.duraservice.aop.DeployAdvice" >
+    <property name="deployJmsTemplate" ref="deployJmsTemplate" />
+    <property name="destination" ref="deployDestination" />
+    <property name="order" value="3" />
+  </bean>
+  
+  <bean id="deployAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="deployAdvice"/>
+    <property name="pattern" value=".*ServiceResource.deployService"/>
+  </bean>
+
+  <!-- AOP Advice - Undeploy -->
+  <bean id="undeployAdvice" class="org.duracloud.duraservice.aop.UndeployAdvice" >
+    <property name="undeployJmsTemplate" ref="undeployJmsTemplate" />
+    <property name="destination" ref="undeployDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="undeployAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="undeployAdvice"/>
+    <property name="pattern" value=".*ServiceResource.undeployService"/>
+  </bean>
+
+  <!-- AOP Advice - Update Config -->
+  <bean id="updateConfigAdvice" class="org.duracloud.duraservice.aop.UpdateConfigAdvice" >
+    <property name="updateConfigJmsTemplate" ref="updateConfigJmsTemplate" />
+    <property name="destination" ref="updateConfigDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="updateConfigAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="updateConfigAdvice"/>
+    <property name="pattern" value=".*ServiceResource.updateServiceConfig"/>
+  </bean>
+
+  <!-- AOP Advice - Get Deployed -->
+  <bean id="getDeployedAdvice" class="org.duracloud.duraservice.aop.GetDeployedAdvice" >
+    <property name="getDeployedJmsTemplate" ref="getDeployedJmsTemplate" />
+    <property name="destination" ref="getDeployedDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="getDeployedAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="getDeployedAdvice"/>
+    <property name="pattern" value=".*ServiceResource.getDeployedService"/>
+  </bean>
+
+  <!-- AOP Advice - Get Deployed Props -->
+  <bean id="getDeployedPropsAdvice" class="org.duracloud.duraservice.aop.GetDeployedPropsAdvice" >
+    <property name="getDeployedPropsJmsTemplate" ref="getDeployedPropsJmsTemplate" />
+    <property name="destination" ref="getDeployedPropsDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="getDeployedPropsAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="getDeployedPropsAdvice"/>
+    <property name="pattern" value=".*ServiceResource.getDeployedServiceProps"/>
+  </bean>
+
+  <!-- AOP Advice - Get Service -->
+  <bean id="getServiceAdvice" class="org.duracloud.duraservice.aop.GetServiceAdvice" >
+    <property name="getServiceJmsTemplate" ref="getServiceJmsTemplate" />
+    <property name="destination" ref="getServiceDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="getServiceAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="getServiceAdvice"/>
+    <property name="pattern" value=".*ServiceResource.getService"/>
+  </bean>
+
+  <!-- AOP Advice - Get Deployed Services -->
+  <bean id="getDeployedServicesAdvice" class="org.duracloud.duraservice.aop.GetDeployedServicesAdvice" >
+    <property name="getDeployedServicesJmsTemplate" ref="getDeployedServicesJmsTemplate" />
+    <property name="destination" ref="getDeployedServicesDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="getDeployedServicesAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="getDeployedServicesAdvice"/>
+    <property name="pattern" value=".*ServiceResource.getDeployedServices"/>
+  </bean>
+
+  <!-- AOP Advice - Get Available Services -->
+  <bean id="getAvailableServicesAdvice" class="org.duracloud.duraservice.aop.GetAvailableServicesAdvice" >
+    <property name="getAvailableServicesJmsTemplate" ref="getAvailableServicesJmsTemplate" />
+    <property name="destination" ref="getAvailableServicesDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="getAvailableServicesAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="getAvailableServicesAdvice"/>
+    <property name="pattern" value=".*ServiceResource.getAvailableServices"/>
+  </bean>
+
+  <!-- Enables Auto-AOP Proxy Creation -->
+  <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+  
+</beans>

@@ -219,6 +219,27 @@
       <scope>runtime</scope>
     </dependency>
 
+    <!-- AOP -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+    </dependency>
+
+    <!-- ActiveMQ -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jms</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-all</artifactId>
+        <version>5.2.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-spring</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>
