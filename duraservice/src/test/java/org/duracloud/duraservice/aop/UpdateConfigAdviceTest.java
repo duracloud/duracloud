@@ -63,7 +63,7 @@ public class UpdateConfigAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        updateConfigAdvice.setUpdateConfigJmsTemplate(jmsTemplate);
+        updateConfigAdvice.setJmsTemplate(jmsTemplate);
         updateConfigAdvice.setDestination(destination);
         updateConfigAdvice.afterReturning(null, null,
                                          new Object[]{null,null}, null);
@@ -90,7 +90,7 @@ public class UpdateConfigAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        updateConfigAdvice.setUpdateConfigJmsTemplate(jmsTemplate);
+        updateConfigAdvice.setJmsTemplate(jmsTemplate);
         updateConfigAdvice.setDestination(destination);
         updateConfigAdvice.afterReturning(null, null,
                                          new Object[]{new Integer(id),new Integer(id)}, null);

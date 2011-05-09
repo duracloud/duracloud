@@ -52,7 +52,7 @@ public class GetAvailableServicesAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        getAvailableServicesAdvice.setGetAvailableServicesJmsTemplate(jmsTemplate);
+        getAvailableServicesAdvice.setJmsTemplate(jmsTemplate);
         getAvailableServicesAdvice.setDestination(destination);
         getAvailableServicesAdvice.afterReturning(null, null,
                                          new Object[]{}, null);
@@ -78,7 +78,7 @@ public class GetAvailableServicesAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        getAvailableServicesAdvice.setGetAvailableServicesJmsTemplate(jmsTemplate);
+        getAvailableServicesAdvice.setJmsTemplate(jmsTemplate);
         getAvailableServicesAdvice.setDestination(destination);
         getAvailableServicesAdvice.afterReturning(null, null,
                                          new Object[]{}, null);

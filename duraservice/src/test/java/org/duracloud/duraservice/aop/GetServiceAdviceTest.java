@@ -63,7 +63,7 @@ public class GetServiceAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        getServiceAdvice.setGetServiceJmsTemplate(jmsTemplate);
+        getServiceAdvice.setJmsTemplate(jmsTemplate);
         getServiceAdvice.setDestination(destination);
         getServiceAdvice.afterReturning(null, null,
                                          new Object[]{null}, null);
@@ -89,7 +89,7 @@ public class GetServiceAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        getServiceAdvice.setGetServiceJmsTemplate(jmsTemplate);
+        getServiceAdvice.setJmsTemplate(jmsTemplate);
         getServiceAdvice.setDestination(destination);
         getServiceAdvice.afterReturning(null, null,
                                          new Object[]{new Integer(id)}, null);

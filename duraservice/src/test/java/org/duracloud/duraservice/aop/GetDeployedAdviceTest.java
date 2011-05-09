@@ -63,7 +63,7 @@ public class GetDeployedAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        getDeployedAdvice.setGetDeployedJmsTemplate(jmsTemplate);
+        getDeployedAdvice.setJmsTemplate(jmsTemplate);
         getDeployedAdvice.setDestination(destination);
         getDeployedAdvice.afterReturning(null, null,
                                          new Object[]{null,null}, null);
@@ -90,7 +90,7 @@ public class GetDeployedAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        getDeployedAdvice.setGetDeployedJmsTemplate(jmsTemplate);
+        getDeployedAdvice.setJmsTemplate(jmsTemplate);
         getDeployedAdvice.setDestination(destination);
         getDeployedAdvice.afterReturning(null, null,
                                          new Object[]{new Integer(id),new Integer(id)}, null);

@@ -63,7 +63,7 @@ public class UndeployAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        undeployAdvice.setUndeployJmsTemplate(jmsTemplate);
+        undeployAdvice.setJmsTemplate(jmsTemplate);
         undeployAdvice.setDestination(destination);
         undeployAdvice.afterReturning(null, null,
                                          new Object[]{null,null}, null);
@@ -90,7 +90,7 @@ public class UndeployAdviceTest {
 
         EasyMock.replay(jmsTemplate);
 
-        undeployAdvice.setUndeployJmsTemplate(jmsTemplate);
+        undeployAdvice.setJmsTemplate(jmsTemplate);
         undeployAdvice.setDestination(destination);
         undeployAdvice.afterReturning(null, null,
                                          new Object[]{new Integer(id),new Integer(id)}, null);
