@@ -5,13 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.appconfig.xml;
+package org.duracloud.storage.xml;
 
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.xml.impl.StorageAccountProviderSimpleBindingImpl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -21,8 +22,10 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class (de)serializes durastore acct configuration between objects and xml.
@@ -31,10 +34,22 @@ import java.util.List;
  *         Date: Apr 21, 2010
  */
 public class StorageAccountsDocumentBinding {
-    private static final Logger log = LoggerFactory.getLogger(
+    private final Logger log = LoggerFactory.getLogger(
         StorageAccountsDocumentBinding.class);
 
-    private static EncryptionUtil encryptionUtil;
+    private EncryptionUtil encryptionUtil;
+
+    private Map<StorageProviderType, StorageAccountProviderBinding> providerBindings;
+
+    public StorageAccountsDocumentBinding() {
+        providerBindings = new HashMap<StorageProviderType, StorageAccountProviderBinding>();
+
+        // This map should have provider-specific implementations of
+        //  StorageAccountProviderBinding, as necessary.
+        for (StorageProviderType type : StorageProviderType.values()) {
+            providerBindings.put(type, new StorageAccountProviderSimpleBindingImpl());
+        }
+    }
 
     /**
      * This method deserializes the provided xml into a durastore acct config object.
@@ -42,7 +57,7 @@ public class StorageAccountsDocumentBinding {
      * @param xml
      * @return
      */
-    public static List<StorageAccount> createStorageAccountsFrom(InputStream xml) {
+    public List<StorageAccount> createStorageAccountsFrom(InputStream xml) {
         List<StorageAccount> accts = new ArrayList<StorageAccount>();
         try {
             SAXBuilder builder = new SAXBuilder();
@@ -51,41 +66,19 @@ public class StorageAccountsDocumentBinding {
 
             Iterator<?> accountList = accounts.getChildren().iterator();
             while (accountList.hasNext()) {
-                Element account = (Element) accountList.next();
+                Element accountXml = (Element) accountList.next();
 
-                String storageAccountId = account.getChildText("id");
-                String type = account.getChildText("storageProviderType");
-                String username = null;
-                String password = null;
-                Element credentials = account.getChild(
-                    "storageProviderCredential");
-                if (credentials != null) {
-                    String encUsername = credentials.getChildText("username");
-                    String encPassword = credentials.getChildText("password");
-
-                    username = decrypt(encUsername);
-                    password = decrypt(encPassword);
-                }
-
-                StorageProviderType storageAccountType = StorageProviderType.fromString(
+                String type = accountXml.getChildText("storageProviderType");
+                StorageProviderType acctType = StorageProviderType.fromString(
                     type);
-                StorageAccount acct = null;
-                if (storageAccountId != null && storageAccountType != null &&
-                    !storageAccountType.equals(StorageProviderType.UNKNOWN) &&
-                    (username != null && password != null)) {
-                    acct = new StorageAccount(storageAccountId,
-                                              username,
-                                              password,
-                                              storageAccountType);
-                    accts.add(acct);
+
+                StorageAccountProviderBinding providerBinding = providerBindings
+                    .get(acctType);
+                if (null != providerBinding) {
+                    accts.add(providerBinding.getAccountFromXml(accountXml));
+
                 } else {
-                    log.warn(
-                        "While creating storage account list, skipping storage " +
-                            "account with storageAccountId '" +
-                            storageAccountId +
-                            "' due to either a missing storageAccountId, " +
-                            "an unsupported type '" + type + "', " +
-                            "or a missing username or password");
+                    log.warn("Unexpected account type: " + acctType);
                 }
             }
 
@@ -111,7 +104,8 @@ public class StorageAccountsDocumentBinding {
      * @param accts
      * @return
      */
-    public static String createDocumentFrom(Collection<StorageAccount> accts) {
+    public String createDocumentFrom(Collection<StorageAccount> accts,
+                                     boolean includeCredentials) {
         StringBuilder xml = new StringBuilder();
 
         if (null != accts && accts.size() > 0) {
@@ -127,10 +121,13 @@ public class StorageAccountsDocumentBinding {
                 xml.append("    <id>" + acct.getId() + "</id>");
                 xml.append("    <storageProviderType>");
                 xml.append(acct.getType().name() + "</storageProviderType>");
-                xml.append("    <storageProviderCredential>");
-                xml.append("      <username>" + username + "</username>");
-                xml.append("      <password>" + password + "</password>");
-                xml.append("    </storageProviderCredential>");
+
+                if (includeCredentials) {
+                    xml.append("    <storageProviderCredential>");
+                    xml.append("      <username>" + username + "</username>");
+                    xml.append("      <password>" + password + "</password>");
+                    xml.append("    </storageProviderCredential>");
+                }
                 xml.append("  </storageAcct>");
             }
 
@@ -139,7 +136,7 @@ public class StorageAccountsDocumentBinding {
         return xml.toString();
     }
 
-    private static String encrypt(String text) {
+    private String encrypt(String text) {
         try {
             return getEncryptionUtil().encrypt(text);
         } catch (Exception e) {
@@ -147,7 +144,7 @@ public class StorageAccountsDocumentBinding {
         }
     }
 
-    private static String decrypt(String text) {
+    private String decrypt(String text) {
         try {
             return getEncryptionUtil().decrypt(text);
         } catch (Exception e) {
@@ -155,7 +152,7 @@ public class StorageAccountsDocumentBinding {
         }
     }
 
-    private static EncryptionUtil getEncryptionUtil() {
+    private EncryptionUtil getEncryptionUtil() {
         if (null == encryptionUtil) {
             try {
                 encryptionUtil = new EncryptionUtil();

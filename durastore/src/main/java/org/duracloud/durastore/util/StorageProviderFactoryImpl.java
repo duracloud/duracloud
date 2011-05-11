@@ -22,7 +22,9 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Provides access to StorageProvider implementations
@@ -40,27 +42,19 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
     }
 
     /**
-     * Retrieves the ids for all available storage provider accounts
+     * This method returns all of the registered storage accounts.
      *
-     * @return
-     * @throws StorageException
+     * @return list of storage accounts
      */
     @Override
-    public Iterator<String> getStorageProviderAccountIds()
-            throws StorageException {
-        return getAccountManager().getStorageAccountIds();
-    }
+    public List<StorageAccount> getStorageAccounts() {
+        List<StorageAccount> accts = new ArrayList<StorageAccount>();
 
-    /**
-     * Retrieves the id for the primary storage provider account
-     *
-     * @return
-     * @throws StorageException
-     */
-    @Override
-    public String getPrimaryStorageProviderAccountId()
-            throws StorageException {
-        return getAccountManager().getPrimaryStorageAccountId();
+        Iterator<String> ids = getAccountManager().getStorageAccountIds();
+        while (ids.hasNext()) {
+            accts.add(getAccountManager().getStorageAccount(ids.next()));
+        }
+        return accts;
     }
 
     /**
@@ -118,26 +112,6 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
         return new BrokeredStorageProvider(statelessProvider,
                                            storageProvider,
                                            storageAccountId);
-    }
-
-    /**
-     * Returns the type of the storage provider with the given account ID. If
-     * no storage provider is available with that ID, the UNKNOWN type is returned.
-     *
-     * @param storageAccountId
-     * @return
-     * @throws StorageException
-     */
-    @Override
-    public StorageProviderType getStorageProviderType(String storageAccountId)
-            throws StorageException {
-        StorageAccount account =
-            getAccountManager().getStorageAccount(storageAccountId);
-        if(account != null) {
-            return account.getType();
-        } else {
-            return StorageProviderType.UNKNOWN;
-        }
     }
 
 }

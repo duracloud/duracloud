@@ -7,9 +7,10 @@
  */
 package org.duracloud.appconfig.domain;
 
-import org.duracloud.appconfig.xml.StorageAccountsDocumentBinding;
+import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,9 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     private Map<String, StorageAccount> storageAccounts =
         new HashMap<String, StorageAccount>();
 
+    private StorageAccountsDocumentBinding documentBinding =
+        new StorageAccountsDocumentBinding();
+
     protected String getQualifier() {
         return QUALIFIER;
     }
@@ -63,7 +67,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         String id = getPrefix(key);
         StorageAccount acct = storageAccounts.get(id);
         if (null == acct) {
-            acct = new StorageAccount(null, null, null, null);
+            acct = new StorageAccountImpl(null, null, null, null);
         }
 
         String suffix = getSuffix(key);
@@ -113,8 +117,9 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     }
 
     public String asXml() {
-        return StorageAccountsDocumentBinding.createDocumentFrom(
-            getStorageAccounts());
+        boolean includeCredentials = true;
+        return documentBinding.createDocumentFrom(getStorageAccounts(),
+                                                  includeCredentials);
     }
 
     public String getInitResource() {

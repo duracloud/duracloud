@@ -88,7 +88,7 @@ public class TestStoreRest extends BaseRestTester {
             throws Exception {
         InputStream is = new ByteArrayInputStream(storesXML.getBytes());
         StorageAccountManager manager = new StorageAccountManager();
-        manager.initialize(is, true);
+        manager.initialize(is);
         assertNotNull(manager);
         assertNotNull(manager.getStorageAccountIds());
         return manager;

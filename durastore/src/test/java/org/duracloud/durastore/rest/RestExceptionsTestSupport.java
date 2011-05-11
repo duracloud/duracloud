@@ -52,7 +52,7 @@ public class RestExceptionsTestSupport {
         StorageProviderFactory factory = EasyMock.createMock(
             "StorageProviderFactory",
             StorageProviderFactory.class);
-        EasyMock.expect(factory.getStorageProviderAccountIds()).andThrow(
+        EasyMock.expect(factory.getStorageAccounts()).andThrow(
             createRuntimeException()).anyTimes();
 
         EasyMock.replay(factory);

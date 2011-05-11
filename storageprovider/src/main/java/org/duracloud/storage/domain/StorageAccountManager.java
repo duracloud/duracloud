@@ -7,17 +7,15 @@
  */
 package org.duracloud.storage.domain;
 
-import org.duracloud.common.util.EncryptionUtil;
+import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.duracloud.storage.error.StorageException;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,100 +30,52 @@ public class StorageAccountManager {
     private String primaryStorageProviderId = null;
     private HashMap<String, StorageAccount> storageAccounts = null;
 
-    public void initialize(InputStream accountXml) {
-        this.initialize(accountXml, false);
-    }
+    private StorageAccountsDocumentBinding documentBinding =
+        new StorageAccountsDocumentBinding();
 
     /**
      * Parses xml to construct a listing of available storage accounts.
-     * The ignoreCredentials flag is available to allow parsing of account
-     * xml which does not include credential information, such as the
-     * xml produced by the GET /stores REST method.
      *
      * @param accountXml
-     * @param ignoreCredentials
      * @throws StorageException
      */
-    public void initialize(InputStream accountXml, boolean ignoreCredentials)
+    public void initialize(InputStream accountXml)
         throws StorageException {
+
+        List<StorageAccount> accts = getAccounts(accountXml);
         storageAccounts = new HashMap<String, StorageAccount>();
-
-        try {
-            SAXBuilder builder = new SAXBuilder();
-            Document doc = builder.build(accountXml);
-            Element accounts = doc.getRootElement();
-
-            Iterator<?> accountList = accounts.getChildren().iterator();
-            while(accountList.hasNext()) {
-                Element account = (Element)accountList.next();
-
-                String storageAccountId = account.getChildText("id");
-                String type = account.getChildText("storageProviderType");
-                String username = null;
-                String password = null;
-                if(!ignoreCredentials) {
-                Element credentials = account.getChild("storageProviderCredential");
-                    if(credentials != null) {
-                        String encUsername = credentials.getChildText("username");
-                        String encPassword = credentials.getChildText("password");
-
-                        EncryptionUtil encryptUtil = new EncryptionUtil();
-                        username = encryptUtil.decrypt(encUsername);
-                        password = encryptUtil.decrypt(encPassword);
-                    }
-                }
-
-                StorageProviderType storageAccountType =
-                    StorageProviderType.fromString(type);
-                StorageAccount storageAccount = null;
-                if(storageAccountId != null &&
-                   storageAccountType != null &&
-                   !storageAccountType.equals(StorageProviderType.UNKNOWN) &&
-                   (ignoreCredentials || (username != null && password != null))) {
-                    storageAccount = new StorageAccount(storageAccountId,
-                                                        username,
-                                                        password,
-                                                        storageAccountType);
-                    storageAccounts.put(storageAccountId, storageAccount);
-                }
-                else {
-                    log.warn("While creating storage account list, skipping storage " +
-                    		 "account with storageAccountId '" + storageAccountId +
-                             "' due to either a missing storageAccountId, " +
-                             "an unsupported type '" + type + "', " +
-                             "or a missing username or password");
-                }
-
-            String primary = account.getAttributeValue("isPrimary");
-            if(primary != null) {
-                if(primary.equalsIgnoreCase("1") ||
-                   primary.equalsIgnoreCase("true"))
-                    primaryStorageProviderId = storageAccountId;
-                }
+        for (StorageAccount acct : accts) {
+            storageAccounts.put(acct.getId(), acct);
+            if (acct.isPrimary()) {
+                primaryStorageProviderId = acct.getId();
             }
+        }
 
-            // Make sure that there is at least one storage account
-            if(storageAccounts.isEmpty()) {
-                String error = "No storage accounts could be read";
-                throw new StorageException(error);
-            } else {
-                // Make sure a primary provider is set
-                if(primaryStorageProviderId == null) {
-                    primaryStorageProviderId =
-                        storageAccounts.values().iterator().next().getId();
-                }
-            }
-        } catch (Exception e) {
-            String error = "Unable to build storage account information due " +
-            		       "to error: " + e.getMessage();
-            log.error(error);
-            throw new StorageException(error, e);
+        // Make sure a primary provider is set
+        if (primaryStorageProviderId == null) {
+            primaryStorageProviderId = accts.get(0).getId();
         }
     }
 
-    public String getPrimaryStorageAccountId() {
-        checkInitialized();
-        return primaryStorageProviderId;
+    private List<StorageAccount> getAccounts(InputStream accountXml) {
+        List<StorageAccount> accts = null;
+        try {
+            accts = documentBinding.createStorageAccountsFrom(accountXml);
+
+        } catch (Exception e) {
+            String error = "Unable to build storage account information due " +
+                "to error: " + e.getMessage();
+            log.error(error);
+            throw new StorageException(error, e);
+        }
+
+        if (null == accts || accts.isEmpty()) {
+            String error = "Unable to build storage account information due " +
+                "to invalid input xml.";
+            log.error(error);
+            throw new StorageException(error);
+        }
+        return accts;
     }
 
     public StorageAccount getPrimaryStorageAccount() {

@@ -7,13 +7,12 @@
  */
 package org.duracloud.durastore.util;
 
-import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.InputStream;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Andrew Woods
@@ -23,17 +22,11 @@ public interface StorageProviderFactory {
 
     public void initialize(InputStream accountXml);
 
-    public Iterator<String> getStorageProviderAccountIds()
-        throws StorageException;
-
-    public String getPrimaryStorageProviderAccountId() throws StorageException;
+    public List<StorageAccount> getStorageAccounts();
 
     public StorageProvider getStorageProvider() throws StorageException;
 
     public StorageProvider getStorageProvider(String storageAccountId)
-        throws StorageException;
-
-    public StorageProviderType getStorageProviderType(String storageAccountId)
         throws StorageException;
 
 }

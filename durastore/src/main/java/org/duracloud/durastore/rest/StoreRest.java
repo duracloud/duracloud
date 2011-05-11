@@ -9,11 +9,9 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.util.StorageProviderFactory;
-import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
+import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * Provides interaction with storage providers accounts via REST
@@ -34,10 +32,12 @@ public class StoreRest extends BaseRest {
 
     private StorageProviderFactory storageProviderFactory;
     private RestUtil restUtil;
+    private StorageAccountsDocumentBinding documentBinding;
 
     public StoreRest(StorageProviderFactory storageProviderFactory, RestUtil restUtil) {
         this.storageProviderFactory = storageProviderFactory;
         this.restUtil = restUtil;
+        this.documentBinding = new StorageAccountsDocumentBinding();
     }
 
     /**
@@ -82,32 +82,12 @@ public class StoreRest extends BaseRest {
     }
 
     private Response doGetStores() {
-        Element accounts = new Element("storageProviderAccounts");
+        List<StorageAccount> accts = storageProviderFactory.getStorageAccounts();
+        boolean includeCredentials = false;
+        String xml = documentBinding.createDocumentFrom(accts,
+                                                        includeCredentials);
 
-        // Get the list of storage provider ids
-        Iterator<String> storageIDs = storageProviderFactory.getStorageProviderAccountIds();
-
-        // Get the primary storage provider id
-        String primaryId = storageProviderFactory.getPrimaryStorageProviderAccountId();
-
-        while (storageIDs.hasNext()) {
-            String storageID = storageIDs.next();
-            StorageProviderType providerType = storageProviderFactory.getStorageProviderType(
-                storageID);
-
-            Element storageAcct = new Element("storageAcct");
-            storageAcct.setAttribute("isPrimary", new Boolean(storageID.equals(
-                primaryId)).toString());
-            storageAcct.addContent(new Element("id").setText(storageID));
-            storageAcct.addContent(new Element("storageProviderType").
-                setText(providerType.name()));
-            accounts.addContent(storageAcct);
-        }
-
-        Document storesDocument = new Document(accounts);
-        XMLOutputter outputter = new XMLOutputter();
-        String storesXml = outputter.outputString(storesDocument);
-        return Response.ok(storesXml, TEXT_XML).build();
+        return Response.ok(xml, TEXT_XML).build();
     }
 
     private Response responseOk(String msg, String text) {
