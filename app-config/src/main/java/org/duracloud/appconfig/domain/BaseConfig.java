@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * This class collects the common functionality needed by durastore,
- * duraservice, duradmin, and security configurations.
+ * duraservice, duradmin, durareport, and security configurations.
  *
  * @author Andrew Woods
  *         Date: Apr 20, 2010
@@ -41,7 +41,7 @@ public abstract class BaseConfig {
         }
     }
 
-    private boolean isSupported(String key) {
+    protected boolean isSupported(String key) {
         return (key != null && key.startsWith(getQualifier()));
     }
 

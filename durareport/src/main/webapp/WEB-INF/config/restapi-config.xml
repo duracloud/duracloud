@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+  <!-- REST API resources -->
+  <bean id="storageReportRest" class="org.duracloud.durareport.rest.StorageReportRest" >
+    <constructor-arg ref="storageResource"/>
+  </bean>  
+
+  <bean id="serviceReportRest" class="org.duracloud.durareport.rest.ServiceReportRest" >
+    <constructor-arg ref="serviceResource"/>
+  </bean>
+
+  <bean id="initRest" class="org.duracloud.durareport.rest.InitRest" >
+    <constructor-arg ref="storageResource"/>
+    <constructor-arg ref="serviceResource"/>
+    <constructor-arg ref="securityContextUtil"/>
+    <constructor-arg ref="restUtil"/>
+  </bean>
+
+  <bean id="securityRest" class="org.duracloud.durareport.rest.SecurityRest">
+    <constructor-arg ref="userDetailsSvc" />
+    <constructor-arg ref="restUtil"/>
+  </bean>
+
+  <!-- Support beans -->
+  <bean id="storageResource" class="org.duracloud.durareport.rest.StorageReportResource" />
+
+  <bean id="serviceResource" class="org.duracloud.durareport.rest.ServiceReportResource" />
+
+  <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
+
+  <bean id="securityContextUtil" class="org.duracloud.security.context.SecurityContextUtil"/>
+
+</beans>
