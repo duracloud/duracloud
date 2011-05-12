@@ -7,7 +7,6 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.storage.error.InvalidIdException;
@@ -62,7 +61,7 @@ public class SpaceRest extends BaseRest {
 
         try {
             String xml = spaceResource.getSpaces(storeID);
-            return responseOk(msg, xml);
+            return responseOkXml(msg, xml);
 
         } catch (ResourceException e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
@@ -128,7 +127,7 @@ public class SpaceRest extends BaseRest {
                                                     prefix,
                                                     maxResults,
                                                     marker);
-        return addSpaceMetadataToResponse(Response.ok(xml, TEXT_XML),
+        return addSpaceMetadataToResponse(Response.ok(xml, APPLICATION_XML),
                                           spaceID,
                                           storeID);
     }
@@ -302,9 +301,9 @@ public class SpaceRest extends BaseRest {
         return Response.ok(responseText, TEXT_PLAIN).build();
     }
 
-    private Response responseOk(String msg, String text) {
+    private Response responseOkXml(String msg, String text) {
         log.debug(msg);
-        return Response.ok(text, TEXT_PLAIN).build();
+        return Response.ok(text, APPLICATION_XML).build();
     }
 
     private Response responseBad(String msg,

@@ -34,10 +34,11 @@ public abstract class BaseRest {
     @Context
     UriInfo uriInfo;
 
-    public static final String XML = MediaType.TEXT_XML;
+    public static final String XML = MediaType.APPLICATION_XML;
     public static final String HTML = MediaType.TEXT_HTML;
 
-    public static final MediaType TEXT_XML = MediaType.TEXT_XML_TYPE;
+    public static final MediaType APPLICATION_XML =
+        MediaType.APPLICATION_XML_TYPE;
     public static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN_TYPE;
 
     public static final String DEFAULT_MIME = MediaType.APPLICATION_OCTET_STREAM;

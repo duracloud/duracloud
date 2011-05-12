@@ -87,8 +87,8 @@ public class StoreRest extends BaseRest {
         String xml = documentBinding.createDocumentFrom(accts,
                                                         includeCredentials);
 
-        return Response.ok(xml, TEXT_XML).build();
-    }
+        return Response.ok(xml, APPLICATION_XML).build();
+        }
 
     private Response responseOk(String msg, String text) {
         log.debug(msg);

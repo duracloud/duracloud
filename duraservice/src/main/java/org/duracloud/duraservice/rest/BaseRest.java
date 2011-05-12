@@ -28,14 +28,7 @@ public abstract class BaseRest {
     @Context
     UriInfo uriInfo;
 
-    public static final String XML = "text/xml";
-    public static final String HTML = "text/html";
+    public static final String XML = MediaType.APPLICATION_XML;
+    public static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN_TYPE;
 
-    public static final MediaType TEXT_XML = new MediaType("text", "xml");
-    public static final MediaType TEXT_HTML = new MediaType("text", "html");
-    public static final MediaType TEXT_PLAIN = new MediaType("text", "plain");
-
-    public static final String DEFAULT_MIME = "application/octet-stream";
-
-    public static final String HEADER_PREFIX = "x-dura-meta-";
 }

@@ -21,7 +21,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.List;
@@ -64,7 +63,7 @@ public class TaskRest extends BaseRest {
             String responseText =
                 SerializationUtil.serializeList(supportedTasks);
 
-            return responseOk(msg, responseText);
+            return responseOkXml(msg, responseText);
         } catch (Exception e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
@@ -126,6 +125,11 @@ public class TaskRest extends BaseRest {
     private Response responseOk(String msg, String text) {
         log.debug(msg);
         return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    private Response responseOkXml(String msg, String text) {
+        log.debug(msg);
+        return Response.ok(text, APPLICATION_XML).build();
     }
 
     private Response responseBad(String msg,
