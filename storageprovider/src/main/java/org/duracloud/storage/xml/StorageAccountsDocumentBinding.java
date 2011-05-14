@@ -8,14 +8,16 @@
 package org.duracloud.storage.xml;
 
 import org.duracloud.common.util.EncryptionUtil;
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.xml.impl.StorageAccountProviderS3BindingImpl;
 import org.duracloud.storage.xml.impl.StorageAccountProviderSimpleBindingImpl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +49,14 @@ public class StorageAccountsDocumentBinding {
         // This map should have provider-specific implementations of
         //  StorageAccountProviderBinding, as necessary.
         for (StorageProviderType type : StorageProviderType.values()) {
-            providerBindings.put(type, new StorageAccountProviderSimpleBindingImpl());
+            StorageAccountProviderBinding binding;
+            if (type.equals(StorageProviderType.AMAZON_S3)) {
+                binding = new StorageAccountProviderS3BindingImpl();
+
+            } else {
+                binding = new StorageAccountProviderSimpleBindingImpl();
+            }
+            providerBindings.put(type, binding);
         }
     }
 
@@ -106,60 +115,31 @@ public class StorageAccountsDocumentBinding {
      */
     public String createDocumentFrom(Collection<StorageAccount> accts,
                                      boolean includeCredentials) {
-        StringBuilder xml = new StringBuilder();
+        String xml = "";
 
         if (null != accts && accts.size() > 0) {
-            xml.append("<storageProviderAccounts>");
+            Element storageProviderAccounts = new Element(
+                "storageProviderAccounts");
 
             for (StorageAccount acct : accts) {
-                String isPrimary = acct.isPrimary() ? "1" : "0";
-                String username = encrypt(acct.getUsername());
-                String password = encrypt(acct.getPassword());
 
-                xml.append("  <storageAcct ownerId='0' isPrimary='");
-                xml.append(isPrimary + "'>");
-                xml.append("    <id>" + acct.getId() + "</id>");
-                xml.append("    <storageProviderType>");
-                xml.append(acct.getType().name() + "</storageProviderType>");
+                StorageAccountProviderBinding providerBinding = providerBindings
+                    .get(acct.getType());
+                if (null != providerBinding) {
+                    storageProviderAccounts.addContent(providerBinding.getElementFrom(
+                        acct,
+                        includeCredentials));
 
-                if (includeCredentials) {
-                    xml.append("    <storageProviderCredential>");
-                    xml.append("      <username>" + username + "</username>");
-                    xml.append("      <password>" + password + "</password>");
-                    xml.append("    </storageProviderCredential>");
+                } else {
+                    log.warn("Unexpected account type: " + acct.getType());
                 }
-                xml.append("  </storageAcct>");
             }
 
-            xml.append("</storageProviderAccounts>");
+            Document document = new Document(storageProviderAccounts);
+            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+            xml = outputter.outputString(document);
         }
-        return xml.toString();
+        return xml;
     }
 
-    private String encrypt(String text) {
-        try {
-            return getEncryptionUtil().encrypt(text);
-        } catch (Exception e) {
-            throw new DuraCloudRuntimeException(e);
-        }
-    }
-
-    private String decrypt(String text) {
-        try {
-            return getEncryptionUtil().decrypt(text);
-        } catch (Exception e) {
-            throw new DuraCloudRuntimeException(e);
-        }
-    }
-
-    private EncryptionUtil getEncryptionUtil() {
-        if (null == encryptionUtil) {
-            try {
-                encryptionUtil = new EncryptionUtil();
-            } catch (Exception e) {
-                throw new DuraCloudRuntimeException(e);
-            }
-        }
-        return encryptionUtil;
-    }
 }

@@ -56,17 +56,32 @@ public class S3StorageProvider extends StorageProviderBase {
     private final Logger log = LoggerFactory.getLogger(S3StorageProvider.class);
 
     protected static final int MAX_ITEM_COUNT = 1000;
+    private static final StorageClass DEFAULT_STORAGE_CLASS = StorageClass.Standard;
 
     private String accessKeyId = null;
     private AmazonS3Client s3Client = null;
+    private String storageClass = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
-        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey), accessKey);
+        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey),
+             accessKey,
+             null);
     }
 
-    public S3StorageProvider(AmazonS3Client s3Client, String accessKey) {
+    public S3StorageProvider(String accessKey,
+                             String secretKey,
+                             String storageClass) {
+        this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey),
+             accessKey,
+             storageClass);
+    }
+
+    public S3StorageProvider(AmazonS3Client s3Client,
+                             String accessKey,
+                             String storageClass) {
         this.accessKeyId = accessKey;
         this.s3Client = s3Client;
+        this.storageClass = storageClass;
     }
 
     /**
@@ -469,7 +484,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                                            contentId,
                                                            wrappedContent,
                                                            objMetadata);
-        putRequest.setStorageClass(StorageClass.ReducedRedundancy);
+        putRequest.setStorageClass(getStorageClass());
         putRequest.setCannedAcl(CannedAccessControlList.Private);
 
         // Add the object
@@ -630,7 +645,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                                                   contentId);
             copyRequest.setCannedAccessControlList(
                 CannedAccessControlList.Private);
-            copyRequest.setStorageClass(StorageClass.ReducedRedundancy);
+            copyRequest.setStorageClass(getStorageClass());
             copyRequest.setNewObjectMetadata(objMetadata);
             s3Client.copyObject(copyRequest);
         } catch (AmazonServiceException e) {
@@ -777,4 +792,12 @@ public class S3StorageProvider extends StorageProviderBase {
         return name.replaceAll("%20", " ");
     }
 
+    private StorageClass getStorageClass() {
+        log.debug("StorageClass: {}", storageClass);
+        try {
+            return StorageClass.fromValue(storageClass);
+        } catch (Exception e) {
+            return DEFAULT_STORAGE_CLASS;
+        }
+    }
 }

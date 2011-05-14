@@ -25,5 +25,16 @@ public interface StorageAccountProviderBinding {
      * @return StorageAccount
      * @throws Exception
      */
-    public StorageAccount getAccountFromXml(Element xml) throws Exception;
+    public StorageAccount getAccountFromXml(Element xml);
+
+    /**
+     * This method builds an xml element from the arg StorageAccount.
+     *
+     * @param acct               from whence xml will be built
+     * @param includeCredentials flag indicating inclusion of credentials in xml
+     * @return xml element
+     * @throws Exception
+     */
+    public Element getElementFrom(StorageAccount acct,
+                                  boolean includeCredentials);
 }

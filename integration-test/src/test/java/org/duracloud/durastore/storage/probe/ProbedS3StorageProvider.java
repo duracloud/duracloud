@@ -40,7 +40,7 @@ public class ProbedS3StorageProvider
             throw new StorageException(err, e);
         }
 
-        storageProvider = new S3StorageProvider(probedCore, accessKey);
+        storageProvider = new S3StorageProvider(probedCore, accessKey, null);
     }
 
     @Override

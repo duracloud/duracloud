@@ -10,6 +10,9 @@ package org.duracloud.storage.domain.impl;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 
+import java.util.Iterator;
+import java.util.Properties;
+
 /**
  * Contains the information necessary to access a storage
  * provider account.
@@ -24,6 +27,7 @@ public class StorageAccountImpl implements StorageAccount {
     private String password = null;
     private StorageProviderType type = null;
     private boolean isPrimary;
+    private Properties properties = new Properties();
 
     public StorageAccountImpl(String id,
                               String username,
@@ -120,6 +124,20 @@ public class StorageAccountImpl implements StorageAccount {
     }
 
     @Override
+    public String getProperty(String key) {
+        // only allow properties defined in PROPS enum.
+        StorageAccount.PROPS.valueOf(key);
+        return properties.getProperty(key);
+    }
+
+    @Override
+    public void setProperty(String key, String value) {
+        // only allow properties defined in PROPS enum.
+        StorageAccount.PROPS.valueOf(key);
+        properties.setProperty(key, value);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -144,6 +162,10 @@ public class StorageAccountImpl implements StorageAccount {
             that.password != null) {
             return false;
         }
+        if (properties != null ? !properties.equals(that.properties) :
+            that.properties != null) {
+            return false;
+        }
         if (type != that.type) {
             return false;
         }
@@ -163,6 +185,7 @@ public class StorageAccountImpl implements StorageAccount {
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (isPrimary ? 1 : 0);
+        result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }
 
@@ -176,6 +199,7 @@ public class StorageAccountImpl implements StorageAccount {
         sb.append(", password:" + password);
         sb.append(", type:" + type);
         sb.append(", isPrimary:" + isPrimary);
+        sb.append(", props:"+properties);
         sb.append("]");
         return sb.toString();
     }

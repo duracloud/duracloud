@@ -17,6 +17,7 @@ import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.domain.impl.StorageAccountS3Impl;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
@@ -94,7 +95,12 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
 
         StorageProvider storageProvider = null;
         if (type.equals(StorageProviderType.AMAZON_S3)) {
-            storageProvider = new S3StorageProvider(username, password);
+            StorageAccountS3Impl s3Acct = (StorageAccountS3Impl) account;
+            String storageClass = s3Acct.getStorageClass();
+            storageProvider = new S3StorageProvider(username,
+                                                    password,
+                                                    storageClass);
+
         } else if (type.equals(StorageProviderType.MICROSOFT_AZURE)) {
             storageProvider = new AzureStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.RACKSPACE)) {

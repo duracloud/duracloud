@@ -33,6 +33,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     public static final String QUALIFIER = "durastore";
 
     protected static final String storageAccountKey = "storage-acct";
+    protected static final String storageClassKey = "storage-class";
     protected static final String ownerIdKey = "owner-id";
     protected static final String isPrimaryKey = "is-primary";
     protected static final String idKey = "id";
@@ -88,6 +89,9 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
         } else if (suffix.equalsIgnoreCase(passwordKey)) {
             acct.setPassword(value);
+
+        } else if (suffix.equalsIgnoreCase(storageClassKey)) {
+            acct.setProperty(StorageAccount.PROPS.STORAGE_CLASS.name(), value);
 
         } else {
             String msg = "unknown acct key: " + key + " (" + value + ")";

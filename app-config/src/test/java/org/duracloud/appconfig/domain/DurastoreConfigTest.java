@@ -24,9 +24,6 @@ public class DurastoreConfigTest {
 
     private static final int NUM_ACCTS = 3;
 
-//    private String host = "host";
-//    private String port = "port";
-//    private String context = "context";
     private String[] ownerIds = {"ownerId0", "ownerId1", "ownerId2"};
     private String[] primaries = {"false", "false", "true"};
     private String[] ids = {"id0", "id1", "id2"};
@@ -35,6 +32,7 @@ public class DurastoreConfigTest {
                               StorageProviderType.RACKSPACE.toString()};
     private String[] usernames = {"username0", "username1", "username2"};
     private String[] passwords = {"password0", "password1", "password2"};
+    private String storageClass = "storageclass";
 
     @Test
     public void testLoad() {
@@ -45,10 +43,6 @@ public class DurastoreConfigTest {
 
     private Map<String, String> createProps() {
         Map<String, String> props = new HashMap<String, String>();
-
-//        props.put(DurastoreConfig.QUALIFIER + DurastoreConfig.hostKey, host);
-//        props.put(DurastoreConfig.QUALIFIER + DurastoreConfig.portKey, port);
-//        props.put(DurastoreConfig.QUALIFIER + DurastoreConfig.contextKey, context);
 
         String dot = ".";
         String prefix = DurastoreConfig.QUALIFIER + dot +
@@ -62,18 +56,15 @@ public class DurastoreConfigTest {
             props.put(p + DurastoreConfig.idKey, ids[i]);
             props.put(p + DurastoreConfig.ownerIdKey, ownerIds[i]);
             props.put(p + DurastoreConfig.providerTypeKey, types[i]);
+
+            if (types[i] == StorageProviderType.AMAZON_S3.toString()) {
+                props.put(p + DurastoreConfig.storageClassKey, storageClass);
+            }
         }
         return props;
     }
 
     private void verifyDurastoreConfig(DurastoreConfig config) {
-
-//        Assert.assertNotNull(config.getHost());
-//        Assert.assertNotNull(config.getPort());
-//        Assert.assertNotNull(config.getContext());
-//        Assert.assertEquals(config.getHost(), host);
-//        Assert.assertEquals(config.getPort(), port);
-//        Assert.assertEquals(config.getContext(), context);
 
         Collection<StorageAccount> accts = config.getStorageAccounts();
         Assert.assertNotNull(accts);
@@ -107,8 +98,14 @@ public class DurastoreConfigTest {
         Assert.assertEquals(Boolean.valueOf(primaries[i]), acct.isPrimary());
         Assert.assertEquals(ids[i], acct.getId());
         Assert.assertEquals(ownerIds[i], acct.getOwnerId());
-        Assert.assertEquals(StorageProviderType.fromString(types[i]),
-                            acct.getType());
+
+        StorageProviderType type = StorageProviderType.fromString(types[i]);
+        Assert.assertEquals(type, acct.getType());
+        if (type == StorageProviderType.AMAZON_S3) {
+            Assert.assertEquals(acct.getProperty(StorageAccount.PROPS
+                                                     .STORAGE_CLASS
+                                                     .name()), storageClass);
+        }
     }
 
 }

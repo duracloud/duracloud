@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2009-2010 DuraSpace. All rights reserved.
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
  */
 package org.duracloud.storage.domain;
 
@@ -8,6 +12,14 @@ package org.duracloud.storage.domain;
  *         Date: 5/9/11
  */
 public interface StorageAccount {
+
+    /**
+     * This enum holds names of attributes that are not in the common
+     * getters/setters of this interface.
+     */
+    public enum PROPS {
+        STORAGE_CLASS;
+    }
 
     public String getId();
     public void setId(String id);
@@ -26,4 +38,12 @@ public interface StorageAccount {
 
     public boolean isPrimary();
     public void setPrimary(boolean primary);
+
+    /**
+     * These methods require that the arg key come from PROPS.X.name()
+     *
+     * @param key of property
+     */
+    public String getProperty(String key);
+    public void setProperty(String key, String value);
 }

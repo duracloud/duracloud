@@ -12,6 +12,7 @@ import org.duracloud.storage.error.StorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ public class StorageAccountManager {
 
     /**
      * Parses xml to construct a listing of available storage accounts.
+     * Closes the arg stream upon successful initialization.
      *
      * @param accountXml
      * @throws StorageException
@@ -55,6 +57,8 @@ public class StorageAccountManager {
         if (primaryStorageProviderId == null) {
             primaryStorageProviderId = accts.get(0).getId();
         }
+
+        close(accountXml);
     }
 
     private List<StorageAccount> getAccounts(InputStream accountXml) {
@@ -76,6 +80,14 @@ public class StorageAccountManager {
             throw new StorageException(error);
         }
         return accts;
+    }
+
+    private void close(InputStream stream) {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            // do nothing
+        }
     }
 
     public StorageAccount getPrimaryStorageAccount() {

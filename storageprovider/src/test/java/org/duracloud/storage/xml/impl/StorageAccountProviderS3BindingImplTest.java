@@ -11,6 +11,7 @@ import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
+import org.duracloud.storage.domain.impl.StorageAccountS3Impl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -23,15 +24,15 @@ import java.io.InputStream;
 
 /**
  * @author Andrew Woods
- *         Date: 5/11/11
+ *         Date: 5/13/11
  */
-public class StorageAccountProviderSimpleBindingImplTest {
+public class StorageAccountProviderS3BindingImplTest {
 
-    private StorageAccountProviderSimpleBindingImpl binding;
+    private StorageAccountProviderS3BindingImpl binding;
 
     @Before
     public void setUp() throws Exception {
-        binding = new StorageAccountProviderSimpleBindingImpl();
+        binding = new StorageAccountProviderS3BindingImpl();
     }
 
     @Test
@@ -41,10 +42,24 @@ public class StorageAccountProviderSimpleBindingImplTest {
         Assert.assertNull(result);
     }
 
+
     @Test
-    public void testGetAccountFromXml() throws Exception {
+    public void testGetAccountFromXmlNullStorageClass() throws Exception {
         boolean include = true;
-        StorageAccount acct = createAccount();
+        String storageClass = null;
+        StorageAccount acct = createAccount(storageClass);
+        Element xml = createAccountXml(acct, include);
+
+        boolean valid = false;
+        StorageAccount result = doTest(xml, valid);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void testGetAccountFromXmlStandard() throws Exception {
+        boolean include = true;
+        String storageClass = "standard";
+        StorageAccount acct = createAccount(storageClass);
         Element xml = createAccountXml(acct, include);
 
         boolean valid = true;
@@ -54,23 +69,23 @@ public class StorageAccountProviderSimpleBindingImplTest {
     }
 
     @Test
-    public void testGetAccountFromXml2() throws Exception {
-        boolean include = false;
-        StorageAccount acct = createAccount();
+    public void testGetAccountFromXmlReduced() throws Exception {
+        boolean include = true;
+        String storageClass = "reducEDreDundANCY";
+        StorageAccount acct = createAccount(storageClass);
         Element xml = createAccountXml(acct, include);
 
         boolean valid = true;
         StorageAccount result = doTest(xml, valid);
         Assert.assertNotNull(result);
-        Assert.assertEquals(acct.getId(), result.getId());
-        Assert.assertEquals(acct.getOwnerId(), result.getOwnerId());
-        Assert.assertEquals(acct.getType(), result.getType());
+        Assert.assertEquals(acct, result);
     }
 
     @Test
     public void testGetAccountFromXmlBadCredentials() throws Exception {
         boolean include = true;
-        StorageAccount acct = createAccount();
+        String storageClass = null;
+        StorageAccount acct = createAccount(storageClass);
         acct.setUsername(null);
         acct.setPassword(null);
         Element xml = createAccountXml(acct, include);
@@ -83,8 +98,9 @@ public class StorageAccountProviderSimpleBindingImplTest {
     @Test
     public void testGetAccountFromXmlUnknownProvider() throws Exception {
         boolean include = true;
-        StorageAccount acct = createAccount();
-        acct.setType(StorageProviderType.UNKNOWN);
+        String storageClass = "standard";
+        StorageAccount acct = createAccount(storageClass);
+        acct.setType(StorageProviderType.RACKSPACE);
         Element xml = createAccountXml(acct, include);
 
         boolean valid = true;
@@ -101,6 +117,7 @@ public class StorageAccountProviderSimpleBindingImplTest {
             Assert.assertTrue("Exception not expected", valid);
 
         } catch (Exception e) {
+            Assert.assertFalse(e.getMessage(), valid);
             success = false;
         }
         Assert.assertEquals(valid, success);
@@ -128,6 +145,10 @@ public class StorageAccountProviderSimpleBindingImplTest {
         xml.append("  <storageAcct ownerId='0' isPrimary='");
         xml.append(isPrimary + "'>");
         xml.append("    <id>" + acct.getId() + "</id>");
+        xml.append("    <storageClass>" + acct.getProperty(StorageAccount.PROPS
+                                                               .STORAGE_CLASS
+                                                               .name()) +
+                       "</storageClass>");
         xml.append("    <storageProviderType>");
         xml.append(acct.getType().name() + "</storageProviderType>");
 
@@ -147,11 +168,10 @@ public class StorageAccountProviderSimpleBindingImplTest {
         return doc.getRootElement();
     }
 
-    private StorageAccount createAccount() {
+    private StorageAccount createAccount(String storageClass) {
         String id = "id";
         String username = "username";
         String password = "password";
-        StorageProviderType type = StorageProviderType.RACKSPACE;
-        return new StorageAccountImpl(id, username, password, type);
+        return new StorageAccountS3Impl(id, username, password, storageClass);
     }
 }
