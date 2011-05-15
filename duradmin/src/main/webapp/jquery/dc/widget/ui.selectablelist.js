@@ -149,19 +149,10 @@ $.widget("ui.selectablelist",{
 		var item = $("[id='"+elementId+"']", this.element).first();
 		this._removeDataById(elementId);
 		item.remove();
-		//var firstItem = $("." + this.options.itemClass, this.element).first();
-		//var data = this._getDataById(elementId);
 		this._fireCurrentItemChanged(null,null);
 		this._fireItemRemoved(item);
 	},
 
-
-	_changeSelection: function(item, select){
-		var checkbox = $("input[type=checkbox]", item).first();
-		checkbox.attr("checked", select);
-		this._itemSelectionStateChanged(checkbox);
-		
-	},
 
 	_getDataById: function(id){
 		for(i in this.dataMap){
