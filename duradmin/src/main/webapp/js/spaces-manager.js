@@ -988,27 +988,6 @@ $(function(){
 							.addClass("preview-image-wrapper")
 							.append(viewerLink);
 
-		if(!open && j2kBaseURL != null){
-			var warning = $.fn.create("div").addClass("warning");
-			$(div).expandopanel("getContent").append(warning);
-	 		var button = $.fn.create("button")
-	 			.addClass("featured")
-	 			.css("margin-left","10px")
-	 			.html("Open Space");
-	 		button.click(function(){
-				toggleSpaceAccess(
-					space,
-					{
-						success:function(newSpace){
-							loadContentItem(contentItem,newSpace);
-						},
-						failure:function(){alert("operation failed")},
-					})
-			});
-	 		warning.append("<span>To use the JP2 Viewer you must open this space.</span>")
-	 			   .append(button);
-		}
-		
 		$(div).expandopanel("getContent").append(wrapper);
 		$(".center", target).append(div);
 	};
