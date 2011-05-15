@@ -941,7 +941,7 @@ $(function(){
 	};
 
 
-	var loadPreview = function(target,contentItem,space, j2kBaseURL){
+	var loadPreview = function(target,contentItem,j2kBaseURL){
 		var viewerType = 'iframe';
 		var options = {
 				'transitionIn'	:	'elastic',
@@ -950,8 +950,7 @@ $(function(){
 				'speedOut'		:	200, 
 				'overlayShow'	:	false};
 
-		var open = space.metadata.access == "OPEN";
-		var externalViewer = j2kBaseURL != null && open;
+		var externalViewer = j2kBaseURL != null;
 		if(externalViewer){
 			options['width'] = $(document).width()*0.8;
 			options['height'] = $(document).height()*0.8;
@@ -1579,7 +1578,7 @@ $(function(){
 					getSpace(spaceId, 
 						function(space){
 							if(notEmpty(contentId)){
-								getContentItem(storeId,spaceId,contentId,space);
+								getContentItem(storeId,spaceId,contentId);
 								loadContentItems(space.contents);
 							}else{
 								loadSpace(space);
@@ -1743,7 +1742,7 @@ $(function(){
 	
 	var j2kViewerBaseURL = "";
 	
-	var loadContentItem = function(/*object*/contentItem,/*object*/ space){
+	var loadContentItem = function(/*object*/contentItem){
 		setHash(contentItem);
 		var pane = $("#contentItemDetailPane").clone();
 		setObjectName(pane, contentItem.contentId);
@@ -1761,12 +1760,12 @@ $(function(){
 		
 		if(mimetype.indexOf("image") == 0){
 			if(j2kViewerBaseURL != ""){
-				loadPreview(pane,contentItem,space, j2kViewerBaseURL);
+				loadPreview(pane,contentItem,j2kViewerBaseURL);
 			}else{
 				dc.service.GetJ2kBaseURL({
 					success:function(url){
 						j2kViewerBaseURL = url;
-						loadPreview(pane,contentItem,space, j2kViewerBaseURL);
+						loadPreview(pane,contentItem, j2kViewerBaseURL);
 					},
 					failure: function(text){
 						alert("GetJ2kBaseURL failed: " + text);
@@ -1819,7 +1818,7 @@ $(function(){
 							var callback = {
 								success: function(contentItem){
 									dc.done();
-									loadContentItem(contentItem,space);
+									loadContentItem(contentItem);
 								},
 								failure: function(text){
 									dc.done();
@@ -1887,7 +1886,7 @@ $(function(){
 		);
 	};
 	
-	var getContentItem = function(storeId, spaceId, contentId,space){
+	var getContentItem = function(storeId, spaceId, contentId){
 		if(isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
 			return;
 		}
@@ -1908,15 +1907,15 @@ $(function(){
 
 			success: function(data){
 				dc.done();
-				loadContentItem(data,space);
+				loadContentItem(data);
 			},
 		});
 	};
 	
 	
-	$("#content-item-list-view").find(".dc-item-list-filter").bind("keyup", $.debounce(500, function(evt){
+	$("#content-item-list-view").find(".dc-item-list-filter").bindEnterKey(function(evt){
 		reloadContents(getCurrentSpaceId(), null, function(space){loadContentItems(space.contents)});
-	}));
+	});
 	
 	var reloadContents = function(spaceId, marker, handler){
 		$("#content-item-list").selectablelist("clear");
@@ -2311,22 +2310,7 @@ $(function(){
 						if(isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
 							return;
 						}
-						dc.store.GetSpace(
-								getCurrentProviderStoreId(),
-								spaceId, 
-								{
-									begin: function(){
-										dc.busy("Loading...");
-									},
-									success: function(space){
-										getContentItem(getCurrentProviderStoreId(),spaceId,contentId,space);
-									}, 
-									failure:function(info){
-										dc.done();
-										alert("Get Space failed: " + info);
-									},
-								}
-							);
+						getContentItem(getCurrentProviderStoreId(),spaceId,contentId);
 
 					}else{
 						dc.error("spaceId is undefined");
