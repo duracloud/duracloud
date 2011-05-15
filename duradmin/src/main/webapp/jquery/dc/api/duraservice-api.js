@@ -5,9 +5,6 @@
 
 var dc; 
 $(function(){
-	
-	$.require("dc/ext/jquery.dc.common.js");
-	
 	(function(){
 		if(dc == undefined){
 			dc ={};

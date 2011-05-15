@@ -15,11 +15,7 @@
 var centerLayout, listBrowserLayout, spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
 
 $(function(){
-	$.require("dc/widget/ui.metadataviewer.js");
-	$.require("dc/widget/ui.tagsviewer.js");
-	$.require("dc/widget/ui.flyoutselect.js");
-	$.require("dc/api/dc.util.paralleltasks.js");
-	
+
 	//perform layout first
 	centerLayout = $('#page-content').layout({
 	// minWidth: 300 // ALL panes
@@ -81,17 +77,15 @@ $(function(){
 													   spaceDetailLayoutOptions, 
 													   {north__size:200});
 	
-	
 	detailPane = $('#detail-pane').layout(spaceDetailLayoutOptions);
 
-	
-	
+	////////////////////////////////////////////
+	//  provider selection defs start
+	////////////////////////////////////////////
+
+	var PROVIDER_SELECT_ID = "provider-select-box";
+
 	var initProviderStoreSelectbox = function(){
-		////////////////////////////////////////////
-		// initialize provider selection
-		////////////////////////////////////////////
-		
-		var PROVIDER_SELECT_ID = "provider-select-box";
 		var PROVIDER_COOKIE_ID = "providerId";
 		var options = {
 			data: storeProviders, // this variable is defined in a script in
@@ -121,8 +115,21 @@ $(function(){
 		});		 	
 	};
 	
+	var changeProviderStore = function(storeId){
+		$("#"+PROVIDER_SELECT_ID).flyoutselect("setValueById", storeId, false);
+	};
 	
+	var getCurrentProviderStoreId = function(){
+		var provider = $("#"+PROVIDER_SELECT_ID).flyoutselect("value");
+		return provider.id;
+	};
+
 	initProviderStoreSelectbox();		
+
+	////////////////////////////////////////////
+	//  provider selection defs end
+	////////////////////////////////////////////
+	
 	//reusable validators that are used with various forms.
 	//used in conjunctions with the jquery.validate.js and jquery.form
 	$.validator
@@ -1356,11 +1363,6 @@ $(function(){
 		}
 	};
 
-	var getCurrentProviderStoreId = function(){
-		var provider = $("#provider-select-box").flyoutselect("value");
-		return provider.id;
-	};
-
 	///////////////////////////////////////////
 	///Add Content Item Dialog Definition Start
 	///////////////////////////////////////////
@@ -1592,9 +1594,7 @@ $(function(){
 
 	};
 	
-	var changeProviderStore = function(storeId){
-		$("#"+PROVIDER_SELECT_ID).flyoutselect("setValueById", storeId, false);
-	};
+
 	
 	
 	var deleteContentItem = function(evt, contentItem){
