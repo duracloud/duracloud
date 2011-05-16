@@ -260,7 +260,7 @@ public class S3StorageProvider extends StorageProviderBase {
         try {
             setNewSpaceMetadata(spaceId, spaceMetadata);
         } catch(StorageException e) {
-            deleteBucket(spaceId);
+            removeSpace(spaceId);
             String err = "Unable to create space due to: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
@@ -305,27 +305,16 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void deleteSpace(String spaceId) {
-        log.debug("deleteSpace(" + spaceId + ")");
-        throwIfSpaceNotExist(spaceId);
+    public void removeSpace(String spaceId) {
+        String bucketName = getBucketName(spaceId);
 
-        Iterator<String> contents = getSpaceContents(spaceId, null);
-        while(contents.hasNext()) {
-            deleteContent(spaceId, contents.next());
-        }
-
-        String bucketMetadata = getBucketName(spaceId) + SPACE_METADATA_SUFFIX;
+        String bucketMetadata = bucketName + SPACE_METADATA_SUFFIX;
         try {
             deleteContent(spaceId, bucketMetadata);
         } catch(NotFoundException e) {
             // Metadata has already been removed. Continue deleting space.
         }
 
-        deleteBucket(spaceId);
-    }
-
-    private void deleteBucket(String spaceId) {
-        String bucketName = getBucketName(spaceId);
         try {
             s3Client.deleteBucket(bucketName);
         } catch (AmazonServiceException e) {

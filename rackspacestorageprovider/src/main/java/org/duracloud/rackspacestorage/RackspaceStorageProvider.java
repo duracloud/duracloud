@@ -294,14 +294,10 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void deleteSpace(String spaceId) {
-        log.debug("deleteSpace(" + spaceId + ")");
-        throwIfSpaceNotExist(spaceId);
-
-        Iterator<String> contents = getSpaceContents(spaceId, null);
-        while(contents.hasNext()) {
-            deleteContent(spaceId, contents.next());
-        }
+    public void removeSpace(String spaceId) {
+        String containerName = getContainerName(spaceId);
+        StringBuilder err = new StringBuilder("Could not delete Rackspace" +
+                " container with name " + containerName + " due to error: ");
 
         String bucketMetadata =
             getContainerName(spaceId) + SPACE_METADATA_SUFFIX;
@@ -310,14 +306,6 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         } catch(NotFoundException e) {
             // Metadata has already been removed. Continue deleting space.
         }
-
-        deleteContainer(spaceId);
-    }
-
-    private void deleteContainer(String spaceId) {
-        String containerName = getContainerName(spaceId);
-        StringBuilder err = new StringBuilder("Could not delete Rackspace" +
-                " container with name " + containerName + " due to error: ");
 
         try {
             filesClient.deleteContainer(containerName);

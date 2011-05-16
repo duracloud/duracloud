@@ -299,19 +299,11 @@ public class EMCStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void deleteSpace(String spaceId) {
+    public void removeSpace(String spaceId) {
         log.debug("Deleting space: " + spaceId);
         throwIfSpaceNotExist(spaceId);
 
-        deleteSpaceContents(spaceId);
         deleteObject(getSpacePath(spaceId));
-    }
-
-    private void deleteSpaceContents(String spaceId) {
-        List<Identifier> contentIds = getCompleteSpaceContents(spaceId);
-        for (Identifier objId : contentIds) {
-            deleteObject(objId);
-        }
     }
 
     private void deleteObject(Identifier objId) {

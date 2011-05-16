@@ -10,6 +10,7 @@ package org.duracloud.storage.provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -21,6 +22,7 @@ public abstract class StorageProviderBase implements StorageProvider {
     protected final Logger log = LoggerFactory.getLogger(StorageProviderBase.class);
 
     protected abstract void throwIfSpaceNotExist(String spaceId);
+    protected abstract void removeSpace(String spaceId);
 
     /**
      * {@inheritDoc}
@@ -68,4 +70,64 @@ public abstract class StorageProviderBase implements StorageProvider {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void deleteSpace(String spaceId) {
+        log.debug("deleteSpace(" + spaceId + ")");
+        throwIfSpaceNotExist(spaceId);
+
+        Map<String, String> spaceMetadata = getSpaceMetadata(spaceId);
+        spaceMetadata.put("is-delete", "true");
+        setSpaceMetadata(spaceId, spaceMetadata);
+
+        SpaceDeleteWorker deleteThread = new SpaceDeleteWorker(spaceId);
+        new Thread(deleteThread).start();
+    }
+
+    public class SpaceDeleteWorker implements Runnable {
+        protected final Logger log = LoggerFactory.getLogger(SpaceDeleteWorker.class);
+
+        private String spaceId;
+
+        public SpaceDeleteWorker(String spaceId) {
+            this.spaceId = spaceId;
+        }
+
+        @Override
+        public void run() {
+            Iterator<String> contents = getSpaceContents(spaceId, null);
+            int count = 0;
+
+            while(contents.hasNext() && count++ < 5) {
+                try{
+                    Thread.sleep((long)Math.pow(2,count) * 100);
+                } catch(InterruptedException e) {
+                }
+
+                while(contents.hasNext()) {
+                    String contentId = contents.next();
+                    log.debug("deleteContent(" + spaceId + ", " + contentId + ") - count=" + count);
+
+                    try {
+                        deleteContent(spaceId, contentId);
+                    } catch(Exception e) {
+                    }
+                }
+                contents = getSpaceContents(spaceId, null);
+            }
+
+            if(contents.hasNext()) {
+                log.debug("deleteSpaceContents(" + spaceId + ") exceeded retries");
+
+                Map<String, String> spaceMetadata = getSpaceMetadata(spaceId);
+                spaceMetadata.put("delete-error", "Unable to delete all content items");
+                setSpaceMetadata(spaceId, spaceMetadata);
+            }
+            else {
+                log.debug("removeSpace(" + spaceId + ")");
+                removeSpace(spaceId);
+            }
+        }
+    }
 }

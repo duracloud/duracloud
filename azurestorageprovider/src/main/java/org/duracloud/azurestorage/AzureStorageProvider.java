@@ -273,17 +273,10 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void deleteSpace(String spaceId) {
-        log.debug("deleteSpace(" + spaceId + ")");
-        throwIfSpaceNotExist(spaceId);
-
-        deleteContainer(spaceId);
-    }
-
-    private void deleteContainer(String spaceId) {
+    public void removeSpace(String spaceId) {
         String containerName = getContainerName(spaceId);
         StringBuilder err = new StringBuilder(
-            "Could not delete Azure" + " container with name " + containerName +
+            "Could not delete Azure container with name " + containerName +
                 " due to error: ");
 
         try {
