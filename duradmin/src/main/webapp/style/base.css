@@ -185,6 +185,24 @@ h3 { font-size:1em; }
 	color:#000;
 }
 
+.dc-selectablelist-footer {
+	padding-right:10px;
+}
+
+.dc-link:hover {
+	text-decoration:underline;
+	cursor: pointer;
+}
+
+.dc-link:after {
+	content:'>';
+}
+
+.dc-selectablelist-hl {
+	background:#0A0;
+}
+
+
 .list-header
 {
 	padding:5px 5px 5px 10px;

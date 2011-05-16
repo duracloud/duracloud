@@ -176,16 +176,18 @@ $(function(){
 	 * sets value of hidden object id class
 	 */
 	var setObjectId = function(pane, objectId){
-		$(".object-id", pane).html(objectId);	
+		$(".object-id", pane).html(getCurrentProviderStoreId()+"/"+objectId);	
 	};
 
+	var getCurrentObjectId = function(){
+		return $("#detail-pane .object-id").html()
+	};
 	/*
 	 * tests if the specified id matches the id of the object loaded in 
 	 * the current detail view.
 	 */
 	var isObjectAlreadyDisplayedInDetail = function(objectId){
-	    return false; // Require refresh of space/content 
-        //	return(objectId == $("#detail-pane .object-id").html());
+        return(getCurrentProviderStoreId() + "/" + objectId == getCurrentObjectId());
 	};
 
 	// /////////////////////////////////////////
@@ -1654,10 +1656,12 @@ $(function(){
 						space.spaceId, 
 						{
 							success: function(s){
-								if(s != undefined && s != null){
-                                    loadProperties(center, extractSpaceProperties(s));
-									if(s.itemCount == null || s.itemCount < 0){
-										setTimeout(pollItemCount, 5000);
+								if(isObjectAlreadyDisplayedInDetail(s.spaceId)){
+									if(s != undefined && s != null){
+	                                    loadProperties(center, extractSpaceProperties(s));
+										if(s.itemCount == null || s.itemCount < 0){
+											setTimeout(pollItemCount, 10000);
+										}
 									}
 								}
 							}, 
@@ -1668,7 +1672,7 @@ $(function(){
 					);				
 			};
 			
-			setTimeout(pollItemCount, 5000);
+			setTimeout(pollItemCount, 10000);
 		}
 		
 		var mp = loadMetadataPane(detail, space.extendedMetadata);
@@ -1833,29 +1837,32 @@ $(function(){
 	};
 
 	var getSpace = function(spaceId, loadHandler){
+		var storeId = getCurrentProviderStoreId();
 		if(isObjectAlreadyDisplayedInDetail(spaceId)){
 			return;
 		}
 		clearContents();
-		clearPageHistory();
+		//clearPageHistory();
 		$("#detail-pane").fadeOut("slow");
 		dc.store.GetSpace(
-			getCurrentProviderStoreId(),
+			storeId,
 			spaceId, 
 			{
 				begin: function(){
-					dc.busy("Loading...");
+					dc.busy("Loading...", {modal:true});
 					showContentItemListStatus("Loading...");
 				},
 				success: function(space){
-					dc.done();
-					if(space == undefined || space == null){
-						dc.error("error: space == " + space);
-					}else{
-						setHash(space);
-						loadHandler(space);
+					if(getCurrentProviderStoreId() == space.storeId && getCurrentSpaceId() == space.spaceId){
+						dc.done();
+						if(space == undefined || space == null){
+							dc.error("error: space == " + space);
+						}else{
+							setHash(space);
+							loadHandler(space);
+						}
+						showContentItemListStatus();
 					}
-					showContentItemListStatus();
 				}, 
 				failure:function(info){
 					dc.done();
@@ -1872,7 +1879,7 @@ $(function(){
 
 		dc.store.GetContentItem(storeId,spaceId,contentId,{
 			begin: function(){
-				dc.busy("Loading...");
+				dc.busy("Loading...", {modal:true});
 			},
 			
 			failure: function(text, xhr){
@@ -1926,6 +1933,7 @@ $(function(){
 				});
 	};
 
+	/*
 	var refreshButtonState = null;
 	var clearPageHistory = null;
 	(function(){
@@ -1946,9 +1954,11 @@ $(function(){
 		};
 
 		refreshButtonState = function(){
+			var itemData, marker, prefix, storeId, spaceId;
+
 			previousButton.makeVisible(previousList.length > 0);
-			var itemData = list.selectablelist("lastItemData");
-			var marker = null;
+			itemData = list.selectablelist("lastItemData");
+			marker = null;
 
 			if(itemData != null){
 				marker = itemData.contentId;
@@ -1962,18 +1972,25 @@ $(function(){
 				}
 			}
 
-			var prefix = getFilterText();
+			prefix = getFilterText();
+			storeId = getCurrentProviderStoreId();
+			spaceId = getCurrentSpaceId();
 			
 			dc.store.GetSpace(
-				getCurrentProviderStoreId(),
-				getCurrentSpaceId(), 
+				storeId,
+				spaceId, 
 				{	
 					begin: function(){
 						nextButton.makeHidden();
 					},
 					success: function(space){
-						nextButton.makeVisible(space.contents.length > 0);
-						showContentItemListStatus();
+						//update only if the spaceId associated with the space id 
+						//associated with the async call is the same as 
+						//the currently selected space id
+						if(getCurrentSpaceId() == space.spaceId){
+							nextButton.makeVisible(space.contents.length > 0);
+							showContentItemListStatus();
+						}
 					}, 
 					failure:function(info){
 						alert("next page failed: " + info);
@@ -2040,9 +2057,14 @@ $(function(){
 			}
 		});
 	})();
+	
+	*/
 
 	var loadContentItems = function(contentItems, fadeIn){
-		$("#content-item-list").selectablelist("clear");
+		var list; 
+		
+		list = $("#content-item-list");
+		list.selectablelist("clear");
 		
 		if(fadeIn == undefined) fadeIn = true;
 		
@@ -2052,16 +2074,89 @@ $(function(){
 		
 		for(i in contentItems){
 			var ci = {
-				contentId:contentItems[i],
-				spaceId:getCurrentSpaceId(),
-				storeId:getCurrentProviderStoreId()
-			};
+					contentId:contentItems[i],
+					spaceId:getCurrentSpaceId(),
+					storeId:getCurrentProviderStoreId()
+				};
 			
 			addContentItemToList(ci);
 		}
 
-		refreshButtonState();
+		var footer = $.fn.create("a");
+		footer.html('show more')
+			.addClass("dc-link")
+			.click(function(){
+				var itemData, lastItem, prefix, marker;
+				itemData = list.selectablelist("lastItemData");
+				lastItem = list.selectablelist("lastItem");
 
+				var marker = null;
+				if(itemData != null){
+					marker = itemData.contentId;
+					prefix = getFilterText();
+					dc.store.GetSpace(
+							itemData.storeId,
+							itemData.spaceId, 
+							{
+								begin: function(){
+									dc.busy("Fetching more content items...", {modal:true});
+									lastItem.addClass("dc-selectablelist-hl");		
+							},
+								success: function(s){
+									dc.done();
+									if(s.spaceId = getCurrentSpaceId() ){
+										$.each(s.contents,function(i,value){
+											addContentItemToList({
+												contentId:value,
+												spaceId:itemData.spaceId,
+												storeId:itemData.storeId
+											});
+										});
+
+										//list.closest(".dc-item-list-wrapper")
+										//	.scrollTo(lastItem);
+
+
+										var viewPort = list.closest(".dc-item-list-wrapper");
+										var scrollY = 0.75*viewPort.height();
+										viewPort.animate(
+											{scrollTop:'+='+scrollY},
+											{duration:"slow", easing:"swing", 
+												/*
+												 complete: function(){
+													setTimeout(function(){
+														lastItem.css({"background-color":""});		
+													},5000);
+												}
+												*/
+											});
+														
+										if(s.contents.length < 100){
+											list.selectablelist("setFooter","");
+										}
+									}
+
+									if(s.contents.length == 0){
+										list.selectablelist("setFooter","End of set. No more content items found.");
+									}
+
+								}, 
+								failure:function(info){
+									setTimeout(function(){
+										alert("Failed to retrieve more content items:" + info);
+									},200);
+
+									dc.done();
+								},
+							},
+							{prefix: prefix, marker: marker}
+						);
+				}
+				
+			});
+		
+		$("#content-item-list").selectablelist("setFooter",contentItems.length > 100 ? footer : '');
+		
 	}
 	
 	var addContentItemToList = function(contentItem){
@@ -2080,8 +2175,7 @@ $(function(){
 		$(node).attr("id", contentItem.contentId)
 			   .append(content)
 			   .append(actions);
-		$("#content-item-list").selectablelist('addItem',node, contentItem);	   
-	
+		return $("#content-item-list").selectablelist('addItem',node, contentItem);
 	};
 	
 	var toggleSpaceAccess = function(space, callback){

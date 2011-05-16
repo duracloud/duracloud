@@ -24,7 +24,7 @@ $.widget("ui.selectablelist",{
 	},
 	
 	_currentItem: null,
-	
+	_footer: null,
 	dataMap: new Array(),
 	
 	_restyleSiblings: function(siblings){
@@ -40,7 +40,7 @@ $.widget("ui.selectablelist",{
 			$(item).addClass(checked ? "dc-checked-selected-list-item" : "dc-selected-list-item");
 			this._restyleSiblings(item.siblings());
 		}else{
-			this._restyleSiblings(this.element.children());
+			this._restyleSiblings(this.element.children("."+this.options.itemClass));
 		}
 		
 	},
@@ -114,9 +114,10 @@ $.widget("ui.selectablelist",{
 	
 	clear: function(){
 		this._currentItem = null;
-		this.element.children().remove();	
+		this.element.children("."+this.options.itemClass).remove();	
 		this.dataMap = new Array();
 		this._fireCurrentItemChanged(null,null);
+		$(this._footer).html('');
 	},
 	
 	/**
@@ -128,15 +129,21 @@ $.widget("ui.selectablelist",{
 		var itemClass = options.itemClass;
 		var actionClass = options.itemActionClass;
 		this.clear();
+
+		this._footer = $.fn.create("div").addClass("dc-selectablelist-footer").html("");
+		$(that.element).append(that._footer);
+		
 		//add item classes to all direct children
-		$(that.element).children().each(function(i,c){
+		$(that.element).children("."+this.options.itemClass).each(function(i,c){
 			that._initItem(c);
 		});
+		
 	},
 	
 	addItem: function(item, data){
-		this.element.append(item);
+		this._footer.before(item);
 		this._initItem(item,data);
+		return item;
 	},
 	
 	select: function(select){
@@ -184,22 +191,26 @@ $.widget("ui.selectablelist",{
 	},
 	
 	setFirstItemAsCurrent: function(){
-		 var first = this.element.children().first();
+		 var first = this.element.children("."+this.options.itemClass).first();
 		 if(first != undefined && first !=null){
 			 this._fireCurrentItemChanged(first, true);
 		 }
 	},
 
 	lastItemData: function(){
-		 var last = this.element.children().last();
+		 var last = this.lastItem();
 		 if(last != undefined && last != null){
 			 return this._getDataById($(last).attr("id"));
 		 }
 		 return null;
 	},
+	
+	lastItem: function(){
+		 return this.element.children("."+this.options.itemClass).last();
+	},
 
 	length: function(){
-		 return this.element.children().size();
+		 return this.element.children("."+this.options.itemClass).size();
 	},
 
 	
@@ -207,6 +218,10 @@ $.widget("ui.selectablelist",{
 		return this._currentItem;
 	},
 	
+	setFooter:function(footerContent){
+		this._footer.html('');
+		$(this._footer).append(footerContent);
+	},
 
 	_initItem: function(item,data){
 		var that = this;

@@ -64,7 +64,7 @@ $(function(){
 		 */
 		$.fn.scrollTo = function(element){
 			var top = $(element).position().top;
-			this.animate({scrollTop: top});
+			this.animate({scrollTop: top}, {duration:"slow", easing:"swing", queue:true});
 		};
 
 
