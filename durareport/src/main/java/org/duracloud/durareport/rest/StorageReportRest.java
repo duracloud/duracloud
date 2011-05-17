@@ -15,6 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 
 /**
  * REST interface for storage reporting
@@ -43,8 +44,16 @@ public class StorageReportRest extends BaseRest {
     public Response getStorageReport(){
         log.debug("Getting storage report");
 
-        String xml = resource.getStorageReport();
-        return responseOkXml(xml);
+        try {
+            InputStream stream = resource.getStorageReport();
+            if(null != stream) {
+                return responseOkXmlStream(stream);
+            } else {
+                return responseNotFound();
+            }
+        } catch (Exception e) {
+            return responseBad(e);
+        }
     }
 
     /**
@@ -58,8 +67,12 @@ public class StorageReportRest extends BaseRest {
     public Response getStorageReportInfo(){
         log.debug("Getting storage report info");
 
-        String xml = resource.getStorageReportInfo();
-        return responseOkXml(xml);
+        try {
+            String xml = resource.getStorageReportInfo();
+            return responseOkXml(xml);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
     }
 
     /**
@@ -72,8 +85,12 @@ public class StorageReportRest extends BaseRest {
     public Response startStorageReport(){
         log.debug("Starting storage report");
 
-        String responseText = resource.startStorageReport();
-        return responseOk(responseText);
+        try {
+            String responseText = resource.startStorageReport();
+            return responseOk(responseText);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
     }
 
 }

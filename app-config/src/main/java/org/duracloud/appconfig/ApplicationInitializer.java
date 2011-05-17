@@ -293,14 +293,22 @@ public class ApplicationInitializer extends BaseConfig {
     public RestHttpHelper.HttpResponse initialize() {
         RestHttpHelper.HttpResponse response = null;
 
-        for (ApplicationWithConfig appWithConfig : appsWithConfigs.values()) {
-            Application app = appWithConfig.getApplication();
-            AppConfig config = appWithConfig.getConfig();
+        response = initApp(appsWithConfigs.get(durastoreKey));
+        response = initApp(appsWithConfigs.get(duraserviceKey));
+        response = initApp(appsWithConfigs.get(duradminKey));
+        response = initApp(appsWithConfigs.get(durareportKey));
 
-            response = app.initialize(config);
-            validate(response, appWithConfig.getName());
-        }
+        return response;
+    }
 
+    private RestHttpHelper.HttpResponse initApp(
+        ApplicationWithConfig appWithConfig) {
+
+        Application app = appWithConfig.getApplication();
+        AppConfig config = appWithConfig.getConfig();
+        
+        RestHttpHelper.HttpResponse response = app.initialize(config);
+        validate(response, appWithConfig.getName());
         return response;
     }
 

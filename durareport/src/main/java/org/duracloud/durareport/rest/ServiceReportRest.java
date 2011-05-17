@@ -40,8 +40,12 @@ public class ServiceReportRest extends BaseRest {
     public Response getServiceReport(){
         log.debug("Getting service report");
 
-        String xml = resource.getServiceReport();
-        return responseOkXml(xml);
+        try {
+            String xml = resource.getServiceReport();
+            return responseOkXml(xml);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
     }
 
 }

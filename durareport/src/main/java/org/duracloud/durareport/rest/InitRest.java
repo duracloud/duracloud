@@ -67,8 +67,6 @@ public class InitRest extends BaseRest {
         } catch (Exception e) {
             return responseBad(e);
         }
-
-        // TODO: Begin building reports
     }
 
     private void doInitialize(InputStream xml) throws NoUserLoggedInException {

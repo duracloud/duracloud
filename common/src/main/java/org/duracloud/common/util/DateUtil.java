@@ -7,48 +7,77 @@
  */
 package org.duracloud.common.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
 
 public class DateUtil {
 
-    private static final String DEFAULT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.sss'Z'";
+    public enum DateFormat {
+        LONG_FORMAT ("yyyy-MM-dd'T'HH:mm:ss.sss"),
+        DEFAULT_FORMAT ("yyyy-MM-dd'T'HH:mm:ss"),
+        MID_FORMAT ("yyyy-MM-dd:HH:mm"),
+        SHORT_FORMAT ("yyyy-MM-dd");
 
-    public static Date convertToDate(String text, String pattern)
+        private final SimpleDateFormat format;
+
+        DateFormat(String pattern) {
+            this.format = new SimpleDateFormat(pattern);
+        }
+    }
+
+    public static Date convertToDate(String text, DateFormat format)
         throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat(pattern);
-        format.setLenient(false);
+        SimpleDateFormat dateFormat = format.format;
+        dateFormat.setLenient(false);
 
-        Date date = format.parse(text);
+        Date date = dateFormat.parse(text);
         return date;
     }
 
     public static Date convertToDate(String text) throws ParseException {
-        return convertToDate(text, DEFAULT_PATTERN);
+        return convertToDate(text, DateFormat.LONG_FORMAT);
     }
 
     public static String now() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss");
-        Date now = new Date(System.currentTimeMillis());
-        return dateFormat.format(now);
+        long now = System.currentTimeMillis();
+        return convertToString(now, DateFormat.DEFAULT_FORMAT);
+    }
+
+    public static String nowLong() {
+        long now = System.currentTimeMillis();
+        return convertToString(now, DateFormat.LONG_FORMAT);
     }
 
     public static String nowMid() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd:HH:mm");
-        Date now = new Date(System.currentTimeMillis());
-        return dateFormat.format(now);
+        long now = System.currentTimeMillis();
+        return convertToString(now, DateFormat.MID_FORMAT);
     }
 
     public static String nowShort() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date now = new Date(System.currentTimeMillis());
-        return dateFormat.format(now);
+        long now = System.currentTimeMillis();
+        return convertToString(now, DateFormat.SHORT_FORMAT);
+    }
+
+    public static String convertToString(long millis, DateFormat format) {
+        SimpleDateFormat dateFormat = format.format;
+        return dateFormat.format(millis);
+    }
+
+    public static String convertToString(long millis) {
+        return convertToString(millis, DateFormat.DEFAULT_FORMAT);
+    }
+
+    public static String convertToStringLong(long millis) {
+        return convertToString(millis, DateFormat.LONG_FORMAT);
+    }
+
+    public static String convertToStringMid(long millis) {
+        return convertToString(millis, DateFormat.MID_FORMAT);
+    }
+
+    public static String convertToStringShort(long millis) {
+        return convertToString(millis, DateFormat.SHORT_FORMAT);
     }
 
 }

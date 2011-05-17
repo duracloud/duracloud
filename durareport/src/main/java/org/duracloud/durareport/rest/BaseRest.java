@@ -13,6 +13,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.InputStream;
 
 /**
  * @author: Bill Branan
@@ -38,8 +39,16 @@ public class BaseRest {
         return Response.ok(text, TEXT_PLAIN).build();
     }
 
-    protected Response responseOkXml(String text) {
-        return Response.ok(text, APPLICATION_XML).build();
+    protected Response responseOkXml(String xml) {
+        return Response.ok(xml, APPLICATION_XML).build();
+    }
+
+    protected Response responseOkXmlStream(InputStream xml) {
+        return Response.ok(xml, APPLICATION_XML).build();
+    }
+
+    protected Response responseNotFound() {
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     protected Response responseBad(Exception e) {
