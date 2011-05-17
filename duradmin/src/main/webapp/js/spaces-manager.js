@@ -2113,23 +2113,11 @@ $(function(){
 											});
 										});
 
-										//list.closest(".dc-item-list-wrapper")
-										//	.scrollTo(lastItem);
-
-
 										var viewPort = list.closest(".dc-item-list-wrapper");
 										var scrollY = 0.75*viewPort.height();
 										viewPort.animate(
 											{scrollTop:'+='+scrollY},
-											{duration:"slow", easing:"swing", 
-												/*
-												 complete: function(){
-													setTimeout(function(){
-														lastItem.css({"background-color":""});		
-													},5000);
-												}
-												*/
-											});
+											{duration:1500, easing:"swing"});
 														
 										if(s.contents.length < 100){
 											list.selectablelist("setFooter","");
