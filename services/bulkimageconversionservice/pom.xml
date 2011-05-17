@@ -93,6 +93,13 @@
       <scope>provided</scope>
     </dependency>
 
+    
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- felix -->
     <dependency>
       <groupId>org.apache.felix</groupId>
