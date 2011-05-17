@@ -199,7 +199,7 @@ h3 { font-size:1em; }
 }
 
 .dc-selectablelist-hl {
-	background:#0A0;
+	background:#DDDDDD;
 }
 
 
@@ -1012,7 +1012,6 @@ p.ui-serviceconfig-no-config{
 .ui-dialog-titlebar{
 	display:none;	
 }
-
 
 
 
