@@ -57,7 +57,7 @@ public class WebAppUtilTester extends WebAppUtilTestBase {
 
     private void doTest() throws Exception {
         super.war = getWar();
-        super.url = webappUtil.deploy(SERVICE_ID, war);
+        super.url = webappUtil.deploy(SERVICE_ID, portIndex, war);
         verifyDeployment(url, true);
 
         webappUtil.unDeploy(url);

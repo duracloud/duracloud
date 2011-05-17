@@ -49,6 +49,7 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
 
     private String warName;
     private String j2kZipName;
+    private String portIndex;
     private String propFile;
 
     private String host;
@@ -75,33 +76,45 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
         war = helper.getWarFile(getWarName());
 
         String context = FilenameUtils.getBaseName(war.getName());
-        List<String> filterNames = getFilterNames();
         url = getWebappUtil().filteredDeploy(context,
+                                             getPortIndex(),
                                              new FileInputStream(war),
                                              env,
-                                             filterNames,
-                                             getFilter());
+                                             getFilters());
 
         waitForStartup(url.toString());
         this.setServiceStatus(ServiceStatus.STARTED);
     }
 
-    private NamedFilterList.NamedFilter getFilter() {
-        Map<String, String> filters = new HashMap<String, String>();
-            filters.put("$DURA_HOST$", getHost());
-            filters.put("$DURA_PORT$", getPort());
-            filters.put("$DURA_USERNAME$", getUsername());
-            filters.put("$DURA_PASSWORD$", getPassword());
+    private NamedFilterList getFilters() {
+        List<NamedFilterList.NamedFilter> filters = new ArrayList<NamedFilterList.NamedFilter>();
+        filters.add(getAuthFilter());
+        filters.addAll(getHtmlFilters());
 
-            return new NamedFilterList.NamedFilter(getPropFile(),
-                                                             filters);
+        return new NamedFilterList(filters);
     }
 
-    private List<String> getFilterNames() {
-        List<String> filterNames = new ArrayList<String>();
-        filterNames.add("test.html");
-        filterNames.add("viewer.html");
-        return filterNames;
+    private NamedFilterList.NamedFilter getAuthFilter() {
+        Map<String, String> filters = new HashMap<String, String>();
+        filters.put("$DURASTORE_HOST$", getHost());
+        filters.put("$DURASTORE_PORT$", getPort());
+        filters.put("$DURASTORE_USERNAME$", getUsername());
+        filters.put("$DURASTORE_PASSWORD$", getPassword());
+
+        return new NamedFilterList.NamedFilter(getPropFile(), filters);
+    }
+
+    private List<NamedFilterList.NamedFilter> getHtmlFilters() {
+        List<NamedFilterList.NamedFilter> htmlFilters = new ArrayList<NamedFilterList.NamedFilter>();
+
+        Map<String, String> filter = new HashMap<String, String>();
+        filter.put("$DURA_HOST$", "placeholder");
+        filter.put("$DURA_PORT$", "placeholder");
+
+        htmlFilters.add(new NamedFilterList.NamedFilter("test.html", filter));
+        htmlFilters.add(new NamedFilterList.NamedFilter("viewer.html", filter));
+
+        return htmlFilters;
     }
 
     private File getWorkDir() {
@@ -276,6 +289,14 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
 
     public void setJ2kZipName(String j2kZipName) {
         this.j2kZipName = j2kZipName;
+    }
+
+    public String getPortIndex() {
+        return portIndex;
+    }
+
+    public void setPortIndex(String portIndex) {
+        this.portIndex = portIndex;
     }
 
     public String getPropFile() {

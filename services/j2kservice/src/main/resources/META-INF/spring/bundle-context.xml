@@ -17,6 +17,7 @@
     <property name="warName" value="adore-djatoka.war" />
     <property name="webappUtil" ref="osgiWebappUtilSrv" />
     <property name="j2kZipName" value="adore-djatoka-1.1.zip" />
+    <property name="portIndex" value="0" />
     <property name="url" value="http://example.org" />
     <property name="propFile" value="WEB-INF/classes/urlAuth.properties" />
     <property name="host" value="localhost" />

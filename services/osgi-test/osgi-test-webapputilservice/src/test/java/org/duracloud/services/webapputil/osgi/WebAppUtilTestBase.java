@@ -27,6 +27,7 @@ import java.net.URL;
 public class WebAppUtilTestBase {
 
     private String PROJECT_VERSION_PROP = "PROJECT_VERSION";
+    protected String portIndex = "0";
     protected InputStream war;
     protected URL url;
 

@@ -12,7 +12,7 @@
     <osgix:managed-properties persistent-id="webapputilservice-${project.version}.zip"
         update-strategy="container-managed"/>
     <property name="serviceId" value="webapputilservice-${project.version}" />
-    <property name="nextPort" ref="tomcat.port" />
+    <property name="initialPort" ref="tomcat.port" />
     <property name="tomcatUtil" ref="tomcatUtility" />
   </bean>
 

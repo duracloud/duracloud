@@ -52,7 +52,7 @@ public class HelloWebappWrapperTest {
         String webappUtilServiceId = "webapputilservice-"+getVersion();
         webappUtil = new WebAppUtilImpl();
         webappUtil.setServiceId(webappUtilServiceId);
-        webappUtil.setNextPort(port);
+        webappUtil.setInitialPort(port);
         webappUtil.setServiceWorkDir(
             bundleHome.getServiceWork(webappUtilServiceId).getAbsolutePath());
         webappUtil.setTomcatUtil(tomcatUtil);

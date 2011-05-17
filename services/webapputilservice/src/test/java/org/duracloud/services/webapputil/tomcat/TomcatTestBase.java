@@ -20,7 +20,7 @@ import java.io.FileReader;
  */
 public class TomcatTestBase {
 
-    private final String installBase = "target/tomcat-test";
+    private final String installBase = "target/test-tomcat";
     private File resourceDir = new File("src/test/resources");
 
     protected void verifyInstall(TomcatInstance instance, int numFiles)

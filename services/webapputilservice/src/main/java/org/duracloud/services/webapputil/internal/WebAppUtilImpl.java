@@ -9,6 +9,8 @@ package org.duracloud.services.webapputil.internal;
 
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.services.BaseService;
+import org.duracloud.services.common.error.ServiceException;
+import org.duracloud.services.common.error.ServiceRuntimeException;
 import org.duracloud.services.common.model.NamedFilterList;
 import org.duracloud.services.webapputil.WebAppUtil;
 import org.duracloud.services.webapputil.error.WebAppDeployerException;
@@ -21,16 +23,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class abstracts the details of managing appservers used to host
@@ -43,7 +45,8 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
 
     private final Logger log = LoggerFactory.getLogger(WebAppUtilImpl.class);
 
-    private int nextPort;
+    private int initialPort;
+    private Set<Integer> portIndices = new HashSet<Integer>();
     private TomcatUtil tomcatUtil;
 
     private static final String AMAZON_HOST_QUERY = "http://169.254.169.254/2009-04-04/meta-data/public-ipv4";
@@ -56,8 +59,8 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
      * @param war       to be deployed
      * @return URL of deployed webapp
      */
-    public URL deploy(String serviceId, InputStream war) {
-        return this.deploy(serviceId, war, new HashMap<String, String>());
+    public URL deploy(String serviceId, String portIndex, InputStream war) {
+        return this.deploy(serviceId, portIndex, war, new HashMap<String, String>());
     }
 
     /**
@@ -70,9 +73,10 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
      * @return URL of deployed webapp
      */
     public URL deploy(String serviceId,
+                      String portIndex,
                       InputStream war,
                       Map<String, String> env) {
-        int port = getNextPort();
+        int port = getPort(portIndex);
         return doDeploy(serviceId, war, env, port);
     }
 
@@ -81,42 +85,63 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
      * arg serviceId context.
      *
      * @param serviceId   is the name of the context of deployed webapp
+     * @param portIndex   offset from configured base port
      * @param war         to be deployed
      * @param env         of tomcat that will be installed/started
-     * @param filterNames are names of files in the arg war to be filtered with
-     *                    host and port. Any text in the named files with the
-     *                    Strings $DURA_HOST$ or $DURA_PORT$ will be swapped
-     *                    with the host and port of the compute instance.
+     * @param filters     are names of files in the arg war to be filtered with
+     *                    provided filters. Any filters that contain the strings
+     *                    $DURA_HOST$ or $DURA_PORT$ will be swapped with the
+     *                    host and port of the compute instance.
      * @return URL of deployed webapp
      */
     public URL filteredDeploy(String serviceId,
+                              String portIndex,
                               InputStream war,
                               Map<String, String> env,
-                              List<String> filterNames,
-                              NamedFilterList.NamedFilter filter) {
-        Integer port = getNextPort();
-        NamedFilterList filterList = createFilters(filterNames, port);
-        filterList.add(filter);
+                              NamedFilterList filters) {
+        Integer port = getPort(portIndex);
+        NamedFilterList filterList = createFilters(filters, port);
         InputStream filteredWar = new FilteredWar(war, filterList);
 
         return doDeploy(serviceId, filteredWar, env, port);
     }
 
-    private NamedFilterList createFilters(List<String> filterNames,
+    private NamedFilterList createFilters(NamedFilterList argFilters,
                                           Integer port) {
-        String host = getHost();
         List<NamedFilterList.NamedFilter> namedFilters = new ArrayList<NamedFilterList.NamedFilter>();
 
-        for (String filterName : filterNames) {
-            Map<String, String> filters = new HashMap<String, String>();
-            filters.put("$DURA_HOST$", host);
-            filters.put("$DURA_PORT$", port.toString());
+        String webappHost = "$DURA_HOST$";
+        String webappPort = "$DURA_PORT$";
+        for (String filterName : argFilters.getNames()) {
+            Map<String, String> filters = getFilters(filterName, argFilters);
+            if (filters.containsKey(webappHost)) {
+                filters.put(webappHost, getHost());
+            }
+            if (filters.containsKey(webappPort)) {
+                filters.put(webappPort, port.toString());
+            }
 
             namedFilters.add(new NamedFilterList.NamedFilter(filterName,
                                                              filters));
         }
 
         return new NamedFilterList(namedFilters);
+    }
+
+    private Map<String, String> getFilters(String filterName,
+                                           NamedFilterList argFilters) {
+        Map<String, String> filters = new HashMap<String, String>();
+        try {
+            NamedFilterList.NamedFilter namedFilter = argFilters.getFilter(
+                filterName);
+            for (String target : namedFilter.getFilterTargets()) {
+                filters.put(target, namedFilter.getFilterValue(target));
+            }
+
+        } catch (ServiceException e) {
+            log.warn("Error getting filter for: " + filterName);
+        }
+        return filters;
     }
 
     private URL doDeploy(String serviceId,
@@ -207,11 +232,16 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
         File installDir = getInstallDir(context, port);
         File catalinaHome = getTomcatUtil().getCatalinaHome(installDir);
 
-        TomcatInstance tomcatInstance = new TomcatInstance(catalinaHome, port);
+        TomcatInstance tomcatInstance = getTomcatUtil().getTomcatInstance(
+            catalinaHome,
+            port);
         tomcatInstance.unDeploy(context);
         tomcatInstance.stop();
 
         getTomcatUtil().unInstallTomcat(tomcatInstance);
+
+        // unregister use of port.
+        portIndices.remove(port);
     }
 
     private String getContext(URL url) {
@@ -232,12 +262,21 @@ public class WebAppUtilImpl extends BaseService implements WebAppUtil, ManagedSe
         return port;
     }
 
-    private int getNextPort() {
-        return nextPort++;
+    private int getPort(String portIndex) {
+        int port = getInitialPort() + Integer.parseInt(portIndex);
+        if (!portIndices.add(port)) {
+            throw new ServiceRuntimeException(
+                "port index unavailable: " + portIndex);
+        }
+        return port;
     }
 
-    public void setNextPort(int nextPort) {
-        this.nextPort = nextPort;
+    public int getInitialPort() {
+        return initialPort;
+    }
+
+    public void setInitialPort(int initialPort) {
+        this.initialPort = initialPort;
     }
 
     private TomcatUtil getTomcatUtil() {

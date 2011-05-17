@@ -44,6 +44,7 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
     private String serviceWorkPath = "target/webapputil-test";
     private String testResourcesPath = "src/test/resources";
     private String serviceId = "hello";
+    private String portIndex = "0";
     private String binariesName = "apache-tomcat-6.0.20.zip";
     private String warName = "hellowebapp-" + getVersion() + ".war";
     private int port = 18080;
@@ -62,7 +63,7 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
 
         webappUtil = new WebAppUtilImpl();
         webappUtil.setServiceId(serviceId);
-        webappUtil.setNextPort(port);
+        webappUtil.setInitialPort(port);
         webappUtil.setServiceWorkDir(serviceWorkDir.getAbsolutePath());
         webappUtil.setTomcatUtil(tomcatUtil);
 
@@ -92,7 +93,8 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
 
     @Test
     public void testDeploy() throws Exception {
-        url = webappUtil.deploy(serviceId, war);
+        String portIndex = "0";
+        url = webappUtil.deploy(serviceId, portIndex, war);
         Thread.sleep(3000);
 
         verifyDeployment(url, true);
@@ -106,18 +108,29 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
         Map<String, String> env = new HashMap<String, String>();
         env.put("argEnv", "argVal");
 
-        List<String> filterNames = new ArrayList<String>();
-        filterNames.add(filterName1);
+        Map<String, String> filter1 = new HashMap<String, String>();
+        filter1.put("$DURA_HOST$", "placeholder");
+        NamedFilterList.NamedFilter namedFilter1 = new NamedFilterList.NamedFilter(
+            filterName1,
+            filter1);
 
-        Map<String, String> filters = new HashMap<String, String>();
-        filters.put("$DURA_HOST$", host);
+        Map<String, String> filters2 = new HashMap<String, String>();
+        filters2.put("$DURA_HOST$", host);
+        NamedFilterList.NamedFilter namedFilter2 = new NamedFilterList.NamedFilter(
+            filterName2,
+            filters2);
+
+        List<NamedFilterList.NamedFilter> filterList = new ArrayList<NamedFilterList.NamedFilter>();
+        filterList.add(namedFilter1);
+        filterList.add(namedFilter2);
+
+        NamedFilterList filters = new NamedFilterList(filterList);
 
         url = webappUtil.filteredDeploy(serviceId,
+                                        portIndex,
                                         war,
                                         env,
-                                        filterNames,
-                                        new NamedFilterList.NamedFilter(filterName2,
-                                                             filters));
+                                        filters);
         Thread.sleep(3000);
 
         verifyDeployment(url, true);
@@ -154,7 +167,7 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
     public void testDeployEnv() throws Exception {
         Map<String, String> env = new HashMap<String, String>();
         env.put("argEnv", "argVal");
-        url = webappUtil.deploy(serviceId, war, env);
+        url = webappUtil.deploy(serviceId, portIndex, war, env);
         Thread.sleep(3000);
 
         verifyDeployment(url, true);
@@ -162,7 +175,7 @@ public class WebAppUtilTest extends WebAppUtilTestBase {
 
     @Test
     public void testUnDeploy() throws Exception {
-        url = webappUtil.deploy(serviceId, war);
+        url = webappUtil.deploy(serviceId, portIndex, war);
         Thread.sleep(3000);
         verifyDeployment(url, true);
 

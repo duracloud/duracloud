@@ -51,7 +51,8 @@ public class HelloWebappWrapper extends BaseService implements ComputeService, M
 
         File war = getWarFile();
         String context = FilenameUtils.getBaseName(war.getName());
-        url = getWebappUtil().deploy(context, new FileInputStream(war));
+        String portIndex = "0";
+        url = getWebappUtil().deploy(context, portIndex, new FileInputStream(war));
 
         waitForStartup(url.toString());
         this.setServiceStatus(ServiceStatus.STARTED);

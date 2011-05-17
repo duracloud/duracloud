@@ -29,34 +29,34 @@ public interface WebAppUtil extends ComputeService {
      * arg context.
      * The arg war inputstream is closed by this method.
      *
-     * @param context
-     * @param war
+     * @param context of webapp
+     * @param portIndex offset from configured base port
+     * @param war to deploy
      * @return URL of running webapp
      */
-    public URL deploy(String context, InputStream war);
+    public URL deploy(String context, String portIndex, InputStream war);
 
-    public URL deploy(String context, InputStream war, Map<String, String> env);
+    public URL deploy(String context, String portIndex, InputStream war, Map<String, String> env);
 
     /**
      * This method deploys the arg war to a newly created appserver under the
      * arg serviceId context.
      *
      * @param serviceId   is the name of the context of deployed webapp
+     * @param portIndex   offset from configured base port
      * @param war         to be deployed
      * @param env         of tomcat that will be installed/started
-     * @param filterNames are names of files in the arg war to be filtered with
-     *                    host and port. Any text in the named files with the
-     *                    Strings $DURA_HOST$ or $DURA_PORT$ will be swapped
-     *                    with the host and port of the compute instance.
-     * @param filter      a NamedFilter with the file name and the
-     *                    filters to be processed on that file
+     * @param filters     are names of files in the arg war to be filtered with
+     *                    provided filters. Any filters that contain the strings
+     *                    $DURA_HOST$ or $DURA_PORT$ will be swapped with the
+     *                    host and port of the compute instance.
      * @return URL of deployed webapp
      */
     public URL filteredDeploy(String serviceId,
+                              String portIndex,
                               InputStream war,
                               Map<String, String> env,
-                              List<String> filterNames,
-                              NamedFilterList.NamedFilter filter);
+                              NamedFilterList filters);
 
     /**
      * This method undeploys the webapp currently running at the arg url and

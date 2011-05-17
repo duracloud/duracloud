@@ -128,6 +128,10 @@ public class TomcatUtil {
         return binariesZipName;
     }
 
+    public TomcatInstance getTomcatInstance(File catalinaHome, int port) {
+        return new TomcatInstance(catalinaHome, port);
+    }
+
     /**
      * This method removes the tomcat installation represented by the arg
      * tomcatInstance.

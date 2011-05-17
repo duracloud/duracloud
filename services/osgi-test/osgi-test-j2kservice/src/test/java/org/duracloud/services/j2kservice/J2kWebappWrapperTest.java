@@ -31,6 +31,7 @@ public class J2kWebappWrapperTest extends J2kWebappWrapperTestBase {
     private BundleHome bundleHome = new BundleHome();
 
     private String serviceId = "j2k-wrapper";
+    private String portIndex = "0";
     private String webappId = "webapputilservice-1.0.0";
     private WebAppUtilImpl webappUtil;
     private TomcatUtil tomcatUtil;
@@ -47,18 +48,24 @@ public class J2kWebappWrapperTest extends J2kWebappWrapperTestBase {
 
         webappUtil = new WebAppUtilImpl();
         webappUtil.setServiceId(webappId);
-        webappUtil.setNextPort(port);
+        webappUtil.setInitialPort(port);
         webappUtil.setTomcatUtil(tomcatUtil);
         webappUtil.setServiceWorkDir(bundleHome.getServiceWork(webappId).getAbsolutePath());
 
         wrapper = new J2kWebappWrapper();
         wrapper.setServiceStatus(ComputeService.ServiceStatus.INSTALLED);
         wrapper.setServiceId(serviceId);
+        wrapper.setPortIndex(portIndex);
         wrapper.setUrl(urlOrig);
         wrapper.setWarName(warName);
         wrapper.setWebappUtil(webappUtil);
         wrapper.setServiceWorkDir(bundleHome.getServiceWork(serviceId).getAbsolutePath());
         wrapper.setJ2kZipName(zipName);
+        wrapper.setPort("8080");
+        wrapper.setHost("localhost");
+        wrapper.setUsername("username");
+        wrapper.setPassword("password");
+        wrapper.setPropFile("WEB-INF/classes/urlAuth.properties");
 
         File tomcatZip = new File(resourceDir, tomcatZipName);
         File webappWork = bundleHome.getServiceWork(webappUtil.getServiceId());
