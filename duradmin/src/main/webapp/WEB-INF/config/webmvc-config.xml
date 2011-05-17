@@ -93,9 +93,7 @@
     <property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView" />
     <property name="order" value="1" />
   </bean>
-  <bean id="basePreparer" class="org.duracloud.duradmin.view.BaseViewPreparer">
-    <property name="contentStoreProvider" ref="contentStoreProvider" />
-  </bean>
+  <bean id="basePreparer" class="org.duracloud.duradmin.view.BaseViewPreparer"/>
   <!-- the json exception resolver must live here - not in view.xml -->
   <bean id="exceptionResolver" class="org.springframework.web.servlet.view.json.exception.JsonExceptionResolver">
     <property name="exceptionView">
