@@ -16,12 +16,15 @@ import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.DeletePostJobWorker;
 import org.duracloud.services.fixity.FixityService;
 import org.duracloud.storage.domain.HadoopTypes;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.duracloud.storage.domain.HadoopTypes.JOB_TYPES.*;
@@ -74,6 +77,9 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             String metadataMd5ContentId = PREFIX + "metadata-results.csv";
             String newMetadatContentId = PREFIX + "metadata-results-" + date + ".csv";
             String header = "space-id,content-id,hash";
+            List<String> deleteFiles = new ArrayList<String>();
+            deleteFiles.add(newContentId);
+            deleteFiles.add(newMetadatContentId);
 
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
                 getJobWorker(),
@@ -144,17 +150,25 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                 getContentStore(),
                 getDestSpaceId());
 
+            AmazonMapReduceJobWorker deleteWorker = new DeletePostJobWorker(
+                mimeWorker,
+                getContentStore(),
+                getDestSpaceId(),
+                deleteFiles);
+
             AmazonMapReduceJobWorker[] postWorkers;
             if (null != wrapperWorker && null != headerWorker2) {
                 postWorkers = new AmazonMapReduceJobWorker[]{headerWorker,
                                                              wrapperWorker,
                                                              headerWorker2,
                                                              verifyWorker,
-                                                             mimeWorker};
+                                                             mimeWorker,
+                                                             deleteWorker};
             } else {
                 postWorkers = new AmazonMapReduceJobWorker[]{headerWorker,
                                                              verifyWorker,
-                                                             mimeWorker};
+                                                             mimeWorker,
+                                                             deleteWorker};
             }
             postWorker = new MultiPostJobWorker(getJobWorker(), postWorkers);
 

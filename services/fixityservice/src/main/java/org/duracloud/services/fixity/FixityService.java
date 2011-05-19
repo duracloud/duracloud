@@ -163,9 +163,14 @@ public class FixityService extends BaseService implements ComputeService, Manage
             doneHashing.countDown();
         }
 
+        CountDownLatch doneComparing = new CountDownLatch(1);
         if (serviceOptions.needsToCompare()) {
-            startComparing(contentStore, serviceOptions, workDir, doneHashing);
+            startComparing(contentStore, serviceOptions, workDir, doneHashing, doneComparing);
+        } else {
+            doneComparing.countDown();
         }
+
+        cleanup(serviceOptions, doneComparing);
 
         doneWorking();
     }
@@ -219,7 +224,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private void startComparing(ContentStore contentStore,
                                 FixityServiceOptions serviceOptions,
                                 File workDir,
-                                CountDownLatch doneHashing)
+                                CountDownLatch doneHashing,
+                                CountDownLatch doneComparing)
         throws ServiceException {
         waitForLatch(doneHashing);
 
@@ -246,8 +252,33 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                              workerFactory,
                                              resultListener,
                                              threads,
-                                             doneHashing);
+                                             doneComparing);
         workManager.start();
+    }
+
+    private void cleanup(FixityServiceOptions serviceOptions,
+                         CountDownLatch doneComparing)
+        throws ServiceException {
+        waitForLatch(doneComparing);
+
+        if (serviceOptions.needsToHash()) {
+            deleteContent(serviceOptions.getOutputSpaceId(),
+                          serviceOptions.getOutputContentId());
+        }
+        if (serviceOptions.needsToAutoGenerateHashListing()) {
+            FixityServiceOptions autoOptions = getAutoHashingOptions();
+
+            deleteContent(autoOptions.getOutputSpaceId(),
+                          autoOptions.getOutputContentId());
+        }
+    }
+
+    private void deleteContent(String spaceId, String contentId) {
+        try {
+            getContentStore().deleteContent(spaceId, contentId);
+        } catch (ContentStoreException e) {
+            log.debug("Unable to delete content: " + e.getMessage());
+        }
     }
 
     private void waitForLatch(CountDownLatch doneHashing)

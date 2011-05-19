@@ -17,6 +17,7 @@ import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +44,7 @@ import static org.duracloud.services.fixity.results.ServiceResultListener.State.
 public class FixityServiceTest {
 
     private FixityService fixity;
+    private ContentStore store;
     private File workDir = new File("target/test-fixity-service");
 
     private String listingText;
@@ -74,6 +76,11 @@ public class FixityServiceTest {
         boolean isCorrupt = true;
         listingText = createListing(!isCorrupt);
         corruptListingText = createListing(isCorrupt);
+    }
+
+    @After
+    public void tearDown() {
+        EasyMock.verify(store);
     }
 
     private String createListing(boolean isCorrupt) {
@@ -339,8 +346,8 @@ public class FixityServiceTest {
 
     private ContentStore createMockContentStore(Mode mode)
         throws ContentStoreException {
-        ContentStore store = EasyMock.createMock("ContentStore",
-                                                 ContentStore.class);
+        store = EasyMock.createMock("ContentStore",
+                                    ContentStore.class);
 
         switch (mode) {
             case GENERATE_SPACE: // used by testStop
@@ -349,6 +356,9 @@ public class FixityServiceTest {
                     .anyTimes();
                 EasyMock.expect(store.getContent(targetSpaceId, "")).andReturn(
                     createContent("nothing")).anyTimes();
+                store.deleteContent(EasyMock.eq(outputSpaceId),
+                                    EasyMock.eq(outputContentId));
+                EasyMock.expectLastCall();
                 break;
 
             case GENERATE_LIST:
@@ -357,6 +367,9 @@ public class FixityServiceTest {
                     .andReturn(createContent(listingText));
                 EasyMock.expect(store.getContent(spaceIdA, contentIdA))
                     .andReturn(createContent(listingText));
+                store.deleteContent(EasyMock.eq(outputSpaceId),
+                                    EasyMock.eq(outputContentId));
+                EasyMock.expectLastCall();
                 break;
 
             case ALL_IN_ONE_SPACE:
@@ -371,6 +384,9 @@ public class FixityServiceTest {
                 EasyMock.expect(store.getContent(outputSpaceId,
                                                  outputContentId)).andReturn(
                     createContent(corruptListingText)).anyTimes();
+                store.deleteContent(EasyMock.eq(outputSpaceId),
+                                    EasyMock.eq(outputContentId));
+                EasyMock.expectLastCall();
                 break;
 
             case COMPARE:
