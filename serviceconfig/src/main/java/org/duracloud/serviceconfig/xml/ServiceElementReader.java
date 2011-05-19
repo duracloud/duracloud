@@ -23,7 +23,9 @@ import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is responsible for binding service-config xml documents to
@@ -112,6 +114,9 @@ public class ServiceElementReader {
             service.setDescription(description);
         }
 
+        Boolean isSystemService = serviceType.getIsSystemService();
+        service.setSystemService(isSystemService);
+
         SystemConfigType systemConfigType = serviceType.getSystemConfig();
         if (null != systemConfigType) {
             service.setSystemConfigs(createSystemConfigs(systemConfigType));
@@ -139,6 +144,14 @@ public class ServiceElementReader {
         DeploymentsType deploymentsType = serviceType.getDeployments();
         if (null != deploymentsType) {
             service.setDeployments(createDeployments(deploymentsType));
+        }
+
+        DependenciesType dependenciesType = serviceType.getDependencies();
+        if (null != dependenciesType) {
+            DependencyType[] dependencyTypes = dependenciesType.getDependencyArray();
+            if (null != dependencyTypes && dependencyTypes.length > 0) {
+                service.setDependencies(createDependencies(dependencyTypes));
+            }
         }
 
         return service;
@@ -349,6 +362,15 @@ public class ServiceElementReader {
         }
 
         return deployments;
+    }
+
+    private static Map<String, String> createDependencies(DependencyType[] dependencyTypes) {
+        Map<String, String> dependencies = new HashMap<String, String>();
+        for (DependencyType dependencyType : dependencyTypes) {
+            dependencies.put(dependencyType.getServiceId(),
+                             dependencyType.getContentId());
+        }
+        return dependencies;
     }
 
 }

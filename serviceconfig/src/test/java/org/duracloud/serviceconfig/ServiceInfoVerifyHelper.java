@@ -8,6 +8,8 @@
 package org.duracloud.serviceconfig;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
@@ -88,6 +90,8 @@ public class ServiceInfoVerifyHelper {
                     serviceInfo.getDeploymentOptions());
         verifyDeploymentsEqual(expected.getDeployments(),
                                serviceInfo.getDeployments());
+        verifyDependenciesEqual(expected.getDependencies(),
+                                serviceInfo.getDependencies());
 
     }
 
@@ -238,6 +242,17 @@ public class ServiceInfoVerifyHelper {
             }
             Assert.assertTrue("Id: " + expectedElem.getId(), found);
         }
+    }
 
+    private void verifyDependenciesEqual(Map<String, String> expected,
+                                         Map<String, String> deps) {
+        if (null == expected && null == deps) {
+            return;
+        }
+
+        Assert.assertNotNull(expected);
+        Assert.assertNotNull(deps);
+        Assert.assertEquals(expected.size(), deps.size());
+        Assert.assertEquals(expected, deps);
     }
 }

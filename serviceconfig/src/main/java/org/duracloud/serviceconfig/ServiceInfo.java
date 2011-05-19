@@ -9,7 +9,9 @@ package org.duracloud.serviceconfig;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
@@ -61,6 +63,24 @@ public class ServiceInfo implements Serializable, Cloneable {
 
     /** Includes information about existing deployments of this service */
     private List<Deployment> deployments;
+
+    /**
+     * TODO
+     * Defines the dependency services of this service:
+     *   service.id --> service.contentId
+     *
+     * Both service.id and contentId are provided as protection against the
+     * service.id unexpected changing.
+     * Once service.id becomes logical, as list instead of a map will do.
+     *  (see: https://jira.duraspace.org/browse/DURACLOUD-418)
+     *
+     * The reason the service.id is a key instead of an Integer is due to
+     * the JSON transformation in Duradmin not allowing non-String keys.
+     */
+    private Map<String, String> dependencies;
+
+    /** Defines this service as functional or system */
+    private boolean isSystemService;
 
     public int getId() {
         return id;
@@ -149,7 +169,23 @@ public class ServiceInfo implements Serializable, Cloneable {
     public void setContentId(String contentId) {
         this.contentId = contentId;
     }
-    
+
+    public Map<String, String> getDependencies() {
+        return dependencies;
+    }
+
+    public void setDependencies(Map<String, String> dependencies) {
+        this.dependencies = dependencies;
+    }
+
+    public boolean isSystemService() {
+        return isSystemService;
+    }
+
+    public void setSystemService(boolean systemService) {
+        isSystemService = systemService;
+    }
+
     public int getDeploymentCount(){
         return this.deployments == null ? 0 : this.deployments.size();
     }
@@ -172,11 +208,15 @@ public class ServiceInfo implements Serializable, Cloneable {
         clone.setServiceVersion(this.getServiceVersion());
         clone.setUserConfigVersion(this.getUserConfigVersion());
 
+        // immutable fields, boolean
+        clone.setSystemService(this.isSystemService);
+
         // mutable fields
         clone.setDeploymentOptions(cloneDeploymentOptions());
         clone.setDeployments(cloneDeployments());
         clone.setSystemConfigs(cloneSystemConfigs());
         clone.setUserConfigModeSets(cloneUserConfigModeSets());
+        clone.setDependencies(cloneDependencies());
 
         return clone;
     }
@@ -222,6 +262,22 @@ public class ServiceInfo implements Serializable, Cloneable {
             clone = new ArrayList<UserConfigModeSet>();
             for (UserConfigModeSet source : this.userConfigModeSets) {
                 clone.add(source.clone());
+            }
+        }
+        return clone;
+    }
+
+    private Map<String, String> cloneDependencies()
+        throws CloneNotSupportedException {
+        Map<String, String> clone = null;
+        {
+            if (null != this.getDependencies()) {
+                clone = new HashMap<String, String>();
+                Map<String, String> deps = this.getDependencies();
+                for (String sourceKey : deps.keySet()) {
+                    String sourceVal = deps.get(sourceKey);
+                    clone.put(sourceKey, sourceVal);
+                }
             }
         }
         return clone;

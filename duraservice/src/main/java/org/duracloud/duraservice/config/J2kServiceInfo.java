@@ -5,7 +5,9 @@ import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -52,6 +54,11 @@ public class J2kServiceInfo extends AbstractServiceInfo {
         j2kService.setSystemConfigs(systemConfig);
 
         j2kService.setDeploymentOptions(getSimpleDeploymentOptions());
+
+        // service dependencies
+        Map<String, String> dependencies = new HashMap<String, String>();
+        dependencies.put("10", "webapputilservice-" + version + ".zip");
+        j2kService.setDependencies(dependencies);
 
         return j2kService;
     }

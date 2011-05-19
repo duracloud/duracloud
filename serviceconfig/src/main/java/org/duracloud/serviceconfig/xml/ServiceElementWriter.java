@@ -8,24 +8,10 @@
 package org.duracloud.serviceconfig.xml;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.duracloud.DeploymentOptionLocationType;
-import org.duracloud.DeploymentOptionStateType;
-import org.duracloud.DeploymentOptionType;
-import org.duracloud.DeploymentOptionsType;
-import org.duracloud.DeploymentStatusType;
-import org.duracloud.DeploymentType;
-import org.duracloud.DeploymentsType;
-import org.duracloud.ModeSetType;
-import org.duracloud.ModeType;
-import org.duracloud.OptionInputType;
-import org.duracloud.ServiceType;
-import org.duracloud.SingleServiceType;
-import org.duracloud.SystemConfigType;
-import org.duracloud.SystemPropertyType;
-import org.duracloud.UserConfigType;
-import org.duracloud.UserPropertyType;
+import org.duracloud.*;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -109,6 +95,9 @@ public class ServiceElementWriter {
             service.setDescription(description);
         }
 
+        Boolean isSystemService = serviceInfo.isSystemService();
+        service.setIsSystemService(isSystemService);
+
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         if (systemConfigs != null && systemConfigs.size() > 0) {
             SystemConfigType systemConfigType = service.addNewSystemConfig();
@@ -137,6 +126,12 @@ public class ServiceElementWriter {
         if (deployments != null && deployments.size() > 0) {
             DeploymentsType deploymentsType = service.addNewDeployments();
             populateDeployments(deploymentsType, deployments);
+        }
+
+        Map<String, String> dependencies = serviceInfo.getDependencies();
+        if (dependencies != null && dependencies.size() > 0) {
+            DependenciesType dependenciesType = service.addNewDependencies();
+            populateDependencies(dependenciesType, dependencies);
         }
 
     }
@@ -418,7 +413,15 @@ public class ServiceElementWriter {
                 }
             }
         }
+    }
 
+    private static void populateDependencies(DependenciesType dependenciesType,
+                                             Map<String, String> dependencies) {
+        for (String serviceId : dependencies.keySet()) {
+            DependencyType dependencyType = dependenciesType.addNewDependency();
+            dependencyType.setServiceId(serviceId);
+            dependencyType.setContentId(dependencies.get(serviceId));
+        }
     }
 
 }

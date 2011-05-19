@@ -9,6 +9,7 @@
       <xs:element name="userConfig" type="userConfigType" minOccurs="0"/>
       <xs:element name="deploymentOptions" type="deploymentOptionsType" minOccurs="0"/>
       <xs:element name="deployments" type="deploymentsType" minOccurs="0"/>
+      <xs:element name="dependencies" type="dependenciesType" minOccurs="0"/>
       <xs:element name="description" type="xs:string" minOccurs="0"/>
     </xs:sequence>
 
@@ -17,6 +18,7 @@
     <xs:attribute name="contentId" type="xs:string" use="required"/>
     <xs:attribute name="displayName" type="xs:string" use="optional"/>
     <xs:attribute name="userConfigVersion" type="xs:string" use="required"/>
+    <xs:attribute name="isSystemService" type="xs:boolean" use="optional"/>
 
   </xs:complexType>
 
@@ -162,5 +164,17 @@
       <xs:enumeration value="STARTED"/>
     </xs:restriction>
   </xs:simpleType>
+
+  <!-- Dependencies configuration state element -->
+  <xs:complexType name="dependenciesType">
+    <xs:sequence>
+      <xs:element name="dependency" type="dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="dependencyType">
+    <xs:attribute name="serviceId" type="xs:string" use="required"/>
+    <xs:attribute name="contentId" type="xs:string" use="required"/>
+  </xs:complexType>
 
 </xs:schema>

@@ -20,8 +20,10 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -49,6 +51,7 @@ public class ServicesConfigDocumentTest {
     private String deploymentOptionDisplayName = "deploymentOptionDisplayName-";
     private String deploymentOptionHostname = "deploymentOptionHostname-";
     private String deploymentHostname = "deploymentHostname-";
+    private String dependencyName = "dependencyName-";
 
 
     private ServiceInfo createService(int tag) {
@@ -65,6 +68,7 @@ public class ServicesConfigDocumentTest {
         serviceInfo.setUserConfigModeSets(createUserConfigModeSets(tag));
         serviceInfo.setDeploymentOptions(createDeploymentOptions(tag, COUNT));
         serviceInfo.setDeployments(createDeployments(tag, COUNT));
+        serviceInfo.setDependencies(createDependencies(tag, COUNT));
 
         return serviceInfo;
     }
@@ -223,6 +227,15 @@ public class ServicesConfigDocumentTest {
 
     }
 
+    private Map<String, String> createDependencies(int tag, int count) {
+        Map<String, String> deps = new HashMap<String, String>();
+        for (int i = 0; i < count; ++i) {
+            int newTag = tag + i;
+            deps.put(Integer.toString(newTag), dependencyName + newTag);
+        }
+        return deps;
+    }
+
     @Test
     public void testService() {
         int tag = 1;
@@ -235,7 +248,7 @@ public class ServicesConfigDocumentTest {
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes());
         ServiceInfo serviceInfo = ServicesConfigDocument.getService(inputStream);
         ServiceInfoVerifyHelper verifier = new ServiceInfoVerifyHelper(
-            serviceInfo);
+            expected);
         verifier.verify(serviceInfo);
 
         String newXml = ServicesConfigDocument.getServiceAsXML(serviceInfo);

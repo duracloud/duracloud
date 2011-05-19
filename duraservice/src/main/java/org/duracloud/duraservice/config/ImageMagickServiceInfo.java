@@ -20,6 +20,7 @@ public class ImageMagickServiceInfo extends AbstractServiceInfo {
         imService.setUserConfigVersion("1.0");
         imService.setServiceVersion(version);
         imService.setMaxDeploymentsAllowed(1);
+        imService.setSystemService(true);
 
         imService.setDeploymentOptions(getSimpleDeploymentOptions());
 

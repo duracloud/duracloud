@@ -9,7 +9,9 @@ import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -144,6 +146,11 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
         icService.setSystemConfigs(systemConfig);
 
         icService.setDeploymentOptions(getSimpleDeploymentOptions());
+
+        // service dependencies
+        Map<String, String> dependencies = new HashMap<String, String>();
+        dependencies.put("9", "imagemagickservice-" + version + ".zip");
+        icService.setDependencies(dependencies);
 
         return icService;
     }

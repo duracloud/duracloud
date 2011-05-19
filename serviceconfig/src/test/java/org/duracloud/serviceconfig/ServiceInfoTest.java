@@ -16,7 +16,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -38,6 +40,8 @@ public class ServiceInfoTest {
     private List<SystemConfig> systemConfigs = createSystemConfigs();
     private List<UserConfigModeSet> userConfigModeSets = createUserConfigModeSets();
     private String userConfigVersion = "4.5.6";
+    private Map<String, String> dependencies = createDependencies();
+    private boolean isSystemService = true;
 
     @Before
     public void setUp() {
@@ -53,6 +57,8 @@ public class ServiceInfoTest {
         serviceInfo.setSystemConfigs(systemConfigs);
         serviceInfo.setUserConfigModeSets(userConfigModeSets);
         serviceInfo.setUserConfigVersion(userConfigVersion);
+        serviceInfo.setDependencies(dependencies);
+        serviceInfo.setSystemService(isSystemService);
 
     }
 
@@ -92,6 +98,14 @@ public class ServiceInfoTest {
                                                    "display-name:" + num);
         List<UserConfig> userConfigs = Arrays.asList(userConfig);
         return Arrays.asList(new UserConfigModeSet(userConfigs));
+    }
+
+    private Map<String, String> createDependencies() {
+        Map<String, String> deps = new HashMap<String, String>();
+        int num = new Random().nextInt();
+        deps.put(Integer.toString(num), "contentId-dep-"+num);
+
+        return deps;
     }
 
     @Test
@@ -153,6 +167,16 @@ public class ServiceInfoTest {
         verify(serviceInfo, clone, true);
         clone.setUserConfigVersion("9.8.7");
         verify(serviceInfo, clone, false);
+
+        clone = serviceInfo.clone();
+        verify(serviceInfo, clone, true);
+        clone.setDependencies(createDependencies());
+        verify(serviceInfo, clone, false);
+
+        clone = serviceInfo.clone();
+        verify(serviceInfo, clone, true);
+        clone.setSystemService(false);
+        verify(serviceInfo, clone, false);
     }
 
     private void verify(ServiceInfo source, ServiceInfo clone, boolean valid) {
@@ -180,6 +204,10 @@ public class ServiceInfoTest {
                                 clone.getUserConfigModeSets());
             Assert.assertEquals(source.getUserConfigVersion(),
                                 clone.getUserConfigVersion());
+            Assert.assertEquals(source.getDependencies(),
+                                clone.getDependencies());
+            Assert.assertEquals(source.isSystemService(),
+                                clone.isSystemService());
             isValid = true;
 
         } catch (Throwable t) {

@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -165,11 +166,15 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyImagemagick(ServiceInfo serviceInfo) {
-        Assert.assertTrue("I need an implementation", true);
+        Assert.assertTrue(serviceInfo.isSystemService());
+        Map<String, String> dependencies = serviceInfo.getDependencies();
+        Assert.assertNull(dependencies);
     }
 
     private void verifyWebapputil(ServiceInfo serviceInfo) {
-        Assert.assertTrue("I need an implementation", true);
+        Assert.assertTrue(serviceInfo.isSystemService());
+        Map<String, String> dependencies = serviceInfo.getDependencies();
+        Assert.assertNull(dependencies);
     }
 
     private void verifyHellowebappwrapper(ServiceInfo serviceInfo) {
@@ -182,12 +187,39 @@ public class ServiceXmlGeneratorTest {
         Assert.assertEquals(4, systemConfigs.size());
 
         verifyDurastoreCredential(systemConfigs);
+
+        String ver = getVersion();
+        String dependencyServiceId = "10";
+        String dependencyContentId = "webapputilservice-" + ver + ".zip";
+        verifyDependencies(serviceInfo,
+                           dependencyServiceId,
+                           dependencyContentId);
     }
 
     private void verifyImageconversion(ServiceInfo serviceInfo) {
         int numUserConfigs = 6;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
+
+        String ver = getVersion();
+        String dependencyServiceId = "9";
+        String dependencyContentId = "imagemagickservice-" + ver + ".zip";
+        verifyDependencies(serviceInfo,
+                           dependencyServiceId,
+                           dependencyContentId);
+    }
+
+    private void verifyDependencies(ServiceInfo serviceInfo,
+                                    String dependencyServiceId,
+                                    String dependencyContentId) {
+        Assert.assertFalse(serviceInfo.isSystemService());
+
+        Map<String, String> dependencies = serviceInfo.getDependencies();
+        Assert.assertNotNull(dependencies);
+        Assert.assertEquals(1, dependencies.size());
+
+        Assert.assertTrue(dependencies.containsKey(dependencyServiceId));
+        Assert.assertEquals(dependencyContentId, dependencies.get(dependencyServiceId));
     }
 
     private void verifyMediaStreaming(ServiceInfo serviceInfo) {

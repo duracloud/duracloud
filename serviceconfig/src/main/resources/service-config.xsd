@@ -8,7 +8,7 @@
   <xs:complexType name="singleServiceType">
     <xs:complexContent>
       <xs:extension base="serviceType">
-        <xs:attribute name="schemaVersion" type="xs:string" fixed="0.8.0" use="required"/>
+        <xs:attribute name="schemaVersion" type="xs:string" fixed="1.0.0" use="required"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

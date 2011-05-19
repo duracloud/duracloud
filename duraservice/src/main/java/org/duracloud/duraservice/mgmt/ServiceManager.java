@@ -267,7 +267,7 @@ public class ServiceManager {
                 availDeployment = false;
             }
 
-            if(availDeployment) {
+            if(availDeployment && !service.isSystemService()) {
                 ServiceInfo availService = populateServiceKeepCache(service);
                 availableServices.add(availService);
             }
@@ -291,7 +291,10 @@ public class ServiceManager {
         List<ServiceInfo> populatedDepServices = new ArrayList<ServiceInfo>();
         for(ServiceInfo deployedService : deployedServices) {
             ServiceInfo populatedDepService = populateServiceKeepCache(deployedService);
-            populatedDepServices.add(populatedDepService);
+
+            if (!populatedDepService.isSystemService()) {
+                populatedDepServices.add(populatedDepService);
+            }
         }
         clearCache();
         return populatedDepServices;
@@ -361,6 +364,11 @@ public class ServiceManager {
         ServiceComputeInstance computeInstance =
             getServiceHost(serviceId, serviceHost);
 
+        // Make sure dependency services are deployed
+        deployDependencyServices(srvToDeploy.getDependencies(),
+                                 serviceHost,
+                                 userConfigVersion);
+
         log.info("Deploying service " + serviceId + " to " + serviceHost);
 
         // Resolve system config
@@ -419,6 +427,40 @@ public class ServiceManager {
                                     computeInstance.getHostName(),
                                     userConfigModeSets,
                                     systemConfig);
+    }
+
+    private void deployDependencyServices(Map<String, String> dependencies,
+                                          String serviceHost,
+                                          String userConfigVersion)
+        throws NoSuchServiceException, NoSuchServiceComputeInstanceException {
+        if (null == dependencies || dependencies.isEmpty()) {
+            return;
+        }
+
+        for (String depServiceId : dependencies.keySet()) {
+            String contentId = dependencies.get(depServiceId);
+            int serviceId = Integer.parseInt(depServiceId);
+            
+            ServiceInfo depInfo = getService(serviceId);
+            if (!contentId.equals(depInfo.getContentId())) {
+                StringBuilder err = new StringBuilder();
+                err.append("Service.id dependency fragility error. ");
+                err.append("service.id does not match sevice.contentId: [");
+                err.append(serviceId);
+                err.append(":");
+                err.append(contentId);
+                err.append("? or ");
+                err.append(depInfo.getContentId());
+                err.append("?]");
+                log.error(err.toString());
+                throw new ServiceException(err.toString());
+            }
+
+            deployService(serviceId,
+                          serviceHost,
+                          userConfigVersion,
+                          depInfo.getUserConfigModeSets());
+        }
     }
 
     private void waitUntilDeployed(String contentId,
@@ -1100,6 +1142,9 @@ public class ServiceManager {
         String serviceHost = serviceDeployment.getHostname();
         String contentId = deployedService.getContentId();
 
+        // Make sure dependency services are unDeployed.
+        undeployDependencyServices(deployedService.getDependencies());
+
         log.info("UnDeploying service: " + serviceId + " from " + serviceHost);
 
         try {
@@ -1129,6 +1174,47 @@ public class ServiceManager {
         }
 
         removeDeployedService(serviceId, deploymentId);
+    }
+
+    private void undeployDependencyServices(Map<String, String> dependencies)
+        throws NoSuchDeployedServiceException {
+        if (null == dependencies || dependencies.isEmpty()) {
+            return;
+        }
+
+        for (String serviceId : dependencies.keySet()) {
+            int dependencyDeploymentId = -1;
+            int depServiceId = Integer.parseInt(serviceId);
+
+            for (ServiceInfo deployed : this.deployedServices) {
+                if (deployed.getId() == depServiceId) {
+                    List<Deployment> deps = deployed.getDeployments();
+                    if (null == deps || deps.isEmpty()) {
+                        StringBuilder err = new StringBuilder();
+                        err.append("Trying to undeploy dependency service ");
+                        err.append("that is not in deployedServices list: ");
+                        err.append(deployed.getDisplayName() + ":" + serviceId);
+                        err.append(", deployedServices: " + deployedServices);
+                        log.error(err.toString());
+                        throw new ServiceException(err.toString());
+                    }
+
+                    // Note: assumption, only one deployment of service.
+                    dependencyDeploymentId = deps.get(0).getId();
+                }
+            }
+
+            if (dependencyDeploymentId == -1) {
+                StringBuilder err = new StringBuilder();
+                err.append("Dependency service to undeploy not found: ");
+                err.append(serviceId);
+                err.append(", deployedServices: " + deployedServices);
+                log.error(err.toString());
+                throw new ServiceException(err.toString());
+            }
+
+            undeployService(depServiceId, dependencyDeploymentId);
+        }
     }
 
     /*

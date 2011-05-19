@@ -155,7 +155,7 @@ public class ApplicationInitializer extends BaseConfig {
             appWithConfig.setConfig(new DurareportConfig());
             appsWithConfigs.put(appWithConfig.getName(), appWithConfig);
         } else {
-            log.warn("duradmin endpoint not !loaded");
+            log.warn("durareport endpoint not !loaded");
         }
     }
 
@@ -296,7 +296,9 @@ public class ApplicationInitializer extends BaseConfig {
         response = initApp(appsWithConfigs.get(durastoreKey));
         response = initApp(appsWithConfigs.get(duraserviceKey));
         response = initApp(appsWithConfigs.get(duradminKey));
-        response = initApp(appsWithConfigs.get(durareportKey));
+        if (durareportEndpointLoad()) {
+            response = initApp(appsWithConfigs.get(durareportKey));
+        }
 
         return response;
     }
