@@ -84,13 +84,12 @@
                 </div>
 				<div class="header-section">
 					<span class="float-r">
-						<input id="content-item-filter" class="dc-item-list-filter" value="" placeholder="filter" 	type="text" />
+						<input id="content-item-filter" class="dc-item-list-filter" value="" placeholder="type prefix" 	type="text" />
 					</span> 
 					<input id="check-all-content-items" class="dc-check-all" type="checkbox" />
-					<a href="javascript:void(0)" class="previous item-scroll-action" style="visibility:hidden">&lt; prev</a>
-					<a href="javascript:void(0)" class="next item-scroll-action" style="visibility:hidden" >next &gt;</a>
-					
 					<span id="content-item-list-status" class="dc-status" ></span>
+					<span id="content-item-list-controls" class="dc-item-list-controls" ></span>
+
 					</div>
 				</div>
 

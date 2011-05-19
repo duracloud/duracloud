@@ -1560,7 +1560,7 @@ $(function(){
 						function(space){
 							if(notEmpty(contentId)){
 								getContentItem(storeId,spaceId,contentId);
-								loadContentItems(space.contents);
+								loadContentItems(space);
 							}else{
 								loadSpace(space);
 							}
@@ -1696,7 +1696,7 @@ $(function(){
 
 		$("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
 
-		loadContentItems(space.contents);
+		loadContentItems(space);
 		
 	};
 
@@ -1828,7 +1828,7 @@ $(function(){
 		if(text == null || text == undefined || text == ''){
 			$(contentItemListStatusId).fadeOut("fast").html('');
 		}else{
-			$(contentItemListStatusId).html("Loading...").fadeIn("slow");
+			$(contentItemListStatusId).html(text).fadeIn("slow");
 		}
 	};
 	
@@ -1861,7 +1861,7 @@ $(function(){
 							setHash(space);
 							loadHandler(space);
 						}
-						showContentItemListStatus();
+						//showContentItemListStatus();
 					}
 				}, 
 				failure:function(info){
@@ -1900,7 +1900,7 @@ $(function(){
 	
 	
 	$("#content-item-list-view").find(".dc-item-list-filter").bindEnterKey(function(evt){
-		reloadContents(getCurrentSpaceId(), null, function(space){loadContentItems(space.contents)});
+		reloadContents(getCurrentSpaceId(), null, function(space){loadContentItems(space)});
 	});
 	
 	var reloadContents = function(spaceId, marker, handler){
@@ -1911,7 +1911,7 @@ $(function(){
 				getCurrentSpaceId(), 
 				{
 					begin: function(){
-						showContentItemListStatus("Loading contents...");
+						dc.busy("Filtering content items...", {modal:true});
 					},
 					success: function(space){
 						dc.done();
@@ -1919,7 +1919,6 @@ $(function(){
 							showContentItemListStatus("Error: space not found.");
 						}else{
 							handler(space);
-							showContentItemListStatus();
 						}
 					}, 
 					failure:function(info){
@@ -1933,219 +1932,114 @@ $(function(){
 				});
 	};
 
-	/*
-	var refreshButtonState = null;
-	var clearPageHistory = null;
-	(function(){
-		var list = $("#content-item-list");
-		var previousList = new Array();
-		$("#content-item-list-view").find(".dc-item-list-filter").bind("change",function(){
-			previousList = new Array();
-			refreshButtonState();
-		});
-		
-		var previousButton = $("#content-item-list-view .previous"); 
-		var nextButton = $("#content-item-list-view .next")
-		
-		clearPageHistory = function(){
-			previousList = new Array();
-			previousButton.makeHidden();
-			nextButton.makeHidden();
-		};
-
-		refreshButtonState = function(){
-			var itemData, marker, prefix, storeId, spaceId;
-
-			previousButton.makeVisible(previousList.length > 0);
-			itemData = list.selectablelist("lastItemData");
-			marker = null;
-
-			if(itemData != null){
-				marker = itemData.contentId;
-			}
-			
-			//if there are no items in the current view
-			if(marker == null){
-				//get previous page marker
-				if(previousList.length > 0){
-					marker = previousList[previousList.length-1];
-				}
-			}
-
-			prefix = getFilterText();
-			storeId = getCurrentProviderStoreId();
-			spaceId = getCurrentSpaceId();
-			
-			dc.store.GetSpace(
-				storeId,
-				spaceId, 
-				{	
-					begin: function(){
-						nextButton.makeHidden();
-					},
-					success: function(space){
-						//update only if the spaceId associated with the space id 
-						//associated with the async call is the same as 
-						//the currently selected space id
-						if(getCurrentSpaceId() == space.spaceId){
-							nextButton.makeVisible(space.contents.length > 0);
-							showContentItemListStatus();
-						}
-					}, 
-					failure:function(info){
-						alert("next page failed: " + info);
-						showContentItemListStatus();
-
-					},
-				},
-				{prefix: prefix, marker: marker}						
-			);
-		};
-		
-		previousButton.click(function(){
-			var that = this;
-			var marker = null;
-			if(previousList.length > 1){
-				//get the second to last marker (marks the previous page)
-				marker = previousList[previousList.length-2];
-			}
-			
-			if(previousList.length > 0){
-				reloadContents(
-						getCurrentSpaceId(), 
-						marker,
-						function(space){
-							//pop the first one off the end- it's the current page
-							previousList.pop();
-							loadContentItems(space.contents,true);
-						});
-			}
-		});
-		
-		nextButton.click(function(){
-			var that = this;
-			var itemData =  list.selectablelist("lastItemData");
-			var marker = null;
-			if(itemData != null){
-				marker = itemData.contentId;
-			}
-			
-			if(marker != null){
-				reloadContents(
-					getCurrentSpaceId(), 
-					marker,
-					function(space){
-						previousList.push(marker);
-						loadContentItems(space.contents,true);	
-					}
-				);
-			}else{
-				//it means that there weren't any items in the list
-				//in this case grap the previous marker if there was one.
-				if(previousList.length > 0){
-					//get the last marker (marks the previous page)
-					marker = previousList[previousList.length-1];
-				}				
-
-				reloadContents(
-					getCurrentSpaceId(), 
-					marker,
-					function(space){
-						loadContentItems(space.contents,true);	
-					}
-				);
-			}
-		});
-	})();
-	
-	*/
-
-	var loadContentItems = function(contentItems, fadeIn){
-		var list; 
-		
+	var loadContentItems = function(space){
+		var list,listView; 
+		listView = $("content-item-list-view");		
 		list = $("#content-item-list");
 		list.selectablelist("clear");
-		
-		if(fadeIn == undefined) fadeIn = true;
-		
-		if(fadeIn){
-			$("#content-item-list-view button,#content-item-list-view input").fadeIn();
-		}
-		
-		for(i in contentItems){
-			var ci = {
-					contentId:contentItems[i],
-					spaceId:getCurrentSpaceId(),
-					storeId:getCurrentProviderStoreId()
-				};
-			
-			addContentItemToList(ci);
-		}
+		$("#content-item-list-view button,#content-item-list-view input").fadeIn();
+		addContentItemsToList(space);
+		updateNavigationControls(space);
 
-		var footer = $.fn.create("a");
-		footer.html('show more')
-			.addClass("dc-link")
-			.click(function(){
-				var itemData, lastItem, prefix, marker;
-				itemData = list.selectablelist("lastItemData");
-				lastItem = list.selectablelist("lastItem");
-
-				var marker = null;
-				if(itemData != null){
-					marker = itemData.contentId;
-					prefix = getFilterText();
-					dc.store.GetSpace(
-							itemData.storeId,
-							itemData.spaceId, 
-							{
-								begin: function(){
-									dc.busy("Fetching more content items...", {modal:true});
-									lastItem.addClass("dc-selectablelist-hl");		
-							},
-								success: function(s){
-									dc.done();
-									if(s.spaceId = getCurrentSpaceId() ){
-										$.each(s.contents,function(i,value){
-											addContentItemToList({
-												contentId:value,
-												spaceId:itemData.spaceId,
-												storeId:itemData.storeId
-											});
-										});
-
-										var viewPort = list.closest(".dc-item-list-wrapper");
-										var scrollY = 0.75*viewPort.height();
-										viewPort.animate(
-											{scrollTop:'+='+scrollY},
-											{duration:1500, easing:"swing"});
-														
-										if(s.contents.length < 100){
-											list.selectablelist("setFooter","");
-										}
-									}
-
-									if(s.contents.length == 0){
-										list.selectablelist("setFooter","End of set. No more content items found.");
-									}
-
-								}, 
-								failure:function(info){
-									setTimeout(function(){
-										alert("Failed to retrieve more content items:" + info);
-									},200);
-
-									dc.done();
-								},
-							},
-							{prefix: prefix, marker: marker}
-						);
-				}
-				
+	};
+	
+	var addContentItemsToList = function(space){
+		$.each(space.contents,function(i,value){
+			addContentItemToList({
+				contentId:value,
+				spaceId:space.spaceId,
+				storeId:space.storeId
 			});
+		});
+	};
+
+	var updateNavigationControls = function(space){
+		var list,listView, listCount,totalCount,statusTxt;
 		
-		$("#content-item-list").selectablelist("setFooter",contentItems.length > 100 ? footer : '');
+		listView = $("#content-item-list-view");		
+		list = $("#content-item-list");
+		listCount = list.selectablelist("length");
+		listView.find(".dc-show-more-link").remove();
 		
-	}
+		if(space.metadata.count == 0){
+			statusTxt = "";
+		}else{
+			totalCount = (getFilterText() == '' ? space.metadata.count : "?");
+			if(listCount == 0 && space.contents.length == 0){
+				statusText = "";
+			}else{
+				statusTxt = "Showing 1 - " + listCount + " of " + totalCount;
+			}
+		}
+
+		showContentItemListStatus(statusTxt);
+
+		if(space.contents.length > 199){
+			listView.find(".dc-item-list-controls").html('').append(createShowMoreLink());
+			list.selectablelist("setFooter", createShowMoreLink());
+		}else{
+			if(space.metadata.count == 0){
+				list.selectablelist("setFooter",$.fn.create("div").html("This space is empty."));
+			}else{
+				list.selectablelist("setFooter",'');
+			}
+
+		}
+	};
+	
+	var createShowMoreLink = function(){
+		var link;
+		link = $.fn.create("a");
+		link.html('show more')
+		.addClass("dc-link")
+		.addClass("dc-show-more-link")
+		.click(function(){showMoreHandler()});
+		return link;
+	};
+	
+	var showMoreHandler = function(){
+		var list, itemData, lastItem, prefix, marker;
+		list = $("#content-item-list");
+		itemData = list.selectablelist("lastItemData");
+		lastItem = list.selectablelist("lastItem");
+
+		var marker = null;
+		if(itemData != null){
+			marker = itemData.contentId;
+			prefix = getFilterText();
+			dc.store.GetSpace(
+					itemData.storeId,
+					itemData.spaceId, 
+					{
+						begin: function(){
+							dc.busy("Loading more content items...", {modal:true});
+							lastItem.addClass("dc-selectablelist-hl");		
+					},
+						success: function(s){
+							dc.done();
+							addContentItemsToList(s);
+							updateNavigationControls(s);
+							/*
+							var viewPort = list.closest(".dc-item-list-wrapper");
+							var scrollY = 0.75*viewPort.height();
+							viewPort.animate(
+								{scrollTop:'+='+scrollY},
+								{duration:1500, easing:"swing"});
+							*/
+						}, 
+						failure:function(info){
+							setTimeout(function(){
+								alert("Failed to retrieve more content items:" + info);
+							},200);
+
+							dc.done();
+						},
+					},
+					{prefix: prefix, marker: marker}
+				);
+		}
+		
+	};
 	
 	var addContentItemToList = function(contentItem){
 		var node =  document.createElement("div");
