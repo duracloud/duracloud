@@ -1142,9 +1142,6 @@ public class ServiceManager {
         String serviceHost = serviceDeployment.getHostname();
         String contentId = deployedService.getContentId();
 
-        // Make sure dependency services are unDeployed.
-        undeployDependencyServices(deployedService.getDependencies());
-
         log.info("UnDeploying service: " + serviceId + " from " + serviceHost);
 
         try {
@@ -1174,6 +1171,9 @@ public class ServiceManager {
         }
 
         removeDeployedService(serviceId, deploymentId);
+
+        // Make sure dependency services are unDeployed.
+        undeployDependencyServices(deployedService.getDependencies());
     }
 
     private void undeployDependencyServices(Map<String, String> dependencies)
