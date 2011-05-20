@@ -81,11 +81,11 @@ public abstract class StorageProviderBase implements StorageProvider {
         spaceMetadata.put("is-delete", "true");
         setSpaceMetadata(spaceId, spaceMetadata);
 
-        SpaceDeleteWorker deleteThread = new SpaceDeleteWorker(spaceId);
+        SpaceDeleteWorker deleteThread = getSpaceDeleteWorker(spaceId);
         new Thread(deleteThread).start();
     }
 
-    public class SpaceDeleteWorker implements Runnable {
+    protected class SpaceDeleteWorker implements Runnable {
         protected final Logger log = LoggerFactory.getLogger(SpaceDeleteWorker.class);
 
         private String spaceId;
@@ -112,6 +112,8 @@ public abstract class StorageProviderBase implements StorageProvider {
                     try {
                         deleteContent(spaceId, contentId);
                     } catch(Exception e) {
+                        log.error("Error deleting content " + contentId +
+                            " in space " + spaceId, e);
                     }
                 }
                 contents = getSpaceContents(spaceId, null);
@@ -129,5 +131,9 @@ public abstract class StorageProviderBase implements StorageProvider {
                 removeSpace(spaceId);
             }
         }
+    }
+
+    public SpaceDeleteWorker getSpaceDeleteWorker(String spaceId) {
+        return new SpaceDeleteWorker(spaceId);
     }
 }
