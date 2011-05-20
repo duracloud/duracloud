@@ -144,59 +144,20 @@ public class StorageProviderBaseTest {
         List<String> contents = new ArrayList<String>();
         contents.add(contentId);
 
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .times(1);
+        EasyMock.expect(providerTest.getSpaceContents(spaceId, null))
+            .andReturn(contents.iterator());
 
-        providerTest.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall()
-            .andThrow(new NotFoundException(""));
+        // 5 tries, 5 failures
+        for (int i = 0; i < 5; ++i) {
+            EasyMock.expect(providerTest.getSpaceContents(spaceId, null))
+                .andReturn(contents.iterator());
 
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .times(1);
-
-        providerTest.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall()
-            .andThrow(new NotFoundException(""));
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .times(1);
-
-        providerTest.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall()
-            .andThrow(new NotFoundException(""));
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .times(1);
-
-        providerTest.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall()
-            .andThrow(new NotFoundException(""));
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .times(1);
-
-        providerTest.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall()
-            .andThrow(new NotFoundException(""));
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .times(1);
+            providerTest.deleteContent(spaceId, contentId);
+            EasyMock.expectLastCall().andThrow(new NotFoundException(""));
+        }
 
         EasyMock.expect(providerTest.getSpaceMetadata(spaceId))
-            .andReturn(new HashMap<String, String>())
-            .once();
+            .andReturn(new HashMap<String, String>());
 
         providerTest.setSpaceMetadata(EasyMock.<String>anyObject(),
                                       EasyMock.<Map<String, String>>anyObject());
