@@ -104,6 +104,9 @@ public class BaseAmazonMapReduceJobWorkerTest {
             .andReturn(null)
             .times(2);
 
+        EasyMock.expect(contentStore.performTask(HadoopTypes.STOP_JOB_TASK_NAME,
+                                                 jobId)).andReturn("stopped");
+
         EasyMock.makeThreadSafe(contentStore, true);
         EasyMock.replay(contentStore);
 
@@ -140,9 +143,10 @@ public class BaseAmazonMapReduceJobWorkerTest {
 
     @After
     public void tearDown() throws Exception {
+        if (!worker.getJobStatus().isComplete()) {
+            worker.shutdown();
+        }
         EasyMock.verify(contentStore);
-
-        worker.shutdown();
     }
 
     @Test

@@ -43,4 +43,10 @@ public class WrapperPostJobWorker extends BaseAmazonMapReducePostJobWorker {
             sleep(sleepMillis);
         }
     }
+
+    @Override
+    public void shutdown() {
+        super.shutdown();
+        targetWorker.shutdown();
+    }
 }

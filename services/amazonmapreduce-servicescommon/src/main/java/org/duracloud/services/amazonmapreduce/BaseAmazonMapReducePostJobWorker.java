@@ -60,7 +60,7 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
                 sleep(sleepMillis);
             }
         }
-        log.debug("post-processing complete: " + this.getClass());
+        log.info("post-processing complete: " + this.getClass());
     }
 
     /**
@@ -69,7 +69,7 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
     protected abstract void doWork();
 
     private void work() {
-        log.debug("starting to perform post-processing: " + this.getClass());
+        log.info("starting to perform post-processing: " + this.getClass());
         try {
             doWork();
         } catch (Exception e) {
@@ -99,6 +99,7 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
 
     @Override
     public void shutdown() {
+        log.info("shutting down: {}", this.getClass().getName());
         status = JobStatus.COMPLETE;
     }
 

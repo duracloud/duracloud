@@ -99,6 +99,7 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     public void stop() throws Exception {
         super.stop();
         worker = null;
+        postWorker = null;
     }
 
     @Override

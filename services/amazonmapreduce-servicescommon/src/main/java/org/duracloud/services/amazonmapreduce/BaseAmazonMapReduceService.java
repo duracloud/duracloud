@@ -158,19 +158,11 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
 
     @Override
     public void stop() throws Exception {
-        log.info("Stopping " + getServiceId());
+        log.info("stopping {}, {}", getServiceId(), this.getClass().getName());
         this.setServiceStatus(ServiceStatus.STOPPING);
 
-        String jobId = null;
         if (getJobWorker() != null) {
             getJobWorker().shutdown();
-
-            jobId = getJobWorker().getJobId();
-        }
-
-        // Stop hadoop job
-        if (jobId != null) {
-            getContentStore().performTask(STOP_JOB_TASK_NAME, jobId);
         }
 
         if (getPostJobWorker() != null) {

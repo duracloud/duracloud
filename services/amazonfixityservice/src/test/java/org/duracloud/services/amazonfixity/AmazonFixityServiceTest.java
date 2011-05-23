@@ -13,7 +13,6 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.ComputeService;
-import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.storage.domain.HadoopTypes;
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
@@ -21,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -44,7 +44,12 @@ public class AmazonFixityServiceTest {
 
     @Before
     public void setUp() {
+        contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
         service = new AmazonFixityService();
+    }
+
+    private void verifyMocks() {
+        EasyMock.verify(contentStore);
     }
 
     @Test
@@ -106,7 +111,7 @@ public class AmazonFixityServiceTest {
 
         sleep(1000); // do some work
 
-        verifyStart();
+        verifyMocks();
     }
 
     private void sleep(long millis) {
@@ -118,11 +123,18 @@ public class AmazonFixityServiceTest {
     }
 
     private void setUpStart() throws Exception {
+        setStartMockExpectationsFor(contentStore);
+        EasyMock.replay(contentStore);
+
+        setUpService();
+    }
+
+    private void setUpService() throws IOException {
+        service.setServiceId("test-fixityservice");
         service.setWorkSpaceId("work-space-id");
         service.setOptimizeMode("standard");
         service.setOptimizeType("optimize_for_cost");
-
-        contentStore = createMockContentStore();
+        service.setMode("all-in-one-for-list");
         service.setContentStore(contentStore);
 
         String workDir = serviceWorkDir.getAbsolutePath();
@@ -137,10 +149,7 @@ public class AmazonFixityServiceTest {
         IOUtils.closeQuietly(hjar);
     }
 
-    private ContentStore createMockContentStore() throws ContentStoreException {
-        ContentStore contentStore = EasyMock.createMock("ContentStore",
-                                                        ContentStore.class);
-
+    private void setStartMockExpectationsFor(ContentStore contentStore) throws ContentStoreException {
         Map<String, String> taskReturnMap = new HashMap<String, String>();
         taskReturnMap.put(TASK_OUTPUTS.JOB_FLOW_ID.name(), "1");
         String taskReturn = SerializationUtil.serializeMap(taskReturnMap);
@@ -168,12 +177,66 @@ public class AmazonFixityServiceTest {
             .andReturn(null);
 
         EasyMock.makeThreadSafe(contentStore, true);
-        EasyMock.replay(contentStore);
-        return contentStore;
     }
 
-    private void verifyStart() {
-        EasyMock.verify(contentStore);
+    @Test
+    public void testShutdown() throws Exception {
+        setUpShutdown();
+
+        service.start();
+        ComputeService.ServiceStatus status = service.getServiceStatus();
+        Assert.assertNotNull(status);
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
+
+        sleep(500); // do some work
+
+        /*
+         This is effectively a manual test.
+         The test "passes" if the output contains log messages for each of the
+         wrapped JobWorker and PostJobWorkers:
+            Stopping test-fixityservice, org.duracloud.services.amazonfixity.AmazonFixityService
+            shutting down: org.duracloud.services.amazonfixity.AmazonFixityJobWorker
+            shutting down: org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker
+            shutting down: org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker
+            shutting down: org.duracloud.services.amazonfixity.postprocessing.WrapperPostJobWorker
+            shutting down: org.duracloud.services.amazonfixity.AmazonFixityMetadataJobWorker
+            shutting down: org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker
+            shutting down: org.duracloud.services.amazonfixity.postprocessing.VerifyHashesPostJobWorker
+            FixityService is Stopping
+            shutting down: org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker
+            shutting down: org.duracloud.services.amazonmapreduce.postprocessing.DeletePostJobWorker
+         */
+        service.stop();
+
+        verifyMocks();
+    }
+
+    private void setUpShutdown() throws Exception {
+        setStartMockExpectationsFor(contentStore);
+        setStopMockExpectationsfor(contentStore);
+
+        EasyMock.replay(contentStore);
+
+        setUpService();
+    }
+
+    private void setStopMockExpectationsfor(ContentStore contentStore)
+        throws ContentStoreException {
+        Map<String, String> taskReturnMap = new HashMap<String, String>();
+        taskReturnMap.put(TASK_OUTPUTS.JOB_FLOW_ID.name(), "1");
+        String taskReturn = SerializationUtil.serializeMap(taskReturnMap);
+
+        EasyMock.expect(contentStore.performTask(EasyMock.eq(
+            HadoopTypes.DESCRIBE_JOB_TASK_NAME), EasyMock.isA(String.class))).andReturn(
+            taskReturn).times(1);
+
+        EasyMock.expect(contentStore.performTask(EasyMock.eq(
+            HadoopTypes.DESCRIBE_JOB_TASK_NAME), EasyMock.<String>isNull())).andReturn(
+            taskReturn).times(1);
+
+        EasyMock.expect(contentStore.performTask(EasyMock.eq(
+            HadoopTypes.STOP_JOB_TASK_NAME), EasyMock.isA(String.class))).andReturn(
+            taskReturn).times(1);
     }
 
 }

@@ -8,7 +8,6 @@
 package org.duracloud.services.amazonmapreduce.postprocessing;
 
 import org.duracloud.client.ContentStore;
-import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.easymock.IAnswer;
@@ -21,6 +20,7 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,9 +54,6 @@ public class MimePostJobWorkerTest {
         contents.add(file2);
 
         predecessor = createMockJobWorker();
-        contentStore = createMockContentStore();
-
-        worker = new MimePostJobWorker(predecessor, contentStore, spaceId);
     }
 
     private AmazonMapReduceJobWorker createMockJobWorker() {
@@ -138,8 +135,72 @@ public class MimePostJobWorkerTest {
 
     @Test
     public void testRun() throws Exception {
+        contentStore = createMockContentStore();
+        worker = new MimePostJobWorker(predecessor, contentStore, spaceId);
+
         // The actual testing/verification happens in 'verifyMetadata()'
         worker.run();
     }
 
+    @Test
+    public void testShutdown() throws Exception {
+        contentStore = createMockContentStoreShutdown();
+        worker = new MimePostJobWorker(predecessor, contentStore, spaceId);
+
+        // call 'shutdown' in 200 millis
+        new Thread(new Stopper(worker, 200)).start();
+
+        // this call delays on content iteration for 500 millis
+        worker.run();
+    }
+
+    private ContentStore createMockContentStoreShutdown()
+        throws ContentStoreException {
+        ContentStore contentStore = EasyMock.createMock("ContentStore",
+                                                        ContentStore.class);
+
+        IAnswer<Iterator<String>> delayedAnswer = new DelayedAnswer();
+        EasyMock.expect(contentStore.getSpaceContents(spaceId)).andStubAnswer(
+            delayedAnswer);
+
+        EasyMock.replay(contentStore);
+        return contentStore;
+    }
+
+    private class DelayedAnswer implements IAnswer<Iterator<String>> {
+        @Override
+        public Iterator<String> answer() throws Throwable {
+            sleep(500);
+            return contents.iterator();
+        }
+    }
+
+    /**
+     * This inner class calls 'shutdown' on the provided worker after the
+     * provided millis.
+     */
+    private class Stopper implements Runnable {
+
+        private MimePostJobWorker worker;
+        private long millis;
+
+        public Stopper(MimePostJobWorker worker, int millis) {
+            this.worker = worker;
+            this.millis = millis;
+        }
+
+        @Override
+        public void run() {
+            sleep(millis);
+            worker.shutdown();
+        }
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
+    }
 }

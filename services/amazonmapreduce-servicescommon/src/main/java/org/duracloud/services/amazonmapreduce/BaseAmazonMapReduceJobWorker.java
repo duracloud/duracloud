@@ -22,6 +22,7 @@ import static org.duracloud.common.util.SerializationUtil.deserializeMap;
 import static org.duracloud.common.util.SerializationUtil.serializeMap;
 import static org.duracloud.storage.domain.HadoopTypes.DESCRIBE_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
+import static org.duracloud.storage.domain.HadoopTypes.STOP_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 
 /**
@@ -154,7 +155,33 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
 
     @Override
     public void shutdown() {
+        log.info("shutting down: {}", this.getClass().getName());
+        if (!isHadoopJobFinished() && jobId != null) {
+            String result = null;
+            try {
+                result = contentStore.performTask(STOP_JOB_TASK_NAME, jobId);
+
+            } catch (ContentStoreException e) {
+                log.warn("Error stopping task. JobId {}, class {}",
+                         jobId,
+                         this.getClass().getName());
+            }
+
+            log.info("Stop task, jobId: {}, result: {}, for {}",
+                     new Object[]{jobId, result, getClass().getName()});
+        }
         status = JobStatus.COMPLETE;
+    }
+
+    private boolean isHadoopJobFinished() {
+        Map<String, String> map = getJobDetailsMap();
+        for (String key : map.keySet()) {
+            if (key.equals("Job State")) {
+                String state = map.get(key);
+                return ("COMPLETED".equals(state) || "FAILED".equals(state));
+            }
+        }
+        return false;
     }
 
     @Override

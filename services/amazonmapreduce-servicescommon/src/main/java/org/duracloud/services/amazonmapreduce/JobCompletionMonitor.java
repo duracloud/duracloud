@@ -44,6 +44,8 @@ public class JobCompletionMonitor implements Runnable {
     public void run() {
         AmazonMapReduceJobWorker.JobStatus status;
         while (!(status = worker.getJobStatus()).isComplete()) {
+
+            // is hadoop job finished?
             Map<String, String> map = worker.getJobDetailsMap();
             for (String key : map.keySet()) {
                 if (key.equals("Job State")) {

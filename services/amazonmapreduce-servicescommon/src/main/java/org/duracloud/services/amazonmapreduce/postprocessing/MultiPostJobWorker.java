@@ -46,4 +46,12 @@ public class MultiPostJobWorker extends BaseAmazonMapReducePostJobWorker {
         }
     }
 
+    @Override
+    public void shutdown() {
+        super.shutdown();
+        for (AmazonMapReduceJobWorker worker : workers) {
+            worker.shutdown();
+        }
+    }
+
 }
