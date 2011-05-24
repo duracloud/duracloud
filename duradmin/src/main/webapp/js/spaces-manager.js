@@ -2262,9 +2262,6 @@ $(function(){
 					var spaceId = getCurrentSpaceId();
 					if(spaceId != undefined){
 						var contentId = $(currentItem.item).attr("id");
-						if(isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
-							return;
-						}
 						getContentItem(getCurrentProviderStoreId(),spaceId,contentId);
 
 					}else{
