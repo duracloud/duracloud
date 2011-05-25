@@ -40,6 +40,17 @@ public class StorageReportResource {
     }
 
     /**
+     * Initialization option for tests only.
+     */
+    protected void initialize(ContentStoreManager storeMgr,
+                              StorageReportHandler reportHander,
+                              StorageReportBuilder reportBuilder) {
+        this.storeMgr = storeMgr;
+        this.reportHandler = reportHander;
+        this.reportBuilder = reportBuilder;
+    }
+
+    /**
      * Provides the xml stream of the lastest storage report or null if no
      * report exists.
      */

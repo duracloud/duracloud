@@ -66,6 +66,7 @@ public class StorageReportBuilder implements Runnable {
     @Override
     public void run() {
         startTime = System.currentTimeMillis();
+        log.info("Storage Report starting at time: " + startTime);
         status = Status.RUNNING;
         try {
             collectStorageMetrics();
@@ -73,6 +74,7 @@ public class StorageReportBuilder implements Runnable {
             elapsedTime = stopTime - startTime;
             reportHandler.storeReport(durastoreMetrics, stopTime, elapsedTime);
             status = Status.COMPLETE;
+            log.info("Storage Report completed at time: " + stopTime);
         } catch(ReportBuilderException e) {
             error = e.getMessage();
             log.error("Unable to complete metrics collection due to: " +

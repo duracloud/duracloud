@@ -41,10 +41,11 @@ public class StorageReportHandler {
         LoggerFactory.getLogger(StorageReportHandler.class);
 
     private static final String FILE_NAME_PREFIX = "storage-report-";
+    private static final String FILE_NAME_SUFFIX = ".xml";
     public static final String COMPLETION_TIME_META = "completion-time";
     public static final String ELAPSED_TIME_META = "elapsed-time";
 
-    private static final String storageSpace = "x-duracloud-admin";
+    protected static final String storageSpace = "x-duracloud-admin";
     public static final int maxRetries = 8;
 
     private ContentStore primaryStore = null;
@@ -104,6 +105,15 @@ public class StorageReportHandler {
         }
     }
 
+    /**
+     * Stores a storage report in the primary storage provider,
+     * returns the content ID of the new item.
+     *
+     * @param metrics storage report
+     * @param completionTime time report completed (in millis)
+     * @param elapsedTime millis required to complete the report
+     * @return contentId of the newly stored report
+     */
     public String storeReport(DuraStoreMetrics metrics,
                               long completionTime,
                               long elapsedTime) {
@@ -116,6 +126,7 @@ public class StorageReportHandler {
         metadata.put(COMPLETION_TIME_META, String.valueOf(completionTime));
         metadata.put(ELAPSED_TIME_META, String.valueOf(elapsedTime));
 
+        log.info("Storing Storage Report with ID: " + contentId);
         for(int i=0; i<maxRetries; i++) {
             try {
                 primaryStore.addContent(storageSpace,
@@ -137,7 +148,7 @@ public class StorageReportHandler {
 
     private String buildContentId(long time) {
         String date = DateUtil.convertToString(time);
-        return FILE_NAME_PREFIX + date;
+        return FILE_NAME_PREFIX + date + FILE_NAME_SUFFIX;
     }
 
     private byte[] getXmlBytes(String xml) {
