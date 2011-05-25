@@ -10,6 +10,7 @@ package org.duracloud.common.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class DateUtil {
 
@@ -61,6 +62,7 @@ public class DateUtil {
 
     public static String convertToString(long millis, DateFormat format) {
         SimpleDateFormat dateFormat = format.format;
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT-4:00"));
         return dateFormat.format(millis);
     }
 
