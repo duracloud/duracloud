@@ -66,9 +66,8 @@ public class StorageReportBuilderTest {
         long elapsedTime = builder.getElapsedTime();
         assertTrue(stopTime > 0);
         assertTrue(startTime > 0);
-        assertTrue(elapsedTime > 0);
         assertTrue(elapsedTime < startTime);
-        assertTrue(startTime < stopTime);
+        assertTrue(startTime <= stopTime);
 
         DuraStoreMetrics metrics = metricsCapture.getValue();
         assertNotNull(metrics);

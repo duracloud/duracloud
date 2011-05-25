@@ -57,6 +57,29 @@ public class StorageReportRest extends BaseRest {
     }
 
     /**
+     * Retrieves the list of storage report IDs.
+     *
+     * @return 200 response with storage report list XML as body
+     */
+    @Path("/list")
+    @GET
+    @Produces(XML)
+    public Response getStorageReportList(){
+        log.debug("Getting storage report list");
+
+        try {
+            InputStream stream = resource.getStorageReportList();
+            if(null != stream) {
+                return responseOkXmlStream(stream);
+            } else {
+                return responseNotFound();
+            }
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
      * Retrieves information about storage reporting activities
      *
      * @return 200 response with storage report info XML as body

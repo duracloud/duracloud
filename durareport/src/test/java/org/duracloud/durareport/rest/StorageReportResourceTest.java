@@ -105,6 +105,25 @@ public class StorageReportResourceTest {
     }
 
     @Test
+    public void testGetStorageReportList() throws Exception {
+        setUpMocksGetStorageReportList();
+        StorageReportResource srResource = getResource();
+
+        InputStream stream = srResource.getStorageReportList();
+        assertNotNull(stream);
+    }
+
+    private void setUpMocksGetStorageReportList() throws Exception {
+        ByteArrayInputStream stream =
+            new ByteArrayInputStream("test".getBytes());
+        EasyMock.expect(mockReportHandler.getStorageReportList())
+            .andReturn(stream)
+            .times(1);
+
+        replayMocks();
+    }
+
+    @Test
     public void testGetStorageReportInfo() throws Exception {
         setUpMocksGetStorageReportInfo();
         StorageReportResource srResource = getResource();
@@ -147,6 +166,11 @@ public class StorageReportResourceTest {
             .andReturn(StorageReportBuilder.Status.COMPLETE)
             .times(1);
 
+        mockReportBuilder.run();
+        EasyMock.expectLastCall()
+            .times(1);
+
+        EasyMock.makeThreadSafe(mockReportBuilder, true);
         replayMocks();
     }
 

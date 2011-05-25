@@ -7,8 +7,10 @@
  */
 package org.duracloud.durareport.storage;
 
+import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.durareport.storage.metrics.DuraStoreMetrics;
 import org.easymock.Capture;
@@ -23,6 +25,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author: Bill Branan
@@ -141,6 +144,45 @@ public class StorageReportHandlerTest {
         EasyMock.expect(mockStore.getContent(EasyMock.eq(spaceId),
                                              EasyMock.eq(reportContentId)))
             .andReturn(content)
+            .times(1);
+
+        EasyMock.replay(mockStore);
+        return mockStore;
+    }
+
+    @Test
+    public void testGetStorageReportList() throws Exception {
+        ContentStore mockStore = createMockStore3();
+        ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
+
+        StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
+
+        InputStream stream = handler.getStorageReportList();
+        assertNotNull(stream);
+
+        String xml = IOUtils.toString(stream, "UTF-8");
+        List<String> reportList = SerializationUtil.deserializeList(xml);
+        assertNotNull(reportList);
+        assertEquals(3, reportList.size());
+        assertTrue(reportList.contains(reportContentId));
+
+        EasyMock.verify(mockStore, mockStoreMgr);
+    }
+
+    private ContentStore createMockStore3() throws Exception {
+        ContentStore mockStore = EasyMock.createMock(ContentStore.class);
+
+        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
+            .andReturn(null)
+            .times(1);
+
+        List<String> reports = new ArrayList<String>();
+        reports.add(reportContentId);
+        reports.add("storage-report-2011-05-01T16:01:58.xml");
+        reports.add("storage-report-2010-02-01T19:21:43.xml");
+        EasyMock.expect(mockStore.getSpaceContents(EasyMock.eq(spaceId),
+                                                   EasyMock.isA(String.class)))
+            .andReturn(reports.iterator())
             .times(1);
 
         EasyMock.replay(mockStore);

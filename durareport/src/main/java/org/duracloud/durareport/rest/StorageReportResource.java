@@ -52,7 +52,7 @@ public class StorageReportResource {
 
     /**
      * Provides the xml stream of the lastest storage report or null if no
-     * report exists.
+     * reports exist.
      */
     public InputStream getStorageReport() throws ContentStoreException {
         checkInitialized();
@@ -62,6 +62,15 @@ public class StorageReportResource {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Provides the xml stream of the list of storage reports, the list may
+     * be empty
+     */
+    public InputStream getStorageReportList() throws ContentStoreException {
+        checkInitialized();
+        return reportHandler.getStorageReportList();
     }
 
     /**

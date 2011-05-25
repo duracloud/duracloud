@@ -12,6 +12,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.durareport.error.ReportBuilderException;
 import org.duracloud.durareport.storage.metrics.DuraStoreMetrics;
@@ -22,11 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,18 +72,8 @@ public class StorageReportHandler {
      * Returns the latest storage report or null if no reports exist
      */
     public StorageReport getLatestStorageReport() throws ContentStoreException {
-        Iterator<String> reports =
-            primaryStore.getSpaceContents(storageSpace, FILE_NAME_PREFIX);
-
-        // Read the list of storage reports into a list, note that there is
-        // the assumption here that there will not be a very large number of
-        // these files.
-        LinkedList<String> reportList = new LinkedList<String>();
-        while(reports.hasNext() && reportList.size() < 5000) {
-            reportList.add(reports.next());
-        }
+        LinkedList<String> reportList = getSortedReportList();
         if(reportList.size() > 0) {
-            Collections.sort(reportList);
             String latestContentId = reportList.getLast();
             Content latestContent =
                 primaryStore.getContent(storageSpace, latestContentId);
@@ -103,6 +96,31 @@ public class StorageReportHandler {
         } else {
             return null;
         }
+    }
+
+
+    private LinkedList<String> getSortedReportList()
+        throws ContentStoreException {
+        Iterator<String> reports =
+            primaryStore.getSpaceContents(storageSpace, FILE_NAME_PREFIX);
+
+        // Read the list of storage reports into a list, note that there is
+        // the assumption here that there will not be a very large number of
+        // these files.
+        LinkedList<String> reportList = new LinkedList<String>();
+        while(reports.hasNext() && reportList.size() < 5000) {
+            reportList.add(reports.next());
+        }
+        if(reportList.size() > 0) {
+            Collections.sort(reportList);
+        }
+        return reportList;
+    }
+
+    public InputStream getStorageReportList() throws ContentStoreException {
+        List<String> reportList = getSortedReportList();
+        String xml = SerializationUtil.serializeList(reportList);
+        return new ByteArrayInputStream(getXmlBytes(xml));
     }
 
     /**
