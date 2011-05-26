@@ -183,7 +183,7 @@ public class StorageReportHandlerTest {
         EasyMock.expect(mockStore.getSpaceContents(EasyMock.eq(spaceId),
                                                    EasyMock.isA(String.class)))
             .andReturn(reports.iterator())
-            .times(1);
+            .anyTimes();
 
         EasyMock.replay(mockStore);
         return mockStore;

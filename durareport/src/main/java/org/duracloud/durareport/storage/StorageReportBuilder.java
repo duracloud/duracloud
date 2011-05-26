@@ -134,8 +134,9 @@ public class StorageReportBuilder implements Runnable {
             try {
                 return contentStore.getSpaces();
             } catch (ContentStoreException e) {
-                log.warn("Exception attempting to retrieve spaces list: " +
-                         e.getMessage());
+                String store = getStoreInfo(contentStore);
+                log.warn("Exception attempting to retrieve spaces list for " +
+                         "store: " + store + " due to: " + e.getMessage());
             }
         }
         throw new ReportBuilderException("Exceeded retries attempting to " +
@@ -148,8 +149,10 @@ public class StorageReportBuilder implements Runnable {
             try {
                 return contentStore.getSpaceContents(spaceId);
             } catch (ContentStoreException e) {
+                String store = getStoreInfo(contentStore);
                 log.warn("Exception attempting to retrieve space contents " +
-                         "list (for " + spaceId + "): " + e.getMessage());
+                         "list (for " + spaceId + " in store " + store +
+                         "): " + e.getMessage());
             }
         }
         throw new ReportBuilderException("Exceeded retries attempting to " +
@@ -164,13 +167,20 @@ public class StorageReportBuilder implements Runnable {
             try {
                 return contentStore.getContentMetadata(spaceId, contentId);
             } catch (ContentStoreException e) {
+                String store = getStoreInfo(contentStore);
                 log.warn("Exception attempting to retrieve content metadata " +
-                         "(for "+spaceId+":"+contentId+"): " + e.getMessage());
+                         "(for " + spaceId + ":" + contentId + " in store " +
+                         store + "): " + e.getMessage());
             }
         }
         log.error("Exceeded retries attempting to retrieve content metadata " +
                   "(for " + spaceId + ":" + contentId + "). Skipping item.");
         return null;
+    }
+
+    private String getStoreInfo(ContentStore contentStore) {
+        return contentStore.getStoreId() + "(" +
+               contentStore.getStorageProviderType() + ")";
     }
 
     private long convert(String sizeStr) {
