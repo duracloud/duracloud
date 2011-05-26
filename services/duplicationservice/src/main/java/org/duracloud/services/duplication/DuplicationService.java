@@ -132,7 +132,7 @@ public class DuplicationService extends BaseService
         log.info("jmsContainer.isRunning()");
         log.info("**********");
         log.info("Duplication Service Listener Started");
-        setServiceStatus(ServiceStatus.STARTED);
+        super.start();
     }
 
     @Override

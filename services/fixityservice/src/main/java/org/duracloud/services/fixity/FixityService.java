@@ -96,6 +96,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
         setUp();
         new Thread(new FixityServiceThread()).start();
         new Thread(new ProcessingStatusMonitorThread()).start();
+
+        super.start();
     }
 
     private void setUp() {

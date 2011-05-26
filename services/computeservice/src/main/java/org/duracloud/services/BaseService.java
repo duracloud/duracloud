@@ -7,6 +7,8 @@
  */
 package org.duracloud.services;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,11 +20,15 @@ public abstract class BaseService implements ComputeService {
 
     private String serviceId;
     private String serviceWorkDir;
+    private String startTime;
     private String error;
 
     private ServiceStatus serviceStatus = ServiceStatus.INSTALLED;
 
     public void start() throws Exception {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        this.startTime = format.format(System.currentTimeMillis());
+
         setServiceStatus(ServiceStatus.STARTED);
     }
 
@@ -32,8 +38,12 @@ public abstract class BaseService implements ComputeService {
 
     public Map<String, String> getServiceProps() {
         Map<String, String> props = new HashMap<String, String>();
-        props.put("serviceId", getServiceId());
-        props.put("serviceStatus", getServiceStatus().name());
+        props.put(SYSTEM_PREFIX + "serviceId", getServiceId());
+        props.put(ComputeService.STATUS_KEY, getServiceStatus().name());
+
+        if (startTime != null) {
+            props.put(ComputeService.STARTTIME_KEY, startTime);
+        }
 
         if (error != null) {
             props.put(ComputeService.ERROR_KEY, error);

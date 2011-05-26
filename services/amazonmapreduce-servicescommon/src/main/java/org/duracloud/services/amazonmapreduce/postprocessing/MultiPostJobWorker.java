@@ -11,6 +11,7 @@ import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +53,42 @@ public class MultiPostJobWorker extends BaseAmazonMapReducePostJobWorker {
         for (AmazonMapReduceJobWorker worker : workers) {
             worker.shutdown();
         }
+    }
+    
+    @Override
+    public JobStatus getJobStatus() {
+        AmazonMapReduceJobWorker worker = getActiveWorker();
+        if (null != worker) {
+            return worker.getJobStatus();
+        }
+        return super.getJobStatus();
+    }
+
+    @Override
+    public Map<String, String> getJobDetailsMap() {
+        AmazonMapReduceJobWorker worker = getActiveWorker();
+        if (null != worker) {
+            return worker.getJobDetailsMap();
+        }
+        return super.getJobDetailsMap();
+    }
+
+    @Override
+    public String getJobId() {
+        AmazonMapReduceJobWorker worker = getActiveWorker();
+        if (null != worker) {
+            return worker.getJobId();
+        }
+        return super.getJobId();
+    }
+
+    private AmazonMapReduceJobWorker getActiveWorker() {
+        for (AmazonMapReduceJobWorker worker : workers) {
+            if (worker.getJobStatus() == JobStatus.POST_PROCESSING) {
+                return worker;
+            }
+        }
+        return null;
     }
 
 }

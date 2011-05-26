@@ -83,7 +83,7 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
                                              getFilters());
 
         waitForStartup(url.toString());
-        this.setServiceStatus(ServiceStatus.STARTED);
+        super.start();
     }
 
     private NamedFilterList getFilters() {

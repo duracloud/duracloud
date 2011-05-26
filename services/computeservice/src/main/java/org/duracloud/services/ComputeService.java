@@ -11,8 +11,24 @@ import java.util.Map;
 
 public interface ComputeService {
 
-    public enum ServiceStatus {INSTALLED, STARTING, STARTED, STOPPING, STOPPED};
-    public static final String ERROR_KEY = "error-prop";
+    public enum ServiceStatus {
+        INSTALLED,
+        STARTING,
+        STARTED,
+        WAITING,
+        PROCESSING,
+        POSTPROCESSING,
+        STOPPING,
+        STOPPED,
+        SUCCESS,
+        FAILED;
+    }
+
+    public static final String SYSTEM_PREFIX = "System ";
+
+    public static final String STATUS_KEY = "Service Status";
+    public static final String ERROR_KEY = "Error Message";
+    public static final String STARTTIME_KEY = "Start Time";
 
     public void start() throws Exception;
 

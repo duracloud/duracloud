@@ -55,7 +55,7 @@ public class ScriptService extends BaseService implements ComputeService, Manage
         pb.directory(workDir);
         Process p = pb.start();
 
-        this.setServiceStatus(ServiceStatus.STARTED);
+        super.start();
     }
 
     @Override

@@ -101,7 +101,7 @@ public class ReplicationService extends BaseService
         log.info("jmsContainer.isRunning()");
         log.info("**********");
         log.info("Replication Service Listener Started");
-        setServiceStatus(ServiceStatus.STARTED);
+        super.start();
     }
 
     @Override

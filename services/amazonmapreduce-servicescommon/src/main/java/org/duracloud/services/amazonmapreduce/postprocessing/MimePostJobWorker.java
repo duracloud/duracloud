@@ -68,7 +68,7 @@ public class MimePostJobWorker extends BaseAmazonMapReducePostJobWorker {
         log.debug("setting content mime types.");
 
         Iterator<String> destContents = getSpaceContents();
-        while (destContents.hasNext() && !this.status.isComplete()) {
+        while (destContents.hasNext() && !getJobStatus().isComplete()) {
             String contentId = destContents.next();
             if (contentId != null) {
                 String mimetype = guessMimeType(contentId);

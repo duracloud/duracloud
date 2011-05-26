@@ -92,7 +92,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         startWorker(getJobWorker());
         startWorker(getPostJobWorker());
 
-        this.setServiceStatus(ServiceStatus.STARTED);
+        super.start();
     }
 
     private void startWorker(Runnable worker) {
@@ -174,38 +174,64 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
 
     @Override
     public Map<String, String> getServiceProps() {
-        Map<String, String> props = super.getServiceProps();
+        Map<String, String> props = new HashMap<String,String>();
 
         AmazonMapReduceJobWorker.JobStatus jobStatus = JobStatus.UNKNOWN;
         AmazonMapReduceJobWorker worker = getJobWorker();
         if (worker != null) {
             jobStatus = worker.getJobStatus();
+            
+            props = collectWorkerProps(worker);
+        }
 
-            String error = worker.getError();
-            if (error != null) {
-                props.put("Errors Encountered", error);
-            }
+        AmazonMapReduceJobWorker postWorker = getPostJobWorker();
+        if (jobStatus.isComplete() && null != postWorker) {
+            jobStatus = postWorker.getJobStatus();
 
-            String jobId = worker.getJobId();
-            if (jobId != null) {
-                props.put("Job ID", jobId);
+            // overwrite jobWorker props as necessary.
+            props.putAll(collectWorkerProps(postWorker));
+        }
+
+        if (jobStatus != JobStatus.UNKNOWN) {
+            ServiceStatus serviceStatus;
+            if (null != super.getError()) {
+                serviceStatus = ServiceStatus.FAILED;
+            } else {
+                serviceStatus = jobStatus.toServiceStatus();
             }
+            super.setServiceStatus(serviceStatus);
+        }
+
+        log.info("Job Status, {}: {}",
+                 getClass().getName(),
+                 jobStatus.getDescription());
+
+        Map<String,String> serviceProps = super.getServiceProps();
+        serviceProps.putAll(props);
+        return serviceProps;
+    }
+
+    private Map<String, String> collectWorkerProps(AmazonMapReduceJobWorker worker) {
+        Map<String, String> props = new HashMap<String, String>();
+
+        // This overwrites existing value, but that should be fine.
+        String error = worker.getError();
+        if (error != null) {
+            super.setError(error);
+        }
+
+        props.put(SYSTEM_PREFIX + "Worker Status",
+                  worker.getJobStatus().name());
+
+        String jobId = worker.getJobId();
+        if (jobId != null) {
+            props.put(SYSTEM_PREFIX + "Job ID", jobId);
 
             Map<String, String> jobDetailsMap = worker.getJobDetailsMap();
             for (String key : jobDetailsMap.keySet()) {
-                props.put(key, jobDetailsMap.get(key));
+                props.put(SYSTEM_PREFIX + key, jobDetailsMap.get(key));
             }
         }
-
-        if (jobStatus.isComplete()) {
-            AmazonMapReduceJobWorker postWorker = getPostJobWorker();
-            if (postWorker != null) {
-                jobStatus = postWorker.getJobStatus();
-            }
-        }
-
-        props.put("Service Status", jobStatus.getDescription());
-        log.info("Service Status: " + jobStatus.getDescription());
 
         return props;
     }

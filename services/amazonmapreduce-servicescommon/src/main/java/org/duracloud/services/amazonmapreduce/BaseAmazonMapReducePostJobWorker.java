@@ -30,8 +30,8 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
     private AmazonMapReduceJobWorker predecessor;
     protected long sleepMillis;
 
-    protected JobStatus status = JobStatus.WAITING;
-    protected String error;
+    private JobStatus status = JobStatus.WAITING;
+    private String error;
 
     public BaseAmazonMapReducePostJobWorker(AmazonMapReduceJobWorker predecessor) {
         this(predecessor, 120000);
@@ -73,6 +73,7 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
         try {
             doWork();
         } catch (Exception e) {
+            error = e.getMessage();
             log.error(e.getMessage());
         }
     }
@@ -89,7 +90,7 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
 
     @Override
     public String getJobId() {
-        throw new UnsupportedOperationException("getJobId() not supported");
+        return null;
     }
 
     @Override

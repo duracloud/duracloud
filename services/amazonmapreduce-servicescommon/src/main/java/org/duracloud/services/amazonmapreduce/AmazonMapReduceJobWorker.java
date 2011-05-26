@@ -7,7 +7,11 @@
  */
 package org.duracloud.services.amazonmapreduce;
 
+import org.duracloud.services.ComputeService;
+
 import java.util.Map;
+
+import static org.duracloud.services.ComputeService.ServiceStatus;
 
 /**
  * This interface defines the contract for workers that manage jobs in the
@@ -22,15 +26,19 @@ public interface AmazonMapReduceJobWorker extends Runnable {
      * This enum holds the states of a hadoop job.
      */
     public enum JobStatus {
-        STARTING("Starting Job..."), RUNNING("Running Job..."), COMPLETE(
-            "Job Complete"), WAITING("Waiting to post process..."),
-        POST_PROCESSING("Post Job Processing..."),
-        UNKNOWN("Job status unknown");
+        STARTING("Starting Job...", ServiceStatus.PROCESSING),
+        RUNNING("Running Job...", ServiceStatus.PROCESSING),
+        COMPLETE("Job Complete", ServiceStatus.SUCCESS),
+        WAITING("Waiting to post process...", ServiceStatus.WAITING),
+        POST_PROCESSING("Post Job Processing...", ServiceStatus.POSTPROCESSING),
+        UNKNOWN("Job status unknown", null);
 
         private String description;
+        private ComputeService.ServiceStatus serviceStatus;
 
-        JobStatus(String description) {
+        JobStatus(String description, ComputeService.ServiceStatus serviceStatus) {
             this.description = description;
+            this.serviceStatus =serviceStatus;
         }
 
         public String getDescription() {
@@ -39,6 +47,10 @@ public interface AmazonMapReduceJobWorker extends Runnable {
 
         public boolean isComplete() {
             return this.equals(COMPLETE);
+        }
+
+        public ComputeService.ServiceStatus toServiceStatus() {
+            return this.serviceStatus;
         }
     }
 

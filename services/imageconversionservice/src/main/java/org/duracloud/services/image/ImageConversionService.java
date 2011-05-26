@@ -84,7 +84,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
                                                 threads);
         conversionThread.start();
 
-        this.setServiceStatus(ServiceStatus.STARTED);        
+        super.start();
     }
 
     @Override

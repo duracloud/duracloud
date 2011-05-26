@@ -8,6 +8,9 @@ import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Andrew Woods
  *         Date: 2/9/11
@@ -42,6 +45,16 @@ public class WrapperPostJobWorker extends BaseAmazonMapReducePostJobWorker {
         while (!JobStatus.COMPLETE.equals(targetWorker.getJobStatus())) {
             sleep(sleepMillis);
         }
+    }
+
+    @Override
+    public Map<String, String> getJobDetailsMap() {
+        return targetWorker.getJobDetailsMap();
+    }
+
+    @Override
+    public String getJobId() {
+        return targetWorker.getJobId();
     }
 
     @Override
