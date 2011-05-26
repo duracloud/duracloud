@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,36 +68,58 @@ public class StorageReportHandler {
     }
 
     /**
+     * Returns a specific storage report or null if the report does not exist.
+     *
+     * @param reportId content ID of the report to retrieve
+     * @return StorageReport containing report stream
+     */
+    public StorageReport getStorageReport(String reportId)
+        throws ContentStoreException {
+        try {
+            Content content = primaryStore.getContent(storageSpace, reportId);
+            return createStorageReport(content);
+        } catch(NotFoundException e) {
+            return null;
+        }
+    }
+
+    private StorageReport createStorageReport(Content content) {
+        Map<String, String> metadata = content.getMetadata();
+        long compTime;
+        long elapTime;
+        try {
+            compTime = Long.valueOf(metadata.get(COMPLETION_TIME_META));
+            elapTime = Long.valueOf(metadata.get(ELAPSED_TIME_META));
+        } catch(Exception e) {
+            compTime = 0;
+            elapTime = 0;
+        }
+
+        return new StorageReport(content.getId(),
+                                 content.getStream(),
+                                 compTime,
+                                 elapTime);
+    }
+
+    /**
      * Returns the latest storage report or null if no reports exist
      */
     public StorageReport getLatestStorageReport() throws ContentStoreException {
         LinkedList<String> reportList = getSortedReportList();
         if(reportList.size() > 0) {
-            String latestContentId = reportList.getLast();
+            String latestContentId = reportList.getFirst();
             Content latestContent =
                 primaryStore.getContent(storageSpace, latestContentId);
-
-            Map<String, String> latestMetadata = latestContent.getMetadata();
-            long compTime;
-            long elapTime;
-            try {
-                compTime = Long.valueOf(latestMetadata.get(COMPLETION_TIME_META));
-                elapTime = Long.valueOf(latestMetadata.get(ELAPSED_TIME_META));
-            } catch(Exception e) {
-                compTime = 0;
-                elapTime = 0;
-            }
-
-            return new StorageReport(latestContent.getId(),
-                                     latestContent.getStream(),
-                                     compTime,
-                                     elapTime);            
+            return createStorageReport(latestContent);
         } else {
             return null;
         }
     }
 
-
+    /*
+     * Retrieves a list of all report lists (limited to a maximum of 5000),
+     * sorted by name in descending order (i.e. the latest report will be first)
+     */
     private LinkedList<String> getSortedReportList()
         throws ContentStoreException {
         Iterator<String> reports =
@@ -113,12 +134,20 @@ public class StorageReportHandler {
         }
         if(reportList.size() > 0) {
             Collections.sort(reportList);
+            Collections.reverse(reportList);
         }
         return reportList;
     }
 
+    /**
+     * Retrieve a sorted list of all storage reports in XML format. Sorting
+     * is by name in descending order (i.e. the latest report will be first).
+     *
+     * @return list of storage reports in xml format
+     * @throws ContentStoreException
+     */
     public InputStream getStorageReportList() throws ContentStoreException {
-        List<String> reportList = getSortedReportList();
+        LinkedList<String> reportList = getSortedReportList();
         String xml = SerializationUtil.serializeList(reportList);
         return new ByteArrayInputStream(getXmlBytes(xml));
     }

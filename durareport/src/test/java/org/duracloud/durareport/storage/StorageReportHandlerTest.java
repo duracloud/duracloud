@@ -48,7 +48,7 @@ public class StorageReportHandlerTest {
         Capture<Map<String, String>> metadataCapture =
             new Capture<Map<String, String>>();
 
-        ContentStore mockStore = createMockStore1(metadataCapture);
+        ContentStore mockStore = createMockStoreStoreReport(metadataCapture);
         ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
 
         StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
@@ -69,7 +69,7 @@ public class StorageReportHandlerTest {
         EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStore1(
+    private ContentStore createMockStoreStoreReport(
         Capture<Map<String, String>> metadataCapture) throws Exception {
         ContentStore mockStore = EasyMock.createMock(ContentStore.class);
 
@@ -106,8 +106,51 @@ public class StorageReportHandlerTest {
     }
 
     @Test
+    public void testGetStorageReport() throws Exception {
+        String reportId = "reportId";
+
+        ContentStore mockStore = createMockStoreGetStorageReport(reportId);
+        ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
+
+        StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
+
+
+        StorageReport report = handler.getStorageReport(reportId);
+        assertNotNull(report);
+        assertEquals(reportId,
+                     report.getContentId());
+        assertEquals(completionTime, report.getCompletionTime());
+        assertEquals(elapsedTime, report.getElapsedTime());
+
+        EasyMock.verify(mockStore, mockStoreMgr);
+    }
+
+    private ContentStore createMockStoreGetStorageReport(String reportId)
+        throws Exception {
+        ContentStore mockStore = EasyMock.createMock(ContentStore.class);
+
+        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
+            .andReturn(null)
+            .times(1);
+
+        Content content = new Content();
+        content.setId(reportId);
+        Map<String, String> contentMeta = new HashMap<String, String>();
+        contentMeta.put(compMeta, String.valueOf(completionTime));
+        contentMeta.put(elapMeta, String.valueOf(elapsedTime));
+        content.setMetadata(contentMeta);
+        EasyMock.expect(mockStore.getContent(EasyMock.eq(spaceId),
+                                             EasyMock.eq(reportId)))
+            .andReturn(content)
+            .times(1);
+
+        EasyMock.replay(mockStore);
+        return mockStore;
+    }
+
+    @Test
     public void testGetLatestStorageReport() throws Exception {
-        ContentStore mockStore = createMockStore2();
+        ContentStore mockStore = createMockStoreGetLatestStorageReport();
         ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
 
         StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
@@ -122,7 +165,8 @@ public class StorageReportHandlerTest {
         EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStore2() throws Exception {
+    private ContentStore createMockStoreGetLatestStorageReport()
+        throws Exception {
         ContentStore mockStore = EasyMock.createMock(ContentStore.class);
 
         EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
@@ -154,7 +198,7 @@ public class StorageReportHandlerTest {
 
     @Test
     public void testGetStorageReportList() throws Exception {
-        ContentStore mockStore = createMockStore3();
+        ContentStore mockStore = createMockStoreGetStorageReportList();
         ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
 
         StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
@@ -171,7 +215,8 @@ public class StorageReportHandlerTest {
         EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStore3() throws Exception {
+    private ContentStore createMockStoreGetStorageReportList()
+        throws Exception {
         ContentStore mockStore = EasyMock.createMock(ContentStore.class);
 
         EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))

@@ -61,7 +61,7 @@ public class StorageReportResourceTest {
         StorageReportResource srResource = new StorageReportResource();
 
         try {
-            srResource.getStorageReport();
+            srResource.getLatestStorageReport();
             fail("Exception expected");
         } catch(RuntimeException expected) {
             assertNotNull(expected);
@@ -86,14 +86,35 @@ public class StorageReportResourceTest {
 
     @Test
     public void testGetStorageReport() throws Exception {
-        setUpMocksGetStorageReport();
+        String reportId = "reportId";
+        setUpMocksGetStorageReport(reportId);
         StorageReportResource srResource = getResource();
 
-        InputStream stream = srResource.getStorageReport();
+        InputStream stream = srResource.getStorageReport(reportId);
         assertNotNull(stream);
     }
 
-    private void setUpMocksGetStorageReport() throws Exception {
+    private void setUpMocksGetStorageReport(String reportId) throws Exception {
+        ByteArrayInputStream stream =
+            new ByteArrayInputStream("test".getBytes());
+        StorageReport report = new StorageReport(reportId, stream, 0, 0);
+        EasyMock.expect(mockReportHandler.getStorageReport(reportId))
+            .andReturn(report)
+            .times(1);
+
+        replayMocks();
+    }
+
+    @Test
+    public void testGetLatestStorageReport() throws Exception {
+        setUpMocksGetLatestStorageReport();
+        StorageReportResource srResource = getResource();
+
+        InputStream stream = srResource.getLatestStorageReport();
+        assertNotNull(stream);
+    }
+
+    private void setUpMocksGetLatestStorageReport() throws Exception {
         ByteArrayInputStream stream =
             new ByteArrayInputStream("test".getBytes());
         StorageReport report = new StorageReport("contentId", stream, 0, 0);

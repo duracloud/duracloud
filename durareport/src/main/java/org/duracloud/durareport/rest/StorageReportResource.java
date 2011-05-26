@@ -54,11 +54,26 @@ public class StorageReportResource {
      * Provides the xml stream of the lastest storage report or null if no
      * reports exist.
      */
-    public InputStream getStorageReport() throws ContentStoreException {
+    public InputStream getLatestStorageReport() throws ContentStoreException {
         checkInitialized();
         StorageReport latestReport = reportHandler.getLatestStorageReport();
         if(null != latestReport) {
             return latestReport.getReportStream();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Provides the xml stream of the specified storage report or null if the
+     * report does not exist.
+     */
+    public InputStream getStorageReport(String reportId)
+        throws ContentStoreException {
+        checkInitialized();
+        StorageReport report = reportHandler.getStorageReport(reportId);
+        if(null != report) {
+            return report.getReportStream();
         } else {
             return null;
         }

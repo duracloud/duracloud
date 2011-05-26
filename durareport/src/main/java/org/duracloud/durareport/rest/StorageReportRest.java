@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -41,11 +42,11 @@ public class StorageReportRest extends BaseRest {
      */
     @GET
     @Produces(XML)
-    public Response getStorageReport(){
-        log.debug("Getting storage report");
+    public Response getLatestStorageReport(){
+        log.debug("Getting the latest storage report");
 
         try {
-            InputStream stream = resource.getStorageReport();
+            InputStream stream = resource.getLatestStorageReport();
             if(null != stream) {
                 return responseOkXmlStream(stream);
             } else {
@@ -69,6 +70,30 @@ public class StorageReportRest extends BaseRest {
 
         try {
             InputStream stream = resource.getStorageReportList();
+            if(null != stream) {
+                return responseOkXmlStream(stream);
+            } else {
+                return responseNotFound();
+            }
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
+     * Retrieves a storage report.
+     *
+     * @return 200 response with storage report XML as body
+     */
+    @Path("/{reportID}")
+    @GET
+    @Produces(XML)
+    public Response getStorageReport(@PathParam("reportID")
+                                     String reportId){
+        log.debug("Getting storage report with ID: " + reportId);
+
+        try {
+            InputStream stream = resource.getStorageReport(reportId);
             if(null != stream) {
                 return responseOkXmlStream(stream);
             } else {
