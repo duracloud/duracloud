@@ -8,7 +8,7 @@
 package org.duracloud.services.replication.osgi;
 
 import junit.framework.Assert;
-import org.duracloud.services.replication.ReplicationService;
+import org.duracloud.services.duplication.DuplicationService;
 import org.duracloud.servicesutil.util.DuraConfigAdmin;
 
 import java.util.HashMap;
@@ -30,19 +30,17 @@ public class DynamicConfigTester {
 
     private static final String TO_STORE_ID = "toStoreId";
 
-    private static final String REPLICATION_TYPE = "replicationType";
-
     private final DuraConfigAdmin configAdmin;
 
-    private final ReplicationService replicationService;
+    private final DuplicationService duplicationService;
 
     public DynamicConfigTester(DuraConfigAdmin configAdmin,
-                               ReplicationService replicationService) {
+                               DuplicationService duplicationService) {
         Assert.assertNotNull(configAdmin);
-        Assert.assertNotNull(replicationService);
+        Assert.assertNotNull(duplicationService);
 
         this.configAdmin = configAdmin;
-        this.replicationService = replicationService;
+        this.duplicationService = duplicationService;
     }
 
     public void testDynamicConfig() throws Exception {
@@ -53,7 +51,6 @@ public class DynamicConfigTester {
         defaultConfig.put(BROKER_URL, "tcp://localhost:61617");
         defaultConfig.put(FROM_STORE_ID, "1");
         defaultConfig.put(TO_STORE_ID, "5");
-        defaultConfig.put(REPLICATION_TYPE, "2");
 
         verifyConfig(defaultConfig);
 
@@ -64,10 +61,9 @@ public class DynamicConfigTester {
         newConfig.put(BROKER_URL, "tcp://localhost:99999");
         newConfig.put(FROM_STORE_ID, "2");
         newConfig.put(TO_STORE_ID, "6");
-        newConfig.put(REPLICATION_TYPE, "1");
 
         configAdmin.updateConfiguration(
-            "replicationservice-" + getVersion() + ".zip", newConfig);
+            "duplicationservice-" + getVersion() + ".zip", newConfig);
 
         // Give time for config to propagate
         Thread.sleep(100);
@@ -76,13 +72,12 @@ public class DynamicConfigTester {
     }
 
     private void verifyConfig(Map<String, String> config) {
-        String host = replicationService.getHost();
-        String port = replicationService.getPort();
-        String context = replicationService.getContext();
-        String url = replicationService.getBrokerURL();
-        String fromId = replicationService.getFromStoreId();
-        String toId = replicationService.getToStoreId();
-        String type = replicationService.getReplicationType();
+        String host = duplicationService.getHost();
+        String port = duplicationService.getPort();
+        String context = duplicationService.getContext();
+        String url = duplicationService.getBrokerURL();
+        String fromId = duplicationService.getFromStoreId();
+        String toId = duplicationService.getToStoreId();
 
         Assert.assertNotNull(host);
         Assert.assertNotNull(port);
@@ -90,7 +85,6 @@ public class DynamicConfigTester {
         Assert.assertNotNull(url);
         Assert.assertNotNull(fromId);
         Assert.assertNotNull(toId);
-        Assert.assertNotNull(type);
 
         Assert.assertEquals(config.get(HOST), host);
         Assert.assertEquals(config.get(PORT), port);
@@ -98,7 +92,6 @@ public class DynamicConfigTester {
         Assert.assertEquals(config.get(BROKER_URL), url);
         Assert.assertEquals(config.get(FROM_STORE_ID), fromId);
         Assert.assertEquals(config.get(TO_STORE_ID), toId);
-        Assert.assertEquals(config.get(REPLICATION_TYPE), type);
     }
 
     private static String getVersion() {

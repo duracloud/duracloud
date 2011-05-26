@@ -44,7 +44,6 @@ public class ServiceXmlGeneratorTest {
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
-        boolean foundReplication = false;
         boolean foundDuplication = false;
         boolean foundImagemagick = false;
         boolean foundWebapputil = false;
@@ -64,10 +63,6 @@ public class ServiceXmlGeneratorTest {
             if (contentId.equals("helloservice-" + ver + ".jar")) {
                 foundHello = true;
                 verifyHello();
-
-            } else if (contentId.equals("replicationservice-" + ver + ".zip")) {
-                foundReplication = true;
-                verifyReplication(serviceInfo);
 
             } else if (contentId.equals("duplicationservice-" + ver + ".zip")) {
                 foundDuplication = true;
@@ -147,14 +142,6 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyHello() {
         Assert.assertTrue("I need an implementation", true);
-    }
-
-    private void verifyReplication(ServiceInfo serviceInfo) {
-        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
-        Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(6, systemConfigs.size());
-
-        verifyDurastoreCredential(systemConfigs);
     }
 
     private void verifyDuplication(ServiceInfo serviceInfo) {

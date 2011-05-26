@@ -42,7 +42,7 @@ public class AbstractDuracloudOSGiTestBasePax {
     public static Option[] configuration() {
 
         Option bundles =
-                provision(bundle("file:src/test/resources/replicationservice-"+getVersion()+".jar"));
+                provision(bundle("file:src/test/resources/duplicationservice-"+getVersion()+".jar"));
 
         Option frameworks = CoreOptions.frameworks(CoreOptions.equinox());
         // Knopflerfish does not like the felix.configadmin bundle

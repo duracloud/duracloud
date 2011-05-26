@@ -34,7 +34,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>org.duracloud.services</groupId>
-                  <artifactId>replicationservice</artifactId>
+                  <artifactId>duplicationservice</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
                 </artifactItem>
@@ -76,7 +76,7 @@
 
     <dependency>
       <groupId>org.duracloud.services</groupId>
-      <artifactId>replicationservice</artifactId>
+      <artifactId>duplicationservice</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

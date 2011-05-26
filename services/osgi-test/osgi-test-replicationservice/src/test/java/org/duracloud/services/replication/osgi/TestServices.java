@@ -9,7 +9,7 @@ package org.duracloud.services.replication.osgi;
 
 import junit.framework.Assert;
 import org.duracloud.services.ComputeService;
-import org.duracloud.services.replication.ReplicationService;
+import org.duracloud.services.duplication.DuplicationService;
 import org.duracloud.servicesutil.util.DuraConfigAdmin;
 import org.junit.After;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class TestServices
 
     @Test
     public void testDynamicConfig() throws Exception {
-        log.debug("testing Dynamic Configuration of Replication Service");
+        log.debug("testing Dynamic Configuration of Duplication Service");
 
         DynamicConfigTester tester =
                 new DynamicConfigTester(getConfigAdmin(),
@@ -56,7 +56,7 @@ public class TestServices
 
     @Test
     public void testReplication() throws Exception {
-        log.debug("testing Content Replication of Replication Service");
+        log.debug("testing Content Replication of Duplication Service");
 
         ReplicationTester tester = new ReplicationTester(getReplicationService());
         tester.testReplication();
@@ -99,10 +99,10 @@ public class TestServices
         return configAdmin;
     }
 
-    public ReplicationService getReplicationService() throws Exception {
-        ReplicationService replicationService =
-                (ReplicationService) getService(ComputeService.class.getName(),
-                                                "(duraService=replication)");
+    public DuplicationService getReplicationService() throws Exception {
+        DuplicationService replicationService =
+                (DuplicationService) getService(ComputeService.class.getName(),
+                                                "(duraService=duplication)");
         Assert.assertNotNull(replicationService);
         return replicationService;
     }

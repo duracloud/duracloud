@@ -42,7 +42,7 @@ public class ServiceInstallTestBase {
     protected final static String DUMMY_BUNDLE_TEXT = "normally-bundle-is-a-jar-not-text";
 
 
-    protected final static String ZIP_BAG_FILE_NAME = "replicationservice-1.0.0.zip";
+    protected final static String ZIP_BAG_FILE_NAME = "duplicationservice-1.0.0.zip";
 
     protected final static String sep = File.separator;
 

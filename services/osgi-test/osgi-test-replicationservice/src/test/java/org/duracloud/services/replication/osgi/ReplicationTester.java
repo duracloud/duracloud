@@ -13,7 +13,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.SystemUserCredential;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.services.replication.ReplicationService;
+import org.duracloud.services.duplication.DuplicationService;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -25,7 +25,7 @@ import java.util.Random;
  *         Date: Mar 30, 2010
  */
 public class ReplicationTester {
-    private ReplicationService replicationService;
+    private DuplicationService duplicationService;
     private final String storeIdS3 = "1";
     private final String storeIdRackspace = "5";
 
@@ -33,9 +33,9 @@ public class ReplicationTester {
     private String spaceId;
     private String contentId;
 
-    public ReplicationTester(ReplicationService replicationService) {
-        Assert.assertNotNull(replicationService);
-        this.replicationService = replicationService;
+    public ReplicationTester(DuplicationService duplicationService) {
+        Assert.assertNotNull(duplicationService);
+        this.duplicationService = duplicationService;
     }
 
     public void testReplication() {
@@ -45,10 +45,10 @@ public class ReplicationTester {
         } catch (Exception e) {
         } finally {
             try {
-                replicationService.stop();
+                duplicationService.stop();
             } catch (Exception e) {
             }
-            replicationService = null;
+            duplicationService = null;
             deleteSpace(spaceId);
             contentStore = null;
             spaceId = null;
@@ -68,7 +68,7 @@ public class ReplicationTester {
         // FIXME: this test hangs the pax container when activated.
         // see: https://jira.duraspace.org/browse/DURACLOUD-120
 //        here(0);
-//        replicationService.start();
+//        duplicationService.start();
 //        here(1);
 //
 //        createContentStore();
@@ -83,7 +83,7 @@ public class ReplicationTester {
 //        String md5 = addContent(spaceId, contentId);
 //
 //        here(4);
-//        replicationService.stop();
+//        duplicationService.stop();
 //        here(5);
     }
 
