@@ -58,7 +58,7 @@ public class StorageReportHandlerTest {
         String contentId =
             handler.storeReport(metrics, completionTime, elapsedTime);
         assertNotNull(contentId);
-        assertTrue(contentId.matches(reportContentIdRegex));
+        assertTrue(contentId, contentId.matches(reportContentIdRegex));
 
         Map<String, String> metadata = metadataCapture.getValue();
         assertNotNull(metadata);

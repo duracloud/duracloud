@@ -38,18 +38,18 @@ public class DateUtilTest {
         String timeSubSec = ".058";
 
         String longDate = DateUtil.convertToStringLong(time);
-        assertTrue(longDate.matches(dateRegex + "T" + timeMinRegex +
-                                    timeSec + timeSubSec));
+        assertTrue(longDate, longDate.matches(dateRegex + "T" + timeMinRegex +
+                                              timeSec + timeSubSec));
 
         String defaultDate = DateUtil.convertToString(time);
-        assertTrue(defaultDate.matches(dateRegex + "T" + timeMinRegex +
-                                       timeSec));
+        assertTrue(defaultDate, defaultDate.matches(dateRegex + "T" +
+                                                    timeMinRegex + timeSec));
 
         String medDate = DateUtil.convertToStringMid(time);
-        assertTrue(medDate.matches(dateRegex + ":" + timeMinRegex));
+        assertTrue(medDate, medDate.matches(dateRegex + ":" + timeMinRegex));
 
         String shortDate = DateUtil.convertToStringShort(time);
-        assertTrue(shortDate.matches(dateRegex));        
+        assertTrue(shortDate, shortDate.matches(dateRegex));
 
         long roundedTime = 1305662518000L;
         Date dateToCheck =
