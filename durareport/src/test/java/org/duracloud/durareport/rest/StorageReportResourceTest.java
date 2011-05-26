@@ -168,7 +168,7 @@ public class StorageReportResourceTest {
 
         mockReportBuilder.run();
         EasyMock.expectLastCall()
-            .times(1);
+            .anyTimes();
 
         EasyMock.makeThreadSafe(mockReportBuilder, true);
         replayMocks();

@@ -38,6 +38,8 @@ public class StorageReportHandlerTest {
     private static String elapMeta = StorageReportHandler.ELAPSED_TIME_META;
     
     private String reportContentId = "storage-report-2011-05-17T16:01:58.xml";
+    private String reportContentIdRegex =
+        "storage-report-2011-05-1[7-8]T[0-9][0-9]:[0,3]1:58.xml";
     private long completionTime = 1305662518734L;
     private long elapsedTime = 10;
 
@@ -56,7 +58,7 @@ public class StorageReportHandlerTest {
         String contentId =
             handler.storeReport(metrics, completionTime, elapsedTime);
         assertNotNull(contentId);
-        assertEquals(reportContentId, contentId);
+        assertTrue(contentId.matches(reportContentIdRegex));
 
         Map<String, String> metadata = metadataCapture.getValue();
         assertNotNull(metadata);
@@ -183,7 +185,7 @@ public class StorageReportHandlerTest {
         EasyMock.expect(mockStore.getSpaceContents(EasyMock.eq(spaceId),
                                                    EasyMock.isA(String.class)))
             .andReturn(reports.iterator())
-            .anyTimes();
+            .times(1);
 
         EasyMock.replay(mockStore);
         return mockStore;
