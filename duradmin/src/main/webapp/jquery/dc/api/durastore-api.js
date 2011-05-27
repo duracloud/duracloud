@@ -30,21 +30,22 @@ var dc;
 			options = {};
 		}
 		
-		var marker = null;
-		if(options.marker != undefined){
+		var marker = '';
+		if(options.marker){
 			marker = options.marker;
 		}
 
-		var prefix = null;
-		if(options.prefix != undefined){
+		var prefix = '';
+		if(options.prefix){
 			prefix = options.prefix;
 		}
 
 		
 		dc.ajax({
 			url: "/duradmin/spaces/space", 
-			data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&prefix="+escape(prefix==null?'':prefix)+"&marker="+escape(marker==null?'':marker),
+			data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&prefix="+escape(prefix)+"&marker="+escape(marker),
 			cache: false,
+			async: options.async != undefined ? options.async : true,
 			context: document.body,
 			success: function(data){
 				callback.success(data.space);

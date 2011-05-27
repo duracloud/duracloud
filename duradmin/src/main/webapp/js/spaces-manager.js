@@ -944,54 +944,90 @@ $(function(){
 
 
 	var loadPreview = function(target,contentItem,j2kBaseURL){
-		var viewerType = 'iframe';
-		var options = {
-				'transitionIn'	:	'elastic',
-				'transitionOut'	:	'elastic',
-				'speedIn'		:	600, 
-				'speedOut'		:	200, 
-				'overlayShow'	:	false};
-
-		var externalViewer = j2kBaseURL != null;
-		if(externalViewer){
-			options['width'] = $(document).width()*0.8;
-			options['height'] = $(document).height()*0.8;
-			options['type'] = 'iframe';
-		}else{
-			options['type'] = 'image';
-		}
-		
-		var viewerURL,thumbnailURL;
-		
-		if(externalViewer){
-			viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
-			thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL, open);
-		}else{
-			viewerURL = dc.store.formatDownloadURL(contentItem,false);
-			thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
-		}
-
-		var div = $.fn.create("div")
-					  .expandopanel({title: "Preview"});
-		
-		$(".view-content-item-button", target)
-			.css("display","inline-block")
-			.attr("href", viewerURL);
-
-		var thumbnail = $.fn.create("img")
-							.attr("src", thumbnailURL)
-							.addClass("preview-image");
-
-		var viewerLink = $.fn.create("a").append(thumbnail)
-							.attr("href", viewerURL)
-							.fancybox(options);
+		//run synchronous call to retrieve space.metadata.open  property
+		//if closed and j2K service is running, we must display
+		//notify the user that the space must be opened.
+		//the call must be synchronous - otherwise the panels 
+		//are not rendered properly.
 	
-		var wrapper = $.fn.create("div")
-							.addClass("preview-image-wrapper")
-							.append(viewerLink);
+		dc.store.GetSpace(
+			contentItem.storeId,
+			contentItem.spaceId, 
+			{
+				success: function(space){
+					var viewerType = 'iframe';
+					var options = {
+							'transitionIn'	:	'elastic',
+							'transitionOut'	:	'elastic',
+							'speedIn'		:	600, 
+							'speedOut'		:	200, 
+							'overlayShow'	:	false};
+					var open = space.metadata.access == 'OPEN';
+					var externalViewer = j2kBaseURL != null && open;
+					var viewerURL,thumbnailURL;
+	
+					if(externalViewer){
+						options['width'] = $(document).width()*0.8;
+						options['height'] = $(document).height()*0.8;
+						options['type'] = 'iframe';
+						viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
+						thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL, open);
+					}else{
+						options['type'] = 'image';
+						viewerURL = dc.store.formatDownloadURL(contentItem,false);
+						thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
+					}
+					
+					var div = $.fn.create("div")
+								  .expandopanel({title: "Preview"});
+					
+					$(".view-content-item-button", target)
+						.css("display","inline-block")
+						.attr("href", viewerURL);
+	
+					var thumbnail = $.fn.create("img")
+										.attr("src", thumbnailURL)
+										.addClass("preview-image");
+	
+					var viewerLink = $.fn.create("a").append(thumbnail)
+										.attr("href", viewerURL)
+										.fancybox(options);
+				
+					var wrapper = $.fn.create("div")
+										.addClass("preview-image-wrapper")
+										.append(viewerLink);
+	
+					if(!open && j2kBaseURL != null){
+						var warning = $.fn.create("div").addClass("warning");
+						$(div).expandopanel("getContent").append(warning);
+				 		var button = $.fn.create("button")
+				 			.addClass("featured")
+				 			.css("margin-left","10px")
+				 			.html("Open Space");
+				 		button.click(function(){
+							changeSpaceAccess(
+								contentItem.storeId, contentItem.spaceId, "OPEN",
+								{
+									success:function(newSpace){
+										loadContentItem(contentItem);
+									},
+									failure:function(){alert("operation failed")},
+								})
+						});
+				 		warning.append("<span>To use the JP2 Viewer you must open this space.</span>")
+				 			   .append(button);
+					}
+					
+					$(div).expandopanel("getContent").append(wrapper);
+					$(".center", target).append(div);	
+				}, 
+				failure:function(info){
+					alert("Get Space failed for: " + contentItem.spaceId);
+				},
+			},
+			{async: false});
+		
 
-		$(div).expandopanel("getContent").append(wrapper);
-		$(".center", target).append(div);
 	};
 
 	var options = {
@@ -2059,13 +2095,11 @@ $(function(){
 			   .append(actions);
 		return $("#content-item-list").selectablelist('addItem',node, contentItem);
 	};
-	
-	var toggleSpaceAccess = function(space, callback){
-		var access = space.metadata.access;
-		var newAccess = (access == "OPEN") ? "CLOSED":"OPEN";
+
+	var changeSpaceAccess = function(storeId, spaceId, access, callback){
 		dc.busy( "Changing space access...", {modal: true}); 
-		dc.ajax({ url: "/duradmin/spaces/space?storeId="+space.storeId+"&spaceId="+escape(space.spaceId), 
-			data: "access="+newAccess+"&action=put&method=changeAccess",
+		dc.ajax({ url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+escape(spaceId), 
+			data: "access="+access+"&action=put&method=changeAccess",
 			type: "POST",
 			cache: false,
 			context: document.body, 
@@ -2078,6 +2112,12 @@ $(function(){
 	    		callback.failure(textStatus);
 		    },
 		});		
+	};
+
+	var toggleSpaceAccess = function(space, callback){
+		var access = space.metadata.access;
+		var newAccess = (access == "OPEN") ? "CLOSED":"OPEN";
+		changeSpaceAccess(space.storeId, space.spaceId, newAccess,callback);
 	};
 
 	var createSpaceMetadataCall = function(spaceId, data, method,callback){
