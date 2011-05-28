@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.storage.provider.mock.MockStorageProvider;
@@ -55,7 +56,10 @@ public class BrokeredStorageProviderTest {
         directProvider = new MockStorageProvider();
         dispatchProvider = new StatelessStorageProviderImpl();
 
-        broker = new BrokeredStorageProvider(dispatchProvider, targetProvider, "0");
+        broker = new BrokeredStorageProvider(dispatchProvider,
+                                             targetProvider,
+                                             StorageProviderType.UNKNOWN,
+                                             "0");
 
         content = new ByteArrayInputStream("".getBytes());
     }

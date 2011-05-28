@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 
 import java.io.InputStream;
@@ -21,14 +22,22 @@ public class BrokeredStorageProvider
 
     private final StorageProvider targetProvider;
 
+    private final StorageProviderType targetType;
+
     private String storeId;
 
     public BrokeredStorageProvider(StatelessStorageProvider dispatchProvider,
                                    StorageProvider targetProvider,
+                                   StorageProviderType targetType,
                                    String storeId) {
         this.dispatchProvider = dispatchProvider;
         this.targetProvider = targetProvider;
+        this.targetType = targetType;
         this.storeId = storeId;
+    }
+
+    public StorageProviderType getTargetType() {
+        return targetType;
     }
 
     public String addContent(String spaceId,

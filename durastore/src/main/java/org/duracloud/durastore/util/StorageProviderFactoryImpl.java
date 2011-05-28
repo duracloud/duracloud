@@ -26,6 +26,8 @@ import org.duracloud.storage.provider.StorageProvider;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides access to StorageProvider implementations
@@ -34,12 +36,16 @@ import java.util.List;
  */
 public class StorageProviderFactoryImpl extends ProviderFactoryBase implements StorageProviderFactory {
 
+    protected static final String PRIMARY = "PRIMARY";
+
     private StatelessStorageProvider statelessProvider;
+    private Map<String, StorageProvider> storageProviders;
 
     public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
                                       StatelessStorageProvider statelessStorageProvider) {
         super(storageAccountManager);
         this.statelessProvider = statelessStorageProvider;
+        storageProviders = new ConcurrentHashMap<String, StorageProvider>();
     }
 
     /**
@@ -82,6 +88,14 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
     @Override
     public StorageProvider getStorageProvider(String storageAccountId)
             throws StorageException {
+        if(null == storageAccountId) {
+            storageAccountId = PRIMARY;
+        }
+
+        if(storageProviders.containsKey(storageAccountId)) {
+            return storageProviders.get(storageAccountId);
+        }
+
         StorageAccountManager storageAccountManager = getAccountManager();
         StorageAccount account =
             storageAccountManager.getStorageAccount(storageAccountId);
@@ -115,9 +129,14 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
             storageProvider = new MockVerifyDeleteStorageProvider();
         }
 
-        return new BrokeredStorageProvider(statelessProvider,
-                                           storageProvider,
-                                           storageAccountId);
+        StorageProvider brokeredProvider =
+            new BrokeredStorageProvider(statelessProvider,
+                                        storageProvider,
+                                        type,
+                                        storageAccountId);
+
+        storageProviders.put(storageAccountId, brokeredProvider);
+        return brokeredProvider;
     }
 
 }
