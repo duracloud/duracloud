@@ -11,7 +11,6 @@
         <include>org.duracloud.services:fixityservice</include>
         <include>org.duracloud:storeclient</include>
         <include>org.duracloud:storageprovider</include>
-        <include>commons-lang:commons-lang</include>
         <include>org.jdom:com.springsource.org.jdom</include>
       </includes>      
     </dependencySet>

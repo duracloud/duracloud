@@ -64,6 +64,11 @@
       <artifactId>org.springframework.jdbc</artifactId>
     </dependency>    
 
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>com.springsource.org.apache.commons.lang</artifactId>
+    </dependency>
+
     <!-- runtime dependencies -->
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -71,12 +76,6 @@
       <version>10.5.1000001.764942</version>
       <classifier>duracloud</classifier>
       <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>com.springsource.org.apache.commons.lang</artifactId>
-      <scope>runtime</scope>      
     </dependency>
 
     <dependency>

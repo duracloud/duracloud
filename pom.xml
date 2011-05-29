@@ -73,6 +73,7 @@
         <module>rackspacestorageprovider</module>
         <module>emcstorageprovider</module>
         <module>azurestorageprovider</module>
+        <module>irodsstorageprovider</module>
         <module>durastore</module>
         <module>hellowebapp</module>
         <module>services</module>

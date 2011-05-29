@@ -34,6 +34,11 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
     protected static final String storageAccountKey = "storage-acct";
     protected static final String storageClassKey = "storage-class";
+    protected static final String zoneKey = "zone";
+    protected static final String portKey = "port";
+    protected static final String hostKey = "host";
+    protected static final String baseDirectoryKey = "base-directory";
+    protected static final String resourceKey = "resource";
     protected static final String ownerIdKey = "owner-id";
     protected static final String isPrimaryKey = "is-primary";
     protected static final String idKey = "id";
@@ -91,7 +96,22 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
             acct.setPassword(value);
 
         } else if (suffix.equalsIgnoreCase(storageClassKey)) {
-            acct.setProperty(StorageAccount.PROPS.STORAGE_CLASS.name(), value);
+            acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(zoneKey)) {
+            acct.setOption(StorageAccount.OPTS.ZONE.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(hostKey)) {
+            acct.setOption(StorageAccount.OPTS.HOST.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(portKey)) {
+            acct.setOption(StorageAccount.OPTS.PORT.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(baseDirectoryKey)) {
+            acct.setOption(StorageAccount.OPTS.BASE_DIRECTORY.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(resourceKey)) {
+            acct.setOption(StorageAccount.OPTS.RESOURCE.name(), value);
 
         } else {
             String msg = "unknown acct key: " + key + " (" + value + ")";

@@ -9,7 +9,6 @@ package org.duracloud.storage.domain.impl;
 
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class StorageAccountImplTest {
         doTestSetProperty("junk", val, success);
 
         success = true;
-        doTestSetProperty(StorageAccount.PROPS.STORAGE_CLASS.name(),
+        doTestSetProperty(StorageAccount.OPTS.STORAGE_CLASS.name(),
                           val,
                           success);
     }
@@ -47,7 +46,7 @@ public class StorageAccountImplTest {
     private void doTestSetProperty(String key, String value, boolean success) {
         boolean valid = true;
         try {
-            acct.setProperty(key, value);
+            acct.setOption(key, value);
             Assert.assertTrue(success);
 
         } catch (Exception e) {
@@ -56,32 +55,4 @@ public class StorageAccountImplTest {
         Assert.assertEquals(success, valid);
     }
 
-    @Test
-    public void testGetProperty() throws Exception {
-        boolean success = false;
-        String prop = doTestGetProperty(null, success);
-        Assert.assertNull(prop);
-
-        prop = doTestGetProperty("junk", success);
-        Assert.assertNull(prop);
-
-        success = true;
-        prop = doTestGetProperty(StorageAccount.PROPS.STORAGE_CLASS.name(),
-                                 true);
-        Assert.assertNull(prop);
-    }
-
-    private String doTestGetProperty(String key, boolean success) {
-        boolean valid = true;
-        String prop = null;
-        try {
-            prop = acct.getProperty(key);
-            Assert.assertTrue(success);
-
-        } catch (Exception e) {
-            valid = false;
-        }
-        Assert.assertEquals(success, valid);
-        return prop;
-    }
 }

@@ -12,6 +12,7 @@ public enum StorageProviderType {
     MICROSOFT_AZURE("ms-azure"),
     EMC("emc"),
     RACKSPACE("rackspace"),
+    IRODS("irods"),
     UNKNOWN("unknown"),
     TEST_RETRY("test-retry"),
     TEST_VERIFY_CREATE("test-verify-create"),

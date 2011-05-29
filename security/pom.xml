@@ -69,6 +69,11 @@
       <artifactId>xmlbeans</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
     <!-- runtime deps -->
     <dependency>
       <groupId>org.springframework.security</groupId>

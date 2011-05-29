@@ -7,6 +7,8 @@
  */
 package org.duracloud.storage.domain;
 
+import java.util.Map;
+
 /**
  * @author Andrew Woods
  *         Date: 5/9/11
@@ -17,8 +19,15 @@ public interface StorageAccount {
      * This enum holds names of attributes that are not in the common
      * getters/setters of this interface.
      */
-    public enum PROPS {
-        STORAGE_CLASS;
+    public enum OPTS {
+        // S3 below
+        STORAGE_CLASS,
+        // iRODS below
+        ZONE,
+        PORT,
+        HOST,
+        BASE_DIRECTORY,
+        RESOURCE;
     }
 
     public String getId();
@@ -39,11 +48,6 @@ public interface StorageAccount {
     public boolean isPrimary();
     public void setPrimary(boolean primary);
 
-    /**
-     * These methods require that the arg key come from PROPS.X.name()
-     *
-     * @param key of property
-     */
-    public String getProperty(String key);
-    public void setProperty(String key, String value);
+    public Map<String, String> getOptions();
+    public void setOption(String key, String value);
 }

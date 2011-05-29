@@ -27,11 +27,6 @@
       <artifactId>com.springsource.org.jdom</artifactId> 
     </dependency>
 
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    
     <!-- test dependencies -->
     <dependency>  
       <groupId>com.thoughtworks.xstream</groupId>  

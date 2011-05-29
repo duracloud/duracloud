@@ -7,11 +7,9 @@
  */
 package org.duracloud.storage.xml;
 
-import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.xml.impl.StorageAccountProviderS3BindingImpl;
 import org.duracloud.storage.xml.impl.StorageAccountProviderSimpleBindingImpl;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -39,8 +37,6 @@ public class StorageAccountsDocumentBinding {
     private final Logger log = LoggerFactory.getLogger(
         StorageAccountsDocumentBinding.class);
 
-    private EncryptionUtil encryptionUtil;
-
     private Map<StorageProviderType, StorageAccountProviderBinding> providerBindings;
 
     public StorageAccountsDocumentBinding() {
@@ -49,13 +45,7 @@ public class StorageAccountsDocumentBinding {
         // This map should have provider-specific implementations of
         //  StorageAccountProviderBinding, as necessary.
         for (StorageProviderType type : StorageProviderType.values()) {
-            StorageAccountProviderBinding binding;
-            if (type.equals(StorageProviderType.AMAZON_S3)) {
-                binding = new StorageAccountProviderS3BindingImpl();
-
-            } else {
-                binding = new StorageAccountProviderSimpleBindingImpl();
-            }
+            StorageAccountProviderBinding binding = new StorageAccountProviderSimpleBindingImpl();
             providerBindings.put(type, binding);
         }
     }

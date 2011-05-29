@@ -18,6 +18,10 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * This class provides a simple xml binding for storage accounts.
  *
@@ -38,6 +42,7 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
         String storageAccountId = getAccountId(xml);
         boolean primary = getIsPrimary(xml);
         Credential credential = getCredential(xml);
+        Map<String, String> options = getStorageProviderOptions(xml);
 
         StorageAccount storageAccount = null;
         if (storageAccountId != null && acctType != null && !acctType.equals(
@@ -47,6 +52,10 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
                                                     credential.getUsername(),
                                                     credential.getPassword(),
                                                     acctType);
+            
+            for (String key : options.keySet()) {
+                storageAccount.setOption(key, options.get(key));
+            }
 
             storageAccount.setPrimary(primary);
 
@@ -98,6 +107,23 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
         return new Credential(username, password);
     }
 
+    private Map<String, String> getStorageProviderOptions(Element xml) {
+        Map<String, String> options = new HashMap<String, String>();
+
+        Element optionsXml = xml.getChild("storageProviderOptions");
+        if (null != optionsXml) {
+            Iterator<Element> itr = optionsXml.getChildren("option").iterator();
+            while (itr.hasNext()) {
+                Element optionXml = itr.next();
+                String name = optionXml.getAttributeValue("name");
+                String value = optionXml.getAttributeValue("value");
+
+                options.put(name, value);
+            }
+        }
+        return options;
+    }
+
     @Override
     public Element getElementFrom(StorageAccount acct,
                                   boolean includeCredentials) {
@@ -133,6 +159,21 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
             storageProviderCredential.addContent(password);
 
             storageAcct.addContent(storageProviderCredential);
+        }
+
+        Map<String, String> options = acct.getOptions();
+        if (null != options && !options.isEmpty()) {
+            Element storageProviderOptions = new Element(
+                "storageProviderOptions");
+            storageAcct.addContent(storageProviderOptions);
+
+            for (String key : options.keySet()) {
+                Element option = new Element("option");
+                option.setAttribute("name", key);
+                option.setAttribute("value", options.get(key));
+
+                storageProviderOptions.addContent(option);
+            }
         }
 
         return storageAcct;

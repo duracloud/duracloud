@@ -11,7 +11,6 @@ import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
-import org.duracloud.storage.domain.impl.StorageAccountS3Impl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -28,11 +27,11 @@ import java.io.InputStream;
  */
 public class StorageAccountProviderS3BindingImplTest {
 
-    private StorageAccountProviderS3BindingImpl binding;
+    private StorageAccountProviderSimpleBindingImpl binding;
 
     @Before
     public void setUp() throws Exception {
-        binding = new StorageAccountProviderS3BindingImpl();
+        binding = new StorageAccountProviderSimpleBindingImpl();
     }
 
     @Test
@@ -50,9 +49,9 @@ public class StorageAccountProviderS3BindingImplTest {
         StorageAccount acct = createAccount(storageClass);
         Element xml = createAccountXml(acct, include);
 
-        boolean valid = false;
+        boolean valid = true;
         StorageAccount result = doTest(xml, valid);
-        Assert.assertNull(result);
+        Assert.assertNotNull(result);
     }
 
     @Test
@@ -100,7 +99,7 @@ public class StorageAccountProviderS3BindingImplTest {
         boolean include = true;
         String storageClass = "standard";
         StorageAccount acct = createAccount(storageClass);
-        acct.setType(StorageProviderType.RACKSPACE);
+        acct.setType(StorageProviderType.UNKNOWN);
         Element xml = createAccountXml(acct, include);
 
         boolean valid = true;
@@ -114,7 +113,7 @@ public class StorageAccountProviderS3BindingImplTest {
         boolean success = true;
         try {
             acct = binding.getAccountFromXml(xml);
-            Assert.assertTrue("Exception not expected", valid);
+            Assert.assertTrue("Exception expected", valid);
 
         } catch (Exception e) {
             Assert.assertFalse(e.getMessage(), valid);
@@ -142,13 +141,19 @@ public class StorageAccountProviderS3BindingImplTest {
             password = encryptionUtil.encrypt(acct.getPassword());
         }
 
+        String storageClass = acct.getOptions().get(StorageAccount.OPTS.STORAGE_CLASS.name());
+
         xml.append("  <storageAcct ownerId='0' isPrimary='");
         xml.append(isPrimary + "'>");
         xml.append("    <id>" + acct.getId() + "</id>");
-        xml.append("    <storageClass>" + acct.getProperty(StorageAccount.PROPS
-                                                               .STORAGE_CLASS
-                                                               .name()) +
-                       "</storageClass>");
+
+        if (null != storageClass && !"null".equals(storageClass)) {
+            xml.append("    <storageProviderOptions>");
+            xml.append("      <option name='");
+            xml.append(StorageAccount.OPTS.STORAGE_CLASS.name());
+            xml.append("' value='"+storageClass+"' />");
+            xml.append("    </storageProviderOptions>");
+        }
         xml.append("    <storageProviderType>");
         xml.append(acct.getType().name() + "</storageProviderType>");
 
@@ -169,9 +174,17 @@ public class StorageAccountProviderS3BindingImplTest {
     }
 
     private StorageAccount createAccount(String storageClass) {
+        StorageAccount acct = null;
+
         String id = "id";
         String username = "username";
         String password = "password";
-        return new StorageAccountS3Impl(id, username, password, storageClass);
+        acct = new StorageAccountImpl(id,
+                                      username,
+                                      password,
+                                      StorageProviderType.AMAZON_S3);
+        acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), storageClass);
+
+        return acct;
     }
 }

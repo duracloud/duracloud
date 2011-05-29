@@ -11,7 +11,6 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
-import org.duracloud.storage.domain.impl.StorageAccountS3Impl;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -50,7 +49,10 @@ public class StorageProviderFactoryTest {
         mockSAM = EasyMock.createMock(StorageAccountManager.class);
         mockSSP = EasyMock.createMock(StatelessStorageProvider.class);
 
-        acct1 = new StorageAccountS3Impl(acctId1, "u", "p", "standard");
+        acct1 = new StorageAccountImpl(acctId1,
+                                       "u",
+                                       "p",
+                                       StorageProviderType.AMAZON_S3);
         acct2 = new StorageAccountImpl(acctId2, "u", "p",
                                        StorageProviderType.RACKSPACE);
 

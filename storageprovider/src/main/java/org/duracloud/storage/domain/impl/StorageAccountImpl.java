@@ -10,8 +10,8 @@ package org.duracloud.storage.domain.impl;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 
-import java.util.Iterator;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contains the information necessary to access a storage
@@ -27,7 +27,7 @@ public class StorageAccountImpl implements StorageAccount {
     private String password = null;
     private StorageProviderType type = null;
     private boolean isPrimary;
-    private Properties properties = new Properties();
+    private Map<String, String> options = new HashMap<String, String>();
 
     public StorageAccountImpl(String id,
                               String username,
@@ -124,17 +124,15 @@ public class StorageAccountImpl implements StorageAccount {
     }
 
     @Override
-    public String getProperty(String key) {
-        // only allow properties defined in PROPS enum.
-        StorageAccount.PROPS.valueOf(key);
-        return properties.getProperty(key);
+    public Map<String,String> getOptions() {
+        return options;
     }
 
     @Override
-    public void setProperty(String key, String value) {
-        // only allow properties defined in PROPS enum.
-        StorageAccount.PROPS.valueOf(key);
-        properties.setProperty(key, value);
+    public void setOption(String key, String value) {
+        // only allow options defined in OPTS enum.
+        OPTS.valueOf(key);
+        options.put(key, value);
     }
 
     @Override
@@ -162,8 +160,8 @@ public class StorageAccountImpl implements StorageAccount {
             that.password != null) {
             return false;
         }
-        if (properties != null ? !properties.equals(that.properties) :
-            that.properties != null) {
+        if (options != null ? !options.equals(that.options) :
+            that.options != null) {
             return false;
         }
         if (type != that.type) {
@@ -185,7 +183,7 @@ public class StorageAccountImpl implements StorageAccount {
         result = 31 * result + (password != null ? password.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (isPrimary ? 1 : 0);
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
+        result = 31 * result + (options != null ? options.hashCode() : 0);
         return result;
     }
 
@@ -199,7 +197,7 @@ public class StorageAccountImpl implements StorageAccount {
         sb.append(", password:" + password);
         sb.append(", type:" + type);
         sb.append(", isPrimary:" + isPrimary);
-        sb.append(", props:"+properties);
+        sb.append(", props:"+ options);
         sb.append("]");
         return sb.toString();
     }

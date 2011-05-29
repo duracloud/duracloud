@@ -21,8 +21,10 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
+import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -60,7 +62,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
     private String accessKeyId = null;
     private AmazonS3Client s3Client = null;
-    private String storageClass = null;
+    private StorageClass storageClass = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
         this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey),
@@ -70,18 +72,18 @@ public class S3StorageProvider extends StorageProviderBase {
 
     public S3StorageProvider(String accessKey,
                              String secretKey,
-                             String storageClass) {
+                             Map<String, String> options) {
         this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey),
              accessKey,
-             storageClass);
+             options);
     }
 
     public S3StorageProvider(AmazonS3Client s3Client,
                              String accessKey,
-                             String storageClass) {
+                             Map<String, String> options) {
         this.accessKeyId = accessKey;
         this.s3Client = s3Client;
-        this.storageClass = storageClass;
+        this.storageClass = getStorageClass(options);
     }
 
     /**
@@ -473,7 +475,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                                            contentId,
                                                            wrappedContent,
                                                            objMetadata);
-        putRequest.setStorageClass(getStorageClass());
+        putRequest.setStorageClass(this.storageClass);
         putRequest.setCannedAcl(CannedAccessControlList.Private);
 
         // Add the object
@@ -634,7 +636,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                                                   contentId);
             copyRequest.setCannedAccessControlList(
                 CannedAccessControlList.Private);
-            copyRequest.setStorageClass(getStorageClass());
+            copyRequest.setStorageClass(this.storageClass);
             copyRequest.setNewObjectMetadata(objMetadata);
             s3Client.copyObject(copyRequest);
         } catch (AmazonServiceException e) {
@@ -781,12 +783,22 @@ public class S3StorageProvider extends StorageProviderBase {
         return name.replaceAll("%20", " ");
     }
 
-    private StorageClass getStorageClass() {
-        log.debug("StorageClass: {}", storageClass);
-        try {
-            return StorageClass.fromValue(storageClass);
-        } catch (Exception e) {
-            return DEFAULT_STORAGE_CLASS;
+    private StorageClass getStorageClass(Map<String, String> options) {
+        StorageClass sc = DEFAULT_STORAGE_CLASS;
+        String scOpt = null;
+        if (null != options) {
+            scOpt = options.get(StorageAccount.OPTS.STORAGE_CLASS.name());
+            if (null != scOpt) {
+                String storageClassLower = scOpt.toLowerCase();
+                if (storageClassLower.equals("reduced_redundancy") ||
+                    storageClassLower.equals("reducedredundancy") ||
+                    storageClassLower.equals("reduced") ||
+                    storageClassLower.equals("rrs")) {
+                    sc = StorageClass.ReducedRedundancy;
+                }
+            }
         }
+        log.debug("StorageClass set to: {}, from {}", sc, scOpt);
+        return sc;
     }
 }

@@ -12,12 +12,12 @@ import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
 import org.duracloud.durastore.test.MockVerifyDeleteStorageProvider;
 import org.duracloud.emcstorage.EMCStorageProvider;
+import org.duracloud.irodsstorage.IrodsStorageProvider;
 import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.domain.impl.StorageAccountS3Impl;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
@@ -109,11 +109,9 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
 
         StorageProvider storageProvider = null;
         if (type.equals(StorageProviderType.AMAZON_S3)) {
-            StorageAccountS3Impl s3Acct = (StorageAccountS3Impl) account;
-            String storageClass = s3Acct.getStorageClass();
             storageProvider = new S3StorageProvider(username,
                                                     password,
-                                                    storageClass);
+                                                    account.getOptions());
 
         } else if (type.equals(StorageProviderType.MICROSOFT_AZURE)) {
             storageProvider = new AzureStorageProvider(username, password);
@@ -121,6 +119,12 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
             storageProvider = new RackspaceStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.EMC)) {
             storageProvider = new EMCStorageProvider(username, password);
+
+        } else if (type.equals(StorageProviderType.IRODS)) {
+            storageProvider = new IrodsStorageProvider(username,
+                                                       password,
+                                                       account.getOptions());
+
         } else if (type.equals(StorageProviderType.TEST_RETRY)) {
             storageProvider = new MockRetryStorageProvider();
         } else if (type.equals(StorageProviderType.TEST_VERIFY_CREATE)) {

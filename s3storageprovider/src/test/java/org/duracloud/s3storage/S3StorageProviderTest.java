@@ -11,6 +11,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.StorageClass;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -21,7 +23,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -47,24 +51,34 @@ public class S3StorageProviderTest {
 
     @Test
     public void testStorageClassStandard() {
-        doTestStorageClass(StorageClass.Standard.toString());
+        String expected = StorageClass.Standard.toString();
+        doTestStorageClass(StorageClass.Standard.toString(), expected);
+        doTestStorageClass("xx", expected);
     }
 
     @Test
     public void testStorageClassRRS() {
-        doTestStorageClass(StorageClass.ReducedRedundancy.toString());
+        String expected = StorageClass.ReducedRedundancy.toString();
+        doTestStorageClass(StorageClass.ReducedRedundancy.toString(), expected);
+        doTestStorageClass("ReducEDreDUNdanCY", expected);
+        doTestStorageClass("ReducED", expected);
+        doTestStorageClass("rrs", expected);
     }
 
     @Test
     public void testStorageClassNull() {
-        doTestStorageClass(null);
+        String expected = StorageClass.Standard.toString();
+        doTestStorageClass(null, expected);
     }
 
-    private void doTestStorageClass(String storageClass) {
+    private void doTestStorageClass(String storageClass, String expected) {
+        Map<String, String> options = new HashMap<String,String>();
+        options.put(StorageAccount.OPTS.STORAGE_CLASS.name(), storageClass);
+
         Capture<PutObjectRequest> capturedRequest = createS3ClientAddContent();
         S3StorageProvider provider = new S3StorageProvider(s3Client,
                                                            "accessKey",
-                                                           storageClass);
+                                                           options);
 
         String content = "hello";
         contentStream = createStream(content);
@@ -80,13 +94,7 @@ public class S3StorageProviderTest {
 
         String requestStorageClass = request.getStorageClass();
         Assert.assertNotNull(requestStorageClass);
-
-        if (null == storageClass) {
-            Assert.assertEquals(StorageClass.Standard.toString(),
-                                requestStorageClass);
-        } else {
-            Assert.assertEquals(storageClass, requestStorageClass);
-        }
+        Assert.assertEquals(expected, requestStorageClass);
     }
 
 
