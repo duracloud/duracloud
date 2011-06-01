@@ -134,7 +134,7 @@ $(function(){
 	//used in conjunctions with the jquery.validate.js and jquery.form
 	$.validator
 	.addMethod("mimetype", function(value, element) { 
-	  return  value == null || value == '' || /^(\w[-]?)*\w\/(\w[-]?)*\w$/.test(value); 
+	  return  value == null || value == '' || /^(\w[-]?)*\w\/(\w[-+]?)*\w$/.test(value);
 	}, "Invalid Mimetype");
 
 	$.validator
