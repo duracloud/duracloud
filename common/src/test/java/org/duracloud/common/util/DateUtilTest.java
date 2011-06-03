@@ -46,7 +46,7 @@ public class DateUtilTest {
                                                     timeMinRegex + timeSec));
 
         String medDate = DateUtil.convertToStringMid(time);
-        assertTrue(medDate, medDate.matches(dateRegex + ":" + timeMinRegex));
+        assertTrue(medDate, medDate.matches(dateRegex + "T" + timeMinRegex));
 
         String shortDate = DateUtil.convertToStringShort(time);
         assertTrue(shortDate, shortDate.matches(dateRegex));

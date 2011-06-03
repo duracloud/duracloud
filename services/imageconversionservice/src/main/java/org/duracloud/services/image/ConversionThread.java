@@ -8,6 +8,7 @@
 package org.duracloud.services.image;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.services.image.status.StatusListener;
 
 import java.io.File;
 
@@ -22,6 +23,7 @@ public class ConversionThread extends Thread {
     private ConversionManager conversionManager;
 
     public ConversionThread(ContentStore contentStore,
+                            StatusListener statusListener,
                             File workDir,
                             String toFormat,
                             String colorSpace,
@@ -32,6 +34,7 @@ public class ConversionThread extends Thread {
                             String nameSuffix,
                             int threads) {
         conversionManager = new ConversionManager(contentStore,
+                                                  statusListener,
                                                   workDir,
                                                   toFormat,
                                                   colorSpace,

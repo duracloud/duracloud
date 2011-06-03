@@ -13,6 +13,7 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.duracloud.common.model.Credential;
+import org.duracloud.services.image.status.StatusListener;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ import java.util.Map;
  * @author Bill Branan
  *         Date: Jan 27, 2010
  */
-public class ImageConversionService extends BaseService implements ComputeService, ManagedService {
+public class ImageConversionService extends BaseService implements ComputeService, ManagedService, StatusListener {
 
     private final Logger log = LoggerFactory.getLogger(ImageConversionService.class);
 
@@ -73,6 +74,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
 
         File workDir = new File(getServiceWorkDir());
         conversionThread = new ConversionThread(contentStore,
+                                                this,
                                                 workDir,
                                                 toFormat,
                                                 colorSpace,
@@ -85,6 +87,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
         conversionThread.start();
 
         super.start();
+        this.setServiceStatus(ServiceStatus.PROCESSING);
     }
 
     @Override
@@ -95,6 +98,11 @@ public class ImageConversionService extends BaseService implements ComputeServic
             conversionThread.stopConversion();
         }
         this.setServiceStatus(ServiceStatus.STOPPED);
+    }
+
+    @Override
+    public void doneWorking() {
+        super.doneWorking();
     }
 
     @Override

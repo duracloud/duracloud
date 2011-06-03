@@ -29,6 +29,7 @@ public interface ComputeService {
     public static final String STATUS_KEY = "Service Status";
     public static final String ERROR_KEY = "Error Message";
     public static final String STARTTIME_KEY = "Start Time";
+    public static final String STOPTIME_KEY = "Stop Time";
 
     public void start() throws Exception;
 

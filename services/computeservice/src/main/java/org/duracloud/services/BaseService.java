@@ -21,19 +21,35 @@ public abstract class BaseService implements ComputeService {
     private String serviceId;
     private String serviceWorkDir;
     private String startTime;
+    private String endTime;
     private String error;
 
     private ServiceStatus serviceStatus = ServiceStatus.INSTALLED;
 
     public void start() throws Exception {
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        this.startTime = format.format(System.currentTimeMillis());
-
+        this.startTime = getCurrentTime();
+        this.endTime = null;
+        this.error = null;
         setServiceStatus(ServiceStatus.STARTED);
     }
 
     public void stop() throws Exception {
         setServiceStatus(ServiceStatus.STOPPED);
+    }
+
+    protected void doneWorking() {
+        this.endTime = getCurrentTime();
+
+        if (null != error) {
+            setServiceStatus(ComputeService.ServiceStatus.FAILED);
+        } else {
+            setServiceStatus(ComputeService.ServiceStatus.SUCCESS);
+        }
+    }
+
+    private String getCurrentTime() {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        return format.format(System.currentTimeMillis());
     }
 
     public Map<String, String> getServiceProps() {
@@ -43,6 +59,10 @@ public abstract class BaseService implements ComputeService {
 
         if (startTime != null) {
             props.put(ComputeService.STARTTIME_KEY, startTime);
+        }
+
+        if (endTime != null) {
+            props.put(ComputeService.STOPTIME_KEY, endTime);
         }
 
         if (error != null) {

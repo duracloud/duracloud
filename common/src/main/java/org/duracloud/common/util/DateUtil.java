@@ -16,7 +16,7 @@ public class DateUtil {
     public enum DateFormat {
         LONG_FORMAT ("yyyy-MM-dd'T'HH:mm:ss.sss"),
         DEFAULT_FORMAT ("yyyy-MM-dd'T'HH:mm:ss"),
-        MID_FORMAT ("yyyy-MM-dd:HH:mm"),
+        MID_FORMAT ("yyyy-MM-dd'T'HH:mm"),
         SHORT_FORMAT ("yyyy-MM-dd");
 
         private final SimpleDateFormat format;

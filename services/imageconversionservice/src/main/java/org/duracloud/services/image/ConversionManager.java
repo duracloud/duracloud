@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.services.image.status.StatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ public class ConversionManager {
     private Map<String, String> extMimeMap;
 
     private ContentStore contentStore;
+    private StatusListener statusListener;
     private File workDir;
     private String toFormat;
     private String colorSpace;
@@ -57,6 +59,7 @@ public class ConversionManager {
     private ConversionResultProcessor resultProcessor;
 
     public ConversionManager(ContentStore contentStore,
+                             StatusListener statusListener,
                              File workDir,
                              String toFormat,
                              String colorSpace,
@@ -67,6 +70,7 @@ public class ConversionManager {
                              String nameSuffix,
                              int threads) {
         this.contentStore = contentStore;
+        this.statusListener = statusListener;
         this.workDir = workDir;
         this.toFormat = toFormat;
         this.colorSpace = colorSpace;
@@ -79,8 +83,10 @@ public class ConversionManager {
         extMimeMap = new HashMap<String, String>();
         loadExtMimeMap();
 
-        resultProcessor =
-            new ConversionResultProcessor(contentStore, outputSpaceId, workDir);
+        resultProcessor = new ConversionResultProcessor(contentStore,
+                                                        statusListener,
+                                                        outputSpaceId,
+                                                        workDir);
 
         workerPool =
             new ThreadPoolExecutor(threads,
@@ -133,6 +139,7 @@ public class ConversionManager {
                         workerPool.execute(worker);
                         successStartingWorker = true;
                     } catch(RejectedExecutionException e) {
+                        log.warn("Failed worker execution: {}", e.getMessage());
                         successStartingWorker = false;
                         sleep(10000);
                     }
@@ -150,6 +157,7 @@ public class ConversionManager {
 
         // Indicate that the conversion is complete
         conversionComplete = true;
+        statusListener.doneWorking();
 
         printEndMessage();
     }
@@ -295,6 +303,7 @@ public class ConversionManager {
      */
     public void stopConversion() {
         continueConversion = false;
+        statusListener.doneWorking();;
         workerPool.shutdown();
     }
 }

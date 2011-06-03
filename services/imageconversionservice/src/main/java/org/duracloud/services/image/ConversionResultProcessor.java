@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.image.status.StatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ public class ConversionResultProcessor implements ConversionResultListener {
     public static String newline = System.getProperty("line.separator");
 
     private ContentStore contentStore;
+    private StatusListener statusListener;
     private String destSpaceId;
 
     private int successfulConversions;
@@ -42,9 +44,11 @@ public class ConversionResultProcessor implements ConversionResultListener {
     private File resultsFile;
 
     public ConversionResultProcessor(ContentStore contentStore,
+                                     StatusListener statusListener,
                                      String destSpaceId,
                                      File workDir) {
         this.contentStore = contentStore;
+        this.statusListener = statusListener;
         this.destSpaceId = destSpaceId;
         successfulConversions = 0;
         unsuccessfulConversions = 0;
@@ -75,8 +79,15 @@ public class ConversionResultProcessor implements ConversionResultListener {
     public synchronized void  processConversionResult(ConversionResult result) {
         if(result.isSuccess()) {
             successfulConversions++;
+
         } else {
             unsuccessfulConversions++;
+
+            String error = result.getErrMessage();
+            if (error == null) {
+                error = result.getDestSpaceId() + ":" + result.getContentId();
+            }
+            statusListener.setError(error);
         }
 
         writeToResultsFile(convertConversionResult(result), true);

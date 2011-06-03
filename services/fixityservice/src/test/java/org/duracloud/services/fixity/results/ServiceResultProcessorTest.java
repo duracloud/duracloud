@@ -9,6 +9,7 @@ package org.duracloud.services.fixity.results;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.fixity.status.StatusListener;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -29,6 +30,8 @@ import java.util.Map;
 public class ServiceResultProcessorTest {
 
     private ServiceResultProcessor processor;
+    private StatusListener statusListener;
+
     private String outputSpaceId = "output-space-id";
     private String outputContentId = "output-content-id";
     private String mime = "text/csv";
@@ -46,13 +49,7 @@ public class ServiceResultProcessorTest {
             Assert.assertTrue(workDir.mkdir());
         }
 
-        ContentStore contentStore = createContentStore();
-        processor = new ServiceResultProcessor(contentStore,
-                                               outputSpaceId,
-                                               outputContentId,
-                                               "test-hashing",
-                                               "previous status blah",
-                                               workDir);
+
     }
 
     @After
@@ -61,10 +58,17 @@ public class ServiceResultProcessorTest {
         if (reader != null) {
             reader.close();
         }
+        
+        if (null != statusListener) {
+            EasyMock.verify(statusListener);
+        }
     }
 
     @Test
     public void testSetProcessingComplete() throws Exception {
+        statusListener = null;
+        processor = createProcessor(statusListener);
+
         String status = processor.getProcessingStatus();
         Assert.assertNotNull(status);
 
@@ -84,6 +88,9 @@ public class ServiceResultProcessorTest {
 
     @Test
     public void testProcessServiceResult() throws Exception {
+        statusListener = createMockListener(2);
+        processor = createProcessor(statusListener);
+
         ServiceResultListener.State inProgress = ServiceResultListener.State.IN_PROGRESS;
 
         boolean success = true;
@@ -111,6 +118,51 @@ public class ServiceResultProcessorTest {
         verifyStatus(inProgress.name(), "5", "2", "5");
 
         verifyLocalOutputFile();
+    }
+
+    @Test
+    public void testSetTotalWorkItems() throws ContentStoreException {
+        long numItems = 0;
+        int numErrors = 1;
+        doTestSetTotalWorkItems(numItems, numErrors);
+
+        numItems = 1;
+        numErrors = 0;
+        doTestSetTotalWorkItems(numItems, numErrors);
+
+        numItems = 10;
+        numErrors = 0;
+        doTestSetTotalWorkItems(numItems, numErrors);
+    }
+
+    private void doTestSetTotalWorkItems(long numItems, int numErrors)
+        throws ContentStoreException {
+        statusListener = createMockListener(numErrors);
+        processor = createProcessor(statusListener);
+
+        processor.setTotalWorkItems(numItems);
+    }
+
+    private StatusListener createMockListener(int numErrors) {
+        StatusListener listener = EasyMock.createMock("StatusListener",
+                                                      StatusListener.class);
+        if (numErrors > 0) {
+            listener.setError(EasyMock.<String>anyObject());
+            EasyMock.expectLastCall().times(numErrors);
+        }
+
+        EasyMock.replay(listener);
+        return listener;
+    }
+
+    private ServiceResultProcessor createProcessor(StatusListener listener)
+        throws ContentStoreException {
+        ContentStore contentStore = createContentStore();
+        return new ServiceResultProcessor(contentStore, listener, outputSpaceId,
+                                          outputContentId,
+                                          "test-hashing",
+                                          "previous status blah",
+                                          workDir);
     }
 
     private void processResult(boolean success, int index) {

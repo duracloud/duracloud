@@ -172,7 +172,7 @@ public class FixityServiceTest {
         waitForState(COMPLETE);
         verifyOutputReportFile(isValid);
 
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
+        Assert.assertEquals(ComputeService.ServiceStatus.SUCCESS,
                             fixity.getServiceStatus());
     }
 
@@ -188,7 +188,7 @@ public class FixityServiceTest {
         verifyOutputHashFile();
         verifyOutputReportFile(!isValid);
 
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
+        Assert.assertEquals(ComputeService.ServiceStatus.FAILED,
                             fixity.getServiceStatus());
     }
 
@@ -202,7 +202,7 @@ public class FixityServiceTest {
 
         verifyOutputHashFile();
 
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED,
+        Assert.assertEquals(ComputeService.ServiceStatus.SUCCESS,
                             fixity.getServiceStatus());
     }
 
@@ -325,7 +325,7 @@ public class FixityServiceTest {
         sleep(1000); // do some work        
 
         ComputeService.ServiceStatus status = fixity.getServiceStatus();
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
+        Assert.assertEquals(ComputeService.ServiceStatus.SUCCESS, status);
 
         sleep(1000); // do some work
 
@@ -356,9 +356,6 @@ public class FixityServiceTest {
                     .anyTimes();
                 EasyMock.expect(store.getContent(targetSpaceId, "")).andReturn(
                     createContent("nothing")).anyTimes();
-                store.deleteContent(EasyMock.eq(outputSpaceId),
-                                    EasyMock.eq(outputContentId));
-                EasyMock.expectLastCall();
                 break;
 
             case GENERATE_LIST:
@@ -367,9 +364,6 @@ public class FixityServiceTest {
                     .andReturn(createContent(listingText));
                 EasyMock.expect(store.getContent(spaceIdA, contentIdA))
                     .andReturn(createContent(listingText));
-                store.deleteContent(EasyMock.eq(outputSpaceId),
-                                    EasyMock.eq(outputContentId));
-                EasyMock.expectLastCall();
                 break;
 
             case ALL_IN_ONE_SPACE:

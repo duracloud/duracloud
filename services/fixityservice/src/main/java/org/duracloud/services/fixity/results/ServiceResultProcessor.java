@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.fixity.status.StatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
     private static final String newline = System.getProperty("line.separator");
 
     private ContentStore contentStore;
+    private StatusListener statusListener;
     private String outputSpaceId;
     private String outputContentId;
 
@@ -48,11 +50,13 @@ public class ServiceResultProcessor implements ServiceResultListener {
     private File resultsFile;
 
     public ServiceResultProcessor(ContentStore contentStore,
+                                  StatusListener statusListener,
                                   String outputSpaceId,
                                   String outputContentId,
                                   String phase,
                                   File workDir) {
         this(contentStore,
+             statusListener,
              outputSpaceId,
              outputContentId,
              phase,
@@ -61,12 +65,14 @@ public class ServiceResultProcessor implements ServiceResultListener {
     }
 
     public ServiceResultProcessor(ContentStore contentStore,
+                                  StatusListener statusListener,
                                   String outputSpaceId,
                                   String outputContentId,
                                   String phase,
                                   String previousPhaseStatus,
                                   File workDir) {
         this.contentStore = contentStore;
+        this.statusListener = statusListener;
         this.outputSpaceId = outputSpaceId;
         this.outputContentId = outputContentId;
         this.phase = phase;
@@ -102,6 +108,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
             successfulResults++;
         } else {
             unsuccessfulResults++;
+            statusListener.setError("Error during " + phase + " phase.");
         }
     }
 
@@ -143,6 +150,9 @@ public class ServiceResultProcessor implements ServiceResultListener {
 
     @Override
     public void setTotalWorkItems(long total) {
+        if (0 == total) {
+            this.statusListener.setError("Zero workitems found.");
+        }
         this.totalWorkItems = total;
     }
 

@@ -7,8 +7,6 @@
  */
 package org.duracloud.services.fixity.results;
 
-import org.duracloud.services.fixity.results.ServiceResult;
-
 
 /**
  * @author: Andrew Woods

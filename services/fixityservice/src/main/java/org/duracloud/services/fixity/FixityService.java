@@ -18,6 +18,7 @@ import org.duracloud.services.common.error.ServiceException;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
+import org.duracloud.services.fixity.status.StatusListener;
 import org.duracloud.services.fixity.worker.ServiceWorkManager;
 import org.duracloud.services.fixity.worker.ServiceWorkerFactory;
 import org.duracloud.services.fixity.worker.ServiceWorkload;
@@ -38,7 +39,7 @@ import java.util.concurrent.CountDownLatch;
  * @author Andrew Woods
  *         Date: Aug 3, 2010
  */
-public class FixityService extends BaseService implements ComputeService, ManagedService {
+public class FixityService extends BaseService implements ComputeService, ManagedService, StatusListener {
 
     private final Logger log = LoggerFactory.getLogger(FixityService.class);
 
@@ -51,6 +52,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
     private ServiceWorkManager workManager;
     private ContentStore contentStore;
+    private String autoHashContentId;
 
     private String duraStoreHost;
     private String duraStorePort;
@@ -82,9 +84,11 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
     @Override
     public void start() throws Exception {
-        this.setServiceStatus(ServiceStatus.STARTING);
+        super.start();
+        workManager = null;
         processingStatusMsg = null;
         keepWorking = true;
+        autoHashContentId = null;
 
         StringBuilder sb = new StringBuilder("Starting Fixity Service as '");
         sb.append(getUsername());
@@ -96,8 +100,6 @@ public class FixityService extends BaseService implements ComputeService, Manage
         setUp();
         new Thread(new FixityServiceThread()).start();
         new Thread(new ProcessingStatusMonitorThread()).start();
-
-        super.start();
     }
 
     private void setUp() {
@@ -115,7 +117,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         @Override
         public void run() {
             try {
-                setServiceStatus(ServiceStatus.STARTED);
+                setServiceStatus(ServiceStatus.PROCESSING);
                 doStart();
 
             } catch (Exception e) {
@@ -172,7 +174,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             doneComparing.countDown();
         }
 
-        cleanup(serviceOptions, doneComparing);
+        cleanup(serviceOptions, doneHashing, doneComparing);
 
         doneWorking();
     }
@@ -202,6 +204,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                 CountDownLatch doneHashing) {
         ServiceResultProcessor resultListener = new ServiceResultProcessor(
             contentStore,
+            this,
             serviceOptions.getOutputSpaceId(),
             serviceOptions.getOutputContentId(),
             PHASE_FIND,
@@ -238,6 +241,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
         ServiceResultListener resultListener = new ServiceResultProcessor(
             contentStore,
+            this,
             serviceOptions.getOutputSpaceId(),
             serviceOptions.getReportContentId(),
             PHASE_COMPARE,
@@ -259,19 +263,19 @@ public class FixityService extends BaseService implements ComputeService, Manage
     }
 
     private void cleanup(FixityServiceOptions serviceOptions,
-                         CountDownLatch doneComparing)
-        throws ServiceException {
+                         CountDownLatch doneHashing,
+                         CountDownLatch doneComparing) throws ServiceException {
+        waitForLatch(doneHashing);
         waitForLatch(doneComparing);
 
-        if (serviceOptions.needsToHash()) {
+        // skip case where goal of run is to generate a hash listing
+        if (serviceOptions.needsToHash() && serviceOptions.needsToCompare()) {
             deleteContent(serviceOptions.getOutputSpaceId(),
                           serviceOptions.getOutputContentId());
         }
         if (serviceOptions.needsToAutoGenerateHashListing()) {
-            FixityServiceOptions autoOptions = getAutoHashingOptions();
-
-            deleteContent(autoOptions.getOutputSpaceId(),
-                          autoOptions.getOutputContentId());
+            deleteContent(serviceOptions.getOutputSpaceId(),
+                          autoHashContentId);
         }
     }
 
@@ -279,7 +283,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         try {
             getContentStore().deleteContent(spaceId, contentId);
         } catch (ContentStoreException e) {
-            log.debug("Unable to delete content: " + e.getMessage());
+            log.warn("Unable to delete content: " + e.getMessage());
         }
     }
 
@@ -293,6 +297,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             sb.append("calling doneWorking.await(): ");
             sb.append(e.getMessage());
             log.error(sb.toString(), e);
+            setError(sb.toString());
             throw new ServiceException(sb.toString(), e);
         }
     }
@@ -309,7 +314,9 @@ public class FixityService extends BaseService implements ComputeService, Manage
         this.setServiceStatus(ServiceStatus.STOPPED);
     }
 
-    private void doneWorking() {
+    @Override
+    public void doneWorking() {
+        super.doneWorking();
         updateProcessingStatus();
         keepWorking = false;
     }
@@ -372,7 +379,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         if (null == outputSpaceId || outputSpaceId.equals("")) {
             this.outputSpaceId = this.defaultOutputSpaceId;
         }
-        
+
         FixityServiceOptions.Mode m = FixityServiceOptions.Mode.GENERATE_SPACE;
         FixityServiceOptions.HashApproach ha = FixityServiceOptions.HashApproach.STORED;
         String outContentId = FixityServiceOptions.defaultGenContentId;
@@ -393,6 +400,10 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
         opts.verify();
         log.debug(opts.toString());
+
+        // cache auto-generated hash content-id for clean-up later.
+        autoHashContentId = opts.getOutputContentId();
+
         return opts;
     }
 
