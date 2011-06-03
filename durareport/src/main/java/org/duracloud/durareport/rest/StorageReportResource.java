@@ -8,16 +8,15 @@
 package org.duracloud.durareport.rest;
 
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.common.util.SerializationUtil;
-import org.duracloud.durareport.storage.StorageReport;
 import org.duracloud.durareport.storage.StorageReportBuilder;
 import org.duracloud.durareport.storage.StorageReportHandler;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.reportdata.storage.StorageReportInfo;
+import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
+import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * First line of business logic to handle the requests coming in via the
@@ -56,12 +55,7 @@ public class StorageReportResource {
      */
     public InputStream getLatestStorageReport() throws ContentStoreException {
         checkInitialized();
-        StorageReport latestReport = reportHandler.getLatestStorageReport();
-        if(null != latestReport) {
-            return latestReport.getReportStream();
-        } else {
-            return null;
-        }
+        return reportHandler.getLatestStorageReportStream();
     }
 
     /**
@@ -71,21 +65,19 @@ public class StorageReportResource {
     public InputStream getStorageReport(String reportId)
         throws ContentStoreException {
         checkInitialized();
-        StorageReport report = reportHandler.getStorageReport(reportId);
-        if(null != report) {
-            return report.getReportStream();
-        } else {
-            return null;
-        }
+        return reportHandler.getStorageReportStream(reportId);
     }
 
     /**
      * Provides the xml stream of the list of storage reports, the list may
      * be empty
      */
-    public InputStream getStorageReportList() throws ContentStoreException {
+    public String getStorageReportList() throws ContentStoreException {
         checkInitialized();
-        return reportHandler.getStorageReportList();
+        List<String> reportList = reportHandler.getStorageReportList();
+        StorageReportListSerializer serializer =
+            new StorageReportListSerializer();
+        return serializer.serializeReportList(reportList);
     }
 
     /**
@@ -97,36 +89,32 @@ public class StorageReportResource {
      */
     public String getStorageReportInfo() {
         checkInitialized();
-        String prefix = "storage-report-";
-        Map<String, String> infoItems = new HashMap<String, String>();
-        infoItems.put(prefix+"status", reportBuilder.getStatus().name());
+        StorageReportInfo reportInfo = new StorageReportInfo();
+        reportInfo.setStatus(reportBuilder.getStatus().name());
 
         long startTime = reportBuilder.getStartTime();
         long stopTime = reportBuilder.getStopTime();
         long elapsedTime = reportBuilder.getElapsedTime();
-        String count = String.valueOf(reportBuilder.getCurrentCount());
-        if(stopTime < startTime) { // A new run has started since the last stop
-            String start = DateUtil.convertToStringMid(startTime);
-            infoItems.put(prefix+"start-time", start);
+        long count = reportBuilder.getCurrentCount();
 
+        reportInfo.setStartTime(startTime);
+        if(stopTime < startTime) { // A new run has started since the last stop
             if(elapsedTime > 0) { // A previous run has completed
                 long estCompletionTime = startTime + elapsedTime;
-                String completion =
-                    DateUtil.convertToStringMid(estCompletionTime);
-                infoItems.put(prefix+"estimated-completion-time", completion);
+                reportInfo.setEstimatedCompletionTime(estCompletionTime);
             }
 
-            infoItems.put(prefix+"current-count", count);
+            reportInfo.setCurrentCount(count);
         } else { // No new runs since the last stop
-            String stop = DateUtil.convertToStringMid(stopTime);
-            infoItems.put(prefix+"completion-time", stop);
-
-            infoItems.put(prefix+"final-count", count);
+            reportInfo.setCompletionTime(stopTime);
+            reportInfo.setFinalCount(count);
 
             // TODO: include next scheduled start time
         }
 
-        return SerializationUtil.serializeMap(infoItems);
+        StorageReportInfoSerializer serializer =
+            new StorageReportInfoSerializer();
+        return serializer.serializeReportInfo(reportInfo);
     }
 
     /**

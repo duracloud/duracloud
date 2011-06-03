@@ -12,12 +12,13 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
-import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.durareport.error.ReportBuilderException;
-import org.duracloud.durareport.storage.metrics.DuraStoreMetrics;
+import org.duracloud.durareport.storage.metrics.DuraStoreMetricsCollector;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.reportdata.storage.StorageReport;
+import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +27,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Handles the storage and retrieval of storage reports.
@@ -68,49 +68,75 @@ public class StorageReportHandler {
     }
 
     /**
-     * Returns a specific storage report or null if the report does not exist.
+     * Returns a specific storage report stream or null if the report does
+     * not exist.
      *
      * @param reportId content ID of the report to retrieve
-     * @return StorageReport containing report stream
+     * @return InputStream containing report
      */
-    public StorageReport getStorageReport(String reportId)
+    public InputStream getStorageReportStream(String reportId)
         throws ContentStoreException {
         try {
-            Content content = primaryStore.getContent(storageSpace, reportId);
-            return createStorageReport(content);
+            return primaryStore.getContent(storageSpace, reportId).getStream();
         } catch(NotFoundException e) {
             return null;
         }
     }
 
-    private StorageReport createStorageReport(Content content) {
-        Map<String, String> metadata = content.getMetadata();
-        long compTime;
-        long elapTime;
+    /**
+     * Returns a specific storage report or null if the report does not exist.
+     *
+     * @param reportId content ID of the report to retrieve
+     * @return StorageReport
+     */
+    public StorageReport getStorageReport(String reportId)
+        throws ContentStoreException {
         try {
-            compTime = Long.valueOf(metadata.get(COMPLETION_TIME_META));
-            elapTime = Long.valueOf(metadata.get(ELAPSED_TIME_META));
-        } catch(Exception e) {
-            compTime = 0;
-            elapTime = 0;
+            Content content = primaryStore.getContent(storageSpace, reportId);
+            return deserializeStorageReport(content);
+        } catch(NotFoundException e) {
+            return null;
         }
+    }
 
-        return new StorageReport(content.getId(),
-                                 content.getStream(),
-                                 compTime,
-                                 elapTime);
+    private StorageReport deserializeStorageReport(Content content) {
+        StorageReportSerializer serializer = new StorageReportSerializer();
+        return serializer.deserializeReport(content.getStream());
+    }
+
+    /**
+     * Returns the latest storage report stream or null if no reports exist
+     */
+    public InputStream getLatestStorageReportStream()
+        throws ContentStoreException {
+        Content latestContent = getLatestStorageReportContent();
+        if(null != latestContent) {
+            return latestContent.getStream();
+        } else {
+            return null;
+        }
     }
 
     /**
      * Returns the latest storage report or null if no reports exist
      */
     public StorageReport getLatestStorageReport() throws ContentStoreException {
+        Content latestContent = getLatestStorageReportContent();
+        if(null != latestContent) {
+            return deserializeStorageReport(latestContent);
+        } else {
+            return null;
+        }
+    }
+
+    private Content getLatestStorageReportContent()
+        throws ContentStoreException {
         LinkedList<String> reportList = getSortedReportList();
         if(reportList.size() > 0) {
             String latestContentId = reportList.getFirst();
             Content latestContent =
                 primaryStore.getContent(storageSpace, latestContentId);
-            return createStorageReport(latestContent);
+            return latestContent;
         } else {
             return null;
         }
@@ -143,13 +169,11 @@ public class StorageReportHandler {
      * Retrieve a sorted list of all storage reports in XML format. Sorting
      * is by name in descending order (i.e. the latest report will be first).
      *
-     * @return list of storage reports in xml format
+     * @return list of storage reports
      * @throws ContentStoreException
      */
-    public InputStream getStorageReportList() throws ContentStoreException {
-        LinkedList<String> reportList = getSortedReportList();
-        String xml = SerializationUtil.serializeList(reportList);
-        return new ByteArrayInputStream(getXmlBytes(xml));
+    public List<String> getStorageReportList() throws ContentStoreException {
+        return getSortedReportList();
     }
 
     /**
@@ -161,17 +185,20 @@ public class StorageReportHandler {
      * @param elapsedTime millis required to complete the report
      * @return contentId of the newly stored report
      */
-    public String storeReport(DuraStoreMetrics metrics,
+    public String storeReport(DuraStoreMetricsCollector metrics,
                               long completionTime,
                               long elapsedTime) {
         String contentId = buildContentId(completionTime);
-        MetricsSerializer serializer = new MetricsSerializer();
-        String xml = serializer.serializeMetrics(metrics);
-        byte[] metricsBytes = getXmlBytes(xml);
 
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(COMPLETION_TIME_META, String.valueOf(completionTime));
-        metadata.put(ELAPSED_TIME_META, String.valueOf(elapsedTime));
+        StorageReportConverter converter = new StorageReportConverter();
+        StorageReport report = converter.createStorageReport(contentId,
+                                                             metrics,
+                                                             completionTime,
+                                                             elapsedTime);
+
+        StorageReportSerializer serializer = new StorageReportSerializer();
+        String xml = serializer.serializeReport(report);
+        byte[] metricsBytes = getXmlBytes(xml);
 
         log.info("Storing Storage Report with ID: " + contentId);
         for(int i=0; i<maxRetries; i++) {
@@ -182,7 +209,7 @@ public class StorageReportHandler {
                                         metricsBytes.length,
                                         MediaType.APPLICATION_XML,
                                         getMetricsChecksum(xml),
-                                        metadata);
+                                        null);
                 return contentId;
             } catch (ContentStoreException e) {
                 log.warn("Exception attempting to store storage report: " +

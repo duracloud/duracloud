@@ -10,8 +10,9 @@ package org.duracloud.durareport.storage;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.durareport.error.ReportBuilderException;
-import org.duracloud.durareport.storage.metrics.DuraStoreMetrics;
+import org.duracloud.durareport.storage.metrics.DuraStoreMetricsCollector;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.reportdata.storage.StorageReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class StorageReportBuilder implements Runnable {
     private long stopTime;
     private long elapsedTime;
 
-    private DuraStoreMetrics durastoreMetrics;
+    private DuraStoreMetricsCollector durastoreMetrics;
 
     public StorageReportBuilder(ContentStoreManager storeMgr,
                                 StorageReportHandler reportHandler) {
@@ -84,7 +85,7 @@ public class StorageReportBuilder implements Runnable {
     }
 
     private void collectStorageMetrics() {
-        durastoreMetrics = new DuraStoreMetrics();
+        durastoreMetrics = new DuraStoreMetricsCollector();
 
         Map<String, ContentStore> contentStores = retryGetContentStores();
         for(ContentStore contentStore : contentStores.values()) {

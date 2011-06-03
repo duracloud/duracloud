@@ -8,7 +8,6 @@
 package org.duracloud.durareport.rest;
 
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.durareport.storage.StorageReport;
 import org.duracloud.durareport.storage.StorageReportBuilder;
 import org.duracloud.durareport.storage.StorageReportHandler;
 import org.easymock.classextension.EasyMock;
@@ -18,6 +17,8 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -95,11 +96,8 @@ public class StorageReportResourceTest {
     }
 
     private void setUpMocksGetStorageReport(String reportId) throws Exception {
-        ByteArrayInputStream stream =
-            new ByteArrayInputStream("test".getBytes());
-        StorageReport report = new StorageReport(reportId, stream, 0, 0);
-        EasyMock.expect(mockReportHandler.getStorageReport(reportId))
-            .andReturn(report)
+        EasyMock.expect(mockReportHandler.getStorageReportStream(reportId))
+            .andReturn(new ByteArrayInputStream("test".getBytes()))
             .times(1);
 
         replayMocks();
@@ -115,11 +113,8 @@ public class StorageReportResourceTest {
     }
 
     private void setUpMocksGetLatestStorageReport() throws Exception {
-        ByteArrayInputStream stream =
-            new ByteArrayInputStream("test".getBytes());
-        StorageReport report = new StorageReport("contentId", stream, 0, 0);
-        EasyMock.expect(mockReportHandler.getLatestStorageReport())
-            .andReturn(report)
+        EasyMock.expect(mockReportHandler.getLatestStorageReportStream())
+            .andReturn(new ByteArrayInputStream("test".getBytes()))
             .times(1);
 
         replayMocks();
@@ -130,15 +125,16 @@ public class StorageReportResourceTest {
         setUpMocksGetStorageReportList();
         StorageReportResource srResource = getResource();
 
-        InputStream stream = srResource.getStorageReportList();
-        assertNotNull(stream);
+        String reportListXml = srResource.getStorageReportList();
+        assertNotNull(reportListXml);
     }
 
     private void setUpMocksGetStorageReportList() throws Exception {
-        ByteArrayInputStream stream =
-            new ByteArrayInputStream("test".getBytes());
+        List<String> reportList = new LinkedList<String>();
+        reportList.add("reportId1");
+
         EasyMock.expect(mockReportHandler.getStorageReportList())
-            .andReturn(stream)
+            .andReturn(reportList)
             .times(1);
 
         replayMocks();

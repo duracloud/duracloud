@@ -14,11 +14,11 @@ package org.duracloud.durareport.storage.metrics;
  * @author: Bill Branan
  * Date: 5/12/11
  */
-public class SpaceMetrics extends Metrics {
+public class SpaceMetricsCollector extends MetricsCollector {
 
     private String spaceName;
 
-    public SpaceMetrics(String spaceName) {
+    public SpaceMetricsCollector(String spaceName) {
         super();
         this.spaceName = spaceName;
     }

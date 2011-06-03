@@ -17,14 +17,14 @@ import java.util.Map;
  * @author: Bill Branan
  * Date: 5/12/11
  */
-public class DuraStoreMetrics extends Metrics {
+public class DuraStoreMetricsCollector extends MetricsCollector {
 
-    private Map<String, StorageProviderMetrics> storageProviderMetrics;
+    private Map<String, StorageProviderMetricsCollector> storageProviderMetrics;
 
-    public DuraStoreMetrics() {
+    public DuraStoreMetricsCollector() {
         super();
         this.storageProviderMetrics =
-            new HashMap<String, StorageProviderMetrics>();
+            new HashMap<String, StorageProviderMetricsCollector>();
     }
 
     @Override
@@ -40,17 +40,17 @@ public class DuraStoreMetrics extends Metrics {
                        long size) {
         super.update(mimetype, size);
 
-        StorageProviderMetrics providerMet =
+        StorageProviderMetricsCollector providerMet =
             storageProviderMetrics.get(storageProviderId);
         if(null == providerMet) {
-            providerMet = new StorageProviderMetrics(storageProviderId,
+            providerMet = new StorageProviderMetricsCollector(storageProviderId,
                                                      storageProviderType);
             storageProviderMetrics.put(storageProviderId, providerMet);
         }
         providerMet.update(spaceId, mimetype, size);
     }
 
-    public Map<String, StorageProviderMetrics> getStorageProviderMetrics() {
+    public Map<String, StorageProviderMetricsCollector> getStorageProviderMetrics() {
         return storageProviderMetrics;
     }
 }

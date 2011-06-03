@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  * @author: Bill Branan
  * Date: 5/12/11
  */
-public class MetricsTest {
+public class MetricsCollectorTest {
 
     private String mimetype1 = "text/plain";
     private String mimetype2 = "text/xml";
@@ -32,7 +32,7 @@ public class MetricsTest {
 
     @Test
     public void testMimetypeMetrics() {
-        MimetypeMetrics metrics = new MimetypeMetrics(mimetype1);
+        MimetypeMetricsCollector metrics = new MimetypeMetricsCollector(mimetype1);
 
         // Add data
         for(int i=1; i<=100; i++) {
@@ -47,7 +47,7 @@ public class MetricsTest {
 
     @Test
     public void testSpaceMetrics() {
-        SpaceMetrics metrics = new SpaceMetrics(spaceName1);
+        SpaceMetricsCollector metrics = new SpaceMetricsCollector(spaceName1);
 
         // Add data
         for(int i=1; i<=10; i++) {
@@ -63,30 +63,30 @@ public class MetricsTest {
         verifySpaceTotals(spaceName1, metrics);
     }
 
-    private void verifySpaceTotals(String spaceName, SpaceMetrics metrics) {
+    private void verifySpaceTotals(String spaceName, SpaceMetricsCollector metrics) {
         // Verify space totals
         assertEquals(spaceName, metrics.getSpaceName());
         assertEquals(18, metrics.getTotalItems());
         assertEquals(76, metrics.getTotalSize());
 
         // Verify mimetype totals
-        Map<String, MimetypeMetrics> mimetypeMetricsMap =
+        Map<String, MimetypeMetricsCollector> mimetypeMetricsMap =
             metrics.getMimetypeMetrics();
         assertEquals(3, mimetypeMetricsMap.size());
 
-        MimetypeMetrics mimetype1Metrics = mimetypeMetricsMap.get(mimetype1);
+        MimetypeMetricsCollector mimetype1Metrics = mimetypeMetricsMap.get(mimetype1);
         assertNotNull(mimetype1Metrics);
         assertEquals(mimetype1, mimetype1Metrics.getMimetype());
         assertEquals(10, mimetype1Metrics.getTotalItems());
         assertEquals(55, mimetype1Metrics.getTotalSize());
 
-        MimetypeMetrics mimetype2Metrics = mimetypeMetricsMap.get(mimetype2);
+        MimetypeMetricsCollector mimetype2Metrics = mimetypeMetricsMap.get(mimetype2);
         assertNotNull(mimetype2Metrics);
         assertEquals(mimetype2, mimetype2Metrics.getMimetype());
         assertEquals(5, mimetype2Metrics.getTotalItems());
         assertEquals(15, mimetype2Metrics.getTotalSize());
 
-        MimetypeMetrics mimetype3Metrics = mimetypeMetricsMap.get(mimetype3);
+        MimetypeMetricsCollector mimetype3Metrics = mimetypeMetricsMap.get(mimetype3);
         assertNotNull(mimetype3Metrics);
         assertEquals(mimetype3, mimetype3Metrics.getMimetype());
         assertEquals(3, mimetype3Metrics.getTotalItems());
@@ -95,8 +95,8 @@ public class MetricsTest {
 
     @Test
     public void testStorageProviderMetricsError() {
-        StorageProviderMetrics metrics =
-            new StorageProviderMetrics(providerId1, providerType1);
+        StorageProviderMetricsCollector metrics =
+            new StorageProviderMetricsCollector(providerId1, providerType1);
 
         try {
             metrics.update(mimetype1, 1);
@@ -108,8 +108,8 @@ public class MetricsTest {
 
     @Test
     public void testStorageProviderMetrics() {
-        StorageProviderMetrics metrics =
-            new StorageProviderMetrics(providerId1, providerType1);
+        StorageProviderMetricsCollector metrics =
+            new StorageProviderMetricsCollector(providerId1, providerType1);
 
         // Add data for space 1
         for(int i=1; i<=10; i++) {
@@ -137,54 +137,54 @@ public class MetricsTest {
     }
 
     private void verifyStorageProviderMetrics(String providerId,
-                                              StorageProviderMetrics metrics) {
+                                              StorageProviderMetricsCollector metrics) {
         // Verify storage provider totals
         assertEquals(providerId, metrics.getStorageProviderId());
         assertEquals(36, metrics.getTotalItems());
         assertEquals(152, metrics.getTotalSize());
 
         // Verify storage provider mimetype totals
-        Map<String, MimetypeMetrics> mimetypeMetricsMap =
+        Map<String, MimetypeMetricsCollector> mimetypeMetricsMap =
             metrics.getMimetypeMetrics();
         assertEquals(3, mimetypeMetricsMap.size());
 
-        MimetypeMetrics mimetype1Metrics = mimetypeMetricsMap.get(mimetype1);
+        MimetypeMetricsCollector mimetype1Metrics = mimetypeMetricsMap.get(mimetype1);
         assertNotNull(mimetype1Metrics);
         assertEquals(mimetype1, mimetype1Metrics.getMimetype());
         assertEquals(20, mimetype1Metrics.getTotalItems());
         assertEquals(110, mimetype1Metrics.getTotalSize());
 
-        MimetypeMetrics mimetype2Metrics = mimetypeMetricsMap.get(mimetype2);
+        MimetypeMetricsCollector mimetype2Metrics = mimetypeMetricsMap.get(mimetype2);
         assertNotNull(mimetype2Metrics);
         assertEquals(mimetype2, mimetype2Metrics.getMimetype());
         assertEquals(10, mimetype2Metrics.getTotalItems());
         assertEquals(30, mimetype2Metrics.getTotalSize());
 
-        MimetypeMetrics mimetype3Metrics = mimetypeMetricsMap.get(mimetype3);
+        MimetypeMetricsCollector mimetype3Metrics = mimetypeMetricsMap.get(mimetype3);
         assertNotNull(mimetype3Metrics);
         assertEquals(mimetype3, mimetype3Metrics.getMimetype());
         assertEquals(6, mimetype3Metrics.getTotalItems());
         assertEquals(12, mimetype3Metrics.getTotalSize());
 
         // Verify space metrics map
-        Map<String, SpaceMetrics> spaceMetricsMap = metrics.getSpaceMetrics();
+        Map<String, SpaceMetricsCollector> spaceMetricsMap = metrics.getSpaceMetrics();
         assertNotNull(spaceMetricsMap);
         assertEquals(2, spaceMetricsMap.size());
 
         // Verify space 1 totals
-        SpaceMetrics space1Metrics = spaceMetricsMap.get(spaceName1);
+        SpaceMetricsCollector space1Metrics = spaceMetricsMap.get(spaceName1);
         assertNotNull(space1Metrics);
         verifySpaceTotals(spaceName1, space1Metrics);
 
         // Verify space 2 totals
-        SpaceMetrics space2Metrics = spaceMetricsMap.get(spaceName2);
+        SpaceMetricsCollector space2Metrics = spaceMetricsMap.get(spaceName2);
         assertNotNull(space2Metrics);
         verifySpaceTotals(spaceName2, space2Metrics);
     }
 
     @Test
     public void testDuraStoreMetricsError() {
-        DuraStoreMetrics metrics = new DuraStoreMetrics();
+        DuraStoreMetricsCollector metrics = new DuraStoreMetricsCollector();
 
         try {
             metrics.update(mimetype1, 1);
@@ -196,7 +196,7 @@ public class MetricsTest {
 
     @Test
     public void testDuraStoreMetrics() {
-        DuraStoreMetrics metrics = new DuraStoreMetrics();
+        DuraStoreMetricsCollector metrics = new DuraStoreMetricsCollector();
 
         // Add data
         
@@ -249,42 +249,42 @@ public class MetricsTest {
         assertEquals(304, metrics.getTotalSize());
 
         // Verify durastore mimetype totals
-        Map<String, MimetypeMetrics> mimetypeMetricsMap =
+        Map<String, MimetypeMetricsCollector> mimetypeMetricsMap =
             metrics.getMimetypeMetrics();
         assertEquals(3, mimetypeMetricsMap.size());
 
-        MimetypeMetrics mimetype1Metrics = mimetypeMetricsMap.get(mimetype1);
+        MimetypeMetricsCollector mimetype1Metrics = mimetypeMetricsMap.get(mimetype1);
         assertNotNull(mimetype1Metrics);
         assertEquals(mimetype1, mimetype1Metrics.getMimetype());
         assertEquals(40, mimetype1Metrics.getTotalItems());
         assertEquals(220, mimetype1Metrics.getTotalSize());
 
-        MimetypeMetrics mimetype2Metrics = mimetypeMetricsMap.get(mimetype2);
+        MimetypeMetricsCollector mimetype2Metrics = mimetypeMetricsMap.get(mimetype2);
         assertNotNull(mimetype2Metrics);
         assertEquals(mimetype2, mimetype2Metrics.getMimetype());
         assertEquals(20, mimetype2Metrics.getTotalItems());
         assertEquals(60, mimetype2Metrics.getTotalSize());
 
-        MimetypeMetrics mimetype3Metrics = mimetypeMetricsMap.get(mimetype3);
+        MimetypeMetricsCollector mimetype3Metrics = mimetypeMetricsMap.get(mimetype3);
         assertNotNull(mimetype3Metrics);
         assertEquals(mimetype3, mimetype3Metrics.getMimetype());
         assertEquals(12, mimetype3Metrics.getTotalItems());
         assertEquals(24, mimetype3Metrics.getTotalSize());
 
         // Verify storage provider metrics map
-        Map<String, StorageProviderMetrics> storageProviderMetricsMap =
+        Map<String, StorageProviderMetricsCollector> storageProviderMetricsMap =
             metrics.getStorageProviderMetrics();
         assertNotNull(storageProviderMetricsMap);
         assertEquals(2, storageProviderMetricsMap.size());
 
         // Verify storage provider 1 totals
-        StorageProviderMetrics spMetrics1 =
+        StorageProviderMetricsCollector spMetrics1 =
             storageProviderMetricsMap.get(providerId1);
         assertNotNull(spMetrics1);
         verifyStorageProviderMetrics(providerId1, spMetrics1);
 
         // Verify storage provider 2 totals
-        StorageProviderMetrics spMetrics2 =
+        StorageProviderMetricsCollector spMetrics2 =
             storageProviderMetricsMap.get(providerId2);
         assertNotNull(spMetrics2);
         verifyStorageProviderMetrics(providerId2, spMetrics2);

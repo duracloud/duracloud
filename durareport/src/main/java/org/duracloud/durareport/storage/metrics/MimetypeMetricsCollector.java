@@ -7,36 +7,29 @@
  */
 package org.duracloud.durareport.storage.metrics;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author: Bill Branan
  * Date: 5/12/11
  */
-public abstract class Metrics {
+public class MimetypeMetricsCollector {
 
+    private String mimetype;
     private long totalItems;
     private long totalSize;
 
-    private Map<String, MimetypeMetrics> mimetypeMetrics;
-
-    public Metrics() {
+    public MimetypeMetricsCollector(String mimetype) {
+        this.mimetype = mimetype;
         this.totalItems = 0;
         this.totalSize = 0;
-        this.mimetypeMetrics = new HashMap<String, MimetypeMetrics>();
     }
 
-    public void update(String mimetype, long size) {
+    public void update(long size) {
         ++totalItems;
         totalSize += size;
+    }
 
-        MimetypeMetrics mimeMet = mimetypeMetrics.get(mimetype);
-        if(null == mimeMet) {
-            mimeMet = new MimetypeMetrics(mimetype);
-            mimetypeMetrics.put(mimetype, mimeMet);
-        }
-        mimeMet.update(size);
+    public String getMimetype() {
+        return mimetype;
     }
 
     public long getTotalItems() {
@@ -45,10 +38,6 @@ public abstract class Metrics {
 
     public long getTotalSize() {
         return totalSize;
-    }
-
-    public Map<String, MimetypeMetrics> getMimetypeMetrics() {
-        return mimetypeMetrics;
     }
 
 }

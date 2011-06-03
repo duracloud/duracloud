@@ -9,10 +9,11 @@ package org.duracloud.durareport.storage;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.durareport.storage.metrics.DuraStoreMetrics;
-import org.duracloud.durareport.storage.metrics.MimetypeMetrics;
-import org.duracloud.durareport.storage.metrics.SpaceMetrics;
-import org.duracloud.durareport.storage.metrics.StorageProviderMetrics;
+import org.duracloud.durareport.storage.metrics.DuraStoreMetricsCollector;
+import org.duracloud.durareport.storage.metrics.MimetypeMetricsCollector;
+import org.duracloud.durareport.storage.metrics.SpaceMetricsCollector;
+import org.duracloud.durareport.storage.metrics.StorageProviderMetricsCollector;
+import org.duracloud.reportdata.storage.StorageReport;
 import org.easymock.Capture;
 import org.easymock.IAnswer;
 import org.easymock.classextension.EasyMock;
@@ -44,8 +45,8 @@ public class StorageReportBuilderTest {
         ContentStore mockStore = createMockStore();
         ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
 
-        Capture<DuraStoreMetrics> metricsCapture =
-            new Capture<DuraStoreMetrics>();
+        Capture<DuraStoreMetricsCollector> metricsCapture =
+            new Capture<DuraStoreMetricsCollector>();
         StorageReportHandler mockReportHandler =
             createMockReportHandler(metricsCapture);
 
@@ -69,30 +70,30 @@ public class StorageReportBuilderTest {
         assertTrue(elapsedTime < startTime);
         assertTrue(startTime <= stopTime);
 
-        DuraStoreMetrics metrics = metricsCapture.getValue();
+        DuraStoreMetricsCollector metrics = metricsCapture.getValue();
         assertNotNull(metrics);
         assertEquals(9, metrics.getTotalItems());
         assertEquals(900, metrics.getTotalSize());
 
-        Collection<StorageProviderMetrics> spMetrics =
+        Collection<StorageProviderMetricsCollector> spMetrics =
             metrics.getStorageProviderMetrics().values();
         assertNotNull(spMetrics);
         assertEquals(1, spMetrics.size());
-        for(StorageProviderMetrics spMetric : spMetrics) {
+        for(StorageProviderMetricsCollector spMetric : spMetrics) {
             assertEquals(storeId, spMetric.getStorageProviderId());
             assertEquals(storeType, spMetric.getStorageProviderType());
             assertEquals(9, spMetric.getTotalItems());
             assertEquals(900, spMetric.getTotalSize());
 
-            Collection<SpaceMetrics> spaceMetrics =
+            Collection<SpaceMetricsCollector> spaceMetrics =
                 spMetric.getSpaceMetrics().values();
             assertNotNull(spaceMetrics);
             assertEquals(3, spaceMetrics.size());
-            for(SpaceMetrics spaceMetric : spaceMetrics) {
+            for(SpaceMetricsCollector spaceMetric : spaceMetrics) {
                 assertEquals(3, spaceMetric.getTotalItems());
                 assertEquals(300, spaceMetric.getTotalSize());
 
-                Collection<MimetypeMetrics> mimeMetrics =
+                Collection<MimetypeMetricsCollector> mimeMetrics =
                     spaceMetric.getMimetypeMetrics().values();
                 assertNotNull(mimeMetrics);
                 assertEquals(1, mimeMetrics.size());
@@ -163,7 +164,7 @@ public class StorageReportBuilderTest {
     }
 
     private StorageReportHandler createMockReportHandler(
-        Capture<DuraStoreMetrics> metricsCapture)
+        Capture<DuraStoreMetricsCollector> metricsCapture)
         throws Exception {
 
         StorageReportHandler mockHandler =

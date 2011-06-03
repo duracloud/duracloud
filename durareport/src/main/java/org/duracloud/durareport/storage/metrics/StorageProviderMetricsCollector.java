@@ -17,18 +17,18 @@ import java.util.Map;
  * @author: Bill Branan
  * Date: 5/12/11
  */
-public class StorageProviderMetrics extends Metrics {
+public class StorageProviderMetricsCollector extends MetricsCollector {
 
     private String storageProviderId;
     private String storageProviderType;
-    private Map<String, SpaceMetrics> spaceMetrics;
+    private Map<String, SpaceMetricsCollector> spaceMetrics;
 
-    public StorageProviderMetrics(String storageProviderId,
-                                  String storageProviderType) {
+    public StorageProviderMetricsCollector(String storageProviderId,
+                                           String storageProviderType) {
         super();
         this.storageProviderId = storageProviderId;
         this.storageProviderType = storageProviderType;
-        this.spaceMetrics = new HashMap<String, SpaceMetrics>();
+        this.spaceMetrics = new HashMap<String, SpaceMetricsCollector>();
     }
 
     @Override
@@ -40,9 +40,9 @@ public class StorageProviderMetrics extends Metrics {
     public void update(String spaceId, String mimetype, long size) {
         super.update(mimetype, size);
 
-        SpaceMetrics spaceMet = spaceMetrics.get(spaceId);
+        SpaceMetricsCollector spaceMet = spaceMetrics.get(spaceId);
         if(null == spaceMet) {
-            spaceMet = new SpaceMetrics(spaceId);
+            spaceMet = new SpaceMetricsCollector(spaceId);
             spaceMetrics.put(spaceId, spaceMet);
         }
         spaceMet.update(mimetype, size);
@@ -56,7 +56,7 @@ public class StorageProviderMetrics extends Metrics {
         return storageProviderType;
     }
 
-    public Map<String, SpaceMetrics> getSpaceMetrics() {
+    public Map<String, SpaceMetricsCollector> getSpaceMetrics() {
         return spaceMetrics;
     }
 }

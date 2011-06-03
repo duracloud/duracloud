@@ -7,19 +7,20 @@
  */
 package org.duracloud.durareport.storage;
 
-import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.domain.Content;
-import org.duracloud.durareport.storage.metrics.DuraStoreMetrics;
+import org.duracloud.durareport.storage.metrics.DuraStoreMetricsCollector;
+import org.duracloud.reportdata.storage.StorageReport;
+import org.duracloud.reportdata.storage.metrics.StorageMetrics;
+import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.easymock.Capture;
 import org.easymock.classextension.EasyMock;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,29 +49,22 @@ public class StorageReportHandlerTest {
         Capture<Map<String, String>> metadataCapture =
             new Capture<Map<String, String>>();
 
-        ContentStore mockStore = createMockStoreStoreReport(metadataCapture);
+        ContentStore mockStore = createMockStoreStoreReport();
         ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
 
         StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
 
-        DuraStoreMetrics metrics = new DuraStoreMetrics();
+        DuraStoreMetricsCollector metrics = new DuraStoreMetricsCollector();
 
         String contentId =
             handler.storeReport(metrics, completionTime, elapsedTime);
         assertNotNull(contentId);
         assertTrue(contentId, contentId.matches(reportContentIdRegex));
 
-        Map<String, String> metadata = metadataCapture.getValue();
-        assertNotNull(metadata);
-        assertEquals(2, metadata.size());
-        assertEquals(String.valueOf(completionTime), metadata.get(compMeta));
-        assertEquals(String.valueOf(elapsedTime), metadata.get(elapMeta));
-
         EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStoreStoreReport(
-        Capture<Map<String, String>> metadataCapture) throws Exception {
+    private ContentStore createMockStoreStoreReport() throws Exception {
         ContentStore mockStore = EasyMock.createMock(ContentStore.class);
 
         EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
@@ -84,7 +78,7 @@ public class StorageReportHandlerTest {
                                              EasyMock.anyLong(),
                                              EasyMock.eq(mimetype),
                                              EasyMock.isA(String.class),
-                                             EasyMock.capture(metadataCapture)))
+                                             EasyMock.<Map<String,String>>isNull()))
             .andReturn(null)
             .times(1);
 
@@ -107,6 +101,15 @@ public class StorageReportHandlerTest {
 
     @Test
     public void testGetStorageReport() throws Exception {
+        testGetStorageReport(false);
+    }
+
+    @Test
+    public void testGetStorageReportStream() throws Exception {
+        testGetStorageReport(true);
+    }
+
+    private void testGetStorageReport(boolean stream) throws Exception {
         String reportId = "reportId";
 
         ContentStore mockStore = createMockStoreGetStorageReport(reportId);
@@ -114,13 +117,21 @@ public class StorageReportHandlerTest {
 
         StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
 
+        StorageReport report = null;
+        if(stream) {
+            InputStream reportStream = handler.getStorageReportStream(reportId);
+            assertNotNull(reportStream);
+            StorageReportSerializer serializer = new StorageReportSerializer();
+            report = serializer.deserializeReport(reportStream);
+        } else {
+            report = handler.getStorageReport(reportId);
+        }
 
-        StorageReport report = handler.getStorageReport(reportId);
         assertNotNull(report);
-        assertEquals(reportId,
-                     report.getContentId());
+        assertEquals(reportId, report.getContentId());
         assertEquals(completionTime, report.getCompletionTime());
         assertEquals(elapsedTime, report.getElapsedTime());
+        assertNotNull(report.getStorageMetrics());
 
         EasyMock.verify(mockStore, mockStoreMgr);
     }
@@ -133,34 +144,55 @@ public class StorageReportHandlerTest {
             .andReturn(null)
             .times(1);
 
-        Content content = new Content();
-        content.setId(reportId);
-        Map<String, String> contentMeta = new HashMap<String, String>();
-        contentMeta.put(compMeta, String.valueOf(completionTime));
-        contentMeta.put(elapMeta, String.valueOf(elapsedTime));
-        content.setMetadata(contentMeta);
         EasyMock.expect(mockStore.getContent(EasyMock.eq(spaceId),
                                              EasyMock.eq(reportId)))
-            .andReturn(content)
+            .andReturn(getContent(reportId))
             .times(1);
 
         EasyMock.replay(mockStore);
         return mockStore;
     }
 
+    private Content getContent(String reportId) throws Exception {
+        Content content = new Content();
+        content.setId(reportId);
+
+        StorageReportSerializer serializer = new StorageReportSerializer();
+        StorageMetrics metrics = new StorageMetrics(null, 0, 0, null);
+        StorageReport storageReport =
+            new StorageReport(reportId, metrics, completionTime, elapsedTime);
+        String xml = serializer.serializeReport(storageReport);
+        content.setStream(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+
+        return content;
+    }
+
     @Test
     public void testGetLatestStorageReport() throws Exception {
+        testGetLatestStorageReport(false);
+    }
+
+    public void testGetLatestStorageReport(boolean stream) throws Exception {
         ContentStore mockStore = createMockStoreGetLatestStorageReport();
         ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
 
         StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
 
-        StorageReport report = handler.getLatestStorageReport();
+        StorageReport report = null;
+        if(stream) {
+            InputStream reportStream = handler.getLatestStorageReportStream();
+            assertNotNull(reportStream);
+            StorageReportSerializer serializer = new StorageReportSerializer();
+            report = serializer.deserializeReport(reportStream);
+        } else {
+            report = handler.getLatestStorageReport();
+        }
+
         assertNotNull(report);
-        assertEquals(reportContentId,
-                     report.getContentId());
+        assertEquals(reportContentId, report.getContentId());
         assertEquals(completionTime, report.getCompletionTime());
         assertEquals(elapsedTime, report.getElapsedTime());
+        assertNotNull(report.getStorageMetrics());
 
         EasyMock.verify(mockStore, mockStoreMgr);
     }
@@ -181,15 +213,9 @@ public class StorageReportHandlerTest {
             .andReturn(reports.iterator())
             .times(1);
 
-        Content content = new Content();
-        content.setId(reportContentId);
-        Map<String, String> contentMeta = new HashMap<String, String>();
-        contentMeta.put(compMeta, String.valueOf(completionTime));
-        contentMeta.put(elapMeta, String.valueOf(elapsedTime));
-        content.setMetadata(contentMeta);
         EasyMock.expect(mockStore.getContent(EasyMock.eq(spaceId),
                                              EasyMock.eq(reportContentId)))
-            .andReturn(content)
+            .andReturn(getContent(reportContentId))
             .times(1);
 
         EasyMock.replay(mockStore);
@@ -203,11 +229,9 @@ public class StorageReportHandlerTest {
 
         StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
 
-        InputStream stream = handler.getStorageReportList();
-        assertNotNull(stream);
+        List<String> reportList = handler.getStorageReportList();
+        assertNotNull(reportList);
 
-        String xml = IOUtils.toString(stream, "UTF-8");
-        List<String> reportList = SerializationUtil.deserializeList(xml);
         assertNotNull(reportList);
         assertEquals(3, reportList.size());
         assertTrue(reportList.contains(reportContentId));

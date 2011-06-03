@@ -78,7 +78,9 @@
         <module>hellowebapp</module>
         <module>services</module>
         <module>duraservice</module>
+        <module>reportdata</module>
         <module>durareport</module>
+        <module>reportclient</module>
         <module>app-config</module>
         <module>serviceclient</module>
         <module>servicesadminclient</module>

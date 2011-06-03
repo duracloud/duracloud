@@ -69,12 +69,8 @@ public class StorageReportRest extends BaseRest {
         log.debug("Getting storage report list");
 
         try {
-            InputStream stream = resource.getStorageReportList();
-            if(null != stream) {
-                return responseOkXmlStream(stream);
-            } else {
-                return responseNotFound();
-            }
+            String xml = resource.getStorageReportList();
+            return responseOkXml(xml);
         } catch (Exception e) {
             return responseBad(e);
         }
@@ -105,7 +101,7 @@ public class StorageReportRest extends BaseRest {
     }
 
     /**
-     * Retrieves information about storage reporting activities
+     * Retrieves information about storage reporting activities.
      *
      * @return 200 response with storage report info XML as body
      */
