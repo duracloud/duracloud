@@ -1286,7 +1286,7 @@ $(function(){
 		show: 'blind',
 		hide: 'blind',
 		resizable: false,
-		height: 370,
+		height: 400,
 		closeOnEscape:true,
 		modal: true,
 		width:500,

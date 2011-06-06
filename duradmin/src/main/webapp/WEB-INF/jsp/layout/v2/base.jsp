@@ -11,8 +11,7 @@
 	<meta name="language" content="en" />
     <title><spring:message code="application.title" /> :: <tiles:insertAttribute name="title"/></title>
 	<link rel="shortcut icon" href="${pageContext.request.contextPath}/favicon.ico" />
-	
-
+	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/jquery-ui.css" type="text/css" />	
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/base.css" type="text/css" />	
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/flex.css" type="text/css" />
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/dialogs.css" type="text/css" />

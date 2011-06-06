@@ -1014,5 +1014,37 @@ p.ui-serviceconfig-no-config{
 }
 
 
+.dc-graph {
+	width:300px;
+	height:150px;	
+}
+
+.dc-breadcrumb li:after {
+	content:' :: '	
+}
+
+.dc-breadcrumb li {
+	cursor: pointer;
+}
+
+
+.dc-breadcrumb-title {
+	font-size:2.0em !important;	
+}
+
+.dc-breadcrumb {
+	height:50px;
+	padding:10px;
+}
+
+.dc-report-panel {
+	
+	padding:10px;	
+}
+
+.dc-hidden {
+	display:none;	
+}
+
 
 	

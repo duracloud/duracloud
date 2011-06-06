@@ -8,7 +8,9 @@
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/js/dashboard-manager.js"></script>
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/plugins/jquery.jfeed/jquery.jfeed.pack.js"></script>
+			src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.js"></script>
+		<script type="text/javascript"
+			src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.pie.js"></script>
 
 	
 	</tiles:putAttribute>
@@ -26,7 +28,93 @@
 						
 					</div>
 				</div>
-				<div id="static-panel">
+				<div id="main-content-panel" >
+					<div class="north dc-report-panel">
+						<div id="report-date"></div>
+						<div id="slider"></div>
+						<div id="report-breadcrumb" class="dc-breadcrumb">
+						</div>
+
+					</div>
+					<div class="center">
+						<div id="report-pane"></div>
+						<div id="storage-providers" class="dc-hidden">
+							<table>
+								<tr>
+									<td>
+										<div id="bytes">
+											
+										</div>
+									
+									</td>
+									<td>
+										<div id="files">
+											
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="mimetype-bytes">
+										</div>
+									</td>
+									<td>
+										<div id="mimetype-files">
+											
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div id="storage-provider" class="dc-hidden">
+							<table>
+								<tr>
+									<td>
+										<div id="bytes">
+											
+										</div>
+									
+									</td>
+									<td>
+										<div id="files">
+											
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="mimetype-bytes">
+										</div>
+									</td>
+									<td>
+										<div id="mimetype-files">
+											
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div id="space" class="dc-hidden">
+							<table>
+								<tr>
+									<td>
+										<div id="mimetype-bytes">
+										</div>
+									</td>
+									<td>
+										<div id="mimetype-files">
+											
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>						
+					</div>
+				</div>					
+
+
+
+					<!-- 
 						<h2>Getting Started with Duracloud</h2>
 						<p>
 						DuraCloud is particularly focused on providing preservation support services and access services for academic libraries, academic research centers, and other cultural heritage organizations.
@@ -47,8 +135,8 @@
 							<li><a href="http://duracloud.org">Duracloud.org</a></li>
 						
 						</ul>
+					 -->
 						
-				</div>
 			</tiles:putAttribute>
 			<tiles:putAttribute name="main-footer">
 				<div id="status-holder">
