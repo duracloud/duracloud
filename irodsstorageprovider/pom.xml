@@ -12,6 +12,20 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <repositories>
+    <repository>
+      <id>adapt-sonatype</id>
+      <name>ADAPT Project Repository</name>
+      <url>https://scm.umiacs.umd.edu/maven/adapt/content/repositories/releases/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  
   <dependencies>
 
     <dependency>
@@ -27,9 +41,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud.umiacs</groupId>
+      <groupId>edu.umiacs.irods</groupId>
       <artifactId>irods-api</artifactId>
-      <version>1.3</version>
+      <version>1.6</version>
     </dependency>
 
     <dependency>
