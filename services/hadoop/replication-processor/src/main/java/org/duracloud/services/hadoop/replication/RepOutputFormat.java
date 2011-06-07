@@ -16,7 +16,7 @@ import org.duracloud.services.hadoop.base.AltTextOutputFormat;
 public class RepOutputFormat extends AltTextOutputFormat {
 
     @Override
-    protected String getOutputFileName() {
+    public String getOutputFileName() {
         return "duplicate-on-demand/duplicate-results.csv";
     }
 
