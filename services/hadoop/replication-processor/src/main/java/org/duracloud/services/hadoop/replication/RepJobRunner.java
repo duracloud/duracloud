@@ -10,6 +10,7 @@ package org.duracloud.services.hadoop.replication;
 import org.duracloud.services.hadoop.base.InitParamParser;
 import org.duracloud.services.hadoop.base.JobBuilder;
 import org.duracloud.services.hadoop.base.JobRunner;
+import org.duracloud.services.hadoop.replication.retry.RetryRepJobBuilder;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -37,6 +38,9 @@ public class RepJobRunner extends JobRunner {
 
         JobBuilder jobBuilder = new RepJobBuilder(initParams);
         runner.runJob(jobBuilder);
+
+        JobBuilder retryJobBuilder = new RetryRepJobBuilder(initParams);
+        runner.runJob(retryJobBuilder);
     }
 
 }
