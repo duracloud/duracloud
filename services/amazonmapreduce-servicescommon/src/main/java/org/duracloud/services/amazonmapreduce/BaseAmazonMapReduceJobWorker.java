@@ -9,6 +9,7 @@ package org.duracloud.services.amazonmapreduce;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.amazonmapreduce.impl.HadoopJobCompletionMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +93,7 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
         }
         status = JobStatus.RUNNING;
 
-        new Thread(new JobCompletionMonitor(this)).start();
+        new Thread(new HadoopJobCompletionMonitor(this)).start();
     }
 
     private String copyResourceToStorage(String resourceName)

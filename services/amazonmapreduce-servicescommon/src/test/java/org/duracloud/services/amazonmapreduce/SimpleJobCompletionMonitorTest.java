@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.amazonmapreduce;
 
+import org.duracloud.services.amazonmapreduce.impl.SimpleJobCompletionMonitor;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -17,19 +18,23 @@ import java.util.Map;
 
 /**
  * @author Andrew Woods
- *         Date: Sep 30, 2010
+ *         Date: Jun 07, 2011
  */
-public class JobCompletionMonitorTest {
+public class SimpleJobCompletionMonitorTest {
 
-    private JobCompletionMonitor jobCompletionMonitor;
+    private SimpleJobCompletionMonitor jobCompletionMonitor;
     private AmazonMapReduceJobWorker worker;
+    private BaseAmazonMapReduceService service;
 
     @Before
     public void setUp() throws Exception {
         worker = createMockWorker();
+        service = createMockService();
 
         long sleepMillis = 1000;
-        jobCompletionMonitor = new JobCompletionMonitor(worker, sleepMillis);
+        jobCompletionMonitor = new SimpleJobCompletionMonitor(worker,
+                                                              service,
+                                                              sleepMillis);
     }
 
     private AmazonMapReduceJobWorker createMockWorker() {
@@ -41,24 +46,26 @@ public class JobCompletionMonitorTest {
         EasyMock.expect(worker.getJobStatus()).andReturn(
             AmazonMapReduceJobWorker.JobStatus.COMPLETE).times(1);
 
-        Map<String, String> emptyMap = new HashMap<String, String>();
-        EasyMock.expect(worker.getJobDetailsMap()).andReturn(emptyMap).times(2);
-
-        Map<String, String> doneMap = new HashMap<String, String>();
-        doneMap.put("Job State", "COMPLETED");
-        EasyMock.expect(worker.getJobDetailsMap()).andReturn(doneMap).times(1);
-
-        worker.shutdown();
-        EasyMock.expectLastCall().times(1);
-
         EasyMock.replay(worker);
 
         return worker;
     }
 
+    private BaseAmazonMapReduceService createMockService() {
+        BaseAmazonMapReduceService service = EasyMock.createMock(
+            "BaseAmazonMapReduceService",
+            BaseAmazonMapReduceService.class);
+
+        service.doneWorking();
+        EasyMock.expectLastCall();
+
+        EasyMock.replay(service);
+        return service;
+    }
+
     @After
     public void tearDown() {
-        EasyMock.verify(worker);
+        EasyMock.verify(worker, service);
     }
 
     @Test

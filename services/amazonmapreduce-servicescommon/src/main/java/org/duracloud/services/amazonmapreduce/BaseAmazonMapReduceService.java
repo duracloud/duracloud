@@ -15,6 +15,8 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.amazonmapreduce.impl.HadoopJobCompletionMonitor;
+import org.duracloud.services.amazonmapreduce.impl.SimpleJobCompletionMonitor;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
@@ -55,6 +57,8 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     protected static final String OPTIMIZE_COST = "optimize_for_cost";
     protected static final String OPTIMIZE_SPEED = "optimize_for_speed";
 
+    private long sleepMillis = 30000;
+
     private String duraStoreHost;
     private String duraStorePort;
     private String duraStoreContext;
@@ -89,10 +93,20 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         log.info("Starting " + getServiceId() + " as " + username);
         this.setServiceStatus(ServiceStatus.STARTING);
 
-        startWorker(getJobWorker());
-        startWorker(getPostJobWorker());
+        AmazonMapReduceJobWorker jobWorker = getJobWorker();
+        AmazonMapReduceJobWorker postJobWorker = getPostJobWorker();
+
+        startWorker(jobWorker);
+        startWorker(postJobWorker);
 
         super.start();
+
+        // Signal doneWorking() when service is complete.
+        AmazonMapReduceJobWorker worker =
+            postJobWorker != null ? postJobWorker : jobWorker;
+        new Thread(new SimpleJobCompletionMonitor(worker,
+                                                  this,
+                                                  sleepMillis)).start();
     }
 
     private void startWorker(Runnable worker) {
@@ -169,7 +183,13 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
             getPostJobWorker().shutdown();
         }
 
+        super.doneWorking();
         this.setServiceStatus(ServiceStatus.STOPPED);
+    }
+
+    @Override
+    public void doneWorking() {
+        super.doneWorking();
     }
 
     @Override
@@ -229,7 +249,12 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
 
             Map<String, String> jobDetailsMap = worker.getJobDetailsMap();
             for (String key : jobDetailsMap.keySet()) {
-                props.put(SYSTEM_PREFIX + key, jobDetailsMap.get(key));
+                String value = jobDetailsMap.get(key);
+                props.put(SYSTEM_PREFIX + key, value);
+
+                if (value.contains("FAIL")) {
+                    super.setError("Hadoop Job: " + value);
+                }
             }
         }
 

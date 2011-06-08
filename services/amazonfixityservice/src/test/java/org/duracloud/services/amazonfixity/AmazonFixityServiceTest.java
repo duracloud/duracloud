@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
+import static org.duracloud.storage.domain.HadoopTypes.DESCRIBE_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
 import static org.duracloud.storage.domain.HadoopTypes.JOB_TYPES;
@@ -109,7 +110,12 @@ public class AmazonFixityServiceTest {
         Assert.assertNotNull(status);
         Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
 
-        sleep(1000); // do some work
+        sleep(2000); // do some work
+
+        Map<String, String> props = service.getServiceProps();
+        Assert.assertNotNull(props);
+        Assert.assertTrue(props.containsKey(ComputeService.STARTTIME_KEY));
+        Assert.assertFalse(props.containsKey(ComputeService.STOPTIME_KEY));
 
         verifyMocks();
     }
@@ -175,6 +181,9 @@ public class AmazonFixityServiceTest {
         EasyMock.expect(contentStore.performTask(EasyMock.isA(String.class),
                                                  EasyMock.isA(String.class)))
             .andReturn(null);
+        EasyMock.expect(contentStore.performTask(EasyMock.eq(DESCRIBE_JOB_TASK_NAME),
+                                                 EasyMock.isA(String.class)))
+            .andReturn(null);
 
         EasyMock.makeThreadSafe(contentStore, true);
     }
@@ -208,6 +217,11 @@ public class AmazonFixityServiceTest {
          */
         service.stop();
 
+        Map<String,String> props = service.getServiceProps();
+        Assert.assertNotNull(props);
+        Assert.assertTrue(props.containsKey(ComputeService.STARTTIME_KEY));
+        Assert.assertTrue(props.containsKey(ComputeService.STOPTIME_KEY));
+
         verifyMocks();
     }
 
@@ -227,16 +241,14 @@ public class AmazonFixityServiceTest {
         String taskReturn = SerializationUtil.serializeMap(taskReturnMap);
 
         EasyMock.expect(contentStore.performTask(EasyMock.eq(
-            HadoopTypes.DESCRIBE_JOB_TASK_NAME), EasyMock.isA(String.class))).andReturn(
-            taskReturn).times(1);
-
-        EasyMock.expect(contentStore.performTask(EasyMock.eq(
             HadoopTypes.DESCRIBE_JOB_TASK_NAME), EasyMock.<String>isNull())).andReturn(
             taskReturn).times(1);
 
         EasyMock.expect(contentStore.performTask(EasyMock.eq(
             HadoopTypes.STOP_JOB_TASK_NAME), EasyMock.isA(String.class))).andReturn(
             taskReturn).times(1);
+
+        EasyMock.expect(contentStore.getStoreId()).andReturn("0");
     }
 
 }

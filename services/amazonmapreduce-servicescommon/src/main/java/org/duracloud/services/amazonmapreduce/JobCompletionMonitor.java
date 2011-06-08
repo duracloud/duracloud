@@ -20,7 +20,7 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: Sep 30, 2010
  */
-public class JobCompletionMonitor implements Runnable {
+public abstract class JobCompletionMonitor implements Runnable {
 
     private final Logger log = LoggerFactory.getLogger(JobCompletionMonitor.class);
 
@@ -45,27 +45,26 @@ public class JobCompletionMonitor implements Runnable {
         AmazonMapReduceJobWorker.JobStatus status;
         while (!(status = worker.getJobStatus()).isComplete()) {
 
-            // is hadoop job finished?
-            Map<String, String> map = worker.getJobDetailsMap();
-            for (String key : map.keySet()) {
-                if (key.equals("Job State")) {
-                    String state = map.get(key);
-                    if ("COMPLETED".equals(state) || "FAILED".equals(state)) {
-                        worker.shutdown();
-                    }
-                }
-            }
+            preCompletionAction(worker);
 
-            StringBuilder sb = new StringBuilder("Monitoring status of: ");
-            sb.append(worker.getClass());
-            sb.append(" [");
-            sb.append(status.getDescription());
-            sb.append("]");
-            log.debug(sb.toString());
-
+            logStatus(status);
             sleep(sleepMillis);
         }
+        postCompletionAction();
         log.info("Monitoring of " + worker.getClass() + " done.");
+    }
+
+    protected abstract void preCompletionAction(AmazonMapReduceJobWorker worker);
+
+    protected abstract void postCompletionAction();
+
+    private void logStatus(AmazonMapReduceJobWorker.JobStatus status) {
+        StringBuilder sb = new StringBuilder("Monitoring status of: ");
+        sb.append(worker.getClass());
+        sb.append(" [");
+        sb.append(status.getDescription());
+        sb.append("]");
+        log.debug(sb.toString());
     }
 
     private void sleep(long millis) {
