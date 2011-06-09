@@ -98,6 +98,10 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
         return error;
     }
 
+    protected void setError(String error) {
+        this.error = error;
+    }
+
     @Override
     public void shutdown() {
         log.info("shutting down: {}", this.getClass().getName());

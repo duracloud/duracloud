@@ -9,6 +9,8 @@ package org.duracloud.services.amazonmapreduce.postprocessing;
 
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +26,8 @@ import java.util.Map;
  *         Date: Oct 1, 2010
  */
 public class MultiPostJobWorker extends BaseAmazonMapReducePostJobWorker {
+
+    private final Logger log = LoggerFactory.getLogger(MultiPostJobWorker.class);
 
     private List<AmazonMapReduceJobWorker> workers;
 
@@ -53,6 +57,21 @@ public class MultiPostJobWorker extends BaseAmazonMapReducePostJobWorker {
         for (AmazonMapReduceJobWorker worker : workers) {
             worker.shutdown();
         }
+    }
+
+    @Override
+    public String getError() {
+        String error;
+        for (AmazonMapReduceJobWorker worker : workers) {
+            error = worker.getError();
+            if (null != error) {
+                log.info("Error found from {}: {}",
+                         worker.getClass().getName(),
+                         error);
+                return error;
+            }
+        }
+        return super.getError();
     }
     
     @Override

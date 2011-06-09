@@ -9,6 +9,7 @@ package org.duracloud.services.amazonfixity;
 
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.amazonfixity.postprocessing.FixityPassFailPostJobWorker;
 import org.duracloud.services.amazonfixity.postprocessing.VerifyHashesPostJobWorker;
 import org.duracloud.services.amazonfixity.postprocessing.WrapperPostJobWorker;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
@@ -156,6 +157,13 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                 getDestSpaceId(),
                 deleteFiles);
 
+            AmazonMapReduceJobWorker passFailWorker = new FixityPassFailPostJobWorker(
+                deleteWorker,
+                getContentStore(),
+                getServiceWorkDir(),
+                getDestSpaceId(),
+                reportContentId);
+
             AmazonMapReduceJobWorker[] postWorkers;
             if (null != wrapperWorker && null != headerWorker2) {
                 postWorkers = new AmazonMapReduceJobWorker[]{headerWorker,
@@ -163,12 +171,14 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                                                              headerWorker2,
                                                              verifyWorker,
                                                              mimeWorker,
-                                                             deleteWorker};
+                                                             deleteWorker,
+                                                             passFailWorker};
             } else {
                 postWorkers = new AmazonMapReduceJobWorker[]{headerWorker,
                                                              verifyWorker,
                                                              mimeWorker,
-                                                             deleteWorker};
+                                                             deleteWorker,
+                                                             passFailWorker};
             }
             postWorker = new MultiPostJobWorker(getJobWorker(), postWorkers);
 

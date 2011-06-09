@@ -13,6 +13,7 @@ import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker;
+import org.duracloud.services.amazonmapreduce.postprocessing.SimplePassFailPostJobWorker;
 import org.duracloud.storage.domain.HadoopTypes;
 import org.duracloud.common.util.DateUtil;
 
@@ -66,22 +67,31 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
             String date = "-" + DateUtil.nowMid();
             String postName = ".csv";
 
+            String newContentId = preName + date + postName;
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
                 getJobWorker(),
                 getContentStore(),
                 getServiceWorkDir(),
                 getDestSpaceId(),
                 preName + postName,
-                preName + date + postName,
+                newContentId,
                 header);
 
             AmazonMapReduceJobWorker mimeWorker = new MimePostJobWorker(headerWorker,
                                                getContentStore(),
                                                getDestSpaceId());
 
+            AmazonMapReduceJobWorker passFailWorker = new SimplePassFailPostJobWorker(
+                mimeWorker,
+                getContentStore(),
+                getServiceWorkDir(),
+                getDestSpaceId(),
+                newContentId);
+
             AmazonMapReduceJobWorker[] postWorkers =
                 new AmazonMapReduceJobWorker[]{headerWorker,
-                                               mimeWorker};
+                                               mimeWorker,
+                                               passFailWorker};
 
             postWorker = new MultiPostJobWorker(getJobWorker(), postWorkers);
         }

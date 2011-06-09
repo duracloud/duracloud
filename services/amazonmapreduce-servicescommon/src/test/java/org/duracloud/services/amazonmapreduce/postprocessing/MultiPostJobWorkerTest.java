@@ -12,7 +12,6 @@ import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -38,13 +37,17 @@ public class MultiPostJobWorkerTest {
     private String id2 = "id-2";
     private long sleepMillis = 100;
 
-    @Before
-    public void setUp() throws Exception {
+
+    private void createMocks() throws Exception {
+        createMocks(false);
+    }
+
+    private void createMocks(boolean withErrors) throws Exception {
         predecessor = createMockJobWorker();
 
-        worker0 = createMockPostJobWorker(predecessor, id0);
-        worker1 = createMockPostJobWorker(worker0, id1);
-        worker2 = createMockPostJobWorker(worker1, id2);
+        worker0 = createMockPostJobWorker(predecessor, id0, withErrors);
+        worker1 = createMockPostJobWorker(worker0, id1, withErrors);
+        worker2 = createMockPostJobWorker(worker1, id2, withErrors);
         multiPostJobWorker = new MultiPostJobWorker(predecessor,
                                                     sleepMillis,
                                                     worker0,
@@ -74,12 +77,18 @@ public class MultiPostJobWorkerTest {
 
     private AmazonMapReduceJobWorker createMockPostJobWorker(
         AmazonMapReduceJobWorker aPredecessor,
-        final String id) {
+        final String id,
+        final boolean withError) {
         return new BaseAmazonMapReducePostJobWorker(aPredecessor, sleepMillis) {
             @Override
             protected void doWork() {
                 sleep(sleepMillis); // do some work
                 proof.add(id);
+            }
+
+            @Override
+            public String getError() {
+                return withError ? "some-error" : null;
             }
         };
     }
@@ -95,6 +104,8 @@ public class MultiPostJobWorkerTest {
 
     @Test
     public void testGetJobStatus() throws Exception {
+        createMocks();
+
         JobStatus status = multiPostJobWorker.getJobStatus();
         Assert.assertNotNull(status);
         Assert.assertEquals(JobStatus.WAITING, status);
@@ -108,12 +119,36 @@ public class MultiPostJobWorkerTest {
     
     @Test
     public void testRun() throws Exception {
+        createMocks();
+
         multiPostJobWorker.run();
 
         Assert.assertEquals(3, proof.size());
         Assert.assertTrue(id0 + " not found", proof.contains(id0));
         Assert.assertTrue(id1 + " not found", proof.contains(id1));
         Assert.assertTrue(id2 + " not found", proof.contains(id2));
+    }
+
+    @Test
+    public void testGetError() throws Exception {
+        createMocks();
+
+        multiPostJobWorker.run();
+
+        String error = multiPostJobWorker.getError();
+        Assert.assertNull(error, error);
+    }
+
+    @Test
+    public void testGetErrorWith() throws Exception {
+        boolean withErrors = true;
+        createMocks(withErrors);
+
+        multiPostJobWorker.run();
+
+        String error = multiPostJobWorker.getError();
+        Assert.assertNotNull(error);
+        Assert.assertEquals("some-error", error);
     }
 
 }

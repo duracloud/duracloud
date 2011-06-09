@@ -7,22 +7,16 @@
  */
 package org.duracloud.services.amazonmapreduce.postprocessing;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.domain.Content;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
+import org.duracloud.services.amazonmapreduce.util.ContentStoreUtil;
+import org.duracloud.services.amazonmapreduce.util.ContentStreamUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -39,7 +33,8 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
 
     private final Logger log = LoggerFactory.getLogger(HeaderPostJobWorker.class);
 
-    private ContentStore contentStore;
+    private ContentStoreUtil storeUtil;
+    private ContentStreamUtil streamUtil;
     private String serviceWorkDir;
     private String spaceId;
     private String contentId;
@@ -75,7 +70,8 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
                       String contentId,
                       String newContentId,
                       String header) {
-        this.contentStore = contentStore;
+        this.storeUtil = new ContentStoreUtil(contentStore);
+        this.streamUtil = new ContentStreamUtil();
         this.serviceWorkDir = serviceWorkDir;
         this.spaceId = spaceId;
         this.contentId = contentId;
@@ -103,119 +99,28 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
     }
 
     private InputStream getContentStream() {
-        Content content = getContent();
-        if (null == content) {
-            StringBuilder sb = new StringBuilder("Error: content is null: ");
-            sb.append(spaceId);
-            sb.append("/");
-            sb.append(contentId);
-            log.error(sb.toString());
-            throw new DuraCloudRuntimeException(sb.toString());
-        }
-        return new AutoCloseInputStream(content.getStream());
+        return storeUtil.getContentStream(spaceId, contentId);
     }
 
     private void writeToOutputStream(String text, OutputStream outputStream) {
-        try {
-            IOUtils.write(text, outputStream);
-
-        } catch (IOException e) {
-            StringBuilder sb = new StringBuilder("Error ");
-            sb.append("writing to outputstream.");
-            log.error(sb.toString());
-            throw new DuraCloudRuntimeException(sb.toString(), e);
-        }
+        streamUtil.writeToOutputStream(text, outputStream);
     }
 
     private void writeToOutputStream(InputStream inputStream,
                                      OutputStream outputStream) {
-        try {
-            IOUtils.copy(inputStream, outputStream);
-
-        } catch (IOException e) {
-            StringBuilder sb = new StringBuilder("Error ");
-            sb.append("copying from inputstream to outputstream.");
-            log.error(sb.toString());
-            throw new DuraCloudRuntimeException(sb.toString(), e);
-        }
+        streamUtil.writeToOutputStream(inputStream, outputStream);
     }
 
     private OutputStream createOutputStream(File file) {
-        try {
-            return FileUtils.openOutputStream(file);
-
-        } catch (IOException e) {
-            StringBuilder sb = new StringBuilder("Error ");
-            sb.append("creating outputstream: ");
-            sb.append(file.getPath());
-            log.error(sb.toString());
-            throw new DuraCloudRuntimeException(sb.toString(), e);
-        }
-
-    }
-
-    private Content getContent() {
-        try {
-            return contentStore.getContent(spaceId, contentId);
-
-        } catch (ContentStoreException e) {
-            StringBuilder sb = new StringBuilder("Error: ");
-            sb.append("getting content: ");
-            sb.append(spaceId);
-            sb.append("/");
-            sb.append(contentId);
-            sb.append(": ");
-            sb.append(e.getMessage());
-            log.error(sb.toString());
-
-            throw new DuraCloudRuntimeException(sb.toString(), e);
-        }
+        return streamUtil.createOutputStream(file);
     }
 
     private void deleteOldContent() {
-        try {
-            contentStore.deleteContent(spaceId, contentId);
-
-        } catch (ContentStoreException e) {
-            StringBuilder sb = new StringBuilder("Error: ");
-            sb.append("deleting content: ");
-            sb.append(spaceId);
-            sb.append("/");
-            sb.append(contentId);
-            sb.append(": ");
-            sb.append(e.getMessage());
-            log.error(sb.toString());
-        }
+        storeUtil.deleteOldContent(spaceId, contentId);
     }
 
     private void storeContentStream(File file) {
-        log.debug("storing content to storage-provider: " + file.getPath());
-        try {
-            contentStore.addContent(spaceId,
-                                    newContentId,
-                                    new FileInputStream(file),
-                                    file.length(),
-                                    null,
-                                    null,
-                                    null);
-
-        } catch (ContentStoreException e) {
-            StringBuilder sb = new StringBuilder("Error adding content: ");
-            sb.append(spaceId);
-            sb.append("/");
-            sb.append(newContentId);
-            sb.append(", from: ");
-            sb.append(file.getPath());
-            log.error(sb.toString());
-            throw new DuraCloudRuntimeException(sb.toString(), e);
-
-        } catch (FileNotFoundException e) {
-            StringBuilder sb = new StringBuilder("Error finding file from: ");
-            sb.append(", from: ");
-            sb.append(file.getPath());
-            log.error(sb.toString());
-            throw new DuraCloudRuntimeException(sb.toString(), e);
-        }
+        storeUtil.storeContentStream(file, spaceId, newContentId);
     }
 
 }
