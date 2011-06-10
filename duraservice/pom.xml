@@ -46,6 +46,33 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <property name="classpath" refid="maven.runtime.classpath"/>
+                <java
+                  classname="org.duracloud.duraservice.config.ServiceXmlGenerator"
+                  fork="true"
+                  failonerror="true"
+                  classpath="${classpath}">
+                  <arg value="${project.version}"/>
+                  <arg value="${project.build.directory}"/>
+                </java>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
 
   </build>

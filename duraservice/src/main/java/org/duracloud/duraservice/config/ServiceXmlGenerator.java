@@ -88,13 +88,15 @@ public class ServiceXmlGenerator {
         sb.append("----------------------------------\n");
         sb.append("Usage:");
         sb.append("\n");
-        sb.append("ServiceXmlGenerator <version>");
+        sb.append("ServiceXmlGenerator <version> [output-dir]");
         sb.append("\n\n");
         sb.append("Where <version> is the artifact version for all services.");
         sb.append("\n");
-        sb.append("Example: ");
+        sb.append("Examples: ");
         sb.append("\n\t");
         sb.append("ServiceXmlGenerator 0.7.0-SNAPSHOT");
+        sb.append("\n\t");
+        sb.append("ServiceXmlGenerator 0.7.0-SNAPSHOT /tmp/xml/");
         sb.append("\n\n");
         sb.append("----------------------------------\n");
 
@@ -102,16 +104,30 @@ public class ServiceXmlGenerator {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
+        if (args.length != 1 && args.length != 2) {
             System.err.println(usage());
             System.exit(1);
         }
 
         String version = args[0];
-        String currentDir = new File(".").getCanonicalPath();
-        
+
+        String outputDir;
+        if (args.length == 2) {
+            outputDir = args[1];
+        } else {
+            // current directory
+            outputDir = new File(".").getCanonicalPath();
+        }
+
+        // make sure output directory exists
+        File verifyOutputDir = new File(outputDir);
+        if (!verifyOutputDir.exists()) {
+            System.err.println("Output Directory does not exist: " + outputDir);
+            System.exit(1);
+        }
+
         ServiceXmlGenerator xmlGenerator = new ServiceXmlGenerator(version);
-        xmlGenerator.generateServiceXml(currentDir);
+        xmlGenerator.generateServiceXml(outputDir);
     }
 
 }
