@@ -7,16 +7,21 @@
  */
 package org.duracloud.duraservice.config;
 
+import org.apache.commons.io.IOUtils;
+import org.duracloud.common.model.ServiceRegistryName;
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.serviceconfig.ServiceInfo;
+import org.duracloud.serviceconfig.ServicesConfigDocument;
 import org.duracloud.serviceconfig.SystemConfig;
-import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,16 +36,16 @@ import java.util.Properties;
 public class ServiceXmlGeneratorTest {
 
     private static final String PROJECT_VERSION_PROP = "PROJECT_VERSION";
+    private static final int NUM_SERVICES = 11;
 
     @Test
     public void testBuildServiceList() {
         String ver = getVersion();
 
         ServiceXmlGenerator serviceXmlGenerator = new ServiceXmlGenerator(ver);
-        List<ServiceInfo> serviceInfos = serviceXmlGenerator.buildServiceList();
+        List<ServiceInfo> serviceInfos = serviceXmlGenerator.getServices();
         Assert.assertNotNull(serviceInfos);
 
-        int NUM_SERVICES = 11;
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
         boolean foundHello = false;
@@ -206,7 +211,8 @@ public class ServiceXmlGeneratorTest {
         Assert.assertEquals(1, dependencies.size());
 
         Assert.assertTrue(dependencies.containsKey(dependencyServiceId));
-        Assert.assertEquals(dependencyContentId, dependencies.get(dependencyServiceId));
+        Assert.assertEquals(dependencyContentId, dependencies.get(
+            dependencyServiceId));
     }
 
     private void verifyMediaStreaming(ServiceInfo serviceInfo) {
@@ -347,13 +353,105 @@ public class ServiceXmlGeneratorTest {
 
     @Test
     public void testGenerate() throws Exception {
+        String version = getVersion();
+        String outputDirPath = getOutputDir().getAbsolutePath();
+
+        // generate the xml files
+        ServiceXmlGenerator xmlGenerator = new ServiceXmlGenerator(version);
+        xmlGenerator.generateServiceXml(outputDirPath);
+
+        ServiceRegistryName registry = new ServiceRegistryName(version);
+
+        String xmlProfessionalName = registry.getName() + ".xml";
+        String xmlPreservationName = registry.getNamePreservation() + ".xml";
+        String xmlMediaName = registry.getNameMedia() + ".xml";
+
+        // verify all xml files were created
+        File xmlProfessional = new File(outputDirPath, xmlProfessionalName);
+        File xmlPreservation = new File(outputDirPath, xmlPreservationName);
+        File xmlMedia = new File(outputDirPath, xmlMediaName);
+
+        Assert.assertTrue(xmlProfessional.getPath(), xmlProfessional.exists());
+        Assert.assertTrue(xmlPreservation.getPath(), xmlPreservation.exists());
+        Assert.assertTrue(xmlMedia.getPath(), xmlMedia.exists());
+
+        // verify each xml files has correct services
+        verifyServiceXmlProfessional(xmlProfessional);
+        verifyServiceXmlPreservation(xmlPreservation);
+        verifyServiceXmlMedia(xmlMedia);
+    }
+
+    private void verifyServiceXmlProfessional(File xmlFile)
+        throws FileNotFoundException {
+        List<ServiceInfo> services = getServicesFromXml(xmlFile);
+        Assert.assertNotNull(services);
+
+        int count = NUM_SERVICES;
+        Assert.assertEquals(xmlFile.getName(), count, services.size());
+
+        verifyService(services.get(0), "fixityservice-", 0);
+        verifyService(services.get(1), "amazonfixityservice-", 1);
+        verifyService(services.get(2), "bitintegritytoolsservice-", 2);
+        verifyService(services.get(3), "replication-on-demand-service-", 3);
+        verifyService(services.get(4), "duplicationservice-", 4);
+        verifyService(services.get(5), "j2kservice-", 5);
+        verifyService(services.get(6), "imageconversionservice-", 6);
+        verifyService(services.get(7), "bulkimageconversionservice-", 7);
+        verifyService(services.get(8), "mediastreamingservice-", 8);
+        verifyService(services.get(9), "imagemagickservice-", 9);
+        verifyService(services.get(10), "webapputilservice-", 10);
+    }
+
+    private void verifyServiceXmlPreservation(File xmlFile)
+        throws FileNotFoundException {
+        List<ServiceInfo> services = getServicesFromXml(xmlFile);
+        Assert.assertNotNull(services);
+
+        int count = 3;
+        Assert.assertEquals(xmlFile.getName(), count, services.size());
+
+        verifyService(services.get(0), "fixityservice-", 0);
+        verifyService(services.get(1), "amazonfixityservice-", 1);
+        verifyService(services.get(2), "bitintegritytoolsservice-", 2);
+    }
+
+    private void verifyServiceXmlMedia(File xmlFile)
+        throws FileNotFoundException {
+        List<ServiceInfo> services = getServicesFromXml(xmlFile);
+        Assert.assertNotNull(services);
+
+        int count = 6;
+        Assert.assertEquals(xmlFile.getName(), count, services.size());
+
+        verifyService(services.get(0), "j2kservice-", 5);
+        verifyService(services.get(1), "imageconversionservice-", 6);
+        verifyService(services.get(2), "bulkimageconversionservice-", 7);
+        verifyService(services.get(3), "mediastreamingservice-", 8);
+        verifyService(services.get(4), "imagemagickservice-", 9);
+        verifyService(services.get(5), "webapputilservice-", 10);
+    }
+
+    private void verifyService(ServiceInfo service, String prefix, int id) {
+        String serviceContentId = service.getContentId();
+        Assert.assertEquals(prefix + getVersion() + ".zip", serviceContentId);
+        Assert.assertEquals(serviceContentId, id, service.getId());
+    }
+
+    private List<ServiceInfo> getServicesFromXml(File xmlFile)
+        throws FileNotFoundException {
+        InputStream xmlStream = new FileInputStream(xmlFile);
+        List<ServiceInfo> services = ServicesConfigDocument.getServiceList(
+            xmlStream);
+
+        IOUtils.closeQuietly(xmlStream);
+        return services;
+    }
+
+    private File getOutputDir() throws Exception {
         TestConfig config = new TestConfig();
         String targetDir = config.getTargetDir();
         URI targetDirUri = new URI(targetDir);
-        File targetDirFile = new File(targetDirUri);
-
-        ServiceXmlGenerator xmlGenerator = new ServiceXmlGenerator(getVersion());
-        xmlGenerator.generateServiceXml(targetDirFile.getAbsolutePath());
+        return new File(targetDirUri);
     }
 
     private String getVersion() {

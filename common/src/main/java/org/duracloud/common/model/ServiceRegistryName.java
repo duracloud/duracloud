@@ -15,13 +15,28 @@ public class ServiceRegistryName {
 
     private String version;
 
+    private static final String PREFIX = "duracloud-";
+    private static final String SUFFIX = "-service-repo";
+    private static final String PRESERVATION_AND_ARCHIVING = "-pna";
+    private static final String MEDIA = "-med";
+
     public ServiceRegistryName(String version) {
         this.version = version;
     }
 
     public String getName() {
         String v = version.replaceAll("\\.", "-");
-        return "duracloud-" + v.toLowerCase() + "-service-repo";
+        return PREFIX + v.toLowerCase() + SUFFIX;
+    }
+
+    public String getNamePreservation() {
+        String v = version.replaceAll("\\.", "-");
+        return PREFIX + v.toLowerCase() + SUFFIX + PRESERVATION_AND_ARCHIVING;
+    }
+
+    public String getNameMedia() {
+        String v = version.replaceAll("\\.", "-");
+        return PREFIX + v.toLowerCase() + SUFFIX + MEDIA;
     }
 
 }

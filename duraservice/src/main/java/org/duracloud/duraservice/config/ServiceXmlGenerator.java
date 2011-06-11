@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class ServiceXmlGenerator {
 
+    private static final String SEP = File.separator;
+
     /**
      * Add new service to this list and it will be included in the master
      * repository XML service configuration file.
@@ -55,12 +57,38 @@ public class ServiceXmlGenerator {
      * @throws IOException
      */
     public void generateServiceXml(String dirPath) throws IOException {
-        String sep = File.separator;
-        String filePath = dirPath + sep + getRepositoryName() + ".xml";
+        generateServiceXmlProfessional(dirPath);
+        generateServiceXmlPreservation(dirPath);
+        generateServiceXmlMedia(dirPath);
+    }
+
+    private void generateServiceXmlProfessional(String dirPath)
+        throws IOException {
+        doGenerateServiceXml(dirPath, getRepositoryName(), getServices());
+    }
+
+    private void generateServiceXmlPreservation(String dirPath)
+        throws IOException {
+        doGenerateServiceXml(dirPath,
+                             getRepositoryNamePreservation(),
+                             getServicesPreservation());
+    }
+
+    private void generateServiceXmlMedia(String dirPath) throws IOException {
+        doGenerateServiceXml(dirPath,
+                             getRepositoryNameMedia(),
+                             getServicesMedia());
+    }
+
+    private void doGenerateServiceXml(String dirPath,
+                                      String repoName,
+                                      List<ServiceInfo> services)
+        throws IOException {
+        String filePath = dirPath + SEP + repoName + ".xml";
         System.out.println("Writing Services Xml File to: " + filePath);
         File servicesXmlFile = new File(filePath);
         FileUtils.writeStringToFile(servicesXmlFile,
-                                    getServicesListAsXml(),
+                                    getServicesAsXml(services),
                                     "UTF-8");
     }
 
@@ -68,19 +96,50 @@ public class ServiceXmlGenerator {
         return new ServiceRegistryName(version).getName();
     }
 
-    private String getServicesListAsXml() {
-        List<ServiceInfo> services = buildServiceList();
-        ServicesConfigDocument configDoc = new ServicesConfigDocument();
-        return configDoc.getServiceListAsXML(services);
+    private String getRepositoryNamePreservation() {
+        return new ServiceRegistryName(version).getNamePreservation();
     }
 
-    protected List<ServiceInfo> buildServiceList() {
+    private String getRepositoryNameMedia() {
+        return new ServiceRegistryName(version).getNameMedia();
+    }
+
+    private String getServicesAsXml(List<ServiceInfo> services) {
+        return ServicesConfigDocument.getServiceListAsXML(services);
+    }
+
+    protected List<ServiceInfo> getServices() {
         List<ServiceInfo> servicesList = new ArrayList<ServiceInfo>();
         int index = 0;
         for (AbstractServiceInfo serviceInfo : serviceInfos) {
             servicesList.add(serviceInfo.getServiceXml(index++, version));
         }
         return servicesList;
+    }
+
+    private List<ServiceInfo> getServicesPreservation() {
+        List<ServiceInfo> results = new ArrayList<ServiceInfo>();
+
+        List<ServiceInfo> services = getServices();
+        results.add(services.get(0));
+        results.add(services.get(1));
+        results.add(services.get(2));
+
+        return results;
+    }
+
+    private List<ServiceInfo> getServicesMedia() {
+        List<ServiceInfo> results = new ArrayList<ServiceInfo>();
+
+        List<ServiceInfo> services = getServices();
+        results.add(services.get(5));
+        results.add(services.get(6));
+        results.add(services.get(7));
+        results.add(services.get(8));
+        results.add(services.get(9));
+        results.add(services.get(10));
+
+        return results;
     }
 
     private static String usage() {
