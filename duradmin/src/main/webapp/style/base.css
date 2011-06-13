@@ -27,9 +27,13 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 body {
 	line-height: 1;
 }
+
+
+
 ol, ul {
 	list-style: none;
 }
+
 
 ul.bullets,
 #static-panel ul
@@ -689,6 +693,17 @@ h2
 	padding:0 10px;
 }
 
+.dc-navigation
+{
+	border-bottom:1px solid #333;
+	color:#999;
+	cursor:pointer;
+	font-size:13px;
+	line-height:25px;
+	padding:0 10px;
+}
+
+
 .detail-pane .segment-header:hover, 
 #dynamic-panel .segment-header:hover,
 #add-remove-metadata-dialog .segment-header:hover
@@ -743,7 +758,8 @@ span.label,
 
 .detail-pane .segment-content input,
 #dynamic-panel .segment-content input,
-#add-remove-metadata-dialog .segment-content input
+#add-remove-metadata-dialog .segment-content input,
+.dc-small-graph-panel
 {
 	background-color:#484747;
 	border:1px solid #727576;
@@ -843,6 +859,7 @@ span.label,
 	padding:10px;
 	opacity:0.95;
 	position:absolute;
+	z-index:5000;
 }
 
 .provider-widget li
@@ -879,12 +896,11 @@ span.label,
  	border-top:none !important;
  }
 
-
-
 .provider-widget > a,
 .provider-widget > a span
-{
+{	
 	background-image:url(../images/btn_provider.gif);
+
 }
 
 .provider-widget > a span i
@@ -1016,12 +1032,14 @@ p.ui-serviceconfig-no-config{
 
 .dc-graph {
 	width:300px;
-	height:150px;	
+	height:150px;
+	padding:20px;
 }
 
-.dc-breadcrumb li:after {
+.dc-breadcrumb  li:after {
 	content:' :: '	
 }
+
 
 .dc-breadcrumb li {
 	cursor: pointer;
@@ -1029,12 +1047,18 @@ p.ui-serviceconfig-no-config{
 
 
 .dc-breadcrumb-title {
-	font-size:2.0em !important;	
+	font-size:1.3em !important;	
 }
 
 .dc-breadcrumb {
 	height:50px;
-	padding:10px;
+	padding-top:10px;
+	padding-bottom:10px;
+	margin-bottom:10px;
+}
+
+.dc-breadcrumb ul{
+	height:20px;
 }
 
 .dc-report-panel {
@@ -1045,6 +1069,10 @@ p.ui-serviceconfig-no-config{
 .dc-hidden {
 	display:none;	
 }
+.dc-date-slider > div {
+	 display:inline-block;
+}
+
 
 
 	

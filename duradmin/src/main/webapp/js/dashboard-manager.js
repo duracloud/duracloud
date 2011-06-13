@@ -9,28 +9,48 @@
 		options: {
 			title: "Placeholder Title",
 			data: null,
-    	    
+    	    total: null,
+    	    units: null,
 		},
 		
 		_init: function(){ 
-			$(this.element).append($.fn.create("h3").html(this.options.title));
+			$(this.element).addClass("dc-small-graph-panel").append($.fn.create("h3").html(this.options.title));
 			
 			var graph = $.fn.create("div").addClass("dc-graph");
-			$(this.element).append(graph);
+			$(this.element).append($.fn.create("div").append(graph));
+
 
 			 $.plot(graph, this.options.data,
 				 {
 			         series: {
-			             pie: { 
-			                 show: true
-			             }
+			            pie: {
+			                show: true,
+			                radius: 1,
+			                label: {
+			                    show: true,
+			                    radius: 2/3,
+			                    formatter: function(label, series){
+			                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+series.data[0][1]+'</div>';
+			                    },
+			                    threshold: 0.1,
+			                    background: {
+			                        opacity: 0.5,
+			                        color: '#000'
+			                    }
+			                }
+			            }
 			         },
+			         
 			         grid: {
 			             hoverable: true,
 			             clickable: true
-			         }
+			         },
+			         legend: { show:false},
 				 }
 			 );
+			 
+			 $(this.element).append($.fn.create("div").append("<span>"+this.options.total + " " + this.options.units));
+
 			 
 		}, 
 	});
@@ -53,38 +73,42 @@
 					$.fn.create("div")
 						.addClass(this.options.titleClass)
 						.html(this.options.rootText));
-			this._crumb.push({text:this.options.rootText, click: this.options.rootClick});
+			this._crumb.push({element:this.options.rootText, click: this.options.rootClick});
 		}, 
-		_title: function (title){
+		_title: function (/*text or jquery obj*/title){
 			var titleElement = this.element.find("."+this.options.titleClass);
+			titleElement.empty();
 			if(!title){
 				return titleElement.html();
 			}else{
-				titleElement.html(title);
+				titleElement.append(title);
 			}
 		},
 		
-		add: function(text, click){
+		add: function(element, click){
 			var that = this;
 			//get last element in crumb
 			var lastElement = this._crumb[this._crumb.length-1];
 
 			//add the new element to internal list
-			var newElement = {text:text, click: click};
+			var newElement = {element:element, click: click};
 			this._crumb.push(newElement);
 			
 			//add last element to the clickable list items
 			var item = $.fn.create("li");
-			item.html(lastElement.text);
+			
+			item.append(lastElement.element);
 			//wrap clickable
 			item.click(function(){
 				$.each(that._crumb,function(i,value){
 					//remove all elements after matching value
-					if(item.text() == value.text){
+					if(lastElement == value){
 						that._crumb.splice(i+1,that._crumb.length);
-						//set the text of the clicked value 
+						
+						//put the element of the clicked value 
 						//in the title field.
-						that._title(value.text);
+						that._title(value.element);
+						
 						//remove list elements after 
 						item.nextAll().remove();
 						item.remove();
@@ -96,12 +120,13 @@
 					lastElement.click();
 				}
 			});
+			
 			//and append to clickable list
 			$("ul",this.element).append(
 					item);
 			
 			//set the current item to the new element text
-			this._title(newElement.text);
+			this._title(newElement.element);
 		},
 	});
 })();
@@ -130,7 +155,7 @@ $(function() {
 	
 	mainContentLayout = $('#main-content-panel').layout({
 		// minWidth: 300 // ALL panes
-			north__size: 			100	
+			north__size: 			150	
 		,	north__paneSelector:     ".north"
 		,   north__resizable:   false
 		,   north__slidable:    false
@@ -280,8 +305,33 @@ $(function() {
 	 };
 	 
 	 var handlePlotClick = function(label,click){
-		 bc.breadcrumb("add", label, click);		 
+		 /*var element = $.fn.create("div").css("display", "inline-block");
+		 $(element).flyoutselect({widgetClass:"provider-widget", data: [{id:0, label:label}, {id:1,label:"Rackspace"}], });
+		 bc.breadcrumb("add", element, click);		 
 		 click();
+		 */
+		 handleStorageProviderPlotClick(label, click);
+	 };
+
+	 var handleStorageProviderPlotClick = function(label,click){
+		 var element = $.fn.create("div").css("display", "inline-block");
+		 
+
+		 element.text(label);
+		 //var flyout = "<div>Test!</div>";
+		 /*
+		 var button = $.fn.create("button").append(
+				 $.fn.create("i").addClass("arw-down-liteblue"))
+				 .click(function(evt){
+					 flyout.css("display", "block");
+					 button.append(flyout);
+				 });
+		 
+		 element.append(button);
+		 */
+		 bc.breadcrumb("add", element, click);		 
+		 click();
+
 	 };
 
 	 var loadStorageReport = function(storageReport){
@@ -297,6 +347,8 @@ $(function() {
 					 	sm.storageProviderMetrics, 
 					 	"storageProviderType", 
 					 	"totalSize"),
+			 total: sm.totalSize,
+			 units: "Bytes",
 			 
 		 });
 		 
@@ -306,10 +358,13 @@ $(function() {
 					 	sm.storageProviderMetrics, 
 					 	"storageProviderType", 
 					 	"totalItems"),
+			 total: sm.totalItems,
+			 units: "Items",
+
 		 });
 
 		 $("#bytes .dc-graph, #files .dc-graph", storageProviders).bind("plotclick",function (event, pos, item){
-			 handlePlotClick(item.series.label, function(){
+			 handleStorageProviderPlotClick(item.series.label, function(){
 				 var spm = getStorageProviderMetrics(item.series.label,storageReport);
 				 loadStorageProviderReport(spm);
 			 });
@@ -322,6 +377,9 @@ $(function() {
 					 	sm.mimetypeMetrics, 
 					 	"mimetype", 
 					 	"totalSize"),
+			 total: sm.totalSize,
+			 units: "Bytes",
+					 	
 
 		 });
 
@@ -331,6 +389,9 @@ $(function() {
 					 	sm.mimetypeMetrics, 
 					 	"mimetype", 
 					 	"totalItems"),
+			 total: sm.totalItems,
+			 units: "Items",
+
 		 });
 	 };
 	 
@@ -350,16 +411,18 @@ $(function() {
 	
 	var storageReportIds = getStorageReportIds();
 			 
-	$("#report-date").html(new Date(storageReportIds[0]).toUTCString());
+	$("#report-selected-date").html(new Date(storageReportIds[0]).toUTCString());
+	$("#report-start-range").html(new Date(storageReportIds[0]).toUTCString());
+	$("#report-end-range").html(new Date(storageReportIds[storageReportIds.length-1]).toUTCString());
 
-	var slider = $( "#slider" );
+	var slider = $( "#report-date-slider" );
 	slider.slider({
 		value:storageReportIds.length-1,
 		min: 0,
 		max: storageReportIds.length-1,
 		step: 1,
 		slide:function(event,ui){
-			$("#report-date").html(new Date(storageReportIds[ui.value]).toUTCString());
+			$("#report-selected-date").html(new Date(storageReportIds[ui.value]).toUTCString());
 		},
 		change: function( event, ui ) {
 			getStorageReport(storageReportIds[ui.value]);
@@ -390,18 +453,18 @@ $(function() {
 		return [
                 {
 					 mimetype: "text/plain", 
-					 totalItems: Math.random()*5000,
-					 totalSize: Math.random()*100000
+					 totalItems: Math.round(Math.random()*5000),
+					 totalSize: Math.round(Math.random()*100000),
 				 }, 
 				 {
 					 mimetype: "images/gif", 
-					 totalItems: Math.random()*5000,
-					 totalSize: Math.random()*100000
+					 totalItems: Math.round(Math.random()*5000),
+					 totalSize: Math.round(Math.random()*100000),
 				 },
 				 {
 					 mimetype: "images/jpg", 
-					 totalItems: Math.random()*5000,
-					 totalSize: Math.random()*100000
+					 totalItems: Math.round(Math.random()*5000),
+					 totalSize: Math.round(Math.random()*100000),
 				 },
 
 			];
@@ -410,9 +473,9 @@ $(function() {
 	var generateMockSpaceMetrics = function(spaceName){
 		return{
        	 spaceName:spaceName,
-			 totalItems: Math.random()*5000,
-			 totalSize: Math.random()*100000,
-            mimetypeMetrics:generateMimetypeMetrics(),
+			 totalItems: Math.round(Math.random()*5000),
+			 totalSize: Math.round(Math.random()*100000),
+			 mimetypeMetrics:generateMimetypeMetrics(),
         }	;	
 	};
 	
@@ -421,8 +484,8 @@ $(function() {
 			
 			 storageProviderId: id, 
 			 storageProviderType: type,
-			 totalItems: Math.random()*5000,
-			 totalSize: Math.random()*100000,
+			 totalItems: Math.round(Math.random()*5000),
+			 totalSize: Math.round(Math.random()*100000),
 			 spaceMetrics: 
 				 [
 	                 generateMockSpaceMetrics("Space-1"),
@@ -440,8 +503,8 @@ $(function() {
 	 	return {
 			completionTime: timeInMs,
 			storageMetrics: {
-				totalSize: Math.random()*100000,
-				totalItems: Math.random()*500,
+				 totalItems: Math.round(Math.random()*5000),
+				 totalSize: Math.round(Math.random()*100000),
 				storageProviderMetrics: 
 					[
 					 generateStorageProviderMetrics(0,"Amazon S3"),
