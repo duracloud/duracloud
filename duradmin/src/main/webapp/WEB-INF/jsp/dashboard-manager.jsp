@@ -12,46 +12,55 @@
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.pie.js"></script>
 		<style>
-			#report-date-slider-wrapper {
-				min-width:300px;
-				max-width:300px;
-				margin-left:10px;
-				margin-right:10px;
-			}
-			
-			#report-pane {
-				padding-left:10px;
-			}
-			
-			.dc-slider-value {
-				/*padding-top:10px;*/
-				font-size: 1.5em;
-				min-width:300px;
-			}
-			
-			.dc-date-slider {
-			}
-			
-			.dc-navigation {
-				
-			}
-			
-			.dc-small-graph-panel > h3, .dc-small-graph-panel > div
-			{
-				padding:5px;
-			}
-			
-			
+#report-date-slider-wrapper {
+	min-width: 300px;
+	max-width: 300px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
 
-			
-			.dc-small-graph-panel {
-			}
-			
-			.center {
-				overflow:auto;
-			}
-		</style>
+#report-pane {
+	/*padding-left: 10px;*/
+}
+
+.dc-slider-value { /*padding-top:10px;*/
+	font-size: 1.5em;
+	min-width: 300px;
+}
+
+.dc-date-slider {
 	
+}
+
+.dc-navigation {
+	
+}
+
+.dc-small-graph-panel>h3,.dc-small-graph-panel>div {
+	padding: 5px;
+}
+
+.dc-small-graph-panel {
+	
+}
+
+.center {
+	overflow: auto;
+}
+
+
+
+#main-content-tabs > div {
+	background:#FFFFFF;
+	overflow:auto;
+}
+
+#main-content-panel {
+	overflow:auto !important;
+}
+
+</style>
+
 	</tiles:putAttribute>
 	<tiles:putAttribute name="body">
 		<tiles:insertDefinition name="app-frame">
@@ -59,107 +68,104 @@
 
 			<tiles:putAttribute name="main-content">
 				<div class="center-north" id="center-pane-north">
-					<div class="float-l"><h1>Welcome</h1></div>
+				<div class="float-l">
+				<h1>Welcome</h1>
+				</div>
 				</div>
 				<div id="dynamic-panel">
-					<div id="announcements"></div>
-					<div id="current-users">
-						
-					</div>
+				<div id="announcements"></div>
+				<div id="current-users"></div>
 				</div>
-				<div id="main-content-panel" >
-					<div class="north dc-report-panel ">
-						<div class="dc-navigation">
-						<div class="dc-slider-value"><span id="report-selected-date"></span></div>
+				<div id="main-content-panel">
+				<div id="main-content-tabs">
+				<ul>
+					<li><a href="#tabs-overview"><span>Overview</span></a></li>
+					<li><a href="#tabs-storage"><span>Storage</span></a></li>
+					<li><a href="#tabs-services"><span>Services</span></a></li>
+				</ul>
+				<div id="tabs-overview">Overview</div>
+				<div id="tabs-services">Services</div>
 
-						<div class="dc-date-slider">
-							<div id="report-start-range"></div>
-							<div id="report-date-slider-wrapper"><div id="report-date-slider"></div></div>
-							<div id="report-end-range"></div>
-						</div>
-						</div>
-						<div id="report-breadcrumb" class="dc-breadcrumb">
-						</div>
-					</div>
-					<div class="center">
-						<div id="report-pane"></div>
-						<div id="storage-providers" class="dc-hidden">
-							<table>
-								<tr>
-									<td>
-										<div id="bytes">
-											
-										</div>
-									
-									</td>
-									<td>
-										<div id="files">
-											
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<div id="mimetype-bytes">
-										</div>
-									</td>
-									<td>
-										<div id="mimetype-files">
-											
-										</div>
-									</td>
-								</tr>
-							</table>
-						</div>
-						<div id="storage-provider" class="dc-hidden">
-							<table>
-								<tr>
-									<td>
-										<div id="bytes">
-											
-										</div>
-									
-									</td>
-									<td>
-										<div id="files">
-											
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<div id="mimetype-bytes">
-										</div>
-									</td>
-									<td>
-										<div id="mimetype-files">
-											
-										</div>
-									</td>
-								</tr>
-							</table>
-						</div>
-						<div id="space" class="dc-hidden">
-							<table>
-								<tr>
-									<td>
-										<div id="mimetype-bytes">
-										</div>
-									</td>
-									<td>
-										<div id="mimetype-files">
-											
-										</div>
-									</td>
-								</tr>
-							</table>
-						</div>						
-					</div>
-				</div>					
+				<div id="tabs-storage">
+
+				<div class="north dc-report-panel ">
+				<div class="dc-navigation">
+				<div class="dc-slider-value"><span id="report-selected-date"></span></div>
+
+				<div class="dc-date-slider">
+				<div id="report-start-range"></div>
+				<div id="report-date-slider-wrapper">
+				<div id="report-date-slider"></div>
+				</div>
+				<div id="report-end-range"></div>
+				</div>
+				</div>
+				<div id="report-breadcrumb" class="dc-breadcrumb"></div>
+				</div>
+				<div class="center">
+				<div id="report-pane"></div>
+				<div id="storage-providers" class="dc-hidden">
+				<table>
+					<tr>
+						<td>
+						<div id="bytes"></div>
+
+						</td>
+						<td>
+						<div id="files"></div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<div id="mimetype-bytes"></div>
+						</td>
+						<td>
+						<div id="mimetype-files"></div>
+						</td>
+					</tr>
+				</table>
+				</div>
+				<div id="storage-provider" class="dc-hidden">
+				<table>
+					<tr>
+						<td>
+						<div id="bytes"></div>
+
+						</td>
+						<td>
+						<div id="files"></div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<div id="mimetype-bytes"></div>
+						</td>
+						<td>
+						<div id="mimetype-files"></div>
+						</td>
+					</tr>
+				</table>
+				</div>
+				<div id="space" class="dc-hidden">
+				<table>
+					<tr>
+						<td>
+						<div id="mimetype-bytes"></div>
+						</td>
+						<td>
+						<div id="mimetype-files"></div>
+						</td>
+					</tr>
+				</table>
+				</div>
+				</div>
+				</div>
+				</div>
+
+				</div>
 
 
-
-					<!-- 
+				<!-- 
 						<h2>Getting Started with Duracloud</h2>
 						<p>
 						DuraCloud is particularly focused on providing preservation support services and access services for academic libraries, academic research centers, and other cultural heritage organizations.
@@ -181,13 +187,12 @@
 						
 						</ul>
 					 -->
-						
+
 			</tiles:putAttribute>
 			<tiles:putAttribute name="main-footer">
-				<div id="status-holder">
-				</div>
+				<div id="status-holder"></div>
 			</tiles:putAttribute>
-			</tiles:insertDefinition>
+		</tiles:insertDefinition>
 	</tiles:putAttribute>
 </tiles:insertDefinition>
 

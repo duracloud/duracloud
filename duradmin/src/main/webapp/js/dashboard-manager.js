@@ -136,6 +136,7 @@ var centerLayout,mainContentLayout;
 $(function() {
 	centerLayout = $('#page-content').layout({
 	// minWidth: 300 // ALL panes
+	
 		north__size: 			50	
 	,	north__paneSelector:     ".center-north"
 	,   north__resizable:   false
@@ -551,4 +552,6 @@ $(function() {
 
 	getStorageReport(storageReportIds[storageReportIds.length-1]);
 	 
+	
+	$("#main-content-tabs").tabs();
 });

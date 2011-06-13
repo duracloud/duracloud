@@ -1050,18 +1050,17 @@ p.ui-serviceconfig-no-config{
 .dc-breadcrumb li {
 	cursor: pointer;
 	font-size:0.9em;
+	color:#999
 }
 
 
 .dc-breadcrumb-title {
 	font-size:1.3em !important;	
+	color:#555 !important;
+	
 }
 
 .dc-breadcrumb {
-	height:50px;
-	padding-top:10px;
-	padding-bottom:10px;
-	margin-bottom:10px;
 }
 
 .dc-breadcrumb ul{
@@ -1071,7 +1070,6 @@ p.ui-serviceconfig-no-config{
 
 .dc-report-panel {
 	
-	padding:10px;	
 }
 
 .dc-hidden {
