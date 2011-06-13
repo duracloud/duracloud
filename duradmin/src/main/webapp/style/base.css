@@ -696,11 +696,17 @@ h2
 .dc-navigation
 {
 	border-bottom:1px solid #333;
+	background:#414141;
 	color:#999;
 	cursor:pointer;
 	font-size:13px;
 	line-height:25px;
-	padding:0 10px;
+	padding:0 5px;
+	
+}
+
+.dc-navigation > div {
+	display:inline-block;	
 }
 
 
@@ -1043,6 +1049,7 @@ p.ui-serviceconfig-no-config{
 
 .dc-breadcrumb li {
 	cursor: pointer;
+	font-size:0.9em;
 }
 
 
@@ -1058,7 +1065,8 @@ p.ui-serviceconfig-no-config{
 }
 
 .dc-breadcrumb ul{
-	height:20px;
+	height:15px;
+	
 }
 
 .dc-report-panel {

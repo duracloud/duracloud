@@ -24,26 +24,23 @@
 			}
 			
 			.dc-slider-value {
-				padding-top:10px;
-				font-size: 1.2em;
+				/*padding-top:10px;*/
+				font-size: 1.5em;
+				min-width:300px;
+			}
 			
+			.dc-date-slider {
 			}
 			
 			.dc-navigation {
-				/*
-				background:#AAAAAA;
-				*/
-				padding:10px;
 				
 			}
 			
-			.dc-small-graph-panel > h3 {
-				margin-left:10px;
+			.dc-small-graph-panel > h3, .dc-small-graph-panel > div
+			{
+				padding:5px;
 			}
 			
-			.dc-small-graph-panel > div {
-				padding:10px;
-			}
 			
 
 			
@@ -72,13 +69,14 @@
 				</div>
 				<div id="main-content-panel" >
 					<div class="north dc-report-panel ">
-						<div class="dc-navigation segment">
+						<div class="dc-navigation">
+						<div class="dc-slider-value"><span id="report-selected-date"></span></div>
+
 						<div class="dc-date-slider">
 							<div id="report-start-range"></div>
 							<div id="report-date-slider-wrapper"><div id="report-date-slider"></div></div>
 							<div id="report-end-range"></div>
 						</div>
-						<div class="dc-slider-value"><span id="report-selected-date"></span></div>
 						</div>
 						<div id="report-breadcrumb" class="dc-breadcrumb">
 						</div>

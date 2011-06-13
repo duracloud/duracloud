@@ -155,7 +155,7 @@ $(function() {
 	
 	mainContentLayout = $('#main-content-panel').layout({
 		// minWidth: 300 // ALL panes
-			north__size: 			150	
+			north__size: 			90	
 		,	north__paneSelector:     ".north"
 		,   north__resizable:   false
 		,   north__slidable:    false
@@ -209,6 +209,8 @@ $(function() {
 					 	mtm, 
 					 	"mimetype", 
 					 	"totalSize"),
+			 total: spaceMetrics.totalSize,
+			 units: "Bytes",
 
 		 });
 
@@ -218,11 +220,15 @@ $(function() {
 					 	mtm, 
 					 	"mimetype", 
 					 	"totalItems"),
+			 total: spaceMetrics.totalSize,
+			 units: "Files",
+
 		 });
 
 	 };
 	 
 	 var loadStorageProviderReport = function (storageProviderMetrics){
+		 var spm  = storageProviderMetrics;
 		 var sp = replaceReportPaneWithCopy("#storage-provider");
 		 
 		 var sm = storageProviderMetrics.spaceMetrics;
@@ -233,6 +239,8 @@ $(function() {
 					 	sm, 
 					 	"spaceName", 
 					 	"totalSize"),
+			 total: spm.totalSize,
+			 units: "Bytes",
 		 });
 
 		 $("#files", sp).graphpanel({
@@ -241,6 +249,9 @@ $(function() {
 					 	sm, 
 					 	"spaceName", 
 					 	"totalItems"),
+			 total: spm.totalItems,
+			 units: "Files",
+
 		 });
 		 
 		 
@@ -259,6 +270,9 @@ $(function() {
 					 	"mimetype", 
 					 	"totalSize"),
 
+			 total: spm.totalSize,
+			 units: "Bytes",
+					 	
 		 });
 
 		 $("#mimetype-files",sp).graphpanel({
@@ -267,6 +281,9 @@ $(function() {
 					 	mtm, 
 					 	"mimetype", 
 					 	"totalItems"),
+			 total: spm.totalItems,
+			 units: "Files",
+					 	
 		 });
 
 	 };
@@ -359,7 +376,7 @@ $(function() {
 					 	"storageProviderType", 
 					 	"totalItems"),
 			 total: sm.totalItems,
-			 units: "Items",
+			 units: "Files",
 
 		 });
 
@@ -390,13 +407,22 @@ $(function() {
 					 	"mimetype", 
 					 	"totalItems"),
 			 total: sm.totalItems,
-			 units: "Items",
+			 units: "Files",
 
 		 });
 	 };
 	 
-	 
-	 var getStorageReportIds = function(){
+	
+	var formatChartDate = function(/*string*/date){
+		var d =  new Date(date);
+		return d.toLocaleDateString();
+	};
+	
+	var formatSelectedDate = function(/*string*/date){
+		return new Date(date).toDateString();
+	};
+	
+	var getStorageReportIds = function(){
 		 /*
 		  * This is a mock up for now.
 		  */
@@ -410,10 +436,12 @@ $(function() {
 		};
 	
 	var storageReportIds = getStorageReportIds();
+	
+
 			 
-	$("#report-selected-date").html(new Date(storageReportIds[0]).toUTCString());
-	$("#report-start-range").html(new Date(storageReportIds[0]).toUTCString());
-	$("#report-end-range").html(new Date(storageReportIds[storageReportIds.length-1]).toUTCString());
+	$("#report-selected-date").html(formatSelectedDate(storageReportIds[0]));
+	$("#report-start-range").html(formatChartDate(storageReportIds[0]));
+	$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
 
 	var slider = $( "#report-date-slider" );
 	slider.slider({
@@ -422,7 +450,7 @@ $(function() {
 		max: storageReportIds.length-1,
 		step: 1,
 		slide:function(event,ui){
-			$("#report-selected-date").html(new Date(storageReportIds[ui.value]).toUTCString());
+			$("#report-selected-date").html(formatSelectedDate(storageReportIds[ui.value]));
 		},
 		change: function( event, ui ) {
 			getStorageReport(storageReportIds[ui.value]);
