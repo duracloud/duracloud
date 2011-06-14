@@ -330,14 +330,14 @@ $(function() {
 	 var handleStorageProviderPlotClick = function(label,click){
 		 var element = $.fn.create("div").css("display", "inline-block");
 		 element.text(label);
-		 bc.breadcrumb("add", element, click);		 
+		 addToBreadcrumb(element, click);		 
 		 click();
 	 };
 
 	 var loadStorageReport = function(storageReport){
-		 initBreadcrumb();
 		 var storageProviders = replaceReportPaneWithCopy("#storage-providers");
 		 var sm = storageReport.storageMetrics;
+		 initBreadcrumb(storageReport.contentId);
 		 
 		 $("#bytes", storageProviders).graphpanel({
 			 title: "Bytes",
@@ -404,29 +404,50 @@ $(function() {
 	var convertStorageReportIdToMs = function(storageReportId){
 		var pattern = /storage-report-(.*)[.]xml/i;
 		var newVal = pattern.exec(storageReportId)[1];
-		var firstPart = newVal.substring(0,newVal.lastIndexOf("T"));
-		var secondPart = newVal.substring(newVal.lastIndexOf("T"))
-								.replace(/-/g,":");
-		return new Date(firstPart+secondPart).getTime();
+		return new Date(newVal).getTime();
 	};
-	
-	var initBreadcrumb = function(){
-		var bc = $("#report-breadcrumb");
+
+
+	var getBreadcrumb = function(){
+		return $("#report-breadcrumb");
+	};
+
+	var addToBreadcrumb = function (element, click){
+		 getBreadcrumb().breadcrumb("add", element, click);
+	};
+		
+	var initBreadcrumb = function(storageReportId){
+		var bc = getBreadcrumb();
 		bc.empty();
 		return bc.breadcrumb(
 			{
 				rootText:"Overview", 
 				rootClick: function(){ 
-					var value = slider.slider("value");
-					getStorageReport(storageReportIds[value]);
+					getStorageReport(storageReportId);
 				}
 			}
 		);
 	};
+
+
+	var initSlider = function(storageReportIds){
+		var slider = $( "#report-date-slider" );
+		slider.slider({
+			value:storageReportIds.length-1,
+			min: 0,
+			max: storageReportIds.length-1,
+			step: 1,
+			slide:function(event,ui){
+				$("#report-selected-date").html(formatSelectedDate(storageReportIds[ui.value]));
+			},
+			change: function( event, ui ) {
+				getStorageReport(storageReportIds[ui.value]);
+			}
+		});
+		
+		return slider;
+	};
 	
-	var bc = initBreadcrumb();
-	
-	var reportMap = {};
 
 	var getStorageReport = function(storageReportId){
 		var report = reportMap[storageReportId];
@@ -439,7 +460,6 @@ $(function() {
 				success: function(result){
 					var storageReport = result.storageReport;
 					reportMap[storageReportId] = storageReport;	
-
 					loadStorageReport(storageReport);
 				},
 				
@@ -471,10 +491,10 @@ $(function() {
 		});	
 	};
 
+	
 	var initializeView = function(){
 		$("#main-content-tabs").tabs();
 		$("#main-content-tabs").tabs("select", 1);
-
 		getStorageReportIds(
 		{
 			success: function(storageReportIds){
@@ -483,29 +503,18 @@ $(function() {
 				getStorageReport(storageReportIds[storageReportIds.length-1]);
 				
 				//initialize date controls
-				$("#report-selected-date").html(formatSelectedDate(storageReportIds[0]));
+				var selectedReportId = storageReportIds[0];
+				$("#report-selected-date").html(formatSelectedDate(selectedReportId));
 				$("#report-start-range").html(formatChartDate(storageReportIds[0]));
 				$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
-	
-				var slider = $( "#report-date-slider" );
-				slider.slider({
-					value:storageReportIds.length-1,
-					min: 0,
-					max: storageReportIds.length-1,
-					step: 1,
-					slide:function(event,ui){
-						$("#report-selected-date").html(formatSelectedDate(storageReportIds[ui.value]));
-					},
-					change: function( event, ui ) {
-						getStorageReport(storageReportIds[ui.value]);
-					}
-				});
-				
+				initSlider(storageReportIds);
+				initBreadcrumb(selectedReportId);
 			}
 		});
 	};
 
-	
+	var reportMap = {};
+
 	initializeView();
 	/*
 	var getMockStorageReportIds = function(){
