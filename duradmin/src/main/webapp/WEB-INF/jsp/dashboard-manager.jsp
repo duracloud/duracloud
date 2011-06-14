@@ -48,16 +48,35 @@
 	overflow: auto;
 }
 
+.dc-navigation
+{
+	border-bottom:1px solid #999;
+	/*background:#414141;*/
+	background:#EFEFEF;
+	
+	color:#555;
+	cursor:pointer;
+	font-size:13px;
+	line-height:25px;
+	padding:5px;
+	
+}
 
+.dc-navigation > div {
+	display:inline-block;	
+}
 
 #main-content-tabs > div {
 	background:#FFFFFF;
 	overflow:auto;
+	min-height:500px;
+	color:#555;
 }
-
 #main-content-panel {
 	overflow:auto !important;
 }
+
+.ui-widget-content { border: 1px solid #aaaaaa; background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: #222222;
 
 </style>
 
@@ -67,11 +86,14 @@
 			<tiles:putAttribute name="mainTab">dashboard</tiles:putAttribute>
 
 			<tiles:putAttribute name="main-content">
+				<!-- 
 				<div class="center-north" id="center-pane-north">
 				<div class="float-l">
 				<h1>Welcome</h1>
 				</div>
 				</div>
+				 -->
+				
 				<div id="dynamic-panel">
 				<div id="announcements"></div>
 				<div id="current-users"></div>
@@ -83,8 +105,10 @@
 					<li><a href="#tabs-storage"><span>Storage</span></a></li>
 					<li><a href="#tabs-services"><span>Services</span></a></li>
 				</ul>
-				<div id="tabs-overview">Overview</div>
-				<div id="tabs-services">Services</div>
+				<div id="tabs-overview">
+					<p>Overview of storage and service reports will go here.</p>
+				</div>
+				<div id="tabs-services">Service report browser will go here.</div>
 
 				<div id="tabs-storage">
 

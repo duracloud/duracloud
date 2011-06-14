@@ -20,6 +20,7 @@ public class AdminInit {
     private String duraServicePort;
     private String duraServiceContext;
     private String amaUrl;
+    private String duraReportContext;
 
     public String getDuraStoreHost() {
         return duraStoreHost;
@@ -75,5 +76,13 @@ public class AdminInit {
 
     public void setAmaUrl(String amaUrl) {
         this.amaUrl = amaUrl;
+    }
+
+    public void setDuraReportContext(String durareportContext) {
+        this.duraReportContext = durareportContext;
+    }
+
+    public String getDuraReportContext() {
+        return duraReportContext;
     }
 }

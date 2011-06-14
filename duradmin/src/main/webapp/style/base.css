@@ -693,23 +693,6 @@ h2
 	padding:0 10px;
 }
 
-.dc-navigation
-{
-	border-bottom:1px solid #333;
-	background:#414141;
-	color:#999;
-	cursor:pointer;
-	font-size:13px;
-	line-height:25px;
-	padding:0 5px;
-	
-}
-
-.dc-navigation > div {
-	display:inline-block;	
-}
-
-
 .detail-pane .segment-header:hover, 
 #dynamic-panel .segment-header:hover,
 #add-remove-metadata-dialog .segment-header:hover

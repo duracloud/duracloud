@@ -30,6 +30,8 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     public static final String duraServiceHostKey = "duraservice-host";
     public static final String duraServicePortKey = "duraservice-port";
     public static final String duraServiceContextKey = "duraservice-context";
+    public static final String duraReportContextKey = "durareport-context";
+
     public static final String amaUrlKey = "ama-url";
 
     private String durastoreHost;
@@ -38,6 +40,8 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     private String duraserviceHost;
     private String duraservicePort;
     private String duraserviceContext;
+    private String durareportContext;
+
     private String amaUrl;
 
     public String asXml() {
@@ -71,6 +75,9 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
         } else if (key.equalsIgnoreCase(duraServiceContextKey)) {
             this.duraserviceContext = value;
+        
+        } else if (key.equalsIgnoreCase(duraReportContextKey)) {
+            this.durareportContext = value;
 
         } else if (key.equalsIgnoreCase(amaUrlKey)) {
             this.amaUrl = value;
@@ -136,5 +143,13 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
     public void setAmaUrl(String amaUrl) {
         this.amaUrl = amaUrl;
+    }
+
+    public String getDurareportContext() {
+        return durareportContext;
+    }
+
+    public void setDurareportContext(String durareportContext) {
+        this.durareportContext = durareportContext;
     }
 }

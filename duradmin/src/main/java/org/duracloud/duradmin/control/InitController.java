@@ -14,14 +14,10 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
 import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
 
-import java.io.IOException;
-
 import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.duradmin.config.DuradminConfig;
 import org.duracloud.duradmin.contentstore.ContentStoreProvider;
 import org.duracloud.duradmin.domain.AdminInit;
@@ -81,6 +77,7 @@ public class InitController extends BaseCommandController {
         init.setDuraStorePort(config.getDurastorePort());
         init.setDuraStoreContext(config.getDurastoreContext());
         init.setAmaUrl(config.getAmaUrl());
+        init.setDuraReportContext(config.getDurareportContext());
 
         DuradminConfig.setConfig(init);
 

@@ -136,7 +136,7 @@ var centerLayout,mainContentLayout;
 $(function() {
 	centerLayout = $('#page-content').layout({
 	// minWidth: 300 // ALL panes
-	
+	/*
 		north__size: 			50	
 	,	north__paneSelector:     ".center-north"
 	,   north__resizable:   false
@@ -144,8 +144,9 @@ $(function() {
 	,   north__spacing_open:			0			
 	,	north__togglerLength_open:		0			
 	,	north__togglerLength_closed:	0			
-
-	,   west__size:				400
+	,
+	*/
+	   west__size:				400
 	,	west__minSize:			400
 	,   west__resizable:   true
 	,   west__slidable:    true
@@ -221,7 +222,7 @@ $(function() {
 					 	mtm, 
 					 	"mimetype", 
 					 	"totalItems"),
-			 total: spaceMetrics.totalSize,
+			 total: spaceMetrics.totalItems,
 			 units: "Files",
 
 		 });
@@ -323,40 +324,19 @@ $(function() {
 	 };
 	 
 	 var handlePlotClick = function(label,click){
-		 /*var element = $.fn.create("div").css("display", "inline-block");
-		 $(element).flyoutselect({widgetClass:"provider-widget", data: [{id:0, label:label}, {id:1,label:"Rackspace"}], });
-		 bc.breadcrumb("add", element, click);		 
-		 click();
-		 */
 		 handleStorageProviderPlotClick(label, click);
 	 };
 
 	 var handleStorageProviderPlotClick = function(label,click){
 		 var element = $.fn.create("div").css("display", "inline-block");
-		 
-
 		 element.text(label);
-		 //var flyout = "<div>Test!</div>";
-		 /*
-		 var button = $.fn.create("button").append(
-				 $.fn.create("i").addClass("arw-down-liteblue"))
-				 .click(function(evt){
-					 flyout.css("display", "block");
-					 button.append(flyout);
-				 });
-		 
-		 element.append(button);
-		 */
 		 bc.breadcrumb("add", element, click);		 
 		 click();
-
 	 };
 
 	 var loadStorageReport = function(storageReport){
 		 initBreadcrumb();
-		 
 		 var storageProviders = replaceReportPaneWithCopy("#storage-providers");
-		 
 		 var sm = storageReport.storageMetrics;
 		 
 		 $("#bytes", storageProviders).graphpanel({
@@ -367,7 +347,6 @@ $(function() {
 					 	"totalSize"),
 			 total: sm.totalSize,
 			 units: "Bytes",
-			 
 		 });
 		 
 		 $("#files",storageProviders).graphpanel({
@@ -378,7 +357,6 @@ $(function() {
 					 	"totalItems"),
 			 total: sm.totalItems,
 			 units: "Files",
-
 		 });
 
 		 $("#bytes .dc-graph, #files .dc-graph", storageProviders).bind("plotclick",function (event, pos, item){
@@ -386,7 +364,6 @@ $(function() {
 				 var spm = getStorageProviderMetrics(item.series.label,storageReport);
 				 loadStorageProviderReport(spm);
 			 });
-			 
 		 });
 		 
 		 $("#mimetype-bytes",storageProviders).graphpanel({
@@ -397,8 +374,6 @@ $(function() {
 					 	"totalSize"),
 			 total: sm.totalSize,
 			 units: "Bytes",
-					 	
-
 		 });
 
 		 $("#mimetype-files",storageProviders).graphpanel({
@@ -409,54 +384,31 @@ $(function() {
 					 	"totalItems"),
 			 total: sm.totalItems,
 			 units: "Files",
-
 		 });
 	 };
 	 
 	
-	var formatChartDate = function(/*string*/date){
-		var d =  new Date(date);
-		return d.toLocaleDateString();
+	var formatChartDate = function(/*string*/reportId){
+		return new Date(convertStorageReportIdToMs(reportId))
+					.toLocaleDateString();
 	};
 	
-	var formatSelectedDate = function(/*string*/date){
-		return new Date(date).toDateString();
+	var formatSelectedDate = function(/*string*/reportId){
+		return new Date(convertStorageReportIdToMs(reportId))
+					.toLocaleDateString();
 	};
-	
-	var getStorageReportIds = function(){
-		 /*
-		  * This is a mock up for now.
-		  */
-			ids = new Array();
-			var d  = new Date().getTime();
-			for(i = 0; i < 50; i++ ){
-				ids.push(d - (60*1000*60*24*30*(50-i)));
-			}
-			
-			return ids;
-		};
-	
-	var storageReportIds = getStorageReportIds();
-	
 
-			 
-	$("#report-selected-date").html(formatSelectedDate(storageReportIds[0]));
-	$("#report-start-range").html(formatChartDate(storageReportIds[0]));
-	$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
-
-	var slider = $( "#report-date-slider" );
-	slider.slider({
-		value:storageReportIds.length-1,
-		min: 0,
-		max: storageReportIds.length-1,
-		step: 1,
-		slide:function(event,ui){
-			$("#report-selected-date").html(formatSelectedDate(storageReportIds[ui.value]));
-		},
-		change: function( event, ui ) {
-			getStorageReport(storageReportIds[ui.value]);
-		}
-	});
+	/**
+	 * extract date info from reportId and convert to milliseconds
+	 */
+	var convertStorageReportIdToMs = function(storageReportId){
+		var pattern = /storage-report-(.*)[.]xml/i;
+		var newVal = pattern.exec(storageReportId)[1];
+		var firstPart = newVal.substring(0,newVal.lastIndexOf("T"));
+		var secondPart = newVal.substring(newVal.lastIndexOf("T"))
+								.replace(/-/g,":");
+		return new Date(firstPart+secondPart).getTime();
+	};
 	
 	var initBreadcrumb = function(){
 		var bc = $("#report-breadcrumb");
@@ -474,9 +426,97 @@ $(function() {
 	
 	var bc = initBreadcrumb();
 	
-	 
 	var reportMap = {};
 
+	var getStorageReport = function(storageReportId){
+		var report = reportMap[storageReportId];
+		if(report){
+			loadStorageReport(report);
+		}else{
+			dc.ajax({
+				url: "/duradmin/storagereport/get?reportId=" + storageReportId,
+				type:"GET",
+				success: function(result){
+					var storageReport = result.storageReport;
+					reportMap[storageReportId] = storageReport;	
+
+					loadStorageReport(storageReport);
+				},
+				
+			    failure: function(textStatus){
+					alert("failed to get storage report");
+				},
+			});	
+			
+			//report = generateMockStorageReportData(storageReportId);
+			//reportMap[storageReportId] = report;
+		}
+	};
+		
+
+	var getStorageReportIds = function(callback){
+		//return getMockStorageIds();	
+		var ids = null;
+		
+		dc.ajax({
+			url: "/duradmin/storagereport/list",
+			type:"GET",
+			success: function(result){
+				callback.success(result.storageReportList);
+			},
+			
+		    failure: function(textStatus){
+				alert("failed to get ");
+			},
+		});	
+	};
+
+	var initializeView = function(){
+		$("#main-content-tabs").tabs();
+		$("#main-content-tabs").tabs("select", 1);
+
+		getStorageReportIds(
+		{
+			success: function(storageReportIds){
+
+				//load the most recent report
+				getStorageReport(storageReportIds[storageReportIds.length-1]);
+				
+				//initialize date controls
+				$("#report-selected-date").html(formatSelectedDate(storageReportIds[0]));
+				$("#report-start-range").html(formatChartDate(storageReportIds[0]));
+				$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
+	
+				var slider = $( "#report-date-slider" );
+				slider.slider({
+					value:storageReportIds.length-1,
+					min: 0,
+					max: storageReportIds.length-1,
+					step: 1,
+					slide:function(event,ui){
+						$("#report-selected-date").html(formatSelectedDate(storageReportIds[ui.value]));
+					},
+					change: function( event, ui ) {
+						getStorageReport(storageReportIds[ui.value]);
+					}
+				});
+				
+			}
+		});
+	};
+
+	
+	initializeView();
+	/*
+	var getMockStorageReportIds = function(){
+			ids = new Array();
+			var d  = new Date().getTime();
+			var i;
+			for(i = 1; i < 10; i++ ){
+				ids.push("storage-report-2011-0"+i+"-03T11-30-41.xml");
+			}
+			return ids;
+	};
 	
 	var generateMimetypeMetrics = function(){
 		return [
@@ -524,9 +564,7 @@ $(function() {
 			mimetypeMetrics: generateMimetypeMetrics(),
 		 };
 	};
-	/*
-	 * This is just test data
-	 */
+	
 	var generateMockStorageReportData = function(timeInMs) {
 		
 	 	return {
@@ -545,13 +583,5 @@ $(function() {
 				 
 		 }; 
 	};
-	
-	var getStorageReport = function(storageReportId){
-		loadStorageReport(generateMockStorageReportData(storageReportId));
-	};
-
-	getStorageReport(storageReportIds[storageReportIds.length-1]);
-	 
-	
-	$("#main-content-tabs").tabs();
+	*/
 });

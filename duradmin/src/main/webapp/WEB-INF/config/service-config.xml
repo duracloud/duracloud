@@ -45,5 +45,7 @@
   <bean id="baseFormController" class="org.duracloud.duradmin.control.BaseFormController" abstract="true">
     <property name="controllerSupport" ref="controllerSupport"/>
   </bean>
+  
+  <bean class="org.duracloud.duradmin.report.DuradminStorageReportManagerImpl"/>
 
 </beans>
