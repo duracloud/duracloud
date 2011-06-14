@@ -407,12 +407,11 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> services = getServicesFromXml(xmlFile);
         Assert.assertNotNull(services);
 
-        int count = 3;
+        int count = 2;
         Assert.assertEquals(xmlFile.getName(), count, services.size());
 
         verifyService(services.get(0), "fixityservice-", 0);
-        verifyService(services.get(1), "amazonfixityservice-", 1);
-        verifyService(services.get(2), "bitintegritytoolsservice-", 2);
+        verifyService(services.get(1), "bitintegritytoolsservice-", 2);
     }
 
     private void verifyServiceXmlMedia(File xmlFile)
@@ -420,15 +419,14 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> services = getServicesFromXml(xmlFile);
         Assert.assertNotNull(services);
 
-        int count = 6;
+        int count = 5;
         Assert.assertEquals(xmlFile.getName(), count, services.size());
 
         verifyService(services.get(0), "j2kservice-", 5);
         verifyService(services.get(1), "imageconversionservice-", 6);
-        verifyService(services.get(2), "bulkimageconversionservice-", 7);
-        verifyService(services.get(3), "mediastreamingservice-", 8);
-        verifyService(services.get(4), "imagemagickservice-", 9);
-        verifyService(services.get(5), "webapputilservice-", 10);
+        verifyService(services.get(2), "mediastreamingservice-", 8);
+        verifyService(services.get(3), "imagemagickservice-", 9);
+        verifyService(services.get(4), "webapputilservice-", 10);
     }
 
     private void verifyService(ServiceInfo service, String prefix, int id) {

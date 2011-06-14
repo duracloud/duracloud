@@ -122,7 +122,6 @@ public class ServiceXmlGenerator {
 
         List<ServiceInfo> services = getServices();
         results.add(services.get(0));
-        results.add(services.get(1));
         results.add(services.get(2));
 
         return results;
@@ -134,7 +133,6 @@ public class ServiceXmlGenerator {
         List<ServiceInfo> services = getServices();
         results.add(services.get(5));
         results.add(services.get(6));
-        results.add(services.get(7));
         results.add(services.get(8));
         results.add(services.get(9));
         results.add(services.get(10));
