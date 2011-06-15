@@ -133,6 +133,7 @@ public class DuplicationService extends BaseService
         log.info("**********");
         log.info("Duplication Service Listener Started");
         super.start();
+        setServiceStatus(ServiceStatus.STARTED);
     }
 
     @Override

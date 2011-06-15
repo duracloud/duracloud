@@ -77,6 +77,7 @@ public class MediaStreamingService extends BaseService implements ComputeService
         workerThread.start();
 
         super.start();
+        setServiceStatus(ServiceStatus.STARTED);
     }
 
     @Override

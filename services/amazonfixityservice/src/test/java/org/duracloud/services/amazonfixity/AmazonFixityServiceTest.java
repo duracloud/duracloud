@@ -108,7 +108,7 @@ public class AmazonFixityServiceTest {
         service.start();
         ComputeService.ServiceStatus status = service.getServiceStatus();
         Assert.assertNotNull(status);
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTING, status);
 
         sleep(2000); // do some work
 
@@ -195,7 +195,7 @@ public class AmazonFixityServiceTest {
         service.start();
         ComputeService.ServiceStatus status = service.getServiceStatus();
         Assert.assertNotNull(status);
-        Assert.assertEquals(ComputeService.ServiceStatus.STARTED, status);
+        Assert.assertEquals(ComputeService.ServiceStatus.STARTING, status);
 
         sleep(500); // do some work
 

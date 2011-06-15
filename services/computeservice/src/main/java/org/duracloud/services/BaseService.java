@@ -30,7 +30,6 @@ public abstract class BaseService implements ComputeService {
         this.startTime = getCurrentTime();
         this.endTime = null;
         this.error = null;
-        setServiceStatus(ServiceStatus.STARTED);
     }
 
     public void stop() throws Exception {
