@@ -147,29 +147,25 @@ public class AzureStorageProvider extends StorageProviderBase {
             found = true;
         }
 
-        do {
+        // Gets the entire list of objects (maxResults is essentially ignored)
+        objects = listObjects(containerName, prefix, maxResults);
 
-            objects = listObjects(containerName, prefix, maxResults);
-            
-            if(!objects.hasNext())
+        while (objects.hasNext()) {
+            IBlobProperties object = objects.next();
+            if (maxResults == counter) {
                 break;
-
-            while (objects.hasNext()) {
-                IBlobProperties object = objects.next();
-                if (maxResults == counter) {
-                    break;
-                }
-                if (found == false && object.getName().equals(marker)) {
-                    found = true;
-                    continue;
-                }
-                if (found == true) {
-                    contentItems.add(getContentId(object.getName()));
-                    counter++;
-                }
             }
-        } while (found == false);
 
+            String contentId = getContentId(object.getName());
+            if (found == false && contentId.equals(marker)) {
+                found = true;
+                continue;
+            }
+            if (found == true) {
+                contentItems.add(contentId);
+                counter++;
+            }
+        }
 
         return contentItems;
     }
@@ -189,9 +185,10 @@ public class AzureStorageProvider extends StorageProviderBase {
             IBlobContainer blobContainer = blobStorage.getBlobContainer(
                 containerName);
 
-            // listBlobs does not limit the results
-            // maxResults - Specifies the maximum number of blobs to return per call to Azure storage.
-            // This does NOT affect list size returned by this function.
+            // Currently, listBlobs() returns the entire list of items,
+            // regardless of how large the list is. (The maxResults parameter
+            // only determines the number of calls listBlobs() needs to make
+            // to be able to collect the entire list before returning.)
             return blobContainer.listBlobs(prefix, false, limit);
         } catch (org.soyatec.windowsazure.error.StorageException e) {
             err.append(e.getMessage());

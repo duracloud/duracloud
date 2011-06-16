@@ -31,7 +31,7 @@ public class StorageReportBuilder implements Runnable {
     public static enum Status {CREATED, RUNNING, COMPLETE, ERROR};
     private final Logger log =
         LoggerFactory.getLogger(StorageReportBuilder.class);
-    public static final int maxRetries = 8;
+    public static final int maxRetries = 20;
 
     private ContentStoreManager storeMgr = null;
     private StorageReportHandler reportHandler;
@@ -124,6 +124,7 @@ public class StorageReportBuilder implements Runnable {
             } catch (ContentStoreException e) {
                 log.warn("Exception attempting to retrieve content " +
                          "stores list: " + e.getMessage());
+                wait(i);
             }
         }
         throw new ReportBuilderException("Exceeded retries attempting to " +
@@ -138,6 +139,7 @@ public class StorageReportBuilder implements Runnable {
                 String store = getStoreInfo(contentStore);
                 log.warn("Exception attempting to retrieve spaces list for " +
                          "store: " + store + " due to: " + e.getMessage());
+                wait(i);
             }
         }
         throw new ReportBuilderException("Exceeded retries attempting to " +
@@ -154,6 +156,7 @@ public class StorageReportBuilder implements Runnable {
                 log.warn("Exception attempting to retrieve space contents " +
                          "list (for " + spaceId + " in store " + store +
                          "): " + e.getMessage());
+                wait(i);
             }
         }
         throw new ReportBuilderException("Exceeded retries attempting to " +
@@ -172,6 +175,7 @@ public class StorageReportBuilder implements Runnable {
                 log.warn("Exception attempting to retrieve content metadata " +
                          "(for " + spaceId + ":" + contentId + " in store " +
                          store + "): " + e.getMessage());
+                wait(i);
             }
         }
         log.error("Exceeded retries attempting to retrieve content metadata " +
@@ -189,6 +193,13 @@ public class StorageReportBuilder implements Runnable {
             return Long.valueOf(sizeStr);
         } catch(NumberFormatException e) {
             return 0;
+        }
+    }
+
+    private void wait(int index) {
+        try {
+            Thread.sleep(1000 * index);
+        } catch(InterruptedException e) {
         }
     }
 

@@ -125,8 +125,7 @@ public class StorageReportResource {
     public String startStorageReport() {
         checkInitialized();
         StorageReportBuilder.Status builderStatus = reportBuilder.getStatus();
-        if(builderStatus.equals(StorageReportBuilder.Status.CREATED) ||
-           builderStatus.equals(StorageReportBuilder.Status.COMPLETE)) {
+        if(!builderStatus.equals(StorageReportBuilder.Status.RUNNING)) {
             runStorageReport();
             return "Report Started";
         } else {
