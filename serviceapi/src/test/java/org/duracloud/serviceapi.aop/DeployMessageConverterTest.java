@@ -5,10 +5,8 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duraservice.aop;
+package org.duracloud.serviceapi.aop;
 
-import org.duracloud.serviceapi.aop.DeployMessage;
-import org.duracloud.serviceapi.aop.DeployMessageConverter;
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
