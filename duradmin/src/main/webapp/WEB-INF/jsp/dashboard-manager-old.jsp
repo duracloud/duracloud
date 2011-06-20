@@ -6,51 +6,26 @@
 
 	<tiles:putAttribute name="header-extensions">
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/js/dashboard-manager.js"></script>
+			src="${pageContext.request.contextPath}/js/dashboard-manager-old.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.pie.js"></script>
-		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/plugins/jquery.tools/jquery.tools.min.js"></script>				
-
 		<style>
-
-	
 #report-date-slider-wrapper {
-	min-width: 250px;
-	max-width: 250px;
+	min-width: 300px;
+	max-width: 300px;
 	margin-left: 10px;
 	margin-right: 10px;
 }
 
-#report-pane { /*padding-left: 10px;*/
-	
-}
-
-.scrollable {
-
-	/* required settings */
-	position:relative;
-	overflow:hidden;
-	width: 1000px;
-	height:300px;
-}
-
-.scrollable .items {
-	/* this cannot be too large */
-	width:20000em;
-	position:absolute;
-}
-
-.items > div {
-	float:left;
-	width:1000px;
+#report-pane {
+	/*padding-left: 10px;*/
 }
 
 .dc-slider-value { /*padding-top:10px;*/
 	font-size: 1.5em;
-	min-width: 250x;
+	min-width: 300px;
 }
 
 .dc-date-slider {
@@ -58,79 +33,51 @@
 }
 
 .dc-navigation {
-	width:49%;
-	float:right;
+	
 }
 
 .dc-small-graph-panel>h3,.dc-small-graph-panel>div {
 	padding: 5px;
 }
 
-
-.dc-small-graph-panel
-{
-	border:1px solid #727576;
-	padding:2px;
+.dc-small-graph-panel {
+	
 }
-
 
 .center {
-	
-}
-
-.dc-graph {
-	width:250px;
-	height:250px;
-	background: #EEEEEE;
-}
-
-.dc-graph canvas {
-	/*z-index:-1;*/
-}
-
-.dc-navigation {
-	color: #555;
-	cursor: pointer;
-	font-size: 13px;
-	line-height: 25px;
-	padding: 5px;
-}
-
-.dc-breadcrumb {
-	width:49%;
-	float:left;
-}
-
-
-
-#main-content-tabs>div {
-	background: #FFFFFF;
 	overflow: auto;
-	min-height: 400px;
-	color: #555;
 }
 
-#main-content-panel {
-	overflow: auto !important;
-}
-
-.ui-widget-content {
-	border: 1px solid #aaaaaa;
-	background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50%
-		repeat-x;
-	color: #222222;
-}
-
-.north {
-	height:60px;
+.dc-navigation
+{
+	border-bottom:1px solid #999;
+	/*background:#414141;*/
+	background:#EFEFEF;
+	
+	color:#555;
+	cursor:pointer;
+	font-size:13px;
+	line-height:25px;
+	padding:5px;
 	
 }
 
-.diptych > div {
-  width:300px;
-  margin:10px;
-  display: inline-block;
+.dc-navigation > div {
+	display:inline-block;	
 }
+
+#main-content-tabs > div {
+	background:#FFFFFF;
+	overflow:auto;
+	min-height:500px;
+	color:#555;
+}
+#main-content-panel {
+	overflow:auto !important;
+}
+
+.ui-widget-content { border: 1px solid #aaaaaa; background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: #222222;
+
 </style>
 
 	</tiles:putAttribute>
@@ -146,7 +93,11 @@
 				</div>
 				</div>
 				 -->
-
+				
+				<div id="dynamic-panel">
+				<div id="announcements"></div>
+				<div id="current-users"></div>
+				</div>
 				<div id="main-content-panel">
 				<div id="main-content-tabs">
 				<ul>
@@ -155,60 +106,71 @@
 					<li><a href="#tabs-services"><span>Services</span></a></li>
 				</ul>
 				<div id="tabs-overview">
-				<p>Overview of storage and service reports will go here.</p>
+					<p>Overview of storage and service reports will go here.</p>
 				</div>
 				<div id="tabs-services">Service report browser will go here.</div>
 
 				<div id="tabs-storage">
 
 				<div class="north dc-report-panel ">
-				<div id="report-breadcrumb" class="dc-breadcrumb"></div>
 				<div class="dc-navigation">
-					<div class="dc-slider-value"><span id="report-selected-date"></span></div>
-					<div class="dc-date-slider">
-					<div id="report-start-range"></div>
-					<div id="report-date-slider-wrapper">
-						<div id="report-date-slider"></div>
-					</div>
-					<div id="report-end-range"></div>
+				<div class="dc-slider-value"><span id="report-selected-date"></span></div>
+
+				<div class="dc-date-slider">
+				<div id="report-start-range"></div>
+				<div id="report-date-slider-wrapper">
+				<div id="report-date-slider"></div>
+				</div>
+				<div id="report-end-range"></div>
 				</div>
 				</div>
+				<div id="report-breadcrumb" class="dc-breadcrumb"></div>
 				</div>
 				<div class="center">
-					<div class="ui-widget-header ui-corner-all">
-						<div class="graph-switch">
-							<input type="radio" id="size" name="radio" checked="checked" /><label for="size">Size</label>
-							<input type="radio" id="count" name="radio" /><label for="count">Items</label>
-						</div>
-					</div>
-				
-				<div class="scrollable">
-				<div class="items">
-				<div id="storage-providers">
-					<div class="diptych">
-						<div>
-							<h3>By Storage Provider</h3>
-							<div class="dc-graph" id="bytes"></div>
-						</div>
-						<div>
-							<h3>By Mime Type</h3>
-							<div class="dc-graph" id="mimetype-bytes"></div>
-						</div>
-					</div>
+				<div id="report-pane"></div>
+				<div id="storage-providers" class="dc-hidden">
+				<table>
+					<tr>
+						<td>
+						<div id="bytes"></div>
+
+						</td>
+						<td>
+						<div id="files"></div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<div id="mimetype-bytes"></div>
+						</td>
+						<td>
+						<div id="mimetype-files"></div>
+						</td>
+					</tr>
+				</table>
 				</div>
-				<div id="storage-provider">
-					<div class="diptych">
-						<div>
-							<h3>By Storage Provider</h3>
-							<div class="dc-graph" id="bytes"></div>
-						</div>
-						<div>
-							<h3>By Mime Type</h3>
-							<div class="dc-graph" id="mimetype-bytes"></div>
-						</div>
-					</div>
+				<div id="storage-provider" class="dc-hidden">
+				<table>
+					<tr>
+						<td>
+						<div id="bytes"></div>
+
+						</td>
+						<td>
+						<div id="files"></div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<div id="mimetype-bytes"></div>
+						</td>
+						<td>
+						<div id="mimetype-files"></div>
+						</td>
+					</tr>
+				</table>
 				</div>
-				<div id="space">
+				<div id="space" class="dc-hidden">
 				<table>
 					<tr>
 						<td>
@@ -223,9 +185,9 @@
 				</div>
 				</div>
 				</div>
+
 				</div>
-				</div>
-				</div>
+
 
 				<!-- 
 						<h2>Getting Started with Duracloud</h2>

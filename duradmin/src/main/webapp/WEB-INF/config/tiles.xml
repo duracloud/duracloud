@@ -32,6 +32,9 @@
  	<definition name="dashboard-manager" template="/WEB-INF/jsp/dashboard-manager.jsp">
  	</definition>
 
+  <definition name="dashboard-manager-old" template="/WEB-INF/jsp/dashboard-manager-old.jsp">
+  </definition>
+
  	<definition name="spaces-manager" template="/WEB-INF/jsp/spaces/spaces-manager.jsp">
  	</definition>
  	<definition name="services-manager" template="/WEB-INF/jsp/services/services-manager.jsp">

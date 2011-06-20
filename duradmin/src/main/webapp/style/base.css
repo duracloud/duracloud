@@ -747,8 +747,7 @@ span.label,
 
 .detail-pane .segment-content input,
 #dynamic-panel .segment-content input,
-#add-remove-metadata-dialog .segment-content input,
-.dc-small-graph-panel
+#add-remove-metadata-dialog .segment-content input
 {
 	background-color:#484747;
 	border:1px solid #727576;
@@ -1033,7 +1032,7 @@ p.ui-serviceconfig-no-config{
 .dc-breadcrumb li {
 	cursor: pointer;
 	font-size:0.9em;
-	color:#999
+	color:#555
 }
 
 
@@ -1043,11 +1042,8 @@ p.ui-serviceconfig-no-config{
 	
 }
 
-.dc-breadcrumb {
-}
 
 .dc-breadcrumb ul{
-	height:15px;
 	
 }
 

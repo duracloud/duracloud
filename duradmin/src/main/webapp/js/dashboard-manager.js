@@ -4,6 +4,8 @@
  * @author Daniel Bernstein
  */
 
+	
+
 (function(){
 	$.widget("ui.graphpanel", {  
 		options: {
@@ -19,53 +21,25 @@
 			var graph = $.fn.create("div").addClass("dc-graph");
 			$(this.element).append($.fn.create("div").append(graph));
 
-
-			 $.plot(graph, this.options.data,
-				 {
-			         series: {
-			            pie: {
-			                show: true,
-			                radius: 1,
-			                label: {
-			                    show: true,
-			                    radius: 2/3,
-			                    formatter: function(label, series){
-			                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+series.data[0][1]+'</div>';
-			                    },
-			                    threshold: 0.1,
-			                    background: {
-			                        opacity: 0.5,
-			                        color: '#000'
-			                    }
-			                }
-			            }
-			         },
-			         
-			         grid: {
-			             hoverable: true,
-			             clickable: true
-			         },
-			         legend: { show:false},
-				 }
-			 );
-			 
-			 $(this.element).append($.fn.create("div").append("<span>"+this.options.total + " " + this.options.units));
+			plotPieChart(graph,this.options.data);
+			$(this.element).append($.fn.create("div").append("<span>"+this.options.total + " " + this.options.units));
 
 			 
 		}, 
 	});
 })();
 
+
 (function(){
 	$.widget("ui.breadcrumb", {  
 		options: {
 			rootText: "root",
-			rootClick: function(){ alert("default click!")},
 			titleClass: "dc-breadcrumb-title",
 		},
 
 		_crumb: new Array(),
 		_init: function(){ 
+			var that = this;
 			$(this.element).append($.fn.create("div").append(
 				$.fn.create("ul").addClass("horizontal-list")));
 			$(this.element)
@@ -73,7 +47,13 @@
 					$.fn.create("div")
 						.addClass(this.options.titleClass)
 						.html(this.options.rootText));
-			this._crumb.push({element:this.options.rootText, click: this.options.rootClick});
+			
+			this._crumb.push(
+							{element:this.options.rootText, 
+							  click: function(){ 
+								$(that.element).trigger({type:"rootclicked"});
+							  }
+							});
 		}, 
 		_title: function (/*text or jquery obj*/title){
 			var titleElement = this.element.find("."+this.options.titleClass);
@@ -112,13 +92,14 @@
 						//remove list elements after 
 						item.nextAll().remove();
 						item.remove();
+						
+						if(value.click){
+							value.click();
+						}
 						return false;
 					}
 				});
 				
-				if(lastElement.click){
-					lastElement.click();
-				}
 			});
 			
 			//and append to clickable list
@@ -129,30 +110,216 @@
 			this._title(newElement.element);
 		},
 	});
+	
+	$.widget("ui.storageprovider", {
+
+		_storageReport: null,
+		_storageProvider: null,
+
+		_init: function(){
+			var that = this;
+			$(document).bind("storageproviderchanged", function(evt){
+				 that._storageProvider = evt.storageProvider;
+				 that._reload();
+			});	
+
+			$(document).bind("storagereportchanged", function(evt){
+				 that._storageReport = evt.storageReport;
+				 that._reload();
+			});	
+
+		},
+		
+		 _getStorageProviderMetrics: function(storageProvider,storageReport){
+			 var spm = null;
+			 $.each(storageReport.storageMetrics.storageProviderMetrics, function(i,sm){
+				 if(sm.storageProviderType == storageProvider){
+					 spm =  sm;
+					 return false;
+				 }
+			 });
+			 
+			 return spm;
+		 },
+
+		_reload: function(){
+		
+			var spm  =  this._getStorageProviderMetrics(this._storageProvider, this._storageReport);
+			$("#bytes,#mimetype-bytes",this.element).empty();
+			if(!spm){
+				$("#bytes,#mimetype-bytes",this.element).html("No data for this storage provider available for selected time period.");
+				return;
+			}else{
+				plotPieChart($("#bytes", this.element), formatPieChartData(
+							spm.spaceMetrics, 
+						 	"spaceName", 
+						 	"totalSize"));
+	
+				plotPieChart($("#mimetype-bytes",this.element),formatPieChartData(
+									spm.mimetypeMetrics, 
+								 	"mimetype", 
+								 	"totalSize"));
+			}
+		},
+	});	
 })();
+
 
 var centerLayout,mainContentLayout;
 
+function plotPieChart(element, data){
+	$.plot(element, data,
+			 {
+		         series: {
+		            pie: {
+		                show: true,
+		                radius: 1,
+		                label: {
+		                    show: true,
+		                    radius: 2/3,
+		                    formatter: function(label, series){
+		                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+formatGB(series.data[0][1],2)+'</div>';
+		                    },
+		                    threshold: 0.1,
+		                    background: {
+		                        opacity: 0.5,
+		                        color: '#000'
+		                    }
+		                }
+		            }
+		         },
+		         
+		         grid: {
+		             hoverable: true,
+		             clickable: true
+		         },
+		         legend: { show:false},
+			 }
+		 );	
+	
+    	
+}
+
+function formatGB(value, scale){
+	var roundedVal;
+	
+	roundedVal = value/(1000*1000*1000);
+	
+	if(scale){
+		var s = scale*10;
+		roundedVal = Math.round(roundedVal*s)/s;
+	}
+	
+	return roundedVal+ "GB";	
+}
+
+function plotBarChart(element, data){
+	var ticks = [0,""];
+	var i = 0;
+	for(i=0; i < data.length; i++){
+		ticks.push([i+1,data[i].label]);
+	};
+	
+	var xax = {
+		ticks:ticks
+	};
+	
+	$.plot(element, data,
+			 {
+		         series: {
+					bars: {show:true, align:"center"},
+			     },
+		         
+		         grid: {
+		             hoverable: true,
+		             clickable: true
+		         },
+		         legend: { show:false},
+		         xaxis: xax,
+		         yaxis: {
+		        	tickFormatter: function (value) {
+		        	   return formatGB(value);
+		         	},
+		         }
+			 }
+		 );	
+	
+    var previousPoint = null;
+
+    $(element).unbind("plothover");
+    $(element).bind("plothover", function (event, pos, item){
+        $("#x").text(pos.x.toFixed(2));
+        $("#y").text(pos.y.toFixed(2));
+ 
+        if (item) {
+            if (previousPoint != item.dataIndex) {
+                previousPoint = item.dataIndex;
+                
+                $("#tooltip").remove();
+                var x = item.datapoint[0].toFixed(2),
+                    y = item.datapoint[1].toFixed(2);
+                
+                showTooltip(item.pageX, item.pageY,
+                            item.series.label + ": " +formatGB(y,2));
+            }
+        }
+        else {
+            $("#tooltip").remove();
+            previousPoint = null;            
+        }
+	});
+}
+
+function showTooltip(x, y, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css( {
+        position: 'absolute',
+        'z-index': 100,
+        display: 'none',
+        top: y + 5,
+        left: x + 5,
+        border: '1px solid #fdd',
+        padding: '2px',
+        'background-color': '#fee',
+        opacity: 0.80,
+        
+    }).appendTo("body").fadeIn(200);
+}
+
+/**
+ * converts an array of arbitray objects into something
+ * flot pie chart can read.
+ */
+function formatPieChartData(inputArray, label, value){
+	 var data = new Array();
+	 var i;
+	 for(i in inputArray){
+		 data.push({
+			 label: inputArray[i][label],
+			 data: inputArray[i][value],
+		 });
+	 };
+	 
+	 return data;
+}
+
+
+function formatBarChartData(inputArray, label, value){
+	 var data = new Array();
+	 var i;
+	 for(i = 0; i < inputArray.length;i++){
+		 data.push({
+			 bars:{show:true},
+			 label: inputArray[i][label],
+			 data: 	[[(i+1),0],[(i+1),inputArray[i][value]]],
+		 });
+	 };
+	 
+	 return data;
+}
+
 $(function() {
 	centerLayout = $('#page-content').layout({
-	// minWidth: 300 // ALL panes
-	/*
-		north__size: 			50	
-	,	north__paneSelector:     ".center-north"
-	,   north__resizable:   false
-	,   north__slidable:    false
-	,   north__spacing_open:			0			
-	,	north__togglerLength_open:		0			
-	,	north__togglerLength_closed:	0			
-	,
-	*/
-	   west__size:				400
-	,	west__minSize:			400
-	,   west__resizable:   true
-	,   west__slidable:    true
-
-	,   west__paneSelector:     "#dynamic-panel"
-	,	center__paneSelector:	"#main-content-panel"
+	center__paneSelector:	"#main-content-panel"
 	});
 	
 	mainContentLayout = $('#main-content-panel').layout({
@@ -167,41 +334,11 @@ $(function() {
 		,	center__paneSelector:	".center"
 		});
 	
-	var users = $("#current-users").expandopanel({title: "Current Users"});
-	$(users).expandopanel("getContent").append("<h3>Coming soon.</h3>");
 
-	var announcements = $("#announcements").expandopanel({title: "Announcements"});
-	/*
-	   $.getFeed({
-	       url: '/duradmin/feed?url=http://twitter.com/statuses/user_timeline/38821410.rss',
-	       success: function(feed) {
-			 var content = $(announcements).expandopanel("getContent");
-			 content.append("<h3>"+ feed.title + "</h3>");
-	       }
-	   });
-	*/
-	 var content = $(announcements).expandopanel("getContent");
-	 content.append("<h3>Coming soon.</h3>");
 
-	 /**
-	  * converts an array of arbitray objects into something
-	  * flot pie chart can read.
-	  */
-	 var formatPieChartData = function(inputArray, label, value){
-		 var data = new Array();
-		 var i;
-		 for(i in inputArray){
-			 data.push({
-				 label: inputArray[i][label],
-				 data: inputArray[i][value],
-			 });
-		 };
-		 
-		 return data;
-	 };
 	 
 	 var loadSpaceReport = function (spaceMetrics){
-		 var sp = replaceReportPaneWithCopy("#space");
+		 var sp = $("#space");
 		 var mtm = spaceMetrics.mimetypeMetrics;
 
 		 
@@ -229,76 +366,7 @@ $(function() {
 
 	 };
 	 
-	 var loadStorageProviderReport = function (storageProviderMetrics){
-		 var spm  = storageProviderMetrics;
-		 var sp = replaceReportPaneWithCopy("#storage-provider");
-		 
-		 var sm = storageProviderMetrics.spaceMetrics;
-		 var mtm = storageProviderMetrics.mimetypeMetrics;
-		 $("#bytes", sp).graphpanel({
-			 title: "Bytes",
-			 data:  formatPieChartData(
-					 	sm, 
-					 	"spaceName", 
-					 	"totalSize"),
-			 total: spm.totalSize,
-			 units: "Bytes",
-		 });
-
-		 $("#files", sp).graphpanel({
-			 title: "Files",
-			 data:  formatPieChartData(
-					 	sm, 
-					 	"spaceName", 
-					 	"totalItems"),
-			 total: spm.totalItems,
-			 units: "Files",
-
-		 });
-		 
-		 
-		 $("#bytes .dc-graph, #files .dc-graph", sp).bind("plotclick",function (event, pos, item){
-			 handlePlotClick(item.series.label, function(){
-				 var spm = getSpaceMetrics(item.series.label,sm);
-				 loadSpaceReport(spm);
-			 });
-			 
-		 });
-		 
-		 $("#mimetype-bytes",sp).graphpanel({
-			 title: "Mimetype Bytes",
-			 data:  formatPieChartData(
-					 	mtm, 
-					 	"mimetype", 
-					 	"totalSize"),
-
-			 total: spm.totalSize,
-			 units: "Bytes",
-					 	
-		 });
-
-		 $("#mimetype-files",sp).graphpanel({
-			 title: "Mimetype Files",
-			 data:  formatPieChartData(
-					 	mtm, 
-					 	"mimetype", 
-					 	"totalItems"),
-			 total: spm.totalItems,
-			 units: "Files",
-					 	
-		 });
-
-	 };
 	 
-	 var replaceReportPaneWithCopy = function(nodeId){
-		 var newNode =  $(nodeId).clone()
-			.removeClass("dc-hidden")
-			.removeAttr("id");
-		$("#report-pane").empty();
-		$("#report-pane").append(newNode);
-		return newNode;
-	 };
-
 	 var getSpaceMetrics = function(spaceName,spaceMetrics){
 		 var spm = null;
 		 $.each(spaceMetrics, function(i,sm){
@@ -311,81 +379,24 @@ $(function() {
 		 return spm;
 	 };
 
-	 var getStorageProviderMetrics = function(label,storageReport){
-		 var spm = null;
-		 $.each(storageReport.storageMetrics.storageProviderMetrics, function(i,sm){
-			 if(sm.storageProviderType == label){
-				 spm =  sm;
-				 return false;
-			 }
-		 });
-		 
-		 return spm;
-	 };
 	 
 	 var handlePlotClick = function(label,click){
-		 handleStorageProviderPlotClick(label, click);
+		handleStorageProviderPlotClick(label, click);
 	 };
 
 	 var handleStorageProviderPlotClick = function(label,click){
 		 var element = $.fn.create("div").css("display", "inline-block");
 		 element.text(label);
 		 addToBreadcrumb(element, click);		 
-		 click();
 	 };
 
-	 var loadStorageReport = function(storageReport){
-		 var storageProviders = replaceReportPaneWithCopy("#storage-providers");
-		 var sm = storageReport.storageMetrics;
-		 initBreadcrumb(storageReport.contentId);
-		 
-		 $("#bytes", storageProviders).graphpanel({
-			 title: "Bytes",
-			 data:  formatPieChartData(
-					 	sm.storageProviderMetrics, 
-					 	"storageProviderType", 
-					 	"totalSize"),
-			 total: sm.totalSize,
-			 units: "Bytes",
-		 });
-		 
-		 $("#files",storageProviders).graphpanel({
-			 title: "Files",
-			 data:  formatPieChartData(
-					 	sm.storageProviderMetrics, 
-					 	"storageProviderType", 
-					 	"totalItems"),
-			 total: sm.totalItems,
-			 units: "Files",
-		 });
-
-		 $("#bytes .dc-graph, #files .dc-graph", storageProviders).bind("plotclick",function (event, pos, item){
-			 handleStorageProviderPlotClick(item.series.label, function(){
-				 var spm = getStorageProviderMetrics(item.series.label,storageReport);
-				 loadStorageProviderReport(spm);
-			 });
-		 });
-		 
-		 $("#mimetype-bytes",storageProviders).graphpanel({
-			 title: "Mimetype Bytes",
-			 data:  formatPieChartData(
-					 	sm.mimetypeMetrics, 
-					 	"mimetype", 
-					 	"totalSize"),
-			 total: sm.totalSize,
-			 units: "Bytes",
-		 });
-
-		 $("#mimetype-files",storageProviders).graphpanel({
-			 title: "Mimetype Files",
-			 data:  formatPieChartData(
-					 	sm.mimetypeMetrics, 
-					 	"mimetype", 
-					 	"totalItems"),
-			 total: sm.totalItems,
-			 units: "Files",
-		 });
+	 var seekTo = function(index){
+		 var api;
+		 $(".scrollable").scrollable();
+		 api = $(".scrollable").data("scrollable");
+		 api.seekTo(index, 500);
 	 };
+	 
 	 
 	
 	var formatChartDate = function(/*string*/reportId){
@@ -414,26 +425,40 @@ $(function() {
 
 	var addToBreadcrumb = function (element, click){
 		 getBreadcrumb().breadcrumb("add", element, click);
+		 click();
 	};
 		
-	var initBreadcrumb = function(storageReportId){
+	var initBreadcrumb = function(){
 		var bc = getBreadcrumb();
 		bc.empty();
-		return bc.breadcrumb(
-			{
-				rootText:"Overview", 
-				rootClick: function(){ 
-					getStorageReport(storageReportId);
-				}
-			}
-		);
+
+		bc.breadcrumb({
+			rootText:"Overview", 
+		});
+		return bc;
+		
 	};
 
+	var getCurrentReportId = function(storageReportIds){
+		return storageReportIds[getSliderIndex()];
+	};
+	
+	var getCurrentStorageReport = function(storageReportIds){
+		return reportMap[getCurrentReportId(storageReportIds)];
+	};
+
+	var getSlider = function(){
+		return $( "#report-date-slider" );
+	};
+	
+	var getSliderIndex = function(){
+		return getSlider().slider("value");
+	};
 
 	var initSlider = function(storageReportIds){
-		var slider = $( "#report-date-slider" );
+		var slider = getSlider();
 		slider.slider({
-			value:storageReportIds.length-1,
+			value:0,
 			min: 0,
 			max: storageReportIds.length-1,
 			step: 1,
@@ -441,41 +466,49 @@ $(function() {
 				$("#report-selected-date").html(formatSelectedDate(storageReportIds[ui.value]));
 			},
 			change: function( event, ui ) {
-				getStorageReport(storageReportIds[ui.value]);
+				getStorageReport(storageReportIds[ui.value], function(storageReport){
+					fireStorageReportChangedEvent(storageReport);
+				});
 			}
 		});
-		
 		return slider;
 	};
 	
+	var fireStorageReportChangedEvent = function(storageReport){
+		var event = jQuery.Event("storagereportchanged");
+		event.storageReport = storageReport;
+		$(document).trigger(event);		
+	};
 
-	var getStorageReport = function(storageReportId){
+	var getStorageReport = function(storageReportId, callback){
 		var report = reportMap[storageReportId];
 		if(report){
-			loadStorageReport(report);
+			if(callback){
+				callback(report);
+			}
 		}else{
+			dc.busy("Loading...");
+			
 			dc.ajax({
 				url: "/duradmin/storagereport/get?reportId=" + storageReportId,
 				type:"GET",
 				success: function(result){
+					dc.done();
 					var storageReport = result.storageReport;
 					reportMap[storageReportId] = storageReport;	
-					loadStorageReport(storageReport);
+					callback(storageReport);
 				},
 				
 			    failure: function(textStatus){
+					dc.done();
 					alert("failed to get storage report");
 				},
 			});	
-			
-			//report = generateMockStorageReportData(storageReportId);
-			//reportMap[storageReportId] = report;
 		}
 	};
 		
 
 	var getStorageReportIds = function(callback){
-		//return getMockStorageIds();	
 		var ids = null;
 		
 		dc.ajax({
@@ -495,102 +528,96 @@ $(function() {
 	var initializeView = function(){
 		$("#main-content-tabs").tabs();
 		$("#main-content-tabs").tabs("select", 1);
+		$("#tabs-storage .graph-switch").buttonset();
+		initBreadcrumb();
+
+		dc.busy("Loading reports...");
+
 		getStorageReportIds(
 		{
 			success: function(storageReportIds){
-
-				//load the most recent report
-				getStorageReport(storageReportIds[storageReportIds.length-1]);
+				dc.done();
 				
 				//initialize date controls
+				initSlider(storageReportIds);
+
+				getBreadcrumb().bind("rootclicked", function(event){
+					seekTo(0);
+				});
+				
 				var selectedReportId = storageReportIds[0];
 				$("#report-selected-date").html(formatSelectedDate(selectedReportId));
 				$("#report-start-range").html(formatChartDate(storageReportIds[0]));
 				$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
-				initSlider(storageReportIds);
-				initBreadcrumb(selectedReportId);
+				
+				initStorageProvidersView(storageReportIds);
+				initStorageProviderView();
+				
+				//load the most recent report
+				getStorageReport(selectedReportId, function(storageReport){
+					fireStorageReportChangedEvent(storageReport);
+				});
+			},
+			
+			failure: function(){
+				dc.done();
 			}
 		});
+		
+		
 	};
+
+
+	
+	var initStorageProviderView = function (){
+		$("#storage-provider").storageprovider();
+	};
+	
+	var initStorageProvidersView = function(){
+		$(document).bind("storagereportchanged", function(evt){
+			 var sm = evt.storageReport.storageMetrics;
+			 var storageProviders = $("#storage-providers");
+			 //addToBreadcrumb(storageReport.contentId);
+			 /*
+			 $("#bytes", storageProviders).graphpanel({
+				 title: "Bytes",
+				 data:  formatPieChartData(
+						 	sm.storageProviderMetrics, 
+						 	"storageProviderType", 
+						 	"totalSize"),
+				 total: sm.totalSize,
+				 units: "Bytes",
+			 });
+			 */
+			 
+			 plotBarChart($("#bytes", storageProviders), formatBarChartData(
+														 	sm.storageProviderMetrics, 
+														 	"storageProviderType", 
+														 	"totalSize"));
+			 
+			 plotPieChart($("#mimetype-bytes",storageProviders),formatPieChartData(
+																 	sm.mimetypeMetrics, 
+																 	"mimetype", 
+																 	"totalSize"));
+		});
+		
+		$("#bytes, #mimetype-bytes", $("#storage-providers")).bind("plotclick",function (event, pos, item){
+			 handlePlotClick(item.series.label, function(){
+				 seekTo(1);
+				 fireStorageProviderChangedEvent(item.series.label);
+			 });
+		 });	
+	}
+	
+	var fireStorageProviderChangedEvent = function(storageProvider){
+		var event = jQuery.Event("storageproviderchanged");
+		event.storageProvider = storageProvider;
+		$(document).trigger(event);		
+	};
+
 
 	var reportMap = {};
 
 	initializeView();
-	/*
-	var getMockStorageReportIds = function(){
-			ids = new Array();
-			var d  = new Date().getTime();
-			var i;
-			for(i = 1; i < 10; i++ ){
-				ids.push("storage-report-2011-0"+i+"-03T11-30-41.xml");
-			}
-			return ids;
-	};
-	
-	var generateMimetypeMetrics = function(){
-		return [
-                {
-					 mimetype: "text/plain", 
-					 totalItems: Math.round(Math.random()*5000),
-					 totalSize: Math.round(Math.random()*100000),
-				 }, 
-				 {
-					 mimetype: "images/gif", 
-					 totalItems: Math.round(Math.random()*5000),
-					 totalSize: Math.round(Math.random()*100000),
-				 },
-				 {
-					 mimetype: "images/jpg", 
-					 totalItems: Math.round(Math.random()*5000),
-					 totalSize: Math.round(Math.random()*100000),
-				 },
 
-			];
-	};
-	
-	var generateMockSpaceMetrics = function(spaceName){
-		return{
-       	 spaceName:spaceName,
-			 totalItems: Math.round(Math.random()*5000),
-			 totalSize: Math.round(Math.random()*100000),
-			 mimetypeMetrics:generateMimetypeMetrics(),
-        }	;	
-	};
-	
-	var generateStorageProviderMetrics = function(id, type){
-		return {
-			
-			 storageProviderId: id, 
-			 storageProviderType: type,
-			 totalItems: Math.round(Math.random()*5000),
-			 totalSize: Math.round(Math.random()*100000),
-			 spaceMetrics: 
-				 [
-	                 generateMockSpaceMetrics("Space-1"),
-	                 generateMockSpaceMetrics("Space-2"),
-	                 generateMockSpaceMetrics("Space-3"),
-	             ],
-			mimetypeMetrics: generateMimetypeMetrics(),
-		 };
-	};
-	
-	var generateMockStorageReportData = function(timeInMs) {
-		
-	 	return {
-			completionTime: timeInMs,
-			storageMetrics: {
-				 totalItems: Math.round(Math.random()*5000),
-				 totalSize: Math.round(Math.random()*100000),
-				storageProviderMetrics: 
-					[
-					 generateStorageProviderMetrics(0,"Amazon S3"),
-					 generateStorageProviderMetrics(1,"Rackspace"),
-					 generateStorageProviderMetrics(2,"Azure"),
-					],
-				mimetypeMetrics: generateMimetypeMetrics(),
-			},
-				 
-		 }; 
-	};
-	*/
 });
