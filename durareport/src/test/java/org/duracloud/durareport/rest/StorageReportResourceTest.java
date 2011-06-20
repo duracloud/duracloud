@@ -10,6 +10,7 @@ package org.duracloud.durareport.rest;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.durareport.storage.StorageReportBuilder;
 import org.duracloud.durareport.storage.StorageReportHandler;
+import org.duracloud.durareport.storage.StorageReportScheduler;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,29 +34,38 @@ public class StorageReportResourceTest {
     ContentStoreManager mockStoreMgr;
     StorageReportHandler mockReportHandler;
     StorageReportBuilder mockReportBuilder;
+    StorageReportScheduler mockReportScheduler;
 
     @Before
     public void setup() {
         mockStoreMgr = EasyMock.createMock(ContentStoreManager.class);
         mockReportHandler = EasyMock.createMock(StorageReportHandler.class);
         mockReportBuilder = EasyMock.createMock(StorageReportBuilder.class);
+        mockReportScheduler = EasyMock.createMock(StorageReportScheduler.class);
     }
 
     private void replayMocks() {
-        EasyMock.replay(mockStoreMgr, mockReportHandler, mockReportBuilder);
+        EasyMock.replay(mockStoreMgr,
+                        mockReportHandler,
+                        mockReportBuilder,
+                        mockReportScheduler);
     }
 
     private StorageReportResource getResource() {
         StorageReportResource srResource = new StorageReportResource();
         srResource.initialize(mockStoreMgr,
                               mockReportHandler,
-                              mockReportBuilder);
+                              mockReportBuilder,
+                              mockReportScheduler);
         return srResource;
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(mockStoreMgr, mockReportHandler, mockReportBuilder);
+        EasyMock.verify(mockStoreMgr,
+                        mockReportHandler,
+                        mockReportBuilder,
+                        mockReportScheduler);
     }
 
     @Test
@@ -168,6 +179,10 @@ public class StorageReportResourceTest {
             .andReturn(1L)
             .times(1);
 
+        EasyMock.expect(mockReportScheduler.getNextScheduledStartDate())
+            .andReturn(new Date())
+            .times(1);
+
         replayMocks();
     }
 
@@ -179,16 +194,58 @@ public class StorageReportResourceTest {
     }
 
     private void setUpMockStartStorageReport() {
-        EasyMock.expect(mockReportBuilder.getStatus())
-            .andReturn(StorageReportBuilder.Status.COMPLETE)
+        EasyMock.expect(mockReportScheduler.startStorageReport())
+            .andReturn(StorageReportBuilder.Status.COMPLETE.name())
             .times(1);
 
-        mockReportBuilder.run();
-        EasyMock.expectLastCall()
-            .anyTimes();
-
-        EasyMock.makeThreadSafe(mockReportBuilder, true);
         replayMocks();
     }
 
+    @Test
+    public void testScheduleStorageReport() {
+        setUpMockScheduleStorageReport();
+        StorageReportResource srResource = getResource();
+
+        long now = System.currentTimeMillis();
+        try {
+            srResource.scheduleStorageReport(now - 500, 1);
+            fail("Exception expected");
+        } catch(Exception expected) {
+            assertNotNull(expected);
+        }
+
+        try {
+            srResource.scheduleStorageReport(now + 500, 1);
+            fail("Exception expected");
+        } catch(Exception expected) {
+            assertNotNull(expected);
+        }
+
+        srResource.scheduleStorageReport(now + 500, 1000000);
+    }
+
+    private void setUpMockScheduleStorageReport() {
+        EasyMock.expect(
+            mockReportScheduler.scheduleStorageReport(EasyMock.isA(Date.class),
+                                                      EasyMock.anyLong()))
+            .andReturn("success")
+            .times(1);
+
+        replayMocks();
+    }
+
+    @Test
+    public void testCancelStorageReportSchedule() {
+        setUpMockCancelStorageReportSchedule();
+        StorageReportResource srResource = getResource();
+        srResource.cancelStorageReportSchedule();
+    }
+
+    private void setUpMockCancelStorageReportSchedule() {
+        EasyMock.expect(mockReportScheduler.cancelStorageReportSchedule())
+            .andReturn("success")
+            .times(1);
+
+        replayMocks();
+    }
 }

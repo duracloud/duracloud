@@ -44,6 +44,9 @@ public class StorageReportInfoSerializer {
         xstream.aliasField("estimated-completion-time",
                            StorageReportInfo.class,
                            "estimatedCompletionTime");
+        xstream.aliasField("next-scheduled-start-time",
+                           StorageReportInfo.class,
+                           "nextScheduledStartTime");
     }
 
     public String serializeReportInfo(StorageReportInfo storageReportInfo) {

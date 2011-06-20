@@ -51,6 +51,12 @@ public class BaseRest {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    protected Response responseBadRequest(Exception e) {
+        String entity = e.getMessage() == null ? "null" : e.getMessage();
+        return Response.status(Response.Status.BAD_REQUEST)
+                       .entity(entity).build();
+    }
+
     protected Response responseBad(Exception e) {
         String entity = e.getMessage() == null ? "null" : e.getMessage();
         return Response.serverError().entity(entity).build();

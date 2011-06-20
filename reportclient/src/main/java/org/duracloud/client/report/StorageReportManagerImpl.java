@@ -22,6 +22,7 @@ import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,6 +85,16 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
 
     private String buildGetStorageReportInfoURL() {
         return buildURL("info");
+    }
+
+    private String buildScheduleStorageReportURL(long startTime,
+                                                 long frequency) {
+        String baseUrl = buildURL("schedule");
+        return baseUrl + "?startTime=" + startTime + "&frequency=" + frequency;
+    }
+
+    private String buildCancelStorageReportScheduleURL() {
+        return buildURL("schedule");
     }
 
     public StorageReport getLatestStorageReport()
@@ -158,15 +169,59 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
-    public void startStorageReport() throws ReportException {
+    public String startStorageReport() throws ReportException {
         String url = buildBaseStorageReportURL();
         try {
             RestHttpHelper.HttpResponse response = getRestHelper()
                 .post(url, null, null);
 
             checkResponse(response, HttpStatus.SC_OK);
+            return response.getResponseBody();
         } catch (Exception e) {
             String error = "Could not start storage report due to: " +
+                           e.getMessage();
+            throw new ReportException(error, e);
+        }
+    }
+
+    public String scheduleStorageReport(Date startTime, long frequency)
+        throws ReportException {
+
+        if(null == startTime) {
+            throw new ReportException("Start time may not be null");
+        }
+        if(startTime.before(new Date())) {
+            throw new ReportException("Start time must be in the future");
+        }
+        if(frequency < 600000) {
+            throw new ReportException("Frequency must be higher than " +
+                                      "600000 milliseconds (10 minutes)");
+        }
+
+        String url =
+            buildScheduleStorageReportURL(startTime.getTime(), frequency);
+        try {
+            RestHttpHelper.HttpResponse response = getRestHelper()
+                .post(url, null, null);
+
+            checkResponse(response, HttpStatus.SC_OK);
+            return response.getResponseBody();
+        } catch (Exception e) {
+            String error = "Could not schedule storage report due to: " +
+                           e.getMessage();
+            throw new ReportException(error, e);
+        }
+    }
+
+    public String cancelStorageReportSchedule() throws ReportException {
+        String url = buildCancelStorageReportScheduleURL();
+        try {
+            RestHttpHelper.HttpResponse response = getRestHelper().delete(url);
+
+            checkResponse(response, HttpStatus.SC_OK);
+            return response.getResponseBody();
+        } catch (Exception e) {
+            String error = "Could not cancel storage report schedule due to: " +
                            e.getMessage();
             throw new ReportException(error, e);
         }
@@ -222,7 +277,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         return this.restHelper;
     }
 
-    private void setRestHelper(RestHttpHelper restHelper) {
+    protected void setRestHelper(RestHttpHelper restHelper) {
         this.restHelper = restHelper;
     }
     

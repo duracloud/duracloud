@@ -13,6 +13,7 @@ import org.duracloud.common.model.Securable;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.duracloud.reportdata.storage.StorageReportInfo;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -68,9 +69,28 @@ public interface StorageReportManager extends Securable {
      * Tells DuraReport to start running a new storage report generation
      * process. If a report generation process is already underway, this
      * call is ignored.
-     * 
+     *
+     * @return success message
      * @throws ReportException
      */
-    public void startStorageReport() throws ReportException;
+    public String startStorageReport() throws ReportException;
+
+    /**
+     * Schedules a series of storage reports to run. The first such report
+     * will begin at the indicated start time, followed by reports at the
+     * given frequency.
+     *
+     * @param startTime time to start the next storage report
+     * @param frequency time in milliseconds to wait between reports
+     * @return success message
+     */
+    public String scheduleStorageReport(Date startTime, long frequency)
+        throws ReportException;
+
+    /**
+     * Cancels any existing storage report schedule.
+     * @return success message
+     */
+    public String cancelStorageReportSchedule() throws ReportException;
 
 }

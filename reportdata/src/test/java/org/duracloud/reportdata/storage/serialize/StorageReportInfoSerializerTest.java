@@ -25,6 +25,7 @@ public class StorageReportInfoSerializerTest {
     private final long finalCount = 39;
     private final long completionTime = 200;
     private final long estimatedCompletionTime = 202;
+    private final long nextScheduledStartTime = 1492;
 
     @Test
     public void testStorageReportInfoSerializer() {
@@ -38,6 +39,7 @@ public class StorageReportInfoSerializerTest {
         info.setFinalCount(finalCount);
         info.setCompletionTime(completionTime);
         info.setEstimatedCompletionTime(estimatedCompletionTime);
+        info.setNextScheduledStartTime(nextScheduledStartTime);
 
         String xml = serializer.serializeReportInfo(info);
         assertNotNull(xml);
@@ -51,5 +53,7 @@ public class StorageReportInfoSerializerTest {
         assertEquals(completionTime, deserialXml.getCompletionTime());
         assertEquals(estimatedCompletionTime,
                      deserialXml.getEstimatedCompletionTime());
+        assertEquals(nextScheduledStartTime,
+                     deserialXml.getNextScheduledStartTime());
     }
 }

@@ -7,14 +7,17 @@
  */
 package org.duracloud.durareport.rest;
 
+import org.duracloud.durareport.error.InvalidScheduleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
@@ -131,6 +134,50 @@ public class StorageReportRest extends BaseRest {
 
         try {
             String responseText = resource.startStorageReport();
+            return responseOk(responseText);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
+     * Sets up a schedule of storage reports to be run, based on a starting
+     * time and the frequency at which the report should be run afterward.
+     *
+     * @return 200 response with body text indicating success
+     */
+    @Path("/schedule")
+    @POST
+    public Response scheduleStorageReport(@QueryParam("startTime")
+                                          long startTime,
+                                          @QueryParam("frequency")
+                                          long frequency){
+        log.debug("Scheduling a storage report series");
+
+        try {
+            String responseText =
+                resource.scheduleStorageReport(startTime, frequency);
+            return responseOk(responseText);
+        } catch (InvalidScheduleException e) {
+            return responseBadRequest(e);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
+     * Cancels the storage report schedule. This does not stop running
+     * storage reports, only cancels those that would run in the future.
+     *
+     * @return 200 response with body text indicating success
+     */
+    @Path("/schedule")
+    @DELETE
+    public Response cancelStorageReport(){
+        log.debug("Cancelling all scheduled storage reports");
+
+        try {
+            String responseText = resource.cancelStorageReportSchedule();
             return responseOk(responseText);
         } catch (Exception e) {
             return responseBad(e);

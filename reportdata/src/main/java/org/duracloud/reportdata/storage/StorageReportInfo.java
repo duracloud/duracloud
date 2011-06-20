@@ -19,6 +19,7 @@ public class StorageReportInfo {
     private long finalCount;
     private long completionTime;
     private long estimatedCompletionTime;
+    private long nextScheduledStartTime;
 
     public String getStatus() {
         return status;
@@ -68,4 +69,11 @@ public class StorageReportInfo {
         this.estimatedCompletionTime = estimatedCompletionTime;
     }
 
+    public long getNextScheduledStartTime() {
+        return nextScheduledStartTime;
+    }
+
+    public void setNextScheduledStartTime(long nextScheduledStartTime) {
+        this.nextScheduledStartTime = nextScheduledStartTime;
+    }
 }
