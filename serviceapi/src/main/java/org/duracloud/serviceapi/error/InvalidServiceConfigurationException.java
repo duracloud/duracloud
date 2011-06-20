@@ -5,9 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.error;
-
-import org.duracloud.client.error.ServicesException;
+package org.duracloud.serviceapi.error;
 
 import java.util.List;
 

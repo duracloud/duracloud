@@ -5,8 +5,12 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duraservice.aop;
+package org.duracloud.serviceapi.aop;
 
+/**
+ * @author Andrew Woods
+ *         Date: June 20, 2011
+ */
 public class ServiceMessage {
 
     private String serviceId;

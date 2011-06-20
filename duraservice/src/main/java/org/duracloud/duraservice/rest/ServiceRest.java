@@ -8,8 +8,8 @@
 package org.duracloud.duraservice.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.client.error.NotFoundException;
-import org.duracloud.client.error.ServicesException;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.duraservice.error.NoSuchDeployedServiceException;

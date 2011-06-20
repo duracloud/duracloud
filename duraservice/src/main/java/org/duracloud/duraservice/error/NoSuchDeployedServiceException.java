@@ -7,7 +7,7 @@
  */
 package org.duracloud.duraservice.error;
 
-import org.duracloud.client.error.NotFoundException;
+import org.duracloud.serviceapi.error.NotFoundException;
 
 /**
  * @author: Bill Branan

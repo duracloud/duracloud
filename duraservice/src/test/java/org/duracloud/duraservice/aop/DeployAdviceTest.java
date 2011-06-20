@@ -7,6 +7,7 @@
  */
 package org.duracloud.duraservice.aop;
 
+import org.duracloud.serviceapi.aop.DeployMessage;
 import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,7 @@ public class DeployAdviceTest {
         DeployMessage msg = new DeployMessage();
         msg.setServiceId(null);
         msg.setServiceHost(null);
+        msg.setDeploymentId(-1);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -74,10 +76,12 @@ public class DeployAdviceTest {
     @Test
     public void testMessage() throws Throwable {
         String id = "1";
+        int deploymentId = 9;
 
         DeployMessage msg = new DeployMessage();
         msg.setServiceId(id);
         msg.setServiceHost(id);
+        msg.setDeploymentId(deploymentId);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -92,8 +96,10 @@ public class DeployAdviceTest {
 
         deployAdvice.setDeployJmsTemplate(jmsTemplate);
         deployAdvice.setDestination(destination);
-        deployAdvice.afterReturning(null, null,
-                                         new Object[]{new Integer(id),id,null}, null);
+        deployAdvice.afterReturning(new Integer(deploymentId),
+                                    null,
+                                    new Object[]{new Integer(id), id, null},
+                                    null);
 
         EasyMock.verify(jmsTemplate);
     }

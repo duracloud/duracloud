@@ -5,13 +5,19 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duraservice.aop;
+package org.duracloud.serviceapi.aop;
 
+/**
+ * @author Andrew Woods
+ *         Date: June 20, 2011
+ */
 public class DeployMessage {
 
     private String serviceId;
 
     private String serviceHost;
+
+    private int deploymentId;
 
     public String getServiceId() {
         return serviceId;
@@ -29,11 +35,20 @@ public class DeployMessage {
         this.serviceHost = serviceHost;
     }
 
+    public int getDeploymentId() {
+        return deploymentId;
+    }
+
+    public void setDeploymentId(int deploymentId) {
+        this.deploymentId = deploymentId;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("DeployMessage[");
         sb.append("serviceId:'" + serviceId + "'");
         sb.append("|serviceHost:'" + serviceHost + "'");
+        sb.append("|deploymentId:'" + deploymentId + "'");
         sb.append("]\n");
         return sb.toString();
     }

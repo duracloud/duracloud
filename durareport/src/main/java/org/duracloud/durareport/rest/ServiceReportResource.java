@@ -7,7 +7,7 @@
  */
 package org.duracloud.durareport.rest;
 
-import org.duracloud.client.ServicesManager;
+import org.duracloud.serviceapi.ServicesManager;
 
 /**
  * @author: Bill Branan

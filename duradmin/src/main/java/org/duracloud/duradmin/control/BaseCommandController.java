@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.ContentStore;
-import org.duracloud.client.ServicesManager;
 import org.duracloud.duradmin.contentstore.ContentStoreProvider;
 import org.duracloud.duradmin.util.MessageUtils;
 import org.duracloud.duradmin.util.NavigationUtils;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.binding.message.Message;

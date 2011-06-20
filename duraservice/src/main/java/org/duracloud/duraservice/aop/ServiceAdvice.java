@@ -7,6 +7,7 @@
  */
 package org.duracloud.duraservice.aop;
 
+import org.duracloud.serviceapi.aop.ServiceMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.AfterReturningAdvice;

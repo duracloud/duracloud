@@ -13,14 +13,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.client.error.NotFoundException;
-import org.duracloud.client.error.ServicesException;
-import org.duracloud.client.error.UnexpectedResponseException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.Securable;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
+import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
+import org.duracloud.serviceapi.error.UnexpectedResponseException;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServicesConfigDocument;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
@@ -106,7 +107,7 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * can be deployed.
      *
      * @return List of available services
-     * @throws org.duracloud.client.error.ServicesException if available services cannot be retrieved
+     * @throws ServicesException if available services cannot be retrieved
      */
     public List<ServiceInfo> getAvailableServices() throws ServicesException {
         return getServices(buildGetServicesURL(ServicesList.AVAILABLE));
@@ -116,7 +117,7 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * Provides a listing of all deployed services.
      *
      * @return List of deployed services
-     * @throws org.duracloud.client.error.ServicesException if deployed services cannot be retrieved
+     * @throws ServicesException if deployed services cannot be retrieved
      */
     public List<ServiceInfo> getDeployedServices() throws ServicesException {
         return getServices(buildGetServicesURL(ServicesList.DEPLOYED));
@@ -145,8 +146,8 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      *
      * @param serviceId the ID of the service to retrieve
      * @return a service
-     * @throws org.duracloud.client.error.NotFoundException if the service cannot be found
-     * @throws org.duracloud.client.error.ServicesException if the service cannot be retrieved
+     * @throws NotFoundException if the service cannot be found
+     * @throws ServicesException if the service cannot be retrieved
      */
     public ServiceInfo getService(int serviceId)
         throws NotFoundException, ServicesException {
@@ -174,8 +175,8 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * @param serviceId the ID of the service to retrieve
      * @param deploymentId the ID of the service deployment to retrieve
      * @return a service which has been deployed
-     * @throws org.duracloud.client.error.NotFoundException if either the service or deployment cannot be found
-     * @throws org.duracloud.client.error.ServicesException if the service cannot be retrieved
+     * @throws NotFoundException if either the service or deployment cannot be found
+     * @throws ServicesException if the service cannot be retrieved
      */
     public ServiceInfo getDeployedService(int serviceId, int deploymentId)
         throws NotFoundException, ServicesException {
@@ -202,8 +203,8 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * @param serviceId the ID of the service to retrieve
      * @param deploymentId the ID of the service deployment to retrieve
      * @return a map of service properties
-     * @throws org.duracloud.client.error.NotFoundException if either the service or deployment cannot be found
-     * @throws org.duracloud.client.error.ServicesException if the service properties cannot be retrieved
+     * @throws NotFoundException if either the service or deployment cannot be found
+     * @throws ServicesException if the service properties cannot be retrieved
      */
     public Map<String, String> getDeployedServiceProps(int serviceId,
                                                        int deploymentId)
@@ -232,8 +233,8 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * @param userConfigVersion the version of the user configuration
      * @param userConfigModeSets a list of user configuration options
      * @return the deploymentID of the newly deployed service
-     * @throws org.duracloud.client.error.NotFoundException if the service cannot be found
-     * @throws org.duracloud.client.error.ServicesException if the service cannot be deployed
+     * @throws NotFoundException if the service cannot be found
+     * @throws ServicesException if the service cannot be deployed
      */
     public int deployService(int serviceId,
                              String serviceHost,
@@ -282,8 +283,8 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * @param deploymentId the ID of the service deployment to update
      * @param userConfigVersion the version of the user configuration
      * @param userConfigModeSets updated user configuration options
-     * @throws org.duracloud.client.error.NotFoundException if either the service or deployment cannot be found
-     * @throws org.duracloud.client.error.ServicesException if the service configuration cannot be updated
+     * @throws NotFoundException if either the service or deployment cannot be found
+     * @throws ServicesException if the service configuration cannot be updated
      */
     public void updateServiceConfig(int serviceId,
                                     int deploymentId,
@@ -316,8 +317,8 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      *
      * @param serviceId the ID of the service to undeploy
      * @param deploymentId the ID of the service deployment to undeploy
-     * @throws org.duracloud.client.error.NotFoundException if either the service or deployment cannot be found
-     * @throws org.duracloud.client.error.ServicesException if the service cannot be undeployed
+     * @throws NotFoundException if either the service or deployment cannot be found
+     * @throws ServicesException if the service cannot be undeployed
      */
     public void undeployService(int serviceId,
                                 int deploymentId)

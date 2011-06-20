@@ -7,8 +7,8 @@
  */
 package org.duracloud.duraservice.rest;
 
-import org.duracloud.client.error.NotFoundException;
-import org.duracloud.client.error.ServicesException;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
 
 import java.io.InputStream;
 

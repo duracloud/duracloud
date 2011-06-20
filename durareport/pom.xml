@@ -79,6 +79,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>serviceapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
           <groupId>org.duracloud</groupId>
           <artifactId>app-config</artifactId>
           <version>${project.version}</version>

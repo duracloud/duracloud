@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duraservice.aop;
+package org.duracloud.serviceapi.aop;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -17,14 +17,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 
+/**
+ * @author Andrew Woods
+ *         Date: June 20, 2011
+ */
 public class DeployMessageConverter
         implements MessageConverter {
 
     protected final Logger log = LoggerFactory.getLogger(DeployMessageConverter.class);
 
-    protected static final String SERVICE_ID = "serviceId";
+    public static final String SERVICE_ID = "serviceId";
 
-    protected static final String SERVICE_HOST = "serviceHost";
+    public static final String SERVICE_HOST = "serviceHost";
 
     public Object fromMessage(Message msg) throws JMSException,
             MessageConversionException {

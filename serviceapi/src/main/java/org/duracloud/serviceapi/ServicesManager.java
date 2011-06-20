@@ -5,14 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client;
+package org.duracloud.serviceapi;
 
 import java.util.List;
 import java.util.Map;
 
-import org.duracloud.client.error.NotFoundException;
-import org.duracloud.client.error.ServicesException;
 import org.duracloud.common.model.Securable;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 

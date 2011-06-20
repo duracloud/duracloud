@@ -17,10 +17,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.duracloud.client.ServicesManager;
-import org.duracloud.client.error.NotFoundException;
-import org.duracloud.client.error.ServicesException;
 import org.duracloud.duradmin.util.ServiceInfoUtil;
+import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -103,7 +103,7 @@ public class ServiceController implements Controller {
     }
 
     private ModelAndView reconfigure(Integer serviceId, Integer deploymentId,
-			HttpServletRequest request, HttpServletResponse response)  throws ServicesException, NotFoundException{
+			HttpServletRequest request, HttpServletResponse response)  throws ServicesException, NotFoundException {
 
         List<ServiceInfo> services = this.servicesManager.getDeployedServices();
         ServiceInfo serviceInfo = getServiceInfo(serviceId, services);

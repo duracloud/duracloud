@@ -7,7 +7,7 @@
  */
 package org.duracloud.duraservice.error;
 
-import org.duracloud.client.error.ServicesException;
+import org.duracloud.serviceapi.error.ServicesException;
 
 /**
  * @author: Bill Branan

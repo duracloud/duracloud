@@ -279,18 +279,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>com.springsource.org.apache.activemq</artifactId>
-        <version>5.2.0</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>com.springsource.org.apache.commons.httpclient</artifactId>
         <version>3.1.0</version>

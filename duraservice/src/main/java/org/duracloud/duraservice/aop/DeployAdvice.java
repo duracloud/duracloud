@@ -7,6 +7,7 @@
  */
 package org.duracloud.duraservice.aop;
 
+import org.duracloud.serviceapi.aop.DeployMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.AfterReturningAdvice;
@@ -40,20 +41,23 @@ public class DeployAdvice
             doLogging(returnObj, method, methodArgs, targetObj);
         }
 
-        publishDeployEvent(createDeployMessage(methodArgs));
+        publishDeployEvent(createDeployMessage(methodArgs, returnObj));
     }
 
     private void publishDeployEvent(DeployMessage deployEvent) {
         getDeployJmsTemplate().convertAndSend(getDestination(), deployEvent);
     }
 
-    private DeployMessage createDeployMessage(Object[] methodArgs) {
+    private DeployMessage createDeployMessage(Object[] methodArgs,
+                                              Object returnObj) {
         String serviceId = getServiceId(methodArgs);
         String serviceHost = getServiceHost(methodArgs);
+        int deploymentId = getDeploymentId(returnObj);
 
         DeployMessage msg = new DeployMessage();
         msg.setServiceId(serviceId);
         msg.setServiceHost(serviceHost);
+        msg.setDeploymentId(deploymentId);
 
         return msg;
     }
@@ -69,6 +73,13 @@ public class DeployAdvice
     private String getServiceHost(Object[] methodArgs) {
         log.debug("Returning 'serviceHost' at index: " + SERVICE_HOST_INDEX);
         return (String) methodArgs[SERVICE_HOST_INDEX];
+    }
+
+    private int getDeploymentId(Object returnObj) {
+        if (null == returnObj) {
+            return -1;
+        }
+        return (Integer) returnObj;
     }
 
     private void doLogging(Object returnObj,
@@ -96,6 +107,9 @@ public class DeployAdvice
                 }
                 log.debug(pre2 + "method-arg: " + argValue);
             }
+        }
+        if (returnObj != null) {
+            log.debug("return object: {}", returnObj);
         }
     }
 

@@ -7,6 +7,7 @@
  */
 package org.duracloud.duraservice.aop;
 
+import org.duracloud.serviceapi.aop.ServiceMessage;
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 

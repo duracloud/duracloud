@@ -8,7 +8,6 @@
 package org.duracloud.duradmin.util;
 
 import org.duracloud.client.ContentStore;
-import org.duracloud.client.ServicesManager;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.ContentItem;
@@ -16,6 +15,7 @@ import org.duracloud.duradmin.domain.ContentMetadata;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceMetadata;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.serviceapi.ServicesManager;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

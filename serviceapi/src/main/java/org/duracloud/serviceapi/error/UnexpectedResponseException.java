@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.error;
+package org.duracloud.serviceapi.error;
 
 /**
  * Exception thrown when an unexpected response code is returned from

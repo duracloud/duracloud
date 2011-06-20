@@ -7,8 +7,8 @@
  */
 package org.duracloud.duraservice.rest;
 
-import org.duracloud.client.error.NotFoundException;
-import org.duracloud.client.error.ServicesException;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.duraservice.mgmt.LocalServicesManager;

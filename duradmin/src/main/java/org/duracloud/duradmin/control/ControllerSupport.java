@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.ContentStore;
-import org.duracloud.client.ServicesManager;
 import org.duracloud.duradmin.contentstore.ContentStoreProvider;
 import org.duracloud.duradmin.util.MessageUtils;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.serviceapi.ServicesManager;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ControllerSupport {

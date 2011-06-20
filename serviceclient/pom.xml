@@ -112,6 +112,12 @@
       <artifactId>serviceconfig</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>serviceapi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
         
     <!-- for JDOM -->
     <dependency>

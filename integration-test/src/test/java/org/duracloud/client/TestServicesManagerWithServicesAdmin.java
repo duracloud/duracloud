@@ -8,7 +8,7 @@
 package org.duracloud.client;
 
 import junit.framework.TestCase;
-import org.duracloud.client.error.NotFoundException;
+import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.DuraCloudUserType;
 import org.duracloud.serviceconfig.ServiceInfo;

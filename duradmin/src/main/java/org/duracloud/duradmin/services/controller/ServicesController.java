@@ -12,7 +12,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.duracloud.client.ServicesManager;
+import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

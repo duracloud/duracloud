@@ -7,6 +7,7 @@
  */
 package org.duracloud.duraservice.aop;
 
+import org.duracloud.serviceapi.aop.DeployMessage;
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 
@@ -25,18 +26,29 @@ public class DeployMessageEquals implements IArgumentMatcher {
 
         boolean matches = true;
 
-        if(deployMessage.getServiceId() != null)
-            matches = deployMessage.getServiceId().equals(message.getServiceId());
-        else if(message.getServiceId() != null)
+        if (deployMessage.getServiceId() != null) {
+            matches = deployMessage.getServiceId()
+                .equals(message.getServiceId());
+        } else if (message.getServiceId() != null) {
             return false;
+        }
 
-        if(!matches)
+        if (!matches) {
             return false;
+        }
 
-        if(deployMessage.getServiceHost() != null)
-            matches = deployMessage.getServiceHost().equals(message.getServiceHost());
-        else if(message.getServiceHost() != null)
+        if (deployMessage.getServiceHost() != null) {
+            matches = deployMessage.getServiceHost()
+                .equals(message.getServiceHost());
+        } else if (message.getServiceHost() != null) {
             return false;
+        }
+
+        if (!matches) {
+            return false;
+        }
+
+        matches = deployMessage.getDeploymentId() == message.getDeploymentId();
 
         return matches;
     }

@@ -11,12 +11,12 @@ import org.duracloud.appconfig.domain.DurareportConfig;
 import org.duracloud.appconfig.xml.DurareportInitDocumentBinding;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.client.ServicesManager;
 import org.duracloud.client.ServicesManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
+import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

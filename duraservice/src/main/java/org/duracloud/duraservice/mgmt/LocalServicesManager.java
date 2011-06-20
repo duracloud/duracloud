@@ -7,7 +7,7 @@
  */
 package org.duracloud.duraservice.mgmt;
 
-import org.duracloud.client.ServicesManager;
+import org.duracloud.serviceapi.ServicesManager;
 
 import java.io.InputStream;
 

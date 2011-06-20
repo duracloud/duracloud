@@ -7,7 +7,10 @@
  */
 package org.duracloud.duraservice.aop;
 
+import org.duracloud.serviceapi.aop.DeployMessage;
+import org.duracloud.serviceapi.aop.DeployMessageConverter;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jms.support.converter.MessageConversionException;
@@ -17,7 +20,6 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Session;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -76,8 +78,8 @@ public class DeployMessageConverterTest {
         assertTrue(obj instanceof DeployMessage);
 
         DeployMessage deployMessage = (DeployMessage) obj;
-        assertEquals(serviceId, deployMessage.getServiceId());
-        assertEquals(serviceHost, deployMessage.getServiceHost());
+        Assert.assertEquals(serviceId, deployMessage.getServiceId());
+        Assert.assertEquals(serviceHost, deployMessage.getServiceHost());
     }
 
     @Test
