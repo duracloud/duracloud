@@ -7,9 +7,8 @@
  */
 package org.duracloud.duraservice.rest;
 
-import org.duracloud.duraservice.error.NoSuchDeployedServiceException;
-import org.duracloud.duraservice.error.NoSuchServiceComputeInstanceException;
-import org.duracloud.duraservice.error.NoSuchServiceException;
+import org.duracloud.client.error.NotFoundException;
+import org.duracloud.client.error.ServicesException;
 
 import java.io.InputStream;
 
@@ -24,22 +23,22 @@ public interface ServiceResource {
 
     String getAvailableServices();
 
-    String getService(int serviceId) throws NoSuchServiceException;
+    String getService(int serviceId) throws NotFoundException;
 
     String getDeployedService(int serviceId, int deploymentId)
-        throws NoSuchDeployedServiceException;
+        throws NotFoundException;
 
     String getDeployedServiceProps(int serviceId, int deploymentId)
-        throws NoSuchDeployedServiceException;
+        throws NotFoundException;
 
     int deployService(int serviceId, String serviceHost, InputStream serviceXml)
-        throws NoSuchServiceException, NoSuchServiceComputeInstanceException;
+        throws NotFoundException, ServicesException;
 
     void updateServiceConfig(int serviceId,
                              int deploymentId,
                              InputStream serviceXml)
-        throws NoSuchDeployedServiceException;
+        throws NotFoundException, ServicesException;
 
     void undeployService(int serviceId, int deploymentId)
-        throws NoSuchDeployedServiceException;
+        throws NotFoundException, ServicesException;
 }

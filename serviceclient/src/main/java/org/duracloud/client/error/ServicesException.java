@@ -30,4 +30,7 @@ public class ServicesException extends DuraCloudCheckedException {
         super(throwable);
     }
 
+    public ServicesException(String message, String messageKey) {
+        super(message, messageKey);
+    }
 }

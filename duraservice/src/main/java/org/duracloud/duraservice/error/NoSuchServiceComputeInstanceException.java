@@ -7,13 +7,13 @@
  */
 package org.duracloud.duraservice.error;
 
-import org.duracloud.common.error.DuraCloudCheckedException;
+import org.duracloud.client.error.ServicesException;
 
 /**
  * @author: Bill Branan
  * Date: Nov 11, 2009
  */
-public class NoSuchServiceComputeInstanceException extends DuraCloudCheckedException {
+public class NoSuchServiceComputeInstanceException extends ServicesException {
 
     private static final String messageKey =
         "duracloud.error.duraservice.nosuchservicecomputeinstance";

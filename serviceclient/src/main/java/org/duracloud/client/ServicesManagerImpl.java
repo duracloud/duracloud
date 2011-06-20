@@ -21,7 +21,6 @@ import org.duracloud.common.model.Securable;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
-import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServicesConfigDocument;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
@@ -229,26 +228,22 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * Deploys a service.
      *
      * @param serviceId the ID of the service to deploy
+     * @param serviceHost the selected service host
      * @param userConfigVersion the version of the user configuration
-     * @param userConfigs a list of user configuration options
-     * @param deploymentSelection the selected deployment option
+     * @param userConfigModeSets a list of user configuration options
      * @return the deploymentID of the newly deployed service
      * @throws org.duracloud.client.error.NotFoundException if the service cannot be found
      * @throws org.duracloud.client.error.ServicesException if the service cannot be deployed
      */
     public int deployService(int serviceId,
+                             String serviceHost,
                              String userConfigVersion,
-                             List<UserConfigModeSet> userConfigModeSets,
-                             DeploymentOption deploymentSelection)
+                             List<UserConfigModeSet> userConfigModeSets)
         throws NotFoundException, ServicesException {
         String url = buildServiceURL(serviceId);
 
-        String hostName = null;
-        if(deploymentSelection != null) {
-            hostName = deploymentSelection.getHostname();
-            if(hostName != null) {
-                url += ("?serviceHost=" + hostName);
-            }
+        if (serviceHost != null) {
+            url += ("?serviceHost=" + serviceHost);
         }
 
         // Create service for deployment
@@ -269,7 +264,7 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
             throw e;
         } catch (Exception e) {
             throw new ServicesException("Could not deploy service " + serviceId +
-                                        " to host " + hostName +
+                                        " to host " + serviceHost +
                                         " due to: " + e.getMessage(), e);
         }
     }
@@ -286,7 +281,7 @@ public class ServicesManagerImpl implements ServicesManager, Securable {
      * @param serviceId the ID of the service to update
      * @param deploymentId the ID of the service deployment to update
      * @param userConfigVersion the version of the user configuration
-     * @param userConfigs updated user configuration options
+     * @param userConfigModeSets updated user configuration options
      * @throws org.duracloud.client.error.NotFoundException if either the service or deployment cannot be found
      * @throws org.duracloud.client.error.ServicesException if the service configuration cannot be updated
      */

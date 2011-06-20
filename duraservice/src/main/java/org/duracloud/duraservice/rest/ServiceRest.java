@@ -8,11 +8,12 @@
 package org.duracloud.duraservice.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.duracloud.client.error.NotFoundException;
+import org.duracloud.client.error.ServicesException;
 import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.duraservice.error.NoSuchDeployedServiceException;
 import org.duracloud.duraservice.error.NoSuchServiceComputeInstanceException;
-import org.duracloud.duraservice.error.NoSuchServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +204,7 @@ public class ServiceRest extends BaseRest {
         String serviceXml;
         try {
             serviceXml = serviceResource.getService(serviceId);
-        } catch(NoSuchServiceException e) {
+        } catch(NotFoundException e) {
             return buildNotFoundResponse(e);
         }
 
@@ -254,7 +255,7 @@ public class ServiceRest extends BaseRest {
         try {
             serviceXml =
                 serviceResource.getDeployedService(serviceId, deploymentId);
-        } catch(NoSuchDeployedServiceException e) {
+        } catch(NotFoundException e) {
             return buildNotFoundResponse(e);
         }
 
@@ -306,7 +307,7 @@ public class ServiceRest extends BaseRest {
         try {
             servicePropertiesXml =
                 serviceResource.getDeployedServiceProps(serviceId, deploymentId);
-        } catch(NoSuchDeployedServiceException e) {
+        } catch(NotFoundException e) {
             return buildNotFoundResponse(e);
         }
 
@@ -353,14 +354,15 @@ public class ServiceRest extends BaseRest {
         }
     }
 
-    private Response doDeployService(int serviceId, String serviceHost) {
+    private Response doDeployService(int serviceId, String serviceHost)
+        throws ServicesException {
         InputStream userConfigXml = getRequestContent();
         int deploymentId;
         try {
             deploymentId = serviceResource.deployService(serviceId,
                                                          serviceHost,
                                                          userConfigXml);
-        } catch(NoSuchServiceException e) {
+        } catch(NotFoundException e) {
             return buildNotFoundResponse(e);
         } catch(NoSuchServiceComputeInstanceException e) {
             return buildNotFoundResponse(e);
@@ -437,7 +439,7 @@ public class ServiceRest extends BaseRest {
             log.debug(msg.toString());
             serviceResource.undeployService(serviceId, deploymentId);
 
-        } catch(NoSuchDeployedServiceException e) {
+        } catch(NotFoundException e) {
             return responseBad(msg.toString(), e, NOT_FOUND);
             
         } catch (Exception e) {

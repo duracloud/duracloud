@@ -25,7 +25,6 @@ import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.DeploymentOption.Location;
-import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,9 +183,9 @@ public class ServiceController implements Controller {
 
         log.info(message);
         int deploymentId = servicesManager.deployService(serviceInfo.getId(),
+                                                         deploymentOption.getHostname(),
                                                          version,
-                                                         userConfigs,
-                                                         deploymentOption);
+                                                         userConfigs);
         message =
                 MessageFormat
                         .format("deployed service [id={0}, userConfigVersion={1}, deploymentOption[{2}] -  id returned: [{3}] ",

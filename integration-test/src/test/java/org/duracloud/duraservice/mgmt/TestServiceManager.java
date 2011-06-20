@@ -21,7 +21,6 @@ import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;

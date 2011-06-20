@@ -54,7 +54,7 @@ import java.util.Map;
  *
  * @author Bill Branan
  */
-public class ServiceManager {
+public class ServiceManager implements LocalServicesManager {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceManager.class);
 
@@ -1108,6 +1108,18 @@ public class ServiceManager {
                 log.error(error);
             }
         }
+    }
+
+    @Override
+    public void login(Credential credential) {
+        log.info("login({}) not supported by class: {}",
+                 credential,
+                 getClass().getName());
+    }
+
+    @Override
+    public void logout() {
+        log.info("logout() not supported by class: {}", getClass().getName());
     }
 
     /*

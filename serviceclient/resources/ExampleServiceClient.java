@@ -200,9 +200,9 @@ public class ExampleServiceClient {
         throws Exception {
         System.out.printf("%n- Deploying service%n");
         return servicesManager.deployService(service.getId(),
+                                             null,
                                              service.getUserConfigVersion(),
-                                             createDeploymentConfig(space),
-                                             null);
+                                             createDeploymentConfig(space));
     }
 
     /**

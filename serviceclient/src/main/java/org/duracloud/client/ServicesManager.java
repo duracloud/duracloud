@@ -13,7 +13,6 @@ import java.util.Map;
 import org.duracloud.client.error.NotFoundException;
 import org.duracloud.client.error.ServicesException;
 import org.duracloud.common.model.Securable;
-import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
@@ -23,8 +22,6 @@ import org.duracloud.serviceconfig.user.UserConfigModeSet;
  * @author Bill Branan
  */
 public interface ServicesManager extends Securable {
-
-    public String getBaseURL();
 
     /**
      * Provides a listing of available services, that is, services which
@@ -90,16 +87,16 @@ public interface ServicesManager extends Securable {
      *
      * @param serviceId the ID of the service to deploy
      * @param userConfigVersion the version of the user configuration
-     * @param userConfigs a list of user configuration options
-     * @param deploymentSelection the selected deployment option
+     * @param userConfigModeSets a list of user configuration options
+     * @param serviceHost the selected deployment option
      * @return the deploymentID of the newly deployed service
      * @throws NotFoundException if the service cannot be found
      * @throws ServicesException if the service cannot be deployed
      */
     public int deployService(int serviceId,
+                             String serviceHost,
                              String userConfigVersion,
-                             List<UserConfigModeSet> userConfigModeSets,
-                             DeploymentOption deploymentSelection)
+                             List<UserConfigModeSet> userConfigModeSets)
         throws NotFoundException, ServicesException;
 
     /**
@@ -108,7 +105,7 @@ public interface ServicesManager extends Securable {
      * @param serviceId the ID of the service to update
      * @param deploymentId the ID of the service deployment to update
      * @param userConfigVersion the version of the user configuration
-     * @param userConfigs updated user configuration options
+     * @param userConfigModeSets updated user configuration options
      * @throws NotFoundException if either the service or deployment cannot be found
      * @throws ServicesException if the service configuration cannot be updated
      */

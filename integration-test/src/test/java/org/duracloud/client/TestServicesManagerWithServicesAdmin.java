@@ -47,7 +47,7 @@ public class TestServicesManagerWithServicesAdmin
 
     private static final String defaultPort = "8080";
 
-    private ServicesManager servicesManager;
+    private ServicesManagerImpl servicesManager;
 
     private static final int testServiceId = 0; // Replication Service
     private static int testDeploymentId = 0;
@@ -223,9 +223,9 @@ public class TestServicesManagerWithServicesAdmin
 
         List<UserConfigModeSet> userConfigModeSets = serviceToDeploy.getUserConfigModeSets();
         testDeploymentId = servicesManager.deployService(testServiceId,
+                                                         null,
                                                          userConfigVer,
-                                                         userConfigModeSets,
-                                                         null);
+                                                         userConfigModeSets);
     }
 
     private ServiceInfo findService(int serviceId, List<ServiceInfo> services) {

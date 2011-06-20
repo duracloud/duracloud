@@ -24,4 +24,7 @@ public class NotFoundException extends DuraCloudCheckedException {
         super(message);
     }
 
+    public NotFoundException(String msg, String messageKey) {
+        super(msg, messageKey);
+    }
 }

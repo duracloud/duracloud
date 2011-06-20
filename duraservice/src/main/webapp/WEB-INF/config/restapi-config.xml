@@ -29,14 +29,14 @@
 
   <bean id="serviceComputeInstanceUtil" class="org.duracloud.duraservice.mgmt.ServiceComputeInstanceUtil"/>
 
-  <bean id="serviceManager" class="org.duracloud.duraservice.mgmt.ServiceManager" >
+  <bean id="servicesManager" class="org.duracloud.duraservice.mgmt.ServiceManager" >
     <constructor-arg ref="contentStoreManagerUtil"/>
     <constructor-arg ref="serviceConfigUtil"/>
     <constructor-arg ref="serviceComputeInstanceUtil"/>
   </bean>
 
   <bean id="serviceResource" class="org.duracloud.duraservice.rest.ServiceResourceImpl">
-    <constructor-arg ref="serviceManager"/>
+    <constructor-arg ref="servicesManager"/>
   </bean>
 
   <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>

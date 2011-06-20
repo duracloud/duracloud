@@ -7,13 +7,13 @@
  */
 package org.duracloud.duraservice.error;
 
-import org.duracloud.common.error.DuraCloudCheckedException;
+import org.duracloud.client.error.NotFoundException;
 
 /**
  * @author: Bill Branan
  * Date: Nov 12, 2009
  */
-public class NoSuchDeployedServiceException extends DuraCloudCheckedException {
+public class NoSuchDeployedServiceException extends NotFoundException {
 
     private static final String messageKey =
         "duracloud.error.duraservice.nosuchdeployedservice";
