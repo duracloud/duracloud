@@ -32,7 +32,8 @@
 
   <bean id="serviceResource" class="org.duracloud.durareport.rest.ServiceReportResource" />
 
-  <bean id="serviceMonitor" class="org.duracloud.servicemonitor.impl.ServiceMonitorImpl">
+  <bean id="serviceMonitor" class="org.duracloud.servicemonitor.impl.ServiceMonitorImpl"
+    destroy-method="dispose">
     <constructor-arg value="x-service-out"/>
     <constructor-arg value="report/service-summaries-$DATE.xml"/>
   </bean>
