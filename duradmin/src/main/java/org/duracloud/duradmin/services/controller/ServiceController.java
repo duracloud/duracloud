@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
+import static org.duracloud.services.ComputeService.SYSTEM_PREFIX;
+
 /**
  * 
  * @author Daniel Bernstein
@@ -90,10 +92,12 @@ public class ServiceController implements Controller {
         Map<String,String> props = getServicesManager().getDeployedServiceProps(serviceId,deploymentId);
         List<Map<String,String>> propList = new LinkedList<Map<String,String>>();
         for(String key : props.keySet()){
-            Map<String,String> map = new LinkedHashMap<String,String>();
-            map.put("name", key);
-            map.put("value", props.get(key));
-            propList.add(map);
+            if(!key.startsWith(SYSTEM_PREFIX)) {
+                Map<String,String> map = new LinkedHashMap<String,String>();
+                map.put("name", key);
+                map.put("value", props.get(key));
+                propList.add(map);
+            }
         }
         ModelAndView mav = new ModelAndView();
         mav.setViewName("jsonView");
