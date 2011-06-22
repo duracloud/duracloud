@@ -12,6 +12,7 @@
     of the application
   -->
   <import resource="restapi-config.xml" />
+  <import resource="messaging-config.xml" />
   <import resource="security-config.xml" />
 
 </beans>

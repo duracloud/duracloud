@@ -17,6 +17,7 @@
   <bean id="initRest" class="org.duracloud.durareport.rest.InitRest" >
     <constructor-arg ref="storageResource"/>
     <constructor-arg ref="serviceResource"/>
+    <constructor-arg ref="serviceMonitor"/>
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg ref="restUtil"/>
   </bean>
@@ -30,6 +31,11 @@
   <bean id="storageResource" class="org.duracloud.durareport.rest.StorageReportResource" />
 
   <bean id="serviceResource" class="org.duracloud.durareport.rest.ServiceReportResource" />
+
+  <bean id="serviceMonitor" class="org.duracloud.servicemonitor.impl.ServiceMonitorImpl">
+    <constructor-arg value="x-service-out"/>
+    <constructor-arg value="report/service-summaries-$DATE.xml"/>
+  </bean>
 
   <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
 

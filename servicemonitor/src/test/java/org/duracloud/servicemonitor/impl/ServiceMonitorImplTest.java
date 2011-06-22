@@ -8,6 +8,7 @@
 package org.duracloud.servicemonitor.impl;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.aop.DeployMessage;
 import org.duracloud.serviceapi.error.NotFoundException;
@@ -36,6 +37,7 @@ public class ServiceMonitorImplTest {
     private long pollingInterval = 5; //millis
     private ServiceSummaryWriter summaryWriter;
     private ServicesManager servicesManager;
+    private ContentStoreManager storeManager;
     private ContentStore contentStore;
 
     @Before
@@ -44,23 +46,34 @@ public class ServiceMonitorImplTest {
                                             ServiceSummaryWriter.class);
         servicesManager = EasyMock.createMock("ServicesManager",
                                               ServicesManager.class);
+        storeManager = EasyMock.createMock("ContentStoreManager",
+                                           ContentStoreManager.class);
         contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
+
+        EasyMock.expect(storeManager.getPrimaryContentStore()).andReturn(
+            contentStore);
+        EasyMock.replay(storeManager);
 
         monitor = new ServiceMonitorImpl(spaceId,
                                          contentId,
                                          pollingInterval,
                                          summaryWriter,
                                          servicesManager,
-                                         contentStore);
+                                         storeManager);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(summaryWriter, servicesManager, contentStore);
+        EasyMock.verify(summaryWriter,
+                        servicesManager,
+                        storeManager,
+                        contentStore);
     }
 
     private void replayMocks() {
-        EasyMock.replay(summaryWriter, servicesManager, contentStore);
+        EasyMock.replay(summaryWriter, servicesManager,
+                        // storeManager, // replayed in setUp
+                        contentStore);
     }
 
     @Test

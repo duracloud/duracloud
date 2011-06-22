@@ -8,8 +8,10 @@
 package org.duracloud.servicemonitor.impl;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.aop.DeployMessage;
 import org.duracloud.servicemonitor.ServiceMonitor;
@@ -35,8 +37,8 @@ public class ServiceMonitorImpl implements ServiceMonitor {
     private long pollingInterval;
 
     private ServiceSummaryWriter summaryWriter;
-    private ServicesManager servicesManager;
-    private ContentStore contentStore;
+    private ServicesManager servicesManager = null;
+    private ContentStore contentStore = null;
 
 
     public ServiceMonitorImpl(String spaceId, String contentId) {
@@ -48,15 +50,17 @@ public class ServiceMonitorImpl implements ServiceMonitor {
                               long pollingInterval,
                               ServiceSummaryWriter summaryWriter,
                               ServicesManager servicesManager,
-                              ContentStore contentStore) {
+                              ContentStoreManager storeManager) {
         log.info("Starting ServiceMonitor");
 
         this.spaceId = spaceId;
         this.contentId = filterContentId(contentId);
         this.pollingInterval = pollingInterval;
         this.summaryWriter = summaryWriter;
-        this.servicesManager = servicesManager;
-        this.contentStore = contentStore;
+
+        if (null != storeManager) {
+            initialize(storeManager, servicesManager);
+        }
     }
 
     private String filterContentId(String contentId) {
@@ -65,7 +69,25 @@ public class ServiceMonitorImpl implements ServiceMonitor {
         return contentId.replace(DATE_VAR, now);
     }
 
+    @Override
+    public void initialize(ContentStoreManager storeManager,
+                           ServicesManager servicesManager) {
+        this.contentStore = getContentStore(storeManager);
+        this.servicesManager = servicesManager;
+    }
 
+    private ContentStore getContentStore(ContentStoreManager storeManager) {
+        try {
+            return storeManager.getPrimaryContentStore();
+
+        } catch (ContentStoreException e) {
+            String error = "Error getting contentStore from storeManager!";
+            log.error(error);
+            throw new DuraCloudRuntimeException(error, e);
+        }
+    }
+
+    @Override
     public void onDeploy(DeployMessage message) {
         log.info("ServiceMonitor.onDeploy({})", message);
 
@@ -87,6 +109,9 @@ public class ServiceMonitorImpl implements ServiceMonitor {
         startServicePoller(serviceId, deploymentId);
     }
 
+    private boolean isInitialized() {
+        return null != servicesManager && null != contentStore;
+    }
 
     private void startServicePoller(int serviceId, int deploymentId) {
         new Thread(new ServicePoller(serviceId,
@@ -110,20 +135,6 @@ public class ServiceMonitorImpl implements ServiceMonitor {
     @Override
     public void dispose() {
         continuePolling = false;
-    }
-
-    @Override
-    public void setServicesManager(ServicesManager servicesManager) {
-        this.servicesManager = servicesManager;
-    }
-
-    @Override
-    public void setContentStore(ContentStore contentStore) {
-        this.contentStore = contentStore;
-    }
-
-    private boolean isInitialized() {
-        return null != servicesManager && null != contentStore;
     }
 
 }

@@ -17,6 +17,7 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.servicemonitor.ServiceMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,15 +37,18 @@ public class InitRest extends BaseRest {
 
     StorageReportResource storageResource;
     ServiceReportResource serviceResource;
+    ServiceMonitor serviceMonitor;
     SecurityContextUtil securityContextUtil;
     private RestUtil restUtil;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
+                    ServiceMonitor serviceMonitor,
                     SecurityContextUtil securityContextUtil,
                     RestUtil restUtil) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
+        this.serviceMonitor = serviceMonitor;
         this.securityContextUtil = securityContextUtil;
         this.restUtil = restUtil;
     }
@@ -88,6 +92,8 @@ public class InitRest extends BaseRest {
                                     config.getDuraserviceContext());
         servicesMgr.login(credential);
         serviceResource.initialize(servicesMgr);
+
+        serviceMonitor.initialize(storeMgr, servicesMgr);
     }
     
 }

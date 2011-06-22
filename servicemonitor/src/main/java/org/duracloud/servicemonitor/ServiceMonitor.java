@@ -7,7 +7,7 @@
  */
 package org.duracloud.servicemonitor;
 
-import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.aop.DeployMessage;
 
@@ -23,6 +23,15 @@ import org.duracloud.serviceapi.aop.DeployMessage;
 public interface ServiceMonitor {
 
     /**
+     * This method initializes the ServiceMonitor.
+     *
+     * @param storeManager    used within this class
+     * @param servicesManager used within this class
+     */
+    public void initialize(ContentStoreManager storeManager,
+                           ServicesManager servicesManager);
+
+    /**
      * This method consumes messages on the deployment of any service.
      *
      * @param message detailing service that has been deployed
@@ -34,17 +43,4 @@ public interface ServiceMonitor {
      */
     public void dispose();
 
-    /**
-     * This method sets the ServicesManager.
-     *
-     * @param servicesManager to be set
-     */
-    public void setServicesManager(ServicesManager servicesManager);
-
-    /**
-     * This method sets the ContentStore.
-     *
-     * @param contentStore to be set
-     */
-    public void setContentStore(ContentStore contentStore);
 }

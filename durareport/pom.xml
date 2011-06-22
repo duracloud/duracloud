@@ -85,6 +85,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>servicemonitor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
           <groupId>org.duracloud</groupId>
           <artifactId>app-config</artifactId>
           <version>${project.version}</version>
@@ -131,6 +137,12 @@
         <dependency>
           <groupId>com.thoughtworks.xstream</groupId>
           <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+        </dependency>
+  
+        <!-- ActiveMQ -->
+        <dependency>
+          <groupId>org.apache.activemq</groupId>
+          <artifactId>activemq-all</artifactId>
         </dependency>
 
     </dependencies>
