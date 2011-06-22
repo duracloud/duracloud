@@ -56,17 +56,20 @@ public class DeployMessageConverterTest {
 
     @Test
     public void testFromMessage() throws JMSException {
-        String serviceId = "serviceId";
+        int serviceId = 7;
+        int deploymentId = 9;
         String serviceHost = "serviceHost";
 
-        MapMessage msg = EasyMock.createMock("MapMessage",
-                                             MapMessage.class);
+        MapMessage msg = EasyMock.createMock("MapMessage", MapMessage.class);
 
-        msg.getStringProperty(DeployMessageConverter.SERVICE_ID);
-        EasyMock.expectLastCall().andReturn(serviceId);
+        EasyMock.expect(msg.getIntProperty(DeployMessageConverter.SERVICE_ID))
+            .andReturn(serviceId);
 
-        msg.getString(DeployMessageConverter.SERVICE_HOST);
-        EasyMock.expectLastCall().andReturn(serviceHost);
+        EasyMock.expect(msg.getString(DeployMessageConverter.SERVICE_HOST))
+            .andReturn(serviceHost);
+
+        EasyMock.expect(msg.getInt(DeployMessageConverter.DEPLOYMENT_ID))
+            .andReturn(deploymentId);
 
         EasyMock.replay(msg);
         Object obj = deployMessageConverter.fromMessage(msg);
@@ -82,7 +85,8 @@ public class DeployMessageConverterTest {
 
     @Test
     public void testToMessage() throws JMSException {
-        String serviceId = "serviceId";
+        int serviceId = 5;
+        int deploymentId = 7;
         String serviceHost = "serviceHost";
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
@@ -93,15 +97,19 @@ public class DeployMessageConverterTest {
         session.createMapMessage();
         EasyMock.expectLastCall().andReturn(mapMsg);
 
-        mapMsg.setStringProperty(DeployMessageConverter.SERVICE_ID, serviceId);
+        mapMsg.setIntProperty(DeployMessageConverter.SERVICE_ID, serviceId);
         EasyMock.expectLastCall().once();
 
         mapMsg.setString(DeployMessageConverter.SERVICE_HOST, serviceHost);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setInt(DeployMessageConverter.DEPLOYMENT_ID, deploymentId);
+        EasyMock.expectLastCall().once();
+
         DeployMessage deployMessage = new DeployMessage();
         deployMessage.setServiceId(serviceId);
         deployMessage.setServiceHost(serviceHost);
+        deployMessage.setDeploymentId(deploymentId);
 
         EasyMock.replay(mapMsg);
         EasyMock.replay(session);

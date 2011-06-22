@@ -51,7 +51,7 @@ public class DeployAdviceTest {
     @Test
     public void testNullDestination() throws Throwable {
         DeployMessage msg = new DeployMessage();
-        msg.setServiceId(null);
+        msg.setServiceId(-1);
         msg.setServiceHost(null);
         msg.setDeploymentId(-1);
 
@@ -67,20 +67,19 @@ public class DeployAdviceTest {
 
         deployAdvice.setDeployJmsTemplate(jmsTemplate);
         deployAdvice.setDestination(destination);
-        deployAdvice.afterReturning(null, null,
-                                         new Object[]{null,null,null}, null);
+        deployAdvice.afterReturning(null, null, new Object[]{-1, null}, null);
 
         EasyMock.verify(jmsTemplate);
     }
 
     @Test
     public void testMessage() throws Throwable {
-        String id = "1";
+        int id = 1;
         int deploymentId = 9;
 
         DeployMessage msg = new DeployMessage();
         msg.setServiceId(id);
-        msg.setServiceHost(id);
+        msg.setServiceHost("host-" + id);
         msg.setDeploymentId(deploymentId);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
@@ -98,7 +97,7 @@ public class DeployAdviceTest {
         deployAdvice.setDestination(destination);
         deployAdvice.afterReturning(new Integer(deploymentId),
                                     null,
-                                    new Object[]{new Integer(id), id, null},
+                                    new Object[]{new Integer(id), "host-" + id},
                                     null);
 
         EasyMock.verify(jmsTemplate);

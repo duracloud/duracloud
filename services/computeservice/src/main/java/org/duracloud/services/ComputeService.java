@@ -12,6 +12,7 @@ import java.util.Map;
 public interface ComputeService {
 
     public enum ServiceStatus {
+        UNKNOWN,
         INSTALLED,
         STARTING,
         STARTED,
@@ -22,6 +23,11 @@ public interface ComputeService {
         STOPPED,
         SUCCESS,
         FAILED;
+
+        public boolean isComplete() {
+            return this.equals(STARTED) || this.equals(SUCCESS) || this.equals(
+                FAILED);
+        }
     }
 
     public static final String SYSTEM_PREFIX = "System ";

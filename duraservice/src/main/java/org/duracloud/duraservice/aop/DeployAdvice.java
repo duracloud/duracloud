@@ -50,8 +50,9 @@ public class DeployAdvice
 
     private DeployMessage createDeployMessage(Object[] methodArgs,
                                               Object returnObj) {
-        String serviceId = getServiceId(methodArgs);
+        int serviceId = getServiceId(methodArgs);
         String serviceHost = getServiceHost(methodArgs);
+
         int deploymentId = getDeploymentId(returnObj);
 
         DeployMessage msg = new DeployMessage();
@@ -62,12 +63,9 @@ public class DeployAdvice
         return msg;
     }
 
-    private String getServiceId(Object[] methodArgs) {
+    private int getServiceId(Object[] methodArgs) {
         log.debug("Returning 'serviceId' at index: " + SERVICE_ID_INDEX);
-        Integer id = ((Integer) methodArgs[SERVICE_ID_INDEX]);
-        if(id != null)
-            return id.toString();
-        return null;
+        return ((Integer) methodArgs[SERVICE_ID_INDEX]);
     }
 
     private String getServiceHost(Object[] methodArgs) {

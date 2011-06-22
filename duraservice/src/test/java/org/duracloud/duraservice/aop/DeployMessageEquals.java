@@ -26,12 +26,7 @@ public class DeployMessageEquals implements IArgumentMatcher {
 
         boolean matches = true;
 
-        if (deployMessage.getServiceId() != null) {
-            matches = deployMessage.getServiceId()
-                .equals(message.getServiceId());
-        } else if (message.getServiceId() != null) {
-            return false;
-        }
+        matches = deployMessage.getServiceId() == message.getServiceId();
 
         if (!matches) {
             return false;

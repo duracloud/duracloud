@@ -27,7 +27,7 @@ public class DeployMessageConverter
     protected final Logger log = LoggerFactory.getLogger(DeployMessageConverter.class);
 
     public static final String SERVICE_ID = "serviceId";
-
+    public static final String DEPLOYMENT_ID = "deploymentId";
     public static final String SERVICE_HOST = "serviceHost";
 
     public Object fromMessage(Message msg) throws JMSException,
@@ -40,8 +40,9 @@ public class DeployMessageConverter
 
         MapMessage mapMsg = (MapMessage)msg;
         DeployMessage deployMsg = new DeployMessage();
-        deployMsg.setServiceId(mapMsg.getStringProperty(SERVICE_ID));
+        deployMsg.setServiceId(mapMsg.getIntProperty(SERVICE_ID));
         deployMsg.setServiceHost(mapMsg.getString(SERVICE_HOST));
+        deployMsg.setDeploymentId(mapMsg.getInt(DEPLOYMENT_ID));
         return deployMsg;
     }
 
@@ -55,8 +56,9 @@ public class DeployMessageConverter
         DeployMessage deployMsg = (DeployMessage) obj;
 
         MapMessage msg = session.createMapMessage();
-        msg.setStringProperty(SERVICE_ID, deployMsg.getServiceId());
+        msg.setIntProperty(SERVICE_ID, deployMsg.getServiceId());
         msg.setString(SERVICE_HOST, deployMsg.getServiceHost());
+        msg.setInt(DEPLOYMENT_ID, deployMsg.getDeploymentId());
         return msg;
     }
 

@@ -17,7 +17,8 @@ public class DateUtil {
         LONG_FORMAT ("yyyy-MM-dd'T'HH:mm:ss.sss"),
         DEFAULT_FORMAT ("yyyy-MM-dd'T'HH:mm:ss"),
         MID_FORMAT ("yyyy-MM-dd'T'HH:mm"),
-        SHORT_FORMAT ("yyyy-MM-dd");
+        SHORT_FORMAT ("yyyy-MM-dd"),
+        YEAR_MONTH_FORMAT ("yyyy-MM");
 
         private final SimpleDateFormat format;
 
@@ -78,6 +79,10 @@ public class DateUtil {
 
     public static String convertToStringShort(long millis) {
         return convertToString(millis, DateFormat.SHORT_FORMAT);
+    }
+
+    public static String convertToStringYearMonth(long millis) {
+        return convertToString(millis, DateFormat.YEAR_MONTH_FORMAT);
     }
 
 }

@@ -13,17 +13,17 @@ package org.duracloud.serviceapi.aop;
  */
 public class DeployMessage {
 
-    private String serviceId;
+    private int serviceId;
 
     private String serviceHost;
 
     private int deploymentId;
 
-    public String getServiceId() {
+    public int getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(String serviceId) {
+    public void setServiceId(int serviceId) {
         this.serviceId = serviceId;
     }
 

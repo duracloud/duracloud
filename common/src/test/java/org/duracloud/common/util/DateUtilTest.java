@@ -32,24 +32,29 @@ public class DateUtilTest {
         assertTrue(nowMid.length() > nowShort.length());
 
         long time = 1305662518734L;
-        String dateRegex = "2011-05-1[7-8]";
+        String dateRegex = "2011-05";
+        String dayRegex = "-1[7-8]";
         String timeMinRegex = "[0-9][0-9]:[0,3]1";
         String timeSec = ":58";
         String timeSubSec = ".058";
 
         String longDate = DateUtil.convertToStringLong(time);
-        assertTrue(longDate, longDate.matches(dateRegex + "T" + timeMinRegex +
-                                              timeSec + timeSubSec));
+        assertTrue(longDate, longDate.matches(
+            dateRegex + dayRegex + "T" + timeMinRegex + timeSec + timeSubSec));
 
         String defaultDate = DateUtil.convertToString(time);
-        assertTrue(defaultDate, defaultDate.matches(dateRegex + "T" +
-                                                    timeMinRegex + timeSec));
+        assertTrue(defaultDate, defaultDate.matches(
+            dateRegex + dayRegex + "T" + timeMinRegex + timeSec));
 
         String medDate = DateUtil.convertToStringMid(time);
-        assertTrue(medDate, medDate.matches(dateRegex + "T" + timeMinRegex));
+        assertTrue(medDate, medDate.matches(
+            dateRegex + dayRegex + "T" + timeMinRegex));
 
         String shortDate = DateUtil.convertToStringShort(time);
-        assertTrue(shortDate, shortDate.matches(dateRegex));
+        assertTrue(shortDate, shortDate.matches(dateRegex + dayRegex));
+
+        String yearMonthDate = DateUtil.convertToStringYearMonth(time);
+        assertTrue(yearMonthDate, yearMonthDate.matches(dateRegex));
 
         long roundedTime = 1305662518000L;
         Date dateToCheck =
