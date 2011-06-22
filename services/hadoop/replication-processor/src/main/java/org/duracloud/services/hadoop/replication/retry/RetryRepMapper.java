@@ -47,10 +47,14 @@ public class RetryRepMapper extends RepMapper {
         result = null;
 
         if(verifyProcessFile(origContentId)) {
+            System.out.println("RetryRepMapper found failure - " + origContentId);
+
             return super.processFile(fileWithMD5,
                                      origContentId,
                                      reporter);
         }
+        System.out.println("RetryRepMapper found success - " + origContentId);
+
         return null;
     }
 
