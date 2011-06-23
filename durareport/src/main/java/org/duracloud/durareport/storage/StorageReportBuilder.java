@@ -41,6 +41,7 @@ public class StorageReportBuilder implements Runnable {
     private long startTime;
     private long stopTime;
     private long elapsedTime;
+    private boolean run;
 
     private DuraStoreMetricsCollector durastoreMetrics;
 
@@ -66,22 +67,34 @@ public class StorageReportBuilder implements Runnable {
 
     @Override
     public void run() {
+        run = true;
         startTime = System.currentTimeMillis();
         log.info("Storage Report starting at time: " + startTime);
         status = Status.RUNNING;
         try {
             collectStorageMetrics();
             stopTime = System.currentTimeMillis();
-            elapsedTime = stopTime - startTime;
-            reportHandler.storeReport(durastoreMetrics, stopTime, elapsedTime);
-            status = Status.COMPLETE;
-            log.info("Storage Report completed at time: " + stopTime);
+            if(run) {
+                elapsedTime = stopTime - startTime;
+                reportHandler.storeReport(durastoreMetrics,
+                                          stopTime,
+                                          elapsedTime);
+                status = Status.COMPLETE;
+                log.info("Storage Report completed at time: " + stopTime);
+            } else {
+                log.warn("Storage Report cancelled at: " + stopTime);
+            }
         } catch(ReportBuilderException e) {
             error = e.getMessage();
             log.error("Unable to complete metrics collection due to: " +
                       e.getMessage());
             status = Status.ERROR;
         }
+    }
+
+    public void cancelReport() {
+        log.info("Cancelling Storage Report");
+        run = false;
     }
 
     private void collectStorageMetrics() {
@@ -94,7 +107,7 @@ public class StorageReportBuilder implements Runnable {
             for(String spaceId : retryGetSpaces(contentStore)) {
                 Iterator<String> contentIds =
                     retryGetSpaceContents(contentStore, spaceId);
-                while(contentIds.hasNext()) {
+                while(contentIds.hasNext() && run) {
                     String contentId = contentIds.next();
                     Map<String, String> contentMetadata =
                         retryGetContentMetadata(contentStore,
@@ -118,7 +131,7 @@ public class StorageReportBuilder implements Runnable {
     }
 
     private Map<String, ContentStore> retryGetContentStores() {
-        for(int i=0; i<maxRetries; i++) {
+        for(int i=0; i<maxRetries && run; i++) {
             try {
                 return storeMgr.getContentStores();
             } catch (ContentStoreException e) {
@@ -132,7 +145,7 @@ public class StorageReportBuilder implements Runnable {
     }
 
     private List<String> retryGetSpaces(ContentStore contentStore) {
-        for(int i=0; i<maxRetries; i++) {
+        for(int i=0; i<maxRetries && run; i++) {
             try {
                 return contentStore.getSpaces();
             } catch (ContentStoreException e) {
@@ -148,7 +161,7 @@ public class StorageReportBuilder implements Runnable {
 
     private Iterator<String> retryGetSpaceContents(ContentStore contentStore,
                                                    String spaceId) {
-        for(int i=0; i<maxRetries; i++) {
+        for(int i=0; i<maxRetries && run; i++) {
             try {
                 return contentStore.getSpaceContents(spaceId);
             } catch (ContentStoreException e) {
@@ -167,7 +180,7 @@ public class StorageReportBuilder implements Runnable {
     private Map<String, String> retryGetContentMetadata(ContentStore contentStore,
                                                         String spaceId,
                                                         String contentId) {
-        for(int i=0; i<maxRetries; i++) {
+        for(int i=0; i<maxRetries && run; i++) {
             try {
                 return contentStore.getContentMetadata(spaceId, contentId);
             } catch (ContentStoreException e) {

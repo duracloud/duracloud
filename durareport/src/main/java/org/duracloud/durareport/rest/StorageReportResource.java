@@ -191,6 +191,22 @@ public class StorageReportResource {
         return reportScheduler.cancelStorageReportSchedule();
     }
 
+    /**
+     * Cancels a storage report that is currently in process
+     * @return String indicating the cancellation of the current storage report
+     */
+    public String cancelStorageReport() {
+        return reportScheduler.cancelStorageReport();
+    }
+
+    /**
+     * Shuts down this resource
+     */
+    public void dispose() {
+        cancelStorageReportSchedule();
+        cancelStorageReport();
+    }
+
     private void checkInitialized() {
         if(null == storeMgr) {
             throw new RuntimeException("DuraReport must be initialized.");

@@ -28,7 +28,8 @@
   </bean>
 
   <!-- Support beans -->
-  <bean id="storageResource" class="org.duracloud.durareport.rest.StorageReportResource" />
+  <bean id="storageResource" class="org.duracloud.durareport.rest.StorageReportResource"
+        destroy-method="dispose" />
 
   <bean id="serviceResource" class="org.duracloud.durareport.rest.ServiceReportResource" />
 

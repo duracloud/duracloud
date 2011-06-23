@@ -91,6 +91,19 @@ public class StorageReportScheduler {
         }
     }
 
+    /**
+     * Cancels the currently running storage report. No report will be written
+     * to storage.
+     */
+    public String cancelStorageReport() {
+        if(builderRunning()) {
+            reportBuilder.cancelReport();
+            return "Storage report cancelled";
+        } else {
+            return "No storage report is currently running";
+        }
+    }
+
     private boolean builderRunning() {
         StorageReportBuilder.Status builderStatus = reportBuilder.getStatus();
         return builderStatus.equals(StorageReportBuilder.Status.RUNNING);
