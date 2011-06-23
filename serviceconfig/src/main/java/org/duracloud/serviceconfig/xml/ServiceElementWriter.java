@@ -63,7 +63,7 @@ public class ServiceElementWriter {
         return serviceType;
     }
 
-    private static void populateElementFromObject(ServiceType service,
+    protected static void populateElementFromObject(ServiceType service,
                                                   ServiceInfo serviceInfo) {
         int id = serviceInfo.getId();
         if (id >= 0) {

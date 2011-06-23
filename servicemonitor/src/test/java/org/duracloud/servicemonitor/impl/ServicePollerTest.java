@@ -43,11 +43,11 @@ public class ServicePollerTest {
                                               ServicesManager.class);
 
         poller = new ServicePoller(serviceId,
-                                       deploymentId,
-                                       summaryWriter,
-                                       servicesManager,
-                                       sleepMillis,
-                                       continuePolling);
+                                   deploymentId,
+                                   summaryWriter,
+                                   servicesManager,
+                                   sleepMillis,
+                                   continuePolling);
     }
 
     @After

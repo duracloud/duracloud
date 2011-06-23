@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="duracloud.org" targetNamespace="duracloud.org">
+  
+  <xs:include schemaLocation="service-types.xsd"/>
+
+  <!-- serviceSummaryType is container for user config and service properties info -->
+  <xs:complexType name="serviceSummaryType">
+    <xs:sequence>
+      <xs:element name="service" type="serviceType"/>
+      <xs:element name="properties" type="servicePropertiesType"/>      
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- servicePropertiesType defines properties of running service -->
+  <xs:complexType name="servicePropertiesType">
+    <xs:sequence>
+      <xs:element name="property" type="servicePropertyType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- servicePropertyType defines properties of running service -->  
+  <xs:complexType name="servicePropertyType">
+    <xs:simpleContent>      
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:extension>      
+    </xs:simpleContent>
+  </xs:complexType>
+  
+</xs:schema>

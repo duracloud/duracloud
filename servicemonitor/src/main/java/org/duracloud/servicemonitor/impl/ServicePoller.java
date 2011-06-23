@@ -49,19 +49,18 @@ public class ServicePoller implements Runnable {
 
     @Override
     public void run() {
-        Map<String, String> props = getServiceProps();
 
-        while (continuePolling && !serviceComplete(props)) {
+        while (continuePolling && !isServiceComplete()) {
             sleep(pollingInterval);
-            props = getServiceProps();
         }
 
-        if (serviceComplete(props)) {
+        if (continuePolling) { // means the service is complete
             summaryWriter.collectAndWriteSummary(serviceId, deploymentId);
         }
     }
 
-    private boolean serviceComplete(Map<String, String> props) {
+    private boolean isServiceComplete() {
+        Map<String, String> props = getServiceProps();
         for (String key : props.keySet()) {
             ComputeService.ServiceStatus status = propAsStatus(props.get(key));
             if (status.isComplete()) {
@@ -69,15 +68,6 @@ public class ServicePoller implements Runnable {
             }
         }
         return false;
-    }
-
-    private ComputeService.ServiceStatus propAsStatus(String prop) {
-        try {
-            return ComputeService.ServiceStatus.valueOf(prop);
-
-        } catch (Exception e) {
-            return ComputeService.ServiceStatus.UNKNOWN;
-        }
     }
 
     private Map<String, String> getServiceProps() {
@@ -91,6 +81,15 @@ public class ServicePoller implements Runnable {
                 new Object[]{serviceId, deploymentId, e.getMessage()});
         }
         return props;
+    }
+
+    private ComputeService.ServiceStatus propAsStatus(String prop) {
+        try {
+            return ComputeService.ServiceStatus.valueOf(prop);
+
+        } catch (Exception e) {
+            return ComputeService.ServiceStatus.UNKNOWN;
+        }
     }
 
     private void sleep(long sleepMillis) {

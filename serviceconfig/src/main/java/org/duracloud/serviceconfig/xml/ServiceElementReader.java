@@ -81,7 +81,7 @@ public class ServiceElementReader {
         }
     }
 
-    private static ServiceInfo createServiceFromElement(ServiceType serviceType) {
+    protected static ServiceInfo createServiceFromElement(ServiceType serviceType) {
         ServiceInfo service = new ServiceInfo();
 
         int id = serviceType.getId();
