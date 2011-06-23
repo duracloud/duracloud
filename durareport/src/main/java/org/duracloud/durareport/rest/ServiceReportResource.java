@@ -7,6 +7,7 @@
  */
 package org.duracloud.durareport.rest;
 
+import org.duracloud.durareport.service.ServiceReportBuilder;
 import org.duracloud.serviceapi.ServicesManager;
 
 /**
@@ -16,16 +17,18 @@ import org.duracloud.serviceapi.ServicesManager;
 public class ServiceReportResource {
 
     ServicesManager servicesMgr = null;
+    ServiceReportBuilder reportBuilder;
 
     public void initialize(ServicesManager servicesMgr) {
         this.servicesMgr = servicesMgr;
+        this.reportBuilder = new ServiceReportBuilder(servicesMgr);
     }
 
     String xml = "<value>NOT YET IMPLEMENTED</value>";
 
     public String getServiceReport(){
         checkInitialized();
-        return xml;
+        return reportBuilder.buildServiceReport();
     }
 
     public void checkInitialized() {

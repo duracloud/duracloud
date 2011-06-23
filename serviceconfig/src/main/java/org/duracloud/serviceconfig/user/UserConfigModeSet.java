@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class UserConfigModeSet implements Serializable, Cloneable {
 
+    public static final String DEFAULT_MODE_NAME = "defaultMode";
+
 	private static final long serialVersionUID = 1L;
 	private int id = -1;
     private String name;
@@ -31,7 +33,7 @@ public class UserConfigModeSet implements Serializable, Cloneable {
     public UserConfigModeSet(List<UserConfig> userConfigs) {
         UserConfigMode mode = new UserConfigMode();
         mode.setSelected(true);
-        mode.setName("defaultMode");
+        mode.setName(DEFAULT_MODE_NAME);
         mode.setDisplayName("Default Mode");
         mode.setUserConfigs(userConfigs);
         this.displayName = "Default Mode Set";
