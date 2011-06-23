@@ -9,6 +9,8 @@ package org.duracloud.durareport.rest;
 
 import org.duracloud.durareport.service.ServiceReportBuilder;
 import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
 
 /**
  * @author: Bill Branan
@@ -17,14 +19,15 @@ import org.duracloud.serviceapi.ServicesManager;
 public class ServiceReportResource {
 
     ServicesManager servicesMgr = null;
+    ServiceSummarizer serviceSummarizer;
     ServiceReportBuilder reportBuilder;
 
     public void initialize(ServicesManager servicesMgr) {
         this.servicesMgr = servicesMgr;
-        this.reportBuilder = new ServiceReportBuilder(servicesMgr);
+        this.serviceSummarizer = new ServiceSummarizerImpl(servicesMgr);
+        this.reportBuilder = new ServiceReportBuilder(servicesMgr,
+                                                      serviceSummarizer);
     }
-
-    String xml = "<value>NOT YET IMPLEMENTED</value>";
 
     public String getServiceReport(){
         checkInitialized();
