@@ -7,15 +7,14 @@
  */
 package org.duracloud.serviceconfig.xml;
 
-import java.util.Map;
-
-import org.duracloud.ServicePropertiesType;
-import org.duracloud.ServicePropertyType;
+import org.apache.commons.lang.StringUtils;
+import org.duracloud.PropertiesType;
+import org.duracloud.PropertyType;
 import org.duracloud.ServiceSummaryType;
-import org.duracloud.ServiceType;
 import org.duracloud.SingleServiceSummaryType;
-import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
+
+import java.util.Map;
 
 /**
  * This class is responsible for serializing ServiceSummary objects into
@@ -60,23 +59,43 @@ public class ServiceSummaryElementWriter {
 
     private static void populateElementFromObject(ServiceSummaryType summaryType,
                                                   ServiceSummary summary) {
-
-        ServiceInfo serviceInfo = summary.getServiceInfo();
-        if (null != serviceInfo) {
-            ServiceType serviceType = summaryType.addNewService();
-            ServiceElementWriter.populateElementFromObject(serviceType,
-                                                           serviceInfo);
+        int id = summary.getId();
+        if (id >= 0) {
+            summaryType.setId(id);
         }
 
-        Map<String, String> properties = summary.getServiceProperties();
-        if (null != properties && properties.size() > 0) {
-            ServicePropertiesType propertiesType = summaryType.addNewProperties();
+        int deploymentId = summary.getDeploymentId();
+        if (deploymentId >= 0) {
+            summaryType.setDeploymentId(deploymentId);
+        }
 
-            for (String key : properties.keySet()) {
-                ServicePropertyType propertyType = propertiesType.addNewProperty();
-                propertyType.setName(key);
-                propertyType.setStringValue(properties.get(key));
-            }
+        String name = summary.getName();
+        if (!StringUtils.isBlank(name)) {
+            summaryType.setName(name);
+        }
+
+        String version = summary.getVersion();
+        if (!StringUtils.isBlank(version)) {
+            summaryType.setVersion(version);
+        }
+
+        Map<String, String> configs = summary.getConfigs();
+        if (null != configs && !configs.isEmpty()) {
+            populatePropertiesType(configs, summaryType.addNewConfigs());
+        }
+
+        Map<String, String> properties = summary.getProperties();
+        if (null != properties && !properties.isEmpty()) {
+            populatePropertiesType(properties, summaryType.addNewProperties());
+        }
+    }
+
+    private static void populatePropertiesType(Map<String, String> map,
+                                               PropertiesType propertiesType) {
+        for (String key : map.keySet()) {
+            PropertyType propertyType = propertiesType.addNewProperty();
+            propertyType.setName(key);
+            propertyType.setStringValue(map.get(key));
         }
     }
 

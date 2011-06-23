@@ -7,14 +7,13 @@
  */
 package org.duracloud.serviceconfig.xml;
 
-import org.duracloud.ServicePropertiesType;
-import org.duracloud.ServicePropertyType;
+import org.apache.commons.lang.StringUtils;
+import org.duracloud.PropertiesType;
+import org.duracloud.PropertyType;
 import org.duracloud.ServiceSummariesDocument;
 import org.duracloud.ServiceSummaryDocument;
 import org.duracloud.ServiceSummaryType;
-import org.duracloud.ServiceType;
 import org.duracloud.SingleServiceSummaryType;
-import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.serviceconfig.ServicesConfigDocument;
 
@@ -85,30 +84,48 @@ public class ServiceSummaryElementReader {
             return summary;
         }
 
-        ServiceType serviceType = summaryType.getService();
-        if (null != serviceType) {
-            ServiceInfo serviceInfo = ServiceElementReader.createServiceFromElement(
-                serviceType);
-
-            summary.setServiceInfo(serviceInfo);
+        int id = summaryType.getId();
+        if (id >= 0) {
+            summary.setId(id);
         }
 
-        Map<String, String> serviceProperties = new HashMap<String, String>();
-
-        ServicePropertiesType propertiesType = summaryType.getProperties();
-        if (null != propertiesType) {
-            ServicePropertyType[] propertyTypes = propertiesType.getPropertyArray();
-            if (null != propertyTypes && propertyTypes.length > 0) {
-                for (ServicePropertyType propertyType : propertyTypes) {
-                    serviceProperties.put(propertyType.getName(),
-                                          propertyType.getStringValue());
-                }
-
-                summary.setServiceProperties(serviceProperties);
-            }
+        int deploymentId = summaryType.getDeploymentId();
+        if (deploymentId >= 0) {
+            summary.setDeploymentId(deploymentId);
         }
+
+        String name = summaryType.getName();
+        if (!StringUtils.isBlank(name)) {
+            summary.setName(name);
+        }
+
+        String version = summaryType.getVersion();
+        if (!StringUtils.isBlank(version)) {
+            summary.setVersion(version);
+        }
+
+        Map<String, String> configs = new HashMap<String, String>();
+        populateMap(configs, summaryType.getConfigs());
+        summary.setConfigs(configs);
+
+        Map<String, String> properties = new HashMap<String, String>();
+        populateMap(properties, summaryType.getProperties());
+        summary.setProperties(properties);
 
         return summary;
+    }
+
+    private static void populateMap(Map<String, String> map,
+                                    PropertiesType propertiesType) {
+        if (null != propertiesType) {
+            PropertyType[] propertyTypes = propertiesType.getPropertyArray();
+            if (null != propertyTypes && propertyTypes.length > 0) {
+                for (PropertyType propertyType : propertyTypes) {
+                    map.put(propertyType.getName(),
+                            propertyType.getStringValue());
+                }
+            }
+        }
     }
 
 }

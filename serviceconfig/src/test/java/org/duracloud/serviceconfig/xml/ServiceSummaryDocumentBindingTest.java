@@ -8,9 +8,7 @@
 package org.duracloud.serviceconfig.xml;
 
 import org.duracloud.ServiceSummaryDocument;
-import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,61 +22,126 @@ import java.util.Map;
  */
 public class ServiceSummaryDocumentBindingTest {
 
-    private ServiceSummary inputSummary;
+    private static final int MAP_SIZE = 5;
+
+    private int id = 5;
+    private int deploymentId = 7;
+    private String name = "name";
+    private String version = "1.2.3";
+    private Map<String, String> properties = new HashMap<String, String>();
+    private Map<String, String> configs = new HashMap<String, String>();
 
     @Before
     public void setUp() {
-        inputSummary = new ServiceSummary();
-    }
-
-    @After
-    public void tearDown() {
-        inputSummary = null;
+        for (int i = 0; i < MAP_SIZE; ++i) {
+            String x = Integer.toString(i);
+            properties.put("prop-" + x, x);
+            configs.put("config-" + x, x);
+        }
     }
 
     @Test
-    public void test() {
-        ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setContentId("content-id");
-
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("name", "value");
-
-        inputSummary.setServiceInfo(serviceInfo);
-        inputSummary.setServiceProperties(properties);
-        verifySummary(inputSummary, serviceInfo, properties);
-
-        inputSummary.setServiceInfo(null);
-        inputSummary.setServiceProperties(null);
-        verifySummary(inputSummary, null, null);
+    public void test0() {
+        verifySummary(createServiceSummary());
     }
 
-    private void verifySummary(ServiceSummary inputSummary,
-                               ServiceInfo serviceInfo,
-                               Map<String, String> properties) {
-        Assert.assertEquals(inputSummary.getServiceInfo(), serviceInfo);
-        Assert.assertEquals(inputSummary.getServiceProperties(), properties);
+    @Test
+    public void test1() {
+        id = 0;
+        deploymentId = 0;
+        name = null;
+        version = null;
+        properties = null;
+        configs = null;
+        
+        verifySummary(createServiceSummary());
+    }
 
+    @Test
+    public void test2() {
+        id = 0;
+        verifySummary(createServiceSummary());
+    }
+
+    @Test
+    public void test3() {
+        deploymentId = 0;
+        verifySummary(createServiceSummary());
+    }
+
+    @Test
+    public void test4() {
+        name = null;
+        verifySummary(createServiceSummary());
+    }
+
+    @Test
+    public void test5() {
+        version = null;
+        verifySummary(createServiceSummary());
+    }
+
+    @Test
+    public void test6() {
+        properties = null;
+        verifySummary(createServiceSummary());
+    }
+
+    @Test
+    public void test7() {
+        configs = null;
+        verifySummary(createServiceSummary());
+    }
+
+    private ServiceSummary createServiceSummary() {
+        ServiceSummary summary = new ServiceSummary();
+        summary.setId(id);
+        summary.setDeploymentId(deploymentId);
+        summary.setName(name);
+        summary.setVersion(version);
+        summary.setConfigs(configs);
+        summary.setProperties(properties);
+
+        return summary;
+    }
+
+    private void verifySummary(ServiceSummary summary) {
+        ServiceSummary result = serializeAndDeserialize(summary);
+        Assert.assertEquals(summary.getId(), result.getId());
+        Assert.assertEquals(summary.getDeploymentId(),
+                            result.getDeploymentId());
+        Assert.assertEquals(summary.getName(), result.getName());
+        Assert.assertEquals(summary.getVersion(), result.getVersion());
+
+        verifyMap(summary.getConfigs(), result.getConfigs());
+        verifyMap(summary.getProperties(), result.getProperties());
+    }
+
+    private ServiceSummary serializeAndDeserialize(ServiceSummary summary) {
         ServiceSummaryDocument doc = ServiceSummaryDocumentBinding.createDocumentFrom(
-            inputSummary);
+            summary);
         Assert.assertNotNull(doc);
 
-        ServiceSummary summary = ServiceSummaryDocumentBinding.createServiceSummaryFrom(
+        ServiceSummary smry = ServiceSummaryDocumentBinding.createServiceSummaryFrom(
             doc.newInputStream());
-        Assert.assertNotNull(summary);
+        Assert.assertNotNull(smry);
+        return smry;
+    }
 
-        if (null != serviceInfo) {
-            Assert.assertEquals(serviceInfo.getContentId(),
-                                summary.getServiceInfo().getContentId());
+    private void verifyMap(Map<String, String> map,
+                           Map<String, String> result) {
+        if (null == map) {
+            Assert.assertEquals(0, result.size());
+        }
+        Assert.assertNotNull(result);
+
+        if (null == map) {
+            return;
         }
 
-        if (null != properties) {
-            Map<String, String> props = summary.getServiceProperties();
-            Assert.assertEquals(props.size(), properties.size());
-
-            for (String key : properties.keySet()) {
-                Assert.assertEquals(properties.get(key), props.get(key));
-            }
+        Assert.assertEquals(map.size(), result.size());
+        for (String key : map.keySet()) {
+            Assert.assertEquals(key, map.get(key), result.get(key));
         }
     }
 }

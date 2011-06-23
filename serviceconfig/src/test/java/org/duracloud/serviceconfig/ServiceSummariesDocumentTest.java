@@ -14,7 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,103 +22,89 @@ import java.util.Map;
  *         Date: Jun 22, 2011
  */
 public class ServiceSummariesDocumentTest {
-    private int id = 100;
-    private String contentId = "contentId-";
-    private String displayName = "displayName-";
-    private String serviceVersion = "serviceVersion-";
-    private String userConfigVersion = "userConfigVersion-";
-    private String description = "description-";
 
-    private String propName = "propName-";
-    private String propValue = "propValue-";
+    private static final int MAP_SIZE = 5;
 
-    private ServiceSummary createSummary(int tag) {
-        ServiceInfo serviceInfo = createService(tag);
-        verifyService(serviceInfo, tag);
+    private String name = "name-";
+    private String version = "version-";
 
-        Map<String, String> properties = createProps(tag);
-        verifyProps(properties, tag);
+    private String propertyName = "prop-";
+    private String propertyValue = "propvalue-";
+    private String configName = "config-";
+    private String configValue = "configvalue-";
 
-        ServiceSummary serviceSummary = new ServiceSummary();
-        serviceSummary.setServiceInfo(serviceInfo);
-        serviceSummary.setServiceProperties(properties);
-
-        return serviceSummary;
-    }
-
-    private ServiceInfo createService(int tag) {
-        ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setId(id + tag);
-        serviceInfo.setContentId(contentId + tag);
-        serviceInfo.setDisplayName(displayName + tag);
-        serviceInfo.setServiceVersion(serviceVersion + tag);
-        serviceInfo.setUserConfigVersion(userConfigVersion + tag);
-        serviceInfo.setDescription(description + tag);
-
-        return serviceInfo;
-    }
 
     @Test
     public void testServiceSummary() {
         int tag = 5;
-        ServiceSummary expected = createSummary(tag);
+        ServiceSummary summary = createServiceSummary(tag);
 
-        String xml = ServiceSummariesDocument.getServiceSummaryAsXML(expected);
-        verifySummaryXML(xml, tag);
-
+        // serialize / deserialize
+        String xml = ServiceSummariesDocument.getServiceSummaryAsXML(summary);
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes());
-        ServiceSummary summary = ServiceSummariesDocument.getServiceSummary(
+        ServiceSummary result = ServiceSummariesDocument.getServiceSummary(
             inputStream);
 
-        ServiceInfoVerifyHelper verifier = new ServiceInfoVerifyHelper(summary.getServiceInfo());
-        verifier.verify(summary.getServiceInfo());
+        verifySummariesEqual(summary, result);
 
-        verifyProps(summary.getServiceProperties(), tag);
-
-        String newXml = ServiceSummariesDocument.getServiceSummaryAsXML(summary);
+        String newXml = ServiceSummariesDocument.getServiceSummaryAsXML(result);
         Assert.assertEquals(xml, newXml);
         System.out.println(xml);
     }
 
-    private void verifyProps(Map<String, String> props, int tag) {
-        Assert.assertEquals(tag, props.size());
-        if (tag > 0) {
-            for (int i = 0; i < tag; ++i) {
-                String name = props.get(propName + i);
-                Assert.assertEquals(name, propValue + i);
-            }
-        }
+    private ServiceSummary createServiceSummary(int tag) {
+        ServiceSummary summary = new ServiceSummary();
+        summary.setId(tag);
+        summary.setDeploymentId(tag);
+        summary.setName(getName(tag));
+        summary.setVersion(getVersion(tag));
+        summary.setConfigs(getConfigs(tag));
+        summary.setProperties(getProperties(tag));
+
+        return summary;
     }
 
-    private Map<String, String> createProps(int tag) {
-        Map<String, String> props = new HashMap<String, String>();
-        for (int i = 0; i < tag; ++i) {
-            props.put(propName + i, propValue + i);
-        }
+    private void verifySummariesEqual(ServiceSummary summary,
+                                      ServiceSummary result) {
+        Assert.assertNotNull(summary);
+        Assert.assertNotNull(result);
 
-        return props;
+        Assert.assertEquals(summary.getId(), result.getId());
+        Assert.assertEquals(summary.getDeploymentId(),
+                            result.getDeploymentId());
+        Assert.assertEquals(summary.getName(), result.getName());
+        Assert.assertEquals(summary.getVersion(), result.getVersion());
+
+        verifyMapsEqual(summary.getConfigs(), result.getConfigs());
+        verifyMapsEqual(summary.getProperties(), result.getProperties());
+    }
+
+    private void verifyMapsEqual(Map<String, String> map,
+                                 Map<String, String> results) {
+        Assert.assertNotNull(map);
+        Assert.assertNotNull(results);
+        Assert.assertEquals(map.size(), results.size());
+
+        for (String key : map.keySet()) {
+            Assert.assertEquals(map.get(key), results.get(key));
+        }
     }
 
     @Test
     public void testServiceSummaryList() {
-        List<ServiceSummary> expectedSummaries = new ArrayList<ServiceSummary>();
+        List<ServiceSummary> summaries = new ArrayList<ServiceSummary>();
         List<Integer> tags = new ArrayList<Integer>();
-        for (int tag = 10; tag < 1000; tag *= 10) {
-            expectedSummaries.add(createSummary(tag));
+        for (int tag = 0; tag < 10; ++tag) {
+            summaries.add(createServiceSummary(tag));
             tags.add(tag);
         }
-
-        verifySummaryList(expectedSummaries, tags);
-
         String xml = ServiceSummariesDocument.getServiceSummaryListAsXML(
-            expectedSummaries);
-
-        verifySummariesListXML(xml, tags);
+            summaries);
 
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes());
-        List<ServiceSummary> summaries = ServiceSummariesDocument.getServiceSummaryList(
+        List<ServiceSummary> results = ServiceSummariesDocument.getServiceSummaryList(
             inputStream);
-        verifySummariesListsEqual(expectedSummaries, summaries);
+        verifySummariesListsEqual(summaries, results);
 
         String newXml = ServiceSummariesDocument.getServiceSummaryListAsXML(
             summaries);
@@ -128,62 +113,65 @@ public class ServiceSummariesDocumentTest {
         System.out.println(xml);
     }
 
-    private void verifySummaryList(List<ServiceSummary> expectedSummaries,
-                                   List<Integer> tags) {
-        Assert.assertNotNull(expectedSummaries);
-        Assert.assertNotNull(tags);
-        Assert.assertTrue(expectedSummaries.size() > 0);
-        Assert.assertEquals(expectedSummaries.size(), tags.size());
-
-        Iterator<ServiceSummary> summariesItr = expectedSummaries.iterator();
-        for (int tag : tags) {
-            ServiceSummary summary = summariesItr.next();
-
-            verifyService(summary.getServiceInfo(), tag);
-            verifyProps(summary.getServiceProperties(), tag);
-        }
-    }
-
-    private void verifyService(ServiceInfo serviceInfo, int tag) {
-        ServiceInfo expected = createService(tag);
-
-        ServiceInfoVerifyHelper verifier = new ServiceInfoVerifyHelper(expected);
-        verifier.verify(serviceInfo);
-    }
-
-    private void verifySummariesListsEqual(List<ServiceSummary> expectedSummaries,
-                                           List<ServiceSummary> summaries) {
-        Assert.assertNotNull(expectedSummaries);
+    private void verifySummariesListsEqual(List<ServiceSummary> summaries,
+                                           List<ServiceSummary> results) {
         Assert.assertNotNull(summaries);
-        Assert.assertEquals(expectedSummaries.size(), summaries.size());
+        Assert.assertNotNull(results);
+        Assert.assertEquals(summaries.size(), results.size());
 
-        Iterator<ServiceSummary> expectedSummariesItr = expectedSummaries.iterator();
-        Iterator<ServiceSummary> summariesItr = summaries.iterator();
-        while (summariesItr.hasNext() && expectedSummariesItr.hasNext()) {
-            ServiceSummary expectedSummary = expectedSummariesItr.next();
-            ServiceSummary summary = summariesItr.next();
-            ServiceInfoVerifyHelper verifier = new ServiceInfoVerifyHelper(
-                expectedSummary.getServiceInfo());
-            verifier.verify(summary.getServiceInfo());
+        for (ServiceSummary summary : summaries) {
+            ServiceSummary result = getSummary(summary.getId(), results);
+            verifySummariesEqual(summary, result);
         }
     }
 
-    private void verifySummariesListXML(String xml, List<Integer> tags) {
-        for (int tag : tags) {
-            verifySummaryXML(xml, tag);
+    private ServiceSummary getSummary(int id, List<ServiceSummary> results) {
+        for (ServiceSummary result : results) {
+            if (result.getId() == id) {
+                return result;
+            }
         }
+        Assert.fail("No result found for id: " + id);
+        return null;
     }
 
-    private void verifySummaryXML(String xml, int tag) {
-        Assert.assertNotNull(xml);
-        Assert.assertTrue(xml, xml.contains(contentId + tag));
-        Assert.assertTrue(xml, xml.contains(displayName + tag));
-        Assert.assertTrue(xml, xml.contains(serviceVersion + tag));
-        Assert.assertTrue(xml, xml.contains(userConfigVersion + tag));
-        Assert.assertTrue(xml, xml.contains(description + tag));
-
-        Assert.assertTrue(xml, xml.contains(propName + (tag - 1)));
-        Assert.assertTrue(xml, xml.contains(propValue + (tag- 1)));
+    private String getName(int i) {
+        return name + i;
     }
 
+    private String getVersion(int i) {
+        return version + i;
+    }
+
+    private String getPropertyName(int i, int j) {
+        return propertyName + i + "-" + j;
+    }
+
+    private String getPropertyValue(int i, int j) {
+        return propertyValue + i + "-" + j;
+    }
+
+    private String getConfigName(int i, int j) {
+        return configName + i + "-" + j;
+    }
+
+    private String getConfigValue(int i, int j) {
+        return configValue + i + "-" + j;
+    }
+
+    private Map<String, String> getProperties(int i) {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (int x = 0; x < MAP_SIZE; ++x) {
+            properties.put(getPropertyName(i, x), getPropertyValue(i, x));
+        }
+        return properties;
+    }
+
+    private Map<String, String> getConfigs(int i) {
+        Map<String, String> configs = new HashMap<String, String>();
+        for (int x = 0; x < MAP_SIZE; ++x) {
+            configs.put(getConfigName(i, x), getConfigValue(i, x));
+        }
+        return configs;
+    }
 }

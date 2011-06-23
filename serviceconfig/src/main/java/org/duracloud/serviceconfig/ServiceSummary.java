@@ -10,31 +10,77 @@ package org.duracloud.serviceconfig;
 import java.util.Map;
 
 /**
- * This bean contains the complete details of a completed service:
- * - configuration info
- * - service output properties
+ * This bean contains the complete details of a service.
  *
  * @author Andrew Woods
  *         Date: 6/22/11
  */
 public class ServiceSummary {
 
-    private ServiceInfo serviceInfo;
-    private Map<String, String> serviceProperties;
+    /** Unique identifier for this service */
+    private int id;
 
-    public ServiceInfo getServiceInfo() {
-        return serviceInfo;
+    /** Unique identifier for this service deployment */
+    private int deploymentId;
+
+    /** User-friendly Service name */
+    private String name;
+
+    /** Release version number of the service software */
+    private String version;
+
+    /** User configuration for this service deployment */
+    private Map<String, String> configs;
+
+    /** Properties of this service deployment */
+    private Map<String, String> properties;
+
+    
+    public int getId() {
+        return id;
     }
 
-    public void setServiceInfo(ServiceInfo serviceInfo) {
-        this.serviceInfo = serviceInfo;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public Map<String, String> getServiceProperties() {
-        return serviceProperties;
+    public int getDeploymentId() {
+        return deploymentId;
     }
 
-    public void setServiceProperties(Map<String, String> serviceProperties) {
-        this.serviceProperties = serviceProperties;
+    public void setDeploymentId(int deploymentId) {
+        this.deploymentId = deploymentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public Map<String, String> getConfigs() {
+        return configs;
+    }
+
+    public void setConfigs(Map<String, String> configs) {
+        this.configs = configs;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
     }
 }

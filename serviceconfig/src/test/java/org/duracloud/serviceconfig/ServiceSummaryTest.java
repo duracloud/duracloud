@@ -23,28 +23,37 @@ public class ServiceSummaryTest {
 
     private ServiceSummary summary;
 
-    private ServiceInfo serviceInfo;
-    private Map<String, String> serviceProperties;
+    private int id = 5;
+    private int deploymentId = 7;
+    private String name = "name";
+    private String version = "1.2.3";
+    private Map<String, String> properties = new HashMap<String, String>();
+    private Map<String, String> configs = new HashMap<String, String>();
 
     @Before
     public void setUp() throws Exception {
         summary = new ServiceSummary();
-        serviceInfo = new ServiceInfo();
-        serviceProperties = new HashMap<String, String>();
     }
 
     @After
     public void tearDown() throws Exception {
-        serviceInfo = null;
-        serviceProperties = null;
+        summary = null;
     }
 
     @Test
     public void test() throws Exception {
-        summary.setServiceInfo(serviceInfo);
-        summary.setServiceProperties(serviceProperties);
+        summary.setId(id);
+        summary.setDeploymentId(deploymentId);
+        summary.setName(name);
+        summary.setVersion(version);
+        summary.setConfigs(configs);
+        summary.setProperties(properties);
 
-        Assert.assertEquals(serviceInfo, summary.getServiceInfo());
-        Assert.assertEquals(serviceProperties, summary.getServiceProperties());
+        Assert.assertEquals(id, summary.getId());
+        Assert.assertEquals(deploymentId, summary.getDeploymentId());
+        Assert.assertEquals(name, summary.getName());
+        Assert.assertEquals(version, summary.getVersion());
+        Assert.assertEquals(configs, summary.getConfigs());
+        Assert.assertEquals(properties, summary.getProperties());
     }
 }
