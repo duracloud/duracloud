@@ -23,6 +23,7 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +47,13 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase implements S
         super(storageAccountManager);
         this.statelessProvider = statelessStorageProvider;
         storageProviders = new ConcurrentHashMap<String, StorageProvider>();
+    }
+
+    @Override
+    public void initialize(InputStream accountXml)
+            throws StorageException {
+        super.initialize(accountXml);
+        storageProviders = new ConcurrentHashMap<String, StorageProvider>();        
     }
 
     /**

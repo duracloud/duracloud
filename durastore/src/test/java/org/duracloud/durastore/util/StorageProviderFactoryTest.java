@@ -19,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,6 +138,57 @@ public class StorageProviderFactoryTest {
             .times(1);
 
         EasyMock.replay(mockSAM, mockSSP);
+    }
+
+    @Test
+    public void testInitilize() {
+        //Test retrieving from accountManager
+        getProvider();
+
+        //Test retrieving from cached providers
+        StorageProvider provider = factory.getStorageProvider();
+        assertNotNull(provider);
+        assertTrue(provider instanceof BrokeredStorageProvider);
+        StorageProviderType type =
+            ((BrokeredStorageProvider)provider).getTargetType();
+        assertEquals(StorageProviderType.AMAZON_S3, type);
+
+        //reinitialize
+        mockSAM.initialize(EasyMock.isA(InputStream.class));
+        EasyMock.expectLastCall();
+
+        InputStream inputStream = EasyMock.createMock("InputSream",
+                                                      InputStream.class);
+        EasyMock.replay(mockSAM, mockSSP, inputStream);
+        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP);
+        factory.initialize(inputStream);
+
+        //Test retrieving from accountManager now that the cache has been cleared
+        getProvider();
+    }
+
+    private void getProvider() {
+        StorageAccountManager sam = EasyMock.createMock(StorageAccountManager.class);
+
+        EasyMock.expect(sam.isInitialized())
+            .andReturn(true)
+            .anyTimes();
+
+        EasyMock.expect(sam.getStorageAccount(StorageProviderFactoryImpl.PRIMARY))
+            .andReturn(acct1)
+            .times(1);
+
+        EasyMock.replay(sam);
+
+        factory = new StorageProviderFactoryImpl(sam, mockSSP);
+        StorageProvider provider = factory.getStorageProvider();
+        assertNotNull(provider);
+        assertTrue(provider instanceof BrokeredStorageProvider);
+        StorageProviderType type =
+            ((BrokeredStorageProvider)provider).getTargetType();
+        assertEquals(StorageProviderType.AMAZON_S3, type);
+
+        EasyMock.verify(sam);
     }
 
 }
