@@ -7,9 +7,9 @@
  */
 package org.duracloud.servicemonitor;
 
-import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.error.ServiceSummaryException;
 
 import java.util.List;
 
@@ -23,8 +23,7 @@ public interface ServiceSummarizer {
 
     public List<ServiceSummary> summarizeService(ServiceInfo service);
 
-    public ServiceSummary summarizeServiceDeployment(int serviceId,
-                                                     String serviceName,
-                                                     String serviceVersion,
-                                                     Deployment serviceDep);
+    public ServiceSummary summarizeService(int serviceId, int deploymentId)
+        throws ServiceSummaryException;
+
 }

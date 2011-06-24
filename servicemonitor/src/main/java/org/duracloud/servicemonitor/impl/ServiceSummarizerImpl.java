@@ -7,6 +7,7 @@
  */
 package org.duracloud.servicemonitor.impl;
 
+import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -15,6 +16,7 @@ import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.error.ServiceSummaryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,17 +53,46 @@ public class ServiceSummarizerImpl implements ServiceSummarizer {
     public List<ServiceSummary> summarizeService(ServiceInfo service) {
         List<ServiceSummary> serviceSummaries = new ArrayList<ServiceSummary>();
         for(Deployment serviceDep : service.getDeployments()) {
-            ServiceSummary summary =
-                summarizeServiceDeployment(service.getId(),
-                                           service.getDisplayName(),
-                                           service.getServiceVersion(),
-                                           serviceDep);
-            serviceSummaries.add(summary);
+            serviceSummaries.add(summarizeServiceDeployment(service, serviceDep));
         }
         return serviceSummaries;
     }
 
-    public ServiceSummary summarizeServiceDeployment(int serviceId,
+    public ServiceSummary summarizeService(int serviceId, int deploymentId)
+        throws ServiceSummaryException {
+        ServiceInfo service;
+        String error = "Could not build summary for service with id: " +
+            serviceId + " and deployment id: " + deploymentId;
+        try {
+            service = servicesMgr.getDeployedService(serviceId, deploymentId);
+        } catch (DuraCloudCheckedException e) {
+            error += " due to: " + e.getMessage();
+            throw new ServiceSummaryException(error, e);
+        }
+
+        Deployment serviceDep = null;
+        for(Deployment dep : service.getDeployments()) {
+            if(deploymentId == dep.getId()) {
+                serviceDep = dep;
+            }
+        }
+        if(null != serviceDep) {
+            return summarizeServiceDeployment(service, serviceDep);
+        } else {
+            error += " because deployment does not exist";
+            throw new ServiceSummaryException(error);
+        }
+    }
+
+    private ServiceSummary summarizeServiceDeployment(ServiceInfo service,
+                                                      Deployment serviceDep) {
+        return summarizeServiceDeployment(service.getId(),
+                                          service.getDisplayName(),
+                                          service.getServiceVersion(),
+                                          serviceDep);
+    }
+
+    private ServiceSummary summarizeServiceDeployment(int serviceId,
                                                      String serviceName,
                                                      String serviceVersion,
                                                      Deployment serviceDep) {

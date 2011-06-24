@@ -8,12 +8,17 @@
 package org.duracloud.servicemonitor.impl;
 
 import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceconfig.Deployment;
+import org.duracloud.serviceconfig.ServiceInfo;
+import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.duracloud.servicemonitor.error.ServiceSummaryException;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +33,7 @@ import static org.duracloud.services.ComputeService.SYSTEM_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -37,6 +43,10 @@ public class ServiceSummarizerImplTest {
 
     private ServicesManager servicesMgr;
     private ServiceSummarizerImpl summarizer;
+    private static final int serviceId = 20;
+    private static final int depId = 40;
+    private static final String serviceName = "Name";
+    private static final String serviceVersion = "1.0";
 
     @Before
     public void setup() {
@@ -51,6 +61,80 @@ public class ServiceSummarizerImplTest {
     @After
     public void teardown() {
         EasyMock.verify(servicesMgr);
+    }
+
+    @Test
+    public void testSummarizeServices() throws Exception {
+        setUpSummarizeServices();
+
+        List<ServiceInfo> services = new ArrayList<ServiceInfo>();
+        services.add(buildServiceInfo());
+        List<ServiceSummary> summaries = summarizer.summarizeServices(services);
+        assertNotNull(summaries);
+        assertEquals(1, summaries.size());
+        verifyServiceSummary(summaries.iterator().next());
+    }
+
+    private void setUpSummarizeServices() throws Exception {
+        EasyMock.expect(servicesMgr.getDeployedServiceProps(serviceId, depId))
+            .andReturn(new HashMap<String, String>())
+            .times(1);
+
+        replayMocks();
+    }
+
+    @Test
+    public void testSummarizeService() throws Exception {
+        setUpSummarizeService();
+
+        try {
+            summarizer.summarizeService(0, 0);
+            fail("Exception expected");
+        } catch(ServiceSummaryException expected) {
+            assertNotNull(expected);
+        }
+
+        ServiceSummary summary = summarizer.summarizeService(serviceId, depId);
+        verifyServiceSummary(summary);
+    }
+
+    private void verifyServiceSummary(ServiceSummary summary) {
+        assertNotNull(summary);
+        assertEquals(serviceId, summary.getId());
+        assertEquals(depId, summary.getDeploymentId());
+        assertEquals(serviceName, summary.getName());
+        assertEquals(serviceVersion, summary.getVersion());
+        assertEquals(0, summary.getConfigs().size());
+        assertEquals(0, summary.getProperties().size());
+    }
+
+    private void setUpSummarizeService() throws Exception {
+        EasyMock.expect(servicesMgr.getDeployedService(0, 0))
+            .andThrow(new NotFoundException("error"))
+            .times(1);
+
+        EasyMock.expect(servicesMgr.getDeployedService(serviceId, depId))
+            .andReturn(buildServiceInfo())
+            .times(1);
+
+        EasyMock.expect(servicesMgr.getDeployedServiceProps(serviceId, depId))
+            .andReturn(new HashMap<String, String>())
+            .times(1);
+
+        replayMocks();
+    }
+
+    private ServiceInfo buildServiceInfo() {
+        ServiceInfo service = new ServiceInfo();
+        service.setId(serviceId);
+        service.setDisplayName(serviceName);
+        service.setServiceVersion(serviceVersion);
+        Deployment serviceDep = new Deployment();
+        serviceDep.setId(depId);
+        List<Deployment> deployments = new ArrayList<Deployment>();
+        deployments.add(serviceDep);
+        service.setDeployments(deployments);
+        return service;
     }
 
     @Test
@@ -116,8 +200,6 @@ public class ServiceSummarizerImplTest {
 
     @Test
     public void testGetServiceProps() throws Exception {
-        int serviceId = 20;
-        int depId = 40;
         setUpMocksGetServiceProps(serviceId, depId);
 
         Map<String, String> serviceProps =
