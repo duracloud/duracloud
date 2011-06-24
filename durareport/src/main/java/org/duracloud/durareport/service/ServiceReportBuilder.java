@@ -122,7 +122,10 @@ public class ServiceReportBuilder {
             List<String> summaryIds = summaryDirectory.getServiceSummaryIds();
             Collections.sort(summaryIds);
             Collections.reverse(summaryIds);
-            for(String summaryId : summaryIds) {
+
+            Iterator<String> summaryIdIterator = summaryIds.iterator();
+            while(summaryIdIterator.hasNext() && completedSums.size() < limit) {
+                String summaryId = summaryIdIterator.next();
                 List<ServiceSummary> sumList =
                     summaryDirectory.getServiceSummariesById(summaryId);
                 addSummaries(sumList, completedSums, limit);
