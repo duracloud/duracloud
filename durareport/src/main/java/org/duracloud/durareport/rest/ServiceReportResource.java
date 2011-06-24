@@ -10,7 +10,11 @@ package org.duracloud.durareport.rest;
 import org.duracloud.durareport.service.ServiceReportBuilder;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
+import org.duracloud.servicemonitor.impl.TempServiceSummaryDirectoryImpl;
+
+import java.io.InputStream;
 
 /**
  * @author: Bill Branan
@@ -18,20 +22,35 @@ import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
  */
 public class ServiceReportResource {
 
-    ServicesManager servicesMgr = null;
-    ServiceSummarizer serviceSummarizer;
-    ServiceReportBuilder reportBuilder;
+    private ServicesManager servicesMgr = null;
+    private ServiceSummarizer serviceSummarizer;
+    private ServiceSummaryDirectory summaryDirectory;
+    private ServiceReportBuilder reportBuilder;
 
     public void initialize(ServicesManager servicesMgr) {
         this.servicesMgr = servicesMgr;
         this.serviceSummarizer = new ServiceSummarizerImpl(servicesMgr);
+        this.summaryDirectory = new TempServiceSummaryDirectoryImpl();
         this.reportBuilder = new ServiceReportBuilder(servicesMgr,
-                                                      serviceSummarizer);
+                                                      serviceSummarizer,
+                                                      summaryDirectory);
     }
 
-    public String getServiceReport(){
+    public InputStream getDeployedServicesReport(){
         checkInitialized();
-        return reportBuilder.buildServiceReport();
+        return reportBuilder.getDeployedServicesReport();
+    }
+
+    public InputStream getCompletedServicesReport(int limit) {
+        return reportBuilder.getCompletedServicesReport(limit);
+    }
+
+    public InputStream getCompletedServicesReportIds() {
+        return reportBuilder.getCompletedServicesReportIds();
+    }
+
+    public InputStream getCompletedServicesReport(String reportId) {
+        return reportBuilder.getCompletedServicesReport(reportId);
     }
 
     public void checkInitialized() {

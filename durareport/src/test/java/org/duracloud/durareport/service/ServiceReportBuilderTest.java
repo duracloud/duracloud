@@ -11,14 +11,17 @@ import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -29,26 +32,31 @@ public class ServiceReportBuilderTest {
 
     private ServicesManager servicesMgr;
     private ServiceSummarizer serviceSummarizer;
+    private ServiceSummaryDirectory summaryDirectory;
+
     private ServiceReportBuilder builder;
 
     @Before
     public void setup() {
         servicesMgr = EasyMock.createMock(ServicesManager.class);
         serviceSummarizer = EasyMock.createMock(ServiceSummarizer.class);
-        builder = new ServiceReportBuilder(servicesMgr, serviceSummarizer);
+        summaryDirectory = EasyMock.createMock(ServiceSummaryDirectory.class);
+        builder = new ServiceReportBuilder(servicesMgr,
+                                           serviceSummarizer,
+                                           summaryDirectory);
     }
 
     private void replayMocks() {
-        EasyMock.replay(servicesMgr, serviceSummarizer);
+        EasyMock.replay(servicesMgr, serviceSummarizer, summaryDirectory);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(servicesMgr, serviceSummarizer);
+        EasyMock.verify(servicesMgr, serviceSummarizer, summaryDirectory);
     }
 
     @Test
-    public void testCollectRunningServices() throws Exception {
+    public void testCollectDeployedServices() throws Exception {
         EasyMock.expect(servicesMgr.getDeployedServices())
             .andReturn(null)
             .times(1);
@@ -61,9 +69,47 @@ public class ServiceReportBuilderTest {
         replayMocks();
 
         List<ServiceSummary> runningSummaries =
-            builder.collectRunningServices();
+            builder.collectDeployedServices();
         assertNotNull(runningSummaries);
     }
 
+    @Test
+    public void testCollectCompletedServices() {
+        EasyMock.expect(summaryDirectory.getCurrentServiceSummaries())
+            .andReturn(createServiceSummaryList(5))
+            .times(1);
+
+        List<String> summaryIds = new LinkedList<String>();
+        summaryIds.add("one");
+        summaryIds.add("two");
+        EasyMock.expect(summaryDirectory.getServiceSummaryIds())
+            .andReturn(summaryIds)
+            .times(1);
+
+        EasyMock.expect(summaryDirectory.getServiceSummariesById("one"))
+            .andReturn(createServiceSummaryList(3))
+            .times(1);
+
+        EasyMock.expect(summaryDirectory.getServiceSummariesById("two"))
+            .andReturn(createServiceSummaryList(4))
+            .times(1);
+
+        replayMocks();
+
+        List<ServiceSummary> summaries = builder.collectCompletedServices(10);
+        assertNotNull(summaries);
+        assertEquals(10, summaries.size());
+    }
+
+    private List<ServiceSummary> createServiceSummaryList(int itemCount) {
+        List<ServiceSummary> summaries = new LinkedList<ServiceSummary>();
+        for(int i=1; i <= itemCount; i++) {
+            ServiceSummary summary = new ServiceSummary();
+            summary.setId(i*itemCount);
+            summary.setDeploymentId(i*itemCount);
+            summaries.add(summary);
+        }
+        return summaries;
+    }
 
 }

@@ -12,8 +12,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 
 /**
  * @author: Bill Branan
@@ -31,18 +34,79 @@ public class ServiceReportRest extends BaseRest {
     }
 
     /**
-     * Retrieves the latest service report.
+     * Retrieves the deployed services report.
+     *
+     * @return 200 response with service report XML as body
+     */
+    @Path("/deployed")
+    @GET
+    @Produces(XML)
+    public Response getDeployedServicesReport(){
+        log.debug("Getting deployed services report");
+
+        try {
+            InputStream stream = resource.getDeployedServicesReport();
+            return responseOkXmlStream(stream);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
+     * Retrieves a report of completed services, including as many services
+     * as have completed up to the provided limit. If no limit is provided,
+     * the default limit of 20 is used.
      *
      * @return 200 response with service report XML as body
      */
     @GET
     @Produces(XML)
-    public Response getServiceReport(){
-        log.debug("Getting service report");
+    public Response getCompletedServicesReport(@QueryParam("limit")
+                                               int limit) {
+        log.debug("Getting completed services report with limit: " + limit);
 
         try {
-            String xml = resource.getServiceReport();
-            return responseOkXml(xml);
+            InputStream stream = resource.getCompletedServicesReport(limit);
+            return responseOkXmlStream(stream);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
+     * Retrieves the list of all service report files which have been created.
+     *
+     * @return 200 response with service report IDs XML as body
+     */
+    @Path("/list")
+    @GET
+    @Produces(XML)
+    public Response getCompletedServicesReportIds() {
+        log.debug("Getting completed services report IDs");
+
+        try {
+            InputStream stream = resource.getCompletedServicesReportIds();
+            return responseOkXmlStream(stream);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
+     * Retrieves a specific service report by ID.
+     *
+     * @return 200 response with service report XML as body
+     */
+    @Path("/{reportId}")
+    @GET
+    @Produces(XML)
+    public Response getCompletedServicesReport(@PathParam("reportId")
+                                               String reportId) {
+        log.debug("Getting completed services report by ID: " + reportId);
+
+        try {
+            InputStream stream = resource.getCompletedServicesReport(reportId);
+            return responseOkXmlStream(stream);
         } catch (Exception e) {
             return responseBad(e);
         }
