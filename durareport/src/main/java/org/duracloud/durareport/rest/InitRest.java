@@ -18,6 +18,9 @@ import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.servicemonitor.ServiceMonitor;
+import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.ServiceSummaryDirectory;
+import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,17 +41,20 @@ public class InitRest extends BaseRest {
     StorageReportResource storageResource;
     ServiceReportResource serviceResource;
     ServiceMonitor serviceMonitor;
+    ServiceSummaryDirectory summaryDirectory;
     SecurityContextUtil securityContextUtil;
     private RestUtil restUtil;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
                     ServiceMonitor serviceMonitor,
+                    ServiceSummaryDirectory summaryDirectory,
                     SecurityContextUtil securityContextUtil,
                     RestUtil restUtil) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
         this.serviceMonitor = serviceMonitor;
+        this.summaryDirectory = summaryDirectory;
         this.securityContextUtil = securityContextUtil;
         this.restUtil = restUtil;
     }
@@ -85,15 +91,17 @@ public class InitRest extends BaseRest {
                                         config.getDurastoreContext());
         storeMgr.login(credential);
         storageResource.initialize(storeMgr);
+        summaryDirectory.initialize(storeMgr);
 
         ServicesManager servicesMgr =
             new ServicesManagerImpl(config.getDuraserviceHost(),
                                     config.getDuraservicePort(),
                                     config.getDuraserviceContext());
         servicesMgr.login(credential);
-        serviceResource.initialize(servicesMgr);
+        ServiceSummarizer summarizer = new ServiceSummarizerImpl(servicesMgr);
+        serviceResource.initialize(summaryDirectory, summarizer, servicesMgr);
 
-        serviceMonitor.initialize(storeMgr, servicesMgr);
+        serviceMonitor.initialize(summaryDirectory, summarizer);
     }
     
 }

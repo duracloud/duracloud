@@ -44,8 +44,9 @@ public class StorageReportResource {
         this.reportScheduler = new StorageReportScheduler(reportBuilder);
 
         // adds default report schedule: weekly at 1 AM on Saturday
-        scheduleStorageReport(getDefaultScheduleStartDate().getTime(),
-                              ONE_WEEK_MILLIS);
+        // FIXME: The 'start date' appears to not get set as expected.
+//        scheduleStorageReport(getDefaultScheduleStartDate().getTime(),
+//                              ONE_WEEK_MILLIS);
         // start a report now
         startStorageReport();
     }

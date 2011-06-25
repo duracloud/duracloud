@@ -18,11 +18,13 @@ import org.duracloud.serviceconfig.ServiceSummariesDocument;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
+import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -105,11 +107,19 @@ public class ServiceReportBuilder {
             limit = DEFAULT_LIMIT;
         }
 
-        List<ServiceSummary> completedSums = collectCompletedServices(limit);
+        List<ServiceSummary> completedSums = null;
+        try {
+            completedSums = collectCompletedServices(limit);
+
+        } catch (ServiceSummaryNotFoundException e) {
+            log.warn("Error collection summaries: {}", e.getMessage());
+            completedSums = new ArrayList<ServiceSummary>();
+        }
         return convertSummariesToStream(completedSums);
     }
 
-    protected List<ServiceSummary> collectCompletedServices(int limit) {
+    protected List<ServiceSummary> collectCompletedServices(int limit)
+        throws ServiceSummaryNotFoundException {
         List<ServiceSummary> completedSums = new LinkedList<ServiceSummary>();
 
         // Start with current services
@@ -163,7 +173,8 @@ public class ServiceReportBuilder {
      * @param reportId the ID of the report to retrieve
      * @return stream of XML with all service summaries included in this report
      */
-    public InputStream getCompletedServicesReport(String reportId) {
+    public InputStream getCompletedServicesReport(String reportId)
+        throws ServiceSummaryNotFoundException {
         return summaryDirectory.getServiceSummariesStreamById(reportId);
     }
 

@@ -7,13 +7,13 @@
  */
 package org.duracloud.servicemonitor.impl;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.aop.DeployMessage;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
-import org.duracloud.servicemonitor.ServiceSummaryWriter;
+import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.ServiceSummaryDirectory;
+import org.duracloud.servicemonitor.error.ServiceSummaryException;
 import org.duracloud.services.ComputeService;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -32,48 +32,29 @@ public class ServiceMonitorImplTest {
 
     private ServiceMonitorImpl monitor;
 
-    private String spaceId = "space-id";
-    private String contentId = "content-id";
     private long pollingInterval = 5; //millis
-    private ServiceSummaryWriter summaryWriter;
-    private ServicesManager servicesManager;
-    private ContentStoreManager storeManager;
-    private ContentStore contentStore;
+    private ServiceSummaryDirectory summaryDirectory;
+    private ServiceSummarizer summarizer;
 
     @Before
     public void setUp() throws Exception {
-        summaryWriter = EasyMock.createMock("ServiceSummaryWriter",
-                                            ServiceSummaryWriter.class);
-        servicesManager = EasyMock.createMock("ServicesManager",
-                                              ServicesManager.class);
-        storeManager = EasyMock.createMock("ContentStoreManager",
-                                           ContentStoreManager.class);
-        contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
+        summaryDirectory = EasyMock.createMock("ServiceSummaryDirectory",
+                                               ServiceSummaryDirectory.class);
+        summarizer = EasyMock.createMock("ServiceSummarizer",
+                                         ServiceSummarizer.class);
 
-        EasyMock.expect(storeManager.getPrimaryContentStore()).andReturn(
-            contentStore);
-        EasyMock.replay(storeManager);
-
-        monitor = new ServiceMonitorImpl(spaceId,
-                                         contentId,
-                                         pollingInterval,
-                                         summaryWriter,
-                                         servicesManager,
-                                         storeManager);
+        monitor = new ServiceMonitorImpl(pollingInterval,
+                                         summaryDirectory,
+                                         summarizer);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(summaryWriter,
-                        servicesManager,
-                        storeManager,
-                        contentStore);
+        EasyMock.verify(summaryDirectory, summarizer);
     }
 
     private void replayMocks() {
-        EasyMock.replay(summaryWriter, servicesManager,
-                        // storeManager, // replayed in setUp
-                        contentStore);
+        EasyMock.replay(summaryDirectory, summarizer);
     }
 
     @Test
@@ -109,18 +90,26 @@ public class ServiceMonitorImplTest {
     }
 
     private void createOnDeployMockExpectations(int serviceId, int deploymentId)
-        throws ServicesException, NotFoundException {
+        throws ServicesException, NotFoundException, ServiceSummaryException {
         Map<String, String> props = new HashMap<String, String>();
         props.put(ComputeService.STATUS_KEY,
                   ComputeService.ServiceStatus.FAILED.name());
-        EasyMock.expect(servicesManager.getDeployedServiceProps(serviceId,
-                                                                deploymentId))
+        EasyMock.expect(summarizer.getServiceProps(serviceId, deploymentId))
             .andReturn(props);
 
-        EasyMock.makeThreadSafe(servicesManager, true);
+        ServiceSummary summary = new ServiceSummary();
+        summary.setId(serviceId);
+        summary.setDeploymentId(deploymentId);
 
-        summaryWriter.collectAndWriteSummary(serviceId, deploymentId);
+        EasyMock.expect(summarizer.summarizeService(serviceId, deploymentId))
+            .andReturn(summary);
+
+        EasyMock.makeThreadSafe(summarizer, true);
+
+        summaryDirectory.addServiceSummary(summary);
         EasyMock.expectLastCall();
+
+        EasyMock.makeThreadSafe(summaryDirectory, true);
     }
 
     @Test

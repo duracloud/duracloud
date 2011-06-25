@@ -12,6 +12,7 @@ import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.servicemonitor.error.ServiceSummaryException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -25,5 +26,7 @@ public interface ServiceSummarizer {
 
     public ServiceSummary summarizeService(int serviceId, int deploymentId)
         throws ServiceSummaryException;
+
+    public Map<String, String> getServiceProps(int serviceId, int deploymentId);
 
 }

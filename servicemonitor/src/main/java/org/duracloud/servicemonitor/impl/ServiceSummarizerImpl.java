@@ -125,6 +125,7 @@ public class ServiceSummarizerImpl implements ServiceSummarizer {
                                        mode.getDisplayName());
                         }
 
+                        // FIXME: null pointer exception on "bit-integrity-checker" service.
                         for(UserConfig userConfig : mode.getUserConfigs()) {
                             config.put(userConfig.getDisplayName(),
                                        userConfig.getDisplayValue());
@@ -138,8 +139,9 @@ public class ServiceSummarizerImpl implements ServiceSummarizer {
         return config;
     }
 
-    protected Map<String, String> getServiceProps(int serviceId,
-                                                  int deploymentId) {
+    @Override
+    public Map<String, String> getServiceProps(int serviceId,
+                                               int deploymentId) {
         Map<String, String> filteredProps = new HashMap<String, String>();
         Map<String, String> serviceProps;
         try {

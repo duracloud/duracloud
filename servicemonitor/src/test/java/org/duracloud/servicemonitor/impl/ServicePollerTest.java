@@ -7,10 +7,12 @@
  */
 package org.duracloud.servicemonitor.impl;
 
-import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
-import org.duracloud.servicemonitor.ServiceSummaryWriter;
+import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.ServiceSummaryDirectory;
+import org.duracloud.servicemonitor.error.ServiceSummaryException;
 import org.duracloud.services.ComputeService;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -30,33 +32,33 @@ public class ServicePollerTest {
 
     private int serviceId = 7;
     private int deploymentId = 9;
-    private ServiceSummaryWriter summaryWriter;
-    private ServicesManager servicesManager;
+    private ServiceSummaryDirectory summaryDirectory;
+    private ServiceSummarizer summarizer;
     private long sleepMillis = 5;
     private boolean continuePolling = true;
 
     @Before
     public void setUp() throws Exception {
-        summaryWriter = EasyMock.createMock("ServiceSummaryWriter",
-                                            ServiceSummaryWriter.class);
-        servicesManager = EasyMock.createMock("ServicesManager",
-                                              ServicesManager.class);
+        summaryDirectory = EasyMock.createMock("ServiceSummaryDirectory",
+                                               ServiceSummaryDirectory.class);
+        summarizer = EasyMock.createMock("ServiceSummarizer",
+                                         ServiceSummarizer.class);
 
         poller = new ServicePoller(serviceId,
                                    deploymentId,
-                                   summaryWriter,
-                                   servicesManager,
+                                   summaryDirectory,
+                                   summarizer,
                                    sleepMillis,
                                    continuePolling);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(summaryWriter, servicesManager);
+        EasyMock.verify(summaryDirectory, summarizer);
     }
 
     private void replayMocks() {
-        EasyMock.replay(summaryWriter, servicesManager);
+        EasyMock.replay(summaryDirectory, summarizer);
     }
 
     @Test
@@ -69,26 +71,31 @@ public class ServicePollerTest {
     }
 
     private void createMockExpections(int times)
-        throws ServicesException, NotFoundException {
-        // serviceManager
+        throws ServicesException, NotFoundException, ServiceSummaryException {
+        ServiceSummary summary = new ServiceSummary();
+        summary.setId(serviceId);
+        summary.setDeploymentId(deploymentId);
+
+        // serviceSummarizer
         Map<String, String> props = createProps(ComputeService.ServiceStatus.PROCESSING);
         Map<String, String> completeProps = createProps(ComputeService.ServiceStatus.SUCCESS);
 
         if (times > 0) {
-            EasyMock.expect(servicesManager.getDeployedServiceProps(serviceId,
-                                                                    deploymentId))
+            EasyMock.expect(summarizer.getServiceProps(serviceId, deploymentId))
                 .andReturn(props)
                 .times(times);
 
-            EasyMock.expect(servicesManager.getDeployedServiceProps(serviceId,
-                                                                    deploymentId))
+            EasyMock.expect(summarizer.getServiceProps(serviceId, deploymentId))
                 .andReturn(completeProps);
+
+            EasyMock.expect(summarizer.summarizeService(serviceId,
+                                                        deploymentId))
+                .andReturn(summary);
         }
 
-        // summaryWriter
-        summaryWriter.collectAndWriteSummary(serviceId, deploymentId);
+        // summaryDirectory
+        summaryDirectory.addServiceSummary(summary);
         EasyMock.expectLastCall();
-
     }
 
     private Map<String, String> createProps(ComputeService.ServiceStatus status) {

@@ -7,16 +7,21 @@
  */
 package org.duracloud.servicemonitor.impl;
 
-import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.servicemonitor.ServiceSummaryWriter;
+import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.ServiceSummaryDirectory;
+import org.duracloud.servicemonitor.error.ServiceSummaryException;
 import org.duracloud.services.ComputeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class polls deployed services waiting for them to complete.
+ * Once a service is complete, this class initiates the collection and writing
+ * of the service summary.
+ *
  * @author Andrew Woods
  *         Date: 6/17/11
  */
@@ -27,22 +32,22 @@ public class ServicePoller implements Runnable {
     private int serviceId;
     private int deploymentId;
 
-    private ServiceSummaryWriter summaryWriter;
-    private ServicesManager servicesManager;
+    private ServiceSummaryDirectory summaryDirectory;
+    private ServiceSummarizer summarizer;
 
     private long pollingInterval;
     private boolean continuePolling;
 
     public ServicePoller(int serviceId,
                          int deploymentId,
-                         ServiceSummaryWriter summaryWriter,
-                         ServicesManager servicesManager,
+                         ServiceSummaryDirectory summaryDirectory,
+                         ServiceSummarizer summarizer,
                          long pollingInterval,
                          boolean continuePolling) {
         this.serviceId = serviceId;
         this.deploymentId = deploymentId;
-        this.summaryWriter = summaryWriter;
-        this.servicesManager = servicesManager;
+        this.summaryDirectory = summaryDirectory;
+        this.summarizer = summarizer;
         this.pollingInterval = pollingInterval;
         this.continuePolling = continuePolling;
     }
@@ -55,12 +60,16 @@ public class ServicePoller implements Runnable {
         }
 
         if (continuePolling) { // means the service is complete
-            summaryWriter.collectAndWriteSummary(serviceId, deploymentId);
+            ServiceSummary summary = getServiceSummary();
+            if (null != summary) {
+                summaryDirectory.addServiceSummary(summary);
+            }
         }
     }
 
     private boolean isServiceComplete() {
-        Map<String, String> props = getServiceProps();
+        Map<String, String> props = summarizer.getServiceProps(serviceId,
+                                                               deploymentId);
         for (String key : props.keySet()) {
             ComputeService.ServiceStatus status = propAsStatus(props.get(key));
             if (status.isComplete()) {
@@ -70,25 +79,27 @@ public class ServicePoller implements Runnable {
         return false;
     }
 
-    private Map<String, String> getServiceProps() {
-        Map<String, String> props = new HashMap<String, String>();
-        try {
-            props = servicesManager.getDeployedServiceProps(serviceId,
-                                                            deploymentId);
-        } catch (Exception e) {
-            log.warn(
-                "Error getting service properties: serviceId={}, deploymentId={}, error={}",
-                new Object[]{serviceId, deploymentId, e.getMessage()});
-        }
-        return props;
-    }
-
     private ComputeService.ServiceStatus propAsStatus(String prop) {
         try {
             return ComputeService.ServiceStatus.valueOf(prop);
 
         } catch (Exception e) {
             return ComputeService.ServiceStatus.UNKNOWN;
+        }
+    }
+
+    private ServiceSummary getServiceSummary() {
+        try {
+            return summarizer.summarizeService(serviceId, deploymentId);
+
+        } catch (ServiceSummaryException e) {
+            StringBuilder error = new StringBuilder();
+            error.append("Error: Service complete, but unable to get summary!");
+            error.append(" serviceId = " + serviceId);
+            error.append(" deploymentId = " + deploymentId);
+            error.append(" message: " + e.getMessage());
+            log.error(error.toString());
+            return null;
         }
     }
 

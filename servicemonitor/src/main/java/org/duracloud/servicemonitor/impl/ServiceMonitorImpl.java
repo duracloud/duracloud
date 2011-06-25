@@ -7,15 +7,11 @@
  */
 package org.duracloud.servicemonitor.impl;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.aop.DeployMessage;
 import org.duracloud.servicemonitor.ServiceMonitor;
-import org.duracloud.servicemonitor.ServiceSummaryWriter;
+import org.duracloud.servicemonitor.ServiceSummarizer;
+import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,64 +23,34 @@ public class ServiceMonitorImpl implements ServiceMonitor {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceMonitorImpl.class);
 
-    private static final String DATE_VAR = "$DATE";
     private static final long DEFAULT_MILLIS = 20000; // 20 seconds
-
-    private String spaceId;
-    private String contentId;
 
     private boolean continuePolling = true;
     private long pollingInterval;
 
-    private ServiceSummaryWriter summaryWriter;
-    private ServicesManager servicesManager = null;
-    private ContentStore contentStore = null;
+    private ServiceSummaryDirectory summaryDirectory;
+    private ServiceSummarizer summarizer = null;
 
 
-    public ServiceMonitorImpl(String spaceId, String contentId) {
-        this(spaceId, contentId, DEFAULT_MILLIS, null, null, null);
+    public ServiceMonitorImpl() {
+        this(DEFAULT_MILLIS, null, null);
     }
 
-    public ServiceMonitorImpl(String spaceId,
-                              String contentId,
-                              long pollingInterval,
-                              ServiceSummaryWriter summaryWriter,
-                              ServicesManager servicesManager,
-                              ContentStoreManager storeManager) {
+    public ServiceMonitorImpl(long pollingInterval,
+                              ServiceSummaryDirectory summaryDirectory,
+                              ServiceSummarizer summarizer) {
         log.info("Starting ServiceMonitor");
 
-        this.spaceId = spaceId;
-        this.contentId = filterContentId(contentId);
         this.pollingInterval = pollingInterval;
-        this.summaryWriter = summaryWriter;
-
-        if (null != storeManager) {
-            initialize(storeManager, servicesManager);
-        }
-    }
-
-    private String filterContentId(String contentId) {
-        long nowLong = System.currentTimeMillis();
-        String now = DateUtil.convertToStringYearMonth(nowLong);
-        return contentId.replace(DATE_VAR, now);
+        this.summaryDirectory = summaryDirectory;
+        this.summarizer = summarizer;
     }
 
     @Override
-    public void initialize(ContentStoreManager storeManager,
-                           ServicesManager servicesManager) {
-        this.contentStore = getContentStore(storeManager);
-        this.servicesManager = servicesManager;
-    }
-
-    private ContentStore getContentStore(ContentStoreManager storeManager) {
-        try {
-            return storeManager.getPrimaryContentStore();
-
-        } catch (ContentStoreException e) {
-            String error = "Error getting contentStore from storeManager!";
-            log.error(error);
-            throw new DuraCloudRuntimeException(error, e);
-        }
+    public void initialize(ServiceSummaryDirectory summaryDirectory,
+                           ServiceSummarizer summarizer) {
+        this.summaryDirectory = summaryDirectory;
+        this.summarizer = summarizer;
     }
 
     @Override
@@ -110,26 +76,16 @@ public class ServiceMonitorImpl implements ServiceMonitor {
     }
 
     private boolean isInitialized() {
-        return null != servicesManager && null != contentStore;
+        return null != summarizer && null != summaryDirectory;
     }
 
     private void startServicePoller(int serviceId, int deploymentId) {
         new Thread(new ServicePoller(serviceId,
                                      deploymentId,
-                                     getSummaryWriter(),
-                                     servicesManager,
+                                     summaryDirectory,
+                                     summarizer,
                                      pollingInterval,
                                      continuePolling)).start();
-    }
-
-    private ServiceSummaryWriter getSummaryWriter() {
-        if (null == summaryWriter) {
-            summaryWriter = new ServiceSummaryWriterImpl(servicesManager,
-                                                         contentStore,
-                                                         spaceId,
-                                                         contentId);
-        }
-        return summaryWriter;
     }
 
     @Override

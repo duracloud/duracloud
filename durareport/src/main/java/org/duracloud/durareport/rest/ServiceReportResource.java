@@ -11,8 +11,7 @@ import org.duracloud.durareport.service.ServiceReportBuilder;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
-import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
-import org.duracloud.servicemonitor.impl.TempServiceSummaryDirectoryImpl;
+import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
 
 import java.io.InputStream;
 
@@ -22,17 +21,17 @@ import java.io.InputStream;
  */
 public class ServiceReportResource {
 
-    private ServicesManager servicesMgr = null;
-    private ServiceSummarizer serviceSummarizer;
-    private ServiceSummaryDirectory summaryDirectory;
     private ServiceReportBuilder reportBuilder;
 
-    public void initialize(ServicesManager servicesMgr) {
-        this.servicesMgr = servicesMgr;
-        this.serviceSummarizer = new ServiceSummarizerImpl(servicesMgr);
-        this.summaryDirectory = new TempServiceSummaryDirectoryImpl();
+    public void initialize(ServiceSummaryDirectory summaryDirectory,
+                           ServiceSummarizer summarizer,
+                           ServicesManager servicesMgr) {
+        // Note: ServicesManager can be removed from this method and the
+        //       ServiceReportBuilder class if ServiceSummarizer has the
+        //       following method added to its interface:
+        //   List<ServiceInfo> summarizer.getDeployedServices();
         this.reportBuilder = new ServiceReportBuilder(servicesMgr,
-                                                      serviceSummarizer,
+                                                      summarizer,
                                                       summaryDirectory);
     }
 
@@ -49,12 +48,13 @@ public class ServiceReportResource {
         return reportBuilder.getCompletedServicesReportIds();
     }
 
-    public InputStream getCompletedServicesReport(String reportId) {
+    public InputStream getCompletedServicesReport(String reportId)
+        throws ServiceSummaryNotFoundException {
         return reportBuilder.getCompletedServicesReport(reportId);
     }
 
     public void checkInitialized() {
-        if(null == servicesMgr) {
+        if(null == reportBuilder) {
             throw new RuntimeException("DuraReport must be initialized.");
         }
     }

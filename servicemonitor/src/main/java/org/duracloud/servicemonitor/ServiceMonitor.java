@@ -8,7 +8,6 @@
 package org.duracloud.servicemonitor;
 
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.aop.DeployMessage;
 
 /**
@@ -25,11 +24,11 @@ public interface ServiceMonitor {
     /**
      * This method initializes the ServiceMonitor.
      *
-     * @param storeManager    used within this class
-     * @param servicesManager used within this class
+     * @param summaryDirectory used within this class
+     * @param summarizer       used within this class
      */
-    public void initialize(ContentStoreManager storeManager,
-                           ServicesManager servicesManager);
+    public void initialize(ServiceSummaryDirectory summaryDirectory,
+                           ServiceSummarizer summarizer);
 
     /**
      * This method consumes messages on the deployment of any service.

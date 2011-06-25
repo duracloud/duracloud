@@ -12,6 +12,7 @@ import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
+import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -74,7 +75,8 @@ public class ServiceReportBuilderTest {
     }
 
     @Test
-    public void testCollectCompletedServices() {
+    public void testCollectCompletedServices()
+        throws ServiceSummaryNotFoundException {
         EasyMock.expect(summaryDirectory.getCurrentServiceSummaries())
             .andReturn(createServiceSummaryList(5))
             .times(1);

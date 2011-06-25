@@ -18,6 +18,7 @@
     <constructor-arg ref="storageResource"/>
     <constructor-arg ref="serviceResource"/>
     <constructor-arg ref="serviceMonitor"/>
+    <constructor-arg ref="summaryDirectory"/>
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg ref="restUtil"/>
   </bean>
@@ -33,11 +34,13 @@
 
   <bean id="serviceResource" class="org.duracloud.durareport.rest.ServiceReportResource" />
 
-  <bean id="serviceMonitor" class="org.duracloud.servicemonitor.impl.ServiceMonitorImpl"
-    destroy-method="dispose">
-    <constructor-arg value="x-service-out"/>
+  <bean id="summaryDirectory" class="org.duracloud.servicemonitor.impl.ServiceSummaryDirectoryImpl">
+    <constructor-arg value="x-duracloud-admin"/>
     <constructor-arg value="report/service-summaries-$DATE.xml"/>
   </bean>
+
+  <bean id="serviceMonitor" class="org.duracloud.servicemonitor.impl.ServiceMonitorImpl"
+    destroy-method="dispose"/>
 
   <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
 
