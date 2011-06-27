@@ -17,7 +17,6 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.servicemonitor.ServiceMonitor;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
@@ -40,20 +39,17 @@ public class InitRest extends BaseRest {
 
     StorageReportResource storageResource;
     ServiceReportResource serviceResource;
-    ServiceMonitor serviceMonitor;
     ServiceSummaryDirectory summaryDirectory;
     SecurityContextUtil securityContextUtil;
     private RestUtil restUtil;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
-                    ServiceMonitor serviceMonitor,
                     ServiceSummaryDirectory summaryDirectory,
                     SecurityContextUtil securityContextUtil,
                     RestUtil restUtil) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
-        this.serviceMonitor = serviceMonitor;
         this.summaryDirectory = summaryDirectory;
         this.securityContextUtil = securityContextUtil;
         this.restUtil = restUtil;
@@ -99,9 +95,7 @@ public class InitRest extends BaseRest {
                                     config.getDuraserviceContext());
         servicesMgr.login(credential);
         ServiceSummarizer summarizer = new ServiceSummarizerImpl(servicesMgr);
-        serviceResource.initialize(summaryDirectory, summarizer, servicesMgr);
-
-        serviceMonitor.initialize(summaryDirectory, summarizer);
+        serviceResource.initialize(summaryDirectory, summarizer);
     }
     
 }

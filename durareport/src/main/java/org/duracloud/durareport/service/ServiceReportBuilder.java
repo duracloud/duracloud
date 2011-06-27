@@ -11,13 +11,11 @@ import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.durareport.error.ReportBuilderException;
 import org.duracloud.durareport.storage.StorageReportScheduler;
-import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.serviceapi.error.ServicesException;
-import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummariesDocument;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
+import org.duracloud.servicemonitor.error.ServiceSummaryException;
 import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +42,11 @@ public class ServiceReportBuilder {
     private static final int DEFAULT_LIMIT = 20;
     private static final int MAX_LIMIT = 1000;
 
-    private ServicesManager servicesMgr;
     private ServiceSummarizer serviceSummarizer;
     private ServiceSummaryDirectory summaryDirectory;
 
-    public ServiceReportBuilder(ServicesManager servicesMgr,
-                                ServiceSummarizer serviceSummarizer,
+    public ServiceReportBuilder(ServiceSummarizer serviceSummarizer,
                                 ServiceSummaryDirectory summaryDirectory) {
-        this.servicesMgr = servicesMgr;
         this.serviceSummarizer = serviceSummarizer;
         this.summaryDirectory = summaryDirectory;
     }
@@ -63,21 +58,16 @@ public class ServiceReportBuilder {
      * @return stream of XML with a summary of each deployed service
      */
     public InputStream getDeployedServicesReport() {
-        List<ServiceSummary> summaries =  collectDeployedServices();
-        return convertSummariesToStream(summaries);
-    }
-
-    protected List<ServiceSummary> collectDeployedServices()
-        throws ReportBuilderException {
+        List<ServiceSummary> summaries = null;
         try {
-            List<ServiceInfo> deployedServices =
-                servicesMgr.getDeployedServices();
-            return serviceSummarizer.summarizeServices(deployedServices);
-        } catch(ServicesException e) {
+            summaries = serviceSummarizer.collectDeployedServices();
+
+        } catch (ServiceSummaryException e) {
             String error = "Unable to collect information about deployed " +
-                           "services due to: " + e.getMessage();
+                "services due to: " + e.getMessage();
             throw new ReportBuilderException(error, e);
         }
+        return convertSummariesToStream(summaries);
     }
 
     private InputStream convertSummariesToStream(List<ServiceSummary> services) {

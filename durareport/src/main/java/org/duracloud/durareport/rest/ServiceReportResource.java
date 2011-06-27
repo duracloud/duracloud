@@ -8,7 +8,7 @@
 package org.duracloud.durareport.rest;
 
 import org.duracloud.durareport.service.ServiceReportBuilder;
-import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.servicemonitor.ServiceMonitor;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
@@ -22,16 +22,18 @@ import java.io.InputStream;
 public class ServiceReportResource {
 
     private ServiceReportBuilder reportBuilder;
+    private ServiceMonitor serviceMonitor;
+
+    public ServiceReportResource(ServiceMonitor serviceMonitor) {
+        this.serviceMonitor = serviceMonitor;
+    }
 
     public void initialize(ServiceSummaryDirectory summaryDirectory,
-                           ServiceSummarizer summarizer,
-                           ServicesManager servicesMgr) {
-        // Note: ServicesManager can be removed from this method and the
-        //       ServiceReportBuilder class if ServiceSummarizer has the
-        //       following method added to its interface:
-        //   List<ServiceInfo> summarizer.getDeployedServices();
-        this.reportBuilder = new ServiceReportBuilder(servicesMgr,
-                                                      summarizer,
+                           ServiceSummarizer summarizer) {
+        this.serviceMonitor.initialize(summaryDirectory, summarizer);
+
+        // Note: ReportBuilder could be an injected Spring-bean initialized here.
+        this.reportBuilder = new ServiceReportBuilder(summarizer,
                                                       summaryDirectory);
     }
 

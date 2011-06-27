@@ -8,7 +8,6 @@
 package org.duracloud.durareport.service;
 
 import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
@@ -18,7 +17,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,9 +40,7 @@ public class ServiceReportBuilderTest {
         servicesMgr = EasyMock.createMock(ServicesManager.class);
         serviceSummarizer = EasyMock.createMock(ServiceSummarizer.class);
         summaryDirectory = EasyMock.createMock(ServiceSummaryDirectory.class);
-        builder = new ServiceReportBuilder(servicesMgr,
-                                           serviceSummarizer,
-                                           summaryDirectory);
+        builder = new ServiceReportBuilder(serviceSummarizer, summaryDirectory);
     }
 
     private void replayMocks() {
@@ -54,24 +50,6 @@ public class ServiceReportBuilderTest {
     @After
     public void teardown() {
         EasyMock.verify(servicesMgr, serviceSummarizer, summaryDirectory);
-    }
-
-    @Test
-    public void testCollectDeployedServices() throws Exception {
-        EasyMock.expect(servicesMgr.getDeployedServices())
-            .andReturn(null)
-            .times(1);
-        List<ServiceSummary> summaries = new ArrayList<ServiceSummary>();
-        EasyMock.expect(serviceSummarizer.summarizeServices(
-            EasyMock.<List<ServiceInfo>>isNull()))
-            .andReturn(summaries)
-            .times(1);
-
-        replayMocks();
-
-        List<ServiceSummary> runningSummaries =
-            builder.collectDeployedServices();
-        assertNotNull(runningSummaries);
     }
 
     @Test

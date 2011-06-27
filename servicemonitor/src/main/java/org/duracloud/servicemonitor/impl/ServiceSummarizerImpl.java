@@ -9,6 +9,7 @@ package org.duracloud.servicemonitor.impl;
 
 import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.ServiceSummary;
@@ -82,6 +83,23 @@ public class ServiceSummarizerImpl implements ServiceSummarizer {
             error += " because deployment does not exist";
             throw new ServiceSummaryException(error);
         }
+    }
+
+    @Override
+    public List<ServiceSummary> collectDeployedServices()
+        throws ServiceSummaryException {
+        List<ServiceInfo> deployedServices = null;
+        try {
+            deployedServices = servicesMgr.getDeployedServices();
+
+        } catch (ServicesException e) {
+            StringBuilder error = new StringBuilder();
+            error.append("Could not collect deployed services due to error: ");
+            error.append(e.getMessage());
+            log.error(error.toString());
+            throw new ServiceSummaryException(error.toString());
+        }
+        return summarizeServices(deployedServices);
     }
 
     private ServiceSummary summarizeServiceDeployment(ServiceInfo service,

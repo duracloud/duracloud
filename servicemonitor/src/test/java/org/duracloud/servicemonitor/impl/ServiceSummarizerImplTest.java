@@ -198,6 +198,20 @@ public class ServiceSummarizerImplTest {
         return modeSets;
     }
 
+      @Test
+    public void testCollectDeployedServices() throws Exception {
+          List<ServiceInfo> serviceInfos = new ArrayList<ServiceInfo>();
+        EasyMock.expect(servicesMgr.getDeployedServices())
+            .andReturn(serviceInfos)
+            .times(1);
+
+        replayMocks();
+
+        List<ServiceSummary> runningSummaries =
+            summarizer.collectDeployedServices();
+        assertNotNull(runningSummaries);
+    }
+
     @Test
     public void testGetServiceProps() throws Exception {
         setUpMocksGetServiceProps(serviceId, depId);

@@ -27,6 +27,9 @@ public interface ServiceSummarizer {
     public ServiceSummary summarizeService(int serviceId, int deploymentId)
         throws ServiceSummaryException;
 
+    public List<ServiceSummary> collectDeployedServices()
+        throws ServiceSummaryException;
+
     public Map<String, String> getServiceProps(int serviceId, int deploymentId);
 
 }
