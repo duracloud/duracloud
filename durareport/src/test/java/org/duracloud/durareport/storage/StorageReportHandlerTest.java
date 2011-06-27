@@ -16,6 +16,8 @@ import org.duracloud.reportdata.storage.metrics.StorageMetrics;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.easymock.Capture;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -34,25 +36,40 @@ import static org.junit.Assert.assertTrue;
  */
 public class StorageReportHandlerTest {
 
-    private static String spaceId = StorageReportHandler.storageSpace;
     private static String compMeta = StorageReportHandler.COMPLETION_TIME_META;
     private static String elapMeta = StorageReportHandler.ELAPSED_TIME_META;
-    
+
+    private String spaceId = "report-storage-space";
     private String reportContentId = "storage-report-2011-05-17T16:01:58.xml";
     private String reportContentIdRegex =
         "storage-report-2011-05-1[7-8]T[0-9][0-9]:[0,3]1:58.xml";
     private long completionTime = 1305662518734L;
     private long elapsedTime = 10;
 
+    private ContentStore mockStore;
+    private ContentStoreManager mockStoreMgr;
+
+    @Before
+    public void setup() {
+        mockStore = EasyMock.createMock(ContentStore.class);
+        mockStoreMgr = EasyMock.createMock(ContentStoreManager.class);
+    }
+
+    private void replayMocks() {
+        EasyMock.replay(mockStore, mockStoreMgr);
+    }
+
+    @After
+    public void teardown() {
+        EasyMock.verify(mockStore, mockStoreMgr);
+    }
+
     @Test
     public void testStoreReport() throws Exception {
         Capture<Map<String, String>> metadataCapture =
             new Capture<Map<String, String>>();
 
-        ContentStore mockStore = createMockStoreStoreReport();
-        ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
-
-        StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
+        StorageReportHandler handler = setUpMocksStoreReport();
 
         DuraStoreMetricsCollector metrics = new DuraStoreMetricsCollector();
 
@@ -60,13 +77,9 @@ public class StorageReportHandlerTest {
             handler.storeReport(metrics, completionTime, elapsedTime);
         assertNotNull(contentId);
         assertTrue(contentId, contentId.matches(reportContentIdRegex));
-
-        EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStoreStoreReport() throws Exception {
-        ContentStore mockStore = EasyMock.createMock(ContentStore.class);
-
+    private StorageReportHandler setUpMocksStoreReport() throws Exception {
         EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
@@ -82,21 +95,17 @@ public class StorageReportHandlerTest {
             .andReturn(null)
             .times(1);
 
-        EasyMock.replay(mockStore);
-        return mockStore;
+        return setUpMockStoreMgr();
     }
 
-    private ContentStoreManager createMockStoreMgr(ContentStore mockStore)
+    private StorageReportHandler setUpMockStoreMgr()
         throws Exception {
-        ContentStoreManager mockStoreMgr =
-            EasyMock.createMock(ContentStoreManager.class);
-
         EasyMock.expect(mockStoreMgr.getPrimaryContentStore())
             .andReturn(mockStore)
             .times(1);
 
-        EasyMock.replay(mockStoreMgr);
-        return mockStoreMgr;
+        replayMocks();
+        return new StorageReportHandler(mockStoreMgr, spaceId);
     }
 
     @Test
@@ -112,10 +121,7 @@ public class StorageReportHandlerTest {
     private void testGetStorageReport(boolean stream) throws Exception {
         String reportId = "reportId";
 
-        ContentStore mockStore = createMockStoreGetStorageReport(reportId);
-        ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
-
-        StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
+        StorageReportHandler handler = setUpMocksGetStorageReport(reportId);
 
         StorageReport report = null;
         if(stream) {
@@ -132,14 +138,10 @@ public class StorageReportHandlerTest {
         assertEquals(completionTime, report.getCompletionTime());
         assertEquals(elapsedTime, report.getElapsedTime());
         assertNotNull(report.getStorageMetrics());
-
-        EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStoreGetStorageReport(String reportId)
+    private StorageReportHandler setUpMocksGetStorageReport(String reportId)
         throws Exception {
-        ContentStore mockStore = EasyMock.createMock(ContentStore.class);
-
         EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
@@ -149,8 +151,7 @@ public class StorageReportHandlerTest {
             .andReturn(getContent(reportId))
             .times(1);
 
-        EasyMock.replay(mockStore);
-        return mockStore;
+        return setUpMockStoreMgr();
     }
 
     private Content getContent(String reportId) throws Exception {
@@ -173,10 +174,7 @@ public class StorageReportHandlerTest {
     }
 
     public void testGetLatestStorageReport(boolean stream) throws Exception {
-        ContentStore mockStore = createMockStoreGetLatestStorageReport();
-        ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
-
-        StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
+        StorageReportHandler handler = setUpMocksGetLatestStorageReport();
 
         StorageReport report = null;
         if(stream) {
@@ -197,10 +195,8 @@ public class StorageReportHandlerTest {
         EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStoreGetLatestStorageReport()
+    private StorageReportHandler setUpMocksGetLatestStorageReport()
         throws Exception {
-        ContentStore mockStore = EasyMock.createMock(ContentStore.class);
-
         EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
@@ -218,16 +214,12 @@ public class StorageReportHandlerTest {
             .andReturn(getContent(reportContentId))
             .times(1);
 
-        EasyMock.replay(mockStore);
-        return mockStore;
+        return setUpMockStoreMgr();
     }
 
     @Test
     public void testGetStorageReportList() throws Exception {
-        ContentStore mockStore = createMockStoreGetStorageReportList();
-        ContentStoreManager mockStoreMgr = createMockStoreMgr(mockStore);
-
-        StorageReportHandler handler = new StorageReportHandler(mockStoreMgr);
+        StorageReportHandler handler = setUpMocksGetStorageReportList();
 
         List<String> reportList = handler.getStorageReportList();
         assertNotNull(reportList);
@@ -239,10 +231,8 @@ public class StorageReportHandlerTest {
         EasyMock.verify(mockStore, mockStoreMgr);
     }
 
-    private ContentStore createMockStoreGetStorageReportList()
+    private StorageReportHandler setUpMocksGetStorageReportList()
         throws Exception {
-        ContentStore mockStore = EasyMock.createMock(ContentStore.class);
-
         EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
@@ -256,8 +246,7 @@ public class StorageReportHandlerTest {
             .andReturn(reports.iterator())
             .times(1);
 
-        EasyMock.replay(mockStore);
-        return mockStore;
+        return setUpMockStoreMgr();
     }
 
 }

@@ -58,7 +58,7 @@ public class StorageReportSchedulerTest {
 
         String returnVal = scheduler.startStorageReport();
         assertNotNull(returnVal);
-        assertEquals("Report Started", returnVal);
+        assertEquals("Storage Report Started", returnVal);
     }
 
     @Test

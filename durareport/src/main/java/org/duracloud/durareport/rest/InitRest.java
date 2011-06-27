@@ -37,22 +37,25 @@ public class InitRest extends BaseRest {
 
     private final Logger log = LoggerFactory.getLogger(InitRest.class);
 
-    StorageReportResource storageResource;
-    ServiceReportResource serviceResource;
-    ServiceSummaryDirectory summaryDirectory;
-    SecurityContextUtil securityContextUtil;
+    private StorageReportResource storageResource;
+    private ServiceReportResource serviceResource;
+    private ServiceSummaryDirectory summaryDirectory;
+    private SecurityContextUtil securityContextUtil;
     private RestUtil restUtil;
+    private String reportSpaceId;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
                     ServiceSummaryDirectory summaryDirectory,
                     SecurityContextUtil securityContextUtil,
-                    RestUtil restUtil) {
+                    RestUtil restUtil,
+                    String reportSpaceId) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
         this.summaryDirectory = summaryDirectory;
         this.securityContextUtil = securityContextUtil;
         this.restUtil = restUtil;
+        this.reportSpaceId = reportSpaceId;
     }
 
     /**
@@ -86,7 +89,7 @@ public class InitRest extends BaseRest {
                                         config.getDurastorePort(),
                                         config.getDurastoreContext());
         storeMgr.login(credential);
-        storageResource.initialize(storeMgr);
+        storageResource.initialize(storeMgr, reportSpaceId);
         summaryDirectory.initialize(storeMgr);
 
         ServicesManager servicesMgr =

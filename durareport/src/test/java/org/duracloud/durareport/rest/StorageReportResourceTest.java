@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -66,6 +67,20 @@ public class StorageReportResourceTest {
                         mockReportHandler,
                         mockReportBuilder,
                         mockReportScheduler);
+    }
+
+    @Test
+    public void testDefaultSchedule() {
+        StorageReportResource srResource = getResource();
+        Date nextReportDate = srResource.getDefaultScheduleStartDate();
+        assertNotNull(nextReportDate);
+        Date now = new Date();
+        assertTrue("Next report date should be after the current date",
+                   nextReportDate.after(now));
+        assertTrue("The next scheduled date should be within a week",
+                   (nextReportDate.getTime() - now.getTime()) <= 604800000);
+
+        replayMocks();
     }
 
     @Test

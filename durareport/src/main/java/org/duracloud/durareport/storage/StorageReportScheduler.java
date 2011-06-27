@@ -84,7 +84,7 @@ public class StorageReportScheduler {
     public String startStorageReport() {
         if(!builderRunning()) {
             timer.schedule(new ReportTask(), 0);
-            return "Report Started";
+            return "Storage Report Started";
         } else {
             long count = reportBuilder.getCurrentCount();
             return "Report Already In Progress, " + count + " items counted";

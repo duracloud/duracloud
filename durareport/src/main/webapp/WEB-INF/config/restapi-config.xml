@@ -20,6 +20,7 @@
     <constructor-arg ref="summaryDirectory"/>
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg ref="restUtil"/>
+    <constructor-arg ref="report-space"/>
   </bean>
 
   <bean id="securityRest" class="org.duracloud.durareport.rest.SecurityRest">

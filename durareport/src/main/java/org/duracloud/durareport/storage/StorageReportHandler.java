@@ -46,13 +46,14 @@ public class StorageReportHandler {
     private static final String FILE_NAME_SUFFIX = ".xml";
     public static final String COMPLETION_TIME_META = "completion-time";
     public static final String ELAPSED_TIME_META = "elapsed-time";
-
-    protected static final String storageSpace = "x-duracloud-admin";
     public static final int maxRetries = 8;
 
+    protected String storageSpace;
     private ContentStore primaryStore = null;
 
-    public StorageReportHandler(ContentStoreManager storeMgr) {
+    public StorageReportHandler(ContentStoreManager storeMgr,
+                                String storageSpace) {
+        this.storageSpace = storageSpace;
         try {
             this.primaryStore = storeMgr.getPrimaryContentStore();
             try {

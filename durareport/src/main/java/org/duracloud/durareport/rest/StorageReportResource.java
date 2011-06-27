@@ -37,27 +37,33 @@ public class StorageReportResource {
     private StorageReportScheduler reportScheduler;
     private static final long ONE_WEEK_MILLIS = 604800000L;
 
-    public void initialize(ContentStoreManager storeMgr) {
+    public void initialize(ContentStoreManager storeMgr, String reportSpaceId) {
         this.storeMgr = storeMgr;
-        this.reportHandler = new StorageReportHandler(storeMgr);
+        this.reportHandler = new StorageReportHandler(storeMgr, reportSpaceId);
         this.reportBuilder = new StorageReportBuilder(storeMgr, reportHandler);
         this.reportScheduler = new StorageReportScheduler(reportBuilder);
 
         // adds default report schedule: weekly at 1 AM on Saturday
-        // FIXME: The 'start date' appears to not get set as expected.
-//        scheduleStorageReport(getDefaultScheduleStartDate().getTime(),
-//                              ONE_WEEK_MILLIS);
+        scheduleStorageReport(getDefaultScheduleStartDate().getTime(),
+                              ONE_WEEK_MILLIS);
         // start a report now
         startStorageReport();
     }
 
-    private Date getDefaultScheduleStartDate() {
+    protected Date getDefaultScheduleStartDate() {
         Calendar date = Calendar.getInstance();
         date.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
         date.set(Calendar.HOUR, 1);
+        date.set(Calendar.AM_PM, Calendar.AM);
         date.set(Calendar.MINUTE, 0);
         date.set(Calendar.SECOND, 0);
         date.set(Calendar.MILLISECOND, 0);
+
+        Calendar now = Calendar.getInstance();
+        while(date.before(now)) {
+            date.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+
         return date.getTime();
     }
 
