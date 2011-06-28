@@ -104,12 +104,24 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
     private void setUp() {
         String outSpaceId = getServiceOptions().getOutputSpaceId();
-        if (null != outSpaceId) {
-            try {
-                getContentStore().createSpace(outSpaceId, null);
-            } catch (ContentStoreException e) {
-                log.debug("Ensuring output space exists: " + e.getMessage());
-            }
+        if (null == outSpaceId) {
+            return;
+        }
+
+        try {
+            getContentStore().getSpaceMetadata(outSpaceId);
+            return;
+
+        } catch (ContentStoreException e) {
+            log.info("Output space does not already exist: {}", outSpaceId);
+        }
+
+        try {
+            log.debug("Creating output space: {}", outSpaceId);
+            getContentStore().createSpace(outSpaceId, null);
+            
+        } catch (ContentStoreException e) {
+            log.warn("Error in creating output space: {}", outSpaceId);
         }
     }
 
