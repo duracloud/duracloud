@@ -58,7 +58,7 @@ public class DateUtilTest {
 
         long roundedTime = 1305662518000L;
         Date dateToCheck =
-            DateUtil.convertToDate(DateUtil.convertToStringLong(roundedTime));
+            DateUtil.convertToDate(DateUtil.convertToString(roundedTime));
         assertEquals(roundedTime, dateToCheck.getTime());
     }
 }

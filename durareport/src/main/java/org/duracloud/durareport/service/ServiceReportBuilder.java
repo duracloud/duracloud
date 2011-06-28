@@ -135,10 +135,14 @@ public class ServiceReportBuilder {
         return completedSums;
     }
 
-    private void addSummaries(List<ServiceSummary> sourceList,
-                              List<ServiceSummary> compilationList,
-                              int limit) {
-        // TODO: Order source list based on completion date
+    protected void addSummaries(List<ServiceSummary> sourceList,
+                                List<ServiceSummary> compilationList,
+                                int limit) {
+        // Order source list so that the most recently updated services
+        // appear first in the list
+        Collections.sort(sourceList);
+        Collections.reverse(sourceList);
+
         Iterator<ServiceSummary> summaryIterator = sourceList.iterator();
         while(summaryIterator.hasNext() && compilationList.size() < limit) {
             compilationList.add(summaryIterator.next());

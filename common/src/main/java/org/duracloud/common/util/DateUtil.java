@@ -37,7 +37,7 @@ public class DateUtil {
     }
 
     public static Date convertToDate(String text) throws ParseException {
-        return convertToDate(text, DateFormat.LONG_FORMAT);
+        return convertToDate(text, DateFormat.DEFAULT_FORMAT);
     }
 
     public static String now() {

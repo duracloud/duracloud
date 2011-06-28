@@ -30,12 +30,11 @@
       <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
     </dependency>
 
-    <!--test-->
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>

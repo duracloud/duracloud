@@ -12,13 +12,16 @@ import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
+import org.duracloud.services.ComputeService;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -90,6 +93,42 @@ public class ServiceReportBuilderTest {
             summaries.add(summary);
         }
         return summaries;
+    }
+
+    @Test
+    public void testAddSummaries() {
+        List<ServiceSummary> sourceList = new LinkedList<ServiceSummary>();
+        String date1 = "2011-01-01T10:00:00";
+        String date2 = "2011-03-03T10:00:00";
+        String date3 = "2011-05-05T10:00:00";
+
+        // Add to list, intentionally out of date order
+        sourceList.add(createServiceSummary(date3));
+        sourceList.add(createServiceSummary(date1));
+        sourceList.add(createServiceSummary(date2));
+
+        List<ServiceSummary> compilationList = new LinkedList<ServiceSummary>();
+
+        builder.addSummaries(sourceList, compilationList, 10);
+
+        assertNotNull(compilationList);
+        assertEquals(3, compilationList.size());
+        assertEquals(date3, compilationList.get(0).getProperties()
+                                .get(ComputeService.STOPTIME_KEY));
+        assertEquals(date2, compilationList.get(1).getProperties()
+                                .get(ComputeService.STOPTIME_KEY));
+        assertEquals(date1, compilationList.get(2).getProperties()
+                                .get(ComputeService.STOPTIME_KEY));
+
+        replayMocks();
+    }
+
+    private ServiceSummary createServiceSummary(String stopDate) {
+        ServiceSummary summary = new ServiceSummary();
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(ComputeService.STOPTIME_KEY, stopDate);
+        summary.setProperties(props);
+        return summary;
     }
 
 }

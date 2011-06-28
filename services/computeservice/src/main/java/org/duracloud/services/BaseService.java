@@ -7,8 +7,8 @@
  */
 package org.duracloud.services;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import org.duracloud.common.util.DateUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,8 +49,7 @@ public abstract class BaseService implements ComputeService {
     }
 
     private String getCurrentTime() {
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        return format.format(System.currentTimeMillis());
+        return DateUtil.now();
     }
 
     public Map<String, String> getServiceProps() {

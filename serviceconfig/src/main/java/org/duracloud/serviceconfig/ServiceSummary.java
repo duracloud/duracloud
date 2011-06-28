@@ -7,15 +7,21 @@
  */
 package org.duracloud.serviceconfig;
 
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.services.ComputeService;
+
+import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 
 /**
  * This bean contains the complete details of a service.
+ * Note: this class has a natural ordering that is inconsistent with equals.
  *
  * @author Andrew Woods
  *         Date: 6/22/11
  */
-public class ServiceSummary {
+public class ServiceSummary implements Comparable<ServiceSummary> {
 
     /** Unique identifier for this service */
     private int id;
@@ -83,4 +89,81 @@ public class ServiceSummary {
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
+
+    /**
+     * Compares this ServiceSummary against another using the stop time or
+     * start time properties to determine which service has had the most
+     * recent state update.
+     *
+     * Returns 1 if this object has changed state (stopped/started)
+     *           more recently than the given object
+     * Returns 0 if the two change state at the same time or there is not
+     *           enough information to determine a difference
+     * Returns -1 if the given object has changed state (stopped/started)
+     *            more recently than this object
+     *
+     * @param ss summary to compare with this one
+     * @return -1, 0, or 1
+     */
+    @Override
+    public int compareTo(ServiceSummary ss) {
+        Date compareTime = null;
+        Date ssCompareTime = null;
+
+        // Determine the best date to use for this summary
+        Map<String, String> props = getProperties();
+        if(null != props) {
+            compareTime = toDate(props.get(ComputeService.STOPTIME_KEY));
+            if(null == compareTime) {
+                compareTime = toDate(props.get(ComputeService.STARTTIME_KEY));
+            }
+        }
+
+        // Determine the best date to use for the provided summary
+        if(null != ss) {
+            Map<String, String> ssProps = ss.getProperties();
+            if(null != ssProps) {
+                ssCompareTime =
+                    toDate(ssProps.get(ComputeService.STOPTIME_KEY));
+                if(null == ssCompareTime) {
+                    ssCompareTime =
+                        toDate(ssProps.get(ComputeService.STARTTIME_KEY));
+                }
+            }
+        }
+
+        // Handle one or the other having no comparable date
+        if(null == compareTime && null == ssCompareTime) {
+            return 0;
+        } else if(null != compareTime && null == ssCompareTime) {
+            return -1;
+        } else if(null == compareTime && null != ssCompareTime) {
+            return 1;
+        } else { // Both dates are non-null
+            if(compareTime.equals(ssCompareTime)) {
+                return 0;
+            } else if(compareTime.before(ssCompareTime)) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+    }
+
+    /*
+     * Returns the Date encoded in this String, or null if the input is null
+     * or otherwise cannot be converted.
+     */
+    private Date toDate(String input) {
+        Date date = null;
+        if(null != input) {
+            try {
+                date = DateUtil.convertToDate(input);
+            } catch(ParseException e) {
+                date = null;
+            }
+        }
+        return date;
+    }
+
 }

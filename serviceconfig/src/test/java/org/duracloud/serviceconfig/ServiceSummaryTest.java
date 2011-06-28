@@ -7,6 +7,7 @@
  */
 package org.duracloud.serviceconfig;
 
+import org.duracloud.services.ComputeService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,6 +15,8 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrew Woods
@@ -56,4 +59,44 @@ public class ServiceSummaryTest {
         Assert.assertEquals(configs, summary.getConfigs());
         Assert.assertEquals(properties, summary.getProperties());
     }
+
+    @Test
+    public void testCompare() {
+        String startTime1 = "2011-01-01T10:00:00";
+        String startTime2 = "2011-02-02T10:00:00";
+        String stopTime1 = "2011-03-03T11:00:00";
+        String stopTime2 = "2011-04-04T11:00:00";
+
+        Map<String, String> properties2 = new HashMap<String, String>();
+
+        // Both summaries empty
+        ServiceSummary summary2 = null;
+        assertEquals(0, summary.compareTo(summary2));
+
+        // summary with start time, summary2 empty
+        properties.put(ComputeService.STARTTIME_KEY, startTime1);
+        summary.setProperties(properties);
+        assertEquals(-1, summary.compareTo(summary2));
+
+        // summary empty, summary2 with start time
+        summary.setProperties(null);
+        summary2 = new ServiceSummary();
+        summary2.setProperties(properties);
+        assertEquals(1, summary.compareTo(summary2));
+
+        // both with start time
+        summary.setProperties(properties);
+        properties2.put(ComputeService.STARTTIME_KEY, startTime2);
+        summary2.setProperties(properties2);
+        assertEquals(-1, summary.compareTo(summary2));
+
+        // summary with stop time
+        properties.put(ComputeService.STOPTIME_KEY, stopTime1);
+        assertEquals(1, summary.compareTo(summary2));
+
+        // summary2 with stop time
+        properties2.put(ComputeService.STOPTIME_KEY, stopTime2);
+        assertEquals(-1, summary.compareTo(summary2));
+    }
+
 }
