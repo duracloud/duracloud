@@ -58,6 +58,7 @@ public class ConversionResultProcessorTest {
         processor = new ConversionResultProcessor(contentStore,
                                                   statusListener,
                                                   null,
+                                                  null,
                                                   null);
 
         // this test passes if mock verification succeeds

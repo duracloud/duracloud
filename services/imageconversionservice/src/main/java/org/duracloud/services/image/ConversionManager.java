@@ -66,6 +66,7 @@ public class ConversionManager {
                              String sourceSpaceId,
                              String destSpaceId,
                              String outputSpaceId,
+                             String resultsId,
                              String namePrefix,
                              String nameSuffix,
                              int threads) {
@@ -86,6 +87,7 @@ public class ConversionManager {
         resultProcessor = new ConversionResultProcessor(contentStore,
                                                         statusListener,
                                                         outputSpaceId,
+                                                        resultsId,
                                                         workDir);
 
         workerPool =

@@ -20,6 +20,7 @@ public abstract class BaseService implements ComputeService {
 
     private String serviceId;
     private String serviceWorkDir;
+    private String reportId;
     private String startTime;
     private String endTime;
     private String error;
@@ -27,6 +28,7 @@ public abstract class BaseService implements ComputeService {
     private ServiceStatus serviceStatus = ServiceStatus.INSTALLED;
 
     public void start() throws Exception {
+        this.reportId = null;
         this.startTime = getCurrentTime();
         this.endTime = null;
         this.error = null;
@@ -66,6 +68,10 @@ public abstract class BaseService implements ComputeService {
 
         if (error != null) {
             props.put(ComputeService.ERROR_KEY, error);
+        }
+
+        if (reportId != null && serviceStatus.isComplete()) {
+            props.put(ComputeService.REPORT_KEY, reportId);
         }
         
         return props;
@@ -112,5 +118,9 @@ public abstract class BaseService implements ComputeService {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public void setReportId(String spaceId, String reportId) {
+        this.reportId = spaceId + "/" + reportId;
     }
 }

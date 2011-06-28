@@ -175,6 +175,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         }
 
         cleanup(serviceOptions, doneHashing, doneComparing);
+        setReportId(serviceOptions);
 
         doneWorking();
     }
@@ -300,6 +301,17 @@ public class FixityService extends BaseService implements ComputeService, Manage
             setError(sb.toString());
             throw new ServiceException(sb.toString(), e);
         }
+    }
+
+     private void setReportId(FixityServiceOptions serviceOptions) {
+        String spaceId = serviceOptions.getOutputSpaceId();
+        String reportId = serviceOptions.getReportContentId();
+
+        // are we only creating hashes? with no actual report?
+        if (serviceOptions.needsToHash() && !serviceOptions.needsToCompare()) {
+            reportId = serviceOptions.getOutputContentId();
+        }
+        super.setReportId(spaceId, reportId);
     }
 
     @Override

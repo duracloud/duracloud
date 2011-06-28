@@ -92,14 +92,13 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     public void start() throws Exception {
         log.info("Starting " + getServiceId() + " as " + username);
         this.setServiceStatus(ServiceStatus.STARTING);
+        super.start();
 
         AmazonMapReduceJobWorker jobWorker = getJobWorker();
         AmazonMapReduceJobWorker postJobWorker = getPostJobWorker();
 
         startWorker(jobWorker);
         startWorker(postJobWorker);
-
-        super.start();
 
         // Signal doneWorking() when service is complete.
         AmazonMapReduceJobWorker worker =

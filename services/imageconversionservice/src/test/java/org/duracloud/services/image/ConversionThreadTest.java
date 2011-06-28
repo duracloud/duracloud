@@ -35,6 +35,7 @@ public class ConversionThreadTest {
     private String sourceSpaceId = "source-space-id";
     private String destSpaceId = "dest-space-id";
     private String outputSpaceId = "output-space-id";
+    private String resultsId = "report-id";
     private String namePrefix = "name-prefix";
     private String nameSuffix = "name-suffix";
     private int threads = 3;
@@ -57,6 +58,7 @@ public class ConversionThreadTest {
                                       sourceSpaceId,
                                       destSpaceId,
                                       outputSpaceId,
+                                      resultsId, 
                                       namePrefix,
                                       nameSuffix,
                                       threads);

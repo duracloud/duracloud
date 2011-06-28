@@ -10,6 +10,7 @@ package org.duracloud.services.image;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.duracloud.common.model.Credential;
@@ -64,6 +65,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
         log.info("Starting Image Conversion Service as " + username +
                            ", with " + threads + " worker threads");
         this.setServiceStatus(ServiceStatus.STARTING);
+        super.start();
         
         ContentStoreManager storeManager =
             new ContentStoreManagerImpl(duraStoreHost,
@@ -73,6 +75,9 @@ public class ImageConversionService extends BaseService implements ComputeServic
         ContentStore contentStore = storeManager.getPrimaryContentStore();
 
         File workDir = new File(getServiceWorkDir());
+        String resultsId = "image-transformer/image-transformer-results-" +
+            DateUtil.nowMid() + ".csv";
+        super.setReportId(outputSpaceId, resultsId);
         conversionThread = new ConversionThread(contentStore,
                                                 this,
                                                 workDir,
@@ -81,12 +86,12 @@ public class ImageConversionService extends BaseService implements ComputeServic
                                                 sourceSpaceId,
                                                 destSpaceId,
                                                 outputSpaceId,
+                                                resultsId,
                                                 namePrefix,
                                                 nameSuffix,
                                                 threads);
         conversionThread.start();
 
-        super.start();
         this.setServiceStatus(ServiceStatus.PROCESSING);
     }
 

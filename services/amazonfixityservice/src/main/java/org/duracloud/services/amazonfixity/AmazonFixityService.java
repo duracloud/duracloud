@@ -129,6 +129,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             }
 
             String reportContentId = PREFIX + "report-" + date + ".csv";
+            super.setReportId(getDestSpaceId(), reportContentId);
             VerifyHashesPostJobWorker verifyWorker = new VerifyHashesPostJobWorker(
                 previousWorker,
                 getContentStore(),

@@ -30,6 +30,7 @@ public class ConversionThread extends Thread {
                             String sourceSpaceId,
                             String destSpaceId,
                             String outputSpaceId,
+                            String resultsId,
                             String namePrefix,
                             String nameSuffix,
                             int threads) {
@@ -41,6 +42,7 @@ public class ConversionThread extends Thread {
                                                   sourceSpaceId,
                                                   destSpaceId,
                                                   outputSpaceId,
+                                                  resultsId,
                                                   namePrefix,
                                                   nameSuffix,
                                                   threads);

@@ -68,6 +68,7 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
             String postName = ".csv";
 
             String newContentId = preName + date + postName;
+            super.setReportId(getDestSpaceId(), newContentId);
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
                 getJobWorker(),
                 getContentStore(),

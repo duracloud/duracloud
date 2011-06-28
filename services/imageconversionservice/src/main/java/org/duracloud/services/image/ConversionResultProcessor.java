@@ -46,16 +46,16 @@ public class ConversionResultProcessor implements ConversionResultListener {
     public ConversionResultProcessor(ContentStore contentStore,
                                      StatusListener statusListener,
                                      String destSpaceId,
+                                     String resultsId,
                                      File workDir) {
         this.contentStore = contentStore;
         this.statusListener = statusListener;
         this.destSpaceId = destSpaceId;
+        this.resultsId = resultsId;
         successfulConversions = 0;
         unsuccessfulConversions = 0;
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        resultsId = "image-transformer/image-transformer-results-" +
-            DateUtil.nowMid() + ".csv";
 
         String resultsHeader =
             "conversion-date, source-space-id, content-id, dest-space-id, " +
