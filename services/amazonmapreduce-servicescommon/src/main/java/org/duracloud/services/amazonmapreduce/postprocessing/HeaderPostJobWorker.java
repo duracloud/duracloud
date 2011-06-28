@@ -8,7 +8,9 @@
 package org.duracloud.services.amazonmapreduce.postprocessing;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
 import org.duracloud.services.amazonmapreduce.util.ContentStoreUtil;
@@ -16,6 +18,7 @@ import org.duracloud.services.amazonmapreduce.util.ContentStreamUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -99,7 +102,14 @@ public class HeaderPostJobWorker extends BaseAmazonMapReducePostJobWorker {
     }
 
     private InputStream getContentStream() {
-        return storeUtil.getContentStream(spaceId, contentId);
+        try {
+            return storeUtil.getContentStream(spaceId, contentId);
+
+        } catch (DuraCloudRuntimeException e) {
+            String msg = e.getMessage();
+            InputStream stream = new ByteArrayInputStream(msg.getBytes());
+            return new AutoCloseInputStream(stream);
+        }
     }
 
     private void writeToOutputStream(String text, OutputStream outputStream) {
