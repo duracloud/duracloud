@@ -96,32 +96,34 @@ public class MediaStreamingService extends BaseService implements ComputeService
 
     @Override
     public Map<String, String> getServiceProps() {
-        Map<String, String> props = super.getServiceProps();
-
-        boolean complete = false;
+        // Set data from worker
+        String streamHost = null;
+        String enableStreamingResult = null;
         if(worker != null) {
-            String streamHost = worker.getStreamHost();
-            String enableStreamingResult = worker.getEnableStreamingResult();
+            if(worker.isComplete()) {
+                setServiceStatus(ServiceStatus.STARTED);
+                streamHost = worker.getStreamHost();
+                enableStreamingResult = worker.getEnableStreamingResult();
+            }
+
             String error = worker.getError();
-            complete = worker.isComplete();
-
-            if(streamHost != null) {
-                props.put("Streaming Host", streamHost);
-                props.put("RTMP Streaming URL", "rtmp://"+streamHost+"/cfx/st");
-            }
-
-            if(enableStreamingResult != null) {
-                props.put("Results of Enabling Streaming",
-                          enableStreamingResult);
-            }
-
             if(error != null) {
                 setError(error);
             }
         }
 
-        if(complete) {
-            setServiceStatus(ServiceStatus.STARTED);
+        // Get the base properties set
+        Map<String, String> props = super.getServiceProps();
+
+        // Add additional properties
+        if(streamHost != null) {
+            props.put("Streaming Host", streamHost);
+            props.put("RTMP Streaming URL", "rtmp://"+streamHost+"/cfx/st");
+        }
+
+        if(enableStreamingResult != null) {
+            props.put("Results of Enabling Streaming",
+                      enableStreamingResult);
         }
 
         return props;
