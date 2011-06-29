@@ -7,8 +7,8 @@
  */
 package org.duracloud.servicemonitor;
 
-import org.duracloud.client.ContentStoreManager;
 import org.duracloud.serviceapi.aop.DeployMessage;
+import org.duracloud.serviceapi.aop.ServiceMessage;
 
 /**
  * This interface consumes JMS messages on service deployment and begins
@@ -36,6 +36,13 @@ public interface ServiceMonitor {
      * @param message detailing service that has been deployed
      */
     public void onDeploy(DeployMessage message);
+
+    /**
+     * This method consumes messages on the un-deployment of any service.
+     *
+     * @param message detailing service that has been un-deployed
+     */
+    public void onUndeploy(ServiceMessage message);
 
     /**
      * This method performs clean-up of threads managed by this class.

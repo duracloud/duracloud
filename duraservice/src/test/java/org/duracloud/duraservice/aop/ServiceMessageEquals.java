@@ -24,22 +24,14 @@ public class ServiceMessageEquals implements IArgumentMatcher {
         }
         ServiceMessage message = (ServiceMessage) actual;
 
-        boolean matches = true;
-
-        if(serviceMessage.getServiceId() != null)
-            matches = serviceMessage.getServiceId().equals(message.getServiceId());
-        else if(message.getServiceId() != null)
+        if (serviceMessage.getServiceId() != message.getServiceId()) {
             return false;
+        }
 
-        if(!matches)
+        if (serviceMessage.getDeploymentId() != message.getDeploymentId()) {
             return false;
-
-        if(serviceMessage.getDeploymentId() != null)
-            matches = serviceMessage.getDeploymentId().equals(message.getDeploymentId());
-        else if(message.getDeploymentId() != null)
-            return false;
-
-        return matches;
+        }
+        return true;
     }
 
     public void appendTo(StringBuffer buffer) {

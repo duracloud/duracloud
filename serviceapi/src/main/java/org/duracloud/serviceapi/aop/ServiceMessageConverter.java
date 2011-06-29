@@ -40,8 +40,8 @@ public class ServiceMessageConverter
 
         MapMessage mapMsg = (MapMessage)msg;
         ServiceMessage serviceMsg = new ServiceMessage();
-        serviceMsg.setServiceId(mapMsg.getStringProperty(SERVICE_ID));
-        serviceMsg.setDeploymentId(mapMsg.getString(DEPLOYMENT_ID));
+        serviceMsg.setServiceId(mapMsg.getIntProperty(SERVICE_ID));
+        serviceMsg.setDeploymentId(mapMsg.getInt(DEPLOYMENT_ID));
         return serviceMsg;
     }
 
@@ -55,8 +55,8 @@ public class ServiceMessageConverter
         ServiceMessage serviceMsg = (ServiceMessage) obj;
 
         MapMessage msg = session.createMapMessage();
-        msg.setStringProperty(SERVICE_ID, serviceMsg.getServiceId());
-        msg.setString(DEPLOYMENT_ID, serviceMsg.getDeploymentId());
+        msg.setIntProperty(SERVICE_ID, serviceMsg.getServiceId());
+        msg.setInt(DEPLOYMENT_ID, serviceMsg.getDeploymentId());
         return msg;
     }
 

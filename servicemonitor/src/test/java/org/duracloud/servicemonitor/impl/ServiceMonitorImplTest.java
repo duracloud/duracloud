@@ -8,6 +8,7 @@
 package org.duracloud.servicemonitor.impl;
 
 import org.duracloud.serviceapi.aop.DeployMessage;
+import org.duracloud.serviceapi.aop.ServiceMessage;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.ServiceSummary;
@@ -110,6 +111,19 @@ public class ServiceMonitorImplTest {
         EasyMock.expectLastCall();
 
         EasyMock.makeThreadSafe(summaryDirectory, true);
+    }
+
+    @Test
+    public void testOnUndeploy() throws Exception {
+        int serviceId = 6;
+        int deploymentId = 10;
+        replayMocks();
+
+        ServiceMessage msg = new ServiceMessage();
+        msg.setServiceId(serviceId);
+        msg.setDeploymentId(deploymentId);
+
+        monitor.onUndeploy(msg);
     }
 
     @Test

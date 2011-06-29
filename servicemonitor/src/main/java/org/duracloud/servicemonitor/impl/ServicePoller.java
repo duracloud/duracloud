@@ -42,14 +42,13 @@ public class ServicePoller implements Runnable {
                          int deploymentId,
                          ServiceSummaryDirectory summaryDirectory,
                          ServiceSummarizer summarizer,
-                         long pollingInterval,
-                         boolean continuePolling) {
+                         long pollingInterval) {
         this.serviceId = serviceId;
         this.deploymentId = deploymentId;
         this.summaryDirectory = summaryDirectory;
         this.summarizer = summarizer;
         this.pollingInterval = pollingInterval;
-        this.continuePolling = continuePolling;
+        this.continuePolling = true;
     }
 
     @Override
@@ -109,6 +108,11 @@ public class ServicePoller implements Runnable {
         } catch (InterruptedException e) {
             // do nothing
         }
+    }
+
+    public void stop() {
+        log.info("Stopping ServicePoller: {}-{}", serviceId, deploymentId);
+        continuePolling = false;
     }
 
 }

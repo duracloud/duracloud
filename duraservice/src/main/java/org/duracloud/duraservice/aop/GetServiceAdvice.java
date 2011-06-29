@@ -17,7 +17,7 @@ public class GetServiceAdvice extends ServiceAdvice{
 
     @Override
     protected ServiceMessage createServiceMessage(Object[] methodArgs) {
-        String serviceId = getServiceId(methodArgs);
+        int serviceId = getServiceId(methodArgs);
 
         ServiceMessage msg = new ServiceMessage();
         msg.setServiceId(serviceId);

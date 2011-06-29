@@ -13,23 +13,22 @@ package org.duracloud.serviceapi.aop;
  */
 public class ServiceMessage {
 
-    private String serviceId;
+    private int serviceId = -1;
+    private int deploymentId = -1;
 
-    private String deploymentId;
-
-    public String getServiceId() {
+    public int getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(String serviceId) {
+    public void setServiceId(int serviceId) {
         this.serviceId = serviceId;
     }
 
-    public String getDeploymentId() {
+    public int getDeploymentId() {
         return deploymentId;
     }
 
-    public void setDeploymentId(String deploymentId) {
+    public void setDeploymentId(int deploymentId) {
         this.deploymentId = deploymentId;
     }
 
@@ -38,7 +37,7 @@ public class ServiceMessage {
         StringBuilder sb = new StringBuilder("ServiceMessage[");
         sb.append("serviceId:'" + serviceId + "'");
         sb.append("|deploymentId:'" + deploymentId + "'");
-        sb.append("]\n");
+        sb.append("]");
         return sb.toString();
     }
 

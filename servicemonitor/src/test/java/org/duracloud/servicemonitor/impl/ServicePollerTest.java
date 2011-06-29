@@ -48,8 +48,7 @@ public class ServicePollerTest {
                                    deploymentId,
                                    summaryDirectory,
                                    summarizer,
-                                   sleepMillis,
-                                   continuePolling);
+                                   sleepMillis);
     }
 
     @After

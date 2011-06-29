@@ -51,8 +51,9 @@ public class GetServiceAdviceTest {
     @Test
     public void testNullDestination() throws Throwable {
         ServiceMessage msg = new ServiceMessage();
-        msg.setServiceId(null);
-        msg.setDeploymentId(null);
+        msg.setServiceId(-1);
+        // getService(int) has no deployment-id.
+        // msg.setDeploymentId(-1);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -74,7 +75,7 @@ public class GetServiceAdviceTest {
 
     @Test
     public void testMessage() throws Throwable {
-        String id = "1";
+        int id = 1;
 
         ServiceMessage msg = new ServiceMessage();
         msg.setServiceId(id);

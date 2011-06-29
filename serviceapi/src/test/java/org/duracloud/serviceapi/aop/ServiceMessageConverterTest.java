@@ -56,16 +56,16 @@ public class ServiceMessageConverterTest {
 
     @Test
     public void testFromMessage() throws JMSException {
-        String serviceId = "serviceId";
-        String deploymentId = "deploymentId";
+        int serviceId = 4;
+        int deploymentId = 5;
 
         MapMessage msg = EasyMock.createMock("MapMessage",
                                              MapMessage.class);
 
-        msg.getStringProperty(ServiceMessageConverter.SERVICE_ID);
+        msg.getIntProperty(ServiceMessageConverter.SERVICE_ID);
         EasyMock.expectLastCall().andReturn(serviceId);
 
-        msg.getString(ServiceMessageConverter.DEPLOYMENT_ID);
+        msg.getInt(ServiceMessageConverter.DEPLOYMENT_ID);
         EasyMock.expectLastCall().andReturn(deploymentId);
 
         EasyMock.replay(msg);
@@ -82,8 +82,8 @@ public class ServiceMessageConverterTest {
 
     @Test
     public void testToMessage() throws JMSException {
-        String serviceId = "serviceId";
-        String deploymentId = "deploymentId";
+        int serviceId = 3;
+        int deploymentId = 4;
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
                                                 MapMessage.class);
@@ -93,10 +93,10 @@ public class ServiceMessageConverterTest {
         session.createMapMessage();
         EasyMock.expectLastCall().andReturn(mapMsg);
 
-        mapMsg.setStringProperty(ServiceMessageConverter.SERVICE_ID, serviceId);
+        mapMsg.setIntProperty(ServiceMessageConverter.SERVICE_ID, serviceId);
         EasyMock.expectLastCall().once();
 
-        mapMsg.setString(ServiceMessageConverter.DEPLOYMENT_ID, deploymentId);
+        mapMsg.setInt(ServiceMessageConverter.DEPLOYMENT_ID, deploymentId);
         EasyMock.expectLastCall().once();
 
         ServiceMessage serviceMessage = new ServiceMessage();

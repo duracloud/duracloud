@@ -7,83 +7,11 @@
  */
 package org.duracloud.duraservice.aop;
 
-import org.duracloud.serviceapi.aop.ServiceMessage;
-import org.easymock.classextension.EasyMock;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.jms.core.JmsTemplate;
+public class GetDeployedServicesAdviceTest extends GetServicesAdviceTestBase {
 
-import javax.jms.Destination;
-
-import static junit.framework.Assert.assertTrue;
-
-public class GetDeployedServicesAdviceTest {
-
-    private GetDeployedServicesAdvice getDeployedServicesAdvice;
-
-    @Before
-    public void setUp() throws Exception {
-        getDeployedServicesAdvice = new GetDeployedServicesAdvice();
+    @Override
+    protected ServiceAdvice getAdvice() {
+        return new GetDeployedServicesAdvice();
     }
 
-    @Test
-    public void testNullParams() throws Throwable {
-        try{
-            getDeployedServicesAdvice.afterReturning(null, null, null, null);
-            assertTrue(false);
-
-        } catch(NullPointerException npe) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    public void testNullDestination() throws Throwable {
-        ServiceMessage msg = new ServiceMessage();
-        msg.setServiceId(null);
-        msg.setDeploymentId(null);
-
-        JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
-                                                      JmsTemplate.class);
-        Destination destination = null;
-
-        jmsTemplate.convertAndSend((Destination)EasyMock.isNull(),
-                                   (ServiceMessage)EasyMock.notNull());
-        EasyMock.expectLastCall().once();
-
-        EasyMock.replay(jmsTemplate);
-
-        getDeployedServicesAdvice.setJmsTemplate(jmsTemplate);
-        getDeployedServicesAdvice.setDestination(destination);
-        getDeployedServicesAdvice.afterReturning(null, null,
-                                         new Object[]{}, null);
-
-        EasyMock.verify(jmsTemplate);
-    }
-
-    @Test
-    public void testMessage() throws Throwable {
-        String id = "1";
-
-        ServiceMessage msg = new ServiceMessage();
-        msg.setServiceId(id);
-
-        JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
-                                                      JmsTemplate.class);
-        Destination destination = EasyMock.createMock("Destination",
-                                                      Destination.class);
-
-        jmsTemplate.convertAndSend((Destination)EasyMock.notNull(),
-                                   (ServiceMessage)EasyMock.notNull());
-        EasyMock.expectLastCall().once();
-
-        EasyMock.replay(jmsTemplate);
-
-        getDeployedServicesAdvice.setJmsTemplate(jmsTemplate);
-        getDeployedServicesAdvice.setDestination(destination);
-        getDeployedServicesAdvice.afterReturning(null, null,
-                                         new Object[]{}, null);
-
-        EasyMock.verify(jmsTemplate);
-    }
 }

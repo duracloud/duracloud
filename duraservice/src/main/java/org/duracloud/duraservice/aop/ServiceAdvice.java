@@ -42,8 +42,8 @@ public abstract class ServiceAdvice implements AfterReturningAdvice, Ordered {
     }
 
     protected ServiceMessage createServiceMessage(Object[] methodArgs) {
-        String serviceId = getServiceId(methodArgs);
-        String deploymentId = getDeploymentId(methodArgs);
+        int serviceId = getServiceId(methodArgs);
+        int deploymentId = getDeploymentId(methodArgs);
 
         ServiceMessage msg = new ServiceMessage();
         msg.setServiceId(serviceId);
@@ -52,20 +52,16 @@ public abstract class ServiceAdvice implements AfterReturningAdvice, Ordered {
         return msg;
     }
 
-    protected String getServiceId(Object[] methodArgs) {
+    protected int getServiceId(Object[] methodArgs) {
         log.debug("Returning 'serviceId' at index: " + SERVICE_ID_INDEX);
         Integer id = ((Integer) methodArgs[SERVICE_ID_INDEX]);
-        if(id != null)
-            return id.toString();
-        return null;
+        return null == id ? -1 : id;
     }
 
-    protected String getDeploymentId(Object[] methodArgs) {
+    protected int getDeploymentId(Object[] methodArgs) {
         log.debug("Returning 'deploymentId' at index: " + DEPLOYMENT_ID_INDEX);
         Integer id = ((Integer) methodArgs[DEPLOYMENT_ID_INDEX]);
-        if(id != null)
-            return id.toString();
-        return null;
+        return null == id ? -1 : id;
     }
 
     public Destination getDestination() {
