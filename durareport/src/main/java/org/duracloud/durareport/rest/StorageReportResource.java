@@ -31,15 +31,21 @@ import java.util.List;
  */
 public class StorageReportResource {
 
+    private String reportPrefix = null;
     private ContentStoreManager storeMgr = null;
     private StorageReportBuilder reportBuilder;
     private StorageReportHandler reportHandler;
     private StorageReportScheduler reportScheduler;
     private static final long ONE_WEEK_MILLIS = 604800000L;
 
+    public StorageReportResource(String reportPrefix) {
+        this.reportPrefix = reportPrefix;
+    }
+
     public void initialize(ContentStoreManager storeMgr, String reportSpaceId) {
         this.storeMgr = storeMgr;
-        this.reportHandler = new StorageReportHandler(storeMgr, reportSpaceId);
+        this.reportHandler =
+            new StorageReportHandler(storeMgr, reportSpaceId, reportPrefix);
         this.reportBuilder = new StorageReportBuilder(storeMgr, reportHandler);
         this.reportScheduler = new StorageReportScheduler(reportBuilder);
 
@@ -210,7 +216,6 @@ public class StorageReportResource {
      * Shuts down this resource
      */
     public void dispose() {
-        cancelStorageReportSchedule();
         cancelStorageReport();
     }
 

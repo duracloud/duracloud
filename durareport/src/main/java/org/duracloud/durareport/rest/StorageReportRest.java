@@ -84,7 +84,7 @@ public class StorageReportRest extends BaseRest {
      *
      * @return 200 response with storage report XML as body
      */
-    @Path("/{reportID}")
+    @Path("/{reportID: [^?]+}")
     @GET
     @Produces(XML)
     public Response getStorageReport(@PathParam("reportID")
@@ -141,6 +141,23 @@ public class StorageReportRest extends BaseRest {
     }
 
     /**
+     * Cancels a running storage report.
+     *
+     * @return 200 response with body text indicating success
+     */
+    @DELETE
+    public Response cancelStorageReport(){
+        log.debug("Cancelling storage report");
+
+        try {
+            String responseText = resource.cancelStorageReport();
+            return responseOk(responseText);
+        } catch (Exception e) {
+            return responseBad(e);
+        }
+    }
+
+    /**
      * Sets up a schedule of storage reports to be run, based on a starting
      * time and the frequency at which the report should be run afterward.
      *
@@ -173,7 +190,7 @@ public class StorageReportRest extends BaseRest {
      */
     @Path("/schedule")
     @DELETE
-    public Response cancelStorageReport(){
+    public Response cancelStorageReportSchedule(){
         log.debug("Cancelling all scheduled storage reports");
 
         try {

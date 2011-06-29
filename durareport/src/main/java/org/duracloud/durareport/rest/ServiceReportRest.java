@@ -97,7 +97,7 @@ public class ServiceReportRest extends BaseRest {
      *
      * @return 200 response with service report XML as body
      */
-    @Path("/{reportId}")
+    @Path("/{reportId: [^?]+}")
     @GET
     @Produces(XML)
     public Response getCompletedServicesReport(@PathParam("reportId")

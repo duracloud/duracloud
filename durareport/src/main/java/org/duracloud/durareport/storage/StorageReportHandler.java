@@ -42,18 +42,20 @@ public class StorageReportHandler {
     private final Logger log =
         LoggerFactory.getLogger(StorageReportHandler.class);
 
-    private static final String FILE_NAME_PREFIX = "storage-report-";
-    private static final String FILE_NAME_SUFFIX = ".xml";
+    private static final String REPORT_FILE_NAME_SUFFIX = ".xml";
     public static final String COMPLETION_TIME_META = "completion-time";
     public static final String ELAPSED_TIME_META = "elapsed-time";
     public static final int maxRetries = 8;
 
     protected String storageSpace;
     private ContentStore primaryStore = null;
+    private String reportFileNamePrefix;
 
     public StorageReportHandler(ContentStoreManager storeMgr,
-                                String storageSpace) {
+                                String storageSpace,
+                                String reportFileNamePrefix) {
         this.storageSpace = storageSpace;
+        this.reportFileNamePrefix = reportFileNamePrefix;
         try {
             this.primaryStore = storeMgr.getPrimaryContentStore();
             try {
@@ -150,7 +152,7 @@ public class StorageReportHandler {
     private LinkedList<String> getSortedReportList()
         throws ContentStoreException {
         Iterator<String> reports =
-            primaryStore.getSpaceContents(storageSpace, FILE_NAME_PREFIX);
+            primaryStore.getSpaceContents(storageSpace, reportFileNamePrefix);
 
         // Read the list of storage reports into a list, note that there is
         // the assumption here that there will not be a very large number of
@@ -223,7 +225,7 @@ public class StorageReportHandler {
 
     private String buildContentId(long time) {
         String date = DateUtil.convertToString(time);
-        return FILE_NAME_PREFIX + date + FILE_NAME_SUFFIX;
+        return reportFileNamePrefix + date + REPORT_FILE_NAME_SUFFIX;
     }
 
     private byte[] getXmlBytes(String xml) {

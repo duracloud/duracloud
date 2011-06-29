@@ -10,6 +10,7 @@ package org.duracloud.durareport.storage;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.durareport.error.ReportBuilderException;
+import org.duracloud.durareport.error.StorageReportCancelledException;
 import org.duracloud.durareport.storage.metrics.DuraStoreMetricsCollector;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.reportdata.storage.StorageReport;
@@ -28,7 +29,7 @@ import java.util.Map;
  */
 public class StorageReportBuilder implements Runnable {
 
-    public static enum Status {CREATED, RUNNING, COMPLETE, ERROR};
+    public static enum Status {CREATED, RUNNING, COMPLETE, CANCELLED, ERROR};
     private final Logger log =
         LoggerFactory.getLogger(StorageReportBuilder.class);
     public static final int maxRetries = 20;
@@ -74,17 +75,18 @@ public class StorageReportBuilder implements Runnable {
         try {
             collectStorageMetrics();
             stopTime = System.currentTimeMillis();
-            if(run) {
-                elapsedTime = stopTime - startTime;
-                reportHandler.storeReport(durastoreMetrics,
-                                          stopTime,
-                                          elapsedTime);
-                status = Status.COMPLETE;
-                log.info("Storage Report completed at time: " + stopTime);
-            } else {
-                log.warn("Storage Report cancelled at: " + stopTime);
-            }
+            elapsedTime = stopTime - startTime;
+            reportHandler.storeReport(durastoreMetrics,
+                                      stopTime,
+                                      elapsedTime);
+            status = Status.COMPLETE;
+            log.info("Storage Report completed at time: " + stopTime);
+        } catch (StorageReportCancelledException e) {
+            stopTime = System.currentTimeMillis();
+            log.warn("Storage Report cancelled at: " + stopTime);
+            status = Status.CANCELLED;
         } catch(ReportBuilderException e) {
+            stopTime = System.currentTimeMillis();
             error = e.getMessage();
             log.error("Unable to complete metrics collection due to: " +
                       e.getMessage());
@@ -102,12 +104,15 @@ public class StorageReportBuilder implements Runnable {
 
         Map<String, ContentStore> contentStores = retryGetContentStores();
         for(ContentStore contentStore : contentStores.values()) {
+            checkRun();
             String storeId = contentStore.getStoreId();
             String storeType = contentStore.getStorageProviderType();
             for(String spaceId : retryGetSpaces(contentStore)) {
+                checkRun();
                 Iterator<String> contentIds =
                     retryGetSpaceContents(contentStore, spaceId);
-                while(contentIds.hasNext() && run) {
+                while(contentIds.hasNext()) {
+                    checkRun();
                     String contentId = contentIds.next();
                     Map<String, String> contentMetadata =
                         retryGetContentMetadata(contentStore,
@@ -131,7 +136,8 @@ public class StorageReportBuilder implements Runnable {
     }
 
     private Map<String, ContentStore> retryGetContentStores() {
-        for(int i=0; i<maxRetries && run; i++) {
+        for(int i=0; i<maxRetries; i++) {
+            checkRun();
             try {
                 return storeMgr.getContentStores();
             } catch (ContentStoreException e) {
@@ -145,7 +151,8 @@ public class StorageReportBuilder implements Runnable {
     }
 
     private List<String> retryGetSpaces(ContentStore contentStore) {
-        for(int i=0; i<maxRetries && run; i++) {
+        for(int i=0; i<maxRetries; i++) {
+            checkRun();
             try {
                 return contentStore.getSpaces();
             } catch (ContentStoreException e) {
@@ -156,12 +163,13 @@ public class StorageReportBuilder implements Runnable {
             }
         }
         throw new ReportBuilderException("Exceeded retries attempting to " +
-                                         "retrieve spaces list");            
+                                         "retrieve spaces list");
     }
 
     private Iterator<String> retryGetSpaceContents(ContentStore contentStore,
                                                    String spaceId) {
-        for(int i=0; i<maxRetries && run; i++) {
+        for(int i=0; i<maxRetries; i++) {
+            checkRun();
             try {
                 return contentStore.getSpaceContents(spaceId);
             } catch (ContentStoreException e) {
@@ -180,7 +188,8 @@ public class StorageReportBuilder implements Runnable {
     private Map<String, String> retryGetContentMetadata(ContentStore contentStore,
                                                         String spaceId,
                                                         String contentId) {
-        for(int i=0; i<maxRetries && run; i++) {
+        for(int i=0; i<maxRetries; i++) {
+            checkRun();
             try {
                 return contentStore.getContentMetadata(spaceId, contentId);
             } catch (ContentStoreException e) {
@@ -210,9 +219,16 @@ public class StorageReportBuilder implements Runnable {
     }
 
     private void wait(int index) {
+        checkRun();
         try {
             Thread.sleep(1000 * index);
         } catch(InterruptedException e) {
+        }
+    }
+
+    private void checkRun() {
+        if(!run) {
+            throw new StorageReportCancelledException();
         }
     }
 

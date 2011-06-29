@@ -36,6 +36,7 @@ public class StorageReportResourceTest {
     StorageReportHandler mockReportHandler;
     StorageReportBuilder mockReportBuilder;
     StorageReportScheduler mockReportScheduler;
+    private String reportPrefix = "report/storage-report-";
 
     @Before
     public void setup() {
@@ -53,7 +54,8 @@ public class StorageReportResourceTest {
     }
 
     private StorageReportResource getResource() {
-        StorageReportResource srResource = new StorageReportResource();
+        StorageReportResource srResource =
+            new StorageReportResource(reportPrefix);
         srResource.initialize(mockStoreMgr,
                               mockReportHandler,
                               mockReportBuilder,
@@ -85,7 +87,8 @@ public class StorageReportResourceTest {
 
     @Test
     public void testVerifyInitialized() throws Exception {
-        StorageReportResource srResource = new StorageReportResource();
+        StorageReportResource srResource =
+            new StorageReportResource(reportPrefix);
 
         try {
             srResource.getLatestStorageReport();

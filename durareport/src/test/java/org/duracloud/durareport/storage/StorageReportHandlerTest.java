@@ -40,11 +40,13 @@ public class StorageReportHandlerTest {
     private static String elapMeta = StorageReportHandler.ELAPSED_TIME_META;
 
     private String spaceId = "report-storage-space";
-    private String reportContentId = "storage-report-2011-05-17T16:01:58.xml";
+    private String reportContentId =
+        "report/storage-report-2011-05-17T16:01:58.xml";
     private String reportContentIdRegex =
-        "storage-report-2011-05-1[7-8]T[0-9][0-9]:[0,3]1:58.xml";
+        "report/storage-report-2011-05-1[7-8]T[0-9][0-9]:[0,3]1:58.xml";
     private long completionTime = 1305662518734L;
     private long elapsedTime = 10;
+    private String reportPrefix = "report/storage-report-";
 
     private ContentStore mockStore;
     private ContentStoreManager mockStoreMgr;
@@ -105,7 +107,7 @@ public class StorageReportHandlerTest {
             .times(1);
 
         replayMocks();
-        return new StorageReportHandler(mockStoreMgr, spaceId);
+        return new StorageReportHandler(mockStoreMgr, spaceId, reportPrefix);
     }
 
     @Test
@@ -203,7 +205,7 @@ public class StorageReportHandlerTest {
 
         List<String> reports = new ArrayList<String>();
         reports.add(reportContentId);
-        reports.add("storage-report-2011-05-01T16:01:58.xml"); // older
+        reports.add("report/storage-report-2011-05-01T16:01:58.xml"); // older
         EasyMock.expect(mockStore.getSpaceContents(EasyMock.eq(spaceId),
                                                    EasyMock.isA(String.class)))
             .andReturn(reports.iterator())
@@ -239,8 +241,8 @@ public class StorageReportHandlerTest {
 
         List<String> reports = new ArrayList<String>();
         reports.add(reportContentId);
-        reports.add("storage-report-2011-05-01T16:01:58.xml");
-        reports.add("storage-report-2010-02-01T19:21:43.xml");
+        reports.add("report/storage-report-2011-05-01T16:01:58.xml");
+        reports.add("report/storage-report-2010-02-01T19:21:43.xml");
         EasyMock.expect(mockStore.getSpaceContents(EasyMock.eq(spaceId),
                                                    EasyMock.isA(String.class)))
             .andReturn(reports.iterator())
