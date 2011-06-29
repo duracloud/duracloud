@@ -112,27 +112,23 @@ public class ServiceReportBuilder {
         throws ServiceSummaryNotFoundException {
         List<ServiceSummary> completedSums = new LinkedList<ServiceSummary>();
 
-        // Start with current services
-        List<ServiceSummary> summaries =
-            summaryDirectory.getCurrentServiceSummaries();
-        addSummaries(summaries, completedSums, limit);
-
-        // Include services from previous summary lists as necessary
-        if(completedSums.size() < limit) {
-            List<String> summaryIds = summaryDirectory.getServiceSummaryIds();
-            Collections.sort(summaryIds);
-            Collections.reverse(summaryIds);
-
-            Iterator<String> summaryIdIterator = summaryIds.iterator();
-            while(summaryIdIterator.hasNext() && completedSums.size() < limit) {
-                String summaryId = summaryIdIterator.next();
-                List<ServiceSummary> sumList =
-                    summaryDirectory.getServiceSummariesById(summaryId);
-                addSummaries(sumList, completedSums, limit);
-            }
+        Iterator<String> summaryIdIterator = getSummaryIds().iterator();
+        while(summaryIdIterator.hasNext() && completedSums.size() < limit) {
+            String summaryId = summaryIdIterator.next();
+            List<ServiceSummary> sumList =
+                summaryDirectory.getServiceSummariesById(summaryId);
+            addSummaries(sumList, completedSums, limit);
         }
 
         return completedSums;
+    }
+
+    protected List<String> getSummaryIds() {
+        List<String> summaryIds = summaryDirectory.getServiceSummaryIds();
+        // Order IDs list so that most recent summaries appear first
+        Collections.sort(summaryIds);
+        Collections.reverse(summaryIds);
+        return summaryIds;
     }
 
     protected void addSummaries(List<ServiceSummary> sourceList,

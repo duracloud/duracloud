@@ -58,10 +58,6 @@ public class ServiceReportBuilderTest {
     @Test
     public void testCollectCompletedServices()
         throws ServiceSummaryNotFoundException {
-        EasyMock.expect(summaryDirectory.getCurrentServiceSummaries())
-            .andReturn(createServiceSummaryList(5))
-            .times(1);
-
         List<String> summaryIds = new LinkedList<String>();
         summaryIds.add("one");
         summaryIds.add("two");
@@ -70,11 +66,11 @@ public class ServiceReportBuilderTest {
             .times(1);
 
         EasyMock.expect(summaryDirectory.getServiceSummariesById("one"))
-            .andReturn(createServiceSummaryList(3))
+            .andReturn(createServiceSummaryList(7))
             .times(1);
 
         EasyMock.expect(summaryDirectory.getServiceSummariesById("two"))
-            .andReturn(createServiceSummaryList(4))
+            .andReturn(createServiceSummaryList(5))
             .times(1);
 
         replayMocks();
@@ -93,6 +89,31 @@ public class ServiceReportBuilderTest {
             summaries.add(summary);
         }
         return summaries;
+    }
+
+    @Test
+    public void testGetSummaryIds() {
+        String summaryId1 = "report/service-summaries-2011-01";
+        String summaryId2 = "report/service-summaries-2011-02";
+        String summaryId3 = "report/service-summaries-2011-03";
+
+        List<String> summaryIds = new LinkedList<String>();
+        // Add to list intentially out of date order
+        summaryIds.add(summaryId2);
+        summaryIds.add(summaryId1);
+        summaryIds.add(summaryId3);
+        EasyMock.expect(summaryDirectory.getServiceSummaryIds())
+            .andReturn(summaryIds)
+            .times(1);
+
+        replayMocks();
+
+        List<String> summaryIdList = builder.getSummaryIds();
+        assertNotNull(summaryIdList);
+        assertEquals(3, summaryIdList.size());
+        assertEquals(summaryId3, summaryIdList.get(0));
+        assertEquals(summaryId2, summaryIdList.get(1));
+        assertEquals(summaryId1, summaryIdList.get(2));
     }
 
     @Test
