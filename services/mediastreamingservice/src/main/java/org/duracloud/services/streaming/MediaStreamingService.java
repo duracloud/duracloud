@@ -77,7 +77,7 @@ public class MediaStreamingService extends BaseService implements ComputeService
         workerThread.start();
 
         super.start();
-        setServiceStatus(ServiceStatus.STARTED);
+        setServiceStatus(ServiceStatus.PROCESSING);
     }
 
     @Override
@@ -116,16 +116,14 @@ public class MediaStreamingService extends BaseService implements ComputeService
             }
 
             if(error != null) {
-                props.put("Errors Encountered", error);
+                setError(error);
             }
         }
 
         if(complete) {
-            props.put("Service Status", "Complete");
-        } else {
-            props.put("Service Status", "Enabling Streaming...");
+            setServiceStatus(ServiceStatus.STARTED);
         }
-        
+
         return props;
     }
 
