@@ -9,6 +9,7 @@ package org.duracloud.durareport.storage;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.durareport.error.ReportBuilderException;
 import org.duracloud.durareport.error.StorageReportCancelledException;
 import org.duracloud.durareport.storage.metrics.DuraStoreMetricsCollector;
@@ -95,6 +96,7 @@ public class StorageReportBuilder implements Runnable {
     }
 
     public void cancelReport() {
+        new DuraCloudCheckedException(); // loads this exception type
         log.info("Cancelling Storage Report");
         run = false;
     }
