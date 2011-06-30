@@ -81,11 +81,11 @@ public class ServiceReportRest extends BaseRest {
     @Path("/list")
     @GET
     @Produces(XML)
-    public Response getCompletedServicesReportIds() {
+    public Response getCompletedServicesReportList() {
         log.debug("Getting completed services report IDs");
 
         try {
-            InputStream stream = resource.getCompletedServicesReportIds();
+            InputStream stream = resource.getCompletedServicesReportList();
             return responseOkXmlStream(stream);
         } catch (Exception e) {
             return responseBad(e);
