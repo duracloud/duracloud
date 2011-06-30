@@ -28,11 +28,4 @@ public class DashboardController {
         ModelAndView mav = new ModelAndView("dashboard-manager");
         return mav;
 	}
-
-    @RequestMapping("/dashboard-old")
-    public ModelAndView getOldVersion() throws Exception {
-        ModelAndView mav = new ModelAndView("dashboard-manager-old");
-        return mav;
-    }
- 
 }
