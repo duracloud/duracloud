@@ -76,6 +76,13 @@ public interface StorageReportManager extends Securable {
     public String startStorageReport() throws ReportException;
 
     /**
+     * Cancels any currently running storage report.
+     *
+     * @return success message
+     */
+    public String cancelStorageReport() throws ReportException;
+
+    /**
      * Schedules a series of storage reports to run. The first such report
      * will begin at the indicated start time, followed by reports at the
      * given frequency.

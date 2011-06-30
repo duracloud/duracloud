@@ -184,6 +184,19 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    public String cancelStorageReport() throws ReportException {
+        String url = buildBaseStorageReportURL();
+        try {
+            RestHttpHelper.HttpResponse response = getRestHelper().delete(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            return response.getResponseBody();
+        } catch (Exception e) {
+            String error = "Could not cancel storage report due to: " +
+                           e.getMessage();
+            throw new ReportException(error, e);
+        }
+    }
+
     public String scheduleStorageReport(Date startTime, long frequency)
         throws ReportException {
 
