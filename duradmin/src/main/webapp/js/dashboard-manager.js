@@ -700,10 +700,12 @@ $(function() {
 
 	/**
 	 * extract date info from reportId and convert to milliseconds
+	 * converts a string like this	'report/storage-report-2011-06-21T15_27_33.xml'
+	 * to ms.
 	 */
 	var convertStorageReportIdToMs = function(storageReportId){
-		var pattern = /storage-report-(.*)[.]xml/i;
-		var newVal = pattern.exec(storageReportId)[1];
+		var pattern = /report\/storage-report-(.*)[.]xml/i;
+		var newVal = pattern.exec(storageReportId)[1].replace(/_/g, ':');
 		return new Date(newVal).getTime();
 	};
 
