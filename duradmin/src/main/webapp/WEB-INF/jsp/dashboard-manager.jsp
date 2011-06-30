@@ -13,7 +13,8 @@
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.pie.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.tools/jquery.tools.min.js"></script>				
-
+		<script type="text/javascript"
+			src="${pageContext.request.contextPath}/jquery/plugins/jquery.tablesorter/jquery.tablesorter.min.js"></script>				
 		<style>
 
 	
@@ -28,22 +29,24 @@
 	
 }
 
+
+
 .scrollable {
 
 	/* required settings */
 	position:relative;
 	overflow:hidden;
 	width: 1000px;
-	height:300px;
+	height:400px;
 }
 
-.scrollable .items {
+.scrollable > .items {
 	/* this cannot be too large */
 	width:20000em;
 	position:absolute;
 }
 
-.items > div {
+.scrollable > .items > div {
 	float:left;
 	width:1000px;
 }
@@ -75,11 +78,10 @@
 
 
 .center {
-	
 }
 
 .dc-graph {
-	width:250px;
+	width:400px;
 	height:250px;
 	background: #EEEEEE;
 }
@@ -105,8 +107,10 @@
 
 #main-content-tabs>div {
 	background: #FFFFFF;
+	/*
 	overflow: auto;
-	min-height: 400px;
+	min-height: 500px;
+	*/
 	color: #555;
 }
 
@@ -127,10 +131,30 @@
 }
 
 .diptych > div {
-  width:300px;
+  width:400px;
   margin:10px;
   display: inline-block;
 }
+
+.diptych .header {
+	height:30px;
+	width:100%;		
+}
+
+.diptych .title {
+	float:left;
+	max-width:200px;
+}
+
+.diptych .button-panel {
+	float:right;
+}
+
+.graph-switch a {
+	color:black;
+}
+
+
 </style>
 
 	</tiles:putAttribute>
@@ -175,50 +199,63 @@
 				</div>
 				</div>
 				<div class="center">
-					<div class="ui-widget-header ui-corner-all">
-						<div class="graph-switch">
-							<input type="radio" id="size" name="radio" checked="checked" /><label for="size">Size</label>
-							<input type="radio" id="count" name="radio" /><label for="count">Items</label>
-						</div>
-					</div>
 				
 				<div class="scrollable">
 				<div class="items">
-				<div id="storage-providers">
-					<div class="diptych">
-						<div>
-							<h3>By Storage Provider</h3>
-							<div class="dc-graph" id="bytes"></div>
-						</div>
-						<div>
-							<h3>By Mime Type</h3>
-							<div class="dc-graph" id="mimetype-bytes"></div>
-						</div>
+				<div id="storage-summary">
+					<div class="ui-widget-header ui-corner-all">
+						<span class="graph-switch" >
+							<input type="radio" id="entity-radio-0" class="entity-radio" name="radio0" checked="checked" /><label  for="entity-radio-0">Storage Providers</label>
+							<input type="radio" id="mimetype-radio-0" class="mimetype-radio"  name="radio0" /><label for="mimetype-radio-0">File Type</label>
+						</span>
 					</div>
+					<div class="diptych entity-panel">
+						<div class="bytes-graph">
+						</div>
+						<div class="files-graph"></div>
+					</div>
+					<div class="diptych mimetype-panel" style="display:none">
+						<div class="bytes-graph">
+
+						</div>
+						<div class="files-graph"></div>
+					</div>
+
 				</div>
 				<div id="storage-provider">
-					<div class="diptych">
-						<div>
-							<h3>By Storage Provider</h3>
-							<div class="dc-graph" id="bytes"></div>
-						</div>
-						<div>
-							<h3>By Mime Type</h3>
-							<div class="dc-graph" id="mimetype-bytes"></div>
+					<div class="ui-widget-header ui-corner-all">
+						<div class="graph-switch">
+							<a href="#" class="back-link">&lt; Back</a>
+							<input type="radio" id="entity-radio-1" class="entity-radio" name="radio" checked="checked" /><label  for="entity-radio-1">Storage Providers</label>
+							<input type="radio" id="mimetype-radio-1" class="mimetype-radio"  name="radio" /><label for="mimetype-radio-1">File Type</label>
 						</div>
 					</div>
+					<div class="diptych entity-panel">
+						<div class="bytes-graph">
+
+						</div>
+						<div class="files-graph"></div>
+					</div>
+					<div class="diptych mimetype-panel" style="display:none">
+						<div class="bytes-graph">
+
+						</div>
+						<div class="files-graph"></div>
+					</div>
+
 				</div>
 				<div id="space">
-				<table>
-					<tr>
-						<td>
-						<div id="mimetype-bytes"></div>
-						</td>
-						<td>
-						<div id="mimetype-files"></div>
-						</td>
-					</tr>
-				</table>
+					<div class="ui-widget-header ui-corner-all">
+						<div class="graph-switch">
+							<a href="#" class="back-link">&lt; Back</a>
+						</div>
+					</div>
+					<div class="diptych mimetype-panel">
+						<div class="bytes-graph">
+
+						</div>
+						<div class="files-graph"></div>
+					</div>
 				</div>
 				</div>
 				</div>

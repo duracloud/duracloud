@@ -198,13 +198,25 @@ $(function(){
 		    }
 		};
 		
-		dc.createTable = function(data, /*optional: array*/ columnClasses){
-		var table = document.createElement("table");
+		dc.createTable = function(data, /*optional: array*/ columnClasses, /*optional array*/ columnNames){
+		var table, body, row, i,j;
+		table = $.fn.create("table");
+		if(columnNames){
+			row = $.fn.create("tr");
+			$.each(columnNames, function(x,item){
+				row.append($.fn.create("th").append(item))
+			});
+			table.append($.fn.create("thead").append(row));
+		}
+		
+		body = $.fn.create("tbody");
+		table.append(body);
+		
 		for(i = 0; i < data.length; i++){
-			var row = document.createElement("tr");
-			$(table).append(row);
+			row = $.fn.create("tr");
+			$(body).append(row);
 			for(j = 0; j < data[i].length; j++){
-				var cell = document.createElement("td");
+				var cell = $.fn.create("td");
 				$(row).append(cell);
 				$(cell).html(data[i][j]);
 				if(columnClasses !=null){
