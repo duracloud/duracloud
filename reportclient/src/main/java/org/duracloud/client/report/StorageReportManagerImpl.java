@@ -10,9 +10,6 @@ package org.duracloud.client.report;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
-import org.duracloud.client.report.error.UnexpectedResponseException;
-import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.Securable;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.duracloud.reportdata.storage.StorageReportInfo;
@@ -20,7 +17,6 @@ import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
@@ -31,44 +27,22 @@ import java.util.List;
  * @author: Bill Branan
  * Date: 6/2/11
  */
-public class StorageReportManagerImpl implements StorageReportManager, Securable {
-    private static final String DEFAULT_CONTEXT = "durareport";
-    private String baseURL = null;
-    private RestHttpHelper restHelper;
+public class StorageReportManagerImpl extends BaseReportManager implements StorageReportManager {
 
     public StorageReportManagerImpl(String host, String port) {
-        this(host, port, DEFAULT_CONTEXT);
+        super(host, port);
     }
 
     public StorageReportManagerImpl(String host, String port, String context) {
-        if ((host == null) || (host.equals(""))) {
-            throw new IllegalArgumentException("Host must be a valid " +
-                                               "server host name");
-        }
-
-        if (context == null) {
-            context = DEFAULT_CONTEXT;
-        }
-
-        if ((port == null) || (port.equals(""))) {
-            this.baseURL = ("http://" + host + "/" + context);
-        } else if (port.equals("443")) {
-            this.baseURL = ("https://" + host + "/" + context);
-        } else {
-            this.baseURL = ("http://" + host + ":" + port + "/" + context);
-        }
-    }
-
-    public String getBaseURL() {
-        return this.baseURL;
+        super(host, port, context);
     }
 
     private String buildURL(String relativeURL) {
         String storageReport = "storagereport";
         if (null == relativeURL) {
-            return this.baseURL + "/" + storageReport;
+            return getBaseURL() + "/" + storageReport;
         }
-        return this.baseURL + "/" + storageReport + "/" + relativeURL;
+        return getBaseURL() + "/" + storageReport + "/" + relativeURL;
     }
 
     private String buildBaseStorageReportURL() {
@@ -97,6 +71,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         return buildURL("schedule");
     }
 
+    @Override
     public StorageReport getLatestStorageReport()
         throws NotFoundException, ReportException {
         String url = buildBaseStorageReportURL();
@@ -116,6 +91,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    @Override
     public List<String> getStorageReportList() throws ReportException {
         String url = buildGetStorageReportListURL();
         try {
@@ -133,6 +109,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    @Override
     public StorageReport getStorageReport(String reportId)
         throws NotFoundException, ReportException {
         String url = buildGetStorageReportURL(reportId);
@@ -152,6 +129,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    @Override
     public StorageReportInfo getStorageReportInfo() throws ReportException {
         String url = buildGetStorageReportInfoURL();
         try {
@@ -169,6 +147,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    @Override
     public String startStorageReport() throws ReportException {
         String url = buildBaseStorageReportURL();
         try {
@@ -184,6 +163,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    @Override
     public String cancelStorageReport() throws ReportException {
         String url = buildBaseStorageReportURL();
         try {
@@ -197,6 +177,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    @Override
     public String scheduleStorageReport(Date startTime, long frequency)
         throws ReportException {
 
@@ -226,6 +207,7 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
+    @Override
     public String cancelStorageReportSchedule() throws ReportException {
         String url = buildCancelStorageReportScheduleURL();
         try {
@@ -240,59 +222,5 @@ public class StorageReportManagerImpl implements StorageReportManager, Securable
         }
     }
 
-    private void checkResponse(RestHttpHelper.HttpResponse response,
-                               int expectedCode)
-            throws NotFoundException, ReportException {
-        if (response == null) {
-            throw new ReportException("Could not complete request due to " +
-                                      "error: Response was null.");
-        }
-        int statusCode = response.getStatusCode();
-        if (statusCode != expectedCode) {
-            String errorMessage;
-            try {
-                errorMessage = response.getResponseBody();
-            } catch(IOException e) {
-                errorMessage = "";
-            }
-
-            if(statusCode == HttpStatus.SC_NOT_FOUND) {
-                throw new NotFoundException(errorMessage);
-            } else {
-                StringBuilder builder = new StringBuilder();
-                builder.append("Could not complete request due to error: ");
-                builder.append("Response code was ");
-                builder.append(statusCode);
-                builder.append(", expected value was ");
-                builder.append(expectedCode);
-                builder.append(". Error message: ");
-                builder.append(errorMessage);
-                throw new UnexpectedResponseException(builder.toString(),
-                                                      statusCode,
-                                                      expectedCode,
-                                                      errorMessage);
-            }
-        }
-    }
-
-    public void login(Credential credential) {
-        setRestHelper(new RestHttpHelper(credential));
-    }
-
-    public void logout() {
-        setRestHelper(new RestHttpHelper());
-    }
-
-    private RestHttpHelper getRestHelper() {
-        if (null == this.restHelper) {
-            this.restHelper = new RestHttpHelper();
-        }
-        return this.restHelper;
-    }
-
-    protected void setRestHelper(RestHttpHelper restHelper) {
-        this.restHelper = restHelper;
-    }
-    
 }
 

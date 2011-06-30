@@ -113,6 +113,12 @@
         <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+        <groupId>org.duracloud</groupId>
+        <artifactId>serviceconfig</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+
     <!-- for HttpClient -->
     <dependency>
       <groupId>commons-httpclient</groupId>

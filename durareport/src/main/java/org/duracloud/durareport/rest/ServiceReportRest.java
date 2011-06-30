@@ -7,6 +7,7 @@
  */
 package org.duracloud.durareport.rest;
 
+import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +108,8 @@ public class ServiceReportRest extends BaseRest {
         try {
             InputStream stream = resource.getCompletedServicesReport(reportId);
             return responseOkXmlStream(stream);
+        } catch (ServiceSummaryNotFoundException e) {
+            return responseNotFound();
         } catch (Exception e) {
             return responseBad(e);
         }

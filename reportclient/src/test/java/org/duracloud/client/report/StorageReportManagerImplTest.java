@@ -8,19 +8,15 @@
 package org.duracloud.client.report;
 
 import org.duracloud.client.report.error.ReportException;
-import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.duracloud.reportdata.storage.StorageReportInfo;
 import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.easymock.classextension.EasyMock;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,38 +30,21 @@ import static org.junit.Assert.fail;
  * @author: Bill Branan
  * Date: 6/20/11
  */
-public class StorageReportManagerTest {
+public class StorageReportManagerImplTest extends ReportManagerTestBase {
 
-    private RestHttpHelper mockRestHelper;
-    private String host = "host";
-    private String port = "8080";
-    private String context = "context";
-    private StorageReportManagerImpl reportManager;
-    private String baseUrl = "http://host:8080/context/storagereport";
-    private RestHttpHelper.HttpResponse successResponse;
+    protected StorageReportManagerImpl reportManager;
 
     @Before
+    @Override
     public void setup() {
-        mockRestHelper = EasyMock.createMock(RestHttpHelper.class);
+        super.setup();
         reportManager = new StorageReportManagerImpl(host, port, context);
         reportManager.setRestHelper(mockRestHelper);
-
         setResponse("result");
     }
 
-    private void setResponse(String value) {
-        InputStream stream = new ByteArrayInputStream(value.getBytes());
-        successResponse =
-            new RestHttpHelper.HttpResponse(200, null, null, stream);
-    }
-
-    private void replayMocks() {
-        EasyMock.replay(mockRestHelper);
-    }
-
-    @After
-    public void teardown() {
-        EasyMock.verify(mockRestHelper);
+    private String getBaseUrl() {
+        return baseUrl + "/storagereport";
     }
 
     @Test
@@ -73,7 +52,7 @@ public class StorageReportManagerTest {
         String id = "reportId";
         setStorageReportInResponse(id);
 
-        EasyMock.expect(mockRestHelper.get(EasyMock.eq(baseUrl)))
+        EasyMock.expect(mockRestHelper.get(EasyMock.eq(getBaseUrl())))
             .andReturn(successResponse)
             .times(1);
 
@@ -93,7 +72,7 @@ public class StorageReportManagerTest {
 
     @Test
     public void testGetStorageReportList() throws Exception {
-        String url = baseUrl + "/list";
+        String url = getBaseUrl() + "/list";
         setStorageReportListInResponse();
 
         EasyMock.expect(mockRestHelper.get(EasyMock.eq(url)))
@@ -117,7 +96,7 @@ public class StorageReportManagerTest {
     @Test
     public void testGetStorageReport() throws Exception {
         String id = "report/reportId";
-        String url = baseUrl + "/" + id;
+        String url = getBaseUrl() + "/" + id;
         setStorageReportInResponse(id);
 
         EasyMock.expect(mockRestHelper.get(EasyMock.eq(url)))
@@ -133,7 +112,7 @@ public class StorageReportManagerTest {
 
     @Test
     public void testGetStorageReportInfo() throws Exception {
-        String url = baseUrl + "/info";
+        String url = getBaseUrl() + "/info";
         setStorageReportInfoInResponse();
 
         EasyMock.expect(mockRestHelper.get(EasyMock.eq(url)))
@@ -157,7 +136,7 @@ public class StorageReportManagerTest {
     @Test
     public void testStartStorageReport() throws Exception {
         EasyMock.expect(
-            mockRestHelper.post(EasyMock.eq(baseUrl),
+            mockRestHelper.post(EasyMock.eq(getBaseUrl()),
                                 EasyMock.<String>isNull(),
                                 EasyMock.<Map<String,String>>isNull()))
             .andReturn(successResponse)
@@ -171,7 +150,7 @@ public class StorageReportManagerTest {
 
     @Test
     public void testCancelStorageReport() throws Exception {
-        EasyMock.expect(mockRestHelper.delete(EasyMock.eq(baseUrl)))
+        EasyMock.expect(mockRestHelper.delete(EasyMock.eq(getBaseUrl())))
             .andReturn(successResponse)
             .times(1);
 
@@ -185,7 +164,7 @@ public class StorageReportManagerTest {
     public void testScheduleStorageReport() throws Exception {
         long millis = 5000000;
         Date time = new Date(System.currentTimeMillis() + millis);
-        String url = baseUrl + "/schedule?startTime=" + time.getTime() +
+        String url = getBaseUrl() + "/schedule?startTime=" + time.getTime() +
                      "&frequency=" +  millis;
 
         EasyMock.expect(
@@ -222,7 +201,7 @@ public class StorageReportManagerTest {
 
     @Test
     public void testCancelStorageReportSchedule() throws Exception {
-        String url = baseUrl + "/schedule";
+        String url = getBaseUrl() + "/schedule";
 
         EasyMock.expect(mockRestHelper.delete(EasyMock.eq(url)))
             .andReturn(successResponse)
