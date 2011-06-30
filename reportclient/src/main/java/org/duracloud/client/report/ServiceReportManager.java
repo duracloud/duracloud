@@ -9,6 +9,7 @@ package org.duracloud.client.report;
 
 import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
+import org.duracloud.common.model.Securable;
 import org.duracloud.serviceconfig.ServiceSummary;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author: Bill Branan
  * Date: 6/30/11
  */
-public interface ServiceReportManager {
+public interface ServiceReportManager extends Securable {
 
     /**
      * Retrieves a listing of services which are currently deployed in

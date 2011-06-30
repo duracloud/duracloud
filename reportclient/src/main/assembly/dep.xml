@@ -29,7 +29,6 @@
       <outputDirectory>/lib</outputDirectory>
       <excludes>
         <exclude>org.springframework:spring-core</exclude>
-        <exclude>commons-lang:commons-lang</exclude>
       </excludes>
     </dependencySet>
   </dependencySets>

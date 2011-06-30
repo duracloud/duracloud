@@ -22,8 +22,9 @@ ReportClient.
 An example Java class has been provided to assist in set up and
 testing, as well as a starting point for writing your client code.
 The example client (found in ExampleReportClient.java) includes a
-simple main class to print out the list of available reports and
-the latest report.
+simple main class to print out the list of available storage and
+service reports as well as information from the latest of each
+type of report.
 
 To run the example:
 * Extract the report-client zip file
