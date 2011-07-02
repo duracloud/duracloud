@@ -7,8 +7,15 @@
  */
 package org.duracloud.services.hadoop.replication.retry;
 
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.KeyValueTextInputFormat;
+import org.duracloud.services.hadoop.base.AltTextOutputFormat;
 import org.duracloud.services.hadoop.replication.RepJobBuilder;
+import org.duracloud.services.hadoop.replication.RepOutputFormat;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Map;
 
 public class RetryRepJobBuilder extends RepJobBuilder {
@@ -26,6 +33,21 @@ public class RetryRepJobBuilder extends RepJobBuilder {
      * {@inheritDoc}
      */
     @Override
+    public JobConf getJobConf() throws IOException, ParseException {
+        JobConf conf = super.getJobConf();
+
+        RepOutputFormat outputFormat = new RepOutputFormat();
+
+        KeyValueTextInputFormat.setInputPaths(conf,
+                                              new Path(AltTextOutputFormat.getOutputPath(conf),
+                                                       outputFormat.getOutputFileName()));
+        return conf;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected String getJobName() {
         return "RetryReplication";
     }
@@ -36,5 +58,13 @@ public class RetryRepJobBuilder extends RepJobBuilder {
     @Override
     protected Class getMapper() {
         return RetryRepMapper.class;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Class getInputFormat() {
+        return KeyValueTextInputFormat.class;
     }
 }

@@ -74,6 +74,17 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
         String filePath = key.toString();
         String outputPath = value.toString();
 
+        map(filePath, outputPath, output, reporter);
+    }
+
+
+    /**
+     * Performs the actual file processing.
+     */
+    public void map(String filePath,
+                    String outputPath,
+                    OutputCollector<Text, Text> output,
+                    Reporter reporter) throws IOException {
         FileWithMD5 localFile = null;
         File resultFile = null;
         try {
@@ -128,10 +139,15 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
                 FileUtils.deleteQuietly(resultFile);
             }
 
-            output.collect(new Text(collectResult()), new Text(""));
+            collect(output);
 
             reporter.setStatus("Processing complete for file: " + filePath);
         }
+    }
+
+    public void collect(OutputCollector<Text, Text> output)
+        throws IOException {
+        output.collect(new Text(collectResult()), new Text(""));
     }
 
     /**

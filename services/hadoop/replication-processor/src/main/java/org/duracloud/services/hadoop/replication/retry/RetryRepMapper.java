@@ -7,6 +7,8 @@
  */
 package org.duracloud.services.hadoop.replication.retry;
 
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 import org.duracloud.client.ContentStore;
@@ -31,31 +33,30 @@ public class RetryRepMapper extends RepMapper {
 
     private String result;
 
-    /**
-     * Replicate a file to another storage location if the
-     * previous job failed to replicate the file
-     *
-     * @param fileWithMD5 the file to be replicated
-     * @param origContentId the original ID of the file
-     * @return null (there is no resultant file)
-     */
     @Override
-    protected ProcessResult processFile(FileWithMD5 fileWithMD5,
-                                        String origContentId,
-                                        Reporter reporter)
-        throws IOException {
+    public void map(Text key,
+                    Text value,
+                    OutputCollector<Text, Text> output,
+                    Reporter reporter) throws IOException {
         result = null;
+        String line = key.toString();
 
-        if(verifyProcessFile(origContentId)) {
-            System.out.println("RetryRepMapper found failure - " + origContentId);
+        if(line.startsWith("failure")) {
+            System.out.println("Starting map processing for line: " + line);
 
-            return super.processFile(fileWithMD5,
-                                     origContentId,
-                                     reporter);
+            String s3Path = "s3n://";
+            int i = line.indexOf(s3Path);
+            int j = line.indexOf(",", i);
+            String filePath = line.substring(i,j);
+            
+            super.map(filePath, null, output, reporter);
+        } else {
+            System.out.println("Passing result for line: " + line);
+
+            result = line;
+
+            super.collect(output);
         }
-        System.out.println("RetryRepMapper found success - " + origContentId);
-
-        return null;
     }
 
     @Override
@@ -64,62 +65,5 @@ public class RetryRepMapper extends RepMapper {
             return result;
         }
         return super.collectResult();
-    }
-
-    protected boolean verifyProcessFile(String filePath) {
-        String spaceId = jobConf.get(TASK_PARAMS.OUTPUT_PATH.getLongForm());
-
-        String dcHost = jobConf.get(TASK_PARAMS.DC_HOST.getLongForm());
-        String dcPort = jobConf.get(TASK_PARAMS.DC_PORT.getLongForm());
-        String dcContext = jobConf.get(TASK_PARAMS.DC_CONTEXT.getLongForm());
-        String dcUser = jobConf.get(TASK_PARAMS.DC_USERNAME.getLongForm());
-        String dcPass = jobConf.get(TASK_PARAMS.DC_PASSWORD.getLongForm());
-
-        ContentStoreManager storeManager =
-            new ContentStoreManagerImpl(dcHost, dcPort, dcContext);
-        Credential credential = new Credential(dcUser, dcPass);
-        storeManager.login(credential);
-
-        ContentStore primaryStore;
-        Content content;
-        BufferedReader reader = null;
-        String line;
-
-        try {
-            primaryStore = storeManager.getPrimaryContentStore();
-
-            RepOutputFormat format = new RepOutputFormat();
-
-            content = primaryStore.getContent(pathUtil.getSpaceId(spaceId),
-                                              format.getOutputFileName());
-
-            reader = new BufferedReader(
-                new InputStreamReader(content.getStream()));
-
-            while ((line = reader.readLine()) != null)   {
-                if(line.contains(filePath)) {
-                    if(line.startsWith("failure"))
-                        return true;
-                    else {
-                        result = line;
-                        return false;
-                    }
-                }
-            }
-        }  catch(ContentStoreException e) {
-            e.printStackTrace();
-        } catch(IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(reader != null) {
-                try {
-                    reader.close();
-                } catch(IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return true;
     }
 }
