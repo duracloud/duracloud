@@ -198,40 +198,42 @@ $(function(){
 		    }
 		};
 		
-		dc.createTable = function(data, /*optional: array*/ columnClasses, /*optional array*/ columnNames){
-		var table, body, row, i,j;
-		table = $.fn.create("table");
-		if(columnNames){
-			row = $.fn.create("tr");
-			$.each(columnNames, function(x,item){
-				row.append($.fn.create("th").append(item))
-			});
-			table.append($.fn.create("thead").append(row));
-		}
-		
-		body = $.fn.create("tbody");
-		table.append(body);
-		
-		for(i = 0; i < data.length; i++){
-			row = $.fn.create("tr");
-			$(body).append(row);
-			for(j = 0; j < data[i].length; j++){
-				var cell = $.fn.create("td");
-				$(row).append(cell);
-				$(cell).html(data[i][j]);
-				if(columnClasses !=null){
-					var columnClass;
-					if(j >= columnClasses.length){
-						columnClass = columnClasses[ j % columnClasses.length];
-					}else{
-						columnClass = columnClasses[j];
+		dc.createTable = function(data, /*optional: array*/ columnDefs){
+			var table, body, row, i,j;
+			table = $.fn.create("table");
+			if(columnDefs){
+				row = $.fn.create("tr");
+				$.each(columnDefs, function(x,item){
+					var h = $.fn.create("th").html(item.name);
+					if(item.cssClass){
+						h.addClass(item.cssClass);	
 					}
-		
-					$(cell).addClass(columnClass)
+					row.append(h);
+				});
+				table.append($.fn.create("thead").append(row));
+			}
+			
+			body = $.fn.create("tbody");
+			table.append(body);
+			
+			for(i = 0; i < data.length; i++){
+				row = $.fn.create("tr");
+				$(body).append(row);
+				for(j = 0; j < data[i].length; j++){
+					var value = data[i][j],
+							cell = $.fn.create("td");
+					
+					$(row).append(cell);
+					if(columnDefs && columnDefs[j].formatter){
+						value = columnDefs[j].formatter(value);
+					}
+					cell.html(value);
+					if(columnDefs && columnDefs[j].cssClass){
+						cell.addClass(columnDefs[j].cssClass);
+					}
 				}
 			}
-		}
-		return table;
+			return table;
 		};
 		
 		dc.getServiceTypeImageClass = function(serviceName){
@@ -256,7 +258,31 @@ $(function(){
 		
 		};
 		
+		var spNameMap = {};
+		spNameMap["AMAZON_S3"] = "Amazon S3";
+		spNameMap["RACKSPACE"] = "Rackspace";
+		spNameMap["MICROSOFT_AZURE"] = "MS Azure";
+		dc.STORAGE_PROVIDER_KEY_MAP = spNameMap;
 
+		
+		dc.formatGB = function(value, decimalplaces, showUnits){
+			if(!decimalplaces){
+				decimalplaces = 0;
+			}
+			
+			if(showUnits == undefined){
+				showUnits = true;
+			}
+			
+			value = new Number(value/(1024*1024*1024));
+			value =  value.toFixed(parseInt(decimalplaces));
+			
+			if(showUnits){
+				return value +"GB";
+			}else{
+				return value;
+			}
+		};
 		
 		dc.busy = function(message, options){
 			var d = 

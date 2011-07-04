@@ -4,13 +4,14 @@
  * @author Daniel Bernstein
  */
 
-	
+
 
 (function(){
 	$.widget("ui.graphpanel", {  
 		options: {
 			title: "Placeholder Title",
-			data: null,
+			total: "total place holder",
+			dataTable: null,
 		},
 		/*
 		 * converts an array of objects into an array of arrays. 
@@ -33,30 +34,36 @@
 		_init: function(){ 
 			var that = this;
 			$(this.element).addClass("dc-graph-panel");
-			$(this.element).append("<div class='header'><div class='title'></div><div class='button-panel'></div></div>");
+			$(this.element).append("<div class='header'><div>Total: <span class='total'></span></div><div class='button-panel'></div></div>");
 			$(this.element).append("<div class='dc-graph'></div>");
-			$(this.element).append("<div></div>");
+			$(this.element).append("<div><h5 class='title'></h5></div>");
 			this._title(this.options.title);
-			this._addButton("Data", function(){
-				var d,tableData, table;
-				d = $.fn.create("div");
-				$(that.element).append(d);
-				tableData = that._toArray(that.options.data, ["label", "data"]);
-				
-				table = dc.createTable(tableData, ["label", "value number"], ["Name", "Value"]);
-				$(table).addClass("tablesorter");
-				$(table).tablesorter({sortList: [[0,0],] });
-				d.append(table);
-				d.dialog({
-					autoOpen: true,
-					height: 300,
-					width: 350,
-					modal: false,});
-			});
+			this._total(this.options.total);
+
+			if(this.options.dataTable){
+				this._addButton("Data", function(){
+					var d,tableData, table;
+					d = $.fn.create("div");
+					$(that.element).append(d);
+					table = dc.createTable(that.options.dataTable.rows, that.options.dataTable.columnDefs);
+					$(table).addClass("tablesorter");
+					$(table).tablesorter({sortList: [[0,0],] });
+					d.append(table);
+					d.dialog({
+						autoOpen: true,
+						height: 300,
+						width: 350,
+						modal: false,});
+				});
+			}
 		}, 
 		
 		_title: function(title){
 			$(".title", this.element).html(title);
+		},
+
+		_total: function(total){
+			$(".total", this.element).html(total);
 		},
 
 		_addButton: function(text, handler){
@@ -162,6 +169,9 @@
 				 that._reload();
 			});	
 		},
+		
+		_entityColumnTitles: ["Storage Provider", "GBs", "Files"],
+		_mimetypeColumnTitles: ["File Type", "GBs", "Files"],
 
 		 _clearGraphs: function(){
 				$(".dc-graph-panel",this.element).empty();
@@ -171,20 +181,41 @@
 				$(".dc-graph",this.element).html("Not applicable for selected time period.");
 		 },
 		 
-		_loadMimetypeGraphs:function(metrics){
-			var data, mimetypeBytes, mimetypeFiles, mimetypePanel;
+		_formatGigabytes: function(value){
+			 return dc.formatGB(value,2, false);
+		 },
+		_formatDataTable: function(firstColumnFieldName, firstColumnDisplayName,  metrics){
+			 var dt = {};
+			 var defaultCssClass = "label number";
+			 
+			 dt.columnDefs = 
+				 [
+				  {name: firstColumnDisplayName}
+				 ,{name: "Gigabytes",cssClass:defaultCssClass, formatter: this._formatGigabytes}
+				 ,{name: "Files",cssClass:defaultCssClass}
+				 ];
+			 dt.rows = [];
+			 $.each(metrics, function(i,val){
+				 dt.rows.push([val[firstColumnFieldName], val["totalSize"], val["totalItems"]])
+			 });
+			 
+			 return dt;
+		 },
+		 
+		_loadMimetypeGraphs:function(titlePrefix, metrics){
+			var data, dataTable, mimetypeBytes, mimetypeFiles, mimetypePanel;
 		 	mimetypePanel = $(".mimetype-panel", this.element);
-		 	
+		 	dataTable = this._formatDataTable("mimetype", "File Types", metrics.mimetypeMetrics);
 			data = formatPieChartData(
 					metrics.mimetypeMetrics, 
 					"mimetype", 
 		 			"totalSize");
 			mimetypeBytes = $(".bytes-graph",mimetypePanel);
-			mimetypeBytes.graphpanel({title: "Bytes: " + formatGB(metrics.totalSize,2), data: data});
+			mimetypeBytes.graphpanel({title: titlePrefix+ " by File Type (Size)", total:dc.formatGB(metrics.totalSize,2)});
 			plotPieChart(
 				$(".dc-graph", mimetypeBytes), 
 				data, 
-				function(x){ return formatGB(x,2);}
+				function(x){ return dc.formatGB(x,2);}
 			);
 	
 			//files
@@ -193,7 +224,7 @@
 				 	"mimetype", 
 				 	"totalItems");
 			mimetypeFiles = $(".files-graph", mimetypePanel);
-			mimetypeFiles.graphpanel({title:"Files: " + metrics.totalItems, data:data});
+			mimetypeFiles.graphpanel({title: titlePrefix+ " by File Type (Count)", total: metrics.totalItems +" Files", dataTable: dataTable});
 			plotPieChart($(".dc-graph", mimetypeFiles), data, 
 					 	function(x){ return x;}		 	
 			);
@@ -237,6 +268,9 @@
 			_storageProvider: null,
 			_init: function(){
 				var that = this;
+				
+				this._entityColumnTitles[0] = "Space";
+				
 				$.ui.basegraphpanel.prototype._init.call(this); 	
 
 				$(document).bind("storageproviderchanged", function(evt){
@@ -244,13 +278,14 @@
 					 that._reload();
 				});	
 	
-				$(".entity-panel .bytes-graph", this.element).bind("plotclick",function (event, pos, item){
-					var event = $.Event("spacechanged");
-					event.spaceName = item.series.label;
-					event.storageReport = that._storageReport;
-					event.storageProvider = that._storageReport;
-					$(document).trigger(event);
-				});
+				$(".entity-panel",this.element).find(".bytes-graph, .files-graph")
+					.bind("plotclick",function (event, pos, item){
+						var event = $.Event("spacechanged");
+						event.spaceName = item.series.label;
+						event.storageReport = that._storageReport;
+						event.storageProvider = that._storageReport;
+						$(document).trigger(event);
+					});
 			},
 			
 			_getStorageProviderMetrics: function(){
@@ -268,14 +303,16 @@
 
 			_reloadImpl: function(){
 				 
-				var spm, 
+				var that, 
+					spm, 
 					entityPanel,
 					mimetypePanel,
 					data, 
 					bytes, 
 					files, 
-					mimetypeBytes, 
-					mimetypeFiles;
+					dataTable;
+				
+				that = this;
 				
 				spm  =  this._getStorageProviderMetrics();
 				if(!spm){
@@ -286,19 +323,19 @@
 				entityPanel = $(".entity-panel", this.element);
 				mimetypePanel = $(".mimetype-panel", this.element);
 
-				//entity
 				//bytes
+				var titlePrefix =  "Spaces in " + dc.STORAGE_PROVIDER_KEY_MAP[spm.storageProviderType];
 				data = formatPieChartData(
 						spm.spaceMetrics, 
 						"spaceName", 
 			 			"totalSize");
 
 				bytes = $(".bytes-graph",entityPanel);
-				bytes.graphpanel({title: "Bytes: " + formatGB(spm.totalSize,2), data: data});
+				bytes.graphpanel({title: titlePrefix + " (Size)", total:dc.formatGB(spm.totalSize,2)});
 				plotPieChart(
 					$(".dc-graph", bytes), 
 					data, 
-					function(x){ return formatGB(x,2);}
+					function(x){ return dc.formatGB(x,2);}
 				);
 
 				//files
@@ -306,14 +343,15 @@
 						spm.spaceMetrics, 
 					 	"spaceName", 
 					 	"totalItems");
-				
+
+			 	dataTable = this._formatDataTable("spaceName", "Spaces", spm.spaceMetrics);
 				files = $(".files-graph", entityPanel);
-				files.graphpanel({title:"Files: " + spm.totalItems, data:data});
+				files.graphpanel({title: titlePrefix + " (Count)", total:spm.totalItems, dataTable: dataTable});
 				plotPieChart($(".dc-graph", files), data, 
 						 	function(x){ return x;}		 	
 				);
 
-				this._loadMimetypeGraphs(spm);
+				this._loadMimetypeGraphs("Spaces", spm);
 			},
 		})
 	);
@@ -360,7 +398,7 @@
 					}else{
 						//mimetype
 						//bytes
-						this._loadMimetypeGraphs(spm);
+						this._loadMimetypeGraphs(spm.spaceName, spm);
 					}
 				},
 			}
@@ -380,72 +418,105 @@
 				
 				$(".entity-panel .bytes-graph, .entity-panel .files-graph", this.element)
 					.bind("plotclick",function (event, pos, item){
-						var event = $.Event("storageproviderchanged");
-						event.storageProvider = item.series.label;
-						event.storageReport = that._storageReport;
-						$(document).trigger(event);
+						that._fireStorageProviderChanged(item.series.label);
 					});	
 				
 			},
+
+			_fireStorageProviderChanged: function(storageProviderId){
+				var event = $.Event("storageproviderchanged");
+				event.storageProvider = storageProviderId;
+				event.storageReport = this._storageReport;
+				$(document).trigger(event);				
+			},
 			
 			_reloadImpl: function(){
-				var spm, 
-				entityPanel,
-				mimetypePanel,
-				data, 
-				bytes, 
-				files, 
-				mimetypeBytes, 
-				mimetypeFiles;
+				var that, 
+					spm, 
+					entityPanel,
+					mimetypePanel,
+					data, 
+					bytes, 
+					files, 
+					mimetypeBytes, 
+					mimetypeFiles, 
+					xTickFormatter,
+					dataTable, 
+					storageProviderLinkClass,
+					titlePrefix;
 
-			spm  =  this._getStorageMetrics();
-			entityPanel = $(".entity-panel", this.element);
-			mimetypePanel = $(".mimetype-panel", this.element);
+				
+				that = this;
 
-			//entity
-			//bytes
+				spm  =  this._getStorageMetrics();
+				
+				
+				entityPanel = $(".entity-panel", this.element);
+				mimetypePanel = $(".mimetype-panel", this.element);
+	
+				titlePrefix =  "Storage Providers";
 
-			data = formatBarChartData(
-				 	spm.storageProviderMetrics, 
-				 	"storageProviderType", 
-				 	"totalSize");
+				data = formatBarChartData(
+					 	spm.storageProviderMetrics, 
+					 	"storageProviderType", 
+					 	"totalSize");
+	
+				bytes = $(".bytes-graph",entityPanel);
+				bytes.graphpanel({title: titlePrefix + " (Size)", total:dc.formatGB(spm.totalSize,2)});
 
-			bytes = $(".bytes-graph",entityPanel);
-			bytes.graphpanel({title: "Bytes: " + formatGB(spm.totalSize,2), data: data});
-			plotBarChart(
-				$(".dc-graph", bytes), 
-				data, 
-			 	function(value){
-					return formatGB(value);
-				},
-				function(value){
-					return formatGB(value,2);
-				}
-			);
+				storageProviderLinkClass = "storage-provider-link";
+				//format x axis ticks
+				xTickFormatter = function(value){
+					var txt; 
+					txt = dc.STORAGE_PROVIDER_KEY_MAP[value];
+					if(!txt) txt = value;
+					return "<span style='font-size:0.8em'><a id='"+value+"'class='"+storageProviderLinkClass+"' href='#'>"+txt+"</a></span>";
+				};
+				
+				
+				plotBarChart(
+					$(".dc-graph", bytes), 
+					data, 
+					xTickFormatter,
+					function(value){
+						return dc.formatGB(value);
+					},
+					function(xValue, yValue){
+						return dc.STORAGE_PROVIDER_KEY_MAP[xValue] + ": " + dc.formatGB(yValue,2);
+					}
+				);
+	
+				//files
+				data = formatBarChartData(
+					 	spm.storageProviderMetrics, 
+					 	"storageProviderType", 
+					 	"totalItems")
+				
+				files = $(".files-graph", entityPanel);
+				dataTable = this._formatDataTable("storageProviderType", "Storage Providers", spm.storageProviderMetrics);
+				files.graphpanel({title: titlePrefix + " (Count)", total: spm.totalItems +" Files", dataTable: dataTable});
+	
+				 plotBarChart($(".dc-graph", files), 
+						 	data, 
+						 	xTickFormatter,
+						 	function(value){
+								return toFixed(value, 0);
+							},
+							function(xValue, yValue){
+								return dc.STORAGE_PROVIDER_KEY_MAP[xValue] + ": " + toFixed(yValue,0);
+							}
+						);
+	
+				 this._loadMimetypeGraphs(titlePrefix, spm);
 
-			//files
-			data = formatBarChartData(
-				 	spm.storageProviderMetrics, 
-				 	"storageProviderType", 
-				 	"totalItems")
-			
-			files = $(".files-graph", entityPanel);
-			files.graphpanel({title:"Files: " + spm.totalItems, data:data});
-
-			 plotBarChart($(".dc-graph", files), 
-					 	data, 
-					 	function(value){
-							return(value);
-						},
-						function(value){
-							return(value);
+				$("." +storageProviderLinkClass).click(
+						function(evt){
+							that._fireStorageProviderChanged($(this).attr("id"));
 						}
 					);
-
-			 this._loadMimetypeGraphs(spm);
-				
-			},
-		})
+				},
+			}
+		)
 	);	
 
 	
@@ -454,8 +525,15 @@
 
 var centerLayout,mainContentLayout;
 
-function plotPieChart(element, data, labelFormatter){
-	$.plot(element, data,
+function plotPieChart(element, data, labelValueFormatter){
+	var that, labelFormatter;
+	that = this;
+	
+	labelFormatter = function(label, series){
+        return label+'<br/>'+labelValueFormatter(series.data[0][1])+'</div>';
+    };
+    
+    $.plot(element, data,
 			 {
 		         series: {
 		            pie: {
@@ -465,8 +543,10 @@ function plotPieChart(element, data, labelFormatter){
 		                    show: true,
 		                    radius: 2/3,
 		                    formatter: function(label, series){
-		                        return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+labelFormatter(series.data[0][1])+'</div>';
-		                    },
+    							return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+
+    								labelFormatter(label, series)
+    								+"</div>";
+    						},
 		                    threshold: 0.1,
 		                    background: {
 		                        opacity: 0.5,
@@ -475,7 +555,6 @@ function plotPieChart(element, data, labelFormatter){
 		                }
 		            }
 		         },
-		         
 		         grid: {
 		             hoverable: true,
 		             clickable: true
@@ -483,32 +562,39 @@ function plotPieChart(element, data, labelFormatter){
 		         legend: { show:false},
 			 }
 		 );	
+    
+    var previousSlice = null;
+	$(element).unbind("plothover");
+	$(element).bind("plothover", function (event, pos, item){
+        $("#x").text(pos.pageX);
+        $("#y").text(pos.pageY);
+ 
+        if (item) {
+            if (previousSlice != item) {
+                previousSlice = item;
+                $("#tooltip").remove();
+                showTooltip(pos.pageX, pos.pageY,
+                           labelFormatter(item.series.label, item.series));
+            }
+        }
+        else {
+            $("#tooltip").remove();
+            previousSlice = null;            
+        }
+	});;
 	
     	
 }
 
-function formatGB(value, scale){
-	var roundedVal;
-	
-	roundedVal = value/(1000*1000*1000);
-	
-	if(scale){
-		var s = scale*10;
-		roundedVal = Math.round(roundedVal*s)/s;
-	}
-	
-	return roundedVal+ "GB";	
+function toFixed(value, decimalplaces){
+	return new Number(value+"").toFixed(parseInt(decimalplaces));
 }
 
-function plotBarChart(element, data, tickFormatter, labelFormatter){
+function plotBarChart(element, data, xTickFormatter, yTickFormatter, labelFormatter){
 	var ticks = [0,""];
 	var i = 0;
 	for(i=0; i < data.length; i++){
-		ticks.push([i+1,data[i].label]);
-	};
-	
-	var xax = {
-		ticks:ticks
+		ticks.push([i+1,xTickFormatter(data[i].label)]);
 	};
 	
 	$.plot(element, data,
@@ -522,11 +608,12 @@ function plotBarChart(element, data, tickFormatter, labelFormatter){
 		             clickable: true
 		         },
 		         legend: { show:false},
-		         xaxis: xax,
+		         xaxis: {
+		     		ticks:ticks,
+		    		tickFormatter: xTickFormatter,
+		         },
 		         yaxis: {
-		        	tickFormatter: function (value) {
-		        	   return tickFormatter(value);
-		         	},
+		        	tickFormatter: yTickFormatter,
 		         }
 			 }
 		 );	
@@ -547,7 +634,7 @@ function plotBarChart(element, data, tickFormatter, labelFormatter){
                     y = item.datapoint[1].toFixed(2);
                 
                 showTooltip(item.pageX, item.pageY,
-                            item.series.label + ": " +labelFormatter(y));
+                           labelFormatter(item.series.label, y));
             }
         }
         else {
@@ -586,9 +673,23 @@ function formatPieChartData(inputArray, label, value){
 		 });
 	 };
 	 
-	 return data;
+	 return simpleSort(data, "label");
 }
 
+function simpleSort(array, field){
+	 array.sort(function(a,b){
+		 if(!field){
+			a = a[field];
+			b = b[field];
+		 }
+
+		 if(a == b) return 0;
+		 else if( a > b) return 1;
+		 else return -1;
+	 });
+
+	return array;
+}
 
 function formatBarChartData(inputArray, label, value){
 	 var data = new Array();
@@ -601,7 +702,7 @@ function formatBarChartData(inputArray, label, value){
 		 });
 	 };
 	 
-	 return data;
+	 return simpleSort(data, "label");
 }
 
 $(function() {
@@ -621,65 +722,6 @@ $(function() {
 		,	center__paneSelector:	".center"
 		});
 	
-
-
-	/* 
-	 var loadSpaceReport = function (spaceMetrics){
-		 var sp = $("#space");
-		 var mtm = spaceMetrics.mimetypeMetrics;
-
-		 
-		 $("#mimetype-bytes",sp).graphpanel({
-			 title: "Mimetype Bytes",
-			 data:  formatPieChartData(
-					 	mtm, 
-					 	"mimetype", 
-					 	"totalSize"),
-			 total: spaceMetrics.totalSize,
-			 units: "Bytes",
-
-		 });
-
-		 $("#mimetype-files",sp).graphpanel({
-			 title: "Mimetype Files",
-			 data:  formatPieChartData(
-					 	mtm, 
-					 	"mimetype", 
-					 	"totalItems"),
-			 total: spaceMetrics.totalItems,
-			 units: "Files",
-
-		 });
-
-	 };
-	 
-	 */
-	 
-	 /*
-	 var getSpaceMetrics = function(spaceName,spaceMetrics){
-		 var spm = null;
-		 $.each(spaceMetrics, function(i,sm){
-			 if(sm.spaceName == spaceName){
-				 spm =  sm;
-				 return false;
-			 }
-		 });
-		 
-		 return spm;
-	 };
-
-	*/
-	/*
-	 
-	 var handlePlotClick = function(label,click){
-		handleStorageProviderPlotClick(label, click);
-	 };
-
-	 
-	 var handleStorageProviderPlotClick = function(label,click){
-		 addToBreadcrumb(label, click);		 
-	 };
-	 */
 	 var seekTo = function(index){
 		 var api;
 		 $(".scrollable").scrollable();
@@ -687,7 +729,6 @@ $(function() {
 		 api.seekTo(index, 500);
 	 };
 	 
-	
 	var formatChartDate = function(/*string*/reportId){
 		return new Date(convertStorageReportIdToMs(reportId))
 					.toLocaleDateString();
@@ -737,7 +778,12 @@ $(function() {
 		})
 
 		$(document).bind("storageproviderchanged", function(evt){
-			addToBreadcrumb(evt.storageProvider, function(){
+			var spname = dc.STORAGE_PROVIDER_KEY_MAP[evt.storageProvider];
+			if(!spname){
+				spname = evt.storageProvider;
+			}
+			
+			addToBreadcrumb(spname, function(){
 				seekTo(1);
 			});
 		})
@@ -763,15 +809,22 @@ $(function() {
 		return getSlider().slider("value");
 	};
 
+	var updateSelectedDate = function(storageReportId){
+		$("#report-selected-date").html(formatSelectedDate(storageReportId));
+		$("#report-link").attr("href", "/duradmin/storagereport/get?reportId="+storageReportId+"&format=xml");
+	};
+	
 	var initSlider = function(storageReportIds){
 		var slider = getSlider();
+
+		
 		slider.slider({
 			value:storageReportIds.length-1,
 			min: 0,
 			max: storageReportIds.length-1,
 			step: 1,
 			slide:function(event,ui){
-				$("#report-selected-date").html(formatSelectedDate(storageReportIds[ui.value]));
+				updateSelectedDate(storageReportIds[ui.value]);
 			},
 			change: function( event, ui ) {
 				getStorageReport(storageReportIds[ui.value], function(storageReport){
@@ -779,6 +832,12 @@ $(function() {
 				});
 			}
 		});
+		
+		$(document).bind("storagereportchanged", function(evt){
+			var storageReport = evt.storageReport;
+			updateSelectedDate(storageReport.contentId);
+		});
+		
 		return slider;
 	};
 	
@@ -882,8 +941,10 @@ $(function() {
 		getStorageReportIds(
 		{
 			success: function(storageReportIds){
-				storageReportIds.reverse();
+				var currentId;
+				
 				dc.done();
+				storageReportIds.reverse();
 				
 				//initialize date controls
 				initSlider(storageReportIds);
@@ -892,13 +953,13 @@ $(function() {
 					seekTo(0);
 				});
 				
-				var selectedReportId = getCurrentReportId(storageReportIds);
-				$("#report-selected-date").html(formatSelectedDate(selectedReportId));
 				$("#report-start-range").html(formatChartDate(storageReportIds[0]));
 				$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
-				
+				currentId = getCurrentReportId(storageReportIds);
+
+				updateSelectedDate(currentId)
 				//load the most recent report
-				getStorageReport(selectedReportId, function(storageReport){
+				getStorageReport(currentId, function(storageReport){
 					fireStorageReportChangedEvent(storageReport);
 				});
 			},

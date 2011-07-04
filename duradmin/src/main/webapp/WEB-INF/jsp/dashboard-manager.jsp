@@ -1,7 +1,7 @@
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insertDefinition name="app-base">
 	<tiles:putAttribute name="title">
-		<spring:message code="services" />
+		<spring:message code="dashboard" />
 	</tiles:putAttribute>
 
 	<tiles:putAttribute name="header-extensions">
@@ -81,7 +81,7 @@
 }
 
 .dc-graph {
-	width:400px;
+	width:480px;
 	height:250px;
 	background: #EEEEEE;
 }
@@ -131,7 +131,7 @@
 }
 
 .diptych > div {
-  width:400px;
+  width:480px;
   margin:10px;
   display: inline-block;
 }
@@ -141,9 +141,13 @@
 	width:100%;		
 }
 
-.diptych .title {
+.diptych div.header > div:first-child {
 	float:left;
-	max-width:200px;
+	max-width:400px;
+}
+
+.diptych {
+	width:1100px;
 }
 
 .diptych .button-panel {
@@ -154,6 +158,9 @@
 	color:black;
 }
 
+.back-link:hover{
+	cursor: pointer;
+}
 
 </style>
 
@@ -188,7 +195,7 @@
 				<div class="north dc-report-panel ">
 				<div id="report-breadcrumb" class="dc-breadcrumb"></div>
 				<div class="dc-navigation">
-					<div class="dc-slider-value"><span id="report-selected-date"></span></div>
+					<div class="dc-slider-value"><span id="report-selected-date"></span><a id="report-link" href="x">[xml]</a></div>
 					<div class="dc-date-slider">
 					<div id="report-start-range"></div>
 					<div id="report-date-slider-wrapper">
@@ -226,7 +233,7 @@
 					<div class="ui-widget-header ui-corner-all">
 						<div class="graph-switch">
 							<a href="#" class="back-link">&lt; Back</a>
-							<input type="radio" id="entity-radio-1" class="entity-radio" name="radio" checked="checked" /><label  for="entity-radio-1">Storage Providers</label>
+							<input type="radio" id="entity-radio-1" class="entity-radio" name="radio" checked="checked" /><label  for="entity-radio-1">Spaces</label>
 							<input type="radio" id="mimetype-radio-1" class="mimetype-radio"  name="radio" /><label for="mimetype-radio-1">File Type</label>
 						</div>
 					</div>
