@@ -137,16 +137,18 @@ public class ServiceSummarizerImpl implements ServiceSummarizer {
             for(UserConfigModeSet modeSet : modeSets) {
                 for(UserConfigMode mode : modeSet.getModes()) {
                     if(mode.isSelected()) {
-                        if(!mode.getName().equals(
-                            UserConfigModeSet.DEFAULT_MODE_NAME)) {
+                        if(!UserConfigModeSet.DEFAULT_MODE_NAME.equals(
+                            mode.getName())) {
                             config.put(modeSet.getDisplayName(),
                                        mode.getDisplayName());
                         }
 
-                        // FIXME: null pointer exception on "bit-integrity-checker" service.
-                        for(UserConfig userConfig : mode.getUserConfigs()) {
-                            config.put(userConfig.getDisplayName(),
-                                       userConfig.getDisplayValue());
+                        List<UserConfig> userConfigs = mode.getUserConfigs();
+                        if(null != userConfigs) {
+                            for(UserConfig userConfig : userConfigs) {
+                                config.put(userConfig.getDisplayName(),
+                                           userConfig.getDisplayValue());
+                            }
                         }
 
                         getModeSetConfig(config, mode.getUserConfigModeSets());
