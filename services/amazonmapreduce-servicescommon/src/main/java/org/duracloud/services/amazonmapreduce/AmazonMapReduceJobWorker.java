@@ -28,7 +28,7 @@ public interface AmazonMapReduceJobWorker extends Runnable {
     public enum JobStatus {
         STARTING("Starting Job...", ServiceStatus.PROCESSING),
         RUNNING("Running Job...", ServiceStatus.PROCESSING),
-        COMPLETE("Job Complete", ServiceStatus.SUCCESS),
+        COMPLETE("Job Complete", ServiceStatus.FINALIZING),
         WAITING("Waiting to post process...", ServiceStatus.WAITING),
         POST_PROCESSING("Post Job Processing...", ServiceStatus.POSTPROCESSING),
         UNKNOWN("Job status unknown", null);

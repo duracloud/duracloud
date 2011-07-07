@@ -8,13 +8,11 @@
 package org.duracloud.services.amazonmapreduce;
 
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker.JobStatus;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-
-import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker.JobStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +45,7 @@ public class BaseAmazonMapReduceServiceGetPropsTest {
         postWorker = null;
         service = new BaseAmazonMapReduceServiceImpl(worker, postWorker);
 
-        verifyProps(ComputeService.ServiceStatus.FAILED, jobId, error);
+        verifyProps(ComputeService.ServiceStatus.PROCESSING, jobId, error);
     }
 
     @Test
@@ -101,7 +99,9 @@ public class BaseAmazonMapReduceServiceGetPropsTest {
         postWorker = createMockWorker(postJobStatus, postJobId, postError);
         service = new BaseAmazonMapReduceServiceImpl(worker, postWorker);
 
-        verifyProps(ComputeService.ServiceStatus.FAILED, postJobId, postError);
+        verifyProps(ComputeService.ServiceStatus.FINALIZING,
+                    postJobId,
+                    postError);
     }
 
     private void verifyProps(ComputeService.ServiceStatus serviceStatus,

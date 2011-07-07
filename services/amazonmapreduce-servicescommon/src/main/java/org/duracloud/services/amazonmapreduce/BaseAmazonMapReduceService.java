@@ -15,7 +15,6 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
-import org.duracloud.services.amazonmapreduce.impl.HadoopJobCompletionMonitor;
 import org.duracloud.services.amazonmapreduce.impl.SimpleJobCompletionMonitor;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
@@ -27,9 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker.JobStatus;
-import static org.duracloud.storage.domain.HadoopTypes.INSTANCES;
 import static org.duracloud.storage.domain.HadoopTypes.INSTANCES.SMALL;
-import static org.duracloud.storage.domain.HadoopTypes.STOP_JOB_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
@@ -211,14 +208,13 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
             props.putAll(collectWorkerProps(postWorker));
         }
 
-        if (jobStatus != JobStatus.UNKNOWN) {
-            ServiceStatus serviceStatus;
-            if (null != super.getError()) {
-                serviceStatus = ServiceStatus.FAILED;
-            } else {
-                serviceStatus = jobStatus.toServiceStatus();
+        synchronized (this) { // ensures the status is not set incorrectly
+            if (!super.getServiceStatus().isComplete()) {
+                if (jobStatus != JobStatus.UNKNOWN) {
+                    ServiceStatus serviceStatus = jobStatus.toServiceStatus();
+                    super.setServiceStatus(serviceStatus);
+                }
             }
-            super.setServiceStatus(serviceStatus);
         }
 
         log.info("Job Status, {}: {}",

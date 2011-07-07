@@ -19,6 +19,7 @@ public interface ComputeService {
         WAITING,
         PROCESSING,
         POSTPROCESSING,
+        FINALIZING,
         STOPPING,
         STOPPED,
         SUCCESS,

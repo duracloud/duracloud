@@ -37,7 +37,7 @@ public class JobStatusTest {
         Assert.assertEquals(ServiceStatus.PROCESSING, status.toServiceStatus());
 
         status = JobStatus.COMPLETE;
-        Assert.assertEquals(ServiceStatus.SUCCESS, status.toServiceStatus());
+        Assert.assertEquals(ServiceStatus.FINALIZING, status.toServiceStatus());
 
         status = JobStatus.WAITING;
         Assert.assertEquals(ServiceStatus.WAITING, status.toServiceStatus());
