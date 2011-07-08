@@ -41,19 +41,22 @@ public class StorageReportInfoSerializerTest {
         info.setEstimatedCompletionTime(estimatedCompletionTime);
         info.setNextScheduledStartTime(nextScheduledStartTime);
 
-        String xml = serializer.serializeReportInfo(info);
+        String xml = serializer.serialize(info);
         assertNotNull(xml);
 
-        StorageReportInfo deserialXml = serializer.deserializeReportInfo(xml);
+        StorageReportInfo infoDeserialized = serializer.deserialize(xml);
 
-        assertEquals(status, deserialXml.getStatus());
-        assertEquals(startTime, deserialXml.getStartTime());
-        assertEquals(currentCount, deserialXml.getCurrentCount());
-        assertEquals(finalCount, deserialXml.getFinalCount());
-        assertEquals(completionTime, deserialXml.getCompletionTime());
+        assertEquals(status, infoDeserialized.getStatus());
+        assertEquals(startTime, infoDeserialized.getStartTime());
+        assertEquals(currentCount, infoDeserialized.getCurrentCount());
+        assertEquals(finalCount, infoDeserialized.getFinalCount());
+        assertEquals(completionTime, infoDeserialized.getCompletionTime());
         assertEquals(estimatedCompletionTime,
-                     deserialXml.getEstimatedCompletionTime());
+                     infoDeserialized.getEstimatedCompletionTime());
         assertEquals(nextScheduledStartTime,
-                     deserialXml.getNextScheduledStartTime());
+                     infoDeserialized.getNextScheduledStartTime());
+
+        assertEquals(info, infoDeserialized);
+        assertEquals(xml, serializer.serialize(infoDeserialized));
     }
 }

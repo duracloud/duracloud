@@ -26,18 +26,18 @@ public class StorageReportSerializerTest {
         ReportTestHelper testHelper = new ReportTestHelper();
         StorageMetrics metrics = testHelper.createMetrics();
 
-        String contentId = "reportId";
+        String reportId = "reportId";
         long completionTime = 1000;
         long elapsedTime = 100;
         StorageReport report =
-            new StorageReport(contentId, metrics, completionTime, elapsedTime);
+            new StorageReport(reportId, metrics, completionTime, elapsedTime);
 
         StorageReportSerializer serializer = new StorageReportSerializer();
-        String xml = serializer.serializeReport(report);
+        String xml = serializer.serialize(report);
         assertNotNull(xml);
 
-        StorageReport reportDeserialized = serializer.deserializeReport(xml);
-        assertEquals(contentId, reportDeserialized.getContentId());
+        StorageReport reportDeserialized = serializer.deserialize(xml);
+        assertEquals(reportId, reportDeserialized.getReportId());
         assertEquals(completionTime, reportDeserialized.getCompletionTime());
         assertEquals(elapsedTime, reportDeserialized.getElapsedTime());
 
@@ -49,5 +49,8 @@ public class StorageReportSerializerTest {
                      metricsDeserialized.getTotalSize());
         assertEquals(metrics.getStorageProviderMetrics().size(),
                      metricsDeserialized.getStorageProviderMetrics().size());
+
+        assertEquals(report, reportDeserialized);
+        assertEquals(xml, serializer.serialize(reportDeserialized));
     }
 }

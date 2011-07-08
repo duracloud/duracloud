@@ -10,6 +10,7 @@ package org.duracloud.client.report;
 import org.duracloud.client.report.error.ReportException;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.duracloud.reportdata.storage.StorageReportInfo;
+import org.duracloud.reportdata.storage.StorageReportList;
 import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -60,20 +62,21 @@ public class StorageReportManagerImplTest extends ReportManagerTestBase {
 
         StorageReport report = reportManager.getLatestStorageReport();
         assertNotNull(report);
-        assertEquals(id, report.getContentId());
+        assertEquals(id, report.getReportId());
     }
 
     private void setStorageReportInResponse(String id) {
         StorageReportSerializer serializer = new StorageReportSerializer();
         String xmlReport =
-            serializer.serializeReport(new StorageReport(id, null, 0L, 0L));
+            serializer.serialize(new StorageReport(id, null, 0L, 0L));
         setResponse(xmlReport);
     }
 
     @Test
     public void testGetStorageReportList() throws Exception {
         String url = getBaseUrl() + "/list";
-        setStorageReportListInResponse();
+        String listItem = "list-item";
+        setStorageReportListInResponse(listItem);
 
         EasyMock.expect(mockRestHelper.get(EasyMock.eq(url)))
             .andReturn(successResponse)
@@ -83,13 +86,16 @@ public class StorageReportManagerImplTest extends ReportManagerTestBase {
 
         List<String> reportList = reportManager.getStorageReportList();
         assertNotNull(reportList);
+        assertTrue(reportList.contains(listItem));
     }
 
-    private void setStorageReportListInResponse() {
+    private void setStorageReportListInResponse(String listItem) {
         StorageReportListSerializer serializer =
             new StorageReportListSerializer();
-        String xmlReport =
-            serializer.serializeReportList(new ArrayList<String>());
+        List<String> listData = new ArrayList<String>();
+        listData.add(listItem);
+        StorageReportList reportList = new StorageReportList(listData);
+        String xmlReport = serializer.serialize(reportList);
         setResponse(xmlReport);
     }
 
@@ -107,7 +113,7 @@ public class StorageReportManagerImplTest extends ReportManagerTestBase {
 
         StorageReport report = reportManager.getStorageReport(id);
         assertNotNull(report);
-        assertEquals(id, report.getContentId());
+        assertEquals(id, report.getReportId());
     }
 
     @Test
@@ -129,7 +135,7 @@ public class StorageReportManagerImplTest extends ReportManagerTestBase {
         StorageReportInfoSerializer serializer =
             new StorageReportInfoSerializer();
         String xmlReport =
-            serializer.serializeReportInfo(new StorageReportInfo());
+            serializer.serialize(new StorageReportInfo());
         setResponse(xmlReport);
     }
 

@@ -19,7 +19,7 @@
   </target>
 
   <target name="run" description="run the example">
-    <java classname="ExampleReportClient">
+    <java classname="ExampleReportClient" fork="true">
       <classpath>
         <pathelement location="."/>
         <fileset dir="${lib}"/>

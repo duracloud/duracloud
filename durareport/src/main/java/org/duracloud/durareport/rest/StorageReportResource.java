@@ -14,13 +14,13 @@ import org.duracloud.durareport.storage.StorageReportHandler;
 import org.duracloud.durareport.storage.StorageReportScheduler;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.reportdata.storage.StorageReportInfo;
+import org.duracloud.reportdata.storage.StorageReportList;
 import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 /**
  * First line of business logic to handle the requests coming in via the
@@ -111,10 +111,10 @@ public class StorageReportResource {
      */
     public String getStorageReportList() throws ContentStoreException {
         checkInitialized();
-        List<String> reportList = reportHandler.getStorageReportList();
+        StorageReportList reportList = reportHandler.getStorageReportList();
         StorageReportListSerializer serializer =
             new StorageReportListSerializer();
-        return serializer.serializeReportList(reportList);
+        return serializer.serialize(reportList);
     }
 
     /**
@@ -154,7 +154,7 @@ public class StorageReportResource {
 
         StorageReportInfoSerializer serializer =
             new StorageReportInfoSerializer();
-        return serializer.serializeReportInfo(reportInfo);
+        return serializer.serialize(reportInfo);
     }
 
     /**

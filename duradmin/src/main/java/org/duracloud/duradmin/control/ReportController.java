@@ -1,9 +1,5 @@
 package org.duracloud.duradmin.control;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.duracloud.client.report.StorageReportManager;
 import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
@@ -17,6 +13,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 
@@ -56,7 +55,7 @@ public class ReportController {
                 "storageReport", report);
         }else{
             StorageReportSerializer srs = new StorageReportSerializer();
-            String xml = srs.serializeReport(report);
+            String xml = srs.serialize(report);
             try {
                 response.getWriter().write(xml);
             } catch (IOException e) {

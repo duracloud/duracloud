@@ -81,7 +81,7 @@ public class StorageReportManagerImpl extends BaseReportManager implements Stora
             InputStream reportXml = response.getResponseStream();
 
             StorageReportSerializer serializer = new StorageReportSerializer();
-            return serializer.deserializeReport(reportXml);
+            return serializer.deserialize(reportXml);
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class StorageReportManagerImpl extends BaseReportManager implements Stora
 
             StorageReportListSerializer serializer =
                 new StorageReportListSerializer();
-            return serializer.deserializeReportList(listXml);
+            return serializer.deserialize(listXml).getStorageReportList();
         } catch (Exception e) {
             String error = "Could not get storage report list due to: " +
                            e.getMessage();
@@ -119,7 +119,7 @@ public class StorageReportManagerImpl extends BaseReportManager implements Stora
             InputStream reportXml = response.getResponseStream();
 
             StorageReportSerializer serializer = new StorageReportSerializer();
-            return serializer.deserializeReport(reportXml);
+            return serializer.deserialize(reportXml);
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -139,7 +139,7 @@ public class StorageReportManagerImpl extends BaseReportManager implements Stora
 
             StorageReportInfoSerializer serializer =
                 new StorageReportInfoSerializer();
-            return serializer.deserializeReport(reportInfoXml);
+            return serializer.deserialize(reportInfoXml);
         } catch (Exception e) {
             String error = "Could not get storage report info due to: " +
                            e.getMessage();

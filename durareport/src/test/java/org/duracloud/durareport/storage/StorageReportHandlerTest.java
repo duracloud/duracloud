@@ -130,13 +130,13 @@ public class StorageReportHandlerTest {
             InputStream reportStream = handler.getStorageReportStream(reportId);
             assertNotNull(reportStream);
             StorageReportSerializer serializer = new StorageReportSerializer();
-            report = serializer.deserializeReport(reportStream);
+            report = serializer.deserialize(reportStream);
         } else {
             report = handler.getStorageReport(reportId);
         }
 
         assertNotNull(report);
-        assertEquals(reportId, report.getContentId());
+        assertEquals(reportId, report.getReportId());
         assertEquals(completionTime, report.getCompletionTime());
         assertEquals(elapsedTime, report.getElapsedTime());
         assertNotNull(report.getStorageMetrics());
@@ -164,7 +164,7 @@ public class StorageReportHandlerTest {
         StorageMetrics metrics = new StorageMetrics(null, 0, 0, null);
         StorageReport storageReport =
             new StorageReport(reportId, metrics, completionTime, elapsedTime);
-        String xml = serializer.serializeReport(storageReport);
+        String xml = serializer.serialize(storageReport);
         content.setStream(new ByteArrayInputStream(xml.getBytes("UTF-8")));
 
         return content;
@@ -183,13 +183,13 @@ public class StorageReportHandlerTest {
             InputStream reportStream = handler.getLatestStorageReportStream();
             assertNotNull(reportStream);
             StorageReportSerializer serializer = new StorageReportSerializer();
-            report = serializer.deserializeReport(reportStream);
+            report = serializer.deserialize(reportStream);
         } else {
             report = handler.getLatestStorageReport();
         }
 
         assertNotNull(report);
-        assertEquals(reportContentId, report.getContentId());
+        assertEquals(reportContentId, report.getReportId());
         assertEquals(completionTime, report.getCompletionTime());
         assertEquals(elapsedTime, report.getElapsedTime());
         assertNotNull(report.getStorageMetrics());
@@ -223,7 +223,8 @@ public class StorageReportHandlerTest {
     public void testGetStorageReportList() throws Exception {
         StorageReportHandler handler = setUpMocksGetStorageReportList();
 
-        List<String> reportList = handler.getStorageReportList();
+        List<String> reportList =
+            handler.getStorageReportList().getStorageReportList();
         assertNotNull(reportList);
 
         assertNotNull(reportList);

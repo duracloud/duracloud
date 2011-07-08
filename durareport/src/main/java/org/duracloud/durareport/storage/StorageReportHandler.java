@@ -18,6 +18,7 @@ import org.duracloud.durareport.storage.metrics.DuraStoreMetricsCollector;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.reportdata.storage.StorageReport;
+import org.duracloud.reportdata.storage.StorageReportList;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Handles the storage and retrieval of storage reports.
@@ -104,7 +104,7 @@ public class StorageReportHandler {
 
     private StorageReport deserializeStorageReport(Content content) {
         StorageReportSerializer serializer = new StorageReportSerializer();
-        return serializer.deserializeReport(content.getStream());
+        return serializer.deserialize(content.getStream());
     }
 
     /**
@@ -175,8 +175,8 @@ public class StorageReportHandler {
      * @return list of storage reports
      * @throws ContentStoreException
      */
-    public List<String> getStorageReportList() throws ContentStoreException {
-        return getSortedReportList();
+    public StorageReportList getStorageReportList() throws ContentStoreException {
+        return new StorageReportList(getSortedReportList());
     }
 
     /**
@@ -200,7 +200,7 @@ public class StorageReportHandler {
                                                              elapsedTime);
 
         StorageReportSerializer serializer = new StorageReportSerializer();
-        String xml = serializer.serializeReport(report);
+        String xml = serializer.serialize(report);
         byte[] metricsBytes = getXmlBytes(xml);
 
         log.info("Storing Storage Report with ID: " + contentId);

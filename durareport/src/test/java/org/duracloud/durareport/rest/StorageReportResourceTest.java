@@ -11,6 +11,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.durareport.storage.StorageReportBuilder;
 import org.duracloud.durareport.storage.StorageReportHandler;
 import org.duracloud.durareport.storage.StorageReportScheduler;
+import org.duracloud.reportdata.storage.StorageReportList;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -161,9 +162,10 @@ public class StorageReportResourceTest {
     private void setUpMocksGetStorageReportList() throws Exception {
         List<String> reportList = new LinkedList<String>();
         reportList.add("reportId1");
+        StorageReportList storageReportList = new StorageReportList(reportList);
 
         EasyMock.expect(mockReportHandler.getStorageReportList())
-            .andReturn(reportList)
+            .andReturn(storageReportList)
             .times(1);
 
         replayMocks();

@@ -7,6 +7,7 @@
  */
 package org.duracloud.reportdata.storage.serialize;
 
+import org.duracloud.reportdata.storage.StorageReportList;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -30,16 +31,19 @@ public class StorageReportListSerializerTest {
         String reportId2 = "reportId2";
         String reportId3 = "reportId3";
 
-        List<String> storageReportList = new LinkedList<String>();
-        storageReportList.add(reportId1);
-        storageReportList.add(reportId2);
-        storageReportList.add(reportId3);
+        List<String> listData = new LinkedList<String>();
+        listData.add(reportId1);
+        listData.add(reportId2);
+        listData.add(reportId3);
+        StorageReportList reportList = new StorageReportList(listData);
 
-        String xml = serializer.serializeReportList(storageReportList);
+        String xml = serializer.serialize(reportList);
         assertNotNull(xml);
 
-        List<String> desList = serializer.deserializeReportList(xml);
-        assertNotNull(desList);
-        assertEquals(storageReportList, desList);
+        StorageReportList listDeserialized = serializer.deserialize(xml);
+        assertNotNull(listDeserialized);
+
+        assertEquals(reportList, listDeserialized);
+        assertEquals(xml, serializer.serialize(listDeserialized));
     }
 }

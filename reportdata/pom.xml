@@ -40,13 +40,6 @@
     </build>
 
     <dependencies>
-
-        <!-- for XStream -->
-        <dependency>
-          <groupId>com.thoughtworks.xstream</groupId>
-          <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

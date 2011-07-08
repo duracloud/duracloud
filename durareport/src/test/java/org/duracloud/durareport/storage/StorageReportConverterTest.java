@@ -60,7 +60,7 @@ public class StorageReportConverterTest {
                                                              completionTime,
                                                              elapsedTime);
         assertNotNull(report);
-        assertEquals(contentId, report.getContentId());
+        assertEquals(contentId, report.getReportId());
         assertEquals(completionTime, report.getCompletionTime());
         assertEquals(elapsedTime, report.getElapsedTime());
 
