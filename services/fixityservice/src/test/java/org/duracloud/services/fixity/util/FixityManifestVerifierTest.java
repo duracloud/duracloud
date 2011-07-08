@@ -7,8 +7,6 @@
  */
 package org.duracloud.services.fixity.util;
 
-import org.duracloud.common.error.ManifestVerifyException;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,28 +32,31 @@ public class FixityManifestVerifierTest {
 
     @Test
     public void testAddEntry() {
+        final char delim = '\t';
         String line = ""; // valid, but undesirable
         verify(line, true);
 
-        line = "a,b";
+        line = "a" + delim + "b";
         verify(line, false);
 
-        line = "a,b,c";
+        line = "a" + delim + "b" + delim + "c";
         verify(line, true);
 
-        line = "a,b,c,d";
+        line = "a" + delim + "b" + delim + "c" + delim + "d";
         verify(line, false);
 
-        line = "a,b,c,d,VALID";
+        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim + "VALID";
         verify(line, true);
 
-        line = "a,b,c,d,OTHER";
+        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim + "OTHER";
         verify(line, false);
 
-        line = "a,b,c,d,MISSING_FROM_0";
+        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim +
+            "MISSING_FROM_0";
         verify(line, true);
 
-        line = "a,b,c,d,MISSING_FROM_0,more";
+        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim +
+            "MISSING_FROM_0" + delim + "more";
         verify(line, false);
     }
 

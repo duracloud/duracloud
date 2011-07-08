@@ -171,9 +171,11 @@ public class HashMetadataFinderMapperTest {
 
     @Test
     public void testCollectResult() throws IOException {
+        final char delim = '\t';
         String result = mapper.collectResult();
         Assert.assertNotNull(result);
-        Assert.assertEquals("null-space,null-content-id,null", result);
+        Assert.assertEquals(
+            "null-space" + delim + "null-content-id" + delim + "null", result);
     }
 
 }

@@ -37,20 +37,21 @@ public class HashFinderWorkloadFromListTest extends HashWorkloadTestBase {
 
     private String contentListing;
 
-    private List<String> contentItems;
     private final String contentItemPrefix = "content-item-";
     private final String spacePrefix = "space-prefix-";
     private final int numContentItems = 5;
 
     @Before
     public void setUp() throws ContentStoreException {
+        final char delim = '\t';
         String sep = System.getProperty("line.separator");
 
-        StringBuilder sb = new StringBuilder("header-space,header-content");
+        StringBuilder sb = new StringBuilder(
+            "header-space" + delim + "header-content");
         sb.append(sep);
         for (int i = 0; i < numContentItems; ++i) {
             sb.append(spacePrefix + i);
-            sb.append(",");
+            sb.append(delim);
             sb.append(contentItemPrefix + i);
             sb.append(sep);
         }

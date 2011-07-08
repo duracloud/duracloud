@@ -40,7 +40,7 @@ public class FixityManifestVerifier extends ManifestVerifier {
             return;
         }
 
-        String[] cksumFilenamePair = line.split(",");
+        String[] cksumFilenamePair = line.split("\t");
         if (!validEntry(cksumFilenamePair)) {
             throw new RuntimeException("Invalid manifest file: " + line);
         }

@@ -297,15 +297,16 @@ public class ManifestVerifier {
         }
 
         public String toString() {
+            char delim = '\t';
             StringBuilder sb = new StringBuilder();
             sb.append(this.getTitle());
-            sb.append(",");
+            sb.append(delim);
             sb.append(this.getFile());
-            sb.append(",");
+            sb.append(delim);
             sb.append(this.getChecksum0());
-            sb.append(",");
+            sb.append(delim);
             sb.append(this.getChecksum1());
-            sb.append(",");
+            sb.append(delim);
             sb.append(this.getState());
             return sb.toString();
         }

@@ -310,7 +310,8 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
 
         @Override
         public ContentLocation next() {
-            StringTokenizer tokenizer = new StringTokenizer(currentLine, ",");
+            final String delim = "\t";
+            StringTokenizer tokenizer = new StringTokenizer(currentLine, delim);
 
             String spaceId = null;
             if (tokenizer.hasMoreTokens()) {

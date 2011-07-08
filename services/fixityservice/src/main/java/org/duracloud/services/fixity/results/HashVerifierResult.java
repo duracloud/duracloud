@@ -41,11 +41,13 @@ public class HashVerifierResult implements ServiceResult {
 
     @Override
     public String getHeader() {
+        final char delim = '\t';
         String locA = contentLocationA.getSpaceId() + "/" +
             contentLocationA.getContentId();
         String locB = contentLocationB.getSpaceId() + "/" +
             contentLocationB.getContentId();
-        return "space-id,content-id,0:" + locA + "," + "1:" + locB + ",status";
+        return "space-id" + delim + "content-id" + delim + "0:" + locA + delim +
+            "1:" + locB + delim + "status";
     }
 
     @Override

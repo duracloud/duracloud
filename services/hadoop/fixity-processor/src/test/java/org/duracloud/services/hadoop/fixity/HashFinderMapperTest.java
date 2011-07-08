@@ -26,6 +26,8 @@ import java.io.OutputStream;
  */
 public class HashFinderMapperTest {
 
+    private static final char DELIM = '\t';
+
     private HashFinderMapper mapper;
 
     private File testDir = new File("target", "test-hash-mapper");
@@ -64,7 +66,9 @@ public class HashFinderMapperTest {
 
         String result = mapper.collectResult();
         Assert.assertNotNull(result);
-        Assert.assertEquals("null-space,null-content-id,null-file", result);
+        Assert.assertEquals(
+            "null-space" + DELIM + "null-content-id" + DELIM + "null-file",
+            result);
     }
 
     @Test
@@ -82,7 +86,8 @@ public class HashFinderMapperTest {
     public void testCollectResult() throws IOException {
         String result = mapper.collectResult();
         Assert.assertNotNull(result);
-        Assert.assertEquals("null-space,null-content-id,null", result);
+        Assert.assertEquals(
+            "null-space" + DELIM + "null-content-id" + DELIM + "null", result);
     }
 
 }

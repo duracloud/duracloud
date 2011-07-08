@@ -84,7 +84,9 @@ public class FixityServiceTest {
     }
 
     private String createListing(boolean isCorrupt) {
-        StringBuilder text = new StringBuilder("header,header,header");
+        final char delim = '\t';
+        StringBuilder text = new StringBuilder(
+            "header" + delim + "header" + delim + "header");
         text.append(System.getProperty("line.separator"));
 
         for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
@@ -93,10 +95,10 @@ public class FixityServiceTest {
                 continue;
             }
             text.append(spaceId);
-            text.append(",");
+            text.append(delim);
             text.append(contentId);
             text.append(i);
-            text.append(",");
+            text.append(delim);
             text.append(hash);
             text.append(i);
 
@@ -250,7 +252,7 @@ public class FixityServiceTest {
         while ((line = reader.readLine()) != null) {
             count++;
 
-            String[] parts = line.split(",");
+            String[] parts = line.split("\t");
             Assert.assertEquals(3, parts.length);
 
             Assert.assertEquals(spaceId, parts[0]);
@@ -287,8 +289,8 @@ public class FixityServiceTest {
             if (line.length() > 0) {
                 count++;
 
-                String[] parts = line.split(",");
-                Assert.assertEquals(5, parts.length);
+                String[] parts = line.split("\t");
+                Assert.assertEquals(line, 5, parts.length);
 
                 Assert.assertEquals(spaceId, parts[0]);
                 Assert.assertTrue(parts[1], parts[1].startsWith(contentId));

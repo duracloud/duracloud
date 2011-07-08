@@ -115,12 +115,13 @@ public class HashVerifierWorkerTest {
     }
 
     private String createEntryLine(ContentLocation loc, int i, String data) {
+        final char delim = '\t';
         StringBuilder sb = new StringBuilder(loc.getSpaceId());
         sb.append(i);
-        sb.append(",");
+        sb.append(delim);
         sb.append(loc.getContentId());
         sb.append(i);
-        sb.append(",");
+        sb.append(delim);
         sb.append(getMd5(data));
 
         return sb.toString();

@@ -44,6 +44,7 @@ public class HashVerifierResultTest {
 
     @Test
     public void testGetHeader() throws Exception {
+        char delim = '\t';
         String header = result.getHeader();
         Assert.assertNotNull(header);
 
@@ -52,7 +53,8 @@ public class HashVerifierResultTest {
         String locB = contentLocationB.getSpaceId() + "/" +
             contentLocationB.getContentId();
         String h =
-            "space-id,content-id,0:" + locA + "," + "1:" + locB + ",status";
+            "space-id" + delim + "content-id" + delim + "0:" + locA + delim +
+                "1:" + locB + delim + "status";
         Assert.assertEquals(h, header);
     }
 

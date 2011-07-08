@@ -18,7 +18,9 @@ public class HashFinderResult implements ServiceResult {
 
     private static final Logger log = LoggerFactory.getLogger(HashFinderResult.class);
 
-    private static final String HEADER = "space-id,content-id,MD5";
+    private static final char DELIM = '\t';
+    private static final String HEADER =
+        "space-id" + DELIM + "content-id" + DELIM + "MD5";
 
     private String spaceId;
     private String contentId;
@@ -39,9 +41,9 @@ public class HashFinderResult implements ServiceResult {
     public String getEntry() {
         StringBuffer results = new StringBuffer();
         results.append(spaceId);
-        results.append(",");
+        results.append(DELIM);
         results.append(contentId);
-        results.append(",");
+        results.append(DELIM);
         results.append(hash);
         return results.toString();
     }
@@ -60,11 +62,14 @@ public class HashFinderResult implements ServiceResult {
         StringBuilder sb = new StringBuilder("HashFinderResult [");
         sb.append("spaceId=");
         sb.append(spaceId);
-        sb.append(",contentId=");
+        sb.append(DELIM);
+        sb.append("contentId=");
         sb.append(contentId);
-        sb.append(",hash=");
+        sb.append(DELIM);
+        sb.append("hash=");
         sb.append(hash);
-        sb.append(",success=");
+        sb.append(DELIM);
+        sb.append("success=");
         sb.append(success);
         sb.append("]");
         return sb.toString();

@@ -94,7 +94,7 @@ public class HashWorkerMockSupport {
             String[] parts;
             try {
                 while ((line = br.readLine()) != null) {
-                    parts = line.split(",");
+                    parts = line.split("\t");
                     Assert.assertEquals(5, parts.length);
                     spaceToStatus.put(parts[0].trim(), parts[4].trim());
                 }

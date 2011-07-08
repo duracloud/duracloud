@@ -115,13 +115,14 @@ public class HashMetadataFinderMapper extends ProcessFileMapper {
 
     @Override
     protected String collectResult() throws IOException {
+        final char delim = '\t';
         String path = super.resultInfo.get(INPUT_PATH);
 
         StringBuilder sb = new StringBuilder();
         sb.append(pathUtil.getSpaceId(path));
-        sb.append(",");
+        sb.append(delim);
         sb.append(pathUtil.getContentId(path));
-        sb.append(",");
+        sb.append(delim);
         sb.append(super.resultInfo.get(HASH));
         return sb.toString();
     }
