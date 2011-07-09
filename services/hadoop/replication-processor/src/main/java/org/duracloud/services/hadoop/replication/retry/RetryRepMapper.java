@@ -8,6 +8,7 @@
 package org.duracloud.services.hadoop.replication.retry;
 
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
@@ -34,20 +35,20 @@ public class RetryRepMapper extends RepMapper {
     private String result;
 
     @Override
-    public void map(Text key,
+    public void map(Writable key,
                     Text value,
                     OutputCollector<Text, Text> output,
                     Reporter reporter) throws IOException {
         result = null;
-        String line = key.toString();
+        String line = value.toString();
 
         if(line.startsWith("failure")) {
             System.out.println("Starting map processing for line: " + line);
 
             String s3Path = "s3n://";
             int i = line.indexOf(s3Path);
-            int j = line.indexOf(",", i);
-            String filePath = line.substring(i,j);
+            int j = line.indexOf('\t', i);
+            String filePath = line.substring(i, j);
             
             super.map(filePath, null, output, reporter);
         } else {

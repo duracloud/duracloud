@@ -43,6 +43,8 @@ public class ConversionResultProcessor implements ConversionResultListener {
     private String resultsId;
     private File resultsFile;
 
+    private static final char DELIM = '\t';
+
     public ConversionResultProcessor(ContentStore contentStore,
                                      StatusListener statusListener,
                                      String destSpaceId,
@@ -58,8 +60,10 @@ public class ConversionResultProcessor implements ConversionResultListener {
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
         String resultsHeader =
-            "conversion-date, source-space-id, content-id, dest-space-id, " +
-            "success, error-message, conversion-time, total-time, file size";
+            "conversion-date" + DELIM + "source-space-id" + DELIM +
+                "content-id" + DELIM + "dest-space-id" + DELIM + "success" +
+                DELIM + "error-message" + DELIM + "conversion-time" + DELIM +
+                "total-time" + DELIM + "file size";
 
         resultsFile = new File(workDir, "conversion-results.csv");
         writeToResultsFile(resultsHeader + newline, false);
@@ -121,14 +125,14 @@ public class ConversionResultProcessor implements ConversionResultListener {
     private String convertConversionResult(ConversionResult result) {
         StringBuffer results = new StringBuffer();
         String date = dateFormat.format(result.getConversionDate());
-        results.append(date).append(", ");
-        results.append(result.getSourceSpaceId()).append(", ");
-        results.append(result.getContentId()).append(", ");
-        results.append(result.getDestSpaceId()).append(", ");
-        results.append(result.isSuccess()).append(", ");
-        results.append(result.getErrMessage()).append(", ");
-        results.append(result.getConversionTime()).append(", ");
-        results.append(result.getTotalTime()).append(", ");
+        results.append(date).append(DELIM);
+        results.append(result.getSourceSpaceId()).append(DELIM);
+        results.append(result.getContentId()).append(DELIM);
+        results.append(result.getDestSpaceId()).append(DELIM);
+        results.append(result.isSuccess()).append(DELIM);
+        results.append(result.getErrMessage()).append(DELIM);
+        results.append(result.getConversionTime()).append(DELIM);
+        results.append(result.getTotalTime()).append(DELIM);
         results.append(result.getFileSize());
         results.append(newline);
         return results.toString();

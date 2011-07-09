@@ -9,7 +9,7 @@ package org.duracloud.services.hadoop.replication.retry;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.KeyValueTextInputFormat;
+import org.apache.hadoop.mapred.TextInputFormat;
 import org.duracloud.services.hadoop.base.AltTextOutputFormat;
 import org.duracloud.services.hadoop.replication.RepJobBuilder;
 import org.duracloud.services.hadoop.replication.RepOutputFormat;
@@ -38,7 +38,7 @@ public class RetryRepJobBuilder extends RepJobBuilder {
 
         RepOutputFormat outputFormat = new RepOutputFormat();
 
-        KeyValueTextInputFormat.setInputPaths(conf,
+        TextInputFormat.setInputPaths(conf,
                                               new Path(AltTextOutputFormat.getOutputPath(conf),
                                                        outputFormat.getOutputFileName()));
         return conf;
@@ -65,6 +65,6 @@ public class RetryRepJobBuilder extends RepJobBuilder {
      */
     @Override
     protected Class getInputFormat() {
-        return KeyValueTextInputFormat.class;
+        return TextInputFormat.class;
     }
 }

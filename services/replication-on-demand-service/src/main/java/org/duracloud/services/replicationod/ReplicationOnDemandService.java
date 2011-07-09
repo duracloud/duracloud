@@ -60,8 +60,11 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     @Override
     protected AmazonMapReduceJobWorker getPostJobWorker() {
         if (null == postWorker) {
-            String header = "result, input-file-path, result-file-path, " +
-                "duplication-result, source-file-bytes, duplication-attempts, date";
+            final char delim = '\t';
+            String header = "result" + delim + "input-file-path" + delim +
+                "result-file-path" + delim + "duplication-result" + delim +
+                "source-file-bytes" + delim + "duplication-attempts" + delim +
+                "date";
 
             String preName = "duplicate-on-demand/duplicate-results";
             String date = "-" + DateUtil.nowMid();

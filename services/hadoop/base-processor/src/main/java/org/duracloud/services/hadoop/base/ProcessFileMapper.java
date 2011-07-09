@@ -10,6 +10,7 @@ package org.duracloud.services.hadoop.base;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
 import org.apache.hadoop.mapred.Mapper;
@@ -35,7 +36,7 @@ import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
  * @author: Bill Branan
  * Date: Aug 5, 2010
  */
-public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Text, Text, Text> {
+public class ProcessFileMapper extends MapReduceBase implements Mapper<Writable, Text, Text, Text> {
     public static final String RESULT = "result";
     public static final String SUCCESS = "success";
     public static final String FAILURE = "failure";
@@ -67,7 +68,7 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
      * Performs the actual file processing.
      */
     @Override
-    public void map(Text key,
+    public void map(Writable key,
                     Text value,
                     OutputCollector<Text, Text> output,
                     Reporter reporter) throws IOException {
@@ -289,14 +290,15 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Text, Tex
      * overridden to provide more specific result info.
      */
     protected String collectResult() throws IOException {
+        final char delim = '\t';
         String result =
-            RESULT + "=" + resultInfo.get(RESULT) + ", " + INPUT_PATH + "=" +
-                resultInfo.get(INPUT_PATH) + ", " + RESULT_PATH + "=" +
+            RESULT + "=" + resultInfo.get(RESULT) + delim + INPUT_PATH + "=" +
+                resultInfo.get(INPUT_PATH) + delim + RESULT_PATH + "=" +
                 resultInfo.get(RESULT_PATH);
 
         String errMsg = resultInfo.get(ERR_MESSAGE);
         if (errMsg != null) {
-            result += ", " + ERR_MESSAGE + "=" + errMsg;
+            result += delim + ERR_MESSAGE + "=" + errMsg;
         }
 
         return result;

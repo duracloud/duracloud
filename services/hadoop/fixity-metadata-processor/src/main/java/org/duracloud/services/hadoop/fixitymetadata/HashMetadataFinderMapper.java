@@ -8,6 +8,7 @@
 package org.duracloud.services.hadoop.fixitymetadata;
 
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.duracloud.client.ContentStore;
@@ -32,7 +33,7 @@ public class HashMetadataFinderMapper extends ProcessFileMapper {
     private static final String HASH = "hash-key";
 
     @Override
-    public void map(Text key,
+    public void map(Writable key,
                     Text value,
                     OutputCollector<Text, Text> output,
                     Reporter reporter) throws IOException {

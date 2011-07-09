@@ -70,8 +70,10 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
                                                getContentStore(),
                                                getOutputSpaceId());
 
-            String header = "result, input-file-path, result-file-path, " +
-                "processing-time, source-file-bytes, date";
+            final char delim = '\t';
+            String header = "result" + delim + "input-file-path" + delim +
+                "result-file-path" + delim + "processing-time" + delim +
+                "source-file-bytes" + delim + "date";
 
             String preName = "image-transformer-bulk/image-transformer-results";
             String date = "-" + DateUtil.nowMid();

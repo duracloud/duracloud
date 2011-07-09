@@ -74,7 +74,8 @@ public class ImageConversionMapper extends ProcessFileMapper {
     }
 
     @Override
-    protected String collectResult() throws IOException {                
+    protected String collectResult() throws IOException {
+        final char delim = '\t';
         String result = resultInfo.get(RESULT);
 
         String errMsg = resultInfo.get(ERR_MESSAGE);
@@ -82,16 +83,16 @@ public class ImageConversionMapper extends ProcessFileMapper {
             result += "-" + errMsg;
         }
 
-        result += ", " + resultInfo.get(INPUT_PATH);
-        result += ", " + resultInfo.get(RESULT_PATH);
+        result += delim + resultInfo.get(INPUT_PATH);
+        result += delim + resultInfo.get(RESULT_PATH);
 
 
-        result += ", " + resultInfo.get(PROC_TIME);
-        result += ", "+  resultInfo.get(SRC_SIZE);
+        result += delim + resultInfo.get(PROC_TIME);
+        result += delim +  resultInfo.get(SRC_SIZE);
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String now = format.format(new Date(System.currentTimeMillis()));
-        result += ", " + now;
+        result += delim + now;
 
         return result;
     }

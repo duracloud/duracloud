@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import static org.duracloud.services.hadoop.replication.RepMapper.REP_RESULT;
+import static org.duracloud.services.hadoop.replication.RepMapper.RESULT_PATH;
 
 /**
  * Performs the work of moving a content item to be replicated to the
@@ -158,6 +159,8 @@ public class Replicator implements Runnable {
                                " to " + toSpaceId);
             resultInfo.put(REP_RESULT, "file replicated");
         }
+
+        resultInfo.put(RESULT_PATH, toSpaceId + "/" + contentId);
     }
 
     public boolean isSuccess() {

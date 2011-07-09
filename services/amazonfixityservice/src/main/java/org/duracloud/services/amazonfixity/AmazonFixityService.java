@@ -72,12 +72,13 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             // hadoop as a class, not an object.
             // FIXME: this metadataMd5ContentId value is currently hard-coded
             // into the FixityMetadataOutputFormat.java.
+            final char delim = '\t';
             String date = DateUtil.nowMid();
             String genMd5ContentId = PREFIX + "results.csv";
             String newContentId = PREFIX + "results-" + date + ".csv";
             String metadataMd5ContentId = PREFIX + "metadata-results.csv";
             String newMetadatContentId = PREFIX + "metadata-results-" + date + ".csv";
-            String header = "space-id,content-id,hash";
+            String header = "space-id" + delim + "content-id" + delim + "hash";
             List<String> deleteFiles = new ArrayList<String>();
             deleteFiles.add(newContentId);
             deleteFiles.add(newMetadatContentId);
