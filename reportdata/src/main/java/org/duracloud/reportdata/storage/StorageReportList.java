@@ -19,7 +19,7 @@ import java.util.List;
 public class StorageReportList {
 
     @XmlElement(name = "storageReport")
-    List<String> storageReportList;
+    private List<String> storageReportList;
 
     // Required for JAXB
     private StorageReportList() {

@@ -11,13 +11,11 @@ import org.duracloud.reportdata.storage.metrics.StorageMetrics;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 /**
  * @author: Bill Branan
  * Date: 6/1/11
  */
-@XmlType(namespace="duracloud.org")
 @XmlRootElement
 public class StorageReport {
 
