@@ -10,6 +10,7 @@ package org.duracloud.reportdata.storage.serialize;
 import org.duracloud.reportdata.storage.ReportTestHelper;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.duracloud.reportdata.storage.metrics.StorageMetrics;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -21,16 +22,20 @@ import static org.junit.Assert.assertNotNull;
  */
 public class StorageReportSerializerTest {
 
+    private String reportId = "reportId";
+    private long completionTime = 1000;
+    private long elapsedTime = 100;
+    private ReportTestHelper<StorageReport> testHelper;
+
+    @Before
+    public void setup() {
+        this.testHelper = new ReportTestHelper<StorageReport>();
+    }
+
     @Test
     public void testStorageReportSerializer() {
-        ReportTestHelper testHelper = new ReportTestHelper();
-        StorageMetrics metrics = testHelper.createMetrics();
-
-        String reportId = "reportId";
-        long completionTime = 1000;
-        long elapsedTime = 100;
-        StorageReport report =
-            new StorageReport(reportId, metrics, completionTime, elapsedTime);
+        StorageReport report = createStorageReport();
+        StorageMetrics metrics = report.getStorageMetrics();
 
         StorageReportSerializer serializer = new StorageReportSerializer();
         String xml = serializer.serialize(report);
@@ -52,5 +57,27 @@ public class StorageReportSerializerTest {
 
         assertEquals(report, reportDeserialized);
         assertEquals(xml, serializer.serialize(reportDeserialized));
+    }
+
+    @Test
+    public void testSchemaVersionCheck() {
+        String schemaVersion = "42";
+        StorageReport report = createStorageReport();
+        report.setSchemaVersion(schemaVersion);
+        testHelper.schemaVersionCheck(report,
+                                      schemaVersion,
+                                       new StorageReportSerializer());
+    }
+
+    @Test
+    public void testValidationCheck() {
+        StorageReport report = createStorageReport();
+        testHelper.validationCheck(report,
+                                   new StorageReportSerializer());
+    }
+
+    private StorageReport createStorageReport() {
+        StorageMetrics metrics = testHelper.createMetrics();
+        return new StorageReport(reportId, metrics, completionTime, elapsedTime);
     }
 }

@@ -7,7 +7,9 @@
  */
 package org.duracloud.reportdata.storage.serialize;
 
+import org.duracloud.reportdata.storage.ReportTestHelper;
 import org.duracloud.reportdata.storage.StorageReportInfo;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -27,19 +29,19 @@ public class StorageReportInfoSerializerTest {
     private final long estimatedCompletionTime = 202;
     private final long nextScheduledStartTime = 1492;
 
+    private ReportTestHelper<StorageReportInfo> testHelper;
+
+    @Before
+    public void setup() {
+        this.testHelper = new ReportTestHelper<StorageReportInfo>();
+    }
+
     @Test
     public void testStorageReportInfoSerializer() {
         StorageReportInfoSerializer serializer =
             new StorageReportInfoSerializer();
 
-        StorageReportInfo info = new StorageReportInfo();
-        info.setStatus(status);
-        info.setStartTime(100);
-        info.setCurrentCount(currentCount);
-        info.setFinalCount(finalCount);
-        info.setCompletionTime(completionTime);
-        info.setEstimatedCompletionTime(estimatedCompletionTime);
-        info.setNextScheduledStartTime(nextScheduledStartTime);
+        StorageReportInfo info = createStorageReportInfo();
 
         String xml = serializer.serialize(info);
         assertNotNull(xml);
@@ -58,5 +60,34 @@ public class StorageReportInfoSerializerTest {
 
         assertEquals(info, infoDeserialized);
         assertEquals(xml, serializer.serialize(infoDeserialized));
+    }
+
+    @Test
+    public void testSchemaVersionCheck() {
+        String schemaVersion = "42";
+        StorageReportInfo reportInfo = createStorageReportInfo();
+        reportInfo.setSchemaVersion(schemaVersion);
+        testHelper.schemaVersionCheck(reportInfo,
+                                      schemaVersion,
+                                      new StorageReportInfoSerializer());
+    }
+
+    @Test
+    public void testValidationCheck() {
+        StorageReportInfo reportInfo = createStorageReportInfo();
+        testHelper.validationCheck(reportInfo,
+                                   new StorageReportInfoSerializer());
+    }
+
+    private StorageReportInfo createStorageReportInfo() {
+        StorageReportInfo info = new StorageReportInfo();
+        info.setStatus(status);
+        info.setStartTime(100);
+        info.setCurrentCount(currentCount);
+        info.setFinalCount(finalCount);
+        info.setCompletionTime(completionTime);
+        info.setEstimatedCompletionTime(estimatedCompletionTime);
+        info.setNextScheduledStartTime(nextScheduledStartTime);
+        return info;
     }
 }

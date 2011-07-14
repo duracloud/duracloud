@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 7/8/11
  */
 @XmlRootElement
-public class StorageReportList {
+public class StorageReportList extends StorageReportBase {
 
     @XmlElement(name = "storageReport")
     private List<String> storageReportList;
@@ -27,6 +27,7 @@ public class StorageReportList {
 
     public StorageReportList(List<String> storageReportList) {
         this.storageReportList = storageReportList;
+        this.schemaVersion = SCHEMA_VERSION;
     }
 
     public List<String> getStorageReportList() {

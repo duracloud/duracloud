@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date: 6/1/11
  */
 @XmlRootElement
-public class StorageReport {
+public class StorageReport extends StorageReportBase {
 
     @XmlElement
     private String reportId;
@@ -43,6 +43,7 @@ public class StorageReport {
         this.storageMetrics = storageMetrics;
         this.completionTime = completionTime;
         this.elapsedTime = elapsedTime;
+        this.schemaVersion = SCHEMA_VERSION;
     }
 
     public String getReportId() {

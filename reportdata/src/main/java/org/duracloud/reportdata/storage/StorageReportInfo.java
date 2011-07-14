@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date: 6/2/11
  */
 @XmlRootElement
-public class StorageReportInfo {
+public class StorageReportInfo extends StorageReportBase {
 
     private String status;
     private long startTime;
@@ -23,6 +23,10 @@ public class StorageReportInfo {
     private long completionTime;
     private long estimatedCompletionTime;
     private long nextScheduledStartTime;
+
+    public StorageReportInfo() {
+        this.schemaVersion = SCHEMA_VERSION;
+    }
 
     public String getStatus() {
         return status;

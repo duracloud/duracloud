@@ -8,30 +8,47 @@
   <xs:element name="storageReportList" type="storageReportList"/>
 
   <xs:complexType name="storageReportInfo">
-    <xs:sequence>
-      <xs:element name="completionTime" type="xs:long"/>
-      <xs:element name="currentCount" type="xs:long"/>
-      <xs:element name="estimatedCompletionTime" type="xs:long"/>
-      <xs:element name="finalCount" type="xs:long"/>
-      <xs:element name="nextScheduledStartTime" type="xs:long"/>
-      <xs:element name="startTime" type="xs:long"/>
-      <xs:element name="status" type="xs:string" minOccurs="0"/>
-    </xs:sequence>
+    <xs:complexContent>
+      <xs:extension base="storageReportBase">
+        <xs:sequence>
+          <xs:element name="completionTime" type="xs:long"/>
+          <xs:element name="currentCount" type="xs:long"/>
+          <xs:element name="estimatedCompletionTime" type="xs:long"/>
+          <xs:element name="finalCount" type="xs:long"/>
+          <xs:element name="nextScheduledStartTime" type="xs:long"/>
+          <xs:element name="startTime" type="xs:long"/>
+          <xs:element name="status" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="storageReportBase">
+    <xs:sequence/>
+    <xs:attribute name="schemaVersion" type="xs:string" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="storageReportList">
-    <xs:sequence>
-      <xs:element name="storageReport" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
+    <xs:complexContent>
+      <xs:extension base="storageReportBase">
+        <xs:sequence>
+          <xs:element name="storageReport" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="storageReport">
-    <xs:sequence>
-      <xs:element name="reportId" type="xs:string" minOccurs="0"/>
-      <xs:element name="storageMetrics" type="storageMetrics" minOccurs="0"/>
-      <xs:element name="completionTime" type="xs:long"/>
-      <xs:element name="elapsedTime" type="xs:long"/>
-    </xs:sequence>
+    <xs:complexContent>
+      <xs:extension base="storageReportBase">
+        <xs:sequence>
+          <xs:element name="reportId" type="xs:string" minOccurs="0"/>
+          <xs:element name="storageMetrics" type="storageMetrics" minOccurs="0"/>
+          <xs:element name="completionTime" type="xs:long"/>
+          <xs:element name="elapsedTime" type="xs:long"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="storageMetrics">

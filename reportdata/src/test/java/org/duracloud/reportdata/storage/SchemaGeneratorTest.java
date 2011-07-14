@@ -8,6 +8,7 @@
 package org.duracloud.reportdata.storage;
 
 import org.duracloud.common.xml.SchemaGenerator;
+import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.junit.Test;
 
 /**
@@ -18,7 +19,7 @@ public class SchemaGeneratorTest {
 
     @Test
     public void testGenerateSchema() throws Exception {
-        String fileName = "storage-report.xsd";
+        String fileName = StorageReportBase.SCHEMA_NAME;
         SchemaGenerator generator = new SchemaGenerator(fileName);
         generator.generateSchema(StorageReportInfo.class,
                                  StorageReportList.class,

@@ -8,14 +8,20 @@
 package org.duracloud.reportdata.storage.serialize;
 
 import org.duracloud.reportdata.storage.StorageReport;
+import org.duracloud.reportdata.storage.StorageReportBase;
 import org.duracloud.reportdata.storage.error.SerializationException;
+import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -28,6 +34,9 @@ public class StorageReportSerializerBase<T> {
 
     private Class clazz;
     private JAXBContext context;
+    private Schema schema;
+
+
 
     protected StorageReportSerializerBase(Class clazz) {
         this.clazz = clazz;
@@ -37,6 +46,19 @@ public class StorageReportSerializerBase<T> {
             throw new SerializationException("Exception encountered " +
                                              "creating serializer: " +
                                              getErrorMsg(e), e);
+        }
+
+        try {
+            SchemaFactory factory =
+                SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Source schemaSource =
+                new StreamSource(getClass().getClassLoader()
+                    .getResourceAsStream(StorageReportBase.SCHEMA_NAME));
+            schema = factory.newSchema(schemaSource);
+        } catch(SAXException e) {
+            throw new SerializationException("Unable to load schema for " +
+                                             "storage report validation " +
+                                             "due to: " + e.getMessage());
         }
     }
 
@@ -74,13 +96,16 @@ public class StorageReportSerializerBase<T> {
     private T deserialize(StreamSource stream) {
         try {
             Unmarshaller unmarshaller = context.createUnmarshaller();
+            unmarshaller.setSchema(schema); // turn on schema validation
             JAXBElement<StorageReport> report =
                 unmarshaller.unmarshal(stream, clazz);
             return (T)report.getValue();
         } catch(JAXBException e) {
-            throw new SerializationException("Exception encountered " +
-                                             "de-serializing report: " +
-                                             getErrorMsg(e), e);
+            String error = "Exception encountered de-serializing report " +
+                            "against storage report schema version " +
+                            StorageReportBase.SCHEMA_VERSION + ": " +
+                            getErrorMsg(e);
+            throw new SerializationException(error, e);
         }
     }
 

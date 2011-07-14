@@ -63,7 +63,9 @@ public class StorageReportBuilder implements Runnable {
                 this.stopTime = lastReport.getCompletionTime();
                 this.elapsedTime = lastReport.getElapsedTime();
             }
-        } catch(ContentStoreException e) {
+        } catch(Exception e) {
+            log.warn("Unable to retrieve latest storage report due to: " +
+                     e.getMessage());
         }
     }
 
