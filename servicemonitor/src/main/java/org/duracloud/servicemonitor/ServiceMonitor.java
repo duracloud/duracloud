@@ -45,6 +45,13 @@ public interface ServiceMonitor {
     public void onUndeploy(ServiceMessage message);
 
     /**
+     * This method consumes messages on the update of any service configuration.
+     *
+     * @param message detailing service that has been updated
+     */
+    public void onUpdateConfig(ServiceMessage message);
+
+    /**
      * This method performs clean-up of threads managed by this class.
      */
     public void dispose();

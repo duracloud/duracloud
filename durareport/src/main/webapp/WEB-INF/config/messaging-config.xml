@@ -18,6 +18,10 @@
     <constructor-arg index="0" value="org.duracloud.topic.service.undeploy" />
   </bean>
 
+  <bean id="updateConfigDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.service.updateConfig" />
+  </bean>
+
   <bean id="deployMsgConverter" class="org.duracloud.serviceapi.aop.DeployMessageConverter" />
 
   <bean id="serviceMsgConverter" class="org.duracloud.serviceapi.aop.ServiceMessageConverter" />
@@ -36,6 +40,12 @@
     <property name="messageListener" ref="serviceMonitorUndeployAdapter" />
   </bean>
 
+  <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="connFactory"/>
+    <property name="destination" ref="updateConfigDestination"/>
+    <property name="messageListener" ref="serviceMonitorUpdateConfigAdapter" />
+  </bean>
+
   <bean id="serviceMonitorDeployAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
     <property name="delegate" ref="serviceMonitor"/>
     <property name="defaultListenerMethod" value="onDeploy"/>
@@ -45,6 +55,12 @@
   <bean id="serviceMonitorUndeployAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
     <property name="delegate" ref="serviceMonitor"/>
     <property name="defaultListenerMethod" value="onUndeploy"/>
+    <property name="messageConverter" ref="serviceMsgConverter"/>
+  </bean>
+
+  <bean id="serviceMonitorUpdateConfigAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+    <property name="delegate" ref="serviceMonitor"/>
+    <property name="defaultListenerMethod" value="onUpdateConfig"/>
     <property name="messageConverter" ref="serviceMsgConverter"/>
   </bean>
 

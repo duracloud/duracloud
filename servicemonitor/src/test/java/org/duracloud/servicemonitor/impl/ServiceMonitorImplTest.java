@@ -78,7 +78,7 @@ public class ServiceMonitorImplTest {
         int serviceId = 5;
         int deploymentId = 9;
 
-        createOnDeployMockExpectations(serviceId, deploymentId);
+        createMockExpectations(serviceId, deploymentId);
         replayMocks();
 
         DeployMessage msg = new DeployMessage();
@@ -90,7 +90,7 @@ public class ServiceMonitorImplTest {
         Thread.sleep(500); // let the threads work a moment.
     }
 
-    private void createOnDeployMockExpectations(int serviceId, int deploymentId)
+    private void createMockExpectations(int serviceId, int deploymentId)
         throws ServicesException, NotFoundException, ServiceSummaryException {
         Map<String, String> props = new HashMap<String, String>();
         props.put(ComputeService.STATUS_KEY,
@@ -124,6 +124,23 @@ public class ServiceMonitorImplTest {
         msg.setDeploymentId(deploymentId);
 
         monitor.onUndeploy(msg);
+    }
+
+    @Test
+    public void testOnUpdateConfig() throws Exception {
+        int serviceId = 2;
+        int deploymentId = 3;
+
+        createMockExpectations(serviceId, deploymentId);
+        replayMocks();
+
+        ServiceMessage msg = new ServiceMessage();
+        msg.setServiceId(serviceId);
+        msg.setDeploymentId(deploymentId);
+
+        monitor.onUpdateConfig(msg);
+
+        Thread.sleep(500); // let the threads work a moment.
     }
 
     @Test

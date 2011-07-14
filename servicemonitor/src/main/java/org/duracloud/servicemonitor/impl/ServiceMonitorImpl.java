@@ -25,7 +25,8 @@ import java.util.Map;
  */
 public class ServiceMonitorImpl implements ServiceMonitor {
 
-    private static final Logger log = LoggerFactory.getLogger(ServiceMonitorImpl.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(ServiceMonitorImpl.class);
 
     private static final long DEFAULT_MILLIS = 20000; // 20 seconds
 
@@ -92,6 +93,7 @@ public class ServiceMonitorImpl implements ServiceMonitor {
     }
 
     private void startServicePoller(int serviceId, int deploymentId) {
+        log.info("ServiceMonitor.start poller {}-{}", serviceId, deploymentId);
         ServicePoller poller = new ServicePoller(serviceId,
                                                  deploymentId,
                                                  summaryDirectory,
@@ -102,6 +104,7 @@ public class ServiceMonitorImpl implements ServiceMonitor {
         new Thread(poller).start();
     }
 
+    @Override
     public void onUndeploy(ServiceMessage message) {
         log.info("ServiceMonitor.onUndeploy({})", message);
         checkInitialized();
@@ -115,6 +118,10 @@ public class ServiceMonitorImpl implements ServiceMonitor {
         int serviceId = message.getServiceId();
         int deploymentId = message.getDeploymentId();
 
+        stopServicePoller(serviceId, deploymentId);
+    }
+
+    private void stopServicePoller(int serviceId, int deploymentId) {
         String pollerId = pollerId(serviceId, deploymentId);
         ServicePoller poller = pollers.remove(pollerId);
         if (null != poller) {
@@ -127,6 +134,24 @@ public class ServiceMonitorImpl implements ServiceMonitor {
 
     private String pollerId(int serviceId, int deploymentId) {
         return serviceId + "-" + deploymentId;
+    }
+
+    @Override
+    public void onUpdateConfig(ServiceMessage message) {
+        log.info("ServiceMonitor.onUpdateConfig({})", message);
+        checkInitialized();
+
+        if (null == message) {
+            String error = "Arg UnDeployMessage is null!";
+            log.error(error);
+            throw new IllegalArgumentException(error);
+        }
+
+        int serviceId = message.getServiceId();
+        int deploymentId = message.getDeploymentId();
+
+        stopServicePoller(serviceId, deploymentId);
+        startServicePoller(serviceId, deploymentId);
     }
 
     @Override
