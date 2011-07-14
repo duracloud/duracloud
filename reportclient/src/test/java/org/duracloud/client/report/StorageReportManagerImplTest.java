@@ -100,6 +100,30 @@ public class StorageReportManagerImplTest extends ReportManagerTestBase {
     }
 
     @Test
+    public void testGetStorageReportListEmpty() throws Exception {
+        String url = getBaseUrl() + "/list";
+        setStorageReportListInResponse();
+
+        EasyMock.expect(mockRestHelper.get(EasyMock.eq(url)))
+            .andReturn(successResponse)
+            .times(1);
+
+        replayMocks();
+
+        List<String> reportList = reportManager.getStorageReportList();
+        assertNotNull(reportList);
+    }
+
+    private void setStorageReportListInResponse() {
+        StorageReportListSerializer serializer =
+            new StorageReportListSerializer();
+        List<String> listData = new ArrayList<String>();
+        StorageReportList reportList = new StorageReportList(listData);
+        String xmlReport = serializer.serialize(reportList);
+        setResponse(xmlReport);
+    }
+
+    @Test
     public void testGetStorageReport() throws Exception {
         String id = "report/reportId";
         String url = getBaseUrl() + "/" + id;

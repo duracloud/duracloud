@@ -10,12 +10,14 @@ package org.duracloud.client.report;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
-import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.serviceconfig.ServiceReportList;
 import org.duracloud.serviceconfig.ServiceSummariesDocument;
 import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.serviceconfig.serialize.ServiceReportListSerializer;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,7 +105,15 @@ public class ServiceReportManagerImpl extends BaseReportManager implements Servi
             RestHttpHelper.HttpResponse response = getRestHelper().get(url);
             checkResponse(response, HttpStatus.SC_OK);
             String listXml = response.getResponseBody();
-            return SerializationUtil.deserializeList(listXml);
+
+            ServiceReportList reportList =
+                new ServiceReportListSerializer().deserialize(listXml);
+            List<String> reportIds = reportList.getServiceReportList();
+
+            if(null == reportIds) {
+                reportIds = new ArrayList<String>();
+            }
+            return reportIds;
         } catch (Exception e) {
             String error = "Could not get service report list due to: " +
                            e.getMessage();

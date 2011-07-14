@@ -8,11 +8,12 @@
 package org.duracloud.durareport.service;
 
 import org.duracloud.common.util.IOUtil;
-import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.durareport.error.ReportBuilderException;
 import org.duracloud.durareport.storage.StorageReportScheduler;
+import org.duracloud.serviceconfig.ServiceReportList;
 import org.duracloud.serviceconfig.ServiceSummariesDocument;
 import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.serviceconfig.serialize.ServiceReportListSerializer;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.error.ServiceSummaryException;
@@ -150,10 +151,13 @@ public class ServiceReportBuilder {
      *
      * @return stream of XML with all available reportIDs
      */
-    public InputStream getCompletedServicesReportIds() {
+    public InputStream getCompletedServicesReportList() {
         List<String> reportIds = summaryDirectory.getServiceSummaryIds();
-        // TODO: Serialize with a schema binding
-        String xml = SerializationUtil.serializeList(reportIds);
+        ServiceReportList reportList = new ServiceReportList(reportIds);
+
+        ServiceReportListSerializer serializer =
+            new ServiceReportListSerializer();
+        String xml = serializer.serialize(reportList);
         return convertXmlToStream(xml);
     }
 

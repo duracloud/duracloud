@@ -82,7 +82,7 @@ public class XmlSerializer<T> {
      * @param obj to serialize
      * @return XML
      */
-    public String serialize(Object obj) {
+    public String serialize(T obj) {
         try {
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

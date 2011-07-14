@@ -47,7 +47,7 @@ public class ServiceReportResource {
     }
 
     public InputStream getCompletedServicesReportList() {
-        return reportBuilder.getCompletedServicesReportIds();
+        return reportBuilder.getCompletedServicesReportList();
     }
 
     public InputStream getCompletedServicesReport(String reportId)

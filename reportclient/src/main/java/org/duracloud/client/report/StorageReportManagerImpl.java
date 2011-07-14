@@ -13,11 +13,13 @@ import org.duracloud.client.report.error.ReportException;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.duracloud.reportdata.storage.StorageReportInfo;
+import org.duracloud.reportdata.storage.StorageReportList;
 import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -99,9 +101,14 @@ public class StorageReportManagerImpl extends BaseReportManager implements Stora
             checkResponse(response, HttpStatus.SC_OK);
             InputStream listXml = response.getResponseStream();
 
-            StorageReportListSerializer serializer =
-                new StorageReportListSerializer();
-            return serializer.deserialize(listXml).getStorageReportList();
+            StorageReportList reportList =
+                new StorageReportListSerializer().deserialize(listXml);
+            List<String> reportIds = reportList.getStorageReportList();
+
+            if(null == reportIds) {
+                reportIds = new ArrayList<String>();
+            }
+            return reportIds;
         } catch (Exception e) {
             String error = "Could not get storage report list due to: " +
                            e.getMessage();

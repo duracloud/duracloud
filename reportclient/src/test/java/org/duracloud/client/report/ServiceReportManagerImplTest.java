@@ -7,9 +7,10 @@
  */
 package org.duracloud.client.report;
 
-import org.duracloud.common.util.SerializationUtil;
+import org.duracloud.serviceconfig.ServiceReportList;
 import org.duracloud.serviceconfig.ServiceSummariesDocument;
 import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.serviceconfig.serialize.ServiceReportListSerializer;
 import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,6 +102,34 @@ public class ServiceReportManagerImplTest extends ReportManagerTestBase {
     @Test
     public void testGetCompletedServicesReportList() throws Exception {
         String url = getBaseUrl() + "/list";
+        String reportId = "reportId";
+        setServiceReportListInResponse(reportId);
+
+        EasyMock.expect(mockRestHelper.get(EasyMock.eq(url)))
+            .andReturn(successResponse)
+            .times(1);
+
+        replayMocks();
+
+        List<String> reportList =
+            reportManager.getCompletedServicesReportList();
+        assertNotNull(reportList);
+        assertEquals(reportId, reportList.iterator().next());
+    }
+
+    private void setServiceReportListInResponse(String reportId) {
+        List<String> reportIds = new ArrayList<String>();
+        reportIds.add(reportId);
+        ServiceReportList reportList = new ServiceReportList(reportIds);
+
+        String xmlReport =
+            new ServiceReportListSerializer().serialize(reportList);
+        setResponse(xmlReport);
+    }
+
+    @Test
+    public void testGetCompletedServicesReportListEmpty() throws Exception {
+        String url = getBaseUrl() + "/list";
         setServiceReportListInResponse();
 
         EasyMock.expect(mockRestHelper.get(EasyMock.eq(url)))
@@ -115,8 +144,10 @@ public class ServiceReportManagerImplTest extends ReportManagerTestBase {
     }
 
     private void setServiceReportListInResponse() {
+        ServiceReportList reportList =
+            new ServiceReportList(new ArrayList<String>());
         String xmlReport =
-            SerializationUtil.serializeList(new ArrayList<String>());
+            new ServiceReportListSerializer().serialize(reportList);
         setResponse(xmlReport);
     }
 
