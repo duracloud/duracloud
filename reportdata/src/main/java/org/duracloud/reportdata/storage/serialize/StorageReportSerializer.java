@@ -7,7 +7,9 @@
  */
 package org.duracloud.reportdata.storage.serialize;
 
+import org.duracloud.common.xml.XmlSerializer;
 import org.duracloud.reportdata.storage.StorageReport;
+import org.duracloud.reportdata.storage.StorageReportBase;
 
 /**
  * Handles moving metrics information into and out of XML format
@@ -15,10 +17,12 @@ import org.duracloud.reportdata.storage.StorageReport;
  * @author: Bill Branan
  * Date: 5/13/11
  */
-public class StorageReportSerializer extends StorageReportSerializerBase<StorageReport> {
+public class StorageReportSerializer extends XmlSerializer<StorageReport> {
 
     public StorageReportSerializer() {
-        super(StorageReport.class);
+        super(StorageReport.class,
+              StorageReportBase.SCHEMA_NAME,
+              StorageReportBase.SCHEMA_VERSION);
     }
 
 }

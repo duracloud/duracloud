@@ -7,16 +7,20 @@
  */
 package org.duracloud.reportdata.storage.serialize;
 
+import org.duracloud.common.xml.XmlSerializer;
+import org.duracloud.reportdata.storage.StorageReportBase;
 import org.duracloud.reportdata.storage.StorageReportInfo;
 
 /**
  * @author: Bill Branan
  * Date: 6/2/11
  */
-public class StorageReportInfoSerializer extends StorageReportSerializerBase<StorageReportInfo> {
+public class StorageReportInfoSerializer extends XmlSerializer<StorageReportInfo> {
 
     public StorageReportInfoSerializer() {
-        super(StorageReportInfo.class);
+        super(StorageReportInfo.class,
+              StorageReportBase.SCHEMA_NAME,
+              StorageReportBase.SCHEMA_VERSION);
     }
 
 }

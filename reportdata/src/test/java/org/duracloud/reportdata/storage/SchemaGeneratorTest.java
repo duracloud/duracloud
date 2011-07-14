@@ -8,7 +8,6 @@
 package org.duracloud.reportdata.storage;
 
 import org.duracloud.common.xml.SchemaGenerator;
-import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.junit.Test;
 
 /**

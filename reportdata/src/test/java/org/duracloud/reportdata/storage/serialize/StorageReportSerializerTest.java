@@ -66,7 +66,7 @@ public class StorageReportSerializerTest {
         report.setSchemaVersion(schemaVersion);
         testHelper.schemaVersionCheck(report,
                                       schemaVersion,
-                                       new StorageReportSerializer());
+                                      new StorageReportSerializer());
     }
 
     @Test

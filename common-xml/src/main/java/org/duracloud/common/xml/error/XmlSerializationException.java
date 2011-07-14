@@ -5,19 +5,19 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.reportdata.storage.error;
+package org.duracloud.common.xml.error;
 
 /**
  * @author: Bill Branan
  * Date: 7/8/11
  */
-public class SerializationException extends RuntimeException {
+public class XmlSerializationException extends RuntimeException {
 
-    public SerializationException(String message) {
+    public XmlSerializationException(String message) {
         super(message);
     }
 
-    public SerializationException(String message, Throwable throwable) {
+    public XmlSerializationException(String message, Throwable throwable) {
         super(message, throwable);
     }
 

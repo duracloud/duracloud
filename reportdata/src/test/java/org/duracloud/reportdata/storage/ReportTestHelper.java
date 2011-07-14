@@ -7,12 +7,12 @@
  */
 package org.duracloud.reportdata.storage;
 
-import org.duracloud.reportdata.storage.error.SerializationException;
+import org.duracloud.common.xml.XmlSerializer;
+import org.duracloud.common.xml.error.XmlSerializationException;
 import org.duracloud.reportdata.storage.metrics.MimetypeMetrics;
 import org.duracloud.reportdata.storage.metrics.SpaceMetrics;
 import org.duracloud.reportdata.storage.metrics.StorageMetrics;
 import org.duracloud.reportdata.storage.metrics.StorageProviderMetrics;
-import org.duracloud.reportdata.storage.serialize.StorageReportSerializerBase;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -76,20 +76,20 @@ public class ReportTestHelper<T> {
 
     public void schemaVersionCheck(T report,
                                    String schemaVersion,
-                                   StorageReportSerializerBase serializer) {
+                                   XmlSerializer serializer) {
         String xml = serializer.serialize(report);
         assertTrue("Report should include schema version",
                    xml.contains(schemaVersion));
     }
 
     public void validationCheck(T report,
-                                StorageReportSerializerBase serializer) {
+                                XmlSerializer serializer) {
         String xml = serializer.serialize(report);
         xml = xml.substring(0, xml.length() - 10);
         try {
             serializer.deserialize(xml);
             fail("Exception expected");
-        } catch(SerializationException expected) {
+        } catch(XmlSerializationException expected) {
             assertNotNull(expected.getMessage());
             assertTrue("Exception should include expected schema version",
                 expected.getMessage().contains(StorageReport.SCHEMA_VERSION));
