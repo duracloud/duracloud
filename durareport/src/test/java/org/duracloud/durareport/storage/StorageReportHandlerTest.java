@@ -22,7 +22,9 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +49,7 @@ public class StorageReportHandlerTest {
     private long completionTime = 1305662518734L;
     private long elapsedTime = 10;
     private String reportPrefix = "report/storage-report-";
+    private String errorLogName = "report/storage-report-error-log";
 
     private ContentStore mockStore;
     private ContentStoreManager mockStoreMgr;
@@ -82,10 +85,6 @@ public class StorageReportHandlerTest {
     }
 
     private StorageReportHandler setUpMocksStoreReport() throws Exception {
-        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
-            .andReturn(null)
-            .times(1);
-
         String mimetype = "application/xml";
         EasyMock.expect(mockStore.addContent(EasyMock.eq(spaceId),
                                              EasyMock.isA(String.class),
@@ -94,6 +93,14 @@ public class StorageReportHandlerTest {
                                              EasyMock.eq(mimetype),
                                              EasyMock.isA(String.class),
                                              EasyMock.<Map<String,String>>isNull()))
+            .andReturn(null)
+            .times(1);
+
+        return setUpMockStore();
+    }
+
+    private StorageReportHandler setUpMockStore() throws Exception {
+        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
 
@@ -107,7 +114,10 @@ public class StorageReportHandlerTest {
             .times(1);
 
         replayMocks();
-        return new StorageReportHandler(mockStoreMgr, spaceId, reportPrefix);
+        return new StorageReportHandler(mockStoreMgr,
+                                        spaceId,
+                                        reportPrefix,
+                                        errorLogName);
     }
 
     @Test
@@ -193,8 +203,6 @@ public class StorageReportHandlerTest {
         assertEquals(completionTime, report.getCompletionTime());
         assertEquals(elapsedTime, report.getElapsedTime());
         assertNotNull(report.getStorageMetrics());
-
-        EasyMock.verify(mockStore, mockStoreMgr);
     }
 
     private StorageReportHandler setUpMocksGetLatestStorageReport()
@@ -230,8 +238,6 @@ public class StorageReportHandlerTest {
         assertNotNull(reportList);
         assertEquals(3, reportList.size());
         assertTrue(reportList.contains(reportContentId));
-
-        EasyMock.verify(mockStore, mockStoreMgr);
     }
 
     private StorageReportHandler setUpMocksGetStorageReportList()
@@ -250,6 +256,47 @@ public class StorageReportHandlerTest {
             .times(1);
 
         return setUpMockStoreMgr();
+    }
+
+    @Test
+    public void testAddToErrorLog() throws Exception {
+        String errMsg = "Error Message";
+        StorageReportHandler handler = setUpMockAddToErrorLog(errMsg);
+
+        handler.addToErrorLog(errMsg);
+    }
+
+    private StorageReportHandler setUpMockAddToErrorLog(String errMsg)
+        throws Exception {
+
+        String existingLogContent = "Existing Error Message";
+        InputStream existingStream =
+            new ByteArrayInputStream(existingLogContent.getBytes("UTF-8"));
+        Map<String, String> metadata = new HashMap<String, String>();
+        metadata.put(ContentStore.CONTENT_SIZE,
+                     String.valueOf(existingLogContent.length()));
+
+        Content content = new Content();
+        content.setId(errorLogName);
+        content.setStream(existingStream);
+        content.setMetadata(metadata);
+
+        EasyMock.expect(mockStore.getContent(spaceId, errorLogName))
+            .andReturn(content)
+            .times(1);
+
+        long totalSize = existingLogContent.length() + errMsg.length();
+        EasyMock.expect(mockStore.addContent(EasyMock.eq(spaceId),
+                                             EasyMock.eq(errorLogName),
+                                             EasyMock.isA(SequenceInputStream.class),
+                                             EasyMock.geq(totalSize),
+                                             EasyMock.eq("text/plain"),
+                                             EasyMock.<String>isNull(),
+                                             EasyMock.<Map<String,String>>isNull()))
+            .andReturn("success")
+            .times(1);
+
+        return setUpMockStore();
     }
 
 }

@@ -13,6 +13,7 @@
         <xs:sequence>
           <xs:element name="completionTime" type="xs:long"/>
           <xs:element name="currentCount" type="xs:long"/>
+          <xs:element name="error" type="xs:string" minOccurs="0"/>
           <xs:element name="estimatedCompletionTime" type="xs:long"/>
           <xs:element name="finalCount" type="xs:long"/>
           <xs:element name="nextScheduledStartTime" type="xs:long"/>

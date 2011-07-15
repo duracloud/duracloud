@@ -32,6 +32,7 @@
   <bean id="storageResource" class="org.duracloud.durareport.rest.StorageReportResource"
         destroy-method="dispose">
     <constructor-arg value="report/storage-report-"/>
+    <constructor-arg value="report/storage-report-error-log.txt"/>
   </bean>
 
   <bean id="serviceResource" class="org.duracloud.durareport.rest.ServiceReportResource" >

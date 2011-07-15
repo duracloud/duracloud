@@ -7,6 +7,7 @@
  */
 package org.duracloud.durareport.storage;
 
+import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
@@ -25,11 +26,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Handles the storage and retrieval of storage reports.
@@ -50,12 +54,15 @@ public class StorageReportHandler {
     protected String storageSpace;
     private ContentStore primaryStore = null;
     private String reportFileNamePrefix;
+    private String reportErrorLogFileName;
 
     public StorageReportHandler(ContentStoreManager storeMgr,
                                 String storageSpace,
-                                String reportFileNamePrefix) {
+                                String reportFileNamePrefix,
+                                String reportErrorLogFileName) {
         this.storageSpace = storageSpace;
         this.reportFileNamePrefix = reportFileNamePrefix;
+        this.reportErrorLogFileName = reportErrorLogFileName;
         try {
             this.primaryStore = storeMgr.getPrimaryContentStore();
             try {
@@ -240,4 +247,72 @@ public class StorageReportHandler {
         ChecksumUtil util = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         return util.generateChecksum(xml);
     }
+
+    public void addToErrorLog(String errMsg) {
+        InputStream existingLog = null;
+        long existingLogSize = 0;
+        try {
+            Content errorLogContent =
+                primaryStore.getContent(storageSpace, reportErrorLogFileName);
+            if(null != errorLogContent) {
+                existingLog = errorLogContent.getStream();
+                existingLogSize = getExistingLogSize(errorLogContent);
+            }
+        } catch(ContentStoreException e) {
+            // Could not get error log, likely because it does not yet exist
+        }
+
+        String logMsg = createLogMsg(errMsg);
+        InputStream newMsg = createLogMsgStream(logMsg);
+        InputStream newLog;
+        if(null != existingLog) {
+            newLog = new SequenceInputStream(newMsg, existingLog);
+        } else {
+            newLog = newMsg;
+        }
+
+        for(int i=0; i<maxRetries; i++) {
+            try {
+                primaryStore.addContent(storageSpace,
+                                        reportErrorLogFileName,
+                                        newLog,
+                                        existingLogSize + logMsg.length(),
+                                        MediaType.TEXT_PLAIN,
+                                        null,
+                                        null);
+                return;
+            } catch(ContentStoreException e) {
+                log.warn("Exception attempting to store error log: " +
+                         e.getMessage());
+            }
+        }
+        log.error("Unable to store error log file!");
+    }
+
+    private String createLogMsg(String msg) {
+        return DateUtil.now() + "  " + msg + "\n";
+    }
+
+    private InputStream createLogMsgStream(String logMsg) {
+        try {
+            return IOUtils.toInputStream(logMsg, "UTF-8");
+        } catch(IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private long getExistingLogSize(Content logContent) {
+        Map<String, String> metadata = logContent.getMetadata();
+        if(null != metadata) {
+            String logSize = metadata.get(ContentStore.CONTENT_SIZE);
+            if(null != logSize) {
+                try {
+                    return Long.valueOf(logSize);
+                } catch(NumberFormatException e) {
+                }
+            }
+        }
+        return 0;
+    }
+
 }

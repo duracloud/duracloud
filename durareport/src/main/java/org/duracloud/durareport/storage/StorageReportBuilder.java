@@ -72,6 +72,7 @@ public class StorageReportBuilder implements Runnable {
     @Override
     public void run() {
         run = true;
+        error = null;
         startTime = System.currentTimeMillis();
         log.info("Storage Report starting at time: " + startTime);
         status = Status.RUNNING;
@@ -90,9 +91,11 @@ public class StorageReportBuilder implements Runnable {
             status = Status.CANCELLED;
         } catch(ReportBuilderException e) {
             stopTime = System.currentTimeMillis();
-            error = e.getMessage();
-            log.error("Unable to complete metrics collection due to: " +
-                      e.getMessage());
+            String errMsg = "Unable to complete metrics collection due to: " +
+                            e.getMessage();
+            error = errMsg;
+            log.error(errMsg);
+            reportHandler.addToErrorLog(errMsg);
             status = Status.ERROR;
         }
     }
