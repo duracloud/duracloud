@@ -53,9 +53,10 @@
 			<tiles:putAttribute name="mainTab" value="spaces" />
 			<tiles:putAttribute name="main-content">
 				<div class="center-north" id="center-pane-north">
-					<div class="provider-float">Provider: <span id="provider-select-box"
-						class="provider-widget"></span></div>
-	
+                    <div <c:if test="${fn:length(contentStores) < 2}">style="display:none;"</c:if>>
+                        <div class="provider-float">Provider: <span id="provider-select-box"
+                            class="provider-widget"></span></div>
+                    </div>
                     <div id="provider-logo" class="float-l"></div>
 				</div>
 				<div id="list-browser" class="list-browser" style="visibility:hidden">
