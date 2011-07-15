@@ -20,13 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static org.duracloud.services.hadoop.base.Constants.DELIM;
+
 /**
  * @author Andrew Woods
  *         Date: Sep 23, 2010
  */
 public class HashFinderMapperTest {
-
-    private static final char DELIM = '\t';
 
     private HashFinderMapper mapper;
 

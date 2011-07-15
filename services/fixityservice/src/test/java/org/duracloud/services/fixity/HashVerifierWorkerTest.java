@@ -17,7 +17,6 @@ import org.duracloud.services.fixity.domain.ContentLocationPair;
 import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.easymock.classextension.EasyMock;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
+import static org.duracloud.services.ComputeService.DELIM;
 
 /**
  * @author Andrew Woods
@@ -115,13 +115,12 @@ public class HashVerifierWorkerTest {
     }
 
     private String createEntryLine(ContentLocation loc, int i, String data) {
-        final char delim = '\t';
         StringBuilder sb = new StringBuilder(loc.getSpaceId());
         sb.append(i);
-        sb.append(delim);
+        sb.append(DELIM);
         sb.append(loc.getContentId());
         sb.append(i);
-        sb.append(delim);
+        sb.append(DELIM);
         sb.append(getMd5(data));
 
         return sb.toString();

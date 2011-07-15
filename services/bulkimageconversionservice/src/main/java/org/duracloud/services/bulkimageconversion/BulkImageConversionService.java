@@ -9,7 +9,6 @@ package org.duracloud.services.bulkimageconversion;
 
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
-import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.postprocessing.MimePostJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker;
@@ -70,10 +69,9 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
                                                getContentStore(),
                                                getOutputSpaceId());
 
-            final char delim = '\t';
-            String header = "result" + delim + "input-file-path" + delim +
-                "result-file-path" + delim + "processing-time" + delim +
-                "source-file-bytes" + delim + "date";
+            String header = "result" + DELIM + "input-file-path" + DELIM +
+                "result-file-path" + DELIM + "processing-time" + DELIM +
+                "source-file-bytes" + DELIM + "date";
 
             String preName = "image-transformer-bulk/image-transformer-results";
             String date = "-" + DateUtil.nowMid();

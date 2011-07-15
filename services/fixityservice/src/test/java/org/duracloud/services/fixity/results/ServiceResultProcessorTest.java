@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import static org.duracloud.services.fixity.results.ServiceResult.DELIM;
+
 /**
  * @author Andrew Woods
  *         Date: Aug 9, 2010
@@ -203,7 +205,6 @@ public class ServiceResultProcessorTest {
         File file = new File(workDir, outputContentId);
         Assert.assertTrue(file.exists());
 
-        final char delim = '\t';
         reader = new BufferedReader(new FileReader(file));
         int i = -1;
         String line;
@@ -213,10 +214,10 @@ public class ServiceResultProcessorTest {
             } else {
                 StringBuilder expected = new StringBuilder(SPACE_PREFIX);
                 expected.append(i);
-                expected.append(delim);
+                expected.append(DELIM);
                 expected.append(CONTENT_PREFIX);
                 expected.append(i);
-                expected.append(delim);
+                expected.append(DELIM);
                 expected.append(HASH_PREFIX);
                 expected.append(i);
                 Assert.assertEquals(expected.toString(), line);

@@ -5,22 +5,12 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.fixity.results;
+package org.duracloud.services.hadoop.base;
 
 /**
- * This interface is for result objects in the ServiceResultProcessing
- * framework.
- *
  * @author Andrew Woods
- *         Date: Aug 4, 2010
+ *         Date: 7/14/11
  */
-public interface ServiceResult {
-
+public class Constants {
     public static final char DELIM = '\t';
-
-    public String getEntry();
-
-    public String getHeader();
-
-    public boolean isSuccess();
 }

@@ -18,7 +18,6 @@ public class HashFinderResult implements ServiceResult {
 
     private static final Logger log = LoggerFactory.getLogger(HashFinderResult.class);
 
-    private static final char DELIM = '\t';
     private static final String HEADER =
         "space-id" + DELIM + "content-id" + DELIM + "MD5";
 

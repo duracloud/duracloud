@@ -20,8 +20,8 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.List;
 
+import static org.duracloud.services.ComputeService.DELIM;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach.GENERATED;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode.ALL_IN_ONE_LIST;
 
@@ -43,15 +43,14 @@ public class HashFinderWorkloadFromListTest extends HashWorkloadTestBase {
 
     @Before
     public void setUp() throws ContentStoreException {
-        final char delim = '\t';
         String sep = System.getProperty("line.separator");
 
         StringBuilder sb = new StringBuilder(
-            "header-space" + delim + "header-content");
+            "header-space" + DELIM + "header-content");
         sb.append(sep);
         for (int i = 0; i < numContentItems; ++i) {
             sb.append(spacePrefix + i);
-            sb.append(delim);
+            sb.append(DELIM);
             sb.append(contentItemPrefix + i);
             sb.append(sep);
         }

@@ -9,7 +9,6 @@ package org.duracloud.services.image;
 
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.image.status.StatusListener;
 import org.slf4j.Logger;
@@ -22,6 +21,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+
+import static org.duracloud.services.ComputeService.DELIM;
 
 /**
  * @author: Bill Branan
@@ -42,8 +43,6 @@ public class ConversionResultProcessor implements ConversionResultListener {
     private SimpleDateFormat dateFormat;
     private String resultsId;
     private File resultsFile;
-
-    private static final char DELIM = '\t';
 
     public ConversionResultProcessor(ContentStore contentStore,
                                      StatusListener statusListener,

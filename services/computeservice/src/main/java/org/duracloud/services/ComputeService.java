@@ -39,6 +39,8 @@ public interface ComputeService {
     public static final String STOPTIME_KEY = "Stop Time";
     public static final String REPORT_KEY = "Report";
 
+    public static final char DELIM = '\t';
+
     public void start() throws Exception;
 
     public void stop() throws Exception;

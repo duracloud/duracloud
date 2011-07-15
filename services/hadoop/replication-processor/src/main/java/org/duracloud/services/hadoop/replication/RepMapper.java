@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static org.duracloud.services.hadoop.base.Constants.DELIM;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
@@ -137,7 +138,6 @@ public class RepMapper extends ProcessFileMapper {
 
     @Override
     protected String collectResult() throws IOException {
-        final char delim = '\t';
         StringBuilder result = new StringBuilder(resultInfo.get(RESULT));
 
         String errMsg = resultInfo.get(ERR_MESSAGE);
@@ -145,20 +145,20 @@ public class RepMapper extends ProcessFileMapper {
             result.append("-" + errMsg);
         }
 
-        result.append(delim);
+        result.append(DELIM);
         result.append(resultInfo.get(INPUT_PATH));
-        result.append(delim);
+        result.append(DELIM);
         result.append(resultInfo.get(RESULT_PATH));
-        result.append(delim);
+        result.append(DELIM);
         result.append(resultInfo.get(REP_RESULT));
-        result.append(delim);
+        result.append(DELIM);
         result.append(resultInfo.get(SRC_SIZE));
-        result.append(delim);
+        result.append(DELIM);
         result.append(resultInfo.get(REP_ATTEMPTS));
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String now = format.format(new Date(System.currentTimeMillis()));
-        result.append(delim);
+        result.append(DELIM);
         result.append(now);
 
         System.out.println("collected result: '" + result + "'");

@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
-import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS.MAPPERS_PER_INSTANCE;
 
 /**
  * Service which replicates content from one space to another.
@@ -60,10 +59,9 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
     @Override
     protected AmazonMapReduceJobWorker getPostJobWorker() {
         if (null == postWorker) {
-            final char delim = '\t';
-            String header = "result" + delim + "input-file-path" + delim +
-                "result-file-path" + delim + "duplication-result" + delim +
-                "source-file-bytes" + delim + "duplication-attempts" + delim +
+            String header = "result" + DELIM + "input-file-path" + DELIM +
+                "result-file-path" + DELIM + "duplication-result" + DELIM +
+                "source-file-bytes" + DELIM + "duplication-attempts" + DELIM +
                 "date";
 
             String preName = "duplicate-on-demand/duplicate-results";

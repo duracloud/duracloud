@@ -12,23 +12,11 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.domain.Content;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.common.model.Credential;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.services.hadoop.base.ProcessFileMapper;
-import org.duracloud.services.hadoop.base.ProcessResult;
 import org.duracloud.services.hadoop.replication.RepMapper;
-import org.duracloud.services.hadoop.replication.RepOutputFormat;
-import org.duracloud.services.hadoop.store.FileWithMD5;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
-import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
+import static org.duracloud.services.hadoop.base.Constants.DELIM;
 
 public class RetryRepMapper extends RepMapper {
 
@@ -47,7 +35,7 @@ public class RetryRepMapper extends RepMapper {
 
             String s3Path = "s3n://";
             int i = line.indexOf(s3Path);
-            int j = line.indexOf('\t', i);
+            int j = line.indexOf(DELIM, i);
             String filePath = line.substring(i, j);
             
             super.map(filePath, null, output, reporter);

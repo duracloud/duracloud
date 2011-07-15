@@ -15,6 +15,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
+
 /**
  * @author Andrew Woods
  *         Date: Jan 17, 2011
@@ -32,31 +34,30 @@ public class FixityManifestVerifierTest {
 
     @Test
     public void testAddEntry() {
-        final char delim = '\t';
         String line = ""; // valid, but undesirable
         verify(line, true);
 
-        line = "a" + delim + "b";
+        line = "a" + DELIM + "b";
         verify(line, false);
 
-        line = "a" + delim + "b" + delim + "c";
+        line = "a" + DELIM + "b" + DELIM + "c";
         verify(line, true);
 
-        line = "a" + delim + "b" + delim + "c" + delim + "d";
+        line = "a" + DELIM + "b" + DELIM + "c" + DELIM + "d";
         verify(line, false);
 
-        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim + "VALID";
+        line = "a" + DELIM + "b" + DELIM + "c" + DELIM + "d" + DELIM + "VALID";
         verify(line, true);
 
-        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim + "OTHER";
+        line = "a" + DELIM + "b" + DELIM + "c" + DELIM + "d" + DELIM + "OTHER";
         verify(line, false);
 
-        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim +
+        line = "a" + DELIM + "b" + DELIM + "c" + DELIM + "d" + DELIM +
             "MISSING_FROM_0";
         verify(line, true);
 
-        line = "a" + delim + "b" + delim + "c" + delim + "d" + delim +
-            "MISSING_FROM_0" + delim + "more";
+        line = "a" + DELIM + "b" + DELIM + "c" + DELIM + "d" + DELIM +
+            "MISSING_FROM_0" + DELIM + "more";
         verify(line, false);
     }
 

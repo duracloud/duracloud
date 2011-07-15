@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.duracloud.services.hadoop.base.Constants.DELIM;
+
 /**
  * @author Andrew Woods
  *         Date: Feb 9, 2011
@@ -171,11 +173,10 @@ public class HashMetadataFinderMapperTest {
 
     @Test
     public void testCollectResult() throws IOException {
-        final char delim = '\t';
         String result = mapper.collectResult();
         Assert.assertNotNull(result);
         Assert.assertEquals(
-            "null-space" + delim + "null-content-id" + delim + "null", result);
+            "null-space" + DELIM + "null-content-id" + DELIM + "null", result);
     }
 
 }

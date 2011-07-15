@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.duracloud.services.ComputeService.DELIM;
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.Mode;
 import static org.duracloud.services.fixity.results.ServiceResultListener.State.COMPLETE;
 
@@ -84,9 +85,8 @@ public class FixityServiceTest {
     }
 
     private String createListing(boolean isCorrupt) {
-        final char delim = '\t';
         StringBuilder text = new StringBuilder(
-            "header" + delim + "header" + delim + "header");
+            "header" + DELIM + "header" + DELIM + "header");
         text.append(System.getProperty("line.separator"));
 
         for (int i = 0; i < NUM_WORK_ITEMS; ++i) {
@@ -95,10 +95,10 @@ public class FixityServiceTest {
                 continue;
             }
             text.append(spaceId);
-            text.append(delim);
+            text.append(DELIM);
             text.append(contentId);
             text.append(i);
-            text.append(delim);
+            text.append(DELIM);
             text.append(hash);
             text.append(i);
 
@@ -252,7 +252,7 @@ public class FixityServiceTest {
         while ((line = reader.readLine()) != null) {
             count++;
 
-            String[] parts = line.split("\t");
+            String[] parts = line.split(String.valueOf(DELIM));
             Assert.assertEquals(3, parts.length);
 
             Assert.assertEquals(spaceId, parts[0]);
@@ -289,7 +289,7 @@ public class FixityServiceTest {
             if (line.length() > 0) {
                 count++;
 
-                String[] parts = line.split("\t");
+                String[] parts = line.split(String.valueOf(DELIM));
                 Assert.assertEquals(line, 5, parts.length);
 
                 Assert.assertEquals(spaceId, parts[0]);

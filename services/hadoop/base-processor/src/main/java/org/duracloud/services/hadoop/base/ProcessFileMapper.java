@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.duracloud.services.hadoop.base.Constants.DELIM;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
 
 /**
@@ -290,15 +291,14 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Writable,
      * overridden to provide more specific result info.
      */
     protected String collectResult() throws IOException {
-        final char delim = '\t';
         String result =
-            RESULT + "=" + resultInfo.get(RESULT) + delim + INPUT_PATH + "=" +
-                resultInfo.get(INPUT_PATH) + delim + RESULT_PATH + "=" +
+            RESULT + "=" + resultInfo.get(RESULT) + DELIM + INPUT_PATH + "=" +
+                resultInfo.get(INPUT_PATH) + DELIM + RESULT_PATH + "=" +
                 resultInfo.get(RESULT_PATH);
 
         String errMsg = resultInfo.get(ERR_MESSAGE);
         if (errMsg != null) {
-            result += delim + ERR_MESSAGE + "=" + errMsg;
+            result += DELIM + ERR_MESSAGE + "=" + errMsg;
         }
 
         return result;

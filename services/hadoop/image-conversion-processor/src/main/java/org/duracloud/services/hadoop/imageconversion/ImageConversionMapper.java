@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.duracloud.services.hadoop.base.Constants.DELIM;
 import static org.duracloud.storage.domain.HadoopTypes.*;
 
 /**
@@ -33,7 +34,6 @@ import static org.duracloud.storage.domain.HadoopTypes.*;
  */
 public class ImageConversionMapper extends ProcessFileMapper {
 
-    public static final String DATE = "date";
     public static final String PROC_TIME = "processing-time";
     public static final String SRC_SIZE = "source-file-bytes";
 
@@ -75,7 +75,6 @@ public class ImageConversionMapper extends ProcessFileMapper {
 
     @Override
     protected String collectResult() throws IOException {
-        final char delim = '\t';
         String result = resultInfo.get(RESULT);
 
         String errMsg = resultInfo.get(ERR_MESSAGE);
@@ -83,16 +82,15 @@ public class ImageConversionMapper extends ProcessFileMapper {
             result += "-" + errMsg;
         }
 
-        result += delim + resultInfo.get(INPUT_PATH);
-        result += delim + resultInfo.get(RESULT_PATH);
+        result += DELIM + resultInfo.get(INPUT_PATH);
+        result += DELIM + resultInfo.get(RESULT_PATH);
 
-
-        result += delim + resultInfo.get(PROC_TIME);
-        result += delim +  resultInfo.get(SRC_SIZE);
+        result += DELIM + resultInfo.get(PROC_TIME);
+        result += DELIM +  resultInfo.get(SRC_SIZE);
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String now = format.format(new Date(System.currentTimeMillis()));
-        result += delim + now;
+        result += DELIM + now;
 
         return result;
     }

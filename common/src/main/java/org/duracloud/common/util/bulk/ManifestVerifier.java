@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +41,8 @@ import java.util.Map;
 public class ManifestVerifier {
 
     private final Logger log = LoggerFactory.getLogger(ManifestVerifier.class);
+
+    public final static char DELIM = '\t';
 
     private File file0;
     private File file1;
@@ -297,16 +298,15 @@ public class ManifestVerifier {
         }
 
         public String toString() {
-            char delim = '\t';
             StringBuilder sb = new StringBuilder();
             sb.append(this.getTitle());
-            sb.append(delim);
+            sb.append(DELIM);
             sb.append(this.getFile());
-            sb.append(delim);
+            sb.append(DELIM);
             sb.append(this.getChecksum0());
-            sb.append(delim);
+            sb.append(DELIM);
             sb.append(this.getChecksum1());
-            sb.append(delim);
+            sb.append(DELIM);
             sb.append(this.getState());
             return sb.toString();
         }

@@ -35,6 +35,8 @@ import org.duracloud.services.fixity.worker.ServiceWorkload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.duracloud.services.ComputeService.DELIM;
+
 /**
  * @author Andrew Woods
  *         Date: Aug 5, 2010
@@ -310,8 +312,8 @@ public class HashFinderWorkload implements ServiceWorkload<ContentLocation>, Cou
 
         @Override
         public ContentLocation next() {
-            final String delim = "\t";
-            StringTokenizer tokenizer = new StringTokenizer(currentLine, delim);
+            StringTokenizer tokenizer = new StringTokenizer(currentLine,
+                                                            String.valueOf(DELIM));
 
             String spaceId = null;
             if (tokenizer.hasMoreTokens()) {

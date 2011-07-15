@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.duracloud.common.util.ChecksumUtil.Algorithm;
+import static org.duracloud.services.hadoop.base.Constants.DELIM;
 
 /**
  * Mapper used to perform fixity service.
@@ -63,14 +64,13 @@ public class HashFinderMapper extends ProcessFileMapper {
 
     @Override
     protected String collectResult() throws IOException {
-        final char delim = '\t';
         String path = super.resultInfo.get(INPUT_PATH);
 
         StringBuilder sb = new StringBuilder();
         sb.append(pathUtil.getSpaceId(path));
-        sb.append(delim);
+        sb.append(DELIM);
         sb.append(pathUtil.getContentId(path));
-        sb.append(delim);
+        sb.append(DELIM);
         sb.append(super.resultInfo.get(HASH));
         return sb.toString();
     }

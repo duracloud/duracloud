@@ -19,6 +19,8 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.duracloud.services.ComputeService.DELIM;
+
 /**
  * @author Andrew Woods
  *         Date: Aug 6, 2010
@@ -94,7 +96,7 @@ public class HashWorkerMockSupport {
             String[] parts;
             try {
                 while ((line = br.readLine()) != null) {
-                    parts = line.split("\t");
+                    parts = line.split(String.valueOf(DELIM));
                     Assert.assertEquals(5, parts.length);
                     spaceToStatus.put(parts[0].trim(), parts[4].trim());
                 }
