@@ -164,8 +164,8 @@ button i.pre,
 .icon-link i,
 span.switch i.pre
 {
-	margin-left:-5px;
-	margin-right:3px;
+	margin-left:-3px;
+	margin-right:5px;
 }
 
 button i.post,
@@ -259,6 +259,7 @@ span.off i,
 .lock { background-image:url(../images/icon_sm_lock.png); }
 .unlock { background-image:url(../images/icon_sm_unlock.png); }
 .checkbox { background:url(../images/icon_sm_checkbox.png); }
+.view { background-image:url(../images/icon_sm_view.png); }
 .download { background-image:url(../images/icon_sm_download_featured.png); }
 .arw-down-blue { background:url(../images/icon_sm_arw_blue.gif) no-repeat top right; }
 .arw-down-liteblue { background-image:url(../images/icon_sm_arw_cyan.gif); }
