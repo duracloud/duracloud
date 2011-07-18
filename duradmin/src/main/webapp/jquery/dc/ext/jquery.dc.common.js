@@ -227,19 +227,14 @@ $(function(){
 					
 					if(columnDefs && columnDefs[j]){
 						if(columnDefs[j].formatter){
-							cell.html(columnDefs[j].formatter(value));
+							value = columnDefs[j].formatter(value);
 						}
 
 						if(columnDefs[j].cssClass){
 							cell.addClass(columnDefs[j].cssClass);
 						}
-					}else{
-						if(value){
-							cell.html(value.toString());
-						}
 					}
-					
-
+					cell.html(value);
 				}
 			}
 			return table;
