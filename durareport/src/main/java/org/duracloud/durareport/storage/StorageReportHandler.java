@@ -224,6 +224,7 @@ public class StorageReportHandler {
             } catch (ContentStoreException e) {
                 log.warn("Exception attempting to store storage report: " +
                          e.getMessage());
+                wait(i);
             }
         }
         throw new ReportBuilderException("Exceeded retries attempting to " +
@@ -284,6 +285,7 @@ public class StorageReportHandler {
             } catch(ContentStoreException e) {
                 log.warn("Exception attempting to store error log: " +
                          e.getMessage());
+                wait(i);
             }
         }
         log.error("Unable to store error log file!");
@@ -313,6 +315,13 @@ public class StorageReportHandler {
             }
         }
         return 0;
+    }
+
+    private void wait(int index) {
+        try {
+            Thread.sleep(1000 * index);
+        } catch(InterruptedException e) {
+        }
     }
 
 }
