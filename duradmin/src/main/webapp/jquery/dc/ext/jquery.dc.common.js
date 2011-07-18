@@ -224,13 +224,22 @@ $(function(){
 							cell = $.fn.create("td");
 					
 					$(row).append(cell);
-					if(columnDefs && columnDefs[j].formatter){
-						value = columnDefs[j].formatter(value);
+					
+					if(columnDefs && columnDefs[j]){
+						if(columnDefs[j].formatter){
+							cell.html(columnDefs[j].formatter(value));
+						}
+
+						if(columnDefs[j].cssClass){
+							cell.addClass(columnDefs[j].cssClass);
+						}
+					}else{
+						if(value){
+							cell.html(value.toString());
+						}
 					}
-					cell.html(value);
-					if(columnDefs && columnDefs[j].cssClass){
-						cell.addClass(columnDefs[j].cssClass);
-					}
+					
+
 				}
 			}
 			return table;

@@ -5,8 +5,10 @@
 	</tiles:putAttribute>
 
 	<tiles:putAttribute name="header-extensions">
+
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/js/dashboard-manager.js"></script>
+
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.js"></script>
 		<script type="text/javascript"
@@ -15,6 +17,8 @@
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.tools/jquery.tools.min.js"></script>				
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/plugins/jquery.tablesorter/jquery.tablesorter.min.js"></script>				
+	
+
 		<style>
 
 	
@@ -179,14 +183,20 @@
 
 .service > .service-header:hover {
 	cursor:pointer;
-	background-color: #CCCCCC;
+}
+
+.service:hover {
+	opacity: 0.8;
+	border: 1px solid #AAAAFF;		
 }
 .service-header, .service-body {
 	padding:5px;
 }
 
 .service-body {
+	/*
 	background-color: #DDDDDD;
+	*/
 	min-height: 100px;
 }
 
@@ -194,7 +204,7 @@
 	width: 15px;
 }
 
-.service-start-date, .service-end-date {
+.service-start-date, .service-completed-date {
 	width:300px;
 	font-size: 0.8em;
 }
@@ -206,51 +216,72 @@ table {
 }
 
 #service-list-panel {
-	padding-top: 3px; 
-	width:75%; 
+	width:74%; 
 	min-height:200px; 
-	float:right; 
-	max-height:400px;
-	overflow:auto;
+	float:left; 
+	max-height:500px;
+	padding:10px;
 }
 
 .services-panel {
 	min-height:300px; 
-	max-height:475px;
+	max-height:500px;
 	overflow:auto
 }
 
 .service-configuration {
-	width:49%;
 	float:left;
 }
 
-.service-results {
-	width:49%;
+.service-properties {
 	float:right;
+}
+
+.service-properties, .service-configuration {
+	width:49%;
 }
 
 .service-body tr {
 	border-top: 1px solid #999999;	
 }
 
+
 .service .service-body {
 	border-top: 1px dashed #999999;	
 }
 
 #service-list-filter {
-	float:left; 
-	width:25%; 
+	float:right; 
+	width:23%; 
 	max-height:400px;
 	overflow:auto;
+	background-color:#EEEEEE;
+	
 }
+
+
+#service-list-filter > div, #service-list-filter h3 {
+	padding: 10px;
+}
+
+#service-list-filter h3 {
+	background-color: #DDDDDD;
+	font-size: 0.9em;
+	margin:0;
+}
+
 
 .date-slider {
  margin:10px 15px 10px 0px;
 }
 
-.icon-success{
-	background-image: url(/duradmin/images/icon_success.png); 
+.successful-service {
+	background-color: #EEFFEE;
+}
+
+.failed-service {
+	background-color: #FFEEEE;
+
 }
 
 </style>
@@ -282,8 +313,8 @@ table {
 				<div id="tabs-services">
 					<div id="toolbar" class="ui-widget-header ui-corner-all">
 						<span id="phase">
-						<input type="radio" id="completed-button" name="phase" checked="checked"/><label for="completed-button">Completed</label>
-						<input type="radio" id="deployed-button" name="phase"  /><label for="deployed-button">Deployed</label>
+							<input type="radio"  id="completed-button" name="phase" checked="checked"/><label for="completed-button">Completed</label>
+							<input type="radio" id="deployed-button" name="phase"  /><label for="deployed-button">Deployed</label>
 						</span>
 
 					</div>
@@ -292,37 +323,15 @@ table {
 					</div>
 					
 					<div id="completed-services-panel" class="services-panel">
-						<div style="margin-top:10px;">
-							Displaying Services: 
-							<span class="date-range-start">{Start Date}</span> to
-							<span class="date-range-end">{End Date}</span>
-						</div>					
-						<div class="date-slider" id="service-date-slider">
-								
-						</div>					
 						
-						<div id="service-list-filter">
-							<ol id="service-list">
-								<li id="0" class="ui-widget-content">Bit Integrity Check 1.1</li>
-								<li id="1" class="ui-widget-content">Image Conversion 2.1</li>
-								<li id="2" class="ui-widget-content">Replication 1.0</li>
-								<li id="3" class="ui-widget-content">Pig Service 3.2</li>
-							</ol>
-						</div>
 						<div id="service-list-panel">
-							<div id="toolbar" class="ui-widget-header ui-corner-all">
-								Show: 
-								<input type="checkbox" id="success-checkbox"  checked="checked" /><label for="success-checkbox">Successes</label>
-								<input type="checkbox" id="failure-checkbox"  checked="checked" /><label for="failure-checkbox">Failures</label>
-								
-							</div>
 
 							<div class="service-header">
 									<table>
 										<tr>
 											<td class="service-name">Name</td>									
-											<td class="service-start-date">Start</td>
-											<td class="service-end-date">End</td>
+											<td class="service-start-date">Duration</td>
+											<td class="service-completed-date">End</td>
 										</tr>
 									</table>
 
@@ -330,48 +339,75 @@ table {
 														
 							<div id="service-viewer">
 							
-								<div class="service"> 
+								<div class="service" style="display:none"> 
 									<div class="service-header">
 										<table>
 											<tr>
-												<td class="service-result-status icon-success"></td>
 												<td class="service-name">Bit Integrity Check 1.1</td>									
 												<td class="service-start-date">10/10/2011 10:10 AM PST</td>
-												<td class="service-end-date">10/12/2011 10:10 AM PST</td>
+												<td class="service-completed-date">10/12/2011 10:10 AM PST</td>
 											</tr>
 										</table>
 									</div>
 									<div class="service-body"  style="display:none">
 										<div class="service-configuration">
 											<h3>Configuration</h3>
-											<table>
-												<tr>
-													<td>Property 1</td>
-													<td>Value 1</td>
-												</tr>
-												<tr>
-													<td>Property 2</td>
-													<td>Value 2</td>
-												</tr>
-											</table>
 										</div>									
-										<div class="service-results" > 
-											<h3>Results</h3>
-											<table>
-												<tr>
-													<td>Property 1</td>
-													<td>Value 1</td>
-												</tr>
-												<tr>
-													<td>Property 2</td>
-													<td>Value 2</td>
-												</tr>
-											</table>
+										<div class="service-properties" > 
+											<h3>Properties</h3>
 										</div>
 									</div>
 								</div>									
 
 							
+							</div>
+						</div>
+					
+						<div id="service-list-filter">
+							<h3>Date Range</h3>
+							<div id="service-date-slider">
+								<table>
+									<tr>
+										<td>
+											Start
+										
+										</td>
+										<td>
+											 <span class="date-range-start">{Start Date}</span>										
+										</td>
+									</tr>
+									<tr>
+										<td>
+											End
+										
+										</td>
+										<td>
+											 <span class="date-range-end">{End Date}</span>										
+										</td>
+									</tr>
+
+								</table>
+								<div class="date-slider">
+								</div>					
+
+							</div>					
+
+							<h3>Completion Status</h3>
+
+							<div>
+								<span class="successful-service">
+									<input type="checkbox" id="success-checkbox" checked="checked" /><label for="success-checkbox">Successes</label>
+								</span>
+								<span class="failed-service">
+									<input type="checkbox" id="failure-checkbox"  checked="checked" /><label for="failure-checkbox">Failures</label>
+								</span>
+							</div>
+
+							<h3>Service Type</h3>
+							<div>
+								<div id="service-list">
+								
+								</div>
 							</div>
 						</div>
 						

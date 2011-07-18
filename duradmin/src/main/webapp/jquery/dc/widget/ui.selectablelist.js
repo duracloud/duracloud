@@ -7,11 +7,12 @@
 ///selectable list widget
 ///
 /////////////////////////////////////////////////////////////////////////////////////
-
+(function(){
 /**
  * Selectable list widget
  */
 $.widget("ui.selectablelist",{
+	
 	/**
 	 * Default values go here
 	 */
@@ -19,6 +20,7 @@ $.widget("ui.selectablelist",{
 	
 			itemClass: "dc-item"
 		,   selectable: true
+		,   clickable: true
 		,   itemActionClass: "dc-action-panel"
 			
 	},
@@ -58,11 +60,12 @@ $.widget("ui.selectablelist",{
 	},
 	
 	getSelectedData: function(){
+		var that = this;
 		var selected = this._getSelectedItems();
 		var selectedData = new Array();
-		for(i in selected){
-			selectedData.push(this._getDataById($(selected[i]).attr("id")));
-		}
+		$.each(selected, function(i,selectedItem){
+			selectedData.push(that._getDataById($(selectedItem).attr("id")));
+		});
 		
 		return selectedData;
 	},
@@ -96,7 +99,13 @@ $.widget("ui.selectablelist",{
 	_fireSelectionChanged: function(){
 		var ci = this._currentItem;
 		this._styleItem(ci != null && ci.item != null ? ci.item : null);
-		this.element.trigger("selectionChanged", {selectedItems: this._getSelectedItems(), currentItem: this._currentItem});
+		this.element.trigger(
+			"selectionChanged", 
+			{
+				selectedItems: this._getSelectedItems(), 
+				currentItem: this._currentItem,
+			}
+		);
 	},
 
 	_fireItemRemoved: function(item){
@@ -138,11 +147,22 @@ $.widget("ui.selectablelist",{
 			that._initItem(c);
 		});
 		
+		that.element.bind("selectionChanged", function(evt, state){
+			var selectionChanged = that.options.selectionChanged;
+			if(selectionChanged){
+				selectionChanged(evt,state);
+			}
+		});
+		
 	},
 	
-	addItem: function(item, data){
+	addItem: function(item, data, selected){
 		this._footer.before(item);
 		this._initItem(item,data);
+		if(selected && this.options.selectable){
+			$("input[type=checkbox]",item).attr("checked", true);
+		}
+		
 		return item;
 	},
 	
@@ -158,6 +178,15 @@ $.widget("ui.selectablelist",{
 		item.remove();
 		this._fireCurrentItemChanged(null,null);
 		this._fireItemRemoved(item);
+	},
+
+	idExists: function(elementId) {
+		var item = $("[id='"+elementId+"']", this.element).first();
+		if(item){
+			return true;
+		}else{
+			return false;
+		}
 	},
 
 
@@ -243,20 +272,25 @@ $.widget("ui.selectablelist",{
 		.addClass("float-r")
 		.addClass(actionClass);
 
-
-		
-		//bind mouse action listeners
-		$(item).find("."+actionClass).andSelf().click(function(evt){
+		var clickHandler = function(evt){
 			var item = $(evt.target).nearestOfClass(itemClass);
 			if($(evt.target).attr("type") != "checkbox"){
-				that._fireCurrentItemChanged(item);
+				if(that.options.clickable){
+					that._fireCurrentItemChanged(item);
+				}else if(that.options.selectable){
+					item.find(":checkbox").click();
+					that._itemSelectionStateChanged(evt.target);
+				}
+
 				evt.stopPropagation();
 			}
-		}).dblclick(function(evt){
-			var item = $(evt.target).nearestOfClass(itemClass);
-			that._fireCurrentItemChanged(item);
-			evt.stopPropagation();
-		}).mouseover(function(evt){
+		};
+		
+		//bind mouse action listeners
+		$(item).find("."+actionClass).andSelf()
+		.click(clickHandler)
+		.dblclick(clickHandler)
+		.mouseover(function(evt){
 			$(evt.target).nearestOfClass(itemClass)
 						 .find("."+actionClass)
 						 .makeVisible();
@@ -271,7 +305,11 @@ $.widget("ui.selectablelist",{
 		
 		//add the data to the map
 		that._putData($(item).attr("id"), data);
-
+		
+		return item;
 	}
 });
+
+})();
+
 

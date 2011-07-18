@@ -523,6 +523,95 @@
 })();
 
 
+(function(){
+	var ONE_DAY  =  1000*60*60*24;
+
+	$.widget("ui.dateslider", {
+		options:{
+			minDate: /*Date*/ null,
+			maxDate: /*Date*/ null,
+			lowBound: /*Date*/ null, 
+			highBound: /*Date*/ null,
+			change: /*Function*/ null,
+
+		},
+		_value: {lowBound: /*date*/ null, highBound: /*date*/null},
+		_init: function(){
+			var that = this;
+			var o = this.options;
+			var maxValue = this._daysBetween(o.minDate, o.maxDate);
+			var lowDayRange = this._daysBetween(o.minDate, o.lowBound);
+
+			this._updateSelectedRangeText(o.lowBound, o.highBound);
+			this._updateSelectedRangeValues(o.lowBound, o.highBound);
+			
+			$(".date-slider", this.element).slider({
+				range: true,
+				min: 0,
+				max: maxValue,
+				values: [lowDayRange, maxValue],
+				slide: function( event, ui ) {
+					var low = that._addDaysAsDate(ui.values[0]), 
+						hi =  that._addDaysAsDate(ui.values[1]);
+					that._updateSelectedRangeText(low, hi);
+				},
+				change: function(event, ui){
+					var low = that._addDaysAsDate(ui.values[0]), 
+						hi =  that._addDaysAsDate(ui.values[1]);
+					that._updateSelectedRangeValues(low,hi);
+					dc.log("value changed: " + that.value());
+					if(o.change){
+						o.change(that.element, that.value());
+					}
+				}
+			});
+		},
+		
+		_updateSelectedRangeText: function(lowBound, highBound){
+			this._setStartText(lowBound);
+			this._setEndText(highBound);
+		},
+
+		_updateSelectedRangeValues: function(lowBound, highBound){
+			this._value =  {
+				lowBound: lowBound,
+				highBound: highBound,
+				toString: function(){
+					return "(low=" + this.lowBound.toLocaleDateString() + "; high: " + 
+								this.highBound.toLocaleDateString() + ")";
+				},
+			};
+			return this._value;
+		},
+		
+		value: function(){
+			return this._value;
+		},
+
+		_daysBetween: function(firstDate, lastDate){
+			var msBetween = Math.abs(lastDate.getTime()-firstDate.getTime());
+			return Math.round(msBetween/ONE_DAY);
+		},
+
+		_addDaysAsDate: function(daysToAdd){
+			return new Date(this.options.minDate.getTime()+(ONE_DAY*daysToAdd));
+		},
+
+		_setDateValue: function(selector, date){
+			$(selector, this.element).html(date.toLocaleDateString());
+		},
+		
+		_setStartText: function(date){
+			this._setDateValue(".date-range-start", date);
+		},
+
+		_setEndText: function(date){
+			this._setDateValue(".date-range-end", date);
+		},
+	});
+})();
+
+
 var centerLayout,mainContentLayout;
 
 function plotPieChart(element, data, labelValueFormatter){
@@ -755,10 +844,10 @@ $(function() {
 	 * converts a string like this	'report/service-summaries-2011-07.xml'
 	 * to ms.
 	 */
-	var convertServicesReportIdToDate = function(storageReportId){
+	var convertServicesReportIdToDate = function(serviceReportId){
 		var pattern = /report\/service-summaries-([\d]*)-([\d]*)[.]xml/i;
-		var year = pattern.exec(storageReportId)[1];
-		var month = pattern.exec(storageReportId)[2];
+		var year = pattern.exec(serviceReportId)[1];
+		var month = pattern.exec(serviceReportId)[2];
 		var date = new Date();
 		date.setFullYear(year, month-1, 1);
 		return date;
@@ -774,7 +863,26 @@ $(function() {
 	};
 	
 	var getFirstDayOfMonth = function(date){
-		return new Date(date.getFullYear(), date.getMonth(), 1);
+		var year = date.getFullYear(), 
+			month = date.getMonth(), 
+			day = date.getDate();
+		
+		if(date == 1){
+			return date;
+		}
+		
+		if(day == 0){
+			month -= 1;
+		}
+
+		if(month < 0){
+		  month = 11; 	
+		}
+		
+		if(month == 11){
+			year -= 1;
+		}
+		return new Date(year, month, 1);
 	};
 	
 
@@ -1018,26 +1126,32 @@ $(function() {
 	
 	
 	var serviceReportMap = {};
-	
+	var serviceReportList = null;
+	var serviceSlider = null;
 	var initializeServicesPanel = function(/*element*/ servicesPanel){
 		dc.log("initializing services panel");
 		//init toggle of deployed and completed
 		$("input[name='phase']", servicesPanel).click(function(evt, ui){
 			$("#completed-services-panel, #deployed-services-panel", servicesPanel).toggle();
 		});
+
+		var servicesList = getServiceListUI(servicesPanel);
 		
-		//attach listeners to service list
-		$( "#service-list" , servicesPanel).selectable({
-			selected: function(event, ui) {
-				dc.log("selected " + $(ui.selected).attr("id"));
-				
-			},
-			unselected: function(event, ui) {
-				dc.log("unselected " + $(ui.unselected).attr("id"));
+		//initialize service list
+		servicesList.selectablelist(
+			{
+				clickable: false,
+				selectionChanged:function(evt, ui){
+					dc.log("selection changed: selection count = " + ui.selectedItems.length);
+					buildCompletedServicesList(servicesPanel);
+				}
 			}
+		);
 
+		$("#success-checkbox, #failure-checkbox", servicesPanel).click(function(){
+			buildCompletedServicesList(servicesPanel);
 		});
-
+		
 		//use "live" function so that headers added in the future will be clickable.
 		$( ".service .service-header ", servicesPanel).live("click", function(evt){
 			$(evt.target).closest(".service").children(".service-body").slideToggle("fast");
@@ -1046,75 +1160,250 @@ $(function() {
 
 		//load service report ids
 		getServiceReportIds({
-			success:function(serviceReportList){
+			success:function(data){
 				dc.done();
-				$.each(serviceReportList, function(i, item){
-					serviceReportMap[item] = null;
+				serviceReportList = data;
+				$.each(serviceReportList, function(i, serviceReportId){
+					serviceReportMap[serviceReportId] = null;
 				});
-				initializeServiceSlider(servicesPanel, serviceReportList);
+				
+				serviceSlider = initializeServiceSlider(servicesPanel, serviceReportList);
+				
+				buildCompletedServicesList(servicesPanel);
 			},
 		});
 	};
+	
+	var getServiceListUI = function(servicesPanel){
+		return $( "#service-list" , servicesPanel);
+	};
 
+	var getSelectedStatuses = function(servicesPanel){
+		return {
+			success: $("#success-checkbox", servicesPanel).is(":checked"),
+			failure: $("#failure-checkbox", servicesPanel).is(":checked"),
+		};
+	};
 
+	var filterServices = function(serviceSummaries, criteria){
+		if(!criteria){
+			return serviceSummaries;
+		}
+		
+		var filteredSummaries = serviceSummaries.slice(0);
+		var offset = 0;
 
+		$.each(serviceSummaries, function(i, ss){
+			var remove = false;
+			var success = isSuccessful(ss);
+			if(!criteria.status.success){
+				if(success){
+					remove = true;
+				}
+			}
+			
+			if(!remove && !criteria.status.failure){
+				if(!success){
+					remove = true;
+				}
+			}
+			
+			if(!remove && criteria.services && criteria.services.length > 0){
+				var inlist = false;
+				$.each(criteria.services, function(j, service){
+					if(service.id == ss.id){
+						inlist = true;
+						return false;
+					}
+				});
+				
+				if(!inlist){
+					remove = true;
+				}
+			}
+			
+			if(remove){
+				filteredSummaries.splice(i-offset,1);
+				offset++;
+			}
+			
+		});
+		
+		return filteredSummaries;
+	};
+	
+	var buildCompletedServicesList = function(servicesPanel){
+		var sliderValue = serviceSlider.dateslider("value");
+		dc.debug("slider value:" + sliderValue);
+		var serviceList = getServiceListUI(servicesPanel);
+		var services  = buildServicesList(serviceReportList,serviceReportMap, sliderValue);
+		var uniqueServices  = listUniqueServices(services);
+		var selectedServices = serviceList.selectablelist("getSelectedData");
+		var filteredServices = filterServices(services , { 
+			services: selectedServices,
+			status: getSelectedStatuses(servicesPanel)
+		});
+		
+		serviceList.selectablelist("clear");
+		$.each(uniqueServices, function(i,service){
+			var item = $.fn.create("div"), select = false;
+			item.attr("id", service.id);
+			item.html(service.name);
+			$(selectedServices).each(function(i, selectedService){
+				if(selectedService.id == service.id){
+					select = true;
+					return false;
+				}
+			});
+			serviceList.selectablelist("addItem", item, service, select);
+			//todo select any items that were previously selected.
+		});
+
+		loadServiceViewer(filteredServices, servicesPanel);
+	};
+
+	var loadServiceViewer = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
+		var serviceViewer = $("#completed-services-panel #service-viewer", servicesPanel);
+		serviceViewer.children().not(":first").remove();
+		var template = serviceViewer.children().first();
+		$.each(serviceSummaries, function(i, ss){
+			var node = template.clone();
+			node.addClass(isSuccessful(ss) ? "successful-service":"failed-service");
+			serviceViewer.append(node);
+			$(".service-name", node).html(ss.name);
+			var completed = getCompletedDate(ss);
+			$(".service-completed-date", node).html(completed.toLocaleString());
+			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
+			$(".service-properties", node).append(dc.createTable(toArray(ss.properties)));
+			node.show();
+		});
+	};
+	
+	var toArray = function(map){
+		var a = [];
+		$.each(map, function(name, value){
+			a.push([name, value]);
+		});
+		
+		return a;
+	};
+	
+	
+	var getCompletedDate = function(serviceSummary){
+		return serviceSummary.properties.completed;
+	}
+	
+	var isSuccessful = function (serviceSummary){
+		return serviceSummary.id % 6 != 0;
+	}
+	
+	var buildServicesList = function(serviceReportList, servicesReportMap, sliderValue){
+		var low = sliderValue.lowBound, high = sliderValue.highBound;
+		var servicesArray = [];
+		$.each(serviceReportList, function(i,serviceReportId){
+			var serviceSummaries, 
+				reportLowDate = getFirstDayOfMonth(convertServicesReportIdToDate(serviceReportId)),
+				reportHighDate = getLastDayOfMonth(convertServicesReportIdToDate(serviceReportId));
+
+			if(reportLowDate > high){
+				return true;
+			}
+			serviceSummaries = servicesReportMap[serviceReportId];
+			if(!serviceSummaries){
+				getServiceSummaries(serviceReportId, function(summaries){
+					serviceSummaries = summaries;
+				});
+			}
+
+			$.each(serviceSummaries, function(j,ss){
+				var completed = getCompletedDate(ss);
+				if(completed >= low && completed <= high )
+					servicesArray.push(ss);
+			});
+
+			if(reportLowDate < low){
+				return false;
+			}
+		});
+		
+		return servicesArray;
+	};
+
+	var listUniqueServices = function(services){
+		var map = {}, i, newlist = [];
+		$.each(services, function(i, service){
+			map[service.id] = service;
+		});
+		
+		for( i in map){
+			newlist.push(map[i]);
+		}
+		
+		return newlist;
+	};
+	
+	var getServiceSummaries = function(serviceReportId, callback){
+		
+		if(serviceReportMap[serviceReportId]){
+			callback(serviceReportMap[serviceReportId]);
+			return;
+		}
+		
+		var reportDate = convertServicesReportIdToDate(serviceReportId);
+		var firstDay = getFirstDayOfMonth(reportDate);
+		var lastDay = getLastDayOfMonth(reportDate);
+		var serviceSummaries = [];
+		var i = 0;
+		var limit = Math.floor(Math.random()*10) + 1;
+		var now = new Date().getTime();
+		var randomMs = null;
+		for(i = 0; i < limit; i++){
+			randomMs = Math.round(Math.random()*(lastDay.getTime()-firstDay.getTime()));
+			serviceSummaries.push({
+				id: i,
+				name: "My Service " + i,
+				deploymentId: new Date().getTime() % 100000,
+				version: "1.1.0",
+				configs: {
+					"config1": "value1",
+					"config2": "value2",
+					"config3": "value3",
+					
+				},
+				properties: {
+					"completed": new Date(firstDay.getTime()+ randomMs),
+					"property2": "value2",
+					"property3": "value3",
+				},
+			});
+		}
+		
+		serviceReportMap[serviceReportId] = serviceSummaries;
+		callback(serviceSummaries)
+		
+	};
+	
 	var initializeServiceSlider = function(servicesPanel, serviceReportList){
-		var ONE_DAY = 1000*60*60*24;
-
-		var daysBetween = function(firstDate, lastDate){
-			var msBetween = Math.abs(lastDate.getTime()-firstDate.getTime());
-			return Math.round(msBetween/ONE_DAY);
-		};
-
-		var firstDate = getFirstDayOfMonth(convertServicesReportIdToDate(serviceReportList[0]));
-		var lastIndex = serviceReportList[serviceReportList.length-1];
+		var firstIndex = serviceReportList.length-1;
+		var lastIndex = serviceReportList[0]
+		var firstDate = getFirstDayOfMonth(convertServicesReportIdToDate(serviceReportList[firstIndex]));
 		var lastMonth = convertServicesReportIdToDate(lastIndex);
-		var lastDayOfMonth = getLastDayOfMonth(lastMonth);
-		var maxValue = daysBetween(firstDate, lastDayOfMonth);
-		var daysInMostRecentMonth = daysBetween(lastMonth, lastDayOfMonth);
-		var lowerRange = maxValue-daysInMostRecentMonth;
-		var upperRange = maxValue;
-		
-		var addDays = function(daysToAdd){
-			return new Date(firstDate.getTime()+(ONE_DAY*daysToAdd)).toLocaleDateString();
-		};
-
-		
-		var setValueByDays = function(selector, days){
-			$(selector, servicesPanel).html(addDays(days));
-		};
-		
-		var setStartText = function(days){
-			setValueByDays(".date-range-start", days);
-		};
-
-		var setEndText = function(days){
-			setValueByDays(".date-range-end", days);
-		};
-
-
-		setStartText(lowerRange);
-		setEndText(upperRange);
-
-		$("#service-date-slider", servicesPanel).slider({
-			range: true,
-			min: 0,
-			max: maxValue,
-			values: [lowerRange, upperRange],
-			slide: function( event, ui ) {
-				var low=ui.values[0], hi = ui.values[1];
-				var lowDate = addDays(low);
-				var highDate = addDays(hi);
-				dc.log("range changed:  " + lowDate + " to " + highDate);
-				setStartText(low);
-				setEndText(hi);
+		var lowerDate = getFirstDayOfMonth(lastMonth);
+		var upperDate = getLastDayOfMonth(lastMonth);
+		return $("#service-date-slider", servicesPanel).dateslider({
+			minDate: firstDate,
+			maxDate: upperDate,
+			lowBound: lowerDate, 
+			highBound: upperDate,
+			change: function(event, ui){
+				buildCompletedServicesList(servicesPanel);
 			}
 		});
 	};
 	
 	var getServiceReportIds = function(callback){
 		dc.busy("retrieving service report list");
-		callback.success(['report/service-summaries-2011-05.xml', 'report/service-summaries-2011-06.xml', 'report/service-summaries-2011-07.xml']);
+		callback.success(['report/service-summaries-2011-05.xml', 'report/service-summaries-2011-06.xml', 'report/service-summaries-2011-07.xml'].reverse());
 		/*
 		dc.ajax({
 			url: "/duradmin/completedservicesreport/list",
