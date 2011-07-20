@@ -8,9 +8,6 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.ProgressListener;
@@ -26,6 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -98,8 +98,11 @@ public class ContentItemUploadController implements Controller{
 			    if(item.isFormField()){
 			    	String value = Streams.asString(item.openStream());
 			    	if(item.getFieldName().equals("contentId")){
-						log.debug("setting contentId: {}", value);
-			    		ci.setContentId(value);
+                        // Converts from the default form encoding to UTF-8
+                        String decodedValue =
+                            new String(value.getBytes(), "UTF-8");
+						log.debug("setting contentId: {}", decodedValue);
+			    		ci.setContentId(decodedValue);
 			    	}else if(item.getFieldName().equals("contentMimetype")){
 						log.debug("setting mimetype: {}", value);
 			    		ci.setContentMimetype(value);

@@ -673,7 +673,7 @@ $(function(){
 	var serialize = function(obj){
 		var str = "";
 		for(p in obj){
-			str += "&" + p + "=" + escape(obj[p]);	
+			str += "&" + p + "=" + encodeURIComponent(obj[p]);
 		}
 		return str;
 	};
@@ -1435,7 +1435,9 @@ $(function(){
 									}
 								};
 									
-								var key = escape(contentItem.storeId+"/"+contentItem.spaceId+"/"+ contentItem.contentId);
+								var key = encodeURIComponent(contentItem.storeId) + "/" +
+                                          encodeURIComponent(contentItem.spaceId) + "/" +
+                                          encodeURIComponent(contentItem.contentId);
 								var callback = {
 									key: key,
 									begin: function(){
@@ -2098,7 +2100,7 @@ $(function(){
 
 	var changeSpaceAccess = function(storeId, spaceId, access, callback){
 		dc.busy( "Changing space access...", {modal: true}); 
-		dc.ajax({ url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+escape(spaceId), 
+		dc.ajax({ url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId),
 			data: "access="+access+"&action=put&method=changeAccess",
 			type: "POST",
 			cache: false,
@@ -2124,7 +2126,7 @@ $(function(){
 		var newData = data + "&method=" + method;
 		var storeId = getCurrentProviderStoreId();
 		return {
-			url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+escape(spaceId) +"&action=put", 
+			url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&action=put",
 			type: "POST",
 			data: newData,
 			cache: false,
@@ -2142,22 +2144,22 @@ $(function(){
 
 	
 	var addSpaceMetadata = function(spaceId, name, value, callback){
-		var data = "metadata-name=" + escape(name) +"&metadata-value="+escape(value);
+		var data = "metadata-name=" + encodeURIComponent(name) +"&metadata-value="+encodeURIComponent(value);
 		dc.ajax(createSpaceMetadataCall(spaceId, data, "addMetadata", callback));		
 	};
 
 	var removeSpaceMetadata = function(spaceId, name,callback){
-		var data = "metadata-name=" + escape(name);
+		var data = "metadata-name=" + encodeURIComponent(name);
 		dc.ajax(createSpaceMetadataCall(spaceId, data, "removeMetadata", callback));		
 	};
 
 	var addSpaceTag = function(spaceId, tag, callback){
-		var data = "tag="+ escape(tag);
+		var data = "tag="+ encodeURIComponent(tag);
 		dc.ajax(createSpaceMetadataCall(spaceId, data, "addTag", callback));		
 	};
 
 	var removeSpaceTag = function(spaceId, tag,callback){
-		var data = "tag="+escape(tag);
+		var data = "tag="+encodeURIComponent(tag);
 		dc.ajax(createSpaceMetadataCall(spaceId, data, "removeTag", callback));		
 	};
 
@@ -2179,8 +2181,8 @@ $(function(){
 		data = "";
 		for(i = 0; i < list.length; i++){
 			item = list[i];
-			data += "&metadata-name-"+fieldNameModifier+"-" + i + "=" + escape(item.name);
-			data += "&metadata-value-"+fieldNameModifier+"-" + i + "=" + escape(item.value);
+			data += "&metadata-name-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.name);
+			data += "&metadata-value-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.value);
 		}
 		return data;
 	};
@@ -2190,7 +2192,7 @@ $(function(){
 		data = "";
 		for(i = 0; i < list.length; i++){
 			item = list[i];
-			data += "&" + fieldPrefix + "-" + fieldNameModifier + "-"+ i + "=" + escape(item);
+			data += "&" + fieldPrefix + "-" + fieldNameModifier + "-"+ i + "=" + encodeURIComponent(item);
 		}
 		return data;
 	};
@@ -2201,7 +2203,7 @@ $(function(){
 		var newData = data + "&method=" + method;
 		var storeId = getCurrentProviderStoreId();
 		return {
-			url: "/duradmin/spaces/content?storeId="+storeId+"&spaceId="+escape(spaceId) +"&contentId="+escape(contentId) +"&action=put", 
+			url: "/duradmin/spaces/content?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&contentId="+encodeURIComponent(contentId) +"&action=put",
 			type: "POST",
 			data: newData,
 			cache: false,
@@ -2216,22 +2218,22 @@ $(function(){
 	};
 	
 	var addContentItemMetadata = function(spaceId, contentId, name, value, callback){
-		var data = "metadata-name=" + escape(name) +"&metadata-value="+escape(value);
+		var data = "metadata-name=" + encodeURIComponent(name) +"&metadata-value="+encodeURIComponent(value);
 		dc.ajax(createContentItemMetadataCall(spaceId, contentId, data, "addMetadata", callback));		
 	};
 
 	var removeContentItemMetadata = function(spaceId, contentId, name,callback){
-		var data = "metadata-name=" + escape(name);
+		var data = "metadata-name=" + encodeURIComponent(name);
 		dc.ajax(createContentItemMetadataCall(spaceId,contentId, data, "removeMetadata", callback));		
 	};
 
 	var addContentItemTag = function(spaceId, contentId, tag, callback){
-		var data = "tag="+ escape(tag);
+		var data = "tag="+ encodeURIComponent(tag);
 		dc.ajax(createContentItemMetadataCall(spaceId,contentId, data, "addTag", callback));		
 	};
 
 	var removeContentItemTag = function(spaceId, contentId, tag,callback){
-		var data = "tag="+escape(tag);
+		var data = "tag="+encodeURIComponent(tag);
 		dc.ajax(createContentItemMetadataCall(spaceId, contentId, data, "removeTag", callback));		
 	};
 	
@@ -2449,7 +2451,7 @@ $(function(){
 				if(second > first){
 					pHash.spaceId = hash.slice(first+1, second+1);
 					if(hash.length > second){
-						pHash.contentId = unescape(hash.substring(second+2));
+						pHash.contentId = decodeURIComponent(hash.substring(second+2));
 					}
 				}else{
 					pHash.spaceId = hash.substring(second+2);
