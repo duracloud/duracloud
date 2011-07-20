@@ -43,7 +43,7 @@ var dc;
 		
 		dc.ajax({
 			url: "/duradmin/spaces/space", 
-			data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&prefix="+escape(prefix)+"&marker="+escape(marker),
+			data: "storeId="+storeProviderId+"&spaceId="+encodeURIComponent(spaceId)+"&prefix="+encodeURIComponent(prefix)+"&marker="+encodeURIComponent(marker),
 			cache: false,
 			async: options.async != undefined ? options.async : true,
 			context: document.body,
@@ -60,7 +60,7 @@ var dc;
 	dc.store.DeleteSpace = function(space, callback){
 		dc.ajax({
 			url: "/duradmin/spaces/space", 
-			data: "action=delete&storeId="+space.storeId+"&spaceId="+escape(space.spaceId),
+			data: "action=delete&storeId="+space.storeId+"&spaceId="+encodeURIComponent(space.spaceId),
 			type: "POST",
 			success: callback.success,
 		    failure: callback.failure,
@@ -76,7 +76,7 @@ var dc;
 		dc.ajax(
 			{
 				url: "/duradmin/spaces/space", 
-				data: "storeId="+space.storeId+"&spaceId="+escape(space.spaceId)+"&access="+space.access,
+				data: "storeId="+space.storeId+"&spaceId="+encodeURIComponent(space.spaceId)+"&access="+space.access,
 				type: "POST",
 				success: function(data){
 					callback.success(data.space)
@@ -112,8 +112,8 @@ var dc;
 	dc.store.GetContentItem = function(storeProviderId, spaceId, contentItemId, callback){
 		dc.ajax({
 				url: "/duradmin/spaces/content",
-				data: "storeId="+storeProviderId+"&spaceId="+escape(spaceId)+"&contentId="+escape(contentItemId),
-				cache: false,
+				data: "storeId="+storeProviderId+"&spaceId="+encodeURIComponent(spaceId)+"&contentId="+encodeURIComponent(contentItemId),
+                cache: false,
 				success: function(data){
 					callback.success(data.contentItem);
 			    },
@@ -129,7 +129,7 @@ var dc;
 	dc.store.DeleteContentItem = function(contentItem, callback){
 		dc.ajax({
 			url: "/duradmin/spaces/content", 
-			data: "action=delete&storeId="+contentItem.storeId+"&spaceId="+escape(contentItem.spaceId)+"&contentId="+escape(contentItem.contentId),
+			data: "action=delete&storeId="+contentItem.storeId+"&spaceId="+encodeURIComponent(contentItem.spaceId)+"&contentId="+encodeURIComponent(contentItem.contentId),
 			type: "POST",
 			success: callback.success,
 		    failure: callback.failure,
@@ -206,7 +206,7 @@ var dc;
 		var contentUrl = contentItem.durastoreURL;
         if(!openSpace){
             contentUrl = contentUrl.replace("http://", "https://");}
-        return j2kViewerBaseURL + "/viewer.html?rft_id=" + escape(contentUrl);
+        return j2kViewerBaseURL + "/viewer.html?rft_id=" + encodeURIComponent(contentUrl);
 	};	
 
 	
@@ -218,7 +218,7 @@ var dc;
         if(!openSpace)
             contentUrl = contentUrl.replace("http://", "https://");
         return j2kViewerBaseURL+
-    			"/resolver?url_ver=Z39.88-2004&rft_id="+escape(contentUrl)+"&" +
+    			"/resolver?url_ver=Z39.88-2004&rft_id="+encodeURIComponent(contentUrl)+"&" +
                 "svc_id=info:lanl-repo/svc/getRegion&svc_val_fmt=info:ofi/fmt:kev:mtx:jpeg2000&" +
                 "svc.format=image/png&svc.level="+size+"&svc.rotate=0&svc.region=0,0,500,500";
     };
@@ -246,8 +246,8 @@ var dc;
      */
 	dc.store.formatDownloadURL = function(/*object*/contentItem, /*boolean*/ asAttachment){
 		if(asAttachment == undefined) asAttachment = true;
-		return "/duradmin/download/contentItem?spaceId=" +  contentItem.spaceId + 
-			   "&contentId=" + contentItem.contentId + "&storeID=" + contentItem.storeId + 
+		return "/duradmin/download/contentItem?spaceId=" +  encodeURIComponent(contentItem.spaceId) +
+			   "&contentId=" + encodeURIComponent(contentItem.contentId) + "&storeID=" + contentItem.storeId +
 			   "&attachment=" + asAttachment;
 	};	
 

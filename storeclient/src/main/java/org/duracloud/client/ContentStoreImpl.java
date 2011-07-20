@@ -227,7 +227,7 @@ public class ContentStoreImpl implements ContentStore{
                 Iterator<?> spaceContents = spaceElem.getChildren().iterator();
                 while (spaceContents.hasNext()) {
                     Element contentElem = (Element) spaceContents.next();
-                    space.addContentId(contentElem.getTextTrim());
+                    space.addContentId(contentElem.getText());
                 }
             } else {
                 throw new ContentStoreException("Response body is empty");

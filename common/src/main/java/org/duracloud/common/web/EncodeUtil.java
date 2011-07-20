@@ -7,14 +7,17 @@
  */
 package org.duracloud.common.web;
 
-import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * @author: Bill Branan
  * Date: Jan 14, 2010
  */
 public class EncodeUtil {
+
+    public static final String ENCODING = "UTF-8";
 
     /**
      * Encodes characters within a string to allow them to be used within a URL.
@@ -26,7 +29,7 @@ public class EncodeUtil {
     public static String urlEncode(String toEncode) {
         String encoded;
         try {
-            encoded = URLEncoder.encode(toEncode, "UTF-8");
+            encoded = URLEncoder.encode(toEncode, ENCODING);
         } catch(UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -37,6 +40,14 @@ public class EncodeUtil {
         encoded = encoded.replaceAll("%2F", "/");
 
         return encoded;
+    }
+
+    public static String urlDecode(String toDecode) {
+        try {
+            return URLDecoder.decode(toDecode, ENCODING);
+        } catch(UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

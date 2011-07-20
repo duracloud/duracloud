@@ -603,15 +603,6 @@ public class ProbedRestS3Client
     }
 
     @Override
-    protected <T> void signRequest(Request<T> request,
-                                   HttpMethodName methodName, String bucketName,
-                                   String key) {
-        startMetric("signRequest");
-        super.signRequest(request, methodName, bucketName, key); 
-        stopMetric("signRequest");
-    }
-
-    @Override
     protected <T> HttpRequest convertToHttpRequest(Request<T> request,
                                                    HttpMethodName methodName) {
         startMetric("convertToHttpRequest");
