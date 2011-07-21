@@ -1430,6 +1430,7 @@ $(function(){
 									var ci = data.contentItem;
 									var storeId = getCurrentProviderStoreId();
 									var spaceId = getCurrentSpaceId();
+                                    ci.contentId = decodeURIComponent(ci.encodedContentId);
 									if( ci.storeId == storeId && ci.spaceId == spaceId && $("#content-item-list [id='"+ci.contentId+"']").size() == 0){
 										addContentItemToList(ci);
 									}
