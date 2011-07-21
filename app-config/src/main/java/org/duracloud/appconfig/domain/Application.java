@@ -97,7 +97,7 @@ public class Application {
         return getBaseUrl() + config.getInitResource();
     }
 
-    private String getBaseUrl() {
+    protected String getBaseUrl() {
         return getProtocol() + getHost() + ":" + getPort() + "/" + getContext();
     }
 
@@ -113,7 +113,7 @@ public class Application {
         return getBaseUrl() + "/security";
     }
 
-    private RestHttpHelper getRestHelper() {
+    protected RestHttpHelper getRestHelper() {
         if (null == restHelper) {
             restHelper = new RestHttpHelper(new RootUserCredential());
         }
