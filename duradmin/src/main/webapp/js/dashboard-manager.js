@@ -795,22 +795,7 @@ function formatBarChartData(inputArray, label, value){
 }
 
 $(function() {
-	centerLayout = $('#page-content').layout({
-	center__paneSelector:	"#main-content-panel"
-	});
-	
-	mainContentLayout = $('#main-content-panel').layout({
-		// minWidth: 300 // ALL panes
-			north__size: 			90	
-		,	north__paneSelector:     ".north"
-		,   north__resizable:   false
-		,   north__slidable:    false
-		,   north__spacing_open:			0			
-		,	north__togglerLength_open:		0			
-		,	north__togglerLength_closed:	0			
-		,	center__paneSelector:	".center"
-		});
-	
+
 	 var seekTo = function(index){
 		 var api;
 		 $(".scrollable").scrollable();
@@ -1143,13 +1128,13 @@ $(function() {
 				clickable: false,
 				selectionChanged:function(evt, ui){
 					dc.log("selection changed: selection count = " + ui.selectedItems.length);
-					buildCompletedServicesList(servicesPanel);
+					filterServices(servicesPanel);
 				}
 			}
 		);
 
 		$("#success-checkbox, #failure-checkbox", servicesPanel).click(function(){
-			buildCompletedServicesList(servicesPanel);
+			filterServices(servicesPanel);
 		});
 		
 		//use "live" function so that headers added in the future will be clickable.
@@ -1178,42 +1163,46 @@ $(function() {
 		return $( "#service-list" , servicesPanel);
 	};
 
+	var getSelectedServices = function(servicesPanel){
+		return getServiceListUI(servicesPanel).selectablelist("getSelectedData");
+	};
 	var getSelectedStatuses = function(servicesPanel){
 		return {
 			success: $("#success-checkbox", servicesPanel).is(":checked"),
 			failure: $("#failure-checkbox", servicesPanel).is(":checked"),
+			started: $("#started-checkbox", servicesPanel).is(":checked"),
+
 		};
 	};
 
-	var filterServices = function(serviceSummaries, criteria){
-		if(!criteria){
-			return serviceSummaries;
-		}
-		
-		var filteredSummaries = serviceSummaries.slice(0);
-		var offset = 0;
+	var filterServices = function(servicesPanel){
+		var selectedStatuses = getSelectedStatuses();
+		var selectedServices = getSelectedServices(servicesPanel);
 
-		$.each(serviceSummaries, function(i, ss){
-			var remove = false;
-			var success = isSuccessful(ss);
-			if(!criteria.status.success){
-				if(success){
+		$(".service").not(":first-child").each(function(i, se){
+			var remove = false, inlist = false, serviceElement = $(se);
+			if(!selectedStatuses.success){
+				if(serviceElement.hasClass("successful-service")){
 					remove = true;
 				}
 			}
 			
-			if(!remove && !criteria.status.failure){
-				if(!success){
+			if(!remove && !selectedStatuses.failure){
+				if(serviceElement.hasClass("failed-service")){
 					remove = true;
 				}
 			}
+
+			if(!remove && !selectedStatuses.started){
+				if(serviceElement.hasClass("started-service")){
+					//remove = true;
+				}
+			}
 			
-			if(!remove && criteria.services && criteria.services.length > 0){
-				var inlist = false;
-				$.each(criteria.services, function(j, service){
-					if(service.id == ss.id){
+			if(!remove){
+				$.each(selectedServices, function(j, selectedService){
+					if(selectedService.name == $(".service-name", serviceElement).html()){
 						inlist = true;
-						return false;
 					}
 				});
 				
@@ -1222,14 +1211,13 @@ $(function() {
 				}
 			}
 			
-			if(remove){
-				filteredSummaries.splice(i-offset,1);
-				offset++;
+			if(!remove){
+				serviceElement.show();
+			}else{
+				serviceElement.hide();
 			}
-			
 		});
 		
-		return filteredSummaries;
 	};
 	
 	var buildCompletedServicesList = function(servicesPanel){
@@ -1238,28 +1226,30 @@ $(function() {
 		var serviceList = getServiceListUI(servicesPanel);
 		var services  = buildServicesList(serviceReportList,serviceReportMap, sliderValue);
 		var uniqueServices  = listUniqueServices(services);
-		var selectedServices = serviceList.selectablelist("getSelectedData");
-		var filteredServices = filterServices(services , { 
-			services: selectedServices,
-			status: getSelectedStatuses(servicesPanel)
-		});
+		var selectedServices = getSelectedServices(servicesPanel);
 		
 		serviceList.selectablelist("clear");
 		$.each(uniqueServices, function(i,service){
 			var item = $.fn.create("div"), select = false;
 			item.attr("id", service.id);
 			item.html(service.name);
-			$(selectedServices).each(function(i, selectedService){
-				if(selectedService.id == service.id){
-					select = true;
-					return false;
-				}
-			});
+			if(selectedServices.length == 0){
+				select = true;
+			}else{
+				$(selectedServices).each(function(i, selectedService){
+					if(selectedService.name == service.name ){
+						select = true;
+						return false;
+					}
+				});
+			}
+			
 			serviceList.selectablelist("addItem", item, service, select);
 			//todo select any items that were previously selected.
 		});
 
-		loadServiceViewer(filteredServices, servicesPanel);
+		loadServiceViewer(services, servicesPanel);
+		filterServices(servicesPanel);		
 	};
 
 	var loadServiceViewer = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
@@ -1271,10 +1261,21 @@ $(function() {
 			node.addClass(isSuccessful(ss) ? "successful-service":"failed-service");
 			serviceViewer.append(node);
 			$(".service-name", node).html(ss.name);
-			var completed = getCompletedDate(ss);
-			$(".service-completed-date", node).html(completed.toLocaleString());
+			var stopTime = getStopTime(ss);
+			var startTime = getStartTime(ss);
+			var duration = calculateDuration(startTime, stopTime);
+			$(".service-duration", node).html(duration);
+			$(".service-status", node).html(getServiceStatusPretty(ss));
+			$(".service-version", node).html(ss.version);
+			$(".service-stop-time", node).html(stopTime.toLocaleDateString());
+			$(".service-report a", node).attr("href",ss.properties['Report']);
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
-			$(".service-properties", node).append(dc.createTable(toArray(ss.properties)));
+			
+			var props = $.extend({}, ss.properties);
+			delete props['Service Status'];
+			delete props['Report'];
+
+			$(".service-properties", node).append(dc.createTable(toArray(props)));
 			node.show();
 		});
 	};
@@ -1289,35 +1290,75 @@ $(function() {
 	};
 	
 	
-	var getCompletedDate = function(serviceSummary){
-		return serviceSummary.properties.completed;
+	var getStopTime = function(serviceSummary){
+		return new Date(serviceSummary.properties['Stop Time']);
 	}
+
+	var getStartTime = function(serviceSummary){
+		return new Date(serviceSummary.properties['Start Time']);
+	}
+
+	var MINUTE = 1000*60;
+	var HOUR = MINUTE*60;
+	var DAY = HOUR*24;
+	var calculateDuration = function(/*date*/start, /*date*/stop){
+		var result, days, hours, minutes, ms = stop.getTime()-start.getTime();
+		days = Math.floor(ms/DAY);
+		hours = Math.floor((ms % DAY)/HOUR);
+		minutes = Math.floor((ms % HOUR)/MINUTE);
+		seconds = Math.round((ms % MINUTE)/1000);
+		result = "";
+		if(days > 0) result += day +" day";
+		if(days > 1) result +="s";
+		result += " " + hours + "h"
+		result += " " + minutes +  "m";
+		result += " " + seconds + " s";
+		return result;
+	};
+	
+	var getServiceStatus = function(serviceSummary){
+		return serviceSummary.properties['Service Status'];
+	}
+
+	var getServiceStatusPretty = function(serviceSummary){
+		var status =  getServiceStatus(serviceSummary);
+		
+		return status.substring(0,1).toUpperCase() + status.substring(1).toLowerCase();
+	}
+
 	
 	var isSuccessful = function (serviceSummary){
-		return serviceSummary.id % 6 != 0;
+		return(getServiceStatus(serviceSummary) != 'FAILED')
 	}
 	
 	var buildServicesList = function(serviceReportList, servicesReportMap, sliderValue){
 		var low = sliderValue.lowBound, high = sliderValue.highBound;
 		var servicesArray = [];
+		dc.busy("building service summary list..");
 		$.each(serviceReportList, function(i,serviceReportId){
 			var serviceSummaries, 
-				reportLowDate = getFirstDayOfMonth(convertServicesReportIdToDate(serviceReportId)),
-				reportHighDate = getLastDayOfMonth(convertServicesReportIdToDate(serviceReportId));
+				reportDate = convertServicesReportIdToDate(serviceReportId),
+				reportLowDate = getFirstDayOfMonth(reportDate),
+				reportHighDate = getLastDayOfMonth(reportDate);
 
 			if(reportLowDate > high){
 				return true;
 			}
+			
 			serviceSummaries = servicesReportMap[serviceReportId];
 			if(!serviceSummaries){
-				getServiceSummaries(serviceReportId, function(summaries){
-					serviceSummaries = summaries;
-				});
+				getServiceSummaries(serviceReportId, 
+					{ 
+						success: function(summaries){
+							serviceSummaries = summaries;
+						}
+					}
+				);
 			}
 
 			$.each(serviceSummaries, function(j,ss){
-				var completed = getCompletedDate(ss);
-				if(completed >= low && completed <= high )
+				var stopTime = getStopTime(ss);
+				if(stopTime >= low && stopTime <= high )
 					servicesArray.push(ss);
 			});
 
@@ -1326,13 +1367,15 @@ $(function() {
 			}
 		});
 		
+		dc.done();
+		
 		return servicesArray;
 	};
 
 	var listUniqueServices = function(services){
 		var map = {}, i, newlist = [];
 		$.each(services, function(i, service){
-			map[service.id] = service;
+			map[service.name] = service;
 		});
 		
 		for( i in map){
@@ -1343,25 +1386,27 @@ $(function() {
 	};
 	
 	var getServiceSummaries = function(serviceReportId, callback){
-		
 		if(serviceReportMap[serviceReportId]){
-			callback(serviceReportMap[serviceReportId]);
+			callback.success(serviceReportMap[serviceReportId]);
 			return;
 		}
 		
+		/*
 		var reportDate = convertServicesReportIdToDate(serviceReportId);
 		var firstDay = getFirstDayOfMonth(reportDate);
 		var lastDay = getLastDayOfMonth(reportDate);
 		var serviceSummaries = [];
 		var i = 0;
-		var limit = Math.floor(Math.random()*10) + 1;
+		var limit = Math.floor(Math.random()*100) + 1;
 		var now = new Date().getTime();
 		var randomMs = null;
+		var id = 0
 		for(i = 0; i < limit; i++){
 			randomMs = Math.round(Math.random()*(lastDay.getTime()-firstDay.getTime()));
+			id = (i % 20);
 			serviceSummaries.push({
-				id: i,
-				name: "My Service " + i,
+				id: id,
+				name: "My Service " + id,
 				deploymentId: new Date().getTime() % 100000,
 				version: "1.1.0",
 				configs: {
@@ -1376,10 +1421,25 @@ $(function() {
 					"property3": "value3",
 				},
 			});
-		}
+		}*/
 		
-		serviceReportMap[serviceReportId] = serviceSummaries;
-		callback(serviceSummaries)
+		dc.busy("retrieving service summaries...");
+		dc.ajax({
+			url: "/duradmin/servicesreport/completed/get?reportId=" +serviceReportId,
+			type:"GET",
+			async: false, 
+			success: function(result){
+				var serviceSummaries = result.serviceSummaries;
+				serviceReportMap[serviceReportId] = serviceSummaries;
+				callback.success(serviceSummaries);
+				return true;
+			},
+		    failure: function(textStatus){
+				alert("failed to get service report: " + serviceReportId);
+				return false;
+			},
+		});
+		
 		
 	};
 	
@@ -1403,26 +1463,45 @@ $(function() {
 	
 	var getServiceReportIds = function(callback){
 		dc.busy("retrieving service report list");
-		callback.success(['report/service-summaries-2011-05.xml', 'report/service-summaries-2011-06.xml', 'report/service-summaries-2011-07.xml'].reverse());
-		/*
+		//callback.success(['report/service-summaries-2011-05.xml', 'report/service-summaries-2011-06.xml', 'report/service-summaries-2011-07.xml'].reverse());
 		dc.ajax({
-			url: "/duradmin/completedservicesreport/list",
+			url: "/duradmin/servicesreport/completed/list",
 			type:"GET",
 			success: function(result){
-				callback.success(result.serviceReportIds);
+				dc.done();
+				callback.success(result.serviceReportList);
 			},
 		    failure: function(textStatus){
+				dc.done();
 				alert("failed to get service report ids");
 			},
 		});
-		*/	
 	};
 	
+
+	$('#page-content').layout();
+	
+	centerLayout = $('#page-content').layout({
+	center__paneSelector:	"#main-content-panel"
+	});
+	
+	mainContentLayout = $('#main-content-panel').layout({
+		// minWidth: 300 // ALL panes
+			north__size: 			90	
+		,	north__paneSelector:     ".north"
+		,   north__resizable:   false
+		,   north__slidable:    false
+		,   north__spacing_open:			0			
+		,	north__togglerLength_open:		0			
+		,	north__togglerLength_closed:	0			
+		,	center__paneSelector:	".center"
+		});
 
 	
 	var reportMap = {};
 	//initialize the tabs
 	$("#main-content-tabs").tabs();
+
 
 	//lazily initialize tabs.
 	
@@ -1436,11 +1515,13 @@ $(function() {
 	};
 
 
+	
 	$('#main-content-tabs').bind('tabsselect', function(event, ui) {
 		var tabId = $(ui.panel).attr("id");
 		var initState = tabInitState[tabId];
 		if(initState){
 			if(!initState.initialized){
+				
 				initState.load(ui.panel);
 				initState.initialized = true;
 			}

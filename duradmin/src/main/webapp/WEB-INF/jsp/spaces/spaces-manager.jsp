@@ -215,7 +215,7 @@
 				<h1>Add Content Item</h1>
 				<p class="hint">Add a Content Item to the currently selected
 				Space. All fields are required.</p>
-				<form enctype="multipart/form-data" id="add-content-item-form"
+				<form enctype="multipart/form-data" accept-charset="UTF-8" id="add-content-item-form"
 					action="/duradmin/spaces/content/upload" method="POST"><input
 					id="spaceId" name="spaceId" type="hidden" /> <input id="storeId"
 					name="storeId" type="hidden" />

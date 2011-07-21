@@ -173,8 +173,34 @@
 .service {
 	background-color: #EEEEEE;
 	border-bottom: 1px solid #AAAAAA;
-
+	opacity: 0.8;
+	padding:3px;
 }
+
+.successful-service {
+	background-color: #CCFFCC;
+}
+
+.successful-service .service-body {
+	background-color: #DDFFDD;
+}
+
+.successful-service .service-body table{
+	background-color: #EEFFEE;
+}
+
+.failed-service {
+	background-color: #FFCCCC;
+}
+
+.failed-service .service-body {
+	background-color: #FFDDDD;
+}
+
+.failed-service .service-body table{
+	background-color: #FFEEEE;
+}
+
 
 .service table {
 	width:100%;
@@ -186,29 +212,57 @@
 }
 
 .service:hover {
-	opacity: 0.8;
-	border: 1px solid #AAAAFF;		
+	opacity: 1.0;
 }
+
 .service-header, .service-body {
 	padding:5px;
 }
 
 .service-body {
-	/*
-	background-color: #DDDDDD;
-	*/
 	min-height: 100px;
+	overflow: auto;
+	padding: 5px;
 }
 
-.service-result-status{
-	width: 15px;
+.service-body h3 {
+	font-weight:bolder;
+}	
+
+.service-body h3, .service-body td {
+	padding:3px 3px 3px 3px; 
+	font-size:0.8em;
 }
 
-.service-start-date, .service-completed-date {
-	width:300px;
-	font-size: 0.8em;
+
+
+.service-status{
+	width: 100px;
 }
 
+.service-report{
+	width: 50px;
+	text-align:center;
+}
+
+
+.service-stop-time {
+	width:100px;
+}
+
+ .service-header td {
+	font-size: 0.9em;
+}
+
+
+
+.service-duration {
+	width:150px;
+}
+
+.service-version {
+	width:150px;
+}
 
 
 table {
@@ -225,7 +279,7 @@ table {
 
 .services-panel {
 	min-height:300px; 
-	max-height:500px;
+	max-height:425px;
 	overflow:auto
 }
 
@@ -247,7 +301,7 @@ table {
 
 
 .service .service-body {
-	border-top: 1px dashed #999999;	
+	border-top: 1px solid #DDDDDD;	
 }
 
 #service-list-filter {
@@ -275,14 +329,6 @@ table {
  margin:10px 15px 10px 0px;
 }
 
-.successful-service {
-	background-color: #EEFFEE;
-}
-
-.failed-service {
-	background-color: #FFEEEE;
-
-}
 
 </style>
 
@@ -308,13 +354,34 @@ table {
 					<li><a href="#tabs-services"><span>Services</span></a></li>
 				</ul>
 				<div id="tabs-overview">
-				<p>Overview of storage and service reports will go here.</p>
+						<h2>Getting Started with Duracloud</h2>
+						<p>
+						DuraCloud is particularly focused on providing preservation support services and access services for academic libraries, academic research centers, and other cultural heritage organizations.
+						</p>
+						<p>
+						The service builds on the pure storage from expert storage providers by overlaying the access functionality and preservation support tools that are essential to ensuring long-term access and durability. DuraCloud offers cloud storage across multiple commercial and non commercial providers, and offers compute services that are key to unlocking the value of digital content stored in the cloud. DuraCloud provides services that enable digital preservation, data access, transformation, and data sharing. Customers are offered "elastic capacity" coupled with a "pay as you go" approach. DuraCloud is appropriate for individuals, single institutions, or for multiple organizations that want to use cross-institutional infrastructure.
+						</p>
+
+						<p>
+						You can get started by <a href="<c:url value='/spaces'/>">adding a space</a> or 
+						 <a href="<c:url value='/services'/>">deploying a service</a>
+						</p>						
+						<h3>Useful Links</h3>
+						
+						<ul>
+							<li><a href="http://wiki.duraspace.org/display/duracloud/DuraCloud">Wiki</a></li>
+							<li><a href="http://jira.duraspace.org/browse/DURACLOUD">Issue Tracker</a></li>
+							<li><a href="http://duracloud.org">Duracloud.org</a></li>
+						
+						</ul>
+
+
 				</div>
 				<div id="tabs-services">
 					<div id="toolbar" class="ui-widget-header ui-corner-all">
 						<span id="phase">
+							<input type="radio" id="deployed-button" name="phase" disabled="disabled" /><label for="deployed-button">Installed</label>
 							<input type="radio"  id="completed-button" name="phase" checked="checked"/><label for="completed-button">Completed</label>
-							<input type="radio" id="deployed-button" name="phase"  /><label for="deployed-button">Deployed</label>
 						</span>
 
 					</div>
@@ -329,9 +396,13 @@ table {
 							<div class="service-header">
 									<table>
 										<tr>
-											<td class="service-name">Name</td>									
-											<td class="service-start-date">Duration</td>
-											<td class="service-completed-date">End</td>
+											<td class="service-name">Service</td>									
+											<td class="service-version">Version</td>									
+											<td class="service-status">Status</td>
+											<td class="service-duration">Duration</td>
+											<td class="service-stop-time">Stop</td>
+											<td class="service-report"></td>
+
 										</tr>
 									</table>
 
@@ -343,9 +414,13 @@ table {
 									<div class="service-header">
 										<table>
 											<tr>
-												<td class="service-name">Bit Integrity Check 1.1</td>									
-												<td class="service-start-date">10/10/2011 10:10 AM PST</td>
-												<td class="service-completed-date">10/12/2011 10:10 AM PST</td>
+												<td class="service-name">name</td>									
+												<td class="service-version">Version</td>									
+												<td class="service-status">status</td>
+												<td class="service-duration">duration</td>
+												<td class="service-stop-time">stop</td>
+												<td class="service-report"><a class="button" href=""><i class="pre download"></i></a></td>
+												
 											</tr>
 										</table>
 									</div>
@@ -495,30 +570,6 @@ table {
 				</div>
 				</div>
 				</div>
-
-				<!-- 
-						<h2>Getting Started with Duracloud</h2>
-						<p>
-						DuraCloud is particularly focused on providing preservation support services and access services for academic libraries, academic research centers, and other cultural heritage organizations.
-						</p>
-						<p>
-						The service builds on the pure storage from expert storage providers by overlaying the access functionality and preservation support tools that are essential to ensuring long-term access and durability. DuraCloud offers cloud storage across multiple commercial and non commercial providers, and offers compute services that are key to unlocking the value of digital content stored in the cloud. DuraCloud provides services that enable digital preservation, data access, transformation, and data sharing. Customers are offered "elastic capacity" coupled with a "pay as you go" approach. DuraCloud is appropriate for individuals, single institutions, or for multiple organizations that want to use cross-institutional infrastructure.
-						</p>
-
-						<p>
-						You can get started by <a href="<c:url value='/spaces'/>">adding a space</a> or 
-						 <a href="<c:url value='/services'/>">deploying a service</a>
-						</p>						
-						<h3>Useful Links</h3>
-						
-						<ul>
-							<li><a href="http://wiki.duraspace.org/display/duracloud/DuraCloud">Wiki</a></li>
-							<li><a href="http://jira.duraspace.org/browse/DURACLOUD">Issue Tracker</a></li>
-							<li><a href="http://duracloud.org">Duracloud.org</a></li>
-						
-						</ul>
-					 -->
-
 			</tiles:putAttribute>
 			<tiles:putAttribute name="main-footer">
 				<div id="status-holder"></div>

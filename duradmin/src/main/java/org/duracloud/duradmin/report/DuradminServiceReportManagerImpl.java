@@ -7,7 +7,7 @@
  */
 package org.duracloud.duradmin.report;
 
-import org.duracloud.client.report.StorageReportManagerImpl;
+import org.duracloud.client.report.ServiceReportManagerImpl;
 import org.duracloud.duradmin.config.DuradminConfig;
 
 /**
@@ -15,9 +15,9 @@ import org.duracloud.duradmin.config.DuradminConfig;
  * @author "Daniel Bernstein (dbernstein@duraspace.org)"
  *
  */
-public class DuradminStorageReportManagerImpl extends StorageReportManagerImpl{
+public class DuradminServiceReportManagerImpl extends ServiceReportManagerImpl{
     
-    public DuradminStorageReportManagerImpl(){
+    public DuradminServiceReportManagerImpl(){
         super(DuradminConfig.getDuraReportHost(),
               DuradminConfig.getDuraReportPort(),
               DuradminConfig.getDuraReportContext());

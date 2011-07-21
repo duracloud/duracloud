@@ -23,13 +23,13 @@ import java.io.IOException;
  * 
  */
 @Controller
-public class ReportController {
+public class StorageReportController {
 
-    private Logger log = LoggerFactory.getLogger(ReportController.class);
+    private Logger log = LoggerFactory.getLogger(StorageReportController.class);
     private StorageReportManager storageReportManager;
 
     @Autowired
-    public ReportController(StorageReportManager storageReportManager) {
+    public StorageReportController(StorageReportManager storageReportManager) {
         this.storageReportManager = storageReportManager;
         this.storageReportManager.login(new RootUserCredential());
     }
@@ -65,5 +65,4 @@ public class ReportController {
             return null;
         }
     }
-
 }
