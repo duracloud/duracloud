@@ -162,7 +162,7 @@ public class ContentStoreImpl implements ContentStore{
             if (responseText != null) {
                 List<String> spaceIds = new ArrayList<String>();
                 InputStream is =
-                        new ByteArrayInputStream(responseText.getBytes());
+                    new ByteArrayInputStream(responseText.getBytes("UTF-8"));
                 SAXBuilder builder = new SAXBuilder();
                 Document doc = builder.build(is);
                 Element spacesElem = doc.getRootElement();
@@ -218,7 +218,7 @@ public class ContentStoreImpl implements ContentStore{
             String responseText = response.getResponseBody();
             if (responseText != null) {
                 InputStream is =
-                        new ByteArrayInputStream(responseText.getBytes());
+                    new ByteArrayInputStream(responseText.getBytes("UTF-8"));
                 SAXBuilder builder = new SAXBuilder();
                 Document doc = builder.build(is);
                 Element spaceElem = doc.getRootElement();

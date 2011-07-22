@@ -43,7 +43,7 @@ public class EncryptionUtil {
      * Provides basic encryption on a String.
      */
     public String encrypt(String toEncrypt) throws Exception {
-        byte[] input = toEncrypt.getBytes();
+        byte[] input = toEncrypt.getBytes("UTF-8");
         cipher.init(Cipher.ENCRYPT_MODE, key);
         byte[] cipherText = cipher.doFinal(input);
         return encodeBytes(cipherText);

@@ -379,7 +379,8 @@ public class RestHttpHelper {
         public String getResponseBody() throws IOException {
             if (responseStream != null) {
                 BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(responseStream));
+                    new BufferedReader(new InputStreamReader(responseStream,
+                                                             "UTF-8"));
                 StringBuilder builder = new StringBuilder();
                 String line = null;
                 while ((line = reader.readLine()) != null) {
