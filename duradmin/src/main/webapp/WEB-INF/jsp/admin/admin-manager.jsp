@@ -41,8 +41,7 @@
 			
 				<div class="center dc-item-list-wrapper">
 					<div id="users-list" class="dc-item-list">
-						<p>No users defined</p>
-					</div>			
+					</div>
 				</div>
 			</div>
 
