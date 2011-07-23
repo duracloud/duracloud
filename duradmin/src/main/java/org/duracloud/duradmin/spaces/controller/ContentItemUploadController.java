@@ -96,13 +96,10 @@ public class ContentItemUploadController implements Controller{
 			while(iter.hasNext()){
 			    FileItemStream item = iter.next();
 			    if(item.isFormField()){
-			    	String value = Streams.asString(item.openStream());
+			    	String value = Streams.asString(item.openStream(), "UTF-8");
 			    	if(item.getFieldName().equals("contentId")){
-                        // Converts from the default form encoding to UTF-8
-                        String decodedValue =
-                            new String(value.getBytes(), "UTF-8");
-						log.debug("setting contentId: {}", decodedValue);
-			    		ci.setContentId(decodedValue);
+						log.debug("setting contentId: {}", value);
+			    		ci.setContentId(value);
 			    	}else if(item.getFieldName().equals("contentMimetype")){
 						log.debug("setting mimetype: {}", value);
 			    		ci.setContentMimetype(value);
