@@ -83,6 +83,11 @@
 	padding:5px;
 }
 
+.dc-graph-panel button {
+	font-size:0.7em;
+}
+
+
 .center {
 }
 
@@ -109,6 +114,9 @@
 	float:left;
 }
 
+a.button {
+	padding-bottom:7px;
+}
 
 
 #main-content-tabs>div {
@@ -331,6 +339,7 @@ table {
 .date-slider {
  margin:10px 15px 10px 0px;
 }
+
 
 
 </style>

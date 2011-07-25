@@ -206,7 +206,7 @@ $(function(){
 				$.each(columnDefs, function(x,item){
 					var h = $.fn.create("th").html(item.name);
 					if(item.cssClass){
-						h.addClass(item.cssClass);	
+						//h.addClass(item.cssClass);	
 					}
 					row.append(h);
 				});

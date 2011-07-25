@@ -1055,7 +1055,13 @@ $(function() {
 			url: "/duradmin/storagereport/list",
 			type:"GET",
 			success: function(result){
-				callback.success(result.storageReportList);
+				var storageReportList = [];
+				
+				$.each(result.storageReportList, function(i,item){
+					var s = item.substring(item.length-3);
+					if(s == "xml") storageReportList.push(item);
+				});
+				callback.success(storageReportList);
 			},
 			
 		    failure: function(textStatus){
@@ -1355,14 +1361,17 @@ $(function() {
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
 			var startTime = getStartTime(ss);
+			if(stopTime == null){
+				stopTime = getCurrentUTCDate();
+			}
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
 			$(".service-version", node).html(ss.version);
-			$(".service-stop-time", node).html(startTime.toLocaleDateString());
+			$(".service-stop-time", node).html(stopTime.toLocaleDateString());
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 
-			$(".service-report a", node).attr("href",ss.properties['Report']);
+			$(".service-report a", node).attr("href","/duraservice/"+ss.properties['Report']);
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
 			var props = $.extend({}, ss.properties);
@@ -1372,6 +1381,10 @@ $(function() {
 			$(".service-properties", node).append(dc.createTable(toArray(props)));
 			node.show();
 		});
+	};
+	
+	var getCurrentUTCDate = function(){
+		return new Date(new Date().toUTCString());
 	};
 	
 	var loadInstalledServices = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
@@ -1385,7 +1398,7 @@ $(function() {
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
 			if(!stopTime){
-				stopTime = new Date();
+				stopTime = getCurrentUTCDate();
 			}
 			var startTime = getStartTime(ss);
 			var duration = calculateDuration(startTime, stopTime);
@@ -1467,8 +1480,9 @@ $(function() {
 				reportDate = convertServicesReportIdToDate(serviceReportId),
 				reportLowDate = getFirstDayOfMonth(reportDate),
 				reportHighDate = getLastDayOfMonth(reportDate);
-
-			if(reportLowDate > high){
+			//if the report does not overlap with the slider range
+			if((high < reportLowDate || high > reportHighDate ) &&
+					(low < reportLowDate || low > reportHighDate)){
 				return true;
 			}
 			
@@ -1489,9 +1503,6 @@ $(function() {
 					servicesArray.push(ss);
 			});
 
-			if(reportLowDate < low){
-				return false;
-			}
 		});
 		
 		dc.done();
@@ -1517,51 +1528,34 @@ $(function() {
 			callback.success(serviceReportMap[serviceReportId]);
 			return;
 		}
-		
-		/*
-		var reportDate = convertServicesReportIdToDate(serviceReportId);
-		var firstDay = getFirstDayOfMonth(reportDate);
-		var lastDay = getLastDayOfMonth(reportDate);
-		var serviceSummaries = [];
-		var i = 0;
-		var limit = Math.floor(Math.random()*100) + 1;
-		var now = new Date().getTime();
-		var randomMs = null;
-		var id = 0
-		for(i = 0; i < limit; i++){
-			randomMs = Math.round(Math.random()*(lastDay.getTime()-firstDay.getTime()));
-			id = (i % 20);
-			serviceSummaries.push({
-				id: id,
-				name: "My Service " + id,
-				deploymentId: new Date().getTime() % 100000,
-				version: "1.1.0",
-				configs: {
-					"config1": "value1",
-					"config2": "value2",
-					"config3": "value3",
-					
-				},
-				properties: {
-					"completed": new Date(firstDay.getTime()+ randomMs),
-					"property2": "value2",
-					"property3": "value3",
-				},
-			});
-		}*/
-		
+
 		dc.busy("retrieving service summaries...");
 		dc.ajax({
 			url: "/duradmin/servicesreport/completed/get?reportId=" +serviceReportId,
 			type:"GET",
 			async: false, 
 			success: function(result){
+				dc.done();
 				var serviceSummaries = result.serviceSummaries;
+				//sorting can be removed when service summaries are 
+				//being sorted properly - ie most recently stopped first
+				serviceSummaries.sort(function(a,b){
+					var sa, sb;
+					sa = getStopTime(a);
+					sb = getStopTime(b);
+					//hack to account for missing stop times
+					//on failed service summaries.
+					if(!sa) sa = getStartTime(a);	
+					if(!sb) sb = getStartTime(b);	
+
+					return sb.getTime()-sa.getTime();
+				});
 				serviceReportMap[serviceReportId] = serviceSummaries;
 				callback.success(serviceSummaries);
 				return true;
 			},
 		    failure: function(textStatus){
+				dc.done();
 				alert("failed to get service report: " + serviceReportId);
 				return false;
 			},
@@ -1571,10 +1565,10 @@ $(function() {
 	};
 	
 	var initializeServiceSlider = function(servicesPanel, serviceReportList){
-		var firstIndex = serviceReportList.length-1;
-		var lastIndex = serviceReportList[0]
+		var firstIndex = 0;
+		var lastIndex = serviceReportList.length-1;
 		var firstDate = getFirstDayOfMonth(convertServicesReportIdToDate(serviceReportList[firstIndex]));
-		var lastMonth = convertServicesReportIdToDate(lastIndex);
+		var lastMonth = convertServicesReportIdToDate(serviceReportList[lastIndex]);
 		var lowerDate = getFirstDayOfMonth(lastMonth);
 		var upperDate = getLastDayOfMonth(lastMonth);
 		return $("#service-date-slider", servicesPanel).dateslider({
@@ -1590,7 +1584,6 @@ $(function() {
 	
 	var getServiceReportIds = function(callback){
 		dc.busy("retrieving service report list");
-		//callback.success(['report/service-summaries-2011-05.xml', 'report/service-summaries-2011-06.xml', 'report/service-summaries-2011-07.xml'].reverse());
 		dc.ajax({
 			url: "/duradmin/servicesreport/completed/list",
 			type:"GET",
