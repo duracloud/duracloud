@@ -263,6 +263,12 @@ a.download-button {
 	text-align:center;
 }
 
+.service-report .button {
+    margin:  0px;
+    padding: 3px 0 0 6px;
+    height: 20px;
+    width: 25px;
+}
 
 .service-stop-time, .service-start-time {
 	width:200px;
@@ -432,7 +438,7 @@ table {
 											<td class="service-status">Status</td>
 											<td class="service-duration">Duration</td>
 											<td class="service-stop-time">Stop</td>
-											<td class="service-report"></td>
+											<td class="service-report">Report</td>
 
 										</tr>
 									</table>

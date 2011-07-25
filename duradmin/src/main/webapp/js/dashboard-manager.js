@@ -1372,6 +1372,7 @@ $(function() {
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 
 			$(".service-report a", node).attr("href","/durastore/"+ss.properties['Report']);
+            $(".service-report a", node).attr("title","Download Service Report");
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
 			var props = $.extend({}, ss.properties);
@@ -1474,7 +1475,7 @@ $(function() {
 	var buildServicesList = function(serviceReportList, servicesReportMap, sliderValue){
 		var low = sliderValue.lowBound, high = sliderValue.highBound;
 		var servicesArray = [];
-		dc.busy("building service summary list..");
+		dc.busy("Building service summary list...");
 		$.each(serviceReportList, function(i,serviceReportId){
 			var serviceSummaries, 
 				reportDate = convertServicesReportIdToDate(serviceReportId),
@@ -1529,7 +1530,7 @@ $(function() {
 			return;
 		}
 
-		dc.busy("retrieving service summaries...");
+		dc.busy("Retrieving service summaries...");
 		dc.ajax({
 			url: "/duradmin/servicesreport/completed/get?reportId=" +serviceReportId,
 			type:"GET",
@@ -1583,7 +1584,7 @@ $(function() {
 	};
 	
 	var getServiceReportIds = function(callback){
-		dc.busy("retrieving service report list");
+		dc.busy("Retrieving service report list...");
 		dc.ajax({
 			url: "/duradmin/servicesreport/completed/list",
 			type:"GET",
