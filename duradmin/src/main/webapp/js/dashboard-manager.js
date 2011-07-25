@@ -1371,7 +1371,7 @@ $(function() {
 			$(".service-stop-time", node).html(stopTime.toLocaleDateString());
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 
-			$(".service-report a", node).attr("href","/duraservice/"+ss.properties['Report']);
+			$(".service-report a", node).attr("href","/durastore/"+ss.properties['Report']);
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
 			var props = $.extend({}, ss.properties);
