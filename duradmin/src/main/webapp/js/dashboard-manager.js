@@ -10,6 +10,7 @@
 	$.widget("ui.graphpanel", {  
 		options: {
 			title: "Placeholder Title",
+			dataDialogTitle: "Placeholder Data Dialog Title",
 			total: "total place holder",
 			dataTable: null,
 		},
@@ -34,27 +35,42 @@
 		_init: function(){ 
 			var that = this;
 			$(this.element).addClass("dc-graph-panel");
-			$(this.element).append("<div class='header'><div>Total: <span class='total'></span></div><div class='button-panel'></div></div>");
+			$(this.element).append("<div class='header'><span class='title'></span><div class='button-panel'></div></div>");
 			$(this.element).append("<div class='dc-graph'></div>");
-			$(this.element).append("<div><h5 class='title'></h5></div>");
+			$(this.element).append("<div>Total: <span class='total'></span></div>");
+
 			this._title(this.options.title);
 			this._total(this.options.total);
 
 			if(this.options.dataTable){
-				this._addButton("Data", function(){
-					var d,tableData, table;
-					d = $.fn.create("div");
-					$(that.element).append(d);
-					table = dc.createTable(that.options.dataTable.rows, that.options.dataTable.columnDefs);
-					$(table).addClass("tablesorter");
-					$(table).tablesorter({sortList: [[0,0],] });
-					d.append(table);
-					d.dialog({
-						autoOpen: true,
-						height: 300,
-						width: 350,
-						modal: false,});
-				});
+				var dataBtn;
+				
+				dataBtn = $.fn.create("button")
+							.append("<i class='pre data-table'></i>")
+							.append("Data")
+							.click(function(){
+								var d,tableData, table;
+								d = $.fn.create("div");
+								d.append("<h3>"+that.options.dataDialogTitle+"</h3>")
+								$(that.element).append(d);
+								table = dc.createTable(that.options.dataTable.rows, that.options.dataTable.columnDefs);
+								$(table).addClass("tablesorter");
+								$(table).tablesorter({sortList: [[0,0],] });
+								d.append(table);
+								d.dialog({
+									autoOpen: true,
+									height: 300,
+									width: 500,
+									modal: false,
+									buttons: {
+										"Close":function(){
+											d.dialog("close");
+										}
+									},
+								});
+							});
+							
+				this._addButton(dataBtn);
 			}
 		}, 
 		
@@ -66,8 +82,8 @@
 			$(".total", this.element).html(total);
 		},
 
-		_addButton: function(text, handler){
-			$(".button-panel", this.element).append($.fn.create("button").html(text).click(handler));
+		_addButton: function(button){
+			$(".button-panel", this.element).append(button);
 		},
 
 	});
@@ -211,7 +227,7 @@
 					"mimetype", 
 		 			"totalSize");
 			mimetypeBytes = $(".bytes-graph",mimetypePanel);
-			mimetypeBytes.graphpanel({title: titlePrefix+ " by File Type (Size)", total:dc.formatGB(metrics.totalSize,2)});
+			mimetypeBytes.graphpanel({title: titlePrefix+ " by File Type (Size)",  total:dc.formatGB(metrics.totalSize,2)});
 			plotPieChart(
 				$(".dc-graph", mimetypeBytes), 
 				data, 
@@ -224,7 +240,13 @@
 				 	"mimetype", 
 				 	"totalItems");
 			mimetypeFiles = $(".files-graph", mimetypePanel);
-			mimetypeFiles.graphpanel({title: titlePrefix+ " by File Type (Count)", total: metrics.totalItems +" Files", dataTable: dataTable});
+			mimetypeFiles.graphpanel(
+				{
+					title: titlePrefix+ " by File Type (Count)", 
+					dataDialogTitle: titlePrefix, 
+					total: metrics.totalItems +" Files", 
+					dataTable: dataTable});
+			
 			plotPieChart($(".dc-graph", mimetypeFiles), data, 
 					 	function(x){ return x;}		 	
 			);
@@ -274,8 +296,12 @@
 				$.ui.basegraphpanel.prototype._init.call(this); 	
 
 				$(document).bind("storageproviderchanged", function(evt){
+					try{
 					 that._storageProvider = evt.storageProvider;
 					 that._reload();
+					}catch(err){
+						dc.log("error:" + err);
+					}
 				});	
 	
 				$(".entity-panel",this.element).find(".bytes-graph, .files-graph")
@@ -291,13 +317,18 @@
 			_getStorageProviderMetrics: function(){
 				 var spm = null;
 				 var that = this;
-				 $.each(this._getStorageMetrics().storageProviderMetrics, function(i,sm){
+				 var list = this._getStorageMetrics().storageProviderMetrics;
+				 $.each(list, function(i,sm){
 					 if(sm.storageProviderType == that._storageProvider){
 						 spm =  sm;
 						 return false;
 					 }
 				 });
-				 
+
+				 if(spm == null && list.length > 0){
+					spm = list[0];
+					that._storageProvider = spm.storageProviderType;
+				 }
 				 return spm;
 			},
 
@@ -346,7 +377,10 @@
 
 			 	dataTable = this._formatDataTable("spaceName", "Spaces", spm.spaceMetrics);
 				files = $(".files-graph", entityPanel);
-				files.graphpanel({title: titlePrefix + " (Count)", total:spm.totalItems, dataTable: dataTable});
+				files.graphpanel({title: titlePrefix + " (Count)", 					
+									dataDialogTitle: titlePrefix, 
+									total:spm.totalItems, 
+									dataTable: dataTable});
 				plotPieChart($(".dc-graph", files), data, 
 						 	function(x){ return x;}		 	
 				);
@@ -368,8 +402,12 @@
 					var that = this;
 					
 					$(document).bind("spacechanged", function(evt){
+						try{
 						 that._spaceName = evt.spaceName;
 						 that._reload();
+						}catch(err){
+							dc.log("error: " + err);
+						}
 					});	
 				},
 				_getSpaceMetrics: function(){
@@ -428,6 +466,11 @@
 				event.storageProvider = storageProviderId;
 				event.storageReport = this._storageReport;
 				$(document).trigger(event);				
+			},
+			
+			clickFirstStorageProvider: function(){
+				this._fireStorageProviderChanged(
+						this._storageReport.storageMetrics.storageProviderMetrics[0].storageProviderType);
 			},
 			
 			_reloadImpl: function(){
@@ -494,8 +537,13 @@
 				
 				files = $(".files-graph", entityPanel);
 				dataTable = this._formatDataTable("storageProviderType", "Storage Providers", spm.storageProviderMetrics);
-				files.graphpanel({title: titlePrefix + " (Count)", total: spm.totalItems +" Files", dataTable: dataTable});
-	
+				files.graphpanel(
+						{
+							title: titlePrefix + " (Count)", 
+							dataDialogTitle: titlePrefix, 
+							total: spm.totalItems +" Files", dataTable: dataTable
+						});
+				
 				 plotBarChart($(".dc-graph", files), 
 						 	data, 
 						 	xTickFormatter,
@@ -908,8 +956,11 @@ $(function() {
 			addToBreadcrumb(spname, function(){
 				seekTo(1);
 			});
-		})
+		});
 
+		bc.bind("rootclicked", function(event){
+					seekTo(0);
+				});
 		
 		return bc;
 		
@@ -1042,19 +1093,18 @@ $(function() {
 		});
 	};
 	
-	var initializeStoragePanel = function(){
+	var initializeStoragePanel = function(storagePanel){
 		dc.log("initializing storage panel");
 		initGraphSwitcher();
 		initBreadcrumb();
-		initStorageProvidersView();
 		initStorageProviderView();
+		initStorageProvidersView();
 		initSpaceView();
 
 		$("#tabs-storage .back-link").click(function(){
 			getBreadcrumb().breadcrumb("up");
 		});
 
-		
 		dc.busy("Loading reports...");
 
 		getStorageReportIds(
@@ -1068,10 +1118,6 @@ $(function() {
 				//initialize date controls
 				initSlider(storageReportIds);
 
-				getBreadcrumb().bind("rootclicked", function(event){
-					seekTo(0);
-				});
-				
 				$("#report-start-range").html(formatChartDate(storageReportIds[0]));
 				$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
 				currentId = getCurrentReportId(storageReportIds);
@@ -1102,11 +1148,27 @@ $(function() {
 		})
 	};
 	
+	var getStorageSummary = function(){
+		return $("#storage-summary");
+	};
+	
 	var initStorageProvidersView = function(){
-		$("#storage-summary").summarypanel();
+		var sp = getStorageSummary();
+		sp.summarypanel();
 		$(document).bind("storageproviderchanged", function(evt){
 			seekTo(1);
 		})
+
+		//if there's only one storage provider, display spaces
+		//view for that storage provider.
+		$(document).bind("storagereportchanged", function(evt){
+			var spm = evt.storageReport.storageMetrics.storageProviderMetrics;
+			if(spm.length == 1){
+				sp.summarypanel("clickFirstStorageProvider");
+			};
+		});		
+
+		
 	};
 	
 	
@@ -1117,7 +1179,7 @@ $(function() {
 		dc.log("initializing services panel");
 		//init toggle of deployed and completed
 		$("input[name='phase']", servicesPanel).click(function(evt, ui){
-			$("#completed-services-panel, #deployed-services-panel", servicesPanel).toggle();
+			$("#completed-services-panel, #installed-services-panel", servicesPanel).toggle();
 		});
 
 		var servicesList = getServiceListUI(servicesPanel);
@@ -1142,6 +1204,8 @@ $(function() {
 			$(evt.target).closest(".service").children(".service-body").slideToggle("fast");
 			
 		});
+		
+		initInstalledServices(servicesPanel);
 
 		//load service report ids
 		getServiceReportIds({
@@ -1155,6 +1219,21 @@ $(function() {
 				serviceSlider = initializeServiceSlider(servicesPanel, serviceReportList);
 				
 				buildCompletedServicesList(servicesPanel);
+			},
+		});
+	};
+	
+	var initInstalledServices = function(servicesPanel){
+		dc.busy("Loading installed services...");
+		dc.ajax({
+			url: "/duradmin/servicesreport/deployed",
+			type:"GET",
+			async: true, 
+			success: function(result){
+				loadInstalledServices(result.serviceSummaries, servicesPanel);
+			},
+		    failure: function(textStatus){
+				alert("failed to get installed services");
 			},
 		});
 	};
@@ -1179,7 +1258,7 @@ $(function() {
 		var selectedStatuses = getSelectedStatuses();
 		var selectedServices = getSelectedServices(servicesPanel);
 
-		$(".service").not(":first-child").each(function(i, se){
+		$("#completed-services-panel .service", servicesPanel).not(":first-child").each(function(i, se){
 			var remove = false, inlist = false, serviceElement = $(se);
 			if(!selectedStatuses.success){
 				if(serviceElement.hasClass("successful-service")){
@@ -1247,18 +1326,31 @@ $(function() {
 			serviceList.selectablelist("addItem", item, service, select);
 			//todo select any items that were previously selected.
 		});
+		
+		
+		$("#service-list-selection-controls .select-all").click(function(){
+			serviceList.selectablelist("select", true);
+		});
 
-		loadServiceViewer(services, servicesPanel);
+		$("#service-list-selection-controls .select-none").click(function(){
+			serviceList.selectablelist("select", false);
+		});
+
+		loadCompletedServiceViewer(services, servicesPanel);
 		filterServices(servicesPanel);		
 	};
+	
+	var getServiceStatusClass = function(serviceSummary){
+		return isSuccessful(serviceSummary) ? "successful-service":"failed-service";		
+	};
 
-	var loadServiceViewer = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
+	var loadCompletedServiceViewer = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
 		var serviceViewer = $("#completed-services-panel #service-viewer", servicesPanel);
 		serviceViewer.children().not(":first").remove();
 		var template = serviceViewer.children().first();
 		$.each(serviceSummaries, function(i, ss){
 			var node = template.clone();
-			node.addClass(isSuccessful(ss) ? "successful-service":"failed-service");
+			node.addClass(getServiceStatusClass(ss));
 			serviceViewer.append(node);
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
@@ -1267,13 +1359,44 @@ $(function() {
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
 			$(".service-version", node).html(ss.version);
-			$(".service-stop-time", node).html(stopTime.toLocaleDateString());
+			$(".service-stop-time", node).html(startTime.toLocaleDateString());
+			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
+
 			$(".service-report a", node).attr("href",ss.properties['Report']);
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
 			var props = $.extend({}, ss.properties);
 			delete props['Service Status'];
 			delete props['Report'];
+
+			$(".service-properties", node).append(dc.createTable(toArray(props)));
+			node.show();
+		});
+	};
+	
+	var loadInstalledServices = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
+		var serviceViewer = $("#installed-services-panel #service-viewer", servicesPanel);
+		serviceViewer.children().not(":first").remove();
+		var template = serviceViewer.children().first();
+		$.each(serviceSummaries, function(i, ss){
+			var node = template.clone();
+			node.addClass(getServiceStatusClass(ss));
+			serviceViewer.append(node);
+			$(".service-name", node).html(ss.name);
+			var stopTime = getStopTime(ss);
+			if(!stopTime){
+				stopTime = new Date();
+			}
+			var startTime = getStartTime(ss);
+			var duration = calculateDuration(startTime, stopTime);
+			$(".service-duration", node).html(duration);
+			$(".service-status", node).html(getServiceStatusPretty(ss));
+			$(".service-version", node).html(ss.version);
+			$(".service-start-time", node).html(stopTime.toLocaleDateString());
+			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
+			
+			var props = $.extend({}, ss.properties);
+			delete props['Service Status'];
 
 			$(".service-properties", node).append(dc.createTable(toArray(props)));
 			node.show();
@@ -1291,7 +1414,12 @@ $(function() {
 	
 	
 	var getStopTime = function(serviceSummary){
-		return new Date(serviceSummary.properties['Stop Time']);
+		var timeString = serviceSummary.properties['Stop Time'];
+		if(!timeString){
+			return null;
+		}else{
+			return new Date(timeString);
+		}
 	}
 
 	var getStartTime = function(serviceSummary){
@@ -1308,11 +1436,10 @@ $(function() {
 		minutes = Math.floor((ms % HOUR)/MINUTE);
 		seconds = Math.round((ms % MINUTE)/1000);
 		result = "";
-		if(days > 0) result += day +" day";
-		if(days > 1) result +="s";
+		if(days > 0) result += days +"d";
 		result += " " + hours + "h"
 		result += " " + minutes +  "m";
-		result += " " + seconds + " s";
+		result += " " + seconds + "s";
 		return result;
 	};
 	
@@ -1501,7 +1628,7 @@ $(function() {
 	var reportMap = {};
 	//initialize the tabs
 	$("#main-content-tabs").tabs();
-
+	$("#main-content-tabs").tabs("select", 1);
 
 	//lazily initialize tabs.
 	
@@ -1528,7 +1655,7 @@ $(function() {
 		}
 	});
 
-	$("#main-content-tabs").tabs("select", 2);
-	
+	$("#main-content-tabs").tabs("select", 0);
+
 
 });

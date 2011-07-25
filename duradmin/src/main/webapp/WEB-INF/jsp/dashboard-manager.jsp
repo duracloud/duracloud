@@ -79,6 +79,9 @@
 	padding:2px;
 }
 
+.dc-graph-panel h5 {
+	padding:5px;
+}
 
 .center {
 }
@@ -165,8 +168,10 @@
 	cursor: pointer;
 }
 
-.ui-selecting { background: #999999; }
-.ui-selected { background: #777777; color: white; }
+.tickLabel a{
+	color: #555555;
+}
+
 #service-list { list-style-type: none; margin: 0; padding: 0; width: 100%; }
 #service-list li { margin: 3px; padding: 0.4em; }
 
@@ -246,8 +251,8 @@
 }
 
 
-.service-stop-time {
-	width:100px;
+.service-stop-time, .service-start-time {
+	width:200px;
 }
 
  .service-header td {
@@ -307,8 +312,6 @@ table {
 #service-list-filter {
 	float:right; 
 	width:23%; 
-	max-height:400px;
-	overflow:auto;
 	background-color:#EEEEEE;
 	
 }
@@ -349,47 +352,61 @@ table {
 				<div id="main-content-panel">
 				<div id="main-content-tabs">
 				<ul>
-					<li><a href="#tabs-overview"><span>Overview</span></a></li>
 					<li><a href="#tabs-storage"><span>Storage</span></a></li>
 					<li><a href="#tabs-services"><span>Services</span></a></li>
 				</ul>
-				<div id="tabs-overview">
-						<h2>Getting Started with Duracloud</h2>
-						<p>
-						DuraCloud is particularly focused on providing preservation support services and access services for academic libraries, academic research centers, and other cultural heritage organizations.
-						</p>
-						<p>
-						The service builds on the pure storage from expert storage providers by overlaying the access functionality and preservation support tools that are essential to ensuring long-term access and durability. DuraCloud offers cloud storage across multiple commercial and non commercial providers, and offers compute services that are key to unlocking the value of digital content stored in the cloud. DuraCloud provides services that enable digital preservation, data access, transformation, and data sharing. Customers are offered "elastic capacity" coupled with a "pay as you go" approach. DuraCloud is appropriate for individuals, single institutions, or for multiple organizations that want to use cross-institutional infrastructure.
-						</p>
 
-						<p>
-						You can get started by <a href="<c:url value='/spaces'/>">adding a space</a> or 
-						 <a href="<c:url value='/services'/>">deploying a service</a>
-						</p>						
-						<h3>Useful Links</h3>
-						
-						<ul>
-							<li><a href="http://wiki.duraspace.org/display/duracloud/DuraCloud">Wiki</a></li>
-							<li><a href="http://jira.duraspace.org/browse/DURACLOUD">Issue Tracker</a></li>
-							<li><a href="http://duracloud.org">Duracloud.org</a></li>
-						
-						</ul>
-
-
-				</div>
 				<div id="tabs-services">
 					<div id="toolbar" class="ui-widget-header ui-corner-all">
 						<span id="phase">
-							<input type="radio" id="deployed-button" name="phase" disabled="disabled" /><label for="deployed-button">Installed</label>
-							<input type="radio"  id="completed-button" name="phase" checked="checked"/><label for="completed-button">Completed</label>
+							<input type="radio" id="deployed-button" name="phase" checked="checked"/><label for="deployed-button">Installed</label>
+							<input type="radio"  id="completed-button" name="phase" /><label for="completed-button">Completed</label>
 						</span>
 
 					</div>
-					<div id="deployed-services-panel" class="services-panel" style="display:none;" >
-						Deployed Services
+					<div id="installed-services-panel" class="services-panel"  >
+						<div class="service-header">
+								<table>
+									<tr>
+										<td class="service-name">Service</td>									
+										<td class="service-version">Version</td>									
+										<td class="service-status">Status</td>
+										<td class="service-duration">Elapse Time</td>
+										<td class="service-start-time">Start</td>
+
+									</tr>
+								</table>
+
+						</div>
+						<div id="service-viewer">
+								<div class="service" style="display:none"> 
+								<div class="service-header">
+									<table>
+										<tr>
+											<td class="service-name">name</td>									
+											<td class="service-version">Version</td>									
+											<td class="service-status">status</td>
+											<td class="service-duration">duration</td>
+											<td class="service-start-time">start</td>
+
+										</tr>
+									</table>
+								</div>
+								<div class="service-body"  style="display:none">
+									<div class="service-configuration">
+										<h3>Configuration</h3>
+									</div>									
+									<div class="service-properties" > 
+										<h3>Properties</h3>
+									</div>
+								</div>
+							</div>									
+						
+						
+						</div>
 					</div>
 					
-					<div id="completed-services-panel" class="services-panel">
+					<div id="completed-services-panel" class="services-panel" style="display:none;">
 						
 						<div id="service-list-panel">
 
@@ -448,7 +465,7 @@ table {
 										
 										</td>
 										<td>
-											 <span class="date-range-start">{Start Date}</span>										
+											 <span class="date-range-start"></span>										
 										</td>
 									</tr>
 									<tr>
@@ -457,7 +474,7 @@ table {
 										
 										</td>
 										<td>
-											 <span class="date-range-end">{End Date}</span>										
+											 <span class="date-range-end"></span>										
 										</td>
 									</tr>
 
@@ -479,6 +496,9 @@ table {
 							</div>
 
 							<h3>Service Type</h3>
+							<div id="service-list-selection-controls" class="subtitle">
+								Select: <a class="select-all" href="#">All</a>	<a class="select-none" href="#">None</a>							
+							</div>
 							<div>
 								<div id="service-list">
 								
@@ -495,7 +515,7 @@ table {
 				<div class="north dc-report-panel ">
 				<div id="report-breadcrumb" class="dc-breadcrumb"></div>
 				<div class="dc-navigation">
-					<div class="dc-slider-value"><span id="report-selected-date"></span><a id="report-link" href="x">[xml]</a></div>
+					<div class="dc-slider-value"><span id="report-selected-date"></span><a id="report-link" class="button" target="_NEW" href="x"><i class="pre download"></i>Download</a></div>
 					<div class="dc-date-slider">
 					<div id="report-start-range"></div>
 					<div id="report-date-slider-wrapper">
@@ -510,7 +530,7 @@ table {
 				<div class="scrollable">
 				<div class="items">
 				<div id="storage-summary">
-					<div class="ui-widget-header ui-corner-all">
+					<div id="toolbar" class="ui-widget-header ui-corner-all">
 						<span class="graph-switch" >
 							<input type="radio" id="entity-radio-0" class="entity-radio" name="radio0" checked="checked" /><label  for="entity-radio-0">Storage Providers</label>
 							<input type="radio" id="mimetype-radio-0" class="mimetype-radio"  name="radio0" /><label for="mimetype-radio-0">File Type</label>
@@ -530,7 +550,7 @@ table {
 
 				</div>
 				<div id="storage-provider">
-					<div class="ui-widget-header ui-corner-all">
+					<div id="toolbar"  class="ui-widget-header ui-corner-all">
 						<div class="graph-switch">
 							<a href="#" class="back-link">&lt; Back</a>
 							<input type="radio" id="entity-radio-1" class="entity-radio" name="radio" checked="checked" /><label  for="entity-radio-1">Spaces</label>
@@ -552,7 +572,7 @@ table {
 
 				</div>
 				<div id="space">
-					<div class="ui-widget-header ui-corner-all">
+					<div id="toolbar"  class="ui-widget-header ui-corner-all">
 						<div class="graph-switch">
 							<a href="#" class="back-link">&lt; Back</a>
 						</div>
