@@ -60,7 +60,7 @@
 }
 
 .dc-date-slider {
-	
+
 }
 
 .dc-navigation {
@@ -118,6 +118,11 @@ a.button {
 	padding-bottom:7px;
 }
 
+a.download-button {
+    margin-left: 12px;
+    height: 12px;
+    line-height: 0px;
+}
 
 #main-content-tabs>div {
 	background: #FFFFFF;
@@ -524,7 +529,10 @@ table {
 				<div class="north dc-report-panel ">
 				<div id="report-breadcrumb" class="dc-breadcrumb"></div>
 				<div class="dc-navigation">
-					<div class="dc-slider-value"><span id="report-selected-date"></span><a id="report-link" class="button" target="_NEW" href="x"><i class="pre download"></i>Download</a></div>
+					<div class="dc-slider-value">
+                        <span id="report-selected-date"></span>
+                        <a id="report-link" class="button download-button" target="_NEW" href="x"><i class="pre download"></i>Download Full Report</a>
+                    </div>
 					<div class="dc-date-slider">
 					<div id="report-start-range"></div>
 					<div id="report-date-slider-wrapper">
