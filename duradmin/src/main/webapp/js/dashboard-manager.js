@@ -843,12 +843,14 @@ function formatBarChartData(inputArray, label, value){
 }
 
 $(function() {
-
-	 var seekTo = function(index){
-		 var api;
+	
+	 var getScrollerApi = function(){
 		 $(".scrollable").scrollable();
-		 api = $(".scrollable").data("scrollable");
-		 api.seekTo(index, 500);
+		 return $(".scrollable").data("scrollable");
+	 };
+	
+	 var seekTo = function(index){
+		 getScrollerApi().seekTo(index, 500);
 	 };
 	 
 	var formatChartDate = function(/*string*/reportId){
@@ -917,9 +919,6 @@ $(function() {
 		}
 		return new Date(year, month, 1);
 	};
-	
-
-	
 	
 	var getBreadcrumb = function(){
 		return $("#report-breadcrumb");
@@ -1008,7 +1007,7 @@ $(function() {
 		
 		$(document).bind("storagereportchanged", function(evt){
 			var storageReport = evt.storageReport;
-			updateSelectedDate(storageReport.contentId);
+			updateSelectedDate(storageReport.reportId);
 		});
 		
 		return slider;
@@ -1056,7 +1055,6 @@ $(function() {
 			type:"GET",
 			success: function(result){
 				var storageReportList = [];
-				
 				$.each(result.storageReportList, function(i,item){
 					var s = item.substring(item.length-3);
 					if(s == "xml") storageReportList.push(item);
@@ -1065,7 +1063,7 @@ $(function() {
 			},
 			
 		    failure: function(textStatus){
-				alert("failed to get ");
+				alert("failed to get report ids: " + textStatus);
 			},
 		});	
 	};
@@ -1158,6 +1156,10 @@ $(function() {
 		return $("#storage-summary");
 	};
 	
+	var isSummaryShowing = function(){
+		return getScrollerApi().getIndex() == 0;
+	};
+	
 	var initStorageProvidersView = function(){
 		var sp = getStorageSummary();
 		sp.summarypanel();
@@ -1170,13 +1172,12 @@ $(function() {
 		$(document).bind("storagereportchanged", function(evt){
 			var spm = evt.storageReport.storageMetrics.storageProviderMetrics;
 			if(spm.length == 1){
-				sp.summarypanel("clickFirstStorageProvider");
+				if(isSummaryShowing()){
+					sp.summarypanel("clickFirstStorageProvider");
+				}
 			};
 		});		
-
-		
 	};
-	
 	
 	var serviceReportMap = {};
 	var serviceReportList = null;
