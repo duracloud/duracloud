@@ -379,8 +379,8 @@ table {
 				<div id="tabs-services">
 					<div id="toolbar" class="ui-widget-header ui-corner-all">
 						<span id="phase">
-							<input type="radio" id="deployed-button" name="phase" checked="checked"/><label for="deployed-button">Installed</label>
-							<input type="radio"  id="completed-button" name="phase" /><label for="completed-button">Completed</label>
+							<input type="radio" id="installed-radio" name="phase" checked="checked"/><label for="installed-radio">Installed</label>
+							<input type="radio"  id="completed-radio" name="phase" /><label for="completed-radio">Completed</label>
 						</span>
 
 					</div>

@@ -157,6 +157,7 @@ $.widget("ui.selectablelist",{
 	},
 	
 	addItem: function(item, data, selected){
+		this.setFooter('');
 		this._footer.before(item);
 		this._initItem(item,data);
 		if(selected && this.options.selectable){

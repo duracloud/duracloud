@@ -1184,6 +1184,8 @@ $(function() {
 	var initializeServicesPanel = function(/*element*/ servicesPanel){
 		dc.log("initializing services panel");
 		//init toggle of deployed and completed
+		$("#installed-radio").attr("checked", true);
+		
 		$("input[name='phase']", servicesPanel).click(function(evt, ui){
 			$("#completed-services-panel, #installed-services-panel", servicesPanel).toggle();
 		});
