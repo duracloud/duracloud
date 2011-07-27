@@ -1360,10 +1360,6 @@ $(function() {
 			var stopTime = getStopTime(ss);
 			var startTime = getStartTime(ss);
 			
-			if(stopTime == null){
-				stopTime = new Date();
-			}
-			
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
@@ -1392,9 +1388,6 @@ $(function() {
 			serviceViewer.append(node);
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
-			if(!stopTime){
-				stopTime = new Date();
-			}
 			var startTime = getStartTime(ss);
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
@@ -1433,10 +1426,14 @@ $(function() {
 	};
 	
 	
+	/**
+	 * returns the current date/time if there is no stop time found in the service
+	 * summary properties.
+	 */
 	var getStopTime = function(serviceSummary){
 		var timeString = serviceSummary.properties['Stop Time'];
 		if(!timeString){
-			return null;
+			return new Date();
 		}else{
 			return convertDateStringToUTC(timeString);
 		}
@@ -1469,7 +1466,6 @@ $(function() {
 
 	var getServiceStatusPretty = function(serviceSummary){
 		var status =  getServiceStatus(serviceSummary);
-		
 		return status.substring(0,1).toUpperCase() + status.substring(1).toLowerCase();
 	}
 
@@ -1481,6 +1477,7 @@ $(function() {
 	var buildServicesList = function(serviceReportList, servicesReportMap, sliderValue){
 		var low = sliderValue.lowBound, high = sliderValue.highBound;
 		var servicesArray = [];
+		
 		dc.busy("Building service summary list...");
 		$.each(serviceReportList, function(i,serviceReportId){
 			var serviceSummaries, 
@@ -1517,11 +1514,6 @@ $(function() {
 			var sa, sb;
 			sa = getStopTime(a);
 			sb = getStopTime(b);
-			//hack to account for missing stop times
-			//on failed service summaries.
-			if(!sa) sa = new Date();	
-			if(!sb) sb = new Date();	
-
 			return sb.getTime()-sa.getTime();
 		});
 
