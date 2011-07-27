@@ -625,8 +625,8 @@
 				lowBound: lowBound,
 				highBound: highBound,
 				toString: function(){
-					return "(low=" + this.lowBound.toLocaleDateString() + "; high: " + 
-								this.highBound.toLocaleDateString() + ")";
+					return "(low=" + this.lowBound.toUTCString() + "; high: " + 
+								this.highBound.toUTCString() + ")";
 				},
 			};
 			return this._value;
@@ -642,11 +642,13 @@
 		},
 
 		_addDaysAsDate: function(daysToAdd){
-			return new Date(this.options.minDate.getTime()+(ONE_DAY*daysToAdd));
+			var md = this.options.minDate;
+			var beginningOfDayMs = Date.UTC(md.getUTCFullYear(),md.getUTCMonth(), md.getUTCDate(), 0,0,0,0);
+			return new Date(beginningOfDayMs+(ONE_DAY*daysToAdd));
 		},
 
 		_setDateValue: function(selector, date){
-			$(selector, this.element).html(date.toLocaleDateString());
+			$(selector, this.element).html(date.getUTCMonth()+1 +"/" + date.getUTCDate() +"/"+ date.getUTCFullYear());
 		},
 		
 		_setStartText: function(date){
@@ -718,7 +720,7 @@ function plotPieChart(element, data, labelValueFormatter){
             $("#tooltip").remove();
             previousSlice = null;            
         }
-	});;
+	});
 	
     	
 }
@@ -883,41 +885,34 @@ $(function() {
 		var pattern = /report\/service-summaries-([\d]*)-([\d]*)[.]xml/i;
 		var year = pattern.exec(serviceReportId)[1];
 		var month = pattern.exec(serviceReportId)[2];
-		var date = new Date();
-		date.setFullYear(year, month-1, 1);
+		if(month.substring(0,1) == "0"){
+			month = month.substring(1);
+		}
+		
+		month = new Number(month);
+		
+		if(month == 1){
+			year--;
+		}
+				
+		var date = new Date(Date.UTC(year, month-1,1));
 		return date;
 	};
 	
 	var getLastDayOfMonth = function(date){
-		var year = date.getFullYear(), month = date.getMonth(); 
+		var year = date.getUTCFullYear(), month = date.getUTCMonth(); 
 		if(month == 11){
 			year += 1;
 		}
 		month = (month + 1) % 12;
-		return new Date(year, month, 0);
+		return new Date(Date.UTC(year, month, 0, 23, 59, 59));
 	};
 	
 	var getFirstDayOfMonth = function(date){
-		var year = date.getFullYear(), 
-			month = date.getMonth(), 
-			day = date.getDate();
-		
-		if(date == 1){
-			return date;
-		}
-		
-		if(day == 0){
-			month -= 1;
-		}
-
-		if(month < 0){
-		  month = 11; 	
-		}
-		
-		if(month == 11){
-			year -= 1;
-		}
-		return new Date(year, month, 1);
+		var year = date.getUTCFullYear(), 
+			month = date.getUTCMonth(), 
+			date = date.getUTCDate();
+		return new Date(Date.UTC(year, month, 1));
 	};
 	
 	var getBreadcrumb = function(){
@@ -1364,16 +1359,16 @@ $(function() {
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
 			var startTime = getStartTime(ss);
+			
 			if(stopTime == null){
-				stopTime = getCurrentUTCDate();
+				stopTime = new Date();
 			}
+			
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
 			$(".service-version", node).html(ss.version);
 			$(".service-stop-time", node).html(stopTime.toLocaleDateString());
-			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
-
 			$(".service-report a", node).attr("href","/durastore/"+ss.properties['Report']);
             $(".service-report a", node).attr("title","Download Service Report");
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
@@ -1387,10 +1382,6 @@ $(function() {
 		});
 	};
 	
-	var getCurrentUTCDate = function(){
-		return new Date(new Date().toUTCString());
-	};
-	
 	var loadInstalledServices = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
 		var serviceViewer = $("#installed-services-panel #service-viewer", servicesPanel);
 		serviceViewer.children().not(":first").remove();
@@ -1402,7 +1393,7 @@ $(function() {
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
 			if(!stopTime){
-				stopTime = getCurrentUTCDate();
+				stopTime = new Date();
 			}
 			var startTime = getStartTime(ss);
 			var duration = calculateDuration(startTime, stopTime);
@@ -1429,18 +1420,30 @@ $(function() {
 		return a;
 	};
 	
+	var convertDateStringToUTC = function(dateString){
+		var d = new Date(dateString);
+		
+		return new Date(Date.UTC(
+				d.getFullYear(), 
+				d.getMonth(), 
+				d.getDate(), 
+				d.getHours(), 
+				d.getMinutes(), 
+				d.getSeconds()));
+	};
+	
 	
 	var getStopTime = function(serviceSummary){
 		var timeString = serviceSummary.properties['Stop Time'];
 		if(!timeString){
 			return null;
 		}else{
-			return new Date(timeString);
+			return convertDateStringToUTC(timeString);
 		}
 	}
 
 	var getStartTime = function(serviceSummary){
-		return new Date(serviceSummary.properties['Start Time']);
+		return convertDateStringToUTC(serviceSummary.properties['Start Time']);
 	}
 
 	var MINUTE = 1000*60;
@@ -1485,8 +1488,7 @@ $(function() {
 				reportLowDate = getFirstDayOfMonth(reportDate),
 				reportHighDate = getLastDayOfMonth(reportDate);
 			//if the report does not overlap with the slider range
-			if((high < reportLowDate || high > reportHighDate ) &&
-					(low < reportLowDate || low > reportHighDate)){
+			if(reportLowDate > high || reportHighDate < low) {
 				return true;
 			}
 			
@@ -1510,6 +1512,19 @@ $(function() {
 		});
 		
 		dc.done();
+		
+		servicesArray.sort(function(a,b){
+			var sa, sb;
+			sa = getStopTime(a);
+			sb = getStopTime(b);
+			//hack to account for missing stop times
+			//on failed service summaries.
+			if(!sa) sa = new Date();	
+			if(!sb) sb = new Date();	
+
+			return sb.getTime()-sa.getTime();
+		});
+
 		
 		return servicesArray;
 	};
@@ -1543,17 +1558,6 @@ $(function() {
 				var serviceSummaries = result.serviceSummaries;
 				//sorting can be removed when service summaries are 
 				//being sorted properly - ie most recently stopped first
-				serviceSummaries.sort(function(a,b){
-					var sa, sb;
-					sa = getStopTime(a);
-					sb = getStopTime(b);
-					//hack to account for missing stop times
-					//on failed service summaries.
-					if(!sa) sa = getStartTime(a);	
-					if(!sb) sb = getStartTime(b);	
-
-					return sb.getTime()-sa.getTime();
-				});
 				serviceReportMap[serviceReportId] = serviceSummaries;
 				callback.success(serviceSummaries);
 				return true;
