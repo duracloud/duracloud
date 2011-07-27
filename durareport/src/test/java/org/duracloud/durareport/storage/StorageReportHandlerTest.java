@@ -49,7 +49,7 @@ public class StorageReportHandlerTest {
     private long completionTime = 1305662518734L;
     private long elapsedTime = 10;
     private String reportPrefix = "report/storage-report-";
-    private String errorLogName = "report/storage-report-error-log";
+    private String errorLogName = "report/error-log-storage-report";
 
     private ContentStore mockStore;
     private ContentStoreManager mockStoreMgr;

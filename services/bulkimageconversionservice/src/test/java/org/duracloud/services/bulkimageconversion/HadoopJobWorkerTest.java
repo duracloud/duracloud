@@ -11,7 +11,6 @@ import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -24,7 +23,6 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 import static org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker.JobStatus;
 import static org.duracloud.storage.domain.HadoopTypes.RUN_HADOOP_TASK_NAME;
 import static org.duracloud.storage.domain.HadoopTypes.TASK_OUTPUTS;
@@ -88,7 +86,7 @@ public class HadoopJobWorkerTest {
         EasyMock.verify(contentStore);
         contentStore = null;
 
-        FileUtils.deleteDirectory(workDir);
+        FileUtils.deleteQuietly(workDir);
     }
 
     @Test

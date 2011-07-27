@@ -38,7 +38,7 @@ public class StorageReportResourceTest {
     StorageReportBuilder mockReportBuilder;
     StorageReportScheduler mockReportScheduler;
     private String reportPrefix = "report/storage-report-";
-    private String errorLogName = "report/storage-report-error-log";
+    private String errorLogName = "report/error-log-storage-report";
 
     @Before
     public void setup() {
