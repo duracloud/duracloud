@@ -38,7 +38,7 @@ import java.util.zip.ZipOutputStream;
  * @author Andrew Woods
  *         Date: Nov 30, 2009
  */
-public class WebAppUtilTest extends WebAppUtilTestBase {
+public class TestWebAppUtil extends WebAppUtilTestBase {
 
     private WebAppUtilImpl webappUtil;
     private String serviceWorkPath = "target/webapputil-test";

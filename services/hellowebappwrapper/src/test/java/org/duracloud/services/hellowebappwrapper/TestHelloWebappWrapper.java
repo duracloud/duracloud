@@ -26,7 +26,7 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: Dec 9, 2009
  */
-public class HelloWebappWrapperTest {
+public class TestHelloWebappWrapper {
 
     private static final String PROJECT_VERSION_PROP = "PROJECT_VERSION";
 

@@ -24,7 +24,7 @@ import java.io.IOException;
  * @author Andrew Woods
  *         Date: Dec 20, 2009
  */
-public class J2kWebappWrapperTest extends J2kWebappWrapperTestBase {
+public class TestJ2kWebappWrapper extends J2kWebappWrapperTestBase {
 
     private File resourceDir = new File("src/test/resources");
 

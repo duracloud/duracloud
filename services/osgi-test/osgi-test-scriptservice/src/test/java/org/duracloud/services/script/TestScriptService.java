@@ -23,7 +23,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: Dec 11, 2009
  */
-public class ScriptServiceTest {
+public class TestScriptService {
 
     private static final String SCRIPT_CREATED_FILE = "script-created-file.txt";
 
