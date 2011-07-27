@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.ContentStoreException;
+import org.easymock.Capture;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -34,6 +35,7 @@ public class ReplicationOnDemandJobWorkerTest {
 
     private ContentStore contentStore;
     private File workDir;
+    private Capture<InputStream> stream;
 
     @Before
     public void setUp() throws Exception {
@@ -42,6 +44,7 @@ public class ReplicationOnDemandJobWorkerTest {
         File processor = new File(workDir, "replication-processor.hjar");
         FileUtils.writeStringToFile(processor, "processor");
 
+        stream = new Capture<InputStream>();
         contentStore = createMockContentStore();
     }
 
@@ -66,7 +69,7 @@ public class ReplicationOnDemandJobWorkerTest {
         EasyMock
             .expect(contentStore.addContent(EasyMock.isA(String.class),
                                             EasyMock.isA(String.class),
-                                            EasyMock.isA(InputStream.class),
+                                            EasyMock.capture(stream),
                                             EasyMock.anyLong(),
                                             EasyMock.isA(String.class),
                                             EasyMock.<String>isNull(),
@@ -83,6 +86,7 @@ public class ReplicationOnDemandJobWorkerTest {
         EasyMock.verify(contentStore);
         contentStore = null;
 
+        stream.getValue().close();
         FileUtils.deleteDirectory(workDir);
     }
 
