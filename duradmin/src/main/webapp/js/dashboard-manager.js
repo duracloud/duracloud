@@ -1360,11 +1360,14 @@ $(function() {
 			var stopTime = getStopTime(ss);
 			var startTime = getStartTime(ss);
 			
-			var duration = calculateDuration(startTime, stopTime);
+			var duration = "--";
+			if(stopTime != null){
+				duration = calculateDuration(startTime, stopTime);
+			}
+			$(".service-stop-time", node).html(stopTime !== null ? stopTime.toLocaleDateString() : "--");
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
 			$(".service-version", node).html(ss.version);
-			$(".service-stop-time", node).html(stopTime.toLocaleDateString());
 			$(".service-report a", node).attr("href","/durastore/"+ss.properties['Report']);
             $(".service-report a", node).attr("title","Download Service Report");
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
@@ -1388,6 +1391,9 @@ $(function() {
 			serviceViewer.append(node);
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
+			if(stopTime == null){
+				stopTime = new Date();
+			}
 			var startTime = getStartTime(ss);
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
@@ -1433,7 +1439,7 @@ $(function() {
 	var getStopTime = function(serviceSummary){
 		var timeString = serviceSummary.properties['Stop Time'];
 		if(!timeString){
-			return new Date();
+			return null;
 		}else{
 			return convertDateStringToUTC(timeString);
 		}
@@ -1501,11 +1507,13 @@ $(function() {
 			}
 
 			$.each(serviceSummaries, function(j,ss){
-				var stopTime = getStopTime(ss);
-				if(stopTime >= low && stopTime <= high )
+				var time = getStopTime(ss);
+				if(!time){
+					time = new Date();
+				}
+				if(time >= low && time <= high )
 					servicesArray.push(ss);
 			});
-
 		});
 		
 		dc.done();
@@ -1513,8 +1521,25 @@ $(function() {
 		servicesArray.sort(function(a,b){
 			var sa, sb;
 			sa = getStopTime(a);
+
+			if(!sa){
+				sa = getStartTime(a);
+			}
+
 			sb = getStopTime(b);
-			return sb.getTime()-sa.getTime();
+			if(!sb){
+				sb = getStartTime(b);
+			}
+			
+			if(null == sa && null == sb) {
+	            return 0;
+	        } else if(null != sa && null == sb) {
+	            return -1;
+	        } else if(null == sa && null != sb) {
+	            return 1;
+	        } else { // Both dates are non-null
+	        	return sb.getTime()-sa.getTime(); 
+	        }
 		});
 
 		
