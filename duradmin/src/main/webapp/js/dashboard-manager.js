@@ -1346,12 +1346,12 @@ $(function() {
 	
 	var getServiceStatusClass = function(serviceSummary){
 		var status = getServiceStatus(serviceSummary);
-		if(status == "STARTED"){
-			return "started-service";
-		}else if(status =="SUCCESS"){
+		if(status =="SUCCESS"){
 			return "successful-service";
+		}else if(status =="FAILED"){
+			return "failed-service";
 		}else{
-			return "failed-service"
+			return "started-service";
 		}
 	};
 
