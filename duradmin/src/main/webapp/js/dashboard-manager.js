@@ -1364,10 +1364,10 @@ $(function() {
 			if(stopTime != null){
 				duration = calculateDuration(startTime, stopTime);
 			}
+			$(".service-start-time", node).html(startTime.toLocaleDateString());
 			$(".service-stop-time", node).html(stopTime !== null ? stopTime.toLocaleDateString() : "--");
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
-			$(".service-version", node).html(ss.version);
 			$(".service-report a", node).attr("href","/durastore/"+ss.properties['Report']);
             $(".service-report a", node).attr("title","Download Service Report");
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
@@ -1398,7 +1398,6 @@ $(function() {
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
-			$(".service-version", node).html(ss.version);
 			$(".service-start-time", node).html(stopTime.toLocaleDateString());
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
@@ -1556,6 +1555,10 @@ $(function() {
 			newlist.push(map[i]);
 		}
 		
+		newlist.sort(function(a,b){
+			return a.name > b.name;
+		});
+
 		return newlist;
 	};
 	

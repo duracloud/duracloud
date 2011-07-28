@@ -389,11 +389,9 @@ table {
 								<table>
 									<tr>
 										<td class="service-name">Service</td>									
-										<td class="service-version">Version</td>									
 										<td class="service-status">Status</td>
-										<td class="service-duration">Elapse Time</td>
 										<td class="service-start-time">Start</td>
-
+										<td class="service-duration">Duration</td>
 									</tr>
 								</table>
 
@@ -404,10 +402,9 @@ table {
 									<table>
 										<tr>
 											<td class="service-name">name</td>									
-											<td class="service-version">Version</td>									
 											<td class="service-status">status</td>
-											<td class="service-duration">duration</td>
 											<td class="service-start-time">start</td>
+											<td class="service-duration">duration</td>
 
 										</tr>
 									</table>
@@ -434,10 +431,10 @@ table {
 									<table>
 										<tr>
 											<td class="service-name">Service</td>									
-											<td class="service-version">Version</td>									
 											<td class="service-status">Status</td>
-											<td class="service-duration">Duration</td>
+											<td class="service-start-time">Start</td>
 											<td class="service-stop-time">Stop</td>
+											<td class="service-duration">Duration</td>
 											<td class="service-report">Report</td>
 
 										</tr>
@@ -452,10 +449,11 @@ table {
 										<table>
 											<tr>
 												<td class="service-name">name</td>									
-												<td class="service-version">Version</td>									
 												<td class="service-status">status</td>
-												<td class="service-duration">duration</td>
+												<td class="service-start-time">stop</td>
 												<td class="service-stop-time">stop</td>
+												<td class="service-duration">duration</td>
+
 												<td class="service-report"><a class="button" href=""><i class="pre download"></i></a></td>
 												
 											</tr>
