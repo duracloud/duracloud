@@ -195,17 +195,37 @@ a.download-button {
 	padding:3px;
 }
 
-.successful-service {
+#completion-status-list li {
+	margin:3px;
+	padding:3px;
+}
+
+.started-service {
 	background-color: #CCFFCC;
 }
 
-.successful-service .service-body {
+.started-service .service-body {
 	background-color: #DDFFDD;
 }
 
-.successful-service .service-body table{
+
+.started-service .service-body table{
 	background-color: #EEFFEE;
 }
+
+.successful-service {
+	background-color: #AAFFAA;
+}
+
+.successful-service .service-body {
+	background-color: #BBFFBB;
+}
+
+
+.successful-service .service-body table{
+	background-color: #CCFFCC;
+}
+
 
 .failed-service {
 	background-color: #FFCCCC;
@@ -505,12 +525,23 @@ table {
 							<h3>Completion Status</h3>
 
 							<div>
-								<span class="successful-service">
-									<input type="checkbox" id="success-checkbox" checked="checked" /><label for="success-checkbox">Successes</label>
-								</span>
-								<span class="failed-service">
-									<input type="checkbox" id="failure-checkbox"  checked="checked" /><label for="failure-checkbox">Failures</label>
-								</span>
+								<ul id="completion-status-list">
+									<li class="successful-service">
+										<span>
+											<input type="checkbox" id="success-checkbox" checked="checked" /><label for="success-checkbox">Success</label>
+										</span>
+									</li>
+									<li class="started-service">
+										<span >
+											<input type="checkbox" id="started-checkbox"  checked="checked" /><label for="started-checkbox">Started</label>
+										</span>
+									</li>
+									<li class="failed-service">
+										<span >
+											<input type="checkbox" id="failure-checkbox"  checked="checked" /><label for="failure-checkbox">Failed</label>
+										</span>
+									</li>
+								</ul>
 							</div>
 
 							<h3>Service Type</h3>

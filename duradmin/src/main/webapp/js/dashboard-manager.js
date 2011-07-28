@@ -1199,7 +1199,7 @@ $(function() {
 			}
 		);
 
-		$("#success-checkbox, #failure-checkbox", servicesPanel).click(function(){
+		$("#success-checkbox, #failure-checkbox, #started-checkbox", servicesPanel).click(function(){
 			filterServices(servicesPanel);
 		});
 		
@@ -1278,7 +1278,7 @@ $(function() {
 
 			if(!remove && !selectedStatuses.started){
 				if(serviceElement.hasClass("started-service")){
-					//remove = true;
+					remove = true;
 				}
 			}
 			
@@ -1345,7 +1345,14 @@ $(function() {
 	};
 	
 	var getServiceStatusClass = function(serviceSummary){
-		return isSuccessful(serviceSummary) ? "successful-service":"failed-service";		
+		var status = getServiceStatus(serviceSummary);
+		if(status == "STARTED"){
+			return "started-service";
+		}else if(status =="SUCCESS"){
+			return "successful-service";
+		}else{
+			return "failed-service"
+		}
 	};
 
 	var loadCompletedServiceViewer = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
@@ -1368,8 +1375,16 @@ $(function() {
 			$(".service-stop-time", node).html(stopTime !== null ? stopTime.toLocaleDateString() : "--");
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
-			$(".service-report a", node).attr("href","/durastore/"+ss.properties['Report']);
-            $(".service-report a", node).attr("title","Download Service Report");
+			var reportId = ss.properties['Report'];
+			var reportNode = $(".service-report a", node);
+			if(reportId){
+				reportNode
+					.attr("href","/durastore/"+ reportId)
+					.attr("title","Download Service Report");
+			}else{
+				reportNode.remove();
+			}
+			
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
 			var props = $.extend({}, ss.properties);
@@ -1474,11 +1489,6 @@ $(function() {
 		return status.substring(0,1).toUpperCase() + status.substring(1).toLowerCase();
 	}
 
-	
-	var isSuccessful = function (serviceSummary){
-		return(getServiceStatus(serviceSummary) != 'FAILED')
-	}
-	
 	var buildServicesList = function(serviceReportList, servicesReportMap, sliderValue){
 		var low = sliderValue.lowBound, high = sliderValue.highBound;
 		var servicesArray = [];
