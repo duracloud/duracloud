@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud.services</groupId>
   <artifactId>servicesadmin</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0-SNAPSHOT</version>
 
   <name>DuraCloud Administrative Services WebApp Bundle</name>
 
@@ -15,7 +15,7 @@
   <parent>
     <artifactId>services</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.0.0</version>
+    <version>1.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -201,13 +201,13 @@
     <dependency>
       <groupId>javax.persistence</groupId>
       <artifactId>com.springsource.javax.persistence</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.aopalliance</groupId>
       <artifactId>com.springsource.org.aopalliance</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <!-- webapp container artifacts -->
@@ -220,7 +220,7 @@
     <dependency>
       <groupId>org.springframework.osgi</groupId>
       <artifactId>catalina.start.osgi</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -272,25 +272,25 @@
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>servicesutil</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>computeservice</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.duracloud.services</groupId>
       <artifactId>servicescommon</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -410,7 +410,7 @@
     <dependency>
       <groupId>javax.portlet</groupId>
       <artifactId>com.springsource.javax.portlet</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
