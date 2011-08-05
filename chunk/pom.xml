@@ -19,6 +19,7 @@
       <id>profile-driver</id>
 
       <activation>
+        <activeByDefault>true</activeByDefault>
         <property>
           <name>profile</name>
           <value>driver</value>
