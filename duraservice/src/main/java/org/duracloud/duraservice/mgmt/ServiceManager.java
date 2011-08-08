@@ -121,14 +121,6 @@ public class ServiceManager implements LocalServicesManager {
     public void configure(InputStream configXml) {
         parseManagerConfigXml(configXml);
 
-        try {
-            initializeServicesList();
-        } catch (ContentStoreException cse) {
-            String error = "Could not build services list due " +
-            		       "to exception: " + cse.getMessage();
-            throw new ServiceException(error, cse);
-        }
-
         ServiceComputeInstance serviceComputeInstance = serviceComputeInstanceUtil
             .createComputeInstance(primaryHost,
                                    primaryServicesAdminPort,
@@ -138,6 +130,16 @@ public class ServiceManager implements LocalServicesManager {
         serviceComputeInstances.add(serviceComputeInstance);
     }
 
+    protected void initialize() {
+        try {
+            initializeServicesList();
+        } catch (ContentStoreException cse) {
+            String error = "Could not build services list due " +
+            		       "to exception: " + cse.getMessage();
+            throw new ServiceException(error, cse);
+        }
+    }
+
     /*
      * Determines if the service mananger has been initialized.
      */
@@ -145,6 +147,10 @@ public class ServiceManager implements LocalServicesManager {
         if(serviceStore == null) {
             throw new ServiceException("The Service Manager must be initialized " +
             		                   "prior to performing any other activities.");
+        }
+
+        if(serviceStoreClient == null) {
+            initialize();
         }
     }
 
