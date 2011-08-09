@@ -99,8 +99,8 @@ public class RackspaceGetTestNotRun {
     }
 
     @Test
-    public void testGetObjectMetadata() {
-        System.out.println("--- TEST GET OBJECT METADATA ---");
+    public void testGetObjectProperties() {
+        System.out.println("--- TEST GET OBJECT PROPERTIES ---");
         String containerName = getContainerName();
         String objectName = getObjectName(containerName);
 
@@ -109,12 +109,12 @@ public class RackspaceGetTestNotRun {
             try {
                 filesClient.getObjectMetaData(containerName, objectName);
             } catch (Exception e) {
-                System.out.println("Failure getting object metadata: " +
+                System.out.println("Failure getting object properties: " +
                                    e.getMessage());
                 failures++;
             }
         }
-        System.out.println("TEST GET OBJECT METADATA RESULT: " + failures +
+        System.out.println("TEST GET OBJECT PROPERTIES RESULT: " + failures +
                            " failures " + " out of " + attempts + " attempts.");
     }
 
