@@ -45,8 +45,8 @@ public class ContentResourceImpl implements ContentResource {
      */
     @Override
     public InputStream getContent(String spaceID,
-                                         String contentID,
-                                         String storeID)
+                                  String contentID,
+                                  String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
@@ -63,28 +63,28 @@ public class ContentResourceImpl implements ContentResource {
     }
 
     /**
-     * Retrieves the metadata of a piece of content.
+     * Retrieves the properties of a piece of content.
      *
      * @param spaceID
      * @param contentID
-     * @return Map of content metadata
+     * @return Map of content properties
      */
     @Override
-    public Map<String, String> getContentMetadata(String spaceID,
-                                                         String contentID,
-                                                         String storeID)
+    public Map<String, String> getContentProperties(String spaceID,
+                                                    String contentID,
+                                                    String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
-            return storage.getContentMetadata(spaceID, contentID);
+            return storage.getContentProperties(spaceID, contentID);
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("get metadata for content",
+            throw new ResourceNotFoundException("get properties for content",
                                                 spaceID,
                                                 contentID,
                                                 e);
         } catch (StorageException e) {
-            throw new ResourceException("get metadata for content",
+            throw new ResourceException("get properties for content",
                                         spaceID,
                                         contentID,
                                         e);
@@ -92,32 +92,32 @@ public class ContentResourceImpl implements ContentResource {
     }
 
     /**
-     * Updates the metadata of a piece of content.
+     * Updates the properties of a piece of content.
      *
      * @return success
      */
     @Override
-    public void updateContentMetadata(String spaceID,
-                                             String contentID,
-                                             String contentMimeType,
-                                             Map<String, String> userMetadata,
-                                             String storeID)
+    public void updateContentProperties(String spaceID,
+                                        String contentID,
+                                        String contentMimeType,
+                                        Map<String, String> userProperties,
+                                        String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
 
-            // Update content metadata
-            if(userMetadata != null) {
-                storage.setContentMetadata(spaceID, contentID, userMetadata);
+            // Update content properties
+            if(userProperties != null) {
+                storage.setContentProperties(spaceID, contentID, userProperties);
             }
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("update metadata for content",
+            throw new ResourceNotFoundException("update properties for content",
                                                 spaceID,
                                                 contentID,
                                                 e);
         } catch (StorageException e) {
-            throw new ResourceException("update metadata for content",
+            throw new ResourceException("update properties for content",
                                         spaceID,
                                         contentID,
                                         e);
@@ -131,12 +131,12 @@ public class ContentResourceImpl implements ContentResource {
      */
     @Override
     public String addContent(String spaceID,
-                                    String contentID,
-                                    InputStream content,
-                                    String contentMimeType,
-                                    int contentSize,
-                                    String checksum,
-                                    String storeID)
+                             String contentID,
+                             InputStream content,
+                             String contentMimeType,
+                             int contentSize,
+                             String checksum,
+                             String storeID)
     throws ResourceException, InvalidIdException {
         IdUtil.validateContentId(contentID);
 
@@ -168,9 +168,7 @@ public class ContentResourceImpl implements ContentResource {
      * @return success
      */
     @Override
-    public void deleteContent(String spaceID,
-                                     String contentID,
-                                     String storeID)
+    public void deleteContent(String spaceID, String contentID, String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =

@@ -81,10 +81,10 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     @Override
     public String getSourceChecksum(ContentItem contentItem) {
         try {
-            Map<String, String> metadata =
-                contentStore.getContentMetadata(contentItem.getSpaceId(),
-                                                contentItem.getContentId());
-            return metadata.get(ContentStore.CONTENT_CHECKSUM);
+            Map<String, String> properties =
+                contentStore.getContentProperties(contentItem.getSpaceId(),
+                                                  contentItem.getContentId());
+            return properties.get(ContentStore.CONTENT_CHECKSUM);
         } catch(ContentStoreException e) {
             throw new RuntimeException("Unable to get checksum for " +
                                        contentItem.toString() + " due to: " +
@@ -99,7 +99,7 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
                 contentStore.getContent(contentItem.getSpaceId(),
                                         contentItem.getContentId());
             String checksum =
-                content.getMetadata().get(ContentStore.CONTENT_CHECKSUM);
+                content.getProperties().get(ContentStore.CONTENT_CHECKSUM);
             return new ContentStream(content.getStream(), checksum);
         } catch(ContentStoreException e) {
             throw new RuntimeException("Unable to get content for " +

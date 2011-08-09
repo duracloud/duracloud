@@ -44,16 +44,17 @@ public class PlaylistCreator {
         while(videoFiles.hasNext()) {
             String videoFileId = videoFiles.next();
 
-            // Determine metadata
+            // Determine properties
             String videoTitle = videoFileId;
             String videoDescription = videoFileId;
-            Map<String, String> metadata =
-                contentStore.getContentMetadata(videoSourceSpaceId, videoFileId);
-            if(metadata.containsKey(TITLE_META)) {
-                videoTitle = metadata.get(TITLE_META);
+            Map<String, String> properties =
+                contentStore.getContentProperties(videoSourceSpaceId,
+                                                  videoFileId);
+            if(properties.containsKey(TITLE_META)) {
+                videoTitle = properties.get(TITLE_META);
             }
-            if(metadata.containsKey(DESCRIPTION_META)) {
-                videoDescription = metadata.get(DESCRIPTION_META);
+            if(properties.containsKey(DESCRIPTION_META)) {
+                videoDescription = properties.get(DESCRIPTION_META);
             }
 
             // Create item XML

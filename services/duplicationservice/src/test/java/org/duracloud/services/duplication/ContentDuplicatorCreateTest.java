@@ -88,14 +88,14 @@ public class ContentDuplicatorCreateTest {
     }
 
     @Test
-    public void testReplicateContentNoMetadata() throws Exception {
-        init(Mode.EMPTY_METADATA);
+    public void testReplicateContentNoProperties() throws Exception {
+        init(Mode.EMPTY_PROPERTIES);
         replicator.createContent(spaceId, contentId);
     }
 
     @Test
-    public void testReplicateContentNullMetadata() throws Exception {
-        init(Mode.NULL_METADATA);
+    public void testReplicateContentNullProperties() throws Exception {
+        init(Mode.NULL_PROPERTIES);
         replicator.createContent(spaceId, contentId);
     }
 
@@ -125,7 +125,7 @@ public class ContentDuplicatorCreateTest {
         EasyMock.expect(store.getStorageProviderType()).andReturn("f-type");
 
         mockGetContentExpectation(cmd, store);
-        mockGetSpaceMetadataExpectation(cmd, store);
+        mockGetSpacePropertiesExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
@@ -151,11 +151,11 @@ public class ContentDuplicatorCreateTest {
         }
     }
 
-    private void mockGetSpaceMetadataExpectation(Mode cmd, ContentStore store)
+    private void mockGetSpacePropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
             case NOT_FOUND_EXCEPTION:
-                EasyMock.expect(store.getSpaceMetadata(spaceId))
+                EasyMock.expect(store.getSpaceProperties(spaceId))
                     .andReturn(null);
                 break;
         }
@@ -165,37 +165,38 @@ public class ContentDuplicatorCreateTest {
         Content content = EasyMock.createMock("Content", Content.class);
 
         int times = cmd == Mode.ADD_EXCEPTION ? 2 : 1;
-        EasyMock.expect(content.getStream()).andReturn(contentStream).times(times);
-        EasyMock.expect(content.getMetadata()).andReturn(createContentMetadata(
-            cmd));
+        EasyMock.expect(content.getStream())
+            .andReturn(contentStream).times(times);
+        EasyMock.expect(content.getProperties())
+            .andReturn(createContentProperties(cmd));
 
         EasyMock.replay(content);
         return content;
     }
 
-    private Map<String, String> createContentMetadata(Mode cmd) {
-        Map<String, String> metadata = new HashMap<String, String>();
+    private Map<String, String> createContentProperties(Mode cmd) {
+        Map<String, String> properties = new HashMap<String, String>();
 
         switch (cmd) {
 
-            case EMPTY_METADATA:
+            case EMPTY_PROPERTIES:
                 break;
 
-            case NULL_METADATA:
-                metadata = null;
+            case NULL_PROPERTIES:
+                properties = null;
                 break;
 
             case NULL_CONTENT:
                 break;
 
             default:
-                metadata.put(ContentStore.CONTENT_MIMETYPE, mimeGood);
-                metadata.put(ContentStore.CONTENT_SIZE, text.length() + "");
-                metadata.put(ContentStore.CONTENT_CHECKSUM, checksum);
+                properties.put(ContentStore.CONTENT_MIMETYPE, mimeGood);
+                properties.put(ContentStore.CONTENT_SIZE, text.length() + "");
+                properties.put(ContentStore.CONTENT_CHECKSUM, checksum);
                 break;
         }
 
-        return metadata;
+        return properties;
     }
 
     private ContentStore createMockToStore(Mode cmd)
@@ -226,7 +227,7 @@ public class ContentDuplicatorCreateTest {
                                                  text.length(),
                                                  mimeType,
                                                  checksum,
-                                                 createContentMetadata(cmd)))
+                                                 createContentProperties(cmd)))
                     .andThrow(new ContentStoreException("test-exception"));
                 EasyMock.expect(store.addContent(spaceId,
                                                  contentId,
@@ -234,13 +235,13 @@ public class ContentDuplicatorCreateTest {
                                                  text.length(),
                                                  mimeType,
                                                  checksum,
-                                                 createContentMetadata(cmd)))
+                                                 createContentProperties(cmd)))
                     .andReturn(checksum);
                 break;
 
-            case EMPTY_METADATA:
+            case EMPTY_PROPERTIES:
                 // fall-through
-            case NULL_METADATA:
+            case NULL_PROPERTIES:
                 mimeType = mimeOther;
                 // fall-through
             default:
@@ -250,7 +251,7 @@ public class ContentDuplicatorCreateTest {
                                                  text.length(),
                                                  mimeType,
                                                  checksum,
-                                                 createContentMetadata(cmd)))
+                                                 createContentProperties(cmd)))
                     .andReturn(checksum);
         }
     }
@@ -265,7 +266,7 @@ public class ContentDuplicatorCreateTest {
     }
 
     private enum Mode {
-        OK, EMPTY_METADATA, NULL_METADATA, NULL_CONTENT, NULL_INPUT,
+        OK, EMPTY_PROPERTIES, NULL_PROPERTIES, NULL_CONTENT, NULL_INPUT,
         ADD_EXCEPTION, NOT_FOUND_EXCEPTION;
     }
 

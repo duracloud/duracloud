@@ -91,10 +91,10 @@ public class TestContentStore {
     public void setUp() throws Exception {
         if(!spaceExists(spaceId)) {
             // Create space
-            Map<String, String> spaceMetadata = new HashMap<String, String>();
-            spaceMetadata.put(ContentStore.SPACE_ACCESS,
+            Map<String, String> spaceProperties = new HashMap<String, String>();
+            spaceProperties.put(ContentStore.SPACE_ACCESS,
                               ContentStore.AccessType.OPEN.name());
-            createSpace(spaceId, spaceMetadata);
+            createSpace(spaceId, spaceProperties);
         }
     }
 
@@ -221,11 +221,11 @@ public class TestContentStore {
         createSpace(id, null);
     }
 
-    private void createSpace(String spaceId, Map<String, String> spaceMetadata)
+    private void createSpace(String spaceId, Map<String, String> spaceProperties)
         throws Exception {
         boolean spaceExists = spaceExists(spaceId);
         if(!spaceExists) {
-            store.createSpace(spaceId, spaceMetadata);
+            store.createSpace(spaceId, spaceProperties);
             log.info("Created Space " + spaceId);
 
             int maxLoops = 20;
@@ -254,8 +254,8 @@ public class TestContentStore {
     }
 
     @Test
-    public void testSpaceMetadata() throws Exception {
-        String metaName = "test-metadata";
+    public void testSpaceProperties() throws Exception {
+        String metaName = "test-properties";
         String metaValue = "test-value";
 
         // Check space
@@ -264,33 +264,33 @@ public class TestContentStore {
         assertTrue(spaces.size() >= 1);
         assertTrue(spaces.contains(spaceId));
 
-        Map<String, String> responseMetadata = store.getSpaceMetadata(spaceId);
-        assertNotNull(responseMetadata);
+        Map<String, String> responseProperties = store.getSpaceProperties(spaceId);
+        assertNotNull(responseProperties);
 
-        // Check space metadata
-        assertNotNull(responseMetadata);
+        // Check space properties
+        assertNotNull(responseProperties);
         assertEquals(ContentStore.AccessType.OPEN.name(),
-                     responseMetadata.get(ContentStore.SPACE_ACCESS));
-        assertNotNull(responseMetadata.get(ContentStore.SPACE_COUNT));
-        assertNotNull(responseMetadata.get(ContentStore.SPACE_CREATED));
+                     responseProperties.get(ContentStore.SPACE_ACCESS));
+        assertNotNull(responseProperties.get(ContentStore.SPACE_COUNT));
+        assertNotNull(responseProperties.get(ContentStore.SPACE_CREATED));
         assertEquals(ContentStore.AccessType.OPEN, store.getSpaceAccess(spaceId));
 
-        // Set space metadata
-        metaValue = "Testing Metadata Value";
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(ContentStore.SPACE_ACCESS,
+        // Set space properties
+        metaValue = "Testing Properties Value";
+        Map<String, String> spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(ContentStore.SPACE_ACCESS,
                           ContentStore.AccessType.CLOSED.name());
-        spaceMetadata.put(metaName, metaValue);
-        store.setSpaceMetadata(spaceId, spaceMetadata);
+        spaceProperties.put(metaName, metaValue);
+        store.setSpaceProperties(spaceId, spaceProperties);
 
-        // Check space metadata
-        responseMetadata = store.getSpaceMetadata(spaceId);
-        assertNotNull(responseMetadata);
+        // Check space properties
+        responseProperties = store.getSpaceProperties(spaceId);
+        assertNotNull(responseProperties);
         assertEquals(ContentStore.AccessType.CLOSED.name(),
-                     responseMetadata.get(ContentStore.SPACE_ACCESS));
-        assertNotNull(responseMetadata.get(ContentStore.SPACE_COUNT));
-        assertNotNull(responseMetadata.get(ContentStore.SPACE_CREATED));
-        assertEquals(metaValue, responseMetadata.get(metaName));
+                     responseProperties.get(ContentStore.SPACE_ACCESS));
+        assertNotNull(responseProperties.get(ContentStore.SPACE_COUNT));
+        assertNotNull(responseProperties.get(ContentStore.SPACE_CREATED));
+        assertEquals(metaValue, responseProperties.get(metaName));
         assertEquals(ContentStore.AccessType.CLOSED,
                      store.getSpaceAccess(spaceId));
 
@@ -317,7 +317,7 @@ public class TestContentStore {
         }
 
         try {
-            store.getSpaceMetadata(invalidSpaceId);
+            store.getSpaceProperties(invalidSpaceId);
             fail("Exception expected on getSpace(invalidSpaceId)");
         } catch(NotFoundException expected) {
         }
@@ -335,14 +335,14 @@ public class TestContentStore {
         }
 
         try {
-            store.getSpaceMetadata(invalidSpaceId);
-            fail("Exception expected on getSpaceMetadata(invalidSpaceId)");
+            store.getSpaceProperties(invalidSpaceId);
+            fail("Exception expected on getSpaceProperties(invalidSpaceId)");
         } catch(NotFoundException expected) {
         }
 
         try {
-            store.setSpaceMetadata(invalidSpaceId, emptyMap);
-            fail("Exception expected on setSpaceMetadata(invalidSpaceId)");
+            store.setSpaceProperties(invalidSpaceId, emptyMap);
+            fail("Exception expected on setSpaceProperties(invalidSpaceId)");
         } catch(NotFoundException expected) {
         }
 
@@ -373,15 +373,15 @@ public class TestContentStore {
 
         try {
             String contentId = "test-content";
-            store.getContentMetadata(invalidSpaceId, contentId);
-            fail("Exception expected on getContentMetadata(invalidSpaceId, ...)");
+            store.getContentProperties(invalidSpaceId, contentId);
+            fail("Exception expected on getContentProperties(invalidSpaceId, ...)");
         } catch(NotFoundException expected) {
         }
 
         try {
             String contentId = "test-content";
-            store.setContentMetadata(invalidSpaceId, contentId, emptyMap);
-            fail("Exception expected on setContentMetadata(invalidSpaceId, ...)");
+            store.setContentProperties(invalidSpaceId, contentId, emptyMap);
+            fail("Exception expected on setContentProperties(invalidSpaceId, ...)");
         } catch(NotFoundException expected) {
         }
     }
@@ -518,10 +518,10 @@ public class TestContentStore {
         String content = "This is the information stored as content";
         InputStream contentStream = IOUtil.writeStringToStream(content);
         String contentMimeType = "text/plain";
-        String metaName = "test content metadata";
-        String metaValue = "Testing Content Metadata";
-        Map<String, String> contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(metaName, metaValue);
+        String metaName = "test content properties";
+        String metaValue = "Testing Content Properties";
+        Map<String, String> contentProperties = new HashMap<String, String>();
+        contentProperties.put(metaName, metaValue);
 
         // Add content
         String checksum = store.addContent(spaceId,
@@ -530,7 +530,7 @@ public class TestContentStore {
                                            content.length(),
                                            contentMimeType,
                                            null,
-                                           contentMetadata);
+                                           contentProperties);
         // Check content checksum
         assertNotNull(checksum);
         ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
@@ -543,33 +543,33 @@ public class TestContentStore {
         assertEquals(content,
                      IOUtil.readStringFromStream(responseContent.getStream()));
 
-        // Check content metadata
-        Map<String, String> responseMetadata = responseContent.getMetadata();
-        assertEquals(metaValue, responseMetadata.get(metaName));
+        // Check content properties
+        Map<String, String> responseProperties = responseContent.getProperties();
+        assertEquals(metaValue, responseProperties.get(metaName));
         assertEquals(checksum,
-                     responseMetadata.get(ContentStore.CONTENT_CHECKSUM));
+                     responseProperties.get(ContentStore.CONTENT_CHECKSUM));
         assertEquals(contentMimeType,
-                     responseMetadata.get(ContentStore.CONTENT_MIMETYPE));
+                     responseProperties.get(ContentStore.CONTENT_MIMETYPE));
         assertEquals(String.valueOf(content.length()),
-                     responseMetadata.get(ContentStore.CONTENT_SIZE));
-        assertNotNull(responseMetadata.get(ContentStore.CONTENT_MODIFIED));
+                     responseProperties.get(ContentStore.CONTENT_SIZE));
+        assertNotNull(responseProperties.get(ContentStore.CONTENT_MODIFIED));
 
-        // Set content metadata
-        metaValue = "New Metadata Value";
-        contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(metaName, metaValue);
-        store.setContentMetadata(spaceId, contentId, contentMetadata);
+        // Set content properties
+        metaValue = "New Properties Value";
+        contentProperties = new HashMap<String, String>();
+        contentProperties.put(metaName, metaValue);
+        store.setContentProperties(spaceId, contentId, contentProperties);
 
-        // Check content metadata
-        responseMetadata = store.getContentMetadata(spaceId, contentId);
-        assertEquals(metaValue, responseMetadata.get(metaName));
+        // Check content properties
+        responseProperties = store.getContentProperties(spaceId, contentId);
+        assertEquals(metaValue, responseProperties.get(metaName));
         assertEquals(checksum,
-                     responseMetadata.get(ContentStore.CONTENT_CHECKSUM));
+                     responseProperties.get(ContentStore.CONTENT_CHECKSUM));
         assertEquals(contentMimeType,
-                     responseMetadata.get(ContentStore.CONTENT_MIMETYPE));
+                     responseProperties.get(ContentStore.CONTENT_MIMETYPE));
         assertEquals(String.valueOf(content.length()),
-                     responseMetadata.get(ContentStore.CONTENT_SIZE));
-        assertNotNull(responseMetadata.get(ContentStore.CONTENT_MODIFIED));
+                     responseProperties.get(ContentStore.CONTENT_SIZE));
+        assertNotNull(responseProperties.get(ContentStore.CONTENT_MODIFIED));
 
         // Delete content
         store.deleteContent(spaceId, contentId);
@@ -587,8 +587,8 @@ public class TestContentStore {
         Map<String, String> emptyMap = new HashMap<String, String>();
 
         // Create space
-        Map<String, String> spaceMetadata = store.getSpaceMetadata(spaceId);
-        assertNotNull(spaceMetadata);
+        Map<String, String> spaceProperties = store.getSpaceProperties(spaceId);
+        assertNotNull(spaceProperties);
 
         try {
             store.deleteContent(spaceId, invalidContentId);
@@ -603,14 +603,14 @@ public class TestContentStore {
         }
 
         try {
-            store.getContentMetadata(spaceId, invalidContentId);
-            fail("Exception expected on getContentMetadata(spaceId, invalidContentId)");
+            store.getContentProperties(spaceId, invalidContentId);
+            fail("Exception expected on getContentProperties(spaceId, invalidContentId)");
         } catch(NotFoundException expected) {
         }
 
         try {
-            store.setContentMetadata(spaceId, invalidContentId, emptyMap);
-            fail("Exception expected on setContentMetadata(spaceId, invalidContentId, ...)");
+            store.setContentProperties(spaceId, invalidContentId, emptyMap);
+            fail("Exception expected on setContentProperties(spaceId, invalidContentId, ...)");
         } catch(NotFoundException expected) {
         }
     }

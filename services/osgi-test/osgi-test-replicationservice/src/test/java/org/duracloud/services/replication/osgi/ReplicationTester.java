@@ -119,8 +119,8 @@ public class ReplicationTester {
 
     private void createSpace(String spaceId)
         throws ContentStoreException {
-        Map<String, String> metadata = null;
-        contentStore.createSpace(spaceId, metadata);
+        Map<String, String> properties = null;
+        contentStore.createSpace(spaceId, properties);
 
         boolean created = false;
         int maxTries = 10;
@@ -143,7 +143,7 @@ public class ReplicationTester {
 
         long contentSize = text.length();
         String mime = "text/plain";
-        Map<String, String> metadata = null;
+        Map<String, String> properties = null;
 
         return contentStore.addContent(spaceId,
                                        contentId,
@@ -151,7 +151,7 @@ public class ReplicationTester {
                                        contentSize,
                                        mime,
                                        null,
-                                       metadata);
+                                       properties);
     }
 
     private void sleep(long millis) {

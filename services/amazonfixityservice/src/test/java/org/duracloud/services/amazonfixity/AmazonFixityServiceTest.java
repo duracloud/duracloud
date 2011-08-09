@@ -208,7 +208,7 @@ public class AmazonFixityServiceTest {
             shutting down: org.duracloud.services.amazonmapreduce.postprocessing.MultiPostJobWorker
             shutting down: org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker
             shutting down: org.duracloud.services.amazonfixity.postprocessing.WrapperPostJobWorker
-            shutting down: org.duracloud.services.amazonfixity.AmazonFixityMetadataJobWorker
+            shutting down: org.duracloud.services.amazonfixity.AmazonFixityPropertiesJobWorker
             shutting down: org.duracloud.services.amazonmapreduce.postprocessing.HeaderPostJobWorker
             shutting down: org.duracloud.services.amazonfixity.postprocessing.VerifyHashesPostJobWorker
             FixityService is Stopping

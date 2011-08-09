@@ -87,10 +87,10 @@ public class TestAnonymousAccess extends ClientTestBase {
     }
 
     @Test
-    public void testGetSpaceMetadata() throws ContentStoreException {
+    public void testGetSpaceProperties() throws ContentStoreException {
         boolean allowed = true;
         try {
-            store.getSpaceMetadata(getSpaceId());
+            store.getSpaceProperties(getSpaceId());
         } catch (UnauthorizedException e) {
             allowed = false;
         }
@@ -109,13 +109,13 @@ public class TestAnonymousAccess extends ClientTestBase {
     }
 
     @Test
-    public void testSetSpaceMetadata() throws ContentStoreException {
+    public void testSetSpaceProperties() throws ContentStoreException {
         boolean allowed = true;
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put("name-x", "value-x");
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put("name-x", "value-x");
 
         try {
-            store.setSpaceMetadata(getSpaceId(), metadata);
+            store.setSpaceProperties(getSpaceId(), properties);
         } catch (UnauthorizedException e) {
             allowed = false;
         }
@@ -145,10 +145,10 @@ public class TestAnonymousAccess extends ClientTestBase {
     }
 
     @Test
-    public void testGetContentMetadata() throws ContentStoreException {
+    public void testGetContentProperties() throws ContentStoreException {
         boolean allowed = true;
         try {
-            store.getContentMetadata(getSpaceId(), getContentId());
+            store.getContentProperties(getSpaceId(), getContentId());
         } catch (UnauthorizedException e) {
             allowed = false;
         }
@@ -175,12 +175,12 @@ public class TestAnonymousAccess extends ClientTestBase {
     }
 
     @Test
-    public void testSetContentMetadata() throws ContentStoreException {
+    public void testSetContentProperties() throws ContentStoreException {
         boolean allowed = true;
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put("name-x", "value-x");
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put("name-x", "value-x");
         try {
-            store.setContentMetadata(getSpaceId(), getContentId(), metadata);
+            store.setContentProperties(getSpaceId(), getContentId(), properties);
         } catch (UnauthorizedException e) {
             allowed = false;
         }

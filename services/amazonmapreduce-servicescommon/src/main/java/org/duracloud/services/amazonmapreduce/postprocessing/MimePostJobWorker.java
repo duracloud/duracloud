@@ -111,11 +111,11 @@ public class MimePostJobWorker extends BaseAmazonMapReducePostJobWorker {
     private void setContentMimeType(String contentId, String mime) {
         log.debug("setting mime of: " + contentId + ", to: " + mime);
 
-        Map<String, String> metadata;
+        Map<String, String> properties;
         try {
-            metadata = contentStore.getContentMetadata(spaceId, contentId);
-            metadata.put(ContentStore.CONTENT_MIMETYPE, mime);
-            contentStore.setContentMetadata(spaceId, contentId, metadata);
+            properties = contentStore.getContentProperties(spaceId, contentId);
+            properties.put(ContentStore.CONTENT_MIMETYPE, mime);
+            contentStore.setContentProperties(spaceId, contentId, properties);
 
         } catch (ContentStoreException e) {
             StringBuilder sb = new StringBuilder("Error setting mimetype for ");

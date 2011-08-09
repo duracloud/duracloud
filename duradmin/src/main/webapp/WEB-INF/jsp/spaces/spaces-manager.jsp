@@ -35,7 +35,7 @@
         <script type='text/javascript' src='${pageContext.request.contextPath}/jwplayer/swfobject.js'></script>
 
 		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.metadataviewer.js"></script>
+			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.propertiesviewer.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.tagsviewer.js"></script>
 		<script type="text/javascript"
@@ -129,7 +129,7 @@
 				<h2 class="object-name">Space(s) selected</h2>
 				<div class="button-bar">
 					<button class="featured delete-space-button dc-delete-button"><i class="pre trash"></i>Delete Selected Spaces</button>
-					<button class="add-remove-metadata-button"><i class="pre pencil"></i>Edit Metadata</button>
+					<button class="add-remove-properties-button"><i class="pre pencil"></i>Edit Properties</button>
 					
 				</div>
 
@@ -145,7 +145,7 @@
 				<div class="button-bar">
 					<button class="featured delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete</button>
 					<button class="edit-selected-content-items-button"><i class="pre pencil"></i>Edit</button>
-					<button class="add-remove-metadata-button"><i class="pre pencil"></i>Edit Metadata</button>
+					<button class="add-remove-properties-button"><i class="pre pencil"></i>Edit Properties</button>
 	
 				</div>
 
@@ -257,9 +257,9 @@
 				</div>
 
 
-				<div id="add-remove-metadata-dialog" class="dialog" style="display:none;overflow:auto"
-					title="Add/Remove Metadata and Tags">
-				<h1 class="dc-dialog-title">Add/Remove Metadata and Tags</h1>
+				<div id="add-remove-properties-dialog" class="dialog" style="display:none;overflow:auto"
+					title="Add/Remove Properties and Tags">
+				<h1 class="dc-dialog-title">Add/Remove Properties and Tags</h1>
 				<p class="hint"></p>
 					<div class="center">
 					

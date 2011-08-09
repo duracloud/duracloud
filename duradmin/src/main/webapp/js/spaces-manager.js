@@ -204,7 +204,7 @@ $(function(){
 	
 	var showMultiSpaceDetail = function(){
 		var detail = $("#spaceMultiSelectPane").clone();
-		//loadMetadataPane(multiSpace);
+		//loadPropertiesPane(multiSpace);
 		//loadTagPane(multiSpace);
 		$("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
 
@@ -263,8 +263,8 @@ $(function(){
 		});
 
 		
-		$(".add-remove-metadata-button",detail).click(function(evt){
-			prepareMetadataDialog("space");
+		$(".add-remove-properties-button",detail).click(function(evt){
+			preparePropertiesDialog("space");
 		});
 
 	};
@@ -420,8 +420,8 @@ $(function(){
 		});
 
 		
-		$(".add-remove-metadata-button",detail).click(function(evt){
-			prepareMetadataDialog("contentItem");
+		$(".add-remove-properties-button",detail).click(function(evt){
+			preparePropertiesDialog("contentItem");
 		});
 
 		
@@ -431,7 +431,7 @@ $(function(){
 	
 	};
 	
-	var prepareMetadataDialog = function(targetListDataType){
+	var preparePropertiesDialog = function(targetListDataType){
 		var items, getFunction;
 		if(targetListDataType == "contentItem"){
 			items = getSelectedContentItems();
@@ -445,9 +445,9 @@ $(function(){
 			};
 		}
 
-		aggregateMetadataFromSelection(items,getFunction,{
+		aggregatePropertiesFromSelection(items,getFunction,{
 			success: function(data){
-				loadMetadataDialog(data,targetListDataType);
+				loadPropertiesDialog(data,targetListDataType);
 			},
 			failure: function(text){
 				alert("unable to load selection:" + text);
@@ -492,9 +492,9 @@ $(function(){
 	};
 
 
-	var aggregateMetadataFromSelection = function(items, getFunction, fcallback){
+	var aggregatePropertiesFromSelection = function(items, getFunction, fcallback){
 		dc.busy("Loading selection...", {modal: true});
-		var metadataLists = [];
+		var propertiesLists = [];
 		var tagLists = [];
 		var job = dc.util.createJob("load-content-items");	
 		for(i in items){
@@ -505,8 +505,8 @@ $(function(){
 							this._item,
 							{
 								success:function(obj){
-									metadataLists.push(obj.extendedMetadata);
-									tagLists.push(obj.metadata.tags);
+									propertiesLists.push(obj.extendedProperties);
+									tagLists.push(obj.properties.tags);
 									callback.success();
 								},
 								failure: function(message){
@@ -531,11 +531,11 @@ $(function(){
 			done: function(job){
 				dc.log("done:" + job);
 				dc.done();
-				var metadata = [];
+				var properties = [];
 				var tags = [];
 				var i;
-				for(i = 0; i < metadataLists.length; i++){
-					appendToListIfNew(metadataLists[i],metadata, function(a,b){ return a.name == b.name && a.value == b.value;});
+				for(i = 0; i < propertiesLists.length; i++){
+					appendToListIfNew(propertiesLists[i],properties, function(a,b){ return a.name == b.name && a.value == b.value;});
 				}
 				
 				for(i = 0; i < tagLists.length; i++){
@@ -543,7 +543,7 @@ $(function(){
 				}
 				
 				fcallback.success({
-					metadata: metadata,
+					properties: properties,
 					tags: tags,
 				});
 			}, 
@@ -552,13 +552,13 @@ $(function(){
 		
 	};
 	
-	var loadMetadataDialog = function(data, targetListType){
-		var metadataToBeAdded = [];
-		var metadataToBeRemoved = [];
+	var loadPropertiesDialog = function(data, targetListType){
+		var propertiesToBeAdded = [];
+		var propertiesToBeRemoved = [];
 		var tagsToBeAdded = [];
 		var tagsToBeRemoved = [];
 
-		var mp = createMetadataPane(data.metadata);
+		var mp = createPropertiesPane(data.properties);
 		
 		var equals = function(a,b){
 			return (a.name == b.name && a.value == b.value);
@@ -582,16 +582,16 @@ $(function(){
 			var value = future.value;
 			future.success();
 			//if in the removed list, remove from remove list
-			removeValueFromList(value,metadataToBeRemoved, equals);
-			removeValueFromList(value,metadataToBeAdded, equals);
-			metadataToBeAdded.push(value);
+			removeValueFromList(value,propertiesToBeRemoved, equals);
+			removeValueFromList(value,propertiesToBeAdded, equals);
+			propertiesToBeAdded.push(value);
 		}).bind("dc-remove", function(evt, future){
 			evt.stopPropagation();
 			future.success();
 			var value = future.value;
-			if(removeValueFromList(value, metadataToBeAdded, equals) == null){
-				removeValueFromList(value, metadataToBeRemoved, equals);
-				metadataToBeRemoved.push(value);
+			if(removeValueFromList(value, propertiesToBeAdded, equals) == null){
+				removeValueFromList(value, propertiesToBeRemoved, equals);
+				propertiesToBeRemoved.push(value);
 			}
 		});
 
@@ -617,8 +617,8 @@ $(function(){
 		
 		var saveFunction = function(){
 			var msg = "Applying the following changes: \n";
-			for(i in metadataToBeRemoved){
-				var m = metadataToBeRemoved[i];
+			for(i in propertiesToBeRemoved){
+				var m = propertiesToBeRemoved[i];
 				msg +="\tremoving: " + m.name + "=" + m.value + "\n";
 			}
 
@@ -626,8 +626,8 @@ $(function(){
 				msg +="\tremoving: " + tagsToBeRemoved[i] + "\n";
 			}
 
-			for(i in metadataToBeAdded){
-				var m = metadataToBeAdded[i];
+			for(i in propertiesToBeAdded){
+				var m = propertiesToBeAdded[i];
 				msg +="\tadding: " + m.name + "=" + m.value + "\n";
 			}
 
@@ -637,18 +637,18 @@ $(function(){
 			
 			if(confirm(msg)){
 				var params = {
-					metadataToRemove: metadataToBeRemoved, 
-					metadataToAdd:    metadataToBeAdded,
+					propertiesToRemove: propertiesToBeRemoved,
+					propertiesToAdd:    propertiesToBeAdded,
 					tagsToRemove:     tagsToBeRemoved, 
 					tagsToAdd:        tagsToBeAdded,
 				};
 				
 				if(targetListType == "contentItem"){
 					params.contentItems = getSelectedContentItems();
-					bulkUpdateContentMetadata(params);
+					bulkUpdateContentProperties(params);
 				}else{
 					params.spaces = getSelectedSpaces();
-					bulkUpdateSpaceMetadata(params);
+					bulkUpdateSpaceProperties(params);
 				}
 
 				d.dialog("close");
@@ -658,7 +658,7 @@ $(function(){
 		};
 		
 		
-		var d = initializeMetadataDialog(saveFunction);
+		var d = initializePropertiesDialog(saveFunction);
 
 
 		var pane = $(".center", d);
@@ -678,8 +678,8 @@ $(function(){
 		return str;
 	};
 	
-	var bulkUpdateContentMetadata = function(params){
-		var job = dc.util.createJob("bulk-update-content-metadata");	
+	var bulkUpdateContentProperties = function(params){
+		var job = dc.util.createJob("bulk-update-content-properties");
 		var contentItems = params.contentItems;
 		var i;
 		for(i = 0; i < contentItems.length; i++){
@@ -689,15 +689,15 @@ $(function(){
 				execute: function(callback){
 					var that = this;
 					var citem = that._contentItem;
-					addRemoveContentItemMetadata(citem.spaceId, citem.contentId, params,callback);
+					addRemoveContentItemProperties(citem.spaceId, citem.contentId, params,callback);
 				},
 			});
 		}
 		job.execute(createGenericJobCallback("Updating content items: "));
 	};
 
-	var bulkUpdateSpaceMetadata = function(params){
-		var job = dc.util.createJob("bulk-update-space-metadata");	
+	var bulkUpdateSpaceProperties = function(params){
+		var job = dc.util.createJob("bulk-update-space-properties");
 		var spaces = params.spaces;
 		var i;
 		for(i = 0; i < spaces.length; i++){
@@ -705,7 +705,7 @@ $(function(){
 			job.addTask({
 				_space: space,
 				execute: function(callback){
-					addRemoveSpaceMetadata(this._space.spaceId, params,callback);
+					addRemoveSpaceProperties(this._space.spaceId, params,callback);
 				},
 			});
 		}
@@ -736,8 +736,8 @@ $(function(){
 		};
 	};
 	
-	var initializeMetadataDialog = function(saveFunction){
-		var d = $("#add-remove-metadata-dialog");
+	var initializePropertiesDialog = function(saveFunction){
+		var d = $("#add-remove-properties-dialog");
 		d.dialog({
 			autoOpen: false,
 			show: 'blind',
@@ -770,12 +770,12 @@ $(function(){
 	};
 
 	// ////////////////////////////////////////
-	// //functions for loading metadata, tags and properties
+	// //functions for loading properties, tags and properties
 
-	var createMetadataPane = function(extendedMetadata){
+	var createPropertiesPane = function(extendedProperties){
 		var viewerPane = $.fn.create("div")
-						.metadataviewer({title: "Metadata"})
-						.metadataviewer("load",extendedMetadata);
+						.propertiesviewer({title: "Properties"})
+						.propertiesviewer("load",extendedProperties);
 		return viewerPane;
 	};
 
@@ -786,8 +786,8 @@ $(function(){
 		return viewerPane;
 	};
 
-	var loadMetadataPane = function(target, extendedMetadata){
-		var viewerPane = createMetadataPane(extendedMetadata);
+	var loadPropertiesPane = function(target, extendedProperties){
+		var viewerPane = createPropertiesPane(extendedProperties);
 		$(".center", target).append(viewerPane);
 		return viewerPane;
 	};
@@ -944,7 +944,7 @@ $(function(){
 
 
 	var loadPreview = function(target,contentItem,j2kBaseURL){
-		//run synchronous call to retrieve space.metadata.open  property
+		//run synchronous call to retrieve space.properties.open  property
 		//if closed and j2K service is running, we must display
 		//notify the user that the space must be opened.
 		//the call must be synchronous - otherwise the panels 
@@ -962,7 +962,7 @@ $(function(){
 							'speedIn'		:	600, 
 							'speedOut'		:	200, 
 							'overlayShow'	:	false};
-					var open = space.metadata.access == 'OPEN';
+					var open = space.properties.access == 'OPEN';
 					var externalViewer = j2kBaseURL != null && open;
 					var viewerURL,thumbnailURL;
 	
@@ -1511,7 +1511,7 @@ $(function(){
 		d.find("input[name=storeId]").val(contentItem ? contentItem.storeId : "");
 		d.find("input[name=spaceId]").val(contentItem ? contentItem.spaceId : "");
 		d.find("input[name=contentId]").val(contentItem ? contentItem.contentId : "");
-		d.find("input[name=contentMimetype]").val(contentItem ? contentItem.metadata.mimetype : "");
+		d.find("input[name=contentMimetype]").val(contentItem ? contentItem.properties.mimetype : "");
 		
 		d.dialog({
 			autoOpen: false,
@@ -1678,7 +1678,7 @@ $(function(){
 		
 		// create access switch and bind on/off listeners
 		$(".access-switch", detail).accessswitch({
-				initialState: (space.metadata.access=="OPEN"?"on":"off")
+				initialState: (space.properties.access=="OPEN"?"on":"off")
 			}).bind("turnOn", function(evt, future){
 				toggleSpaceAccess(space, future);
 			}).bind("turnOff", function(evt, future){
@@ -1714,16 +1714,16 @@ $(function(){
 			setTimeout(pollItemCount, 10000);
 		}
 		
-		var mp = loadMetadataPane(detail, space.extendedMetadata);
+		var mp = loadPropertiesPane(detail, space.extendedProperties);
 		
 		$(mp).bind("dc-add", function(evt, future){
 				var value = future.value;
-				addSpaceMetadata(space.spaceId, value.name, value.value, future);
+				addSpaceProperties(space.spaceId, value.name, value.value, future);
 			}).bind("dc-remove", function(evt, future){
-				removeSpaceMetadata(space.spaceId, future.value.name,future);
+				removeSpaceProperties(space.spaceId, future.value.name,future);
 			});
 		
-		var tag = loadTagPane(detail, space.metadata.tags);
+		var tag = loadTagPane(detail, space.properties.tags);
 
 		$(tag).bind("dc-add", function(evt, future){
 			var value = future.value[0];
@@ -1742,14 +1742,14 @@ $(function(){
 	
 	var extractSpaceProperties = function(space){
 		return [ 
-					['Items', (space.itemCount == null || space.itemCount == undefined || space.itemCount < 0 ? space.metadata.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
-					['Created', space.metadata.created],
-                    ['Size', space.metadata.size],                    
+					['Items', (space.itemCount == null || space.itemCount == undefined || space.itemCount < 0 ? space.properties.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
+					['Created', space.properties.created],
+                    ['Size', space.properties.size],
 			   ];
 	};
 
 	var extractContentItemProperties = function(contentItem){
-		var m = contentItem.metadata;
+		var m = contentItem.properties;
 		return [
 			        ["Space", contentItem.spaceId],
 			        ["Size", m.size],
@@ -1778,7 +1778,7 @@ $(function(){
 				deleteContentItem(evt,contentItem);
 			});
 		
-		var mimetype = contentItem.metadata.mimetype;
+		var mimetype = contentItem.properties.mimetype;
 		
 		if(mimetype.indexOf("image") == 0){
 			if(j2kViewerBaseURL != ""){
@@ -1807,21 +1807,21 @@ $(function(){
 
 		loadProperties(pane, extractContentItemProperties(contentItem));
 		// load the details panel
-		var mimetype = contentItem.metadata.mimetype;
+		var mimetype = contentItem.properties.mimetype;
 		$(".mime-type .value", pane).text(mimetype);
 		$(".mime-type-image-holder", pane).addClass(dc.getMimetypeImageClass(mimetype));
 
-		var mp = loadMetadataPane(pane, contentItem.extendedMetadata);
+		var mp = loadPropertiesPane(pane, contentItem.extendedProperties);
 		
 		
 		$(mp).bind("dc-add", function(evt, future){
 				var value = future.value;
-				addContentItemMetadata(contentItem.spaceId, contentItem.contentId, value.name, value.value, future);
+				addContentItemProperties(contentItem.spaceId, contentItem.contentId, value.name, value.value, future);
 			}).bind("dc-remove", function(evt, future){
-				removeContentItemMetadata(contentItem.spaceId, contentItem.contentId, future.value.name,future);
+				removeContentItemProperties(contentItem.spaceId, contentItem.contentId, future.value.name,future);
 			});
 		
-		var tag = loadTagPane(pane, contentItem.metadata.tags);
+		var tag = loadTagPane(pane, contentItem.properties.tags);
 
 		$(tag).bind("dc-add", function(evt, future){
 			var value = future.value[0];
@@ -2000,10 +2000,10 @@ $(function(){
 		listCount = list.selectablelist("length");
 		listView.find(".dc-show-more-link").remove();
 		
-		if(space.metadata.count == 0){
+		if(space.properties.count == 0){
 			statusTxt = "";
 		}else{
-			totalCount = (getFilterText() == '' ? space.metadata.count : "?");
+			totalCount = (getFilterText() == '' ? space.properties.count : "?");
 			if(listCount == 0 && space.contents.length == 0){
 				statusText = "";
 			}else{
@@ -2017,7 +2017,7 @@ $(function(){
 			listView.find(".dc-item-list-controls").html('').append(createShowMoreLink());
 			list.selectablelist("setFooter", createShowMoreLink());
 		}else{
-			if(space.metadata.count == 0){
+			if(space.properties.count == 0){
 				list.selectablelist("setFooter",$.fn.create("div").html("This space is empty."));
 			}else{
 				list.selectablelist("setFooter",'');
@@ -2118,12 +2118,12 @@ $(function(){
 	};
 
 	var toggleSpaceAccess = function(space, callback){
-		var access = space.metadata.access;
+		var access = space.properties.access;
 		var newAccess = (access == "OPEN") ? "CLOSED":"OPEN";
 		changeSpaceAccess(space.storeId, space.spaceId, newAccess,callback);
 	};
 
-	var createSpaceMetadataCall = function(spaceId, data, method,callback){
+	var createSpacePropertiesCall = function(spaceId, data, method,callback){
 		var newData = data + "&method=" + method;
 		var storeId = getCurrentProviderStoreId();
 		return {
@@ -2144,46 +2144,46 @@ $(function(){
 	
 
 	
-	var addSpaceMetadata = function(spaceId, name, value, callback){
-		var data = "metadata-name=" + encodeURIComponent(name) +"&metadata-value="+encodeURIComponent(value);
-		dc.ajax(createSpaceMetadataCall(spaceId, data, "addMetadata", callback));		
+	var addSpaceProperties = function(spaceId, name, value, callback){
+		var data = "properties-name=" + encodeURIComponent(name) +"&properties-value="+encodeURIComponent(value);
+		dc.ajax(createSpacePropertiesCall(spaceId, data, "addProperties", callback));
 	};
 
-	var removeSpaceMetadata = function(spaceId, name,callback){
-		var data = "metadata-name=" + encodeURIComponent(name);
-		dc.ajax(createSpaceMetadataCall(spaceId, data, "removeMetadata", callback));		
+	var removeSpaceProperties = function(spaceId, name,callback){
+		var data = "properties-name=" + encodeURIComponent(name);
+		dc.ajax(createSpacePropertiesCall(spaceId, data, "removeProperties", callback));
 	};
 
 	var addSpaceTag = function(spaceId, tag, callback){
 		var data = "tag="+ encodeURIComponent(tag);
-		dc.ajax(createSpaceMetadataCall(spaceId, data, "addTag", callback));		
+		dc.ajax(createSpacePropertiesCall(spaceId, data, "addTag", callback));
 	};
 
 	var removeSpaceTag = function(spaceId, tag,callback){
 		var data = "tag="+encodeURIComponent(tag);
-		dc.ajax(createSpaceMetadataCall(spaceId, data, "removeTag", callback));		
+		dc.ajax(createSpacePropertiesCall(spaceId, data, "removeTag", callback));
 	};
 
-	var addRemoveSpaceMetadata = function(spaceId, params,callback){
-		dc.ajax(createSpaceMetadataCall(spaceId, formatBulkMetadataUpdateParams(params), "addRemove", callback));		
+	var addRemoveSpaceProperties = function(spaceId, params,callback){
+		dc.ajax(createSpacePropertiesCall(spaceId, formatBulkPropertiesUpdateParams(params), "addRemove", callback));
 	};
 	
-	var formatBulkMetadataUpdateParams = function(params){
+	var formatBulkPropertiesUpdateParams = function(params){
 		var data = "";
-		data += formatMetadataList(params.metadataToRemove, "remove");
-		data += formatMetadataList(params.metadataToAdd, "add");
+		data += formatPropertiesList(params.propertiesToRemove, "remove");
+		data += formatPropertiesList(params.propertiesToAdd, "add");
 		data += formatParamList(params.tagsToRemove, "tag", "remove");
 		data += formatParamList(params.tagsToAdd, "tag", "add");
 		return data;
 	};
 
-	var formatMetadataList = function(list, fieldNameModifier){
+	var formatPropertiesList = function(list, fieldNameModifier){
 		var i, list,item,data;
 		data = "";
 		for(i = 0; i < list.length; i++){
 			item = list[i];
-			data += "&metadata-name-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.name);
-			data += "&metadata-value-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.value);
+			data += "&properties-name-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.name);
+			data += "&properties-value-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.value);
 		}
 		return data;
 	};
@@ -2199,8 +2199,8 @@ $(function(){
 	};
 
 	// ///////////////////////////////////////////////////////////////////////////////
-	// /content metadata functions
-	var createContentItemMetadataCall = function(spaceId, contentId, data, method,callback){
+	// /content properties functions
+	var createContentItemPropertiesCall = function(spaceId, contentId, data, method,callback){
 		var newData = data + "&method=" + method;
 		var storeId = getCurrentProviderStoreId();
 		return {
@@ -2218,32 +2218,32 @@ $(function(){
 		};
 	};
 	
-	var addContentItemMetadata = function(spaceId, contentId, name, value, callback){
-		var data = "metadata-name=" + encodeURIComponent(name) +"&metadata-value="+encodeURIComponent(value);
-		dc.ajax(createContentItemMetadataCall(spaceId, contentId, data, "addMetadata", callback));		
+	var addContentItemProperties = function(spaceId, contentId, name, value, callback){
+		var data = "properties-name=" + encodeURIComponent(name) +"&properties-value="+encodeURIComponent(value);
+		dc.ajax(createContentItemPropertiesCall(spaceId, contentId, data, "addProperties", callback));
 	};
 
-	var removeContentItemMetadata = function(spaceId, contentId, name,callback){
-		var data = "metadata-name=" + encodeURIComponent(name);
-		dc.ajax(createContentItemMetadataCall(spaceId,contentId, data, "removeMetadata", callback));		
+	var removeContentItemProperties = function(spaceId, contentId, name,callback){
+		var data = "properties-name=" + encodeURIComponent(name);
+		dc.ajax(createContentItemPropertiesCall(spaceId,contentId, data, "removeProperties", callback));
 	};
 
 	var addContentItemTag = function(spaceId, contentId, tag, callback){
 		var data = "tag="+ encodeURIComponent(tag);
-		dc.ajax(createContentItemMetadataCall(spaceId,contentId, data, "addTag", callback));		
+		dc.ajax(createContentItemPropertiesCall(spaceId,contentId, data, "addTag", callback));
 	};
 
 	var removeContentItemTag = function(spaceId, contentId, tag,callback){
 		var data = "tag="+encodeURIComponent(tag);
-		dc.ajax(createContentItemMetadataCall(spaceId, contentId, data, "removeTag", callback));		
+		dc.ajax(createContentItemPropertiesCall(spaceId, contentId, data, "removeTag", callback));
 	};
 	
-	var addRemoveContentItemMetadata = function(spaceId, contentId, params,callback){
+	var addRemoveContentItemProperties = function(spaceId, contentId, params,callback){
 		dc.ajax(
-			createContentItemMetadataCall(
+			createContentItemPropertiesCall(
 				spaceId,
 				contentId,
-				formatBulkMetadataUpdateParams(params), 
+				formatBulkPropertiesUpdateParams(params),
 				"addRemove", 
 				callback));		
 	};

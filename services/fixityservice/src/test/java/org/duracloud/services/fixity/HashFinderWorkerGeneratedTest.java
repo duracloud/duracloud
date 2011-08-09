@@ -106,9 +106,9 @@ public class HashFinderWorkerGeneratedTest extends HashFinderWorkerTestBase {
                                          providedListingContentIdA)).andReturn(
             content).times(2);
 
-        EasyMock.expect(store.getContentMetadata(providedListingSpaceIdA,
-                                                 providedListingContentIdA))
-            .andReturn(getMetadata(getHash(text)));
+        EasyMock.expect(store.getContentProperties(providedListingSpaceIdA,
+                                                   providedListingContentIdA))
+            .andReturn(getProperties(getHash(text)));
 
         EasyMock.replay(store);
 

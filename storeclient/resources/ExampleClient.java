@@ -43,10 +43,11 @@ public class ExampleClient {
         List<String> storeIDs = store.getSpaces();
         for(String storeId : storeIDs) {
             System.out.println("Store ID: " + storeId);
-            Map<String, String> spaceMetadata = store.getSpaceMetadata(storeId);
-            for(String metadataKey : spaceMetadata.keySet()) {
-                System.out.println(metadataKey + ": " +
-                                   spaceMetadata.get(metadataKey));
+            Map<String, String> spaceProperties =
+                store.getSpaceProperties(storeId);
+            for(String propertiesKey : spaceProperties.keySet()) {
+                System.out.println(propertiesKey + ": " +
+                                   spaceProperties.get(propertiesKey));
             }
             System.out.println("---");
         }

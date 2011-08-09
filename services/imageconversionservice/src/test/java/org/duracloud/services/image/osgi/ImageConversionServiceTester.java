@@ -7,9 +7,6 @@
  */
 package org.duracloud.services.image.osgi;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -22,6 +19,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
+
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
  * Performs a test of the Image Conversion Service from within an OSGi
@@ -94,7 +95,7 @@ public class ImageConversionServiceTester {
 
             // Make sure that converted file exists
             Map<String, String> meta =
-                contentStore.getContentMetadata(destSpaceId, "testfile.jp2");
+                contentStore.getContentProperties(destSpaceId, "testfile.jp2");
             assertNotNull(meta);
         } finally {
             // Clean up

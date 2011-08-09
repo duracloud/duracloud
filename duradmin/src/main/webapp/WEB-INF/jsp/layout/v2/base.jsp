@@ -49,7 +49,7 @@
 	$(function() {
 
 		///////////////////////////////////////////////////////////////////////
-		////controls rollovers on tags and metadata
+		////controls rollovers on tags and properties
 		///////////////////////////////////////////////////////////////////////
 		$(".dc-mouse-panel-activator td, li.dc-mouse-panel-activator, .dc-mouse-panel").live("mouseover",function(evt){
 			var ancestor = $(evt.target).nearestOfClass(".dc-mouse-panel-activator");

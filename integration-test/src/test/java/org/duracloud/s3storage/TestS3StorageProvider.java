@@ -57,11 +57,12 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
     private S3StorageProvider s3Provider;
     private final List<String> spaceIds = new ArrayList<String>();
 
-    private static final String SPACE_META_NAME = "custom-space-metadata";
-    private static final String SPACE_META_VALUE = "Testing Space";
-    private static final String CONTENT_META_NAME = "custom-content-metadata";
-    private static final String CONTENT_META_VALUE = "Testing Content";
-    private static final String CONTENT_MIME_NAME = StorageProvider.METADATA_CONTENT_MIMETYPE;
+    private static final String SPACE_PROPS_NAME = "custom-space-properties";
+    private static final String SPACE_PROPS_VALUE = "Testing Space";
+    private static final String CONTENT_PROPS_NAME = "custom-content-properties";
+    private static final String CONTENT_PROPS_VALUE = "Testing Content";
+    private static final String CONTENT_MIME_NAME =
+        StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
     private static final String CONTENT_MIME_VALUE = "text/plain";
     private static final String CONTENT_DATA = "Test Content";
 
@@ -113,20 +114,20 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         // test createSpace()
         log.debug("Test createSpace()");
         s3Provider.createSpace(spaceId);
-        testSpaceMetadata(spaceId, AccessType.CLOSED);
+        testSpaceProperties(spaceId, AccessType.CLOSED);
 
-        // test setSpaceMetadata()
-        log.debug("Test setSpaceMetadata()");
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(SPACE_META_NAME, SPACE_META_VALUE);
-        s3Provider.setSpaceMetadata(spaceId, spaceMetadata);
+        // test setSpaceProperties()
+        log.debug("Test setSpaceProperties()");
+        Map<String, String> spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(SPACE_PROPS_NAME, SPACE_PROPS_VALUE);
+        s3Provider.setSpaceProperties(spaceId, spaceProperties);
 
-        // test getSpaceMetadata()
-        log.debug("Test getSpaceMetadata()");
-         Map<String, String> sMetadata =
-             testSpaceMetadata(spaceId, AccessType.CLOSED);
-        assertTrue(sMetadata.containsKey(SPACE_META_NAME));
-        assertEquals(SPACE_META_VALUE, sMetadata.get(SPACE_META_NAME));
+        // test getSpaceProperties()
+        log.debug("Test getSpaceProperties()");
+         Map<String, String> sProperties =
+             testSpaceProperties(spaceId, AccessType.CLOSED);
+        assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
+        assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
         // test getSpaces()
         log.debug("Test getSpaces()");
@@ -159,12 +160,12 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         // Expect a 403 forbidden error because bucket access is always restricted
         assertEquals(HttpStatus.SC_FORBIDDEN, spaceResponse.getStatusCode());
 
-        // test set space access via metadata update
-        log.debug("Test setSpaceMetadata(Access) ");
-        spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(StorageProvider.METADATA_SPACE_ACCESS,
+        // test set space access via properties update
+        log.debug("Test setSpaceProperties(Access) ");
+        spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(StorageProvider.PROPERTIES_SPACE_ACCESS,
                           AccessType.CLOSED.name());
-        s3Provider.setSpaceMetadata(spaceId, spaceMetadata);
+        s3Provider.setSpaceProperties(spaceId, spaceProperties);
 
         // test getSpaceAccess()
         log.debug("Test getSpaceAccess()");
@@ -178,18 +179,18 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         String contentId = getNewContentId();
         addContent(spaceId, contentId, CONTENT_MIME_VALUE, false);
 
-        // test getContentMetadata()
-        log.debug("Test getContentMetadata()");
-        Map<String, String> cMetadata = s3Provider.getContentMetadata(spaceId,
-                                                                      contentId);
-        assertNotNull(cMetadata);
-        assertEquals(CONTENT_MIME_VALUE, cMetadata.get(CONTENT_MIME_NAME));
+        // test getContentProperties()
+        log.debug("Test getContentProperties()");
+        Map<String, String> cProperties = s3Provider.getContentProperties(spaceId,
+                                                                          contentId);
+        assertNotNull(cProperties);
+        assertEquals(CONTENT_MIME_VALUE, cProperties.get(CONTENT_MIME_NAME));
         assertEquals(CONTENT_MIME_VALUE,
-                     cMetadata.get(Headers.CONTENT_TYPE));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_SIZE));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_CHECKSUM));
+                     cProperties.get(Headers.CONTENT_TYPE));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_SIZE));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM));
         // Make sure date is in RFC-822 format
-        String lastModified = cMetadata.get(StorageProvider.METADATA_CONTENT_MODIFIED);
+        String lastModified = cProperties.get(StorageProvider.PROPERTIES_CONTENT_MODIFIED);
         StorageProvider.RFC822_DATE_FORMAT.parse(lastModified);
 
         // Check content access
@@ -211,9 +212,9 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
             s3Provider.getSpaceContents(spaceId, null);
         assertNotNull(spaceContents);
         assertEquals(3, count(spaceContents));
-        // Ensure that space metadata is not included in contents list
+        // Ensure that space properties is not included in contents list
         spaceContents = s3Provider.getSpaceContents(spaceId, null);
-        String spaceMetaSuffix = S3StorageProvider.SPACE_METADATA_SUFFIX;
+        String spaceMetaSuffix = S3StorageProvider.SPACE_PROPERTIES_SUFFIX;
         assertFalse(contains(spaceContents, bucketName + spaceMetaSuffix));
 
         // test getSpaceContentsChunked() maxLimit
@@ -251,43 +252,43 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         }
         log.debug("-- End expected error log --");
 
-        // test setContentMetadata()
-        log.debug("Test setContentMetadata()");
-        Map<String, String> contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(CONTENT_META_NAME, CONTENT_META_VALUE);
-        s3Provider.setContentMetadata(spaceId, contentId, contentMetadata);
+        // test setContentProperties()
+        log.debug("Test setContentProperties()");
+        Map<String, String> contentProperties = new HashMap<String, String>();
+        contentProperties.put(CONTENT_PROPS_NAME, CONTENT_PROPS_VALUE);
+        s3Provider.setContentProperties(spaceId, contentId, contentProperties);
 
-        // test getContentMetadata()
-        log.debug("Test getContentMetadata()");
-        cMetadata = s3Provider.getContentMetadata(spaceId, contentId);
-        assertNotNull(cMetadata);
-        assertEquals(CONTENT_META_VALUE, cMetadata.get(CONTENT_META_NAME));
-        // Mime type was not included when setting content metadata
+        // test getContentProperties()
+        log.debug("Test getContentProperties()");
+        cProperties = s3Provider.getContentProperties(spaceId, contentId);
+        assertNotNull(cProperties);
+        assertEquals(CONTENT_PROPS_VALUE, cProperties.get(CONTENT_PROPS_NAME));
+        // Mime type was not included when setting content properties
         // so its value should have been maintained
-        assertEquals(CONTENT_MIME_VALUE, cMetadata.get(CONTENT_MIME_NAME));
+        assertEquals(CONTENT_MIME_VALUE, cProperties.get(CONTENT_MIME_NAME));
         assertEquals(CONTENT_MIME_VALUE,
-                     cMetadata.get(Headers.CONTENT_TYPE));
+                     cProperties.get(Headers.CONTENT_TYPE));
 
-        // test setContentMetadata() - mimetype
-        log.debug("Test setContentMetadata() - mimetype");
-        contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(CONTENT_MIME_NAME,
+        // test setContentProperties() - mimetype
+        log.debug("Test setContentProperties() - mimetype");
+        contentProperties = new HashMap<String, String>();
+        contentProperties.put(CONTENT_MIME_NAME,
                             StorageProvider.DEFAULT_MIMETYPE);
-        s3Provider.setContentMetadata(spaceId, contentId, contentMetadata);
-        cMetadata = s3Provider.getContentMetadata(spaceId, contentId);
-        assertNotNull(cMetadata);
+        s3Provider.setContentProperties(spaceId, contentId, contentProperties);
+        cProperties = s3Provider.getContentProperties(spaceId, contentId);
+        assertNotNull(cProperties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     cMetadata.get(CONTENT_MIME_NAME));
+                     cProperties.get(CONTENT_MIME_NAME));
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     cMetadata.get(Headers.CONTENT_TYPE));
+                     cProperties.get(Headers.CONTENT_TYPE));
 
-        log.debug("Test getContentMetadata() - mimetype default");
-        cMetadata = s3Provider.getContentMetadata(spaceId, testContent3);
-        assertNotNull(cMetadata);
+        log.debug("Test getContentProperties() - mimetype default");
+        cProperties = s3Provider.getContentProperties(spaceId, testContent3);
+        assertNotNull(cProperties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     cMetadata.get(CONTENT_MIME_NAME));
+                     cProperties.get(CONTENT_MIME_NAME));
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     cMetadata.get(Headers.CONTENT_TYPE));
+                     cProperties.get(Headers.CONTENT_TYPE));
 
         /* Test Deletes */
 
@@ -333,26 +334,26 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         compareChecksum(s3Provider, spaceId, contentId, checksum);
     }
 
-    private Map<String, String> testSpaceMetadata(String spaceId,
-                                                 AccessType access) {
-        Map<String, String> sMetadata = s3Provider.getSpaceMetadata(spaceId);
+    private Map<String, String> testSpaceProperties(String spaceId,
+                                                    AccessType access) {
+        Map<String, String> sProperties = s3Provider.getSpaceProperties(spaceId);
 
-        assertTrue(sMetadata.containsKey(
-            StorageProvider.METADATA_SPACE_CREATED));
-        assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_CREATED));
+        assertTrue(sProperties.containsKey(
+            StorageProvider.PROPERTIES_SPACE_CREATED));
+        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 
-        assertTrue(sMetadata.containsKey(
-            StorageProvider.METADATA_SPACE_COUNT));
-        assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_COUNT));
+        assertTrue(sProperties.containsKey(
+            StorageProvider.PROPERTIES_SPACE_COUNT));
+        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_COUNT));
 
-        assertTrue(sMetadata.containsKey(
-            StorageProvider.METADATA_SPACE_ACCESS));
+        assertTrue(sProperties.containsKey(
+            StorageProvider.PROPERTIES_SPACE_ACCESS));
         String spaceAccess =
-            sMetadata.get(StorageProvider.METADATA_SPACE_ACCESS);
+            sProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
         assertNotNull(spaceAccess);
         assertEquals(access.name(), spaceAccess);
 
-        return sMetadata;
+        return sProperties;
     }
 
     @Test
@@ -366,14 +367,14 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         // Space Not Found
 
         try {
-            s3Provider.getSpaceMetadata(spaceId);
+            s3Provider.getSpaceProperties(spaceId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            s3Provider.setSpaceMetadata(spaceId, new HashMap<String, String>());
+            s3Provider.setSpaceProperties(spaceId, new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
@@ -437,16 +438,16 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         }
 
         try {
-            s3Provider.getContentMetadata(spaceId, contentId);
+            s3Provider.getContentProperties(spaceId, contentId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            s3Provider.setContentMetadata(spaceId,
-                                          contentId,
-                                          new HashMap<String, String>());
+            s3Provider.setContentProperties(spaceId,
+                                            contentId,
+                                            new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
@@ -474,16 +475,16 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         }
 
         try {
-            s3Provider.getContentMetadata(spaceId, contentId);
+            s3Provider.getContentProperties(spaceId, contentId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            s3Provider.setContentMetadata(spaceId,
-                                          contentId,
-                                          new HashMap<String, String>());
+            s3Provider.setContentProperties(spaceId,
+                                            contentId,
+                                            new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
@@ -498,20 +499,20 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
     }
 
     @Test
-    public void testSetContentMetadata() {
-        // StorageProvider metadata which is expected to be available
-        String name00 = StorageProvider.METADATA_CONTENT_CHECKSUM;
+    public void testSetContentProperties() {
+        // StorageProvider properties which is expected to be available
+        String name00 = StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
         String value00 = "c56f855f5dec9276733ff3e2c66ec7df";
-        String name01 = StorageProvider.METADATA_CONTENT_MD5;
+        String name01 = StorageProvider.PROPERTIES_CONTENT_MD5;
         String value01 = "c56f855f5dec9276733ff3e2c66ec7df";
-        String name02 = StorageProvider.METADATA_CONTENT_MIMETYPE;
+        String name02 = StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
         String value02 = "text/html";
-        String name03 = StorageProvider.METADATA_CONTENT_SIZE;
+        String name03 = StorageProvider.PROPERTIES_CONTENT_SIZE;
         String value03 = "59142";
-        String name04 = StorageProvider.METADATA_CONTENT_MODIFIED;
+        String name04 = StorageProvider.PROPERTIES_CONTENT_MODIFIED;
         String value04 = "Wed, 25 Nov 2009 11:09:39 EST";
 
-        // Custom metadata values
+        // Custom properties values
         String name05 = "request-id";
         String value05 = "BA66CF8BF16D69CE";
         String name06 = "id-2";
@@ -535,21 +536,21 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         String name13 = "Date";
         String value13 = "Wed, 25 Nov 2009 16:47:07 GMT";
 
-        Map<String, String> contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(name00, value00);
-        contentMetadata.put(name01, value01);
-        contentMetadata.put(name02, value02);
-        contentMetadata.put(name03, value03);
-        contentMetadata.put(name04, value04);
-        contentMetadata.put(name05, value05);
-        contentMetadata.put(name06, value06);
-        contentMetadata.put(name07, value07);
-        contentMetadata.put(name08, value08);
-        contentMetadata.put(name09, value09);
-        contentMetadata.put(name10, value10);
-        contentMetadata.put(name11, value11);
-        contentMetadata.put(name12, value12);
-        contentMetadata.put(name13, value13);
+        Map<String, String> contentProperties = new HashMap<String, String>();
+        contentProperties.put(name00, value00);
+        contentProperties.put(name01, value01);
+        contentProperties.put(name02, value02);
+        contentProperties.put(name03, value03);
+        contentProperties.put(name04, value04);
+        contentProperties.put(name05, value05);
+        contentProperties.put(name06, value06);
+        contentProperties.put(name07, value07);
+        contentProperties.put(name08, value08);
+        contentProperties.put(name09, value09);
+        contentProperties.put(name10, value10);
+        contentProperties.put(name11, value11);
+        contentProperties.put(name12, value12);
+        contentProperties.put(name13, value13);
 
         // Set up the space and content
         String spaceId = getNewSpaceId();
@@ -559,40 +560,40 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         addContent(spaceId, contentId, CONTENT_MIME_VALUE, false);
 
         // This is the method under test.
-        s3Provider.setContentMetadata(spaceId, contentId, contentMetadata);
+        s3Provider.setContentProperties(spaceId, contentId, contentProperties);
 
-        Map<String, String> metadata = s3Provider.getContentMetadata(spaceId,
-                                                                     contentId);
-        Assert.assertNotNull(metadata);
+        Map<String, String> properties = s3Provider.getContentProperties(spaceId,
+                                                                         contentId);
+        Assert.assertNotNull(properties);
 
-        Assert.assertTrue(metadata.containsKey(name00));
-        Assert.assertTrue(metadata.containsKey(name01));
-        Assert.assertTrue(metadata.containsKey(name02));
-        Assert.assertTrue(metadata.containsKey(name03));
-        Assert.assertTrue(metadata.containsKey(name04));
-        Assert.assertTrue(metadata.containsKey(name05));
-        Assert.assertTrue(metadata.containsKey(name06));
-        Assert.assertTrue(metadata.containsKey(name07));
-        Assert.assertTrue(metadata.containsKey(name08.toLowerCase()));
-        Assert.assertTrue(metadata.containsKey(name09));
-        Assert.assertTrue(metadata.containsKey(name10));
-        Assert.assertTrue(metadata.containsKey(name11));
-        Assert.assertTrue(metadata.containsKey(name12));
-        Assert.assertFalse(metadata.containsKey(name13));
+        Assert.assertTrue(properties.containsKey(name00));
+        Assert.assertTrue(properties.containsKey(name01));
+        Assert.assertTrue(properties.containsKey(name02));
+        Assert.assertTrue(properties.containsKey(name03));
+        Assert.assertTrue(properties.containsKey(name04));
+        Assert.assertTrue(properties.containsKey(name05));
+        Assert.assertTrue(properties.containsKey(name06));
+        Assert.assertTrue(properties.containsKey(name07));
+        Assert.assertTrue(properties.containsKey(name08.toLowerCase()));
+        Assert.assertTrue(properties.containsKey(name09));
+        Assert.assertTrue(properties.containsKey(name10));
+        Assert.assertTrue(properties.containsKey(name11));
+        Assert.assertTrue(properties.containsKey(name12));
+        Assert.assertFalse(properties.containsKey(name13));
 
-        Assert.assertNotNull(metadata.get(name00));
-        Assert.assertNotNull(metadata.get(name01));
-        Assert.assertNotNull(metadata.get(name02));
-        Assert.assertNotNull(metadata.get(name03));
-        Assert.assertNotNull(metadata.get(name04));
-        Assert.assertNotNull(metadata.get(name05));
-        Assert.assertNotNull(metadata.get(name06));
-        Assert.assertNotNull(metadata.get(name07));
-        Assert.assertNotNull(metadata.get(name08.toLowerCase()));
-        Assert.assertNotNull(metadata.get(name09));
-        Assert.assertNotNull(metadata.get(name10));
-        Assert.assertNotNull(metadata.get(name11));
-        Assert.assertNotNull(metadata.get(name12));
+        Assert.assertNotNull(properties.get(name00));
+        Assert.assertNotNull(properties.get(name01));
+        Assert.assertNotNull(properties.get(name02));
+        Assert.assertNotNull(properties.get(name03));
+        Assert.assertNotNull(properties.get(name04));
+        Assert.assertNotNull(properties.get(name05));
+        Assert.assertNotNull(properties.get(name06));
+        Assert.assertNotNull(properties.get(name07));
+        Assert.assertNotNull(properties.get(name08.toLowerCase()));
+        Assert.assertNotNull(properties.get(name09));
+        Assert.assertNotNull(properties.get(name10));
+        Assert.assertNotNull(properties.get(name11));
+        Assert.assertNotNull(properties.get(name12));
     }
 
 }

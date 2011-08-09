@@ -16,8 +16,8 @@ import org.duracloud.client.StoreCaller;
 import org.duracloud.common.util.ExtendedIteratorCounterThread;
 import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.domain.Space;
-import org.duracloud.duradmin.domain.SpaceMetadata;
-import org.duracloud.duradmin.util.MetadataUtils;
+import org.duracloud.duradmin.domain.SpaceProperties;
+import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
@@ -105,11 +105,11 @@ public class SpaceController extends  AbstractRestController<Space> {
 	
 	
 	private void populateSpaceCount(Space space, HttpServletRequest request) throws Exception{
-		String countStr = space.getMetadata().getCount();
+		String countStr = space.getProperties().getCount();
 		if(countStr.endsWith("+")){
 			setItemCount(space, request);
 		}else{
-			space.setItemCount(Long.valueOf(space.getMetadata().getCount()));
+			space.setItemCount(Long.valueOf(space.getProperties().getCount()));
 		}
 	}
 
@@ -122,13 +122,13 @@ public class SpaceController extends  AbstractRestController<Space> {
                 space.setItemCount(listener.getCount());
                 request.getSession().removeAttribute(key);
             } else {
-                SpaceMetadata metadata = space.getMetadata();
+                SpaceProperties properties = space.getProperties();
                 long interCount = listener.getIntermediaryCount();
                 if(interCount % 1000 != 0) {
                     interCount += 1;
                 }
-                metadata.setCount(String.valueOf(interCount) + "+");
-                space.setMetadata(metadata);
+                properties.setCount(String.valueOf(interCount) + "+");
+                space.setProperties(properties);
             }
 		}else{
 			request.getSession().setAttribute(key, listener = new ItemCounter());
@@ -169,9 +169,10 @@ public class SpaceController extends  AbstractRestController<Space> {
             
             return createModel(newSpace);
         }else{ 
-        	Map<String,String> metadata  = contentStore.getSpaceMetadata(spaceId);
-        	MetadataUtils.handle(method, "space ["+spaceId+"]",  metadata, request);
-        	contentStore.setSpaceMetadata(spaceId, metadata);
+        	Map<String,String> properties  = contentStore.getSpaceProperties(spaceId);
+        	PropertiesUtils
+                .handle(method, "space [" + spaceId + "]", properties, request);
+        	contentStore.setSpaceProperties(spaceId, properties);
             Space newSpace = new Space();
             SpaceUtil.populateSpace(newSpace, contentStore.getSpace(spaceId,
                     null,

@@ -31,13 +31,13 @@ public class MockStorageProvider
 
     private InputStream content;
 
-    private Map<String, String> contentMetadata;
+    private Map<String, String> contentProperties;
 
     private AccessType access;
 
     private List<String> spaceContents;
 
-    private Map<String, String> spaceMetadata;
+    private Map<String, String> spaceProperties;
 
     private Iterator<String> spaces;
 
@@ -80,9 +80,10 @@ public class MockStorageProvider
         return content;
     }
 
-    public Map<String, String> getContentMetadata(String spaceId, String contentId)
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId)
             throws StorageException {
-        return contentMetadata;
+        return contentProperties;
     }
 
     public AccessType getSpaceAccess(String spaceId) throws StorageException {
@@ -102,22 +103,22 @@ public class MockStorageProvider
         return spaceContents;
     }
 
-    public Map<String, String> getSpaceMetadata(String spaceId)
+    public Map<String, String> getSpaceProperties(String spaceId)
     throws StorageException {
-        return spaceMetadata;
+        return spaceProperties;
     }
 
     public Iterator<String> getSpaces() throws StorageException {
         return spaces;
     }
 
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata)
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties)
             throws StorageException {
         this.spaceId = spaceId;
         this.contentId = contentId;
-        this.contentMetadata = contentMetadata;
+        this.contentProperties = contentProperties;
     }
 
     public void setSpaceAccess(String spaceId, AccessType access)
@@ -126,11 +127,11 @@ public class MockStorageProvider
         this.access = access;
     }
 
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata)
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties)
             throws StorageException {
         this.spaceId = spaceId;
-        this.spaceMetadata = spaceMetadata;
+        this.spaceProperties = spaceProperties;
     }
 
     public String getSpaceId() {
@@ -173,12 +174,12 @@ public class MockStorageProvider
         this.content = content;
     }
 
-    public Map<String, String> getContentMetadata() {
-        return contentMetadata;
+    public Map<String, String> getContentProperties() {
+        return contentProperties;
     }
 
-    public void setContentMetadata(Map<String, String> contentMetadata) {
-        this.contentMetadata = contentMetadata;
+    public void setContentProperties(Map<String, String> contentProperties) {
+        this.contentProperties = contentProperties;
     }
 
     public AccessType getAccess() {
@@ -189,12 +190,12 @@ public class MockStorageProvider
         this.access = access;
     }
 
-    public Map<String, String> getSpaceMetadata() {
-        return spaceMetadata;
+    public Map<String, String> getSpaceProperties() {
+        return spaceProperties;
     }
 
-    public void setSpaceMetadata(Map<String, String> spaceMetadata) {
-        this.spaceMetadata = spaceMetadata;
+    public void setSpaceProperties(Map<String, String> spaceProperties) {
+        this.spaceProperties = spaceProperties;
     }
 
     public void setSpaces(Iterator<String> spaces) {

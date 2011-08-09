@@ -8,20 +8,13 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.domain.ContentItem;
-import org.duracloud.duradmin.util.MetadataUtils;
+import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceapi.ServicesManager;
@@ -31,6 +24,12 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
 
 /**
  * 
@@ -141,22 +140,30 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 	        ContentStore contentStore = getContentStore(contentItem);
 	        ContentItem result = new ContentItem();
 	        String method = request.getParameter("method");
-	        Map<String,String> metadata  = contentStore.getContentMetadata(spaceId, contentId);
+	        Map<String,String> properties =
+                contentStore.getContentProperties(spaceId, contentId);
 	        if("changeMimetype".equals(method)){
 	            String mimetype = contentItem.getContentMimetype();
-	            String oldMimetype = metadata.get(ContentStore.CONTENT_MIMETYPE);
+	            String oldMimetype = properties.get(ContentStore.CONTENT_MIMETYPE);
 	            if(!StringUtils.isBlank(mimetype) && !mimetype.equals(oldMimetype)){
-	                metadata.put(ContentStore.CONTENT_MIMETYPE, mimetype);
-	                contentStore.setContentMetadata(spaceId, contentId, metadata);
+	                properties.put(ContentStore.CONTENT_MIMETYPE, mimetype);
+	                contentStore.setContentProperties(spaceId, contentId, properties);
 	            }
 	        }else{ 
-                MetadataUtils.handle(method, "space ["+spaceId+"]",  metadata, request);
-                contentStore.setContentMetadata(spaceId, contentId, metadata);
+                PropertiesUtils.handle(method,
+                                       "space [" + spaceId + "]",
+                                       properties,
+                                       request);
+                contentStore.setContentProperties(spaceId, contentId, properties);
             }
 
 
-	        SpaceUtil.populateContentItem(getBaseURL(request),result, contentItem.getSpaceId(), 
-	                contentItem.getContentId(),contentStore, servicesManager);
+	        SpaceUtil.populateContentItem(getBaseURL(request),
+                                          result,
+                                          contentItem.getSpaceId(),
+	                                      contentItem.getContentId(),
+                                          contentStore,
+                                          servicesManager);
 	        return createModel(result);
 	        
 	    }catch(Exception ex){
@@ -169,7 +176,9 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 	public static String getBaseURL(HttpServletRequest request) throws MalformedURLException{
 		URL url = new URL(request.getRequestURL().toString());
 		int port =  url.getPort();
-		String baseURL = url.getProtocol() + "://" + url.getHost() + ":" +(port > 0 && port != 80 ? url.getPort() : "") + request.getContextPath();
+		String baseURL = url.getProtocol() + "://" + url.getHost() + ":" +
+                        (port > 0 && port != 80 ? url.getPort() : "") +
+                        request.getContextPath();
 		return baseURL;
 	}
 

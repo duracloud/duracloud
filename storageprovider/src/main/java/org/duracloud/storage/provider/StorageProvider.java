@@ -27,24 +27,23 @@ public interface StorageProvider {
 
     public enum AccessType {OPEN, CLOSED}
 
-    /* Names for space metadata properties */
-    public static final String METADATA_SPACE_CREATED = "space-created";
-    public static final String METADATA_SPACE_COUNT = "space-count";
-    public static final String METADATA_SPACE_SIZE = "space-total-size";
-    public static final String METADATA_SPACE_ACCESS = "space-access";
+    /* Space property names */
+    public static final String PROPERTIES_SPACE_CREATED = "space-created";
+    public static final String PROPERTIES_SPACE_COUNT = "space-count";
+    public static final String PROPERTIES_SPACE_SIZE = "space-total-size";
+    public static final String PROPERTIES_SPACE_ACCESS = "space-access";
 
-    /* Names for content metadata properties */
-    public static final String METADATA_CONTENT_MIMETYPE = "content-mimetype";
-    public static final String METADATA_CONTENT_SIZE = "content-size";
-    public static final String METADATA_CONTENT_CHECKSUM = "content-checksum";
-    public static final String METADATA_CONTENT_MODIFIED = "content-modified";
+    /* Content property names */
+    public static final String PROPERTIES_CONTENT_MIMETYPE = "content-mimetype";
+    public static final String PROPERTIES_CONTENT_SIZE = "content-size";
+    public static final String PROPERTIES_CONTENT_CHECKSUM = "content-checksum";
+    public static final String PROPERTIES_CONTENT_MODIFIED = "content-modified";
 
-    /* Names for reserved metadata properties */
-    public static final String METADATA_CONTENT_MD5 = "content-md5";
+    /* Reserved property names */
+    public static final String PROPERTIES_CONTENT_MD5 = "content-md5";
 
-    /* Names values for metadata files */
-    public static final String SPACE_METADATA_SUFFIX = "-space-metadata";
-    public static final String CONTENT_METADATA_SUFFIX = "-content-metadata";
+    /* Name values for property files */
+    public static final String SPACE_PROPERTIES_SUFFIX = "-space-metadata";
 
     /* Other constants */
     public static final String DEFAULT_MIMETYPE = "application/octet-stream";
@@ -121,25 +120,25 @@ public interface StorageProvider {
     public void deleteSpace(String spaceId);
 
     /**
-     * Retrieves the metadata associated with a space.
+     * Retrieves the properties associated with a space.
      *
      * @param spaceId - ID of the space
-     * @return Map of space metadata or null if no metadata exists
+     * @return Map of space properties or null if no properties exists
      * @throws NotFoundException if space with ID spaceId does not exist
      * @throws StorageException if errors occur
      */
-    public Map<String, String> getSpaceMetadata(String spaceId);
+    public Map<String, String> getSpaceProperties(String spaceId);
 
     /**
-     * Sets the metadata associated with a space.
+     * Sets the properties associated with a space.
      *
      * @param spaceId - ID of the space
-     * @param spaceMetadata - Updated space metadata
+     * @param spaceProperties - Updated space properties
      * @throws NotFoundException if space with ID spaceId does not exist
      * @throws StorageException if errors occur
      */
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata);
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties);
 
     /**
      * Gets the access setting of the space, either OPEN or CLOSED. An OPEN space is
@@ -213,9 +212,9 @@ public interface StorageProvider {
                               String contentId);
 
     /**
-     * Sets the metadata associated with content. This effectively
-     * removes all of the current content metadata and adds a new
-     * set of metadata. Some metadata, such as system metadata
+     * Sets the properties associated with content. This effectively
+     * removes all of the current content properties and adds a new
+     * set of properties. Some properties, such as system properties
      * provided by the underlying storage system, cannot be updated
      * or removed.
      *
@@ -228,31 +227,31 @@ public interface StorageProvider {
      *
      * @param spaceId - ID of the space
      * @param contentId - ID of the content in the space
-     * @param contentMetadata - new content metadata
+     * @param contentProperties - new content properties
      * @throws NotFoundException if space with ID spaceId does not exist or the
      *                           content item with ID contentId does not exist
      * @throws StorageException if errors occur
      */
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata);
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties);
 
     /**
-     * Retrieves the metadata associated with content. This includes
-     * both metadata generated by the underlying storage system as
-     * well as custom metadata.
+     * Retrieves the properties associated with content. This includes
+     * both properties generated by the underlying storage system as
+     * well as custom properties.
      *
-     * Use the METADATA_CONTENT_* constants to retrieve standard
-     * metadata values.
+     * Use the PROPERTIES_CONTENT_* constants to retrieve standard
+     * properties values.
      *
      * @param spaceId - ID of the space
      * @param contentId - ID of the content in the space
-     * @return content metadata
+     * @return content properties
      * @throws NotFoundException if space with ID spaceId does not exist or the
      *                           content item with ID contentId does not exist
      * @throws StorageException if errors occur
      */
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId);
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId);
 
 }

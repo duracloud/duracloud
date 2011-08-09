@@ -1,12 +1,12 @@
 /**
- * Tags panel is substantially the same in display and behavior as metadataviewer
+ * Tags panel is substantially the same in display and behavior as propertiesviewer
  * created by Daniel Bernstein
  */
 $.widget("ui.tagsviewer", 
-		$.extend({}, $.ui.metadataviewer.prototype, 
+		$.extend({}, $.ui.propertiesviewer.prototype,
 			{  //extended definition 
 				_init: function(){ 
-					$.ui.metadataviewer.prototype._init.call(this); //call super init first
+					$.ui.propertiesviewer.prototype._init.call(this); //call super init first
 				}, 
 				
 				_initializeDataContainer: function(){
@@ -14,7 +14,7 @@ $.widget("ui.tagsviewer",
 				},
 				
 				destroy: function(){ 
-					$.ui.metadataviewer.prototype.destroy.call(this); // call the original function 
+					$.ui.propertiesviewer.prototype.destroy.call(this); // call the original function
 				}, 
 
 				_createControlsRow: function(){

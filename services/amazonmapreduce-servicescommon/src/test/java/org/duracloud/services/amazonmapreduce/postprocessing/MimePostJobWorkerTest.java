@@ -77,14 +77,14 @@ public class MimePostJobWorkerTest {
         EasyMock.expect(contentStore.getSpaceContents(spaceId)).andReturn(
             contents.iterator());
 
-        EasyMock.expect(contentStore.getContentMetadata(EasyMock.eq(spaceId),
-                                                        EasyMock.isA(String.class)))
+        EasyMock.expect(contentStore.getContentProperties(EasyMock.eq(spaceId),
+                                                          EasyMock.isA(String.class)))
             .andReturn(new HashMap<String, String>())
             .times(contents.size());
 
-        contentStore.setContentMetadata(EasyMock.eq(spaceId), EasyMock.isA(
+        contentStore.setContentProperties(EasyMock.eq(spaceId), EasyMock.isA(
             String.class), EasyMock.isA(Map.class));
-        EasyMock.expectLastCall().andStubAnswer(verifyMetadata());
+        EasyMock.expectLastCall().andStubAnswer(verifyProperties());
 
         EasyMock.replay(contentStore);
         return contentStore;
@@ -97,7 +97,7 @@ public class MimePostJobWorkerTest {
      *
      * @return not used
      */
-    private IAnswer<? extends Object> verifyMetadata() {
+    private IAnswer<? extends Object> verifyProperties() {
         return new IAnswer<Object>() {
             public Object answer() throws Throwable {
                 Object[] args = EasyMock.getCurrentArguments();
@@ -105,10 +105,10 @@ public class MimePostJobWorkerTest {
                 Assert.assertEquals(3, args.length);
 
                 String contentId = (String) args[1];
-                Map<String, String> metadata = (Map<String, String>) args[2];
-                Assert.assertEquals(1, metadata.size());
+                Map<String, String> properties = (Map<String, String>) args[2];
+                Assert.assertEquals(1, properties.size());
 
-                String mime = metadata.get(ContentStore.CONTENT_MIMETYPE);
+                String mime = properties.get(ContentStore.CONTENT_MIMETYPE);
                 Assert.assertNotNull(mime);
                 if (file0.equals(contentId)) {
                     Assert.assertEquals(mime0, mime);
@@ -138,7 +138,7 @@ public class MimePostJobWorkerTest {
         contentStore = createMockContentStore();
         worker = new MimePostJobWorker(predecessor, contentStore, spaceId);
 
-        // The actual testing/verification happens in 'verifyMetadata()'
+        // The actual testing/verification happens in 'verifyProperties()'
         worker.run();
     }
 

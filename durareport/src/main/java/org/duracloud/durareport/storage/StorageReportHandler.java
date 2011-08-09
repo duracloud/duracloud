@@ -66,7 +66,7 @@ public class StorageReportHandler {
         try {
             this.primaryStore = storeMgr.getPrimaryContentStore();
             try {
-                primaryStore.getSpaceMetadata(storageSpace);
+                primaryStore.getSpaceProperties(storageSpace);
             } catch(NotFoundException e) {
                 primaryStore.createSpace(storageSpace, null);
             }
@@ -304,9 +304,9 @@ public class StorageReportHandler {
     }
 
     private long getExistingLogSize(Content logContent) {
-        Map<String, String> metadata = logContent.getMetadata();
-        if(null != metadata) {
-            String logSize = metadata.get(ContentStore.CONTENT_SIZE);
+        Map<String, String> properties = logContent.getProperties();
+        if(null != properties) {
+            String logSize = properties.get(ContentStore.CONTENT_SIZE);
             if(null != logSize) {
                 try {
                     return Long.valueOf(logSize);

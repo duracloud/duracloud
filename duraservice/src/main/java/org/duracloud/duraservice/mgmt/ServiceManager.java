@@ -802,8 +802,8 @@ public class ServiceManager implements LocalServicesManager {
      * cannot be determined, returns 0.
      */
     private long getContentLength(Content content) {
-        Map<String, String> metadata = content.getMetadata();
-        String size = metadata.get(ContentStore.CONTENT_SIZE);
+        Map<String, String> properties = content.getProperties();
+        String size = properties.get(ContentStore.CONTENT_SIZE);
 
         long length = 0;
         if (size != null) {

@@ -169,7 +169,7 @@ public class TestStorageProviders {
                     String contentId = contentIds.next();
                     provider.deleteContent(spaceId, contentId);
                 }
-                provider.setSpaceMetadata(spaceId,
+                provider.setSpaceProperties(spaceId,
                                           new HashMap<String, String>());
                 provider.setSpaceAccess(spaceId,
                                         StorageProvider.AccessType.CLOSED);
@@ -222,20 +222,20 @@ public class TestStorageProviders {
     }
 
     @Test
-    public void testGetSpaceMetadata() throws StorageException {
-        log.info("testGetSpaceMetadata()");
+    public void testGetSpaceProperties() throws StorageException {
+        log.info("testGetSpaceProperties()");
 
         for (StorageProvider provider : storageProviders) {
-            tester.testGetSpaceMetadata(provider, spaceId0);
+            tester.testGetSpaceProperties(provider, spaceId0);
         }
     }
 
     @Test
-    public void testSetSpaceMetadata() throws StorageException {
-        log.info("testSetSpaceMetadata()");
+    public void testSetSpaceProperties() throws StorageException {
+        log.info("testSetSpaceProperties()");
 
         for (StorageProvider provider : storageProviders) {
-            tester.testSetSpaceMetadata(provider, spaceId0);
+            tester.testSetSpaceProperties(provider, spaceId0);
         }
     }
 
@@ -307,27 +307,27 @@ public class TestStorageProviders {
     }
 
     @Test
-    public void testSetContentMetadata() throws StorageException {
-        log.info("testSetContentMetadata()");
+    public void testSetContentProperties() throws StorageException {
+        log.info("testSetContentProperties()");
         String contentId0 = getNewContentId();
         String contentId1 = getNewContentId();
 
         for (StorageProvider provider : storageProviders) {
-            tester.testSetContentMetadata(provider,
-                                          spaceId0,
-                                          spaceId1,
-                                          contentId0,
-                                          contentId1);
+            tester.testSetContentProperties(provider,
+                                            spaceId0,
+                                            spaceId1,
+                                            contentId0,
+                                            contentId1);
         }
     }
 
     @Test
-    public void testGetContentMetadata() throws StorageException {
-        log.info("testGetContentMetadata()");
+    public void testGetContentProperties() throws StorageException {
+        log.info("testGetContentProperties()");
         String contentId0 = getNewContentId();
 
         for (StorageProvider provider : storageProviders) {
-            tester.testGetContentMetadata(provider, spaceId0, contentId0);
+            tester.testGetContentProperties(provider, spaceId0, contentId0);
         }
     }
 

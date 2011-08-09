@@ -70,7 +70,7 @@ public class FileCopier implements Runnable {
             try {
                 doCopyFileToLocal();
                 String md5Local = getMd5FromLocal();
-                String md5Remote = getMd5FromMetadata();
+                String md5Remote = getMd5FromProperties();
                 if (md5Local.equals(md5Remote)) {
                     md5Valid = true;
                     setMd5(md5Local);
@@ -102,7 +102,7 @@ public class FileCopier implements Runnable {
         return md5Util.getMd5(localFile);
     }
 
-    protected String getMd5FromMetadata() throws IOException {
+    protected String getMd5FromProperties() throws IOException {
         JobConf job = new JobConf();
         FileSystem fs = remotePath.getFileSystem(job);
         S3Credentials s3Credentials = new S3Credentials();

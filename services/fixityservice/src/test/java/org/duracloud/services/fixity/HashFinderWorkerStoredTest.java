@@ -13,12 +13,10 @@ import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.ServiceResult;
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach.STORED;
@@ -73,12 +71,12 @@ public class HashFinderWorkerStoredTest extends HashFinderWorkerTestBase {
 
     @Override
     protected ContentStore createContentStore() throws ContentStoreException {
-        Map<String, String> metadata = getMetadata(hash);
+        Map<String, String> properties = getProperties(hash);
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
-        EasyMock.expect(store.getContentMetadata(providedListingSpaceIdA,
-                                                 providedListingContentIdA))
-            .andReturn(metadata);
+        EasyMock.expect(store.getContentProperties(providedListingSpaceIdA,
+                                                   providedListingContentIdA))
+            .andReturn(properties);
         EasyMock.replay(store);
 
         return store;

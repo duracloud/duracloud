@@ -7,12 +7,12 @@
  */
 package org.duracloud.duradmin.util;
 
+import org.springframework.util.StringUtils;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.springframework.util.StringUtils;
 
 public class TagUtil {
 
@@ -22,15 +22,15 @@ public class TagUtil {
 
     /**
      * @param tag
-     * @param metadata
+     * @param properties
      * @return true if the tag was present and was removed.
      */
-    public static boolean removeTag(String tag, Map<String, String> metadata) {
-        String tagsValue = metadata.get(TAGS);
+    public static boolean removeTag(String tag, Map<String, String> properties) {
+        String tagsValue = properties.get(TAGS);
         Set<String> tags = parseTags(tagsValue);
         boolean result = tags.remove(tag);
         tagsValue = formatTags(tags);
-        metadata.put(TAGS, tagsValue);
+        properties.put(TAGS, tagsValue);
         return result;
     }
 
@@ -57,31 +57,31 @@ public class TagUtil {
 
     /**
      * @param tag
-     * @param metadata
+     * @param properties
      * @return true if the tag was added (ie wasn't already present in list)
      */
-    public static boolean addTag(String tag, Map<String, String> metadata) {
-        String tags = metadata.get(TAGS);
+    public static boolean addTag(String tag, Map<String, String> properties) {
+        String tags = properties.get(TAGS);
         if (tags == null) {
-            metadata.put(TAGS, tag);
+            properties.put(TAGS, tag);
             return true;
         }
         Set<String> list = parseTags(tags);
         boolean result = list.add(tag);
 
-        metadata.put(TAGS, formatTags(list));
+        properties.put(TAGS, formatTags(list));
         return result;
     }
 
-	public static void remove(String[] tags, Map<String, String> metadata) {
+	public static void remove(String[] tags, Map<String, String> properties) {
 		for(int i = 0; i < tags.length; i++){
-			removeTag(tags[i], metadata);
+			removeTag(tags[i], properties);
 		}
 	}
 
-	public static void add(String[] tags,  Map<String, String> metadata) {
+	public static void add(String[] tags,  Map<String, String> properties) {
 		for(int i = 0; i < tags.length; i++){
-			addTag(tags[i], metadata);
+			addTag(tags[i], properties);
 		}
 	}
 }

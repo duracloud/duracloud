@@ -19,7 +19,7 @@ import java.io.IOException;
 
 /**
  * Overrides the text output format to allow the output directory to exist and
- * include a DuraCloud space metadata file.
+ * include a DuraCloud space properties file.
  *
  * @author: Bill Branan
  * Date: Aug 12, 2010

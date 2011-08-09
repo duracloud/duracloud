@@ -117,12 +117,12 @@ public class StorageProvidersTestExceptionProxy
         }
     }
 
-    public void testGetContentMetadata(StorageProvider provider,
-                                       String spaceId0,
-                                       String contentId0)
+    public void testGetContentProperties(StorageProvider provider,
+                                         String spaceId0,
+                                         String contentId0)
             throws StorageException {
         try {
-            tester.testGetContentMetadata(provider, spaceId0, contentId0);
+            tester.testGetContentProperties(provider, spaceId0, contentId0);
         } catch (AssertionError e) {
             throwRuntime(provider, e);
         }
@@ -151,10 +151,10 @@ public class StorageProvidersTestExceptionProxy
         }
     }
 
-    public void testGetSpaceMetadata(StorageProvider provider, String spaceId0)
+    public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
             throws StorageException {
         try {
-            tester.testGetSpaceMetadata(provider, spaceId0);
+            tester.testGetSpaceProperties(provider, spaceId0);
         } catch (AssertionError e) {
             throwRuntime(provider, e);
         }
@@ -170,27 +170,27 @@ public class StorageProvidersTestExceptionProxy
         }
     }
 
-    public void testSetContentMetadata(StorageProvider provider,
-                                       String spaceId0,
-                                       String spaceId1,
-                                       String contentId0,
-                                       String contentId1)
+    public void testSetContentProperties(StorageProvider provider,
+                                         String spaceId0,
+                                         String spaceId1,
+                                         String contentId0,
+                                         String contentId1)
             throws StorageException {
         try {
-            tester.testSetContentMetadata(provider,
-                                          spaceId0,
-                                          spaceId1,
-                                          contentId0,
-                                          contentId1);
+            tester.testSetContentProperties(provider,
+                                            spaceId0,
+                                            spaceId1,
+                                            contentId0,
+                                            contentId1);
         } catch (AssertionError e) {
             throwRuntime(provider, e);
         }
     }
 
-    public void testSetSpaceMetadata(StorageProvider provider, String spaceId0)
+    public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
             throws StorageException {
         try {
-            tester.testSetSpaceMetadata(provider, spaceId0);
+            tester.testSetSpaceProperties(provider, spaceId0);
         } catch (AssertionError e) {
             throwRuntime(provider, e);
         }

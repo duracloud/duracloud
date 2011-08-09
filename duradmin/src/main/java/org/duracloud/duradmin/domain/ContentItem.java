@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.web.EncodeUtil;
-import org.duracloud.duradmin.util.MetadataUtils;
+import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.NameValuePair;
 
 
@@ -33,9 +33,9 @@ public class ContentItem
 
     private String durastoreURL;
 
-    private List<NameValuePair> extendedMetadata;
+    private List<NameValuePair> extendedProperties;
 
-    private ContentMetadata metadata;
+    private ContentProperties properties;
 
     public String getStoreId() {
 		return storeId;
@@ -84,21 +84,21 @@ public class ContentItem
         this.contentMimetype = contentMimetype;
     }
 
-    public ContentMetadata getMetadata() {
-        return metadata;
+    public ContentProperties getProperties() {
+        return properties;
     }
 
-    public void setMetadata(ContentMetadata metadata) {
-        this.metadata = metadata;
+    public void setProperties(ContentProperties properties) {
+        this.properties = properties;
     }
 
-    public List<NameValuePair> getExtendedMetadata() {
-        return extendedMetadata;
+    public List<NameValuePair> getExtendedProperties() {
+        return extendedProperties;
     }
 
-    public void setExtendedMetadata(Map<String, String> extendedMetadata) {
-        this.extendedMetadata =
-                MetadataUtils.convertExtendedMetadata(extendedMetadata);
+    public void setExtendedProperties(Map<String, String> extendedProperties) {
+        this.extendedProperties =
+                PropertiesUtils.convertExtendedProperties(extendedProperties);
     }
 
     
@@ -112,6 +112,6 @@ public class ContentItem
 
 	public String toString(){
     	return "{storeId: " + storeId + ", spaceId: " + spaceId + ", contentId: " + contentId + 
-    				", metadata: " + metadata + ", contentMimetype: " + contentMimetype +"}";
+    				", properties: " + properties + ", contentMimetype: " + contentMimetype +"}";
     }
 }

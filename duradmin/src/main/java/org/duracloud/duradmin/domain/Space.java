@@ -7,12 +7,12 @@
  */
 package org.duracloud.duradmin.domain;
 
+import org.duracloud.duradmin.util.NameValuePair;
+import org.duracloud.duradmin.util.PropertiesUtils;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import org.duracloud.duradmin.util.MetadataUtils;
-import org.duracloud.duradmin.util.NameValuePair;
 
 public class Space
         implements Serializable {
@@ -36,9 +36,9 @@ public class Space
 
     private String access;
 
-    private SpaceMetadata metadata;
+    private SpaceProperties properties;
 
-    private List<NameValuePair> extendedMetadata;
+    private List<NameValuePair> extendedProperties;
 
     private List<String> contents;
 
@@ -79,12 +79,12 @@ public class Space
         this.access = access;
     }
 
-    public SpaceMetadata getMetadata() {
-        return metadata;
+    public SpaceProperties getProperties() {
+        return properties;
     }
 
-    public void setMetadata(SpaceMetadata metadata) {
-        this.metadata = metadata;
+    public void setProperties(SpaceProperties properties) {
+        this.properties = properties;
     }
 
     public List<String> getContents() {
@@ -95,13 +95,13 @@ public class Space
         this.contents = contents;
     }
 
-    public List<NameValuePair> getExtendedMetadata() {
-        return extendedMetadata;
+    public List<NameValuePair> getExtendedProperties() {
+        return extendedProperties;
     }
 
-    public void setExtendedMetadata(Map<String, String> extendedMetadata) {
-        this.extendedMetadata =
-                MetadataUtils.convertExtendedMetadata(extendedMetadata);
+    public void setExtendedProperties(Map<String, String> extendedProperties) {
+        this.extendedProperties =
+                PropertiesUtils.convertExtendedProperties(extendedProperties);
     }
 
 }

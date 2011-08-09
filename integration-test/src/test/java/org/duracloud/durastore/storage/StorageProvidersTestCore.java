@@ -14,18 +14,9 @@ import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.storage.util.StorageProviderUtil;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.contains;
-import static org.duracloud.storage.util.StorageProviderUtil.count;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,6 +26,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import static org.duracloud.storage.util.StorageProviderUtil.contains;
+import static org.duracloud.storage.util.StorageProviderUtil.count;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * This class is the functional test code across a StorageProvider.
@@ -160,7 +160,7 @@ public class StorageProvidersTestCore
             sleep(2000);
         }
 
-        verifySpaceMetadata(provider, spaceId);
+        verifySpaceProperties(provider, spaceId);
     }
 
     private boolean spaceExists(StorageProvider provider, String spaceId) {
@@ -185,14 +185,14 @@ public class StorageProvidersTestCore
         return exists;
     }
 
-    private void verifySpaceMetadata(StorageProvider provider,
+    private void verifySpaceProperties(StorageProvider provider,
                                             String spaceId)
         throws StorageException {
-        Map<String, String> metadata = provider.getSpaceMetadata(spaceId);
-        assertNotNull(metadata);
+        Map<String, String> properties = provider.getSpaceProperties(spaceId);
+        assertNotNull(properties);
 
         String created =
-                metadata.get(StorageProvider.METADATA_SPACE_CREATED);
+                properties.get(StorageProvider.PROPERTIES_SPACE_CREATED);
         assertNotNull(created);
     }
 
@@ -209,22 +209,22 @@ public class StorageProvidersTestCore
         }
     }
 
-    public void testGetSpaceMetadata(StorageProvider provider, String spaceId0)
+    public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
             throws StorageException {
         Map<String, String> spaceMd = null;
-        spaceMd = provider.getSpaceMetadata(spaceId0);
+        spaceMd = provider.getSpaceProperties(spaceId0);
         assertNotNull(spaceMd);
 
-        assertTrue(spaceMd.containsKey(StorageProvider.METADATA_SPACE_CREATED));
-        assertTrue(spaceMd.containsKey(StorageProvider.METADATA_SPACE_COUNT));
-        assertTrue(spaceMd.containsKey(StorageProvider.METADATA_SPACE_ACCESS));
+        assertTrue(spaceMd.containsKey(StorageProvider.PROPERTIES_SPACE_CREATED));
+        assertTrue(spaceMd.containsKey(StorageProvider.PROPERTIES_SPACE_COUNT));
+        assertTrue(spaceMd.containsKey(StorageProvider.PROPERTIES_SPACE_ACCESS));
 
-        assertNotNull(spaceMd.get(StorageProvider.METADATA_SPACE_CREATED));
-        assertNotNull(spaceMd.get(StorageProvider.METADATA_SPACE_COUNT));
-        assertNotNull(spaceMd.get(StorageProvider.METADATA_SPACE_ACCESS));
+        assertNotNull(spaceMd.get(StorageProvider.PROPERTIES_SPACE_CREATED));
+        assertNotNull(spaceMd.get(StorageProvider.PROPERTIES_SPACE_COUNT));
+        assertNotNull(spaceMd.get(StorageProvider.PROPERTIES_SPACE_ACCESS));
     }
 
-    public void testSetSpaceMetadata(StorageProvider provider, String spaceId0)
+    public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
             throws StorageException {
         final String key0 = "key0";
         final String key1 = "key1";
@@ -233,7 +233,7 @@ public class StorageProvidersTestCore
         final String val1 = "val1";
         final String val2 = "val2";
 
-        Map<String, String> spaceMd = provider.getSpaceMetadata(spaceId0);
+        Map<String, String> spaceMd = provider.getSpaceProperties(spaceId0);
         assertNotNull(spaceMd);
 
         final int numProps = spaceMd.size();
@@ -243,9 +243,9 @@ public class StorageProvidersTestCore
         Map<String, String> newMd = new HashMap<String, String>();
         newMd.put(key0, val0);
         newMd.put(key2, val2);
-        provider.setSpaceMetadata(spaceId0, newMd);
+        provider.setSpaceProperties(spaceId0, newMd);
 
-        spaceMd = provider.getSpaceMetadata(spaceId0);
+        spaceMd = provider.getSpaceProperties(spaceId0);
         assertNotNull(spaceMd);
         assertEquals(numProps + 2, spaceMd.size());
 
@@ -260,9 +260,9 @@ public class StorageProvidersTestCore
         Map<String, String> newerMd = new HashMap<String, String>();
         newerMd.put(key1, val1);
         newerMd.put(key2, val2);
-        provider.setSpaceMetadata(spaceId0, newerMd);
+        provider.setSpaceProperties(spaceId0, newerMd);
 
-        spaceMd = provider.getSpaceMetadata(spaceId0);
+        spaceMd = provider.getSpaceProperties(spaceId0);
         assertNotNull(spaceMd);
         assertEquals(numProps + 2, spaceMd.size());
 
@@ -283,10 +283,10 @@ public class StorageProvidersTestCore
         access = provider.getSpaceAccess(spaceId0);
         Assert.assertEquals(AccessType.CLOSED, access);
 
-        // ...also check Access in user metadata.
-        Map<String, String> spaceMd = provider.getSpaceMetadata(spaceId0);
+        // ...also check Access in user properties.
+        Map<String, String> spaceMd = provider.getSpaceProperties(spaceId0);
         assertNotNull(spaceMd);
-        String prop = spaceMd.get(StorageProvider.METADATA_SPACE_ACCESS);
+        String prop = spaceMd.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
         assertNotNull(prop);
         assertEquals(AccessType.CLOSED.toString(), prop);
 
@@ -300,19 +300,19 @@ public class StorageProvidersTestCore
         };
         caller.call(AccessType.OPEN);
 
-        // ...also check Access in user metadata.
-        StoreCaller metadataCaller = new StoreCaller<String>() {
+        // ...also check Access in user properties.
+        StoreCaller propertiesCaller = new StoreCaller<String>() {
             protected String doCall() throws Exception {
-                Map<String, String> md = provider.getSpaceMetadata(spaceId0);
-                return md.get(StorageProvider.METADATA_SPACE_ACCESS);
+                Map<String, String> md = provider.getSpaceProperties(spaceId0);
+                return md.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
             }
         };
-        metadataCaller.call(AccessType.OPEN.toString());
+        propertiesCaller.call(AccessType.OPEN.toString());
 
-        // Set to Closed via metadata, test again
-        spaceMd.put(StorageProvider.METADATA_SPACE_ACCESS,
+        // Set to Closed via properties, test again
+        spaceMd.put(StorageProvider.PROPERTIES_SPACE_ACCESS,
                     AccessType.CLOSED.toString());
-        provider.setSpaceMetadata(spaceId0, spaceMd);
+        provider.setSpaceProperties(spaceId0, spaceMd);
 
         caller.call(AccessType.CLOSED);
     }
@@ -475,96 +475,96 @@ public class StorageProvidersTestCore
         assertEquals(entries.length, count);
     }
 
-    public void testSetContentMetadata(StorageProvider provider,
+    public void testSetContentProperties(StorageProvider provider,
                                        String spaceId0,
                                        String spaceId1,
                                        String contentId0,
                                        String contentId1)
             throws StorageException {
 
-        Map<String, String> contentMetadata = new HashMap<String, String>();
+        Map<String, String> contentProperties = new HashMap<String, String>();
         final String key0 = "key0";
         final String key1 = "KEY1";
         final String val0 = "val0";
         final String val1 = "val1";
-        contentMetadata.put(key0, val0);
+        contentProperties.put(key0, val0);
 
         // Need to have a space and content.
         addContent(provider, spaceId1, contentId0, mimeText, "hello".getBytes());
 
-        // Check initial state of metadata.
+        // Check initial state of properties.
         Map<String, String> initialMeta =
-                provider.getContentMetadata(spaceId1, contentId0);
+                provider.getContentProperties(spaceId1, contentId0);
         assertNotNull(initialMeta);
         int initialSize = initialMeta.size();
         assertTrue(initialSize > 0);
         assertEquals(mimeText,
-                     initialMeta.get(StorageProvider.METADATA_CONTENT_MIMETYPE));
+                     initialMeta.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE));
 
         // Set and check.
-        provider.setContentMetadata(spaceId1, contentId0, contentMetadata);
-        Map<String, String> metadata =
-                provider.getContentMetadata(spaceId1, contentId0);
-        assertNotNull(metadata);
-        assertEquals(initialSize + 1, metadata.size());
+        provider.setContentProperties(spaceId1, contentId0, contentProperties);
+        Map<String, String> properties =
+                provider.getContentProperties(spaceId1, contentId0);
+        assertNotNull(properties);
+        assertEquals(initialSize + 1, properties.size());
 
-        assertTrue(metadata.containsKey(key0));
-        assertEquals(val0, metadata.get(key0));
+        assertTrue(properties.containsKey(key0));
+        assertEquals(val0, properties.get(key0));
 
         final String newVal = "newVal0";
-        contentMetadata.put(key0, newVal);
-        contentMetadata.put(key1, val1);
+        contentProperties.put(key0, newVal);
+        contentProperties.put(key1, val1);
 
-        provider.setContentMetadata(spaceId1, contentId0, contentMetadata);
-        metadata = provider.getContentMetadata(spaceId1, contentId0);
-        assertNotNull(metadata);
-        assertEquals(initialSize + 2, metadata.size());
-        assertTrue(metadata.containsKey(key0));
-        assertEquals(newVal, metadata.get(key0));
+        provider.setContentProperties(spaceId1, contentId0, contentProperties);
+        properties = provider.getContentProperties(spaceId1, contentId0);
+        assertNotNull(properties);
+        assertEquals(initialSize + 2, properties.size());
+        assertTrue(properties.containsKey(key0));
+        assertEquals(newVal, properties.get(key0));
 
-        assertTrue(metadata.containsKey(key1.toLowerCase()));
-        assertEquals(val1, metadata.get(key1.toLowerCase()));
+        assertTrue(properties.containsKey(key1.toLowerCase()));
+        assertEquals(val1, properties.get(key1.toLowerCase()));
 
-        String mime = metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE);
+        String mime = properties.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
         assertNotNull(mime);
         assertTrue(mime.startsWith(mimeText));
 
         // Set MIME and check.
-        contentMetadata.put(StorageProvider.METADATA_CONTENT_MIMETYPE,
+        contentProperties.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE,
                             StorageProvider.DEFAULT_MIMETYPE);
-        provider.setContentMetadata(spaceId1, contentId0, contentMetadata);
-        metadata = provider.getContentMetadata(spaceId1, contentId0);
-        assertNotNull(metadata);
+        provider.setContentProperties(spaceId1, contentId0, contentProperties);
+        properties = provider.getContentProperties(spaceId1, contentId0);
+        assertNotNull(properties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE));
+                     properties.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE));
 
 
         // Clear properties.
-        provider.setContentMetadata(spaceId1,
+        provider.setContentProperties(spaceId1,
                                     contentId0,
                                     new HashMap<String, String>());
-        metadata = provider.getContentMetadata(spaceId1, contentId0);
-        assertNotNull(metadata);
-        assertEquals(initialSize, metadata.size());
-        assertFalse(metadata.containsKey(key0));
-        assertFalse(metadata.containsKey(key1));
+        properties = provider.getContentProperties(spaceId1, contentId0);
+        assertNotNull(properties);
+        assertEquals(initialSize, properties.size());
+        assertFalse(properties.containsKey(key0));
+        assertFalse(properties.containsKey(key1));
 
         // Add content with null mimetype, should resolve to default
         addContent(provider, spaceId1, contentId1, null, "hello".getBytes());
-        metadata = provider.getContentMetadata(spaceId1, contentId1);
-        assertNotNull(metadata);
+        properties = provider.getContentProperties(spaceId1, contentId1);
+        assertNotNull(properties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     metadata.get(StorageProvider.METADATA_CONTENT_MIMETYPE));
+                     properties.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE));
     }
 
-    public void testGetContentMetadata(StorageProvider provider,
+    public void testGetContentProperties(StorageProvider provider,
                                        String spaceId0,
                                        String contentId0)
             throws StorageException {
-        final String mimeKey = StorageProvider.METADATA_CONTENT_MIMETYPE;
-        final String sizeKey = StorageProvider.METADATA_CONTENT_SIZE;
-        final String modifiedKey = StorageProvider.METADATA_CONTENT_MODIFIED;
-        final String cksumKey = StorageProvider.METADATA_CONTENT_CHECKSUM;
+        final String mimeKey = StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
+        final String sizeKey = StorageProvider.PROPERTIES_CONTENT_SIZE;
+        final String modifiedKey = StorageProvider.PROPERTIES_CONTENT_MODIFIED;
+        final String cksumKey = StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 
         byte[] data = "hello-friends".getBytes();
         ChecksumUtil chksum = new ChecksumUtil(Algorithm.MD5);
@@ -572,49 +572,49 @@ public class StorageProvidersTestCore
 
         addContent(provider, spaceId0, contentId0, mimeText, data);
 
-        Map<String, String> metadata =
-                provider.getContentMetadata(spaceId0, contentId0);
-        assertNotNull(metadata);
-        assertTrue(metadata.containsKey(mimeKey));
-        assertTrue(metadata.containsKey(sizeKey));
-        assertTrue(metadata.containsKey(modifiedKey));
-        assertTrue(metadata.containsKey(cksumKey));
+        Map<String, String> properties =
+                provider.getContentProperties(spaceId0, contentId0);
+        assertNotNull(properties);
+        assertTrue(properties.containsKey(mimeKey));
+        assertTrue(properties.containsKey(sizeKey));
+        assertTrue(properties.containsKey(modifiedKey));
+        assertTrue(properties.containsKey(cksumKey));
 
-        assertEquals(mimeText, metadata.get(mimeKey));
-        assertEquals(data.length, Integer.parseInt(metadata.get(sizeKey)));
-        assertNotNull(metadata.get(modifiedKey));
-        assertEquals(digest, metadata.get(cksumKey));
+        assertEquals(mimeText, properties.get(mimeKey));
+        assertEquals(data.length, Integer.parseInt(properties.get(sizeKey)));
+        assertNotNull(properties.get(modifiedKey));
+        assertEquals(digest, properties.get(cksumKey));
 
         // Set and check again.
-        provider.setContentMetadata(spaceId0,
+        provider.setContentProperties(spaceId0,
                                     contentId0,
                                     new HashMap<String, String>());
-        metadata = provider.getContentMetadata(spaceId0, contentId0);
-        assertNotNull(metadata);
-        assertTrue(metadata.containsKey(mimeKey));
-        assertTrue(metadata.containsKey(sizeKey));
-        assertTrue(metadata.containsKey(modifiedKey));
-        assertTrue(metadata.containsKey(cksumKey));
+        properties = provider.getContentProperties(spaceId0, contentId0);
+        assertNotNull(properties);
+        assertTrue(properties.containsKey(mimeKey));
+        assertTrue(properties.containsKey(sizeKey));
+        assertTrue(properties.containsKey(modifiedKey));
+        assertTrue(properties.containsKey(cksumKey));
 
         // Mimetype value is unchanged.
-        String mime = metadata.get(mimeKey);
+        String mime = properties.get(mimeKey);
         assertNotNull(mime);
         assertTrue(mime.startsWith(mimeText));
-        assertEquals(data.length, Integer.parseInt(metadata.get(sizeKey)));
-        assertNotNull(metadata.get(modifiedKey));
-        assertEquals(digest, metadata.get(cksumKey));
+        assertEquals(data.length, Integer.parseInt(properties.get(sizeKey)));
+        assertNotNull(properties.get(modifiedKey));
+        assertEquals(digest, properties.get(cksumKey));
 
         // Set and check again.
-        metadata = new HashMap<String, String>();
-        metadata.put(mimeKey, mimeXml);
-        provider.setContentMetadata(spaceId0,
+        properties = new HashMap<String, String>();
+        properties.put(mimeKey, mimeXml);
+        provider.setContentProperties(spaceId0,
                                     contentId0,
-                                    metadata);
-        metadata = provider.getContentMetadata(spaceId0, contentId0);
-        assertNotNull(metadata);
+                                    properties);
+        properties = provider.getContentProperties(spaceId0, contentId0);
+        assertNotNull(properties);
 
         // Mimetype value is updated
-        assertEquals(mimeXml, metadata.get(mimeKey));
+        assertEquals(mimeXml, properties.get(mimeKey));
     }
 
     public void close() {
@@ -629,27 +629,27 @@ public class StorageProvidersTestCore
     //        AccessType access = provider.getSpaceAccess(spaceId1);
     //        assertEquals(AccessType.OPEN, access);
     //
-    //        // FIXME: The test below would work if metadata were available across users.
+    //        // FIXME: The test below would work if properties were available across users.
     //        //        List<String> spaces = createVisitorProvider().getSpaces();
     //        //        assertNotNull(spaces);
     //        //        assertTrue(spaces.contains(spaceId1));
     //
     //        // FIXME: The 'createVisitor' test should be removed when the above works.
     //        EsuApi visitor = createVisitor();
-    //        ObjectMetadata allMd = visitor.getAllMetadata(rootId);
+    //        ObjectProperties allMd = visitor.getAllProperties(rootId);
     //        assertNotNull(allMd);
     //
     //        provider.setSpaceAccess(spaceId1, AccessType.CLOSED);
     //        access = provider.getSpaceAccess(spaceId1);
     //        assertEquals(AccessType.CLOSED, access);
     //
-    //        // FIXME: The test below would work if metadata were available across users.
+    //        // FIXME: The test below would work if properties were available across users.
     //        //        List<String> spaces = createVisitorProvider().getSpaces();
     //        //        assertEquals(null, spaces);
     //
     //        // FIXME: The 'createVisitor' test should be removed when the above works.
     //        try {
-    //            visitor.getAllMetadata(rootId);
+    //            visitor.getAllProperties(rootId);
     //            fail("Exception expected.");
     //        } catch (Exception e) {
     //        }
@@ -665,27 +665,27 @@ public class StorageProvidersTestCore
     //        AccessType access = provider.getSpaceAccess(spaceId1);
     //        assertEquals(AccessType.OPEN, access);
     //
-    //        // FIXME: The test below would work if metadata were available across users.
+    //        // FIXME: The test below would work if properties were available across users.
     //        //        List<String> spaces = createVisitorProvider().getSpaces();
     //        //        assertNotNull(spaces);
     //        //        assertTrue(spaces.contains(spaceId1));
     //
     //        // FIXME: The 'createVisitor' test should be removed when the above works.
     //        EsuApi visitor = createVisitor();
-    //        ObjectMetadata allMd = visitor.getAllMetadata(objId);
+    //        ObjectProperties allMd = visitor.getAllProperties(objId);
     //        assertNotNull(allMd);
     //
     //        provider.setSpaceAccess(spaceId1, AccessType.CLOSED);
     //        access = provider.getSpaceAccess(spaceId1);
     //        assertEquals(AccessType.CLOSED, access);
     //
-    //        // FIXME: The test below would work if metadata were available across users.
+    //        // FIXME: The test below would work if properties were available across users.
     //        //        List<String> spaces = createVisitorProvider().getSpaces();
     //        //        assertEquals(null, spaces);
     //
     //        // FIXME: The 'createVisitor' test should be removed when the above works.
     //        try {
-    //            visitor.getAllMetadata(objId);
+    //            visitor.getAllProperties(objId);
     //            fail("Exception expected.");
     //        } catch (Exception e) {
     //        }

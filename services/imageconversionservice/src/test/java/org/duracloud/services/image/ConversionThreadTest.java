@@ -12,7 +12,6 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.image.status.StatusListener;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -80,7 +79,7 @@ public class ConversionThreadTest {
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
 
-        EasyMock.expect(store.getSpaceMetadata(destSpaceId)).andReturn(null);
+        EasyMock.expect(store.getSpaceProperties(destSpaceId)).andReturn(null);
 
         Iterator<String> contents = new ArrayList<String>().iterator();
         EasyMock.expect(store.getSpaceContents(sourceSpaceId, namePrefix))

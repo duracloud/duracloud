@@ -22,16 +22,16 @@ public interface ContentResource {
     InputStream getContent(String spaceID, String contentID, String storeID)
         throws ResourceException;
 
-    Map<String, String> getContentMetadata(String spaceID,
-                                           String contentID,
-                                           String storeID)
+    Map<String, String> getContentProperties(String spaceID,
+                                             String contentID,
+                                             String storeID)
         throws ResourceException;
 
-    void updateContentMetadata(String spaceID,
-                               String contentID,
-                               String contentMimeType,
-                               Map<String, String> userMetadata,
-                               String storeID) throws ResourceException;
+    void updateContentProperties(String spaceID,
+                                 String contentID,
+                                 String contentMimeType,
+                                 Map<String, String> userProperties,
+                                 String storeID) throws ResourceException;
 
     String addContent(String spaceID,
                       String contentID,

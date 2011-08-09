@@ -51,8 +51,8 @@ public class StorageProviderUtilTest {
         testMap.put("foo", "bar");
         testMap.put("dura", "cloud.org");
 
-        InputStream is = StorageProviderUtil.storeMetadata(testMap);
-        Map<String, String> resultMap = StorageProviderUtil.loadMetadata(is);
+        InputStream is = StorageProviderUtil.storeProperties(testMap);
+        Map<String, String> resultMap = StorageProviderUtil.loadProperties(is);
 
         assertTrue(testMap.equals(resultMap));
     }

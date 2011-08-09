@@ -185,7 +185,7 @@ public class DuracloudContentWriter implements ContentWriter {
                               String contentMimetype,
                               String contentChecksum)
         throws ContentNotAddedException {
-        Map<String, String> metadata = null;
+        Map<String, String> properties = null;
         try {
             return contentStore.addContent(spaceId,
                                            contentId,
@@ -193,7 +193,7 @@ public class DuracloudContentWriter implements ContentWriter {
                                            contentSize,
                                            contentMimetype,
                                            contentChecksum,
-                                           metadata);
+                                           properties);
         } catch (ContentStoreException e) {
             log.error(e.getFormattedMessage(), e);
             throw new ContentNotAddedException(spaceId, contentId, e);
@@ -227,9 +227,9 @@ public class DuracloudContentWriter implements ContentWriter {
     }
 
     private void createSpace(String spaceId) {
-        Map<String, String> metadata = null;
+        Map<String, String> properties = null;
         try {
-            contentStore.createSpace(spaceId, metadata);
+            contentStore.createSpace(spaceId, properties);
         } catch (ContentStoreException e) {
             // do nothing.
         }

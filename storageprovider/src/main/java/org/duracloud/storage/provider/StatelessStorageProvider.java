@@ -49,10 +49,10 @@ public interface StatelessStorageProvider {
                                            String contentId)
             throws StorageException;
 
-    public abstract Map<String, String> getContentMetadata(StorageProvider targetProvider,
-                                                           String storeId,
-                                                           String spaceId,
-                                                           String contentId)
+    public abstract Map<String, String> getContentProperties(StorageProvider targetProvider,
+                                                             String storeId,
+                                                             String spaceId,
+                                                             String contentId)
             throws StorageException;
 
     public abstract AccessType getSpaceAccess(StorageProvider targetProvider,
@@ -74,20 +74,20 @@ public interface StatelessStorageProvider {
                                                 String marker)
             throws StorageException;
 
-    public abstract Map<String, String> getSpaceMetadata(StorageProvider targetProvider,
-                                                         String storeId,
-                                                         String spaceId)
+    public abstract Map<String, String> getSpaceProperties(StorageProvider targetProvider,
+                                                           String storeId,
+                                                           String spaceId)
             throws StorageException;
 
     public abstract Iterator<String> getSpaces(StorageProvider targetProvider,
                                                String storeId)
             throws StorageException;
 
-    public abstract void setContentMetadata(StorageProvider targetProvider,
-                                            String storeId,
-                                            String spaceId,
-                                            String contentId,
-                                            Map<String, String> contentMetadata)
+    public abstract void setContentProperties(StorageProvider targetProvider,
+                                              String storeId,
+                                              String spaceId,
+                                              String contentId,
+                                              Map<String, String> contentProperties)
             throws StorageException;
 
     public abstract void setSpaceAccess(StorageProvider targetProvider,
@@ -96,10 +96,10 @@ public interface StatelessStorageProvider {
                                         AccessType access)
             throws StorageException;
 
-    public abstract void setSpaceMetadata(StorageProvider targetProvider,
-                                          String storeId,
-                                          String spaceId,
-                                          Map<String, String> spaceMetadata)
+    public abstract void setSpaceProperties(StorageProvider targetProvider,
+                                            String storeId,
+                                            String spaceId,
+                                            Map<String, String> spaceProperties)
             throws StorageException;
 
 }

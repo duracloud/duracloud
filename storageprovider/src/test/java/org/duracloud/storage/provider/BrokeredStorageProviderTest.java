@@ -45,9 +45,9 @@ public class BrokeredStorageProviderTest {
 
     private final AccessType access = AccessType.OPEN;
 
-    private final Map<String, String> spaceMetadata = new HashMap<String, String>();
+    private final Map<String, String> spaceProperties = new HashMap<String, String>();
 
-    private final Map<String, String> contentMetadata = new HashMap<String, String>();
+    private final Map<String, String> contentProperties = new HashMap<String, String>();
 
     @Before
     public void setUp() throws Exception {
@@ -134,13 +134,16 @@ public class BrokeredStorageProviderTest {
     }
 
     @Test
-    public void getContentMetadata() throws StorageException {
-        directProvider.setContentMetadata(spaceId, contentId, contentMetadata);
-        broker.setContentMetadata(spaceId, contentId, contentMetadata);
+    public void getContentProperties() throws StorageException {
+        directProvider.setContentProperties(spaceId,
+                                            contentId,
+                                            contentProperties);
+        broker.setContentProperties(spaceId, contentId, contentProperties);
 
         Map<String, String> meta0 =
-                directProvider.getContentMetadata(spaceId, contentId);
-        Map<String, String> meta1 = broker.getContentMetadata(spaceId, contentId);
+                directProvider.getContentProperties(spaceId, contentId);
+        Map<String, String> meta1 =
+            broker.getContentProperties(spaceId, contentId);
 
         verify(meta0, meta1);
     }
@@ -158,18 +161,40 @@ public class BrokeredStorageProviderTest {
 
     @Test
     public void getSpaceContents() throws StorageException {
-        directProvider.addContent(spaceId, contentId, contentMimeType, contentSize, null, content);
-        broker.addContent(spaceId, contentId, contentMimeType, contentSize, null, content);
-        Iterator<String> spaceContents0 = directProvider.getSpaceContents(spaceId, null);
-        Iterator<String> spaceContents1 = broker.getSpaceContents(spaceId, null);
+        directProvider.addContent(spaceId,
+                                  contentId,
+                                  contentMimeType,
+                                  contentSize,
+                                  null,
+                                  content);
+        broker.addContent(spaceId,
+                          contentId,
+                          contentMimeType,
+                          contentSize,
+                          null,
+                          content);
+        Iterator<String> spaceContents0 =
+            directProvider.getSpaceContents(spaceId, null);
+        Iterator<String> spaceContents1 =
+            broker.getSpaceContents(spaceId, null);
 
         verifyIteratorContents(spaceContents0, spaceContents1);
     }
 
     @Test
     public void getSpaceContentsChunked() throws StorageException {
-        directProvider.addContent(spaceId, contentId, contentMimeType, contentSize, null, content);
-        broker.addContent(spaceId, contentId, contentMimeType, contentSize, null, content);
+        directProvider.addContent(spaceId,
+                                  contentId,
+                                  contentMimeType,
+                                  contentSize,
+                                  null,
+                                  content);
+        broker.addContent(spaceId,
+                          contentId,
+                          contentMimeType,
+                          contentSize,
+                          null,
+                          content);
         List<String> spaceContents0 =
             directProvider.getSpaceContentsChunked(spaceId, null, 0, null);
         List<String> spaceContents1 =
@@ -180,12 +205,12 @@ public class BrokeredStorageProviderTest {
     }
 
     @Test
-    public void getSpaceMetadata() throws StorageException {
-        directProvider.setSpaceMetadata(spaceId, spaceMetadata);
-        broker.setSpaceMetadata(spaceId, spaceMetadata);
+    public void getSpaceProperties() throws StorageException {
+        directProvider.setSpaceProperties(spaceId, spaceProperties);
+        broker.setSpaceProperties(spaceId, spaceProperties);
 
-        Map<String, String> meta0 = directProvider.getSpaceMetadata(spaceId);
-        Map<String, String> meta1 = broker.getSpaceMetadata(spaceId);
+        Map<String, String> meta0 = directProvider.getSpaceProperties(spaceId);
+        Map<String, String> meta1 = broker.getSpaceProperties(spaceId);
 
         verify(meta0, meta1);
     }
@@ -211,12 +236,12 @@ public class BrokeredStorageProviderTest {
     }
 
     @Test
-    public void setSpaceMetadata() throws StorageException {
-        directProvider.setSpaceMetadata(spaceId, spaceMetadata);
-        broker.setSpaceMetadata(spaceId, spaceMetadata);
+    public void setSpaceProperties() throws StorageException {
+        directProvider.setSpaceProperties(spaceId, spaceProperties);
+        broker.setSpaceProperties(spaceId, spaceProperties);
 
         verifySpaceId();
-        verifySpaceMetadata();
+        verifySpaceProperties();
     }
 
     private void verifySpaceId() {
@@ -256,13 +281,14 @@ public class BrokeredStorageProviderTest {
                 .getAccess());
     }
 
-    private void verifySpaceMetadata() {
-        Assert.assertNotNull(directProvider.getSpaceMetadata());
-        Assert.assertEquals(directProvider.getSpaceMetadata(), targetProvider
-                .getSpaceMetadata());
+    private void verifySpaceProperties() {
+        Assert.assertNotNull(directProvider.getSpaceProperties());
+        Assert.assertEquals(directProvider.getSpaceProperties(), targetProvider
+                .getSpaceProperties());
     }
 
-    private void verifyIteratorContents(Iterator<String> iter0, Iterator<String> iter1) {
+    private void verifyIteratorContents(Iterator<String> iter0,
+                                        Iterator<String> iter1) {
         Assert.assertNotNull(iter0);
         Assert.assertNotNull(iter1);
         while(iter0.hasNext()) {

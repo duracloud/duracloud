@@ -39,16 +39,16 @@ public class PlaylistCreatorTest {
         mediaFiles.add("video2");
         mediaFiles.add("video3");
 
-        Map<String, String> mediaMetadata = new HashMap<String, String>();
-        mediaMetadata.put(PlaylistCreator.TITLE_META, videoTitle);
-        mediaMetadata.put(PlaylistCreator.DESCRIPTION_META, videoDescription);
+        Map<String, String> mediaProperties = new HashMap<String, String>();
+        mediaProperties.put(PlaylistCreator.TITLE_META, videoTitle);
+        mediaProperties.put(PlaylistCreator.DESCRIPTION_META, videoDescription);
 
-        contentStore = createMockContentStore(mediaFiles, mediaMetadata);
+        contentStore = createMockContentStore(mediaFiles, mediaProperties);
 
     }
 
     private ContentStore createMockContentStore(List<String> files,
-                                                Map<String, String> metadata)
+                                                Map<String, String> properties)
         throws ContentStoreException {
         ContentStore contentStore = EasyMock.createMock(ContentStore.class);
 
@@ -58,9 +58,9 @@ public class PlaylistCreatorTest {
             .times(1);
 
         EasyMock
-            .expect(contentStore.getContentMetadata(EasyMock.isA(String.class),
-                                                    EasyMock.isA(String.class)))
-            .andReturn(metadata)
+            .expect(contentStore.getContentProperties(EasyMock.isA(String.class),
+                                                      EasyMock.isA(String.class)))
+            .andReturn(properties)
             .times(3);
 
         EasyMock.replay(contentStore);

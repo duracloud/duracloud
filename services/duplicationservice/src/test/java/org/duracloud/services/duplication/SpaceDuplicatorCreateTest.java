@@ -11,7 +11,6 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -57,8 +56,8 @@ public class SpaceDuplicatorCreateTest {
     }
 
 //    @Test
-//    public void testCreateSpaceMetadataException() throws Exception {
-//        init(Mode.METADATA_EXCEPTION);
+//    public void testCreateSpacePropertiesException() throws Exception {
+//        init(Mode.PROPERTIES_EXCEPTION);
 //        replicator.createSpace(spaceId);
 //    }
 
@@ -74,29 +73,29 @@ public class SpaceDuplicatorCreateTest {
                                                  ContentStore.class);
         EasyMock.expect(store.getStorageProviderType()).andReturn("f-type");
 
-        mockGetSpaceMetadataExpectation(cmd, store);
+        mockGetSpacePropertiesExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
     }
 
-    private void mockGetSpaceMetadataExpectation(Mode cmd, ContentStore store)
+    private void mockGetSpacePropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
             case CREATE_EXCEPTION:
                 // fall-through
             case OK:
-                EasyMock.expect(store.getSpaceMetadata(spaceId)).andReturn(
-                    createContentMetadata(cmd));
+                EasyMock.expect(store.getSpaceProperties(spaceId)).andReturn(
+                    createContentProperties(cmd));
                 break;
         }
     }
 
-    private Map<String, String> createContentMetadata(Mode cmd) {
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(ContentStore.SPACE_COUNT, "10");
+    private Map<String, String> createContentProperties(Mode cmd) {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(ContentStore.SPACE_COUNT, "10");
 
-        return metadata;
+        return properties;
     }
 
     private ContentStore createMockToStore(Mode cmd)
@@ -114,15 +113,15 @@ public class SpaceDuplicatorCreateTest {
         throws ContentStoreException {
         switch (cmd) {
             case OK:
-                store.createSpace(spaceId, createContentMetadata(cmd));
+                store.createSpace(spaceId, createContentProperties(cmd));
                 EasyMock.expectLastCall();
                 break;
             case CREATE_EXCEPTION:
-                store.createSpace(spaceId, createContentMetadata(cmd));
+                store.createSpace(spaceId, createContentProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
                     "test-exception")).times(2);
                 
-                store.createSpace(spaceId, createContentMetadata(cmd));
+                store.createSpace(spaceId, createContentProperties(cmd));
                 EasyMock.expectLastCall();
                 break;
         }

@@ -62,13 +62,13 @@ public class MockRetryStorageProvider implements StorageProvider {
         // Default method body
     }
 
-    public Map<String, String> getSpaceMetadata(String spaceId) {
+    public Map<String, String> getSpaceProperties(String spaceId) {
         // Default method body
         return null;
     }
 
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata) {
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties) {
         // Default method body
     }
 
@@ -97,13 +97,13 @@ public class MockRetryStorageProvider implements StorageProvider {
         // Default method body
     }
 
-    public void setContentMetadata(String spaceId, String contentId,
-                                   Map<String, String> contentMetadata) {
+    public void setContentProperties(String spaceId, String contentId,
+                                     Map<String, String> contentProperties) {
         // Default method body
     }
 
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId) {
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId) {
         // Default method body
         return null;
     }

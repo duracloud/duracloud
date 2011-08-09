@@ -62,8 +62,8 @@ public class SpaceDuplicatorUpdateTest {
     }
 
     @Test
-    public void testSetMetadataExceptionUpdateSpace() throws Exception {
-        init(Mode.SET_METADATA_EXCEPTION);
+    public void testSetPropertiesExceptionUpdateSpace() throws Exception {
+        init(Mode.SET_PROPERTIES_EXCEPTION);
         replicator.updateSpace(spaceId);
     }
 
@@ -103,21 +103,21 @@ public class SpaceDuplicatorUpdateTest {
                                                  ContentStore.class);
         EasyMock.expect(store.getStorageProviderType()).andReturn("f-type");
 
-        mockGetSpaceMetadataExpectation(cmd, store);
+        mockGetSpacePropertiesExpectation(cmd, store);
         mockGetSpaceAccessExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
     }
 
-    private void mockGetSpaceMetadataExpectation(Mode cmd, ContentStore store)
+    private void mockGetSpacePropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
             case NULL_INPUT:
                 break;
             default:
-                EasyMock.expect(store.getSpaceMetadata(spaceId)).andReturn(
-                    createSpaceMetadata(cmd));
+                EasyMock.expect(store.getSpaceProperties(spaceId)).andReturn(
+                    createSpaceProperties(cmd));
                 break;
         }
     }
@@ -126,7 +126,7 @@ public class SpaceDuplicatorUpdateTest {
         throws ContentStoreException {
         switch (cmd) {
             case CREATE_EXCEPTION:
-            case SET_METADATA_EXCEPTION:
+            case SET_PROPERTIES_EXCEPTION:
             case NOT_FOUND:
             case NOT_FOUND_CREATE_EXCEPTION:
             case SET_ACCESS_EXCEPTION:
@@ -142,11 +142,11 @@ public class SpaceDuplicatorUpdateTest {
         }
     }
 
-    private Map<String, String> createSpaceMetadata(Mode cmd) {
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(ContentStore.SPACE_COUNT, "10");
+    private Map<String, String> createSpaceProperties(Mode cmd) {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(ContentStore.SPACE_COUNT, "10");
 
-        return metadata;
+        return properties;
     }
 
     private ContentStore.AccessType createSpaceAccess(Mode cmd) {
@@ -160,7 +160,7 @@ public class SpaceDuplicatorUpdateTest {
         ContentStore store = EasyMock.createMock("ToStore", ContentStore.class);
         EasyMock.expect(store.getStorageProviderType()).andReturn("t-type");
 
-        mockSetSpaceMetadataExpectation(cmd, store);
+        mockSetSpacePropertiesExpectation(cmd, store);
         mockSetSpaceAccessExpectation(cmd, store);
         mockCreateSpaceExpectation(cmd, store);
 
@@ -168,26 +168,26 @@ public class SpaceDuplicatorUpdateTest {
         return store;
     }
 
-    private void mockSetSpaceMetadataExpectation(Mode cmd, ContentStore store)
+    private void mockSetSpacePropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
             case SET_ACCESS_EXCEPTION:
             case GET_ACCESS_EXCEPTION:
             case OK:
-                store.setSpaceMetadata(spaceId, createSpaceMetadata(cmd));
+                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall();              
                 break;
-            case SET_METADATA_EXCEPTION:
-                store.setSpaceMetadata(spaceId, createSpaceMetadata(cmd));
+            case SET_PROPERTIES_EXCEPTION:
+                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
                     "test-exception"));
-                store.setSpaceMetadata(spaceId, createSpaceMetadata(cmd));
+                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall();
                 break;
             case CREATE_EXCEPTION:
             case NOT_FOUND_CREATE_EXCEPTION:
             case NOT_FOUND:
-                store.setSpaceMetadata(spaceId, createSpaceMetadata(cmd));
+                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new NotFoundException(
                     "test-exception"));
                 break;
@@ -197,7 +197,7 @@ public class SpaceDuplicatorUpdateTest {
     private void mockSetSpaceAccessExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
-            case SET_METADATA_EXCEPTION:
+            case SET_PROPERTIES_EXCEPTION:
             case NOT_FOUND:
             case NOT_FOUND_CREATE_EXCEPTION:
             case CREATE_EXCEPTION:
@@ -217,18 +217,18 @@ public class SpaceDuplicatorUpdateTest {
         throws ContentStoreException {
         switch (cmd) {
             case NOT_FOUND:
-                store.createSpace(spaceId, createSpaceMetadata(cmd));
+                store.createSpace(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall();
                 break;
             case NOT_FOUND_CREATE_EXCEPTION:
-                store.createSpace(spaceId, createSpaceMetadata(cmd));
+                store.createSpace(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
                     "test-exception")).times(2);
-                store.createSpace(spaceId, createSpaceMetadata(cmd));
+                store.createSpace(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall();
                 break;
             case CREATE_EXCEPTION:
-                store.createSpace(spaceId, createSpaceMetadata(cmd));
+                store.createSpace(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
                     "test-exception")).times(3);
                 break;
@@ -236,7 +236,7 @@ public class SpaceDuplicatorUpdateTest {
     }
 
     private enum Mode {
-        OK, NULL_INPUT, SET_METADATA_EXCEPTION,
+        OK, NULL_INPUT, SET_PROPERTIES_EXCEPTION,
         NOT_FOUND, NOT_FOUND_CREATE_EXCEPTION, CREATE_EXCEPTION,
         GET_ACCESS_EXCEPTION, SET_ACCESS_EXCEPTION;
     }

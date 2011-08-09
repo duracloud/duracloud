@@ -13,10 +13,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,6 +23,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Runtime test of space REST API. The durastore
@@ -109,17 +110,17 @@ public class TestSpaceRest extends BaseRestTester {
     }
 
     @Test
-    public void testGetSpaceMetadata() throws Exception {
+    public void testGetSpaceProperties() throws Exception {
         String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId;
         HttpResponse response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        testMetadata(response,
-                     BaseRest.SPACE_ACCESS_HEADER,
-                     RestTestHelper.SPACE_ACCESS);
-        testMetadata(response,
-                     RestTestHelper.METADATA_NAME,
-                     RestTestHelper.METADATA_VALUE);
+        testProperties(response,
+                       BaseRest.SPACE_ACCESS_HEADER,
+                       RestTestHelper.SPACE_ACCESS);
+        testProperties(response,
+                       RestTestHelper.PROPERTIES_NAME,
+                       RestTestHelper.PROPERTIES_VALUE);
     }
 
     @Test
@@ -190,15 +191,15 @@ public class TestSpaceRest extends BaseRestTester {
     }
 
     @Test
-    public void testUpdateSpaceMetadata() throws Exception {
+    public void testUpdateSpaceProperties() throws Exception {
         String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId;
 
-        // Add metadata
+        // Add properties
         Map<String, String> headers = new HashMap<String, String>();
         String newSpaceAccess = "CLOSED";
         headers.put(BaseRest.SPACE_ACCESS_HEADER, newSpaceAccess);
-        String newSpaceMetadata = "Updated Space Metadata";
-        headers.put(RestTestHelper.METADATA_NAME, newSpaceMetadata);
+        String newSpaceProperties = "Updated Space Properties";
+        headers.put(RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
         HttpResponse response = BaseRestTester.restHelper.post(url, null, headers);
 
         String responseText = checkResponse(response, HttpStatus.SC_OK);
@@ -210,11 +211,11 @@ public class TestSpaceRest extends BaseRestTester {
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        testMetadata(response, BaseRest.SPACE_ACCESS_HEADER, newSpaceAccess);
-        testMetadata(response, RestTestHelper.METADATA_NAME, newSpaceMetadata);
+        testProperties(response, BaseRest.SPACE_ACCESS_HEADER, newSpaceAccess);
+        testProperties(response, RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
 
-        // Remove metadata
-        headers.remove(RestTestHelper.METADATA_NAME);
+        // Remove properties
+        headers.remove(RestTestHelper.PROPERTIES_NAME);
         response = BaseRestTester.restHelper.post(url, null, headers);
 
         responseText = checkResponse(response, HttpStatus.SC_OK);
@@ -225,17 +226,17 @@ public class TestSpaceRest extends BaseRestTester {
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        testNoMetadata(response, RestTestHelper.METADATA_NAME);
+        testNoProperties(response, RestTestHelper.PROPERTIES_NAME);
     }
 
-    private void testMetadata(HttpResponse response, String name, String value)
+    private void testProperties(HttpResponse response, String name, String value)
             throws Exception {
-        String metadata = response.getResponseHeader(name).getValue();
-        assertNotNull(metadata);
-        assertEquals(metadata, value);
+        String properties = response.getResponseHeader(name).getValue();
+        assertNotNull(properties);
+        assertEquals(properties, value);
     }
 
-    private void testNoMetadata(HttpResponse response,
+    private void testNoProperties(HttpResponse response,
                                 String name) throws Exception {
         assertNull(response.getResponseHeader(name));
     }
@@ -249,11 +250,11 @@ public class TestSpaceRest extends BaseRestTester {
         HttpResponse response = BaseRestTester.restHelper.get(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
-        // Get Space Metadata
+        // Get Space Properties
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
-        // Set Space Metadata
+        // Set Space Properties
         response = BaseRestTester.restHelper.post(url, null, null);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 

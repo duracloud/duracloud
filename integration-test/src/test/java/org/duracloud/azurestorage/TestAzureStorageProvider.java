@@ -45,11 +45,12 @@ public class TestAzureStorageProvider {
 
     private static String SPACE_ID = null;
     private static final String CONTENT_ID = "duracloud test content";
-    private static final String SPACE_META_NAME = "custom-space-metadata";
-    private static final String SPACE_META_VALUE = "Testing Space";
-    private static final String CONTENT_META_NAME = "custom-content-metadata";
-    private static final String CONTENT_META_VALUE = "Testing Content";
-    private static final String CONTENT_MIME_NAME = StorageProvider.METADATA_CONTENT_MIMETYPE;
+    private static final String SPACE_PROPS_NAME = "custom-space-properties";
+    private static final String SPACE_PROPS_VALUE = "Testing Space";
+    private static final String CONTENT_PROPS_NAME = "custom-content-properties";
+    private static final String CONTENT_PROPS_VALUE = "Testing Content";
+    private static final String CONTENT_MIME_NAME =
+        StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
     private static final String CONTENT_MIME_VALUE = "text/plain";
     private static final String CONTENT_DATA = "Test Content";
 
@@ -93,20 +94,20 @@ public class TestAzureStorageProvider {
         // test createSpace()
         log.debug("Test createSpace()");
         azureProvider.createSpace(SPACE_ID);
-        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, count);
+        testSpaceProperties(SPACE_ID, AccessType.CLOSED, count);
 
-        // test setSpaceMetadata()
-        log.debug("Test setSpaceMetadata()");
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(SPACE_META_NAME, SPACE_META_VALUE);
-        azureProvider.setSpaceMetadata(SPACE_ID, spaceMetadata);
+        // test setSpaceProperties()
+        log.debug("Test setSpaceProperties()");
+        Map<String, String> spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(SPACE_PROPS_NAME, SPACE_PROPS_VALUE);
+        azureProvider.setSpaceProperties(SPACE_ID, spaceProperties);
 
-        // test getSpaceMetadata()
-        log.debug("Test getSpaceMetadata()");
-        Map<String, String> sMetadata =
-                testSpaceMetadata(SPACE_ID, AccessType.CLOSED, count);
-        assertTrue(sMetadata.containsKey(SPACE_META_NAME));
-        assertEquals(SPACE_META_VALUE, sMetadata.get(SPACE_META_NAME));
+        // test getSpaceProperties()
+        log.debug("Test getSpaceProperties()");
+        Map<String, String> sProperties =
+                testSpaceProperties(SPACE_ID, AccessType.CLOSED, count);
+        assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
+        assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
         // test getSpaces()
         log.debug("Test getSpaces()");
@@ -124,12 +125,12 @@ public class TestAzureStorageProvider {
         AccessType access = azureProvider.getSpaceAccess(SPACE_ID);
         assertEquals(AccessType.OPEN, access);
 
-        // test set space access via metadata update
-        log.debug("Test setSpaceMetadata(Access) ");
-        spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(StorageProvider.METADATA_SPACE_ACCESS,
+        // test set space access via properties update
+        log.debug("Test setSpaceProperties(Access) ");
+        spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(StorageProvider.PROPERTIES_SPACE_ACCESS,
                 AccessType.CLOSED.name());
-        azureProvider.setSpaceMetadata(SPACE_ID, spaceMetadata);
+        azureProvider.setSpaceProperties(SPACE_ID, spaceProperties);
 
         // test getSpaceAccess()
         log.debug("Test getSpaceAccess()");
@@ -141,25 +142,25 @@ public class TestAzureStorageProvider {
         // test addContent()
         log.debug("Test addContent()");
         addContent(SPACE_ID, CONTENT_ID, CONTENT_MIME_VALUE, false);
-        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, ++count);
+        testSpaceProperties(SPACE_ID, AccessType.CLOSED, ++count);
 
-        // test getContentMetadata()
-        log.debug("Test getContentMetadata()");
-        Map<String, String> cMetadata =
-                azureProvider.getContentMetadata(SPACE_ID, CONTENT_ID);
-        assertNotNull(cMetadata);
-        assertEquals(CONTENT_MIME_VALUE, cMetadata.get(CONTENT_MIME_NAME));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_MODIFIED));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_SIZE));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_CHECKSUM));
+        // test getContentProperties()
+        log.debug("Test getContentProperties()");
+        Map<String, String> cProperties =
+                azureProvider.getContentProperties(SPACE_ID, CONTENT_ID);
+        assertNotNull(cProperties);
+        assertEquals(CONTENT_MIME_VALUE, cProperties.get(CONTENT_MIME_NAME));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_MODIFIED));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_SIZE));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM));
 
         // add additional content for getContents tests
         String testContent2 = "test-content-2";
         addContent(SPACE_ID, testContent2, CONTENT_MIME_VALUE, false);
-        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, ++count);
+        testSpaceProperties(SPACE_ID, AccessType.CLOSED, ++count);
         String testContent3 = "test-content-3";
         addContent(SPACE_ID, testContent3, null, true);
-        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, ++count);
+        testSpaceProperties(SPACE_ID, AccessType.CLOSED, ++count);
 
         // test getSpaceContents()
         log.debug("Test getSpaceContents()");
@@ -212,42 +213,42 @@ public class TestAzureStorageProvider {
         }
         log.debug("-- End expected error log --");
 
-        // test setContentMetadata()
-        log.debug("Test setContentMetadata()");
-        Map<String, String> contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(CONTENT_META_NAME, CONTENT_META_VALUE);
-        azureProvider.setContentMetadata(SPACE_ID,
+        // test setContentProperties()
+        log.debug("Test setContentProperties()");
+        Map<String, String> contentProperties = new HashMap<String, String>();
+        contentProperties.put(CONTENT_PROPS_NAME, CONTENT_PROPS_VALUE);
+        azureProvider.setContentProperties(SPACE_ID,
                 CONTENT_ID,
-                contentMetadata);
+                contentProperties);
 
-        // test getContentMetadata()
-        log.debug("Test getContentMetadata()");
-        cMetadata = azureProvider.getContentMetadata(SPACE_ID, CONTENT_ID);
-        assertNotNull(cMetadata);
-        assertEquals(CONTENT_META_VALUE, cMetadata.get(CONTENT_META_NAME));
-        // Mime type was not included when setting content metadata
+        // test getContentProperties()
+        log.debug("Test getContentProperties()");
+        cProperties = azureProvider.getContentProperties(SPACE_ID, CONTENT_ID);
+        assertNotNull(cProperties);
+        assertEquals(CONTENT_PROPS_VALUE, cProperties.get(CONTENT_PROPS_NAME));
+        // Mime type was not included when setting content properties
         // so its value should have been maintained
-        assertEquals(CONTENT_MIME_VALUE, cMetadata.get(CONTENT_MIME_NAME));
+        assertEquals(CONTENT_MIME_VALUE, cProperties.get(CONTENT_MIME_NAME));
 
-        // test setContentMetadata() - mimetype
-        log.debug("Test setContentMetadata() - mimetype");
+        // test setContentProperties() - mimetype
+        log.debug("Test setContentProperties() - mimetype");
         String newMime = "image/bmp";
-        contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(CONTENT_MIME_NAME, newMime);
-        azureProvider.setContentMetadata(SPACE_ID,
+        contentProperties = new HashMap<String, String>();
+        contentProperties.put(CONTENT_MIME_NAME, newMime);
+        azureProvider.setContentProperties(SPACE_ID,
                 CONTENT_ID,
-                contentMetadata);
-        cMetadata = azureProvider.getContentMetadata(SPACE_ID, CONTENT_ID);
-        assertNotNull(cMetadata);
-        assertEquals(newMime, cMetadata.get(CONTENT_MIME_NAME));
-        // Custom metadata was not included in update, it should be removed
-        assertNull(cMetadata.get(CONTENT_META_NAME));
+                contentProperties);
+        cProperties = azureProvider.getContentProperties(SPACE_ID, CONTENT_ID);
+        assertNotNull(cProperties);
+        assertEquals(newMime, cProperties.get(CONTENT_MIME_NAME));
+        // Custom properties was not included in update, it should be removed
+        assertNull(cProperties.get(CONTENT_PROPS_NAME));
 
-        log.debug("Test getContentMetadata() - mimetype default");
-        cMetadata = azureProvider.getContentMetadata(SPACE_ID, testContent3);
-        assertNotNull(cMetadata);
+        log.debug("Test getContentProperties() - mimetype default");
+        cProperties = azureProvider.getContentProperties(SPACE_ID, testContent3);
+        assertNotNull(cProperties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                cMetadata.get(CONTENT_MIME_NAME));
+                cProperties.get(CONTENT_MIME_NAME));
 
         /* Test Deletes */
 
@@ -256,7 +257,7 @@ public class TestAzureStorageProvider {
         azureProvider.deleteContent(SPACE_ID, CONTENT_ID);
         spaceContents = azureProvider.getSpaceContents(SPACE_ID, null);
         assertFalse(contains(spaceContents, CONTENT_ID));
-        testSpaceMetadata(SPACE_ID, AccessType.CLOSED, --count);
+        testSpaceProperties(SPACE_ID, AccessType.CLOSED, --count);
 
         // test deleteSpace()
         log.debug("Test deleteSpace()");
@@ -294,31 +295,32 @@ public class TestAzureStorageProvider {
         compareChecksum(azureProvider, spaceId, contentId, checksum);
     }
 
-    private Map<String, String> testSpaceMetadata(String spaceId,
+    private Map<String, String> testSpaceProperties(String spaceId,
                                                   AccessType access,
                                                   int count) {
-        Map<String, String> sMetadata =
-                azureProvider.getSpaceMetadata(spaceId);
+        Map<String, String> sProperties =
+                azureProvider.getSpaceProperties(spaceId);
 
-        assertTrue(sMetadata.containsKey(
-                StorageProvider.METADATA_SPACE_CREATED));
-        assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_CREATED));
+        assertTrue(sProperties.containsKey(
+                StorageProvider.PROPERTIES_SPACE_CREATED));
+        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 
-        assertTrue(sMetadata.containsKey(
-                StorageProvider.METADATA_SPACE_COUNT));
-        assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_COUNT));
-        assertEquals(String.valueOf(count), sMetadata.get(StorageProvider.METADATA_SPACE_COUNT));
+        assertTrue(sProperties.containsKey(
+                StorageProvider.PROPERTIES_SPACE_COUNT));
+        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_COUNT));
+        assertEquals(String.valueOf(count),
+                     sProperties.get(StorageProvider.PROPERTIES_SPACE_COUNT));
         
-        assertTrue(sMetadata.containsKey(
-                StorageProvider.METADATA_SPACE_ACCESS));
+        assertTrue(sProperties.containsKey(
+                StorageProvider.PROPERTIES_SPACE_ACCESS));
         String spaceAccess =
-                sMetadata.get(StorageProvider.METADATA_SPACE_ACCESS);
+                sProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
         assertNotNull(spaceAccess);
         assertEquals(access.name(), spaceAccess);
-        assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_ACCESS));
+        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS));
 
 
-        return sMetadata;
+        return sProperties;
     }
 
     @Test
@@ -332,14 +334,14 @@ public class TestAzureStorageProvider {
         // Space Not Found
 
         try {
-            azureProvider.getSpaceMetadata(spaceId);
+            azureProvider.getSpaceProperties(spaceId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            azureProvider.setSpaceMetadata(spaceId,
+            azureProvider.setSpaceProperties(spaceId,
                     new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
@@ -404,14 +406,14 @@ public class TestAzureStorageProvider {
         }
 
         try {
-            azureProvider.getContentMetadata(spaceId, contentId);
+            azureProvider.getContentProperties(spaceId, contentId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            azureProvider.setContentMetadata(spaceId,
+            azureProvider.setContentProperties(spaceId,
                     contentId,
                     new HashMap<String, String>());
             fail(failMsg);
@@ -440,14 +442,14 @@ public class TestAzureStorageProvider {
         }
 
         try {
-            azureProvider.getContentMetadata(spaceId, contentId);
+            azureProvider.getContentProperties(spaceId, contentId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            azureProvider.setContentMetadata(spaceId,
+            azureProvider.setContentProperties(spaceId,
                     contentId,
                     new HashMap<String, String>());
             fail(failMsg);

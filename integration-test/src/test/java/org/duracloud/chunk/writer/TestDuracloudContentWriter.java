@@ -175,10 +175,10 @@ public class TestDuracloudContentWriter {
                 }
                 Assert.assertNotNull(content);
 
-                Map<String, String> metadata = content.getMetadata();
-                Assert.assertNotNull(metadata);
+                Map<String, String> properties = content.getProperties();
+                Assert.assertNotNull(properties);
 
-                String size = metadata.get("content-size");
+                String size = properties.get("content-size");
                 Assert.assertNotNull(size);
                 itemCount++;
                 totalSize += Long.parseLong(size);
@@ -209,10 +209,10 @@ public class TestDuracloudContentWriter {
                 }
                 Assert.assertNotNull(content);
 
-                Map<String, String> metadata = content.getMetadata();
-                Assert.assertNotNull(metadata);
+                Map<String, String> properties = content.getProperties();
+                Assert.assertNotNull(properties);
 
-                String size = metadata.get("content-size");
+                String size = properties.get("content-size");
                 Assert.assertNotNull(size);
 
                 manifestFound = true;

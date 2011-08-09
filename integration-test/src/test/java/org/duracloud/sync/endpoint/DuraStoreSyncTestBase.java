@@ -105,10 +105,10 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
         int numTries = 0;
         long millis = 500;
 
-        Map<String, String> metadata = null;
+        Map<String, String> properties = null;
         while (numTries < maxTries) {
-            metadata = getMetadata(spaceId);
-            if (metadata != null && metadata.size() > 0) {
+            properties = getProperties(spaceId);
+            if (properties != null && properties.size() > 0) {
                 return;
             }
             numTries++;
@@ -118,14 +118,14 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
         Assert.fail("Space was never created: " + spaceId);
     }
 
-    private Map<String, String> getMetadata(String spaceId){
-        Map<String, String> metadata = null;
+    private Map<String, String> getProperties(String spaceId){
+        Map<String, String> properties = null;
         try {
-            metadata = store.getSpaceMetadata(spaceId);
+            properties = store.getSpaceProperties(spaceId);
         } catch (ContentStoreException e) {
             // do nothing.
         }
-        return metadata;
+        return properties;
     }
 
     protected ContentStore getContentStore() throws Exception {

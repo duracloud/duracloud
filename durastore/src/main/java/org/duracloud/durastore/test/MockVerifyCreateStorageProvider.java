@@ -23,8 +23,8 @@ import java.util.Map;
  */
 public class MockVerifyCreateStorageProvider implements StorageProvider {
 
-    private static int getSpaceMetadataAttempts = 0;
-    private static String lastSuccessfulSpaceMetadataId;
+    private static int getSpacePropertiesAttempts = 0;
+    private static String lastSuccessfulSpacePropertiesId;
 
     public Iterator<String> getSpaces() {
         // Default method body
@@ -57,29 +57,29 @@ public class MockVerifyCreateStorageProvider implements StorageProvider {
      * indicated by the spaceId. After which the next request
      * succeeds and resets the count.
      */
-    public Map<String, String> getSpaceMetadata(String spaceId) {
+    public Map<String, String> getSpaceProperties(String spaceId) {
         // spaceId indicates the number of tries until success
         int attemptsBeforeSuccess = Integer.valueOf(spaceId);
 
         // allow the most recent successful id to complete successfully
-        if(spaceId.equals(lastSuccessfulSpaceMetadataId)) {
+        if(spaceId.equals(lastSuccessfulSpacePropertiesId)) {
             return null;
         }
 
-        if(getSpaceMetadataAttempts < attemptsBeforeSuccess) {
-            getSpaceMetadataAttempts++;
+        if(getSpacePropertiesAttempts < attemptsBeforeSuccess) {
+            getSpacePropertiesAttempts++;
             throw new StorageException(attemptsBeforeSuccess +
                                        " calls required before success.",
                                        StorageException.NO_RETRY);
         } else {
-            getSpaceMetadataAttempts = 0;
-            lastSuccessfulSpaceMetadataId = spaceId;
+            getSpacePropertiesAttempts = 0;
+            lastSuccessfulSpacePropertiesId = spaceId;
             return null;
         }
     }
 
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata) {
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties) {
         // Default method body
     }
 
@@ -108,13 +108,13 @@ public class MockVerifyCreateStorageProvider implements StorageProvider {
         // Default method body
     }
 
-    public void setContentMetadata(String spaceId, String contentId,
-                                   Map<String, String> contentMetadata) {
+    public void setContentProperties(String spaceId, String contentId,
+                                     Map<String, String> contentProperties) {
         // Default method body
     }
 
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId) {
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId) {
         // Default method body
         return null;
     }

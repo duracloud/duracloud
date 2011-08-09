@@ -109,7 +109,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         }
 
         try {
-            getContentStore().getSpaceMetadata(outSpaceId);
+            getContentStore().getSpaceProperties(outSpaceId);
             return;
 
         } catch (ContentStoreException e) {

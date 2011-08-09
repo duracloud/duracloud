@@ -47,9 +47,9 @@ public class AltTextOutputFormatTest {
 
         outputFormat.checkOutputSpecs(null, conf);
 
-        File metadata =
+        File properties =
             new File(testDir, testDir.getName() + "-space-metadata");
-        FileUtils.writeStringToFile(metadata, "Test");
+        FileUtils.writeStringToFile(properties, "Test");
 
         outputFormat.checkOutputSpecs(null, conf);
 

@@ -59,13 +59,14 @@ public class BrokeredStorageProvider
 
     public void createSpace(String spaceId) throws StorageException {
         dispatchProvider.createSpace(targetProvider, storeId, spaceId);
-
     }
 
     public void deleteContent(String spaceId, String contentId)
             throws StorageException {
-        dispatchProvider.deleteContent(targetProvider, storeId, spaceId, contentId);
-
+        dispatchProvider.deleteContent(targetProvider,
+                                       storeId,
+                                       spaceId,
+                                       contentId);
     }
 
     public void deleteSpace(String spaceId) throws StorageException {
@@ -75,24 +76,33 @@ public class BrokeredStorageProvider
 
     public InputStream getContent(String spaceId, String contentId)
             throws StorageException {
-        return dispatchProvider.getContent(targetProvider, storeId, spaceId, contentId);
+        return dispatchProvider.getContent(targetProvider,
+                                           storeId,
+                                           spaceId,
+                                           contentId);
     }
 
-    public Map<String, String> getContentMetadata(String spaceId, String contentId)
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId)
             throws StorageException {
-        return dispatchProvider.getContentMetadata(targetProvider,
-                                                   storeId,
-                                                   spaceId,
-                                                   contentId);
+        return dispatchProvider.getContentProperties(targetProvider,
+                                                     storeId,
+                                                     spaceId,
+                                                     contentId);
     }
 
     public AccessType getSpaceAccess(String spaceId) throws StorageException {
-        return dispatchProvider.getSpaceAccess(targetProvider, storeId, spaceId);
+        return dispatchProvider.getSpaceAccess(targetProvider,
+                                               storeId,
+                                               spaceId);
     }
 
     public Iterator<String> getSpaceContents(String spaceId, String prefix)
             throws StorageException {
-        return dispatchProvider.getSpaceContents(targetProvider, storeId, spaceId, prefix);
+        return dispatchProvider.getSpaceContents(targetProvider,
+                                                 storeId,
+                                                 spaceId,
+                                                 prefix);
     }
 
     public List<String> getSpaceContentsChunked(String spaceId,
@@ -108,24 +118,26 @@ public class BrokeredStorageProvider
                                                         marker);
     }
 
-    public Map<String, String> getSpaceMetadata(String spaceId) throws StorageException {
-        return dispatchProvider.getSpaceMetadata(targetProvider, storeId, spaceId);
-
+    public Map<String, String> getSpaceProperties(String spaceId)
+        throws StorageException {
+        return dispatchProvider.getSpaceProperties(targetProvider,
+                                                   storeId,
+                                                   spaceId);
     }
 
     public Iterator<String> getSpaces() throws StorageException {
         return dispatchProvider.getSpaces(targetProvider, storeId);
     }
 
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata)
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties)
             throws StorageException {
-        dispatchProvider.setContentMetadata(targetProvider,
-                                            storeId,
-                                            spaceId,
-                                            contentId,
-                                            contentMetadata);
+        dispatchProvider.setContentProperties(targetProvider,
+                                              storeId,
+                                              spaceId,
+                                              contentId,
+                                              contentProperties);
     }
 
     public void setSpaceAccess(String spaceId, AccessType access)
@@ -133,12 +145,13 @@ public class BrokeredStorageProvider
         dispatchProvider.setSpaceAccess(targetProvider, storeId, spaceId, access);
     }
 
-    public void setSpaceMetadata(String spaceId, Map<String, String> spaceMetadata)
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties)
             throws StorageException {
-        dispatchProvider.setSpaceMetadata(targetProvider,
-                                          storeId,
-                                          spaceId,
-                                          spaceMetadata);
+        dispatchProvider.setSpaceProperties(targetProvider,
+                                            storeId,
+                                            spaceId,
+                                            spaceProperties);
     }
 
 }

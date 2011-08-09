@@ -61,10 +61,14 @@ public class Replicator implements Runnable {
     @Override
     public void run() {
         try {
-            Map<String, String> metadata =
-                primaryStore.getContentMetadata(fromSpaceId, contentId);
+            Map<String, String> properties =
+                primaryStore.getContentProperties(fromSpaceId, contentId);
             try {
-                replicate(repStore, repSpaceId, contentId, fileWithMD5, metadata);
+                replicate(repStore,
+                          repSpaceId,
+                          contentId,
+                          fileWithMD5,
+                          properties);
                 success = true;
             } catch(NotFoundException e) {
                 System.out.println("NotFoundException: " + e.getMessage());
@@ -85,12 +89,12 @@ public class Replicator implements Runnable {
                             String fromSpaceId)
         throws ContentStoreException {
         try {
-            toStore.getSpaceMetadata(toSpaceId);
+            toStore.getSpaceProperties(toSpaceId);
         } catch(NotFoundException e) {
             // Create Space
             System.out.println("Creating space: " + toSpaceId);
             toStore.createSpace(toSpaceId,
-                                primaryStore.getSpaceMetadata(fromSpaceId));
+                                primaryStore.getSpaceProperties(fromSpaceId));
         }
     }
 
@@ -98,7 +102,7 @@ public class Replicator implements Runnable {
                            String toSpaceId,
                            String contentId,
                            FileWithMD5 fileWithMD5,
-                           Map<String, String> origMetadata)
+                           Map<String, String> origProperties)
         throws ContentStoreException, IOException {
         System.out.println("Replicating " + contentId + " to " + toSpaceId);
 
@@ -109,9 +113,9 @@ public class Replicator implements Runnable {
 
         String origMimetype = "application/octet-stream";
         String origChecksum = "";
-        if(null != origMetadata) {
-            origMimetype = origMetadata.get(ContentStore.CONTENT_MIMETYPE);
-            origChecksum = origMetadata.get(ContentStore.CONTENT_CHECKSUM);
+        if(null != origProperties) {
+            origMimetype = origProperties.get(ContentStore.CONTENT_MIMETYPE);
+            origChecksum = origProperties.get(ContentStore.CONTENT_CHECKSUM);
         }
 
         if (null == origChecksum) {
@@ -121,15 +125,15 @@ public class Replicator implements Runnable {
         // Check to see if file already exists
         boolean exists = false;
         if(null != origChecksum) {
-            Map<String, String> destMetadata;
+            Map<String, String> destProperties;
             try {
-                destMetadata = toStore.getContentMetadata(toSpaceId, contentId);
+                destProperties = toStore.getContentProperties(toSpaceId, contentId);
             } catch(NotFoundException e) {
-                destMetadata = null;
+                destProperties = null;
             }
-            if(null != destMetadata) {
+            if(null != destProperties) {
                 String destChecksum =
-                    destMetadata.get(ContentStore.CONTENT_CHECKSUM);
+                    destProperties.get(ContentStore.CONTENT_CHECKSUM);
                 if(null != destChecksum) {
                     if(origChecksum.equals(destChecksum)) {
                         exists = true;
@@ -153,7 +157,7 @@ public class Replicator implements Runnable {
                                file.length(),
                                origMimetype,
                                origChecksum,
-                               origMetadata);
+                               origProperties);
             
             System.out.println("Completed replication of " + contentId +
                                " to " + toSpaceId);

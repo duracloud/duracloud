@@ -59,22 +59,24 @@ public class ContentDuplicator {
             return;
         }
 
-        Map<String, String> metadata = content.getMetadata();
+        Map<String, String> properties = content.getProperties();
 
         String mimeType = "application/octet-stream";
         long contentSize = 0;
         String checksum = null;
 
-        if(metadata != null && !metadata.isEmpty()) {
-            mimeType = metadata.get(ContentStore.CONTENT_MIMETYPE);
+        if(properties != null && !properties.isEmpty()) {
+            mimeType = properties.get(ContentStore.CONTENT_MIMETYPE);
 
-            contentSize = getContentSize(metadata.get(ContentStore.CONTENT_SIZE),
-                                         contentStream);
+            contentSize =
+                getContentSize(properties.get(ContentStore.CONTENT_SIZE),
+                                              contentStream);
 
-            checksum = metadata.get(ContentStore.CONTENT_CHECKSUM);
+            checksum = properties.get(ContentStore.CONTENT_CHECKSUM);
         } else {
-            DigestInputStream stream = ChecksumUtil.wrapStream(contentStream,
-                                                               ChecksumUtil.Algorithm.MD5);
+            DigestInputStream stream =
+                ChecksumUtil.wrapStream(contentStream,
+                                        ChecksumUtil.Algorithm.MD5);
             File tmpFile = cacheStreamToFile(stream);
             contentSize = tmpFile.length();
 
@@ -87,7 +89,7 @@ public class ContentDuplicator {
                    contentSize,
                    mimeType,
                    checksum,
-                   metadata);
+                   properties);
     }
 
     private void addContent(String spaceId,
@@ -96,7 +98,7 @@ public class ContentDuplicator {
                             long contentSize,
                             String mimeType,
                             String checksum,
-                            Map<String, String> metadata) {
+                            Map<String, String> properties) {
         try {
             toStore.addContent(spaceId,
                                contentId,
@@ -104,7 +106,7 @@ public class ContentDuplicator {
                                contentSize,
                                mimeType,
                                checksum,
-                               metadata);
+                               properties);
         } catch(NotFoundException nfe) {
             String error = "Unable to create content " + contentId + " in space " +
                            spaceId + " due to not found error: " + nfe.getMessage();
@@ -117,7 +119,7 @@ public class ContentDuplicator {
                          contentSize,
                          mimeType,
                          checksum,
-                         metadata);
+                         properties);
         } catch(ContentStoreException ce) {
             String error = "Unable to replicate content " + contentId + " in space " +
                            spaceId + " due to error: " + ce.getMessage();
@@ -128,7 +130,7 @@ public class ContentDuplicator {
                          contentSize,
                          mimeType,
                          checksum,
-                         metadata);
+                         properties);
         }
     }
 
@@ -137,7 +139,7 @@ public class ContentDuplicator {
                               final long contentSize,
                               final String mimeType,
                               final String checksum,
-                              final Map<String, String> metadata) {
+                              final Map<String, String> properties) {
         new RetryDuplicate() {
             protected void doReplicate() throws Exception {
                 Content content = getContent(spaceId, contentId);
@@ -148,7 +150,7 @@ public class ContentDuplicator {
                                    contentSize,
                                    mimeType,
                                    checksum,
-                                   metadata);
+                                   properties);
             }
         }.replicate();
     }
@@ -162,22 +164,23 @@ public class ContentDuplicator {
         Map<String, String> contentMeta = null;
 
         try {
-            // Get Content metadata
-            contentMeta = fromStore.getContentMetadata(
+            // Get Content properties
+            contentMeta = fromStore.getContentProperties(
                 spaceId,
                 contentId);
         } catch (ContentStoreException cse) {
-            String error = "Unable to get content " + contentId + " metadata in space " + spaceId +
+            String error = "Unable to get content " + contentId +
+                           " properties in space " + spaceId +
                            " due to error: " + cse.getMessage();
             log.error(error, cse);
             return;
         }
 
         try {
-            // Set Content metadata
-            toStore.setContentMetadata(spaceId, contentId, contentMeta);
+            // Set Content properties
+            toStore.setContentProperties(spaceId, contentId, contentMeta);
         } catch (NotFoundException nfe) {
-            String error = "Unable to update content metadata " + contentId +
+            String error = "Unable to update content properties " + contentId +
                            " in space " + spaceId + " due to not found error: " +
                            nfe.getMessage();
             log.error(error, nfe);
@@ -188,16 +191,16 @@ public class ContentDuplicator {
                            " due to error: " + cse.getMessage();
             log.error(error, cse);
 
-            setMetadata(spaceId, contentId, contentMeta);
+            setProperties(spaceId, contentId, contentMeta);
         }
     }
 
-    private void setMetadata(final String spaceId,
-                              final String contentId,
-                              final Map<String, String> metadata) {
+    private void setProperties(final String spaceId,
+                               final String contentId,
+                               final Map<String, String> properties) {
         new RetryDuplicate() {
             protected void doReplicate() throws Exception {
-                toStore.setContentMetadata(spaceId, contentId, metadata);
+                toStore.setContentProperties(spaceId, contentId, properties);
             }
         }.replicate();
     }
@@ -287,7 +290,8 @@ public class ContentDuplicator {
 
     private void createSpace(String spaceId) {
         try {
-            Map<String, String> spaceMeta = fromStore.getSpaceMetadata(spaceId);
+            Map<String, String> spaceMeta =
+                fromStore.getSpaceProperties(spaceId);
             toStore.createSpace(spaceId, spaceMeta);
         }
         catch(ContentStoreException ce) {

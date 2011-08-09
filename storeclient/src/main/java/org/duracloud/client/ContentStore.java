@@ -28,37 +28,37 @@ public interface ContentStore {
 
     public enum AccessType {OPEN, CLOSED};
 
-    /** Basic space metadata: Created date */
+    /** Basic space properties: Created date */
     public static final String SPACE_CREATED =
-            StorageProvider.METADATA_SPACE_CREATED;
+            StorageProvider.PROPERTIES_SPACE_CREATED;
 
-    /** Basic space metadata: Count of items in a space */
+    /** Basic space properties: Count of items in a space */
     public static final String SPACE_COUNT =
-            StorageProvider.METADATA_SPACE_COUNT;
+            StorageProvider.PROPERTIES_SPACE_COUNT;
 
-    /** Basic space metadata: Size of space */
+    /** Basic space properties: Size of space */
     public static final String SPACE_SIZE =
-            StorageProvider.METADATA_SPACE_SIZE;
+            StorageProvider.PROPERTIES_SPACE_SIZE;
 
-    /** Basic space metadata: Space access (OPEN or CLOSED) */
+    /** Basic space properties: Space access (OPEN or CLOSED) */
     public static final String SPACE_ACCESS =
-            StorageProvider.METADATA_SPACE_ACCESS;
+            StorageProvider.PROPERTIES_SPACE_ACCESS;
 
-    /** Basic content metadata: MIME type */
+    /** Basic content properties: MIME type */
     public static final String CONTENT_MIMETYPE =
-            StorageProvider.METADATA_CONTENT_MIMETYPE;
+            StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
 
-    /** Basic content metadata: Size */
+    /** Basic content properties: Size */
     public static final String CONTENT_SIZE =
-            StorageProvider.METADATA_CONTENT_SIZE;
+            StorageProvider.PROPERTIES_CONTENT_SIZE;
 
-    /** Basic content metadata: MD5 checksum */
+    /** Basic content properties: MD5 checksum */
     public static final String CONTENT_CHECKSUM =
-            StorageProvider.METADATA_CONTENT_CHECKSUM;
+            StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 
-    /** Basic content metadata: Last modified date */
+    /** Basic content properties: Last modified date */
     public static final String CONTENT_MODIFIED =
-            StorageProvider.METADATA_CONTENT_MODIFIED;
+            StorageProvider.PROPERTIES_CONTENT_MODIFIED;
 
     /**
      * Gets the base URL pointing to the DuraCloud DuraStore REST API
@@ -115,7 +115,7 @@ public interface ContentStore {
         throws ContentStoreException;
 
     /**
-     * Provides a space, including the id and metadata of the space as well as
+     * Provides a space, including the id and properties of the space as well as
      * a limited list of the content items within a space. This call allows for
      * manual paging of content IDs using the maxResults and marker parameters.
      *
@@ -141,11 +141,11 @@ public interface ContentStore {
      * call to getSpaces() may not include a space with exactly this same name.
      *
      * @param spaceId the identifier of the DuraCloud Space
-     * @param spaceMetadata a map of metadata entries for the space
+     * @param spaceProperties a map of properties entries for the space
      * @throws InvalidIdException if the space ID is not valid
      * @throws ContentStoreException if the space already exists or cannot be created
      */
-    public void createSpace(String spaceId, Map<String, String> spaceMetadata)
+    public void createSpace(String spaceId, Map<String, String> spaceProperties)
             throws ContentStoreException;   
 
     /**
@@ -158,27 +158,27 @@ public interface ContentStore {
     public void deleteSpace(String spaceId) throws ContentStoreException;
     
     /**
-     * Retrieves the metadata associated with a space.
+     * Retrieves the properties associated with a space.
      *
      * @param spaceId the identifier of the DuraCloud Space
-     * @return Map of space metadata or null if no metadata exists
+     * @return Map of space properties or null if no properties exists
      * @throws NotFoundException if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Map<String, String> getSpaceMetadata(String spaceId)
+    public Map<String, String> getSpaceProperties(String spaceId)
             throws ContentStoreException;
     
     /**
-     * Sets the metadata associated with a space. Only values included
-     * in the  metadata map will be updated, others will remain unchanged.
+     * Sets the properties associated with a space. Only values included
+     * in the  properties map will be updated, others will remain unchanged.
      *
      * @param spaceId the identifier of the DuraCloud Space
-     * @param spaceMetadata a map of metadata entries for the space
+     * @param spaceProperties a map of properties entries for the space
      * @throws NotFoundException if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata)
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties)
             throws ContentStoreException;
     
     /**
@@ -216,7 +216,7 @@ public interface ContentStore {
      * @param contentSize the size of the content
      * @param contentMimeType the MIME type of the content
      * @param contentChecksum the MD5 checksum of the content, or null if the checksum is not known
-     * @param contentMetadata a map of metadata values to be linked to this content
+     * @param contentProperties a map of properties values to be linked to this content
      * @throws InvalidIdException if the content ID is not valid
      * @throws NotFoundException if the space does not exist
      * @throws ContentStoreException if an error occurs
@@ -228,7 +228,7 @@ public interface ContentStore {
                              long contentSize,
                              String contentMimeType,
                              String contentChecksum,
-                             Map<String, String> contentMetadata)
+                             Map<String, String> contentProperties)
             throws ContentStoreException;
 
     /**
@@ -255,36 +255,36 @@ public interface ContentStore {
             throws ContentStoreException;
 
     /**
-     * Sets the metadata associated with content. This effectively removes all
-     * of the current content metadata and adds a new set of metadata. Some
-     * metadata, such as system metadata provided by the underlying storage
+     * Sets the properties associated with content. This effectively removes all
+     * of the current content properties and adds a new set of properties. Some
+     * properties, such as system properties provided by the underlying storage
      * system, cannot be updated or removed. Some of the values which cannot be
      * updated or removed: content-checksum, content-modified, content-size
      *
      * @param spaceId the identifier of the DuraCloud Space
      * @param contentId the identifier of the content item
-     * @param contentMetadata a map of metadata values to be linked to this content
+     * @param contentProperties a map of properties values to be linked to this content
      * @throws NotFoundException if the space or content does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata)
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties)
             throws ContentStoreException;
 
     /**
-     * Retrieves the metadata associated with content. This includes both
-     * metadata generated by the underlying storage system and user defined
-     * metadata
+     * Retrieves the properties associated with content. This includes both
+     * properties generated by the underlying storage system and user defined
+     * properties
      *
      * @param spaceId the identifier of the DuraCloud Space
      * @param contentId the identifier of the content item
-     * @return the map of metadata values linked to the given contentId
+     * @return the map of properties values linked to the given contentId
      * @throws NotFoundException if the space or content does not exist
      * @throws ContentStoreException if an error occurs 
      */
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId)
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId)
             throws ContentStoreException;
 
     /**

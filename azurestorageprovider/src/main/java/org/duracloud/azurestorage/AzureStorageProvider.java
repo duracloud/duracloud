@@ -241,11 +241,11 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         createContainer(spaceId);
 
-        // Add space metadata
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
+        // Add space properties
+        Map<String, String> spaceProperties = new HashMap<String, String>();
         Date created = new Date(System.currentTimeMillis());
-        spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
-        setSpaceMetadataInt(spaceId, spaceMetadata);
+        spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
+        setSpacePropertiesInt(spaceId, spaceProperties);
     }
 
     private String formattedDate(Date created) {
@@ -287,8 +287,8 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceMetadata(String spaceId) {
-        log.debug("getSpaceMetadata(" + spaceId + ")");
+    public Map<String, String> getSpaceProperties(String spaceId) {
+        log.debug("getSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -300,13 +300,13 @@ public class AzureStorageProvider extends StorageProviderBase {
         IContainerProperties containerInfo = getContainerInfo(containerName);
         NameValueCollection values = containerInfo.getMetadata();
 
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
+        Map<String, String> spaceProperties = new HashMap<String, String>();
 
         Iterator<Object> keys = values.keySet().iterator();
         while (keys.hasNext()) {
             String key = (String) keys.next();
             String val = values.getSingleValue(key);
-            spaceMetadata.put(key, val);
+            spaceProperties.put(key, val);
         }
 
         int count = 0;
@@ -316,25 +316,25 @@ public class AzureStorageProvider extends StorageProviderBase {
             count++;
             blobs.next();
         }
-        spaceMetadata.put(METADATA_SPACE_COUNT, String.valueOf(count));
+        spaceProperties.put(PROPERTIES_SPACE_COUNT, String.valueOf(count));
 
         ContainerAccessControl enumAccess = blobContainer.getAccessControl();
         if (enumAccess != null) {
             if (enumAccess.isPublic()) {
-                spaceMetadata.put(METADATA_SPACE_ACCESS,
-                                  AccessType.OPEN.name());
+                spaceProperties.put(PROPERTIES_SPACE_ACCESS,
+                                    AccessType.OPEN.name());
             } else {
-                spaceMetadata.put(METADATA_SPACE_ACCESS,
-                                  AccessType.CLOSED.name());
+                spaceProperties.put(PROPERTIES_SPACE_ACCESS,
+                                    AccessType.CLOSED.name());
             }
         }
 
-        return spaceMetadata;
+        return spaceProperties;
     }
 
     private IContainerProperties getContainerInfo(String containerName) {
         StringBuilder err = new StringBuilder(
-            "Could not retrieve metadata " + "from Azure container " +
+            "Could not retrieve properties " + "from Azure container " +
                 containerName + " due to error: ");
 
         try {
@@ -350,23 +350,24 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata) {
-        log.debug("setSpaceMetadata(" + spaceId + ")");
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties) {
+        log.debug("setSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        setSpaceMetadataInt(spaceId, spaceMetadata);
+        setSpacePropertiesInt(spaceId, spaceProperties);
     }
 
-    private void setSpaceMetadataInt(String spaceId,
-                                 Map<String, String> spaceMetadata) {
-        log.debug("setSpaceMetadata(" + spaceId + ")");
+    private void setSpacePropertiesInt(String spaceId,
+                                       Map<String, String> spaceProperties) {
+        log.debug("setSpaceProperties(" + spaceId + ")");
 
-        // Ensure that space created date is included in the new metadata
-        Date created = getCreationDate(spaceId, spaceMetadata);
+        // Ensure that space created date is included in the new properties
+        Date created = getCreationDate(spaceId, spaceProperties);
         if (created != null) {
-            spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
+            spaceProperties.put(PROPERTIES_SPACE_CREATED,
+                                formattedDate(created));
         }
 
         String containerName = getContainerName(spaceId);
@@ -374,7 +375,7 @@ public class AzureStorageProvider extends StorageProviderBase {
         IBlobContainer blobContainer = blobStorage.getBlobContainer(
             containerName);
 
-        String spaceAccess = spaceMetadata.remove(METADATA_SPACE_ACCESS);
+        String spaceAccess = spaceProperties.remove(PROPERTIES_SPACE_ACCESS);
         if (spaceAccess != null) {
             ContainerAccessControl enumAccess = ContainerAccessControl.Private;
             if (spaceAccess.equalsIgnoreCase(AccessType.OPEN.name())) {
@@ -384,18 +385,18 @@ public class AzureStorageProvider extends StorageProviderBase {
             blobContainer.setAccessControl(enumAccess);
         }
 
-        NameValueCollection objMetadataPut = new NameValueCollection();
-        objMetadataPut.putAll(spaceMetadata);
-        blobContainer.setMetadata(objMetadataPut);
+        NameValueCollection objPropertiesPut = new NameValueCollection();
+        objPropertiesPut.putAll(spaceProperties);
+        blobContainer.setMetadata(objPropertiesPut);
     }
 
     private Date getCreationDate(String spaceId,
-                                 Map<String, String> spaceMetadata) {
+                                 Map<String, String> spaceProperties) {
         String dateText;
-        if (!spaceMetadata.containsKey(METADATA_SPACE_CREATED)) {
+        if (!spaceProperties.containsKey(PROPERTIES_SPACE_CREATED)) {
             dateText = getCreationTimestamp(spaceId);
         } else {
-            dateText = spaceMetadata.get(METADATA_SPACE_CREATED);
+            dateText = spaceProperties.get(PROPERTIES_SPACE_CREATED);
         }
 
         Date created = null;
@@ -408,12 +409,12 @@ public class AzureStorageProvider extends StorageProviderBase {
     }
 
     private String getCreationTimestamp(String spaceId) {
-        Map<String, String> spaceMd = getSpaceMetadata(spaceId);
-        String creationTime = spaceMd.get(METADATA_SPACE_CREATED);
+        Map<String, String> spaceMd = getSpaceProperties(spaceId);
+        String creationTime = spaceMd.get(PROPERTIES_SPACE_CREATED);
 
         if (creationTime == null) {
             StringBuffer msg = new StringBuffer("Error: ");
-            msg.append("No ").append(METADATA_SPACE_CREATED).append(" found ");
+            msg.append("No ").append(PROPERTIES_SPACE_CREATED).append(" found ");
             msg.append("for spaceId: ").append(spaceId);
             log.error(msg.toString());
             throw new StorageException(msg.toString());
@@ -589,29 +590,29 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata) {
-        log.debug("setContentMetadata(" + spaceId + ", " + contentId + ")");
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties) {
+        log.debug("setContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
         // Remove calculated properties
-        contentMetadata.remove(METADATA_CONTENT_CHECKSUM);
-        contentMetadata.remove(METADATA_CONTENT_MODIFIED);
-        contentMetadata.remove(METADATA_CONTENT_SIZE);
+        contentProperties.remove(PROPERTIES_CONTENT_CHECKSUM);
+        contentProperties.remove(PROPERTIES_CONTENT_MODIFIED);
+        contentProperties.remove(PROPERTIES_CONTENT_SIZE);
 
-        updateContentMetadata(spaceId, contentId, contentMetadata);
+        updateContentProperties(spaceId, contentId, contentProperties);
     }
 
-    private void updateContentMetadata(String spaceId,
-                                       String contentId,
-                                       Map<String, String> contentMetadata) {
+    private void updateContentProperties(String spaceId,
+                                         String contentId,
+                                         Map<String, String> contentProperties) {
         String containerName = getContainerName(spaceId);
         String contentName = getContentName(contentId);
 
         StringBuilder err = new StringBuilder(
-            "Could not update metadata for content " + contentName +
+            "Could not update properties for content " + contentName +
                 " in Azure container " + containerName + " due to error: ");
 
         try {
@@ -621,10 +622,10 @@ public class AzureStorageProvider extends StorageProviderBase {
             IBlockBlob blockBlob = blobContainer.getBlockBlobReference(contentName);
             IBlobProperties blobProperties = blockBlob.getProperties();
 
-            NameValueCollection metadata = new NameValueCollection();
-            metadata.putAll(contentMetadata);
+            NameValueCollection properties = new NameValueCollection();
+            properties.putAll(contentProperties);
 
-            blobProperties.setMetadata(metadata);
+            blobProperties.setMetadata(properties);
 
             blockBlob.setProperties(blobProperties);
         } catch (org.soyatec.windowsazure.error.StorageException e) {
@@ -635,72 +636,72 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId) {
-        log.debug("getContentMetadata(" + spaceId + ", " + contentId + ")");
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId) {
+        log.debug("getContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        IBlobProperties metadata = getObjectMetadata(spaceId, contentId);
-        if (metadata == null) {
-            String err = "No metadata is available for item " + contentId +
+        IBlobProperties properties = getObjectProperties(spaceId, contentId);
+        if (properties == null) {
+            String err = "No properties is available for item " + contentId +
                 " in Azure space " + spaceId;
             throw new StorageException(err, RETRY);
         }
 
         Map<String, String> resultMap = new HashMap<String, String>();
 
-        NameValueCollection metadataMap = metadata.getMetadata();
+        NameValueCollection propertiesMap = properties.getMetadata();
 
-        if (metadataMap == null) {
-            metadataMap = new NameValueCollection();
+        if (propertiesMap == null) {
+            propertiesMap = new NameValueCollection();
         }
 
-        // Set expected metadata values
+        // Set expected property values
         // MIMETYPE
-        String mimetype = metadata.getContentType();
+        String mimetype = properties.getContentType();
         if (mimetype != null) {
-            metadataMap.put(METADATA_CONTENT_MIMETYPE, mimetype);
+            propertiesMap.put(PROPERTIES_CONTENT_MIMETYPE, mimetype);
         }
         // MD5
-        String md5 = metadata.getContentMD5();
+        String md5 = properties.getContentMD5();
         if (md5 != null) {
             byte[] base64Decoded = Base64.decodeBase64(md5.getBytes());
             String newMd5 = ChecksumUtil.checksumBytesToString(base64Decoded);
 
-            metadataMap.put(METADATA_CONTENT_CHECKSUM, newMd5);
+            propertiesMap.put(PROPERTIES_CONTENT_CHECKSUM, newMd5);
         }
         // SIZE
-        long length = metadata.getContentLength();
+        long length = properties.getContentLength();
         String contentLength = Long.toString(length);
         if (contentLength != null) {
-            resultMap.put(METADATA_CONTENT_SIZE, contentLength);
+            resultMap.put(PROPERTIES_CONTENT_SIZE, contentLength);
         }
 
         // MODIFIED DATE
-        Timestamp modified = metadata.getLastModifiedTime();
+        Timestamp modified = properties.getLastModifiedTime();
         if (modified != null) {
-            resultMap.put(METADATA_CONTENT_MODIFIED, modified.toString());
+            resultMap.put(PROPERTIES_CONTENT_MODIFIED, modified.toString());
         }
 
-        // Normalize metadata keys to lowercase.
-        Iterator keys = metadataMap.keySet().iterator();
+        // Normalize properties keys to lowercase.
+        Iterator keys = propertiesMap.keySet().iterator();
         while (keys.hasNext()) {
             String key = (String) keys.next();
-            String val = metadataMap.getSingleValue(key);
+            String val = propertiesMap.getSingleValue(key);
             resultMap.put(key.toLowerCase(), val);
         }
 
         return resultMap;
     }
 
-    private IBlobProperties getObjectMetadata(String spaceId,
-                                              String contentId) {
+    private IBlobProperties getObjectProperties(String spaceId,
+                                                String contentId) {
         String containerName = getContainerName(spaceId);
         String contentName = getContentName(contentId);
 
         StringBuilder err = new StringBuilder(
-            "Could not retrieve metadata for content " + contentName +
+            "Could not retrieve properties for content " + contentName +
                 " from Azure container " + containerName + " due to error: ");
 
         try {

@@ -1,0 +1,23 @@
+<assembly>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <formats>
+    <format>jar</format>
+  </formats>
+
+  <dependencySets>
+    <dependencySet>
+      <includes>
+        <include>org.duracloud.services.hadoop:fixity-properties-processor</include>
+        <include>org.duracloud.services.hadoop:base-processor</include>
+        <include>org.duracloud:common</include>
+        <include>org.duracloud:storeclient</include>
+        <include>org.duracloud:storageprovider</include>
+        <include>commons-io:commons-io</include>
+        <include>commons-cli:commons-cli</include>
+        <include>org.jdom:com.springsource.org.jdom</include>
+      </includes>
+      <unpack>true</unpack>
+    </dependencySet>
+  </dependencySets>
+
+</assembly>

@@ -8,7 +8,6 @@
 package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.RestUtil;
-import org.duracloud.durastore.error.ResourceException;
 import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +39,7 @@ public class ContentRestExceptionsTest {
         ContentResource resource = EasyMock.createMock("ContentResource",
                                                        ContentResource.class);
 
-        EasyMock.expect(resource.getContentMetadata(null, null, null)).andThrow(
+        EasyMock.expect(resource.getContentProperties(null, null, null)).andThrow(
             support.createRuntimeException()).anyTimes();
         resource.deleteContent(null, null, null);
         EasyMock.expectLastCall()
@@ -59,14 +58,14 @@ public class ContentRestExceptionsTest {
     }
 
     @Test
-    public void testGetContentMetadata() throws Exception {
-        Response response = contentRest.getContentMetadata(null, null, null);
+    public void testGetContentProperties() throws Exception {
+        Response response = contentRest.getContentProperties(null, null, null);
         support.verifyErrorResponse(response);
     }
 
     @Test
-    public void testUpdateContentMetadata() throws Exception {
-        Response response = contentRest.updateContentMetadata(null, null, null);
+    public void testUpdateContentProperties() throws Exception {
+        Response response = contentRest.updateContentProperties(null, null, null);
         support.verifyErrorResponse(response);
     }
 

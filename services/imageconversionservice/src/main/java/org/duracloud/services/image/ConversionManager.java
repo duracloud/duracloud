@@ -233,7 +233,7 @@ public class ConversionManager {
     private void checkDestSpace() {
         try {
             try {
-                contentStore.getSpaceMetadata(destSpaceId);
+                contentStore.getSpaceProperties(destSpaceId);
             } catch (NotFoundException e) {
                 contentStore.createSpace(destSpaceId, null);
             }

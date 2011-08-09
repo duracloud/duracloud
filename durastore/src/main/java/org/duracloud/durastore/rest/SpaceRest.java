@@ -72,10 +72,10 @@ public class SpaceRest extends BaseRest {
     }
 
     /**
-     * see SpaceResource.getSpaceMetadata(String, String);
+     * see SpaceResource.getSpaceProperties(String, String);
      * see SpaceResource.getSpaceContents(String, String);
      * @return 200 response with XML listing of space content and
-     *         space metadata included as header values
+     *         space properties included as header values
      */
     @Path("/{spaceID}")
     @GET
@@ -127,26 +127,26 @@ public class SpaceRest extends BaseRest {
                                                     prefix,
                                                     maxResults,
                                                     marker);
-        return addSpaceMetadataToResponse(Response.ok(xml, APPLICATION_XML),
-                                          spaceID,
-                                          storeID);
+        return addSpacePropertiesToResponse(Response.ok(xml, APPLICATION_XML),
+                                            spaceID,
+                                            storeID);
     }
 
     /**
-     * see SpaceResource.getSpaceMetadata(String, String);
-     * @return 200 response with space metadata included as header values
+     * see SpaceResource.getSpaceProperties(String, String);
+     * @return 200 response with space properties included as header values
      */
     @Path("/{spaceID}")
     @HEAD
-    public Response getSpaceMetadata(@PathParam("spaceID")
-                                     String spaceID,
-                                     @QueryParam("storeID")
-                                     String storeID){
-        String msg = "adding space metadata(" + spaceID + ", " + storeID + ")";
+    public Response getSpaceProperties(@PathParam("spaceID")
+                                       String spaceID,
+                                       @QueryParam("storeID")
+                                       String storeID){
+        String msg = "adding space properties(" + spaceID + ", " + storeID + ")";
 
         try {
             log.debug(msg);
-            return addSpaceMetadataToResponse(Response.ok(), spaceID, storeID);
+            return addSpacePropertiesToResponse(Response.ok(), spaceID, storeID);
 
         } catch (ResourceNotFoundException e) {
             return responseBad(msg, e, NOT_FOUND);
@@ -160,20 +160,20 @@ public class SpaceRest extends BaseRest {
     }
 
     /**
-     * Adds the metadata of a space as header values to the response
+     * Adds the properties of a space as header values to the response
      */
-    private Response addSpaceMetadataToResponse(ResponseBuilder response,
-                                                String spaceID,
-                                                String storeID)
+    private Response addSpacePropertiesToResponse(ResponseBuilder response,
+                                                  String spaceID,
+                                                  String storeID)
         throws ResourceException {
-        Map<String, String> metadata = spaceResource.getSpaceMetadata(spaceID,
-                                                                      storeID);
-        if (metadata != null) {
-            Iterator<String> metadataNames = metadata.keySet().iterator();
-            while (metadataNames.hasNext()) {
-                String metadataName = (String) metadataNames.next();
-                String metadataValue = metadata.get(metadataName);
-                response.header(HEADER_PREFIX + metadataName, metadataValue);
+        Map<String, String> properties =
+            spaceResource.getSpaceProperties(spaceID, storeID);
+        if (properties != null) {
+            Iterator<String> propertiesNames = properties.keySet().iterator();
+            while (propertiesNames.hasNext()) {
+                String propertiesName = (String) propertiesNames.next();
+                String propertiesValue = properties.get(propertiesName);
+                response.header(HEADER_PREFIX + propertiesName, propertiesValue);
             }
         }
         return response.build();
@@ -215,30 +215,31 @@ public class SpaceRest extends BaseRest {
             spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
         }
 
-        Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
+        Map<String, String> userProperties =
+            getUserProperties(SPACE_ACCESS_HEADER);
         spaceResource.addSpace(spaceID,
                                spaceAccess,
-                               userMetadata,
+                               userProperties,
                                storeID);
         URI location = uriInfo.getRequestUri();
         return Response.created(location).build();
     }
 
     /**
-     * see SpaceResource.updateSpaceMetadata(String, String, String, String);
-     * @return 200 response with XML listing of space metadata
+     * see SpaceResource.updateSpaceProperties(String, String, String, String);
+     * @return 200 response with XML listing of space properties
      */
     @Path("/{spaceID}")
     @POST
-    public Response updateSpaceMetadata(@PathParam("spaceID")
-                                        String spaceID,
-                                        @QueryParam("storeID")
-                                        String storeID){
-        String msg = "update space metadata(" + spaceID + ", " + storeID + ")";
+    public Response updateSpaceProperties(@PathParam("spaceID")
+                                          String spaceID,
+                                          @QueryParam("storeID")
+                                          String storeID){
+        String msg = "update space properties(" + spaceID + ", " + storeID + ")";
 
         try {
             log.debug(msg);
-            return doUpdateSpaceMetadata(spaceID, storeID);
+            return doUpdateSpaceProperties(spaceID, storeID);
 
         } catch (ResourceNotFoundException e) {
             return responseBad(msg, e, NOT_FOUND);
@@ -251,18 +252,19 @@ public class SpaceRest extends BaseRest {
         }
     }
 
-    private Response doUpdateSpaceMetadata(String spaceID, String storeID)
+    private Response doUpdateSpaceProperties(String spaceID, String storeID)
         throws ResourceException {
         MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
 
         String spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
 
-        Map<String, String> userMetadata = getUserMetadata(SPACE_ACCESS_HEADER);
+        Map<String, String> userProperties =
+            getUserProperties(SPACE_ACCESS_HEADER);
 
-        spaceResource.updateSpaceMetadata(spaceID,
-                                          spaceAccess,
-                                          userMetadata,
-                                          storeID);
+        spaceResource.updateSpaceProperties(spaceID,
+                                            spaceAccess,
+                                            userProperties,
+                                            storeID);
         String responseText = "Space " + spaceID + " updated successfully";
         return Response.ok(responseText, TEXT_PLAIN).build();
     }

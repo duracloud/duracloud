@@ -25,9 +25,9 @@
     </dependencySet>
     <dependencySet>
       <scope>provided</scope>
-      <outputFileNameMapping>fixity-metadata-processor.hjar</outputFileNameMapping>
+      <outputFileNameMapping>fixity-properties-processor.hjar</outputFileNameMapping>
       <includes>
-        <include>org.duracloud.services.hadoop:fixity-metadata-processor</include>
+        <include>org.duracloud.services.hadoop:fixity-properties-processor</include>
       </includes>
     </dependencySet>
   </dependencySets>

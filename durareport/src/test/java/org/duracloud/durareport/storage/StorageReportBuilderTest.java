@@ -125,12 +125,13 @@ public class StorageReportBuilderTest {
             .andAnswer(new SpaceContents())
             .times(3);
 
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(ContentStore.CONTENT_MIMETYPE, "text/plain");
-        metadata.put(ContentStore.CONTENT_SIZE, "100");
-        EasyMock.expect(mockStore.getContentMetadata(EasyMock.isA(String.class),
-                                                     EasyMock.isA(String.class)))
-            .andReturn(metadata)
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(ContentStore.CONTENT_MIMETYPE, "text/plain");
+        properties.put(ContentStore.CONTENT_SIZE, "100");
+        EasyMock.expect(
+            mockStore.getContentProperties(EasyMock.isA(String.class),
+                                           EasyMock.isA(String.class)))
+            .andReturn(properties)
             .times(9);
 
         EasyMock.replay(mockStore);

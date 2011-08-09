@@ -76,24 +76,25 @@ public class SpaceResource {
     }
 
     /**
-     * Gets the metadata of a space.
+     * Gets the properties of a space.
      *
      * @param spaceID
      * @param storeID
-     * @return Map of space metadata
+     * @return Map of space properties
      */
-    public Map<String, String> getSpaceMetadata(String spaceID, String storeID)
+    public Map<String, String> getSpaceProperties(String spaceID,
+                                                  String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
-            return storage.getSpaceMetadata(spaceID);
+            return storage.getSpaceProperties(spaceID);
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("retrieve space metadata for",
+            throw new ResourceNotFoundException("retrieve space properties for",
                                                 spaceID,
                                                 e);
         } catch (StorageException e) {
-            throw new ResourceException("retrieve space metadata for",
+            throw new ResourceException("retrieve space properties for",
                                         spaceID,
                                         e);
         }
@@ -110,10 +111,10 @@ public class SpaceResource {
      * @return XML listing of space contents
      */
     public String getSpaceContents(String spaceID,
-                                          String storeID,
-                                          String prefix,
-                                          long maxResults,
-                                          String marker)
+                                   String storeID,
+                                   String prefix,
+                                   long maxResults,
+                                   String marker)
     throws ResourceException {
         Element spaceElem = new Element("space");
         spaceElem.setAttribute("id", spaceID);
@@ -151,13 +152,13 @@ public class SpaceResource {
      *
      * @param spaceID
      * @param spaceAccess
-     * @param userMetadata
+     * @param userProperties
      * @param storeID
      */
     public void addSpace(String spaceID,
-                                String spaceAccess,
-                                Map<String, String> userMetadata,
-                                String storeID)
+                         String spaceAccess,
+                         Map<String, String> userProperties,
+                         String storeID)
     throws ResourceException, InvalidIdException {
         IdUtil.validateSpaceId(spaceID);
 
@@ -167,17 +168,13 @@ public class SpaceResource {
             storage.createSpace(spaceID);
             
             waitForSpaceCreation(storage, spaceID);
-            updateSpaceMetadata(spaceID,
-                                spaceAccess,
-                                userMetadata,
-                                storeID);
+            updateSpaceProperties(spaceID, spaceAccess, userProperties, storeID);
         } catch (StorageException e) {
             throw new ResourceException("add space", spaceID, e);
         }
     }
 
-    private void waitForSpaceCreation(StorageProvider storage,
-                                             String spaceID) {
+    private void waitForSpaceCreation(StorageProvider storage, String spaceID) {
         int maxTries = 10;
         int tries = 0;
         long millis = 500;
@@ -206,25 +203,25 @@ public class SpaceResource {
     }
 
     /**
-     * Updates the metadata of a space.
+     * Updates the properties of a space.
      *
      * @param spaceID
      * @param spaceAccess
-     * @param userMetadata
+     * @param userProperties
      * @param storeID
      */
-    public void updateSpaceMetadata(String spaceID,
-                                           String spaceAccess,
-                                           Map<String, String> userMetadata,
-                                           String storeID)
+    public void updateSpaceProperties(String spaceID,
+                                      String spaceAccess,
+                                      Map<String, String> userProperties,
+                                      String storeID)
     throws ResourceException {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
 
-            // Update space metadata
-            if(userMetadata != null) {
-                storage.setSpaceMetadata(spaceID, userMetadata);
+            // Update space properties
+            if(userProperties != null) {
+                storage.setSpaceProperties(spaceID, userProperties);
             }
 
             // Set space access if necessary
@@ -249,11 +246,11 @@ public class SpaceResource {
                 }
             }
         } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("update space metadata for",
+            throw new ResourceNotFoundException("update space properties for",
                                                 spaceID,
                                                 e);
         } catch (StorageException e) {
-            throw new ResourceException("update space metadata for",
+            throw new ResourceException("update space properties for",
                                         spaceID,
                                         e);
         }

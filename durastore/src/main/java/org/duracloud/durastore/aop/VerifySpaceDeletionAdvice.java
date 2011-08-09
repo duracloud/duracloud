@@ -7,8 +7,6 @@
  */
 package org.duracloud.durastore.aop;
 
-import java.lang.reflect.Method;
-
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -16,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.core.Ordered;
+
+import java.lang.reflect.Method;
 
 /**
  * Verifies that when a space is deleted it is no longer available
@@ -51,7 +51,7 @@ public class VerifySpaceDeletionAdvice
             numAttempts++;
             try {
                 // Simple test to determine if a space exists
-                provider.getSpaceMetadata(target, storeId, spaceId);
+                provider.getSpaceProperties(target, storeId, spaceId);
 
                 // The space is still available, log, wait, and try again
                 if (log.isDebugEnabled()) {

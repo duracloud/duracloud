@@ -67,7 +67,7 @@ public class RestExceptionsTestSupport {
         EasyMock.expect(resource.getSpaceContents(null, null, null, -1, null))
             .andThrow(createRuntimeException())
             .anyTimes();
-        EasyMock.expect(resource.getSpaceMetadata(null, null)).andThrow(
+        EasyMock.expect(resource.getSpaceProperties(null, null)).andThrow(
             createRuntimeException()).anyTimes();
         resource.deleteSpace(null, null);
         EasyMock.expectLastCall().andThrow(createRuntimeException()).anyTimes();

@@ -108,26 +108,26 @@ public class MockContentStoreManagerFactoryImpl
             for (int i = 0; i < 10; i++) {
                 Space s = new Space();
                 s.setId("space-number-" + i);
-                Map<String, String> metadata = new HashMap<String, String>();
-                metadata.put(ContentStore.SPACE_COUNT, String.valueOf(i % 4));
-                metadata.put(ContentStore.SPACE_CREATED, new Date().toString());
-                metadata.put(ContentStore.SPACE_SIZE, String.valueOf(i % 10));
-                metadata.put(ContentStore.SPACE_ACCESS, AccessType.OPEN.name());
-                s.setMetadata(metadata);
+                Map<String, String> properties = new HashMap<String, String>();
+                properties.put(ContentStore.SPACE_COUNT, String.valueOf(i % 4));
+                properties.put(ContentStore.SPACE_CREATED, new Date().toString());
+                properties.put(ContentStore.SPACE_SIZE, String.valueOf(i % 10));
+                properties.put(ContentStore.SPACE_ACCESS, AccessType.OPEN.name());
+                s.setProperties(properties);
 
                 List<String> contentIds = new ArrayList<String>();
                 for (int j = 0; j < 20; j++) {
                     String id = "Item-" + j;
                     contentIds.add(id);
                     Content content = new Content();
-                    content.addMetadata(ContentStore.CONTENT_CHECKSUM, Hex
+                    content.addProperties(ContentStore.CONTENT_CHECKSUM, Hex
                             .encodeHex("2dflksjff2342sdfsdf".getBytes())
                             .toString());
-                    content.addMetadata(ContentStore.CONTENT_MODIFIED,
+                    content.addProperties(ContentStore.CONTENT_MODIFIED,
                                         new Date().toGMTString());
-                    content.addMetadata(ContentStore.CONTENT_SIZE, String
+                    content.addProperties(ContentStore.CONTENT_SIZE, String
                             .valueOf(j + 10000));
-                    content.addMetadata(ContentStore.CONTENT_MIMETYPE,
+                    content.addProperties(ContentStore.CONTENT_MIMETYPE,
                                         "image/jpeg");
                     contentMap.put(getContentId(s.getId(), id), content);
 
@@ -146,7 +146,7 @@ public class MockContentStoreManagerFactoryImpl
                                  long contentSize,
                                  String contentMimeType,
                                  String contentChecksum,
-                                 Map<String, String> contentMetadata)
+                                 Map<String, String> contentProperties)
                 throws ContentStoreException {
 
             Space space = spaceMap.get(spaceId);
@@ -159,7 +159,7 @@ public class MockContentStoreManagerFactoryImpl
                 space.getContentIds().add(contentId);
                 Content c = new Content();
                 c.setId(contentId);
-                c.setMetadata(contentMetadata);
+                c.setProperties(contentProperties);
                 c.setStream(content);
             }
 
@@ -167,22 +167,22 @@ public class MockContentStoreManagerFactoryImpl
         }
 
         public void createSpace(String spaceId,
-                                Map<String, String> spaceMetadata)
+                                Map<String, String> spaceProperties)
                 throws ContentStoreException {
 
             Space space = new Space();
             space.setId(spaceId);
-            if (spaceMetadata == null) {
-                spaceMetadata = new HashMap<String, String>();
-                spaceMetadata.put(ContentStore.SPACE_COUNT, String.valueOf(0));
-                spaceMetadata.put(ContentStore.SPACE_CREATED, new Date()
+            if (spaceProperties == null) {
+                spaceProperties = new HashMap<String, String>();
+                spaceProperties.put(ContentStore.SPACE_COUNT, String.valueOf(0));
+                spaceProperties.put(ContentStore.SPACE_CREATED, new Date()
                         .toString());
-                spaceMetadata.put(ContentStore.SPACE_SIZE, String.valueOf(0));
-                spaceMetadata.put(ContentStore.SPACE_ACCESS, AccessType.OPEN
+                spaceProperties.put(ContentStore.SPACE_SIZE, String.valueOf(0));
+                spaceProperties.put(ContentStore.SPACE_ACCESS, AccessType.OPEN
                         .name());
             }
 
-            space.setMetadata(spaceMetadata);
+            space.setProperties(spaceProperties);
             spaceMap.put(spaceId, space);
         }
 
@@ -225,10 +225,10 @@ public class MockContentStoreManagerFactoryImpl
             return getContentInternal(spaceId, contentId);
         }
 
-        public Map<String, String> getContentMetadata(String spaceId,
-                                                      String contentId)
+        public Map<String, String> getContentProperties(String spaceId,
+                                                        String contentId)
                 throws ContentStoreException {
-            return getContentInternal(spaceId, contentId).getMetadata();
+            return getContentInternal(spaceId, contentId).getProperties();
         }
 
         public Iterator<String> getSpaceContents(String spaceId)
@@ -253,15 +253,15 @@ public class MockContentStoreManagerFactoryImpl
         public AccessType getSpaceAccess(String spaceId)
                 throws ContentStoreException {
             String access =
-                    spaceMap.get(spaceId).getMetadata()
+                    spaceMap.get(spaceId).getProperties()
                             .get(ContentStore.SPACE_ACCESS);
             return AccessType.valueOf(access);
         }
 
-        public Map<String, String> getSpaceMetadata(String spaceId)
+        public Map<String, String> getSpaceProperties(String spaceId)
                 throws ContentStoreException {
             try {
-                return spaceMap.get(spaceId).getMetadata();
+                return spaceMap.get(spaceId).getProperties();
             } catch (Exception ex) {
                 throw new ContentStoreException(ex);
             }
@@ -279,9 +279,9 @@ public class MockContentStoreManagerFactoryImpl
             return this.storeId;
         }
 
-        public void setContentMetadata(String spaceId,
-                                       String contentId,
-                                       Map<String, String> contentMetadata)
+        public void setContentProperties(String spaceId,
+                                         String contentId,
+                                         Map<String, String> contentProperties)
                 throws ContentStoreException {
 
         }
@@ -292,8 +292,8 @@ public class MockContentStoreManagerFactoryImpl
 
         }
 
-        public void setSpaceMetadata(String spaceId,
-                                     Map<String, String> spaceMetadata)
+        public void setSpaceProperties(String spaceId,
+                                       Map<String, String> spaceProperties)
                 throws ContentStoreException {
             // TODO Auto-generated method stub
 

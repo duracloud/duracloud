@@ -176,7 +176,7 @@ public class RetrievalWorker implements Runnable {
         if(!checksumsMatch(localFile, content.getChecksum())) {
             deleteFile(localFile);
             throw new IOException("Calculated checksum value for retrieved " +
-                                  "file does not match metadata checksum.");
+                                  "file does not match properties checksum.");
         }
     }
 

@@ -13,9 +13,10 @@ import org.duracloud.common.util.metrics.MetricsReport;
 import org.duracloud.common.util.metrics.MetricsTable;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * This class captures timing metrics for each executed method of the
@@ -142,12 +143,12 @@ public class StorageProvidersTestMetricsProxy
         stopMetric(provider);
     }
 
-    public void testGetContentMetadata(StorageProvider provider,
-                                       String spaceId0,
-                                       String contentId0)
+    public void testGetContentProperties(StorageProvider provider,
+                                         String spaceId0,
+                                         String contentId0)
             throws StorageException {
-        startMetric("testGetContentMetadata", provider);
-        tester.testGetContentMetadata(provider, spaceId0, contentId0);
+        startMetric("testGetContentProperties", provider);
+        tester.testGetContentProperties(provider, spaceId0, contentId0);
         stopMetric(provider);
     }
 
@@ -167,10 +168,10 @@ public class StorageProvidersTestMetricsProxy
         stopMetric(provider);
     }
 
-    public void testGetSpaceMetadata(StorageProvider provider, String spaceId0)
+    public void testGetSpaceProperties(StorageProvider provider, String spaceId0)
             throws StorageException {
-        startMetric("testGetSpaceMetadata", provider);
-        tester.testGetSpaceMetadata(provider, spaceId0);
+        startMetric("testGetSpaceProperties", provider);
+        tester.testGetSpaceProperties(provider, spaceId0);
         stopMetric(provider);
     }
 
@@ -182,25 +183,25 @@ public class StorageProvidersTestMetricsProxy
         stopMetric(provider);
     }
 
-    public void testSetContentMetadata(StorageProvider provider,
-                                       String spaceId0,
-                                       String spaceId1,
-                                       String contentId0,
-                                       String contentId1)
+    public void testSetContentProperties(StorageProvider provider,
+                                         String spaceId0,
+                                         String spaceId1,
+                                         String contentId0,
+                                         String contentId1)
             throws StorageException {
-        startMetric("testSetContentMetadata", provider);
-        tester.testSetContentMetadata(provider,
-                                      spaceId0,
-                                      spaceId1,
-                                      contentId0,
-                                      contentId1);
+        startMetric("testSetContentProperties", provider);
+        tester.testSetContentProperties(provider,
+                                        spaceId0,
+                                        spaceId1,
+                                        contentId0,
+                                        contentId1);
         stopMetric(provider);
     }
 
-    public void testSetSpaceMetadata(StorageProvider provider, String spaceId0)
+    public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
             throws StorageException {
-        startMetric("testSetSpaceMetadata", provider);
-        tester.testSetSpaceMetadata(provider, spaceId0);
+        startMetric("testSetSpaceProperties", provider);
+        tester.testSetSpaceProperties(provider, spaceId0);
         stopMetric(provider);
     }
 

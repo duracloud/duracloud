@@ -10,9 +10,6 @@ package org.duracloud.rackspacestorage;
 import com.rackspacecloud.client.cloudfiles.FilesCDNContainer;
 import com.rackspacecloud.client.cloudfiles.FilesClient;
 import junit.framework.Assert;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 import org.duracloud.common.model.Credential;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
@@ -24,6 +21,10 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * This class is used to test Rackspace API calls which are causing
@@ -108,12 +109,12 @@ public class RackspaceApiTestNotRun {
     public void testListObjectsStartingWith() throws Exception {
         filesClient.createContainer(CONTAINER_NAME);
 
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<String, String>();
         filesClient.storeObject(CONTAINER_NAME,
                                 "test".getBytes(),
                                 "text/plain",
                                 CONTENT_NAME,
-                                metadata);
+                                properties);
 
         int attempts = 100;
         int failures = 0;
@@ -136,43 +137,43 @@ public class RackspaceApiTestNotRun {
     }
 
     /*
-     * When setting metadata on a Rackspace object the name of the
-     * metadata is being changed to camel case (i.e. test-meta becomes
+     * When setting properties on a Rackspace object the name of the
+     * property is being changed to camel case (i.e. test-meta becomes
      * Test-Meta). This method shows that behavior.
      *
      * Note that according to Rackspace support (ticket #13594) this
-     * is expected behavior. All metadata names are converted to camel
+     * is expected behavior. All property names are converted to camel
      * case for transfer and so are returned that way when retrieved.
      */
     @Test
-    public void testSetMetadataLowercase() throws Exception {
+    public void testSetPropertiesLowercase() throws Exception {
         filesClient.createContainer(CONTAINER_NAME);
 
-        String[] metadataNames = {"Test-Metadata-1", "test-metadata-2",
-                                  "testMetadata-3", "tEsT-mEtAdAtA-4"};
-        String metadataValue = "test-metadata";
+        String[] propertyNames = {"Test-Property-1", "test-property-2",
+                                  "testProperty-3", "tEsT-pRoPeRtY-4"};
+        String propertyValue = "test-property";
 
-        Map<String, String> metadata = new HashMap<String, String>();
-        for(String name : metadataNames) {
-            metadata.put(name, metadataValue);
+        Map<String, String> properties = new HashMap<String, String>();
+        for(String name : propertyNames) {
+            properties.put(name, propertyValue);
         }
         filesClient.storeObject(CONTAINER_NAME,
                                 "test".getBytes(),
                                 "text/plain",
                                 CONTENT_NAME,
-                                metadata);
+                                properties);
 
         Map<String, String> retrievedMeta =
             filesClient.getObjectMetaData(CONTAINER_NAME,
                                           CONTENT_NAME).getMetaData();
 
-        System.out.println("Metadata Keys");
+        System.out.println("Property Keys");
         for(String key : retrievedMeta.keySet()) {
             System.out.println("["+key+"]");
         }
 
         // These currently fail, the casing of the keys are changed to camel case
-//        for(String name : metadataNames) {
+//        for(String name : propertyNames) {
 //            assertTrue(retrievedMeta.containsKey(name));
 //        }
     }
@@ -187,12 +188,12 @@ public class RackspaceApiTestNotRun {
         filesClient.createContainer(CONTAINER_NAME);
 
         String mimetype = "text/plain";
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<String, String>();
         filesClient.storeObject(CONTAINER_NAME,
                                 "test".getBytes(),
                                 mimetype,
                                 CONTENT_NAME,
-                                metadata);
+                                properties);
 
         // Make sure original mimetype is correct
         String retrievedMime =
@@ -202,8 +203,10 @@ public class RackspaceApiTestNotRun {
 
         // Update mimetype
         mimetype = "image/jpeg";
-        metadata.put("Content-Type", mimetype);
-        filesClient.updateObjectMetadata(CONTAINER_NAME, CONTENT_NAME, metadata);
+        properties.put("Content-Type", mimetype);
+        filesClient.updateObjectMetadata(CONTAINER_NAME,
+                                         CONTENT_NAME,
+                                         properties);
 
         // See if mimetype was actually updated
         retrievedMime =

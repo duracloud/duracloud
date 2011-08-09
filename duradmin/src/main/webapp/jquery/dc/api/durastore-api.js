@@ -230,7 +230,7 @@ var dc;
 	 * 
 	 */
     dc.store.formatGenericThumbnail = function(/*object*/contentItem){
-        var mimetype = contentItem.metadata.mimetype;
+        var mimetype = contentItem.properties.mimetype;
     	var gtf,i;
     	for(i in GENERIC_THUMBNAIL_PREFIXES){
     		gtf = GENERIC_THUMBNAIL_PREFIXES[i];

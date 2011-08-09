@@ -56,8 +56,8 @@ public class TestContentRest extends BaseRestTester {
         // Add content to space
         String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
         Map<String, String> headers = new HashMap<String, String>();
-        headers.put(RestTestHelper.METADATA_NAME,
-                    RestTestHelper.METADATA_VALUE);
+        headers.put(RestTestHelper.PROPERTIES_NAME,
+                    RestTestHelper.PROPERTIES_VALUE);
         response = BaseRestTester.restHelper.put(url, CONTENT, headers);
         checkResponse(response, HttpStatus.SC_CREATED);
     }
@@ -153,18 +153,18 @@ public class TestContentRest extends BaseRestTester {
     }
 
     @Test
-    public void testGetContentMetadata() throws Exception {
+    public void testGetContentProperties() throws Exception {
         for (String contentId : contentIds) {
-            doTestGetContentMetadata(contentId);
+            doTestGetContentProperties(contentId);
         }
     }
 
-    private void doTestGetContentMetadata(String contentId) throws Exception {
+    private void doTestGetContentProperties(String contentId) throws Exception {
         String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
         HttpResponse response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        verifyMetadata(response, HttpHeaders.CONTENT_LENGTH, "11");
+        verifyProperties(response, HttpHeaders.CONTENT_LENGTH, "11");
 
         String contentType =
             response.getResponseHeader(HttpHeaders.CONTENT_TYPE).getValue();
@@ -184,76 +184,76 @@ public class TestContentRest extends BaseRestTester {
             response.getResponseHeader(HttpHeaders.LAST_MODIFIED).getValue();
         assertNotNull(contentModified);
 
-        verifyMetadata(response,
-                       RestTestHelper.METADATA_NAME,
-                       RestTestHelper.METADATA_VALUE);
+        verifyProperties(response,
+                       RestTestHelper.PROPERTIES_NAME,
+                       RestTestHelper.PROPERTIES_VALUE);
     }
 
     @Test
-    public void testUpdateContentMetadata() throws Exception {
+    public void testUpdateContentProperties() throws Exception {
         for (String contentId : contentIds) {
-            doTestUpdateContentMetadata(contentId);
+            doTestUpdateContentProperties(contentId);
         }
     }
 
-    private void doTestUpdateContentMetadata(String contentId)
+    private void doTestUpdateContentProperties(String contentId)
         throws Exception {
         String url = BaseRestTester.baseUrl + "/" + BaseRestTester.spaceId + "/" + contentId;
 
-        // Add metadata
+        // Add properties
         Map<String, String> headers = new HashMap<String, String>();
         String newContentMime = "text/plain";
         headers.put(HttpHeaders.CONTENT_TYPE, newContentMime);
-        String newMetaName = BaseRest.HEADER_PREFIX + "new-metadata";
-        String newMetaValue = "New Metadata Value";
+        String newMetaName = BaseRest.HEADER_PREFIX + "new-properties";
+        String newMetaValue = "New Properties Value";
         headers.put(newMetaName, newMetaValue);
 
-        postMetadataUpdate(url, contentId, headers);
+        postPropertiesUpdate(url, contentId, headers);
 
         // Make sure the changes were saved
         HttpResponse response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        verifyMetadata(response, HttpHeaders.CONTENT_TYPE, newContentMime);
-        verifyMetadata(response, newMetaName, newMetaValue);
+        verifyProperties(response, HttpHeaders.CONTENT_TYPE, newContentMime);
+        verifyProperties(response, newMetaName, newMetaValue);
 
-        // Remove metadata
+        // Remove properties
         headers = new HashMap<String, String>();
-        postMetadataUpdate(url, contentId, headers);
+        postPropertiesUpdate(url, contentId, headers);
 
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        // New metadata items should be gone, mimetype should be unchanged
-        verifyNoMetadata(response, newMetaName);
-        verifyMetadata(response, HttpHeaders.CONTENT_TYPE, newContentMime);
+        // New properties items should be gone, mimetype should be unchanged
+        verifyNoProperties(response, newMetaName);
+        verifyProperties(response, HttpHeaders.CONTENT_TYPE, newContentMime);
 
         // Update mimetype
         String testMime = "application/test";
         headers = new HashMap<String, String>();
         headers.put(HttpHeaders.CONTENT_TYPE, testMime);
-        postMetadataUpdate(url, contentId, headers);
+        postPropertiesUpdate(url, contentId, headers);
 
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        // Metadata should be updated
-        verifyMetadata(response, HttpHeaders.CONTENT_TYPE, testMime);
+        // Properties should be updated
+        verifyProperties(response, HttpHeaders.CONTENT_TYPE, testMime);
 
         // Attempt to update to invalid mime
         String invalidMime = "application*test";
         headers = new HashMap<String, String>();
         headers.put(HttpHeaders.CONTENT_TYPE, invalidMime);
-        postInvalidMetadataUpdate(url, contentId, headers);
+        postInvalidPropertiesUpdate(url, contentId, headers);
 
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        // Metadata should not have been updated
-        verifyMetadata(response, HttpHeaders.CONTENT_TYPE, testMime);
+        // Properties should not have been updated
+        verifyProperties(response, HttpHeaders.CONTENT_TYPE, testMime);
     }
 
-    private HttpResponse postMetadataUpdate(String url,
+    private HttpResponse postPropertiesUpdate(String url,
                                             String contentId,
                                             Map<String, String> headers)
         throws Exception {
@@ -266,7 +266,7 @@ public class TestContentRest extends BaseRestTester {
         return response;
     }
 
-    private HttpResponse postInvalidMetadataUpdate(String url,
+    private HttpResponse postInvalidPropertiesUpdate(String url,
                                                    String contentId,
                                                    Map<String, String> headers)
         throws Exception {
@@ -278,15 +278,15 @@ public class TestContentRest extends BaseRestTester {
         return response;
     }
 
-    private void verifyMetadata(HttpResponse response,
+    private void verifyProperties(HttpResponse response,
                                 String name,
                                 String value) throws Exception {
-        String metadata = response.getResponseHeader(name).getValue();
-        assertNotNull(metadata);
-        assertEquals(metadata, value);
+        String properties = response.getResponseHeader(name).getValue();
+        assertNotNull(properties);
+        assertEquals(properties, value);
     }
 
-    private void verifyNoMetadata(HttpResponse response,
+    private void verifyNoProperties(HttpResponse response,
                                   String name) throws Exception {
         assertNull(response.getResponseHeader(name));
     }
@@ -307,11 +307,11 @@ public class TestContentRest extends BaseRestTester {
         response = BaseRestTester.restHelper.get(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
-        // Get Content Metadata
+        // Get Content Properties
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 
-        // Set Content Metadata
+        // Set Content Properties
         response = BaseRestTester.restHelper.post(url, null, null);
         checkResponse(response, HttpStatus.SC_NOT_FOUND);
 

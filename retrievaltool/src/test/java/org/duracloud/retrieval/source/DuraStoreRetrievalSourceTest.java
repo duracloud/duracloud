@@ -107,18 +107,19 @@ public class DuraStoreRetrievalSourceTest {
             .andAnswer(new GetSpaceContentsAnswer())
             .anyTimes();
 
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(ContentStore.CONTENT_CHECKSUM, checksum);
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(ContentStore.CONTENT_CHECKSUM, checksum);
 
         EasyMock
-            .expect(contentStore.getContentMetadata(EasyMock.isA(String.class),
-                                                    EasyMock.isA(String.class)))
-            .andReturn(metadata)
+            .expect(
+                contentStore.getContentProperties(EasyMock.isA(String.class),
+                                                  EasyMock.isA(String.class)))
+            .andReturn(properties)
             .anyTimes();
 
         Content content = new Content();
         content.setId("1");
-        content.setMetadata(metadata);
+        content.setProperties(properties);
         content.setStream(new ByteArrayInputStream(value.getBytes("UTF-8")));
 
         EasyMock

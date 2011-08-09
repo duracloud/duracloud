@@ -58,8 +58,8 @@ public class ContentRest extends BaseRest {
 
     /**
      * see ContentResource.getContent()
-     * see ContentResource.getContentMetadata()
-     * @return 200 response with content stream as body and content metadata as headers
+     * see ContentResource.getContentProperties()
+     * @return 200 response with content stream as body and content properties as headers
      */
     @GET
     public Response getContent(@PathParam("spaceID")
@@ -99,8 +99,8 @@ public class ContentRest extends BaseRest {
                                   String contentID,
                                   String storeID,
                                   boolean attachment) throws ResourceException {
-        Map<String, String> metadata =
-            contentResource.getContentMetadata(spaceID, contentID, storeID);
+        Map<String, String> properties =
+            contentResource.getContentProperties(spaceID, contentID, storeID);
         InputStream content =
             contentResource.getContent(spaceID, contentID, storeID);
 
@@ -109,8 +109,8 @@ public class ContentRest extends BaseRest {
         if(attachment){
             addContentDispositionHeader(responseBuilder, contentID);
         }
-        return addContentMetadataToResponse(responseBuilder,
-                                            metadata);
+        return addContentPropertiesToResponse(responseBuilder,
+                                              properties);
     }
 
     private void addContentDispositionHeader(ResponseBuilder responseBuilder,
@@ -125,17 +125,17 @@ public class ContentRest extends BaseRest {
     }
 
     /**
-     * see ContentResource.getContentMetadata()
-     * @return 200 response with content metadata as headers
+     * see ContentResource.getContentProperties()
+     * @return 200 response with content properties as headers
      */
     @HEAD
-    public Response getContentMetadata(@PathParam("spaceID")
-                                       String spaceID,
-                                       @PathParam("contentID")
-                                       String contentID,
-                                       @QueryParam("storeID")
-                                       String storeID) {
-        StringBuilder msg = new StringBuilder("getting content metadata(");
+    public Response getContentProperties(@PathParam("spaceID")
+                                         String spaceID,
+                                         @PathParam("contentID")
+                                         String contentID,
+                                         @QueryParam("storeID")
+                                         String storeID) {
+        StringBuilder msg = new StringBuilder("getting content properties(");
         msg.append(spaceID);
         msg.append(", ");
         msg.append(contentID);
@@ -144,11 +144,11 @@ public class ContentRest extends BaseRest {
         msg.append(")");
 
         try {
-            Map<String, String> metadata =
-                contentResource.getContentMetadata(spaceID, contentID, storeID);
+            Map<String, String> properties =
+                contentResource.getContentProperties(spaceID, contentID, storeID);
 
             log.debug(msg.toString());
-            return addContentMetadataToResponse(Response.ok(), metadata);
+            return addContentPropertiesToResponse(Response.ok(), properties);
 
         } catch (ResourceNotFoundException e) {
             return responseBad(msg.toString(), e, NOT_FOUND);
@@ -162,13 +162,13 @@ public class ContentRest extends BaseRest {
     }
 
     /**
-     * Adds the metadata of a content item as header values to the response.
+     * Adds the properties of a content item as header values to the response.
      * See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
      * for specifics on particular headers.
      */
-    private Response addContentMetadataToResponse(ResponseBuilder response,
-                                                  Map<String, String> metadata) {
-        if(metadata != null) {
+    private Response addContentPropertiesToResponse(ResponseBuilder response,
+                                                    Map<String, String> properties) {
+        if(properties != null) {
             // Flags that, when set to true, indicate that the
             // authoritative value for this data has already
             // been set and should not be overwritten
@@ -177,74 +177,74 @@ public class ContentRest extends BaseRest {
             boolean contentChecksumSet = false;
             boolean contentModifiedSet = false;
 
-            Iterator<String> metadataNames = metadata.keySet().iterator();
-            while(metadataNames.hasNext()) {
-                String metadataName = (String)metadataNames.next();
-                String metadataValue = metadata.get(metadataName);
+            Iterator<String> propertiesNames = properties.keySet().iterator();
+            while(propertiesNames.hasNext()) {
+                String propertiesName = (String)propertiesNames.next();
+                String propertiesValue = properties.get(propertiesName);
 
-                if(metadataName.equals(StorageProvider.METADATA_CONTENT_MIMETYPE)) {
-                    if(validMimetype(metadataValue)) {
-                        response.header(HttpHeaders.CONTENT_TYPE, metadataValue);
+                if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_MIMETYPE)) {
+                    if(validMimetype(propertiesValue)) {
+                        response.header(HttpHeaders.CONTENT_TYPE, propertiesValue);
                         contentTypeSet = true;
                     } else {
                         response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
                     }
-                } else if(metadataName.equals(StorageProvider.METADATA_CONTENT_SIZE)) {
-                    response.header(HttpHeaders.CONTENT_LENGTH, metadataValue);
+                } else if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_SIZE)) {
+                    response.header(HttpHeaders.CONTENT_LENGTH, propertiesValue);
                     contentSizeSet = true;
-                } else if(metadataName.equals(StorageProvider.METADATA_CONTENT_CHECKSUM)) {
-                    response.header(HttpHeaders.CONTENT_MD5, metadataValue);
-                    response.header(HttpHeaders.ETAG, metadataValue);
+                } else if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_CHECKSUM)) {
+                    response.header(HttpHeaders.CONTENT_MD5, propertiesValue);
+                    response.header(HttpHeaders.ETAG, propertiesValue);
                     contentChecksumSet = true;
-                } else if(metadataName.equals(StorageProvider.METADATA_CONTENT_MODIFIED)) {
-                    response.header(HttpHeaders.LAST_MODIFIED, metadataValue);
+                } else if(propertiesName.equals(StorageProvider.PROPERTIES_CONTENT_MODIFIED)) {
+                    response.header(HttpHeaders.LAST_MODIFIED, propertiesValue);
                     contentModifiedSet = true;
-                } else if((metadataName.equals(HttpHeaders.CONTENT_TYPE))) {
+                } else if((propertiesName.equals(HttpHeaders.CONTENT_TYPE))) {
                     if(!contentTypeSet) {
-                        if(validMimetype(metadataValue)) {
-                            response.header(HttpHeaders.CONTENT_TYPE, metadataValue);
+                        if(validMimetype(propertiesValue)) {
+                            response.header(HttpHeaders.CONTENT_TYPE, propertiesValue);
                         } else {
                             response.header(HttpHeaders.CONTENT_TYPE, DEFAULT_MIME);
                         }
                     }
-                } else if(metadataName.equals(HttpHeaders.CONTENT_LENGTH)) {
+                } else if(propertiesName.equals(HttpHeaders.CONTENT_LENGTH)) {
                     if(!contentSizeSet) {
-                        response.header(metadataName, metadataValue);
+                        response.header(propertiesName, propertiesValue);
                     }
-                } else if(metadataName.equalsIgnoreCase(HttpHeaders.CONTENT_MD5)) {
+                } else if(propertiesName.equalsIgnoreCase(HttpHeaders.CONTENT_MD5)) {
                     if(!contentChecksumSet) {
-                        response.header(HttpHeaders.CONTENT_MD5, metadataValue);
+                        response.header(HttpHeaders.CONTENT_MD5, propertiesValue);
                     }
-                } else if(metadataName.equals(HttpHeaders.ETAG)) {
+                } else if(propertiesName.equals(HttpHeaders.ETAG)) {
                     if(!contentChecksumSet) {
-                        response.header(metadataName, metadataValue);
+                        response.header(propertiesName, propertiesValue);
                     }
-                } else if(metadataName.equals(HttpHeaders.LAST_MODIFIED)) {
+                } else if(propertiesName.equals(HttpHeaders.LAST_MODIFIED)) {
                     if(!contentModifiedSet) {
-                        response.header(metadataName, metadataValue);
+                        response.header(propertiesName, propertiesValue);
                     }
-                } else if(metadataName.equals(HttpHeaders.DATE) ||
-                          metadataName.equals(HttpHeaders.CONNECTION)) {
+                } else if(propertiesName.equals(HttpHeaders.DATE) ||
+                          propertiesName.equals(HttpHeaders.CONNECTION)) {
                     // Ignore this value
-                } else if(metadataName.equals(HttpHeaders.AGE) ||
-                          metadataName.equals(HttpHeaders.CACHE_CONTROL) ||
-                          metadataName.equals(HttpHeaders.CONTENT_ENCODING) ||
-                          metadataName.equals(HttpHeaders.CONTENT_LANGUAGE) ||
-                          metadataName.equals(HttpHeaders.CONTENT_LOCATION) ||
-                          metadataName.equals(HttpHeaders.CONTENT_RANGE) ||
-                          metadataName.equals(HttpHeaders.EXPIRES) ||
-                          metadataName.equals(HttpHeaders.LOCATION) ||
-                          metadataName.equals(HttpHeaders.PRAGMA) ||
-                          metadataName.equals(HttpHeaders.RETRY_AFTER) ||
-                          metadataName.equals(HttpHeaders.SERVER) ||
-                          metadataName.equals(HttpHeaders.TRANSFER_ENCODING) ||
-                          metadataName.equals(HttpHeaders.UPGRADE) ||
-                          metadataName.equals(HttpHeaders.WARNING)) {
+                } else if(propertiesName.equals(HttpHeaders.AGE) ||
+                          propertiesName.equals(HttpHeaders.CACHE_CONTROL) ||
+                          propertiesName.equals(HttpHeaders.CONTENT_ENCODING) ||
+                          propertiesName.equals(HttpHeaders.CONTENT_LANGUAGE) ||
+                          propertiesName.equals(HttpHeaders.CONTENT_LOCATION) ||
+                          propertiesName.equals(HttpHeaders.CONTENT_RANGE) ||
+                          propertiesName.equals(HttpHeaders.EXPIRES) ||
+                          propertiesName.equals(HttpHeaders.LOCATION) ||
+                          propertiesName.equals(HttpHeaders.PRAGMA) ||
+                          propertiesName.equals(HttpHeaders.RETRY_AFTER) ||
+                          propertiesName.equals(HttpHeaders.SERVER) ||
+                          propertiesName.equals(HttpHeaders.TRANSFER_ENCODING) ||
+                          propertiesName.equals(HttpHeaders.UPGRADE) ||
+                          propertiesName.equals(HttpHeaders.WARNING)) {
                     // Pass through as a standard http header
-                    response.header(metadataName, metadataValue);
+                    response.header(propertiesName, propertiesValue);
                 } else {
                     // Custom header, append prefix
-                    response.header(HEADER_PREFIX + metadataName, metadataValue);
+                    response.header(HEADER_PREFIX + propertiesName, propertiesValue);
                 }
             }
         }
@@ -266,17 +266,17 @@ public class ContentRest extends BaseRest {
     }
 
     /**
-     * see ContentResource.updateContentMetadata()
-     * @return 200 response indicating content metadata updated successfully
+     * see ContentResource.updateContentProperties()
+     * @return 200 response indicating content properties updated successfully
      */
     @POST
-    public Response updateContentMetadata(@PathParam("spaceID")
-                                          String spaceID,
-                                          @PathParam("contentID")
-                                          String contentID,
-                                          @QueryParam("storeID")
-                                          String storeID) {
-        StringBuilder msg = new StringBuilder("updating content metadata(");
+    public Response updateContentProperties(@PathParam("spaceID")
+                                            String spaceID,
+                                            @PathParam("contentID")
+                                            String contentID,
+                                            @QueryParam("storeID")
+                                            String storeID) {
+        StringBuilder msg = new StringBuilder("updating content properties(");
         msg.append(spaceID);
         msg.append(", ");
         msg.append(contentID);
@@ -286,7 +286,7 @@ public class ContentRest extends BaseRest {
 
         try {
             log.debug(msg.toString());
-            return doUpdateContentMetadata(spaceID, contentID, storeID);
+            return doUpdateContentProperties(spaceID, contentID, storeID);
 
         } catch (ResourceNotFoundException e) {
             return responseBad(msg.toString(), e, NOT_FOUND);
@@ -299,16 +299,16 @@ public class ContentRest extends BaseRest {
         }
     }
 
-    private Response doUpdateContentMetadata(String spaceID,
-                                             String contentID,
-                                             String storeID)
+    private Response doUpdateContentProperties(String spaceID,
+                                               String contentID,
+                                               String storeID)
         throws ResourceException {
         MultivaluedMap<String, String> rHeaders =
             headers.getRequestHeaders();
-        Map<String, String> userMetadata =
-            getUserMetadata(CONTENT_MIMETYPE_HEADER);
+        Map<String, String> userProperties =
+            getUserProperties(CONTENT_MIMETYPE_HEADER);
 
-        // Set mimetype in metadata if it was provided
+        // Set mimetype in properties if it was provided
         String contentMimeType = null;
         if(rHeaders.containsKey(CONTENT_MIMETYPE_HEADER)) {
             contentMimeType = rHeaders.getFirst(CONTENT_MIMETYPE_HEADER);
@@ -318,18 +318,18 @@ public class ContentRest extends BaseRest {
         }
         if(contentMimeType != null && !contentMimeType.equals("")) {
             if(validMimetype(contentMimeType)) {
-                userMetadata.put(StorageProvider.METADATA_CONTENT_MIMETYPE,
+                userProperties.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE,
                                  contentMimeType);
             } else {
                 throw new ResourceException("Invalid Mimetype");
             }
         }
 
-        contentResource.updateContentMetadata(spaceID,
-                                              contentID,
-                                              contentMimeType,
-                                              userMetadata,
-                                              storeID);
+        contentResource.updateContentProperties(spaceID,
+                                                contentID,
+                                                contentMimeType,
+                                                userProperties,
+                                                storeID);
         String responseText = "Content " + contentID + " updated successfully";
         return Response.ok(responseText, TEXT_PLAIN).build();
     }
@@ -391,12 +391,12 @@ public class ContentRest extends BaseRest {
                                                   content.getSize(),
                                                   checksum,
                                                   storeID);
-            updateContentMetadata(spaceID, contentID, storeID);
+            updateContentProperties(spaceID, contentID, storeID);
             URI location = uriInfo.getRequestUri();
-            Map<String, String> metadata = new HashMap<String, String>();
-            metadata.put(StorageProvider.METADATA_CONTENT_CHECKSUM, checksum);
-            return addContentMetadataToResponse(Response.created(location),
-                                                metadata);
+            Map<String, String> properties = new HashMap<String, String>();
+            properties.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, checksum);
+            return addContentPropertiesToResponse(Response.created(location),
+                                                properties);
 
         } else {
             String error = "Content could not be retrieved from the request.";

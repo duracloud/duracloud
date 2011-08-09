@@ -40,10 +40,10 @@ public class RestTestHelper {
 
     private static String webapp = "durastore";
 
-    public static final String METADATA_NAME =
-        BaseRest.HEADER_PREFIX + "test-metadata";
+    public static final String PROPERTIES_NAME =
+        BaseRest.HEADER_PREFIX + "test-properties";
 
-    public static final String METADATA_VALUE = "Test Metadata";
+    public static final String PROPERTIES_VALUE = "Test Properties";
 
     public static final String SPACE_ACCESS = "OPEN";
 
@@ -68,7 +68,7 @@ public class RestTestHelper {
             throws Exception {
         Map<String, String> headers = new HashMap<String, String>();
         headers.put(BaseRest.SPACE_ACCESS_HEADER, SPACE_ACCESS);
-        headers.put(METADATA_NAME, METADATA_VALUE);
+        headers.put(PROPERTIES_NAME, PROPERTIES_VALUE);
         return restHelper.put(url, null, headers);
     }
 

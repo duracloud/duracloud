@@ -41,7 +41,7 @@ public class SpaceDuplicator {
             return;
 
         try {
-            Map<String, String> spaceMeta = fromStore.getSpaceMetadata(spaceId);
+            Map<String, String> spaceMeta = fromStore.getSpaceProperties(spaceId);
 
             retryCreateSpace(spaceId, spaceMeta);
         } catch (ContentStoreException cse) {
@@ -58,10 +58,10 @@ public class SpaceDuplicator {
             return;
 
         try {
-            // Set Space metadata
-            Map<String, String> spaceMeta = fromStore.getSpaceMetadata(spaceId);
+            // Set Space properties
+            Map<String, String> spaceMeta = fromStore.getSpaceProperties(spaceId);
 
-            setSpaceMetadata(spaceId, spaceMeta);
+            setSpaceProperties(spaceId, spaceMeta);
 
             // Set Space access
             ContentStore.AccessType spaceAccess = fromStore.getSpaceAccess(spaceId);
@@ -88,9 +88,10 @@ public class SpaceDuplicator {
         }
     }
 
-    private void setSpaceMetadata(String spaceId, Map<String, String> spaceMeta) {
+    private void setSpaceProperties(String spaceId,
+                                    Map<String, String> spaceMeta) {
         try {
-            toStore.setSpaceMetadata(spaceId, spaceMeta);
+            toStore.setSpaceProperties(spaceId, spaceMeta);
         } catch(NotFoundException nfe) {
             String error = "Unable to update space " + spaceId +
                        " due to not found error: " + nfe.getMessage();
@@ -98,11 +99,11 @@ public class SpaceDuplicator {
 
             retryCreateSpace(spaceId, spaceMeta);
         } catch (ContentStoreException cse) {
-            String error = "Unable to update space metadata " + spaceId +
+            String error = "Unable to update space properties " + spaceId +
                            " due to error: " + cse.getMessage();
             log.error(error, cse);
 
-            retrySetSpaceMetadata(spaceId, spaceMeta);
+            retrySetSpaceProperties(spaceId, spaceMeta);
         }
     }
 
@@ -115,11 +116,11 @@ public class SpaceDuplicator {
         }.replicate();
     }
 
-    private void retrySetSpaceMetadata(final String spaceId,
-                                       final Map<String, String> spaceMeta) {
+    private void retrySetSpaceProperties(final String spaceId,
+                                         final Map<String, String> spaceMeta) {
         new RetryDuplicate() {
             protected void doReplicate() throws Exception {
-                toStore.setSpaceMetadata(spaceId, spaceMeta);
+                toStore.setSpaceProperties(spaceId, spaceMeta);
             }
         }.replicate();
     }

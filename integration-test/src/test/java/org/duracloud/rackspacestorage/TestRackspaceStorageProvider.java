@@ -9,21 +9,12 @@ package org.duracloud.rackspacestorage;
 
 import com.rackspacecloud.client.cloudfiles.FilesClient;
 import junit.framework.Assert;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProvider.AccessType;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.contains;
-import static org.duracloud.storage.util.StorageProviderUtil.count;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.After;
@@ -42,6 +33,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import static org.duracloud.storage.util.StorageProviderUtil.contains;
+import static org.duracloud.storage.util.StorageProviderUtil.count;
+
 /**
  * Tests the Rackspace Storage Provider. This test is run via the command line
  * in order to allow passing in credentials.
@@ -59,11 +60,12 @@ public class TestRackspaceStorageProvider {
 
     private static String SPACE_ID = null;
     private static final String CONTENT_ID = "duracloud-test-content";
-    private static final String SPACE_META_NAME = "custom-space-metadata";
-    private static final String SPACE_META_VALUE = "Testing Space";
-    private static final String CONTENT_META_NAME = "custom-content-metadata";
-    private static final String CONTENT_META_VALUE = "Testing Content";
-    private static final String CONTENT_MIME_NAME = StorageProvider.METADATA_CONTENT_MIMETYPE;
+    private static final String SPACE_PROPS_NAME = "custom-space-properties";
+    private static final String SPACE_PROPS_VALUE = "Testing Space";
+    private static final String CONTENT_PROPS_NAME = "custom-content-properties";
+    private static final String CONTENT_PROPS_VALUE = "Testing Content";
+    private static final String CONTENT_MIME_NAME =
+        StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
     private static final String CONTENT_MIME_VALUE = "text/plain";
     private static final String CONTENT_DATA = "Test Content";
 
@@ -109,20 +111,20 @@ public class TestRackspaceStorageProvider {
         // test createSpace()
         log.debug("Test createSpace()");
         rackspaceProvider.createSpace(SPACE_ID);
-        testSpaceMetadata(SPACE_ID, AccessType.CLOSED);
+        testSpaceProperties(SPACE_ID, AccessType.CLOSED);
 
-        // test setSpaceMetadata()
-        log.debug("Test setSpaceMetadata()");
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(SPACE_META_NAME, SPACE_META_VALUE);
-        rackspaceProvider.setSpaceMetadata(SPACE_ID, spaceMetadata);
+        // test setSpaceProperties()
+        log.debug("Test setSpaceProperties()");
+        Map<String, String> spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(SPACE_PROPS_NAME, SPACE_PROPS_VALUE);
+        rackspaceProvider.setSpaceProperties(SPACE_ID, spaceProperties);
 
-        // test getSpaceMetadata()
-        log.debug("Test getSpaceMetadata()");
-        Map<String, String> sMetadata =
-            testSpaceMetadata(SPACE_ID, AccessType.CLOSED);
-        assertTrue(sMetadata.containsKey(SPACE_META_NAME));
-        assertEquals(SPACE_META_VALUE, sMetadata.get(SPACE_META_NAME));
+        // test getSpaceProperties()
+        log.debug("Test getSpaceProperties()");
+        Map<String, String> sProperties =
+            testSpaceProperties(SPACE_ID, AccessType.CLOSED);
+        assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
+        assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
         // test getSpaces()
         log.debug("Test getSpaces()");
@@ -144,12 +146,12 @@ public class TestRackspaceStorageProvider {
         log.debug("Check space access");
         assertFalse(filesClient.isCDNEnabled(SPACE_ID));
 
-        // test set space access via metadata update
-        log.debug("Test setSpaceMetadata(Access) ");
-        spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(StorageProvider.METADATA_SPACE_ACCESS,
+        // test set space access via properties update
+        log.debug("Test setSpaceProperties(Access) ");
+        spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(StorageProvider.PROPERTIES_SPACE_ACCESS,
                           AccessType.CLOSED.name());
-        rackspaceProvider.setSpaceMetadata(SPACE_ID, spaceMetadata);
+        rackspaceProvider.setSpaceProperties(SPACE_ID, spaceProperties);
 
         // test getSpaceAccess()
         log.debug("Test getSpaceAccess()");
@@ -162,15 +164,15 @@ public class TestRackspaceStorageProvider {
         log.debug("Test addContent()");
         addContent(SPACE_ID, CONTENT_ID, CONTENT_MIME_VALUE, false);
 
-        // test getContentMetadata()
-        log.debug("Test getContentMetadata()");
-        Map<String, String> cMetadata =
-                rackspaceProvider.getContentMetadata(SPACE_ID, CONTENT_ID);
-        assertNotNull(cMetadata);
-        assertEquals(CONTENT_MIME_VALUE, cMetadata.get(CONTENT_MIME_NAME));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_MODIFIED));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_SIZE));
-        assertNotNull(cMetadata.get(StorageProvider.METADATA_CONTENT_CHECKSUM));
+        // test getContentProperties()
+        log.debug("Test getContentProperties()");
+        Map<String, String> cProperties =
+                rackspaceProvider.getContentProperties(SPACE_ID, CONTENT_ID);
+        assertNotNull(cProperties);
+        assertEquals(CONTENT_MIME_VALUE, cProperties.get(CONTENT_MIME_NAME));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_MODIFIED));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_SIZE));
+        assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM));
 
         // add additional content for getContents tests
         String testContent2 = "test-content-2";
@@ -184,10 +186,10 @@ public class TestRackspaceStorageProvider {
             rackspaceProvider.getSpaceContents(SPACE_ID, null);
         assertNotNull(spaceContents);
         assertEquals(3, count(spaceContents));
-        // Ensure that space metadata is not included in contents list
+        // Ensure that space properties is not included in contents list
         spaceContents = rackspaceProvider.getSpaceContents(SPACE_ID, null);
         String containerName = rackspaceProvider.getContainerName(SPACE_ID);
-        String spaceMetaSuffix = RackspaceStorageProvider.SPACE_METADATA_SUFFIX;
+        String spaceMetaSuffix = RackspaceStorageProvider.SPACE_PROPERTIES_SUFFIX;
         assertFalse(contains(spaceContents, containerName + spaceMetaSuffix));
 
         // test getSpaceContentsChunked() maxLimit
@@ -233,43 +235,43 @@ public class TestRackspaceStorageProvider {
         }
         log.debug("-- End expected error log --");
 
-        // test setContentMetadata()
-        log.debug("Test setContentMetadata()");
-        Map<String, String> contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(CONTENT_META_NAME, CONTENT_META_VALUE);
-        rackspaceProvider.setContentMetadata(SPACE_ID,
-                                             CONTENT_ID,
-                                             contentMetadata);
+        // test setContentProperties()
+        log.debug("Test setContentProperties()");
+        Map<String, String> contentProperties = new HashMap<String, String>();
+        contentProperties.put(CONTENT_PROPS_NAME, CONTENT_PROPS_VALUE);
+        rackspaceProvider.setContentProperties(SPACE_ID,
+                                               CONTENT_ID,
+                                               contentProperties);
 
-        // test getContentMetadata()
-        log.debug("Test getContentMetadata()");
-        cMetadata = rackspaceProvider.getContentMetadata(SPACE_ID, CONTENT_ID);
-        assertNotNull(cMetadata);
-        assertEquals(CONTENT_META_VALUE, cMetadata.get(CONTENT_META_NAME));
-        // Mime type was not included when setting content metadata
+        // test getContentProperties()
+        log.debug("Test getContentProperties()");
+        cProperties = rackspaceProvider.getContentProperties(SPACE_ID, CONTENT_ID);
+        assertNotNull(cProperties);
+        assertEquals(CONTENT_PROPS_VALUE, cProperties.get(CONTENT_PROPS_NAME));
+        // Mime type was not included when setting content properties
         // so its value should have been maintained
         String mime = CONTENT_MIME_VALUE + "; charset=UTF-8";
-        assertEquals(mime, cMetadata.get(CONTENT_MIME_NAME));
+        assertEquals(mime, cProperties.get(CONTENT_MIME_NAME));
 
-        // test setContentMetadata() - mimetype
-        log.debug("Test setContentMetadata() - mimetype");
+        // test setContentProperties() - mimetype
+        log.debug("Test setContentProperties() - mimetype");
         String newMime = "image/bmp";
-        contentMetadata = new HashMap<String, String>();
-        contentMetadata.put(CONTENT_MIME_NAME, newMime);
-        rackspaceProvider.setContentMetadata(SPACE_ID,
-                                             CONTENT_ID,
-                                             contentMetadata);
-        cMetadata = rackspaceProvider.getContentMetadata(SPACE_ID, CONTENT_ID);
-        assertNotNull(cMetadata);
-        assertEquals(newMime, cMetadata.get(CONTENT_MIME_NAME));
-        // Custom metadata was not included in update, it should be removed
-        assertNull(cMetadata.get(CONTENT_META_NAME));
+        contentProperties = new HashMap<String, String>();
+        contentProperties.put(CONTENT_MIME_NAME, newMime);
+        rackspaceProvider.setContentProperties(SPACE_ID,
+                                               CONTENT_ID,
+                                               contentProperties);
+        cProperties = rackspaceProvider.getContentProperties(SPACE_ID, CONTENT_ID);
+        assertNotNull(cProperties);
+        assertEquals(newMime, cProperties.get(CONTENT_MIME_NAME));
+        // Custom properties was not included in update, it should be removed
+        assertNull(cProperties.get(CONTENT_PROPS_NAME));
 
-        log.debug("Test getContentMetadata() - mimetype default");
-        cMetadata = rackspaceProvider.getContentMetadata(SPACE_ID, testContent3);
-        assertNotNull(cMetadata);
+        log.debug("Test getContentProperties() - mimetype default");
+        cProperties = rackspaceProvider.getContentProperties(SPACE_ID, testContent3);
+        assertNotNull(cProperties);
         assertEquals(StorageProvider.DEFAULT_MIMETYPE,
-                     cMetadata.get(CONTENT_MIME_NAME));     
+                     cProperties.get(CONTENT_MIME_NAME));     
 
         /* Test Deletes */
 
@@ -315,27 +317,27 @@ public class TestRackspaceStorageProvider {
         compareChecksum(rackspaceProvider, spaceId, contentId, checksum);
     }
 
-    private Map<String, String> testSpaceMetadata(String spaceId,
-                                                  AccessType access) {
-        Map<String, String> sMetadata =
-            rackspaceProvider.getSpaceMetadata(spaceId);
+    private Map<String, String> testSpaceProperties(String spaceId,
+                                                    AccessType access) {
+        Map<String, String> sProperties =
+            rackspaceProvider.getSpaceProperties(spaceId);
 
-        assertTrue(sMetadata.containsKey(
-            StorageProvider.METADATA_SPACE_CREATED));
-        assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_CREATED));
+        assertTrue(sProperties.containsKey(
+            StorageProvider.PROPERTIES_SPACE_CREATED));
+        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 
-        assertTrue(sMetadata.containsKey(
-            StorageProvider.METADATA_SPACE_COUNT));
-        assertNotNull(sMetadata.get(StorageProvider.METADATA_SPACE_COUNT));
+        assertTrue(sProperties.containsKey(
+            StorageProvider.PROPERTIES_SPACE_COUNT));
+        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_COUNT));
 
-        assertTrue(sMetadata.containsKey(
-            StorageProvider.METADATA_SPACE_ACCESS));
+        assertTrue(sProperties.containsKey(
+            StorageProvider.PROPERTIES_SPACE_ACCESS));
         String spaceAccess =
-            sMetadata.get(StorageProvider.METADATA_SPACE_ACCESS);
+            sProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
         assertNotNull(spaceAccess);
         assertEquals(access.name(), spaceAccess);
 
-        return sMetadata;
+        return sProperties;
     }
 
     @Test
@@ -349,15 +351,15 @@ public class TestRackspaceStorageProvider {
         // Space Not Found
 
         try {
-            rackspaceProvider.getSpaceMetadata(spaceId);
+            rackspaceProvider.getSpaceProperties(spaceId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            rackspaceProvider.setSpaceMetadata(spaceId,
-                                               new HashMap<String, String>());
+            rackspaceProvider.setSpaceProperties(spaceId,
+                                                 new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
@@ -421,16 +423,16 @@ public class TestRackspaceStorageProvider {
         }
 
         try {
-            rackspaceProvider.getContentMetadata(spaceId, contentId);
+            rackspaceProvider.getContentProperties(spaceId, contentId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            rackspaceProvider.setContentMetadata(spaceId,
-                                                 contentId,
-                                                 new HashMap<String, String>());
+            rackspaceProvider.setContentProperties(spaceId,
+                                                   contentId,
+                                                   new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
@@ -457,16 +459,16 @@ public class TestRackspaceStorageProvider {
         }
 
         try {
-            rackspaceProvider.getContentMetadata(spaceId, contentId);
+            rackspaceProvider.getContentProperties(spaceId, contentId);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
 
         try {
-            rackspaceProvider.setContentMetadata(spaceId,
-                                                 contentId,
-                                                 new HashMap<String, String>());
+            rackspaceProvider.setContentProperties(spaceId,
+                                                   contentId,
+                                                   new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);

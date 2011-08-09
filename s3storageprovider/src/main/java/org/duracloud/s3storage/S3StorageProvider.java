@@ -21,7 +21,6 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
@@ -45,8 +44,8 @@ import java.util.TimeZone;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
-import static org.duracloud.storage.util.StorageProviderUtil.loadMetadata;
-import static org.duracloud.storage.util.StorageProviderUtil.storeMetadata;
+import static org.duracloud.storage.util.StorageProviderUtil.loadProperties;
+import static org.duracloud.storage.util.StorageProviderUtil.storeProperties;
 
 /**
  * Provides content storage backed by Amazon's Simple Storage Service.
@@ -139,21 +138,21 @@ public class S3StorageProvider extends StorageProviderBase {
         throwIfSpaceNotExist(spaceId);
 
         String bucketName = getBucketName(spaceId);
-        String bucketMetadata = bucketName + SPACE_METADATA_SUFFIX;
+        String bucketProperties = bucketName + SPACE_PROPERTIES_SUFFIX;
 
         if(maxResults <= 0) {
             maxResults = StorageProvider.DEFAULT_MAX_RESULTS;
         }
 
         // Queries for maxResults +1 to account for the possibility of needing
-        // to remove the space metadata but still maintain a full result
+        // to remove the space properties but still maintain a full result
         // set (size == maxResults).
         List<String> spaceContents =
             getCompleteSpaceContents(spaceId, prefix, maxResults + 1, marker);
 
-        if(spaceContents.contains(bucketMetadata)) {
-            // Remove space metadata
-            spaceContents.remove(bucketMetadata);
+        if(spaceContents.contains(bucketProperties)) {
+            // Remove space properties
+            spaceContents.remove(bucketProperties);
         } else if(spaceContents.size() > maxResults) {
             // Remove extra content item
             spaceContents.remove(spaceContents.size()-1);
@@ -254,13 +253,13 @@ public class S3StorageProvider extends StorageProviderBase {
             created = new Date();
         }
 
-        // Add space metadata
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
-        spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
-        spaceMetadata.put(METADATA_SPACE_ACCESS, AccessType.CLOSED.name());
+        // Add space properties
+        Map<String, String> spaceProperties = new HashMap<String, String>();
+        spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
+        spaceProperties.put(PROPERTIES_SPACE_ACCESS, AccessType.CLOSED.name());
 
         try {
-            setNewSpaceMetadata(spaceId, spaceMetadata);
+            setNewSpaceProperties(spaceId, spaceProperties);
         } catch(StorageException e) {
             removeSpace(spaceId);
             String err = "Unable to create space due to: " + e.getMessage();
@@ -268,13 +267,13 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private void setNewSpaceMetadata(String spaceId,
-                                     Map<String, String> spaceMetadata) {
+    private void setNewSpaceProperties(String spaceId,
+                                       Map<String, String> spaceProperties) {
         boolean success = false;
         int maxLoops = 6;
         for (int loops = 0; !success && loops < maxLoops; loops++) {
             try {
-                setSpaceMetadata(spaceId, spaceMetadata);
+                setSpaceProperties(spaceId, spaceProperties);
                 success = true;
             } catch (NotFoundException e) {
                 success = false;
@@ -282,7 +281,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
 
         if(!success) {
-            throw new StorageException("Metadata for space " +
+            throw new StorageException("Properties for space " +
                                        spaceId + " could not be created. " +
                                        "The space cannot be found.");
         }
@@ -310,11 +309,11 @@ public class S3StorageProvider extends StorageProviderBase {
     public void removeSpace(String spaceId) {
         String bucketName = getBucketName(spaceId);
 
-        String bucketMetadata = bucketName + SPACE_METADATA_SUFFIX;
+        String bucketProperties = bucketName + SPACE_PROPERTIES_SUFFIX;
         try {
-            deleteContent(spaceId, bucketMetadata);
+            deleteContent(spaceId, bucketProperties);
         } catch(NotFoundException e) {
-            // Metadata has already been removed. Continue deleting space.
+            // Properties has already been removed. Continue deleting space.
         }
 
         try {
@@ -329,19 +328,19 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceMetadata(String spaceId) {
-        log.debug("getSpaceMetadata(" + spaceId + ")");
+    public Map<String, String> getSpaceProperties(String spaceId) {
+        log.debug("getSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        // Space metadata is stored as a content item
+        // Space properties is stored as a content item
         String bucketName = getBucketName(spaceId);
-        InputStream is = getContent(spaceId, bucketName + SPACE_METADATA_SUFFIX);
-        Map<String, String> spaceMetadata = loadMetadata(is);
+        InputStream is = getContent(spaceId, bucketName + SPACE_PROPERTIES_SUFFIX);
+        Map<String, String> spaceProperties = loadProperties(is);
 
-        spaceMetadata.put(METADATA_SPACE_COUNT,
+        spaceProperties.put(PROPERTIES_SPACE_COUNT,
                           getSpaceCount(spaceId, MAX_ITEM_COUNT));
-        return spaceMetadata;
+        return spaceProperties;
     }
 
     /*
@@ -403,42 +402,42 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata) {
-        log.debug("setSpaceMetadata(" + spaceId + ")");
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties) {
+        log.debug("setSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> originalMetadata = null;
+        Map<String, String> originalProperties = null;
         try {
-            originalMetadata = getSpaceMetadata(spaceId);
+            originalProperties = getSpaceProperties(spaceId);
         } catch(NotFoundException e) {
-            // Likely adding a new space, so no existing metadata yet.
-            originalMetadata = new HashMap<String, String>();
+            // Likely adding a new space, so no existing properties yet.
+            originalProperties = new HashMap<String, String>();
         }
 
         // Set creation date
-        String creationDate = originalMetadata.get(METADATA_SPACE_CREATED);
+        String creationDate = originalProperties.get(PROPERTIES_SPACE_CREATED);
         if(creationDate == null) {
-            creationDate = spaceMetadata.get(METADATA_SPACE_CREATED);
+            creationDate = spaceProperties.get(PROPERTIES_SPACE_CREATED);
             if(creationDate == null) {
                 creationDate = getSpaceCreationDate(spaceId);
             }
         }
-        spaceMetadata.put(METADATA_SPACE_CREATED, creationDate);
+        spaceProperties.put(PROPERTIES_SPACE_CREATED, creationDate);
 
-        // Ensure that space access is included in the new metadata
-        if(!spaceMetadata.containsKey(METADATA_SPACE_ACCESS)) {
-            String spaceAccess = originalMetadata.get(METADATA_SPACE_ACCESS);
+        // Ensure that space access is included in the new properties
+        if(!spaceProperties.containsKey(PROPERTIES_SPACE_ACCESS)) {
+            String spaceAccess = originalProperties.get(PROPERTIES_SPACE_ACCESS);
             if(spaceAccess == null) {
                 spaceAccess = AccessType.CLOSED.name();
             }
-            spaceMetadata.put(METADATA_SPACE_ACCESS, spaceAccess);
+            spaceProperties.put(PROPERTIES_SPACE_ACCESS, spaceAccess);
         }
 
         String bucketName = getBucketName(spaceId);
-        ByteArrayInputStream is = storeMetadata(spaceMetadata);
-        addContent(spaceId, bucketName + SPACE_METADATA_SUFFIX, "text/xml",
+        ByteArrayInputStream is = storeProperties(spaceProperties);
+        addContent(spaceId, bucketName + SPACE_PROPERTIES_SUFFIX, "text/xml",
                    is.available(), null, is);
     }
 
@@ -551,47 +550,47 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata) {
-        log.debug("setContentMetadata(" + spaceId + ", " + contentId + ")");
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties) {
+        log.debug("setContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
         // Remove calculated properties
-        contentMetadata.remove(METADATA_CONTENT_MD5);
-        contentMetadata.remove(METADATA_CONTENT_CHECKSUM);
-        contentMetadata.remove(METADATA_CONTENT_MODIFIED);
-        contentMetadata.remove(METADATA_CONTENT_SIZE);
-        contentMetadata.remove(Headers.CONTENT_LENGTH);
-        contentMetadata.remove(Headers.LAST_MODIFIED);
-        contentMetadata.remove(Headers.DATE);
-        contentMetadata.remove(Headers.ETAG);
-        contentMetadata.remove(Headers.CONTENT_LENGTH.toLowerCase());
-        contentMetadata.remove(Headers.LAST_MODIFIED.toLowerCase());
-        contentMetadata.remove(Headers.DATE.toLowerCase());
-        contentMetadata.remove(Headers.ETAG.toLowerCase());
+        contentProperties.remove(PROPERTIES_CONTENT_MD5);
+        contentProperties.remove(PROPERTIES_CONTENT_CHECKSUM);
+        contentProperties.remove(PROPERTIES_CONTENT_MODIFIED);
+        contentProperties.remove(PROPERTIES_CONTENT_SIZE);
+        contentProperties.remove(Headers.CONTENT_LENGTH);
+        contentProperties.remove(Headers.LAST_MODIFIED);
+        contentProperties.remove(Headers.DATE);
+        contentProperties.remove(Headers.ETAG);
+        contentProperties.remove(Headers.CONTENT_LENGTH.toLowerCase());
+        contentProperties.remove(Headers.LAST_MODIFIED.toLowerCase());
+        contentProperties.remove(Headers.DATE.toLowerCase());
+        contentProperties.remove(Headers.ETAG.toLowerCase());
 
-        // Determine mimetype, from metadata list or existing value
-        String mimeType = contentMetadata.remove(METADATA_CONTENT_MIMETYPE);
+        // Determine mimetype, from properties list or existing value
+        String mimeType = contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
         if (mimeType == null || mimeType.equals("")) {
             Map<String, String> existingMeta =
-                getContentMetadata(spaceId, contentId);
+                getContentProperties(spaceId, contentId);
             String existingMime =
-                existingMeta.get(StorageProvider.METADATA_CONTENT_MIMETYPE);
+                existingMeta.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
             if (existingMime != null) {
                 mimeType = existingMime;
             }
         }
 
-        // Collect all object metadata
+        // Collect all object properties
         String bucketName = getBucketName(spaceId);
         ObjectMetadata objMetadata = new ObjectMetadata();
-        for (String key : contentMetadata.keySet()) {
+        for (String key : contentProperties.keySet()) {
             if (log.isDebugEnabled()) {
-                log.debug("[" + key + "|" + contentMetadata.get(key) + "]");
+                log.debug("[" + key + "|" + contentProperties.get(key) + "]");
             }
-            objMetadata.addUserMetadata(getSpaceFree(key), contentMetadata.get(key));
+            objMetadata.addUserMetadata(getSpaceFree(key), contentProperties.get(key));
         }
 
         // Set Content-Type
@@ -599,7 +598,7 @@ public class S3StorageProvider extends StorageProviderBase {
             objMetadata.setContentType(mimeType);
         }
 
-        updateObjectMetadata(bucketName, contentId, objMetadata);
+        updateObjectProperties(bucketName, contentId, objMetadata);
     }
 
     private void throwIfContentNotExist(String bucketName, String contentId) {
@@ -626,9 +625,9 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private void updateObjectMetadata(String bucketName,
-                                      String contentId,
-                                      ObjectMetadata objMetadata) {
+    private void updateObjectProperties(String bucketName,
+                                        String contentId,
+                                        ObjectMetadata objMetadata) {
         try {
             CopyObjectRequest copyRequest = new CopyObjectRequest(bucketName,
                                                                   contentId,
@@ -651,9 +650,9 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId) {
-        log.debug("getContentMetadata(" + spaceId + ", " + contentId + ")");
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId) {
+        log.debug("getContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -668,48 +667,48 @@ public class S3StorageProvider extends StorageProviderBase {
             throw new StorageException(err, NO_RETRY);
         }
 
-        Map<String, String> contentMetadata = new HashMap<String, String>();
+        Map<String, String> contentProperties = new HashMap<String, String>();
 
-        // Set the user metadata
-        Map<String, String> userMetadata = objMetadata.getUserMetadata();
-        for(String metaName : userMetadata.keySet()) {
-            String metaValue = userMetadata.get(metaName);
-            contentMetadata.put(getWithSpace(metaName), metaValue);
+        // Set the user properties
+        Map<String, String> userProperties = objMetadata.getUserMetadata();
+        for(String metaName : userProperties.keySet()) {
+            String metaValue = userProperties.get(metaName);
+            contentProperties.put(getWithSpace(metaName), metaValue);
         }
 
         // Set MIMETYPE
         String contentType = objMetadata.getContentType();
         if (contentType != null) {
-            contentMetadata.put(METADATA_CONTENT_MIMETYPE, contentType);
-            contentMetadata.put(Headers.CONTENT_TYPE, contentType);
+            contentProperties.put(PROPERTIES_CONTENT_MIMETYPE, contentType);
+            contentProperties.put(Headers.CONTENT_TYPE, contentType);
         }
 
         // Set SIZE
         long contentLength = objMetadata.getContentLength();
         if (contentLength > 0) {
             String size = String.valueOf(contentLength);
-            contentMetadata.put(METADATA_CONTENT_SIZE, size);
-            contentMetadata.put(Headers.CONTENT_LENGTH, size);
+            contentProperties.put(PROPERTIES_CONTENT_SIZE, size);
+            contentProperties.put(Headers.CONTENT_LENGTH, size);
         }
 
         // Set CHECKSUM
         String checksum = objMetadata.getETag();
         if (checksum != null) {
             String eTagValue = getETagValue(checksum);
-            contentMetadata.put(METADATA_CONTENT_CHECKSUM, eTagValue);
-            contentMetadata.put(METADATA_CONTENT_MD5, eTagValue);
-            contentMetadata.put(Headers.ETAG, eTagValue);
+            contentProperties.put(PROPERTIES_CONTENT_CHECKSUM, eTagValue);
+            contentProperties.put(PROPERTIES_CONTENT_MD5, eTagValue);
+            contentProperties.put(Headers.ETAG, eTagValue);
         }
 
         // Set MODIFIED
         Date modified = objMetadata.getLastModified();
         if (modified != null) {
             String modDate = formattedDate(modified);
-            contentMetadata.put(METADATA_CONTENT_MODIFIED, modDate);
-            contentMetadata.put(Headers.LAST_MODIFIED, modDate);
+            contentProperties.put(PROPERTIES_CONTENT_MODIFIED, modDate);
+            contentProperties.put(Headers.LAST_MODIFIED, modDate);
         }
 
-        return contentMetadata;
+        return contentProperties;
     }
 
     protected String getETagValue(String etag) {

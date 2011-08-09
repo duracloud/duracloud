@@ -94,7 +94,7 @@ public class ConversionWorker implements Runnable {
                 // Store the converted file in the destination space
                 storeConvertedContent(convertedFile,
                                       destContentId,
-                                      sourceContent.getMetadata());
+                                      sourceContent.getProperties());
             } finally {
                 // Delete source and converted files from work directory
                 if(sourceFile != null) {
@@ -199,7 +199,7 @@ public class ConversionWorker implements Runnable {
 
     private void storeConvertedContent(File convertedFile,
                                        String destContentId,
-                                       Map<String, String> metadata)
+                                       Map<String, String> properties)
         throws IOException, ContentStoreException {
         ContentStoreException exception = null;
 
@@ -220,7 +220,7 @@ public class ConversionWorker implements Runnable {
                                         convertedFile.length(),
                                         mimetype,
                                         null,
-                                        metadata);
+                                        properties);
                 success = true;
             } catch (ContentStoreException e) {
                 exception = e;

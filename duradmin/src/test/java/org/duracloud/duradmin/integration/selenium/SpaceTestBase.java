@@ -24,7 +24,7 @@ public class SpaceTestBase
     protected void navigateToSpacesPage() throws Exception{
         goHome();
         clickAndWait("//a[@id='spacesMenuItem']");
-        assertTrue(selenium.isTextPresent("Metadata"));
+        assertTrue(selenium.isTextPresent("Properties"));
     }
 
     protected void removeSpace(String spaceId) throws Exception {

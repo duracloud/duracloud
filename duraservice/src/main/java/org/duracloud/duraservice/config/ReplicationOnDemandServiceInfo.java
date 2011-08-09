@@ -31,7 +31,7 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
             "in the Amazon storage provider to a space in another provider. " +
             "To begin, a source space is chosen, along with a store and " +
             "space to which content will be copied. The service then " +
-            "performs a copy of all content and metadata in the source space " +
+            "performs a copy of all content and properties in the source space " +
             "to the destination space, creating the space if necessary. " +
             "When the service has completed its work, a results file will be " +
             "stored and a set of files (primarily logs) " +

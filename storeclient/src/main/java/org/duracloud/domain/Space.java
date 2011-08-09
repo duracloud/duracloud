@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public class Space {
     private String id;
-    private Map<String, String> metadata = new HashMap<String, String>();
+    private Map<String, String> properties = new HashMap<String, String>();
     private List<String> contentIds = new ArrayList<String>();
 
     /**
@@ -37,27 +37,27 @@ public class Space {
     }
 
     /**
-     * <p>Getter for the field <code>metadata</code>.</p>
+     * <p>Getter for the field <code>properties</code>.</p>
      */
-    public Map<String, String> getMetadata() {
-        return metadata;
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
     /**
-     * <p>Setter for the field <code>metadata</code>.</p>
+     * <p>Setter for the field <code>properties</code>.</p>
      */
-    public void setMetadata(Map<String, String> metadata) {
-        this.metadata = metadata;
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
     }
 
     /**
-     * <p>Adds an item to the space metadata map</p>
+     * <p>Adds an item to the space properties map</p>
      *
-     * @param name metadata key
-     * @param value metadata value
+     * @param name properties key
+     * @param value properties value
      */
-    public void addMetadata(String name, String value) {
-        metadata.put(name, value);
+    public void addProperties(String name, String value) {
+        properties.put(name, value);
     }
 
     /**
@@ -84,12 +84,12 @@ public class Space {
     /**
      * <p>Compares one space to another</p>
      *
-     * @return true if the spaces metadata and contents are equal
+     * @return true if the spaces properties and contents are equal
      */
     public boolean equals(Space space) {
         boolean equals = false;
         if(getId().equals(space.getId()) &&
-           getMetadata().equals(space.getMetadata()) &&
+           getProperties().equals(space.getProperties()) &&
            getContentIds().equals(space.getContentIds())) {
             equals = true;
         }

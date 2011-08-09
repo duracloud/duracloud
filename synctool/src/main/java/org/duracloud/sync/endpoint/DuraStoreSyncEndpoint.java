@@ -103,12 +103,12 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                     " to DuraCloud with ID " + contentId);
 
         try {
-            Map<String, String> contentMetadata = null;
+            Map<String, String> contentProperties = null;
             boolean dcFileExists = false;
             try {
-                contentMetadata =
-                     contentStore.getContentMetadata(spaceId, contentId);
-                if(contentMetadata != null) {
+                contentProperties =
+                     contentStore.getContentProperties(spaceId, contentId);
+                if(contentProperties != null) {
                     dcFileExists = true;
                 }
             } catch(NotFoundException e) {
@@ -120,7 +120,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
 
                 if(dcFileExists) { // File was updated
                     String dcChecksum =
-                        contentMetadata.get(ContentStore.CONTENT_CHECKSUM);
+                        contentProperties.get(ContentStore.CONTENT_CHECKSUM);
                     if(dcChecksum.equals(localChecksum)) {
                         logger.debug("Checksum for local file {} matches " +
                             "file in DuraCloud, no update needed.",

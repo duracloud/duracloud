@@ -70,13 +70,13 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             // The dynamic population of this value could be passed in as a
             // service parameter, but the FixityOutputFormat is passed into
             // hadoop as a class, not an object.
-            // FIXME: this metadataMd5ContentId value is currently hard-coded
-            // into the FixityMetadataOutputFormat.java.
+            // FIXME: this propertiesMd5ContentId value is currently hard-coded
+            // into the FixityPropertiesOutputFormat.java.
             String date = DateUtil.nowMid();
             String genMd5ContentId = PREFIX + "results.csv";
             String newContentId = PREFIX + "results-" + date + ".csv";
-            String metadataMd5ContentId = PREFIX + "metadata-results.csv";
-            String newMetadatContentId = PREFIX + "metadata-results-" + date + ".csv";
+            String propertiesMd5ContentId = PREFIX + "properties-results.csv";
+            String newMetadatContentId = PREFIX + "properties-results-" + date + ".csv";
             String header = "space-id" + DELIM + "content-id" + DELIM + "hash";
             List<String> deleteFiles = new ArrayList<String>();
             deleteFiles.add(newContentId);
@@ -102,20 +102,20 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             String modeForGeneratedList = "all-in-one-for-list";
             if (null != mode && modeForGeneratedList.equals(mode)) {
                 log.info("Adding second hadoop worker.");
-                AmazonMapReduceJobWorker metadataWorker = new AmazonFixityMetadataJobWorker(
+                AmazonMapReduceJobWorker propertiesWorker = new AmazonFixityPropertiesJobWorker(
                     getContentStore(),
                     getWorkSpaceId(),
                     collectTaskParamsPostProcessor(),
                     getServiceWorkDir());
 
                 wrapperWorker = new WrapperPostJobWorker(headerWorker,
-                                                         metadataWorker);
+                                                         propertiesWorker);
 
                 headerWorker2 = new HeaderPostJobWorker(wrapperWorker,
                                                         getContentStore(),
                                                         getServiceWorkDir(),
                                                         getDestSpaceId(),
-                                                        metadataMd5ContentId,
+                                                        propertiesMd5ContentId,
                                                         newMetadatContentId,
                                                         header);
 
@@ -213,7 +213,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
         String largeInstance = HadoopTypes.INSTANCES.LARGE.getId();
         params.put(INSTANCE_TYPE.name(), largeInstance);
         params.put(MAPPERS_PER_INSTANCE.name(), getNumMappers(smallInstance));
-        params.put(JOB_TYPE.name(), AMAZON_FIXITY_METADATA.name());
+        params.put(JOB_TYPE.name(), AMAZON_FIXITY_PROPERTIES.name());
         return params;
     }
 

@@ -121,23 +121,28 @@ public class StorageReportBuilder implements Runnable {
                 while(contentIds.hasNext()) {
                     checkRun();
                     String contentId = contentIds.next();
-                    Map<String, String> contentMetadata =
-                        retryGetContentMetadata(contentStore,
-                                                spaceId,
-                                                contentId);
-                    updateMetrics(contentMetadata, storeId, storeType, spaceId);
+                    Map<String, String> contentProperties =
+                        retryGetContentProperties(contentStore,
+                                                  spaceId,
+                                                  contentId);
+                    updateMetrics(contentProperties,
+                                  storeId,
+                                  storeType,
+                                  spaceId);
                 }
             }
         }
     }
 
-    private void updateMetrics(Map<String, String> contentMetadata,
+    private void updateMetrics(Map<String, String> contentProperties,
                                String storeId,
                                String storeType,
                                String spaceId) {
-        if(null != contentMetadata) {
-            String mimetype = contentMetadata.get(ContentStore.CONTENT_MIMETYPE);
-            long size = convert(contentMetadata.get(ContentStore.CONTENT_SIZE));
+        if(null != contentProperties) {
+            String mimetype =
+                contentProperties.get(ContentStore.CONTENT_MIMETYPE);
+            long size =
+                convert(contentProperties.get(ContentStore.CONTENT_SIZE));
             durastoreMetrics.update(storeId, storeType, spaceId, mimetype, size);
         }
     }
@@ -192,22 +197,22 @@ public class StorageReportBuilder implements Runnable {
                                          "(for " + spaceId + ")");
     }
 
-    private Map<String, String> retryGetContentMetadata(ContentStore contentStore,
-                                                        String spaceId,
-                                                        String contentId) {
+    private Map<String, String> retryGetContentProperties(ContentStore contentStore,
+                                                          String spaceId,
+                                                          String contentId) {
         for(int i=0; i<maxRetries; i++) {
             checkRun();
             try {
-                return contentStore.getContentMetadata(spaceId, contentId);
+                return contentStore.getContentProperties(spaceId, contentId);
             } catch (ContentStoreException e) {
                 String store = getStoreInfo(contentStore);
-                log.warn("Exception attempting to retrieve content metadata " +
+                log.warn("Exception attempting to retrieve content properties " +
                          "(for " + spaceId + ":" + contentId + " in store " +
                          store + "): " + e.getMessage());
                 wait(i);
             }
         }
-        log.error("Exceeded retries attempting to retrieve content metadata " +
+        log.error("Exceeded retries attempting to retrieve content properties " +
                   "(for " + spaceId + ":" + contentId + "). Skipping item.");
         return null;
     }

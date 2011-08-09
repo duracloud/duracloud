@@ -188,7 +188,7 @@ public class FixityTester {
 
         String mime = "text/plain";
         long contentSize = text.length();
-        Map<String, String> metadata = null;
+        Map<String, String> properties = null;
 
         int MAX_TRIES = 4;
         int tries = 0;
@@ -204,7 +204,7 @@ public class FixityTester {
                                               contentSize,
                                               mime,
                                               null,
-                                              metadata);
+                                              properties);
             } catch (ContentStoreException e) {
                 tries++;
                 cse = e;
@@ -336,13 +336,14 @@ public class FixityTester {
             @Override
             protected Boolean doCall() throws ContentStoreException {
                 int good = 0;
-                Map<String, String> metadata;
+                Map<String, String> properties;
                 for (ContentLocation item : items) {
-                    metadata = contentStore.getContentMetadata(item.getSpaceId(),
-                                                               item.getContentId());
-                    if (metadata != null) {
+                    properties =
+                        contentStore.getContentProperties(item.getSpaceId(),
+                                                          item.getContentId());
+                    if (properties != null) {
                         good++;
-                        metadata = null;
+                        properties = null;
                     }
                 }
                 return good == items.size();

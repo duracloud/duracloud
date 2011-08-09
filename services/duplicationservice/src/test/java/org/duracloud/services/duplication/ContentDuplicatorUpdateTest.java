@@ -75,14 +75,14 @@ public class ContentDuplicatorUpdateTest {
     }
 
     @Test
-    public void testUpdateContentGetMetadataException() throws Exception {
-        init(Mode.GET_METADATA_EXCEPTION);
+    public void testUpdateContentGetPropertiesException() throws Exception {
+        init(Mode.GET_PROPERTIES_EXCEPTION);
         replicator.updateContent(spaceId, contentId);
     }
 
     @Test
-    public void testUpdateContentSetMetadataException() throws Exception {
-        init(Mode.SET_METADATA_EXCEPTION);
+    public void testUpdateContentSetPropertiesException() throws Exception {
+        init(Mode.SET_PROPERTIES_EXCEPTION);
         replicator.updateContent(spaceId, contentId);
     }
 
@@ -102,29 +102,30 @@ public class ContentDuplicatorUpdateTest {
         throws ContentStoreException {
         ContentStore store = EasyMock.createMock("FromStore",
                                                  ContentStore.class);
-        EasyMock.expect(store.getStorageProviderType()).andReturn("f-type").anyTimes();
+        EasyMock.expect(store.getStorageProviderType())
+            .andReturn("f-type").anyTimes();
 
-        mockGetContentMetadataExpectation(cmd, store);
+        mockGetContentPropertiesExpectation(cmd, store);
         mockGetContentExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
     }
 
-    private void mockGetContentMetadataExpectation(Mode cmd, ContentStore store)
+    private void mockGetContentPropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
             case NULL_INPUT:
                 break;
 
-            case GET_METADATA_EXCEPTION:
-                EasyMock.expect(store.getContentMetadata(spaceId, contentId))
+            case GET_PROPERTIES_EXCEPTION:
+                EasyMock.expect(store.getContentProperties(spaceId, contentId))
                     .andThrow(new ContentStoreException("test-exception"));
                 break;
 
             default:
-                EasyMock.expect(store.getContentMetadata(spaceId, contentId))
-                    .andReturn(createContentMetadata(cmd));
+                EasyMock.expect(store.getContentProperties(spaceId, contentId))
+                    .andReturn(createContentProperties(cmd));
                 break;
         }
     }
@@ -144,20 +145,20 @@ public class ContentDuplicatorUpdateTest {
         Content content = EasyMock.createMock("Content", Content.class);
 
         EasyMock.expect(content.getStream()).andReturn(contentStream);
-        EasyMock.expect(content.getMetadata()).andReturn(createContentMetadata(
-            cmd));
+        EasyMock.expect(content.getProperties())
+            .andReturn(createContentProperties(cmd));
 
         EasyMock.replay(content);
         return content;
     }
 
-    private Map<String, String> createContentMetadata(Mode cmd) {
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(ContentStore.CONTENT_MIMETYPE, mimeGood);
-        metadata.put(ContentStore.CONTENT_SIZE, text.length() + "");
-        metadata.put(ContentStore.CONTENT_CHECKSUM, checksum);
+    private Map<String, String> createContentProperties(Mode cmd) {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(ContentStore.CONTENT_MIMETYPE, mimeGood);
+        properties.put(ContentStore.CONTENT_SIZE, text.length() + "");
+        properties.put(ContentStore.CONTENT_CHECKSUM, checksum);
 
-        return metadata;
+        return properties;
     }
 
     private ContentStore createMockToStore(Mode cmd)
@@ -169,14 +170,14 @@ public class ContentDuplicatorUpdateTest {
             .andReturn("t-type")
             .times(times);
 
-        mockSetContentMetadataExpectation(cmd, store);
+        mockSetContentPropertiesExpectation(cmd, store);
         mockAddContentExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
     }
 
-    private void mockSetContentMetadataExpectation(Mode cmd, ContentStore store)
+    private void mockSetContentPropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
 
         switch (cmd) {
@@ -184,29 +185,29 @@ public class ContentDuplicatorUpdateTest {
                 break;
 
             case NOT_FOUND:
-                store.setContentMetadata(spaceId,
+                store.setContentProperties(spaceId,
                                          contentId,
-                                         createContentMetadata(cmd));
+                                         createContentProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new NotFoundException(
                     "test-exception"));
                 break;
 
-            case SET_METADATA_EXCEPTION:
+            case SET_PROPERTIES_EXCEPTION:
                 int numRetries = 4;
-                store.setContentMetadata(spaceId,
+                store.setContentProperties(spaceId,
                                          contentId,
-                                         createContentMetadata(cmd));
+                                         createContentProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
                     "test-exception")).times(numRetries);
                 break;
 
-            case GET_METADATA_EXCEPTION:
+            case GET_PROPERTIES_EXCEPTION:
                 break;
 
             default:
-                store.setContentMetadata(spaceId,
+                store.setContentProperties(spaceId,
                                          contentId,
-                                         createContentMetadata(cmd));
+                                         createContentProperties(cmd));
                 EasyMock.expectLastCall();
                 break;
         }
@@ -222,14 +223,14 @@ public class ContentDuplicatorUpdateTest {
                                                  text.length(),
                                                  mimeGood,
                                                  checksum,
-                                                 createContentMetadata(cmd)))
+                                                 createContentProperties(cmd)))
                     .andReturn(checksum);
                 break;
         }
     }
 
     private enum Mode {
-        OK, GET_METADATA_EXCEPTION, NOT_FOUND, SET_METADATA_EXCEPTION,
+        OK, GET_PROPERTIES_EXCEPTION, NOT_FOUND, SET_PROPERTIES_EXCEPTION,
         NULL_INPUT;
     }
 

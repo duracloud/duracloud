@@ -213,7 +213,7 @@ public class ContentStoreImpl implements ContentStore{
             HttpResponse response = restHelper.get(url);
             checkResponse(response, HttpStatus.SC_OK);
             Space space = new Space();
-            space.setMetadata(extractMetadataFromHeaders(response));
+            space.setProperties(extractPropertiesFromHeaders(response));
 
             String responseText = response.getResponseBody();
             if (responseText != null) {
@@ -246,14 +246,16 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void createSpace(String spaceId, Map<String, String> spaceMetadata)
+    public void createSpace(String spaceId, Map<String, String> spaceProperties)
             throws ContentStoreException {
         validateSpaceId(spaceId);
         String task = "create space";
         String url = buildSpaceURL(spaceId);
         try {
             HttpResponse response =
-                restHelper.put(url, null, convertMetadataToHeaders(spaceMetadata));
+                restHelper.put(url,
+                               null,
+                               convertPropertiesToHeaders(spaceProperties));
             checkResponse(response, HttpStatus.SC_CREATED);
         } catch (InvalidIdException e) {
             throw new InvalidIdException(task, spaceId, e);
@@ -285,14 +287,14 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceMetadata(String spaceId)
+    public Map<String, String> getSpaceProperties(String spaceId)
             throws ContentStoreException {
-        String task = "get space metadata";
+        String task = "get space properties";
         String url = buildSpaceURL(spaceId);
         try {
             HttpResponse response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
-            return extractMetadataFromHeaders(response);
+            return extractPropertiesFromHeaders(response);
         } catch(NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
         } catch(UnauthorizedException e) {
@@ -305,12 +307,12 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata)
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties)
             throws ContentStoreException {
         String task = "create space";
         String url = buildSpaceURL(spaceId);
-        Map<String, String> headers = convertMetadataToHeaders(spaceMetadata);
+        Map<String, String> headers = convertPropertiesToHeaders(spaceProperties);
         try {
             HttpResponse response = restHelper.post(url, null, headers);
             checkResponse(response, HttpStatus.SC_OK);
@@ -327,22 +329,22 @@ public class ContentStoreImpl implements ContentStore{
      * {@inheritDoc}
      */
     public AccessType getSpaceAccess(String spaceId) throws ContentStoreException {
-        Map<String, String> spaceMetadata = getSpaceMetadata(spaceId);
-        if(spaceMetadata.containsKey(StorageProvider.METADATA_SPACE_ACCESS)) {
+        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
+        if(spaceProperties.containsKey(StorageProvider.PROPERTIES_SPACE_ACCESS)) {
             String spaceAccess =
-                spaceMetadata.get(StorageProvider.METADATA_SPACE_ACCESS);
+                spaceProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
             if(spaceAccess.equals(AccessType.OPEN.name())) {
                 return AccessType.OPEN;
             } else if(spaceAccess.equals(AccessType.CLOSED.name())) {
                 return AccessType.CLOSED;
             } else {
                 String errMsg = "Could not determine access type for space " +
-                    spaceId + ". Value of access metadata is " + spaceAccess;
+                    spaceId + ". Value of access properties is " + spaceAccess;
                 throw new ContentStoreException(errMsg);
             }
         } else {
             String errMsg = "Could not determine access type for space " +
-                            spaceId + ". No access type metadata is available.";
+                            spaceId + ". No access type properties is available.";
             throw new ContentStoreException(errMsg);
         }
     }
@@ -352,9 +354,9 @@ public class ContentStoreImpl implements ContentStore{
      */
     public void setSpaceAccess(String spaceId, AccessType spaceAccess)
             throws ContentStoreException {
-        Map<String, String> metadata = getSpaceMetadata(spaceId);
-        metadata.put(StorageProvider.METADATA_SPACE_ACCESS, spaceAccess.name());
-        setSpaceMetadata(spaceId, metadata);
+        Map<String, String> properties = getSpaceProperties(spaceId);
+        properties.put(StorageProvider.PROPERTIES_SPACE_ACCESS, spaceAccess.name());
+        setSpaceProperties(spaceId, properties);
     }
 
     /**
@@ -366,22 +368,22 @@ public class ContentStoreImpl implements ContentStore{
                              long contentSize,
                              String contentMimeType,
                              String contentChecksum,
-                             Map<String, String> contentMetadata)
+                             Map<String, String> contentProperties)
             throws ContentStoreException {
         validateContentId(contentId);
         String task = "add content";
         String url = buildContentURL(spaceId, contentId);
 
-        // Include mimetype as metadata
+        // Include mimetype as properties
         if(contentMimeType != null && !contentMimeType.equals("")) {
-            if(contentMetadata == null) {
-                contentMetadata = new HashMap<String, String>();
+            if(contentProperties == null) {
+                contentProperties = new HashMap<String, String>();
             }
-            contentMetadata.put(CONTENT_MIMETYPE, contentMimeType);
+            contentProperties.put(CONTENT_MIMETYPE, contentMimeType);
         }
 
         Map<String, String> headers =
-            convertMetadataToHeaders(contentMetadata);
+            convertPropertiesToHeaders(contentProperties);
 
         // Include checksum if provided
         if(contentChecksum != null) {
@@ -425,9 +427,9 @@ public class ContentStoreImpl implements ContentStore{
             Content content = new Content();
             content.setId(contentId);
             content.setStream(response.getResponseStream());
-            content.setMetadata(
-                mergeMaps(extractMetadataFromHeaders(response),
-                          extractNonMetadataHeaders(response)));
+            content.setProperties(
+                mergeMaps(extractPropertiesFromHeaders(response),
+                          extractNonPropertiesHeaders(response)));
             return content;
         } catch(NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
@@ -460,14 +462,14 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata)
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties)
             throws ContentStoreException {
-        String task = "udpate content metadata";
+        String task = "udpate content properties";
         String url = buildContentURL(spaceId, contentId);
         Map<String, String> headers =
-            convertMetadataToHeaders(contentMetadata);
+            convertPropertiesToHeaders(contentProperties);
         try {
             HttpResponse response = restHelper.post(url,
                                                     null,
@@ -485,16 +487,16 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId)
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId)
             throws ContentStoreException {
-        String task = "get metadata";
+        String task = "get properties";
         String url = buildContentURL(spaceId, contentId);
         try {
             HttpResponse response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
-            return mergeMaps(extractMetadataFromHeaders(response),
-                             extractNonMetadataHeaders(response));
+            return mergeMaps(extractPropertiesFromHeaders(response),
+                             extractNonPropertiesHeaders(response));
         } catch(NotFoundException e) {
             throw new NotFoundException(task, spaceId, contentId, e);
         } catch(UnauthorizedException e) {
@@ -531,29 +533,29 @@ public class ContentStoreImpl implements ContentStore{
         }
     }
 
-    private Map<String, String> convertMetadataToHeaders(Map<String, String> metadata) {
+    private Map<String, String> convertPropertiesToHeaders(Map<String, String> properties) {
         Map<String, String> headers = new HashMap<String, String>();
-        if(metadata != null) {
-            for (String metaName : metadata.keySet()) {
-                headers.put(HEADER_PREFIX + metaName, metadata.get(metaName));
+        if(properties != null) {
+            for (String metaName : properties.keySet()) {
+                headers.put(HEADER_PREFIX + metaName, properties.get(metaName));
             }
         }
         return headers;
     }
 
-    private Map<String, String> extractMetadataFromHeaders(HttpResponse response) {
-        Map<String, String> metadata = new HashMap<String, String>();
+    private Map<String, String> extractPropertiesFromHeaders(HttpResponse response) {
+        Map<String, String> properties = new HashMap<String, String>();
         for (Header header : response.getResponseHeaders()) {
             String name = header.getName();
             if (name.startsWith(HEADER_PREFIX)) {
-                metadata.put(name.substring(HEADER_PREFIX.length()),
+                properties.put(name.substring(HEADER_PREFIX.length()),
                              header.getValue());
             }
         }
-        return metadata;
+        return properties;
     }
 
-    private Map<String, String> extractNonMetadataHeaders(HttpResponse response) {
+    private Map<String, String> extractNonPropertiesHeaders(HttpResponse response) {
         Map<String, String> headers = new HashMap<String, String>();
         for (Header header : response.getResponseHeaders()) {
             String name = header.getName();

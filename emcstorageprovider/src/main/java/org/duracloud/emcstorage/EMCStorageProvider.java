@@ -267,7 +267,7 @@ public class EMCStorageProvider extends StorageProviderBase {
         metadataList.addMetadata(new Metadata(SPACE_ROOT_TAG_NAME,
                                               spaceId,
                                               true));
-        metadataList.addMetadata(new Metadata(METADATA_SPACE_ACCESS,
+        metadataList.addMetadata(new Metadata(PROPERTIES_SPACE_ACCESS,
                                               AccessType.CLOSED.name(),
                                               true));
         return metadataList;
@@ -344,19 +344,19 @@ public class EMCStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceMetadata(String spaceId) {
-        log.debug("getSpaceMetadata(" + spaceId + ")");
+    public Map<String, String> getSpaceProperties(String spaceId) {
+        log.debug("getSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
         Identifier spacePath = getSpacePath(spaceId);
-        Map<String, String> spaceMetadata = getExistingUserMetadata(spacePath);
+        Map<String, String> spaceProperties = getExistingUserProperties(spacePath);
 
-        // Over-write managed metadata.
-        spaceMetadata.put(METADATA_SPACE_CREATED, getCreationDate(spacePath));
-        spaceMetadata.put(METADATA_SPACE_COUNT, getContentObjCount(spaceId));
+        // Over-write managed properties.
+        spaceProperties.put(PROPERTIES_SPACE_CREATED, getCreationDate(spacePath));
+        spaceProperties.put(PROPERTIES_SPACE_COUNT, getContentObjCount(spaceId));
 
-        return spaceMetadata;
+        return spaceProperties;
     }
 
     private String getCreationDate(Identifier id) {
@@ -394,13 +394,13 @@ public class EMCStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata) {
-        log.debug("setSpaceMetadata(" + spaceId + ")");
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties) {
+        log.debug("setSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        // Remove volatile metadata.
+        // Remove volatile properties.
         Identifier spacePath = getSpacePath(spaceId);
         MetadataTags existingTags = listUserMetadataTags(spacePath);
         MetadataTags disposableTags = getSpaceTagsToRemove(existingTags);
@@ -408,17 +408,17 @@ public class EMCStorageProvider extends StorageProviderBase {
             deleteUserMetadata(spacePath, disposableTags);
         }
 
-        // Start with required metadata.
+        // Start with required properties.
         MetadataList metadatas = createRequiredRootMetadata(spaceId);
 
         // Do not overwrite space root tag
-        spaceMetadata.remove(SPACE_ROOT_TAG_NAME);
+        spaceProperties.remove(SPACE_ROOT_TAG_NAME);
 
-        // Start adding arg user metadata.
+        // Start adding arg user properties.
         final boolean isIndexed = false;
-        Set<String> keys = spaceMetadata.keySet();
+        Set<String> keys = spaceProperties.keySet();
         for (String key : keys) {
-            String val = spaceMetadata.get(key);
+            String val = spaceProperties.get(key);
             metadatas.addMetadata(new Metadata(key, val, isIndexed));
         }
 
@@ -549,11 +549,11 @@ public class EMCStorageProvider extends StorageProviderBase {
         metadataList.addMetadata(new Metadata(spaceId, contentId, isIndexed));
 
         if (mimeType != null) {
-            metadataList.addMetadata(new Metadata(METADATA_CONTENT_MIMETYPE,
+            metadataList.addMetadata(new Metadata(PROPERTIES_CONTENT_MIMETYPE,
                                                   mimeType,
                                                   isIndexed));
         } else {
-            metadataList.addMetadata(new Metadata(METADATA_CONTENT_MIMETYPE,
+            metadataList.addMetadata(new Metadata(PROPERTIES_CONTENT_MIMETYPE,
                                                   DEFAULT_MIMETYPE,
                                                   isIndexed));
         }
@@ -623,37 +623,37 @@ public class EMCStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata) {
-        log.debug("setContentMetadata(" + spaceId + ", " + contentId + ")");
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties) {
+        log.debug("setContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
         // Determine mimetype
         String contentMimeType =
-            contentMetadata.remove(METADATA_CONTENT_MIMETYPE);
+            contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
         if(contentMimeType == null || contentMimeType.equals("")) {
             Map<String, String> contentMeta =
-                getContentMetadata(spaceId, contentId);
-            contentMimeType = contentMeta.get(METADATA_CONTENT_MIMETYPE);
+                getContentProperties(spaceId, contentId);
+            contentMimeType = contentMeta.get(PROPERTIES_CONTENT_MIMETYPE);
         }
 
-        // Remove existing user metadata.
+        // Remove existing user properties.
         Identifier objectPath = getObjectPath(spaceId, contentId);
         MetadataTags existingTags = listUserMetadataTags(objectPath);
         deleteUserMetadata(objectPath, existingTags);
 
-        // Start with required metadata.
+        // Start with required properties.
         MetadataList metadatas = createRequiredContentMetadata(spaceId,
                                                                contentId,
                                                                contentMimeType);
 
-        // Start adding arg user metadata.
+        // Start adding arg user properties.
         final boolean isIndexed = false;
-        Set<String> keys = contentMetadata.keySet();
+        Set<String> keys = contentProperties.keySet();
         for (String key : keys) {
-            String val = contentMetadata.get(key);
+            String val = contentProperties.get(key);
             metadatas.addMetadata(new Metadata(key, val, isIndexed));
         }
 
@@ -668,9 +668,9 @@ public class EMCStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId) {
-        log.debug("getContentMetadata(" + spaceId + ", " + contentId + ")");
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId) {
+        log.debug("getContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
         throwIfContentNotExist(spaceId, contentId);
@@ -679,30 +679,30 @@ public class EMCStorageProvider extends StorageProviderBase {
 
         if (log.isDebugEnabled()) {
             for (Metadata md : emcService.getSystemMetadata(objectPath, null)) {
-                log.debug("System-metadata: " + md.toString());
+                log.debug("System-properties: " + md.toString());
             }
             for (Metadata md : emcService.getUserMetadata(objectPath, null)) {
-                log.debug("User-metadata:" + md.toString());
+                log.debug("User-properties:" + md.toString());
             }
         }
 
-        Map<String, String> metadata = getExistingUserMetadata(objectPath);
-        metadata.putAll(generateManagedContentMetadata(spaceId,
-                                                       contentId,
-                                                       objectPath));
+        Map<String, String> properties = getExistingUserProperties(objectPath);
+        properties.putAll(generateManagedContentMetadata(spaceId,
+                                                         contentId,
+                                                         objectPath));
 
-        // Normalize metadata keys to lowercase.
+        // Normalize properties keys to lowercase.
         Map<String, String> resultMap = new HashMap<String, String>();
-        Set<String> keys = metadata.keySet();
+        Set<String> keys = properties.keySet();
         for (String key : keys) {
-            String val = metadata.get(key);
+            String val = properties.get(key);
             resultMap.put(key.toLowerCase(), val);
         }
 
         return resultMap;
     }
 
-    private Map<String, String> getExistingUserMetadata(Identifier objId) {
+    private Map<String, String> getExistingUserProperties(Identifier objId) {
         Map<String, String> metadata = new HashMap<String, String>();
         MetadataList existingMetadata = null;
         try {
@@ -745,13 +745,13 @@ public class EMCStorageProvider extends StorageProviderBase {
 
         Map<String, String> metadata = new HashMap<String, String>();
         if (StringUtils.isNotBlank(size)) {
-            metadata.put(METADATA_CONTENT_SIZE, size);
+            metadata.put(PROPERTIES_CONTENT_SIZE, size);
         }
         if (StringUtils.isNotBlank(cksum)) {
-            metadata.put(METADATA_CONTENT_CHECKSUM, cksum);
+            metadata.put(PROPERTIES_CONTENT_CHECKSUM, cksum);
         }
         if (StringUtils.isNotBlank(modifiedDate)) {
-            metadata.put(METADATA_CONTENT_MODIFIED, modifiedDate);
+            metadata.put(PROPERTIES_CONTENT_MODIFIED, modifiedDate);
         }
         return metadata;
     }

@@ -38,8 +38,8 @@ import java.util.TimeZone;
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
 import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.loadMetadata;
-import static org.duracloud.storage.util.StorageProviderUtil.storeMetadata;
+import static org.duracloud.storage.util.StorageProviderUtil.loadProperties;
+import static org.duracloud.storage.util.StorageProviderUtil.storeProperties;
 
 /**
  * Provides content storage backed by Rackspace's Cloud Files service.
@@ -122,21 +122,21 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         throwIfSpaceNotExist(spaceId);
 
         String bucketName = getContainerName(spaceId);
-        String bucketMetadata = bucketName + SPACE_METADATA_SUFFIX;
+        String bucketProperties = bucketName + SPACE_PROPERTIES_SUFFIX;
 
         if(maxResults <= 0) {
             maxResults = StorageProvider.DEFAULT_MAX_RESULTS;
         }
 
         // Queries for maxResults +1 to account for the possibility of needing
-        // to remove the space metadata but still maintain a full result
+        // to remove the space properties but still maintain a full result
         // set (size == maxResults).
         List<String> spaceContents =
             getCompleteSpaceContents(spaceId, prefix, maxResults + 1, marker);
 
-        if(spaceContents.contains(bucketMetadata)) {
-            // Remove space metadata
-            spaceContents.remove(bucketMetadata);
+        if(spaceContents.contains(bucketProperties)) {
+            // Remove space properties
+            spaceContents.remove(bucketProperties);
         } else if(spaceContents.size() > maxResults) {
             // Remove extra content item
             spaceContents.remove(spaceContents.size()-1);
@@ -238,8 +238,8 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     }
 
     private void throwIfContentNotExist(String spaceId, String contentId) {
-        // Attempt to get content metadata, which throws if content does not exist
-        getObjectMetadata(spaceId, contentId);
+        // Attempt to get content properties, which throws if content does not exist
+        getObjectProperties(spaceId, contentId);
     }
 
     private boolean spaceExists(String spaceId) {
@@ -260,14 +260,14 @@ public class RackspaceStorageProvider extends StorageProviderBase {
 
         createContainer(spaceId);
 
-        // Add space metadata
+        // Add space properties
         // Note: According to Rackspace support (ticket #13597) there are no
         // dates recorded for containers, so store our own created date        
-        Map<String, String> spaceMetadata = new HashMap<String, String>();
+        Map<String, String> spaceProperties = new HashMap<String, String>();
         Date created = new Date(System.currentTimeMillis());
-        spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
-        spaceMetadata.put(METADATA_SPACE_ACCESS, AccessType.CLOSED.name());
-        setSpaceMetadata(spaceId, spaceMetadata);
+        spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
+        spaceProperties.put(PROPERTIES_SPACE_ACCESS, AccessType.CLOSED.name());
+        setSpaceProperties(spaceId, spaceProperties);
     }
 
     private String formattedDate(Date created) {
@@ -299,12 +299,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         StringBuilder err = new StringBuilder("Could not delete Rackspace" +
                 " container with name " + containerName + " due to error: ");
 
-        String bucketMetadata =
-            getContainerName(spaceId) + SPACE_METADATA_SUFFIX;
+        String bucketProperties =
+            getContainerName(spaceId) + SPACE_PROPERTIES_SUFFIX;
         try {
-            deleteContent(spaceId, bucketMetadata);
+            deleteContent(spaceId, bucketProperties);
         } catch(NotFoundException e) {
-            // Metadata has already been removed. Continue deleting space.
+            // Properties has already been removed. Continue deleting space.
         }
 
         try {
@@ -324,33 +324,33 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceMetadata(String spaceId) {
-        log.debug("getSpaceMetadata(" + spaceId + ")");
+    public Map<String, String> getSpaceProperties(String spaceId) {
+        log.debug("getSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        // Space metadata is stored as a content item
+        // Space properties is stored as a content item
         String containerName = getContainerName(spaceId);
         InputStream is =
-                getContent(spaceId, containerName + SPACE_METADATA_SUFFIX);
-        Map<String, String> spaceMetadata = loadMetadata(is);
+                getContent(spaceId, containerName + SPACE_PROPERTIES_SUFFIX);
+        Map<String, String> spaceProperties = loadProperties(is);
 
         FilesContainerInfo containerInfo = getContainerInfo(containerName);
 
-        final int sysMetadataObjectCount = 1;
+        final int sysPropertiesObjectCount = 1;
         int totalObjectCount = containerInfo.getObjectCount();
-        int visibleObjectCount = totalObjectCount - sysMetadataObjectCount;
-        spaceMetadata.put(METADATA_SPACE_COUNT,
+        int visibleObjectCount = totalObjectCount - sysPropertiesObjectCount;
+        spaceProperties.put(PROPERTIES_SPACE_COUNT,
                           String.valueOf(visibleObjectCount));
 
-        spaceMetadata.put(METADATA_SPACE_SIZE, String.valueOf(containerInfo
+        spaceProperties.put(PROPERTIES_SPACE_SIZE, String.valueOf(containerInfo
                 .getTotalSize()));
 
-        return spaceMetadata;
+        return spaceProperties;
     }
 
     private FilesContainerInfo getContainerInfo(String containerName) {
-        StringBuilder err = new StringBuilder("Could not retrieve metadata " +
+        StringBuilder err = new StringBuilder("Could not retrieve properties " +
                 "from Rackspace container " + containerName + " due to error: ");
 
         try {
@@ -370,28 +370,28 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata) {
-        log.debug("setSpaceMetadata(" + spaceId + ")");
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties) {
+        log.debug("setSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        // Ensure that space created date is included in the new metadata
-        Date created = getCreationDate(spaceId, spaceMetadata);
+        // Ensure that space created date is included in the new properties
+        Date created = getCreationDate(spaceId, spaceProperties);
         if (created != null) {
-            spaceMetadata.put(METADATA_SPACE_CREATED, formattedDate(created));
+            spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
         }
 
-        // Ensure that space access is included in the new metadata
-        if(!spaceMetadata.containsKey(METADATA_SPACE_ACCESS)) {
+        // Ensure that space access is included in the new properties
+        if(!spaceProperties.containsKey(PROPERTIES_SPACE_ACCESS)) {
             String spaceAccess = getSpaceAccess(spaceId).name();
-            spaceMetadata.put(METADATA_SPACE_ACCESS, spaceAccess);
+            spaceProperties.put(PROPERTIES_SPACE_ACCESS, spaceAccess);
         }
 
         String containerName = getContainerName(spaceId);
-        ByteArrayInputStream is = storeMetadata(spaceMetadata);
+        ByteArrayInputStream is = storeProperties(spaceProperties);
         addContent(spaceId,
-                   containerName + SPACE_METADATA_SUFFIX,
+                   containerName + SPACE_PROPERTIES_SUFFIX,
                    "text/xml",
                    is.available(),
                    null,
@@ -399,12 +399,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     }
 
     private Date getCreationDate(String spaceId,
-                                 Map<String, String> spaceMetadata) {
+                                 Map<String, String> spaceProperties) {
         String dateText;
-        if (!spaceMetadata.containsKey(METADATA_SPACE_CREATED)) {
+        if (!spaceProperties.containsKey(PROPERTIES_SPACE_CREATED)) {
             dateText = getCreationTimestamp(spaceId);
         } else {
-            dateText = spaceMetadata.get(METADATA_SPACE_CREATED);
+            dateText = spaceProperties.get(PROPERTIES_SPACE_CREATED);
         }
 
         Date created = null;
@@ -417,12 +417,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     }
 
     private String getCreationTimestamp(String spaceId) {
-        Map<String, String> spaceMd = getSpaceMetadata(spaceId);
-        String creationTime = spaceMd.get(METADATA_SPACE_CREATED);
+        Map<String, String> spaceMd = getSpaceProperties(spaceId);
+        String creationTime = spaceMd.get(PROPERTIES_SPACE_CREATED);
 
         if (creationTime == null) {
             StringBuffer msg = new StringBuffer("Error: ");
-            msg.append("No ").append(METADATA_SPACE_CREATED).append(" found ");
+            msg.append("No ").append(PROPERTIES_SPACE_CREATED).append(" found ");
             msg.append("for spaceId: ").append(spaceId);
             log.error(msg.toString());
             throw new StorageException(msg.toString());
@@ -449,8 +449,8 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             contentMimeType = DEFAULT_MIMETYPE;
         }        
 
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(METADATA_CONTENT_MIMETYPE, contentMimeType);
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
 
         // Wrap the content in order to be able to retrieve a checksum
         ChecksumInputStream wrappedContent =
@@ -459,7 +459,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         storeStreamedObject(contentId,
                             contentMimeType,
                             spaceId,
-                            metadata,
+                            properties,
                             wrappedContent);
 
         // Compare checksum
@@ -469,7 +469,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
 
     private void storeStreamedObject(String contentId, String contentMimeType,
                                      String spaceId,
-                                     Map<String, String> metadata,
+                                     Map<String, String> properties,
                                      ChecksumInputStream wrappedContent) {
         String containerName = getContainerName(spaceId);
         StringBuilder err = new StringBuilder("Could not add content "
@@ -482,7 +482,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
                                             wrappedContent,
                                             contentMimeType,
                                             contentId,
-                                            metadata);
+                                            properties);
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
@@ -548,10 +548,10 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     private void deleteObject(String contentId,
                               String spaceId) {
         String containerName = getContainerName(spaceId);
-        StringBuilder err = new StringBuilder("Could not delete content " + contentId
-                    + " from Rackspace container " + containerName
-                    + " due to error: ");
-
+        StringBuilder err =
+            new StringBuilder("Could not delete content " + contentId +
+                              " from Rackspace container " + containerName +
+                              " due to error: ");
         try {
             filesClient.deleteObject(containerName, contentId);
         } catch (FilesNotFoundException e) {
@@ -569,53 +569,54 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata) {
-        log.debug("setContentMetadata(" + spaceId + ", " + contentId + ")");
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties) {
+        log.debug("setContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
         throwIfContentNotExist(spaceId, contentId);        
 
         // Remove calculated properties
-        contentMetadata.remove(METADATA_CONTENT_CHECKSUM);
-        contentMetadata.remove(METADATA_CONTENT_MODIFIED);
-        contentMetadata.remove(METADATA_CONTENT_SIZE);
+        contentProperties.remove(PROPERTIES_CONTENT_CHECKSUM);
+        contentProperties.remove(PROPERTIES_CONTENT_MODIFIED);
+        contentProperties.remove(PROPERTIES_CONTENT_SIZE);
 
         // Set mimetype
         String contentMimeType =
-            contentMetadata.remove(METADATA_CONTENT_MIMETYPE);
+            contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
         if(contentMimeType == null || contentMimeType.equals("")) {
-            contentMimeType = getObjectMetadata(spaceId, contentId).getMimeType();
+            contentMimeType = getObjectProperties(spaceId, contentId).getMimeType();
         }
         // Note: It is not currently possible to set MIME type on a
         // Rackspace object directly, so setting a custom field instead.
-        contentMetadata.put(METADATA_CONTENT_MIMETYPE, contentMimeType);
+        contentProperties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
 
-        Map<String, String> newContentMetadata = new HashMap<String, String>();
-        for (String key : contentMetadata.keySet()) {
+        Map<String, String> newContentProperties = new HashMap<String, String>();
+        for (String key : contentProperties.keySet()) {
             if (log.isDebugEnabled()) {
-                log.debug("[" + key + "|" + contentMetadata.get(key) + "]");
+                log.debug("[" + key + "|" + contentProperties.get(key) + "]");
             }
-            newContentMetadata.put(getSpaceFree(key), contentMetadata.get(key));
+            newContentProperties.put(getSpaceFree(key),
+                                     contentProperties.get(key));
         }
         
-        updateContentMetadata(spaceId, contentId, newContentMetadata);
+        updateContentProperties(spaceId, contentId, newContentProperties);
     }
 
-    private void updateContentMetadata(String spaceId,
-                                       String contentId,
-                                       Map<String, String> contentMetadata) {
+    private void updateContentProperties(String spaceId,
+                                         String contentId,
+                                         Map<String, String> contentProperties) {
         String containerName = getContainerName(spaceId);
 
-        StringBuilder err = new StringBuilder("Could not update metadata " +
+        StringBuilder err = new StringBuilder("Could not update properties " +
             "for content " + contentId + " in Rackspace container " +
             containerName + " due to error: ");
 
         try {
             filesClient.updateObjectMetadata(containerName,
                                              contentId,
-                                             contentMetadata);
+                                             contentProperties);
         } catch (FilesAuthorizationException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
@@ -629,72 +630,72 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId) {
-        log.debug("getContentMetadata(" + spaceId + ", " + contentId + ")");
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId) {
+        log.debug("getContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
-        FilesObjectMetaData metadata = getObjectMetadata(spaceId, contentId);
-        if (metadata == null) {
-            String err = "No metadata is available for item " + contentId
+        FilesObjectMetaData properties = getObjectProperties(spaceId, contentId);
+        if (properties == null) {
+            String err = "No properties is available for item " + contentId
                     + " in Rackspace space " + spaceId;
             throw new StorageException(err, RETRY);
         }
 
-        Map<String, String> metadataMap = metadata.getMetaData();
+        Map<String, String> propertiesMap = properties.getMetaData();
 
-        // Set expected metadata values
+        // Set expected property values
 
         // MIMETYPE
-        // METADATA_CONTENT_MIMETYPE value is set directly by add/update content
+        // PROPERTIES_CONTENT_MIMETYPE value is set directly by add/update content
         // SIZE
-        String contentLength = metadata.getContentLength();
+        String contentLength = properties.getContentLength();
         if (contentLength != null) {
-            metadataMap.put(METADATA_CONTENT_SIZE, contentLength);
+            propertiesMap.put(PROPERTIES_CONTENT_SIZE, contentLength);
         }
         // CHECKSUM
-        String checksum = metadata.getETag();
+        String checksum = properties.getETag();
         if (checksum != null) {
-            metadataMap.put(METADATA_CONTENT_CHECKSUM, checksum);
+            propertiesMap.put(PROPERTIES_CONTENT_CHECKSUM, checksum);
         }
         // MODIFIED DATE
-        String modified = metadata.getLastModified();
+        String modified = properties.getLastModified();
         if (modified != null) {
-            metadataMap.put(METADATA_CONTENT_MODIFIED, modified);
+            propertiesMap.put(PROPERTIES_CONTENT_MODIFIED, modified);
         }
 
-        // Normalize metadata keys to lowercase.
+        // Normalize properties keys to lowercase.
         Map<String, String> resultMap = new HashMap<String, String>();
-        Iterator<String> keys = metadataMap.keySet().iterator();
+        Iterator<String> keys = propertiesMap.keySet().iterator();
         while (keys.hasNext()) {
             String key = keys.next();
-            String val = metadataMap.get(key);
+            String val = propertiesMap.get(key);
             resultMap.put(getWithSpace(key.toLowerCase()), val);
         }
 
         return resultMap;
     }
 
-    private FilesObjectMetaData getObjectMetadata(String spaceId,
-                                                  String contentId) {
+    private FilesObjectMetaData getObjectProperties(String spaceId,
+                                                    String contentId) {
         String containerName = getContainerName(spaceId);
 
-        StringBuilder err = new StringBuilder("Could not retrieve metadata"
+        StringBuilder err = new StringBuilder("Could not retrieve properties"
                 + " for content " + contentId
                 + " from Rackspace container " + containerName
                 + " due to error: ");
 
         try {
-            FilesObjectMetaData metadata =
+            FilesObjectMetaData properties =
                 filesClient.getObjectMetaData(containerName, contentId);
 
-            if(metadata == null) {
+            if(properties == null) {
                 String errMsg = createNotFoundMsg(spaceId, contentId);
                 throw new NotFoundException(errMsg);
             }
 
-            return metadata;
+            return properties;
         } catch (FilesNotFoundException e) {
             err.append(e.getMessage());
             throw new NotFoundException(err.toString(), e);            

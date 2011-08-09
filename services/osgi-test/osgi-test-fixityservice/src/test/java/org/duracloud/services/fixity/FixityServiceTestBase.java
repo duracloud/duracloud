@@ -7,7 +7,6 @@
  */
 package org.duracloud.services.fixity;
 
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -15,7 +14,6 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.DuraCloudUserType;
 import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.util.StoreCaller;
@@ -38,7 +36,6 @@ import java.util.Map;
 import java.util.Random;
 
 import static org.duracloud.common.util.ChecksumUtil.Algorithm.MD5;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrew Woods
@@ -280,13 +277,13 @@ public class FixityServiceTestBase {
             @Override
             protected Boolean doCall() throws ContentStoreException {
                 int good = 0;
-                Map<String, String> metadata;
+                Map<String, String> properties;
                 for (ContentLocation item : items) {
-                    metadata = store.getContentMetadata(item.getSpaceId(),
-                                                        item.getContentId());
-                    if (metadata != null) {
+                    properties = store.getContentProperties(item.getSpaceId(),
+                                                            item.getContentId());
+                    if (properties != null) {
                         good++;
-                        metadata = null;
+                        properties = null;
                     }
                 }
                 return good == itemToMd5.size();
@@ -308,9 +305,9 @@ public class FixityServiceTestBase {
         StoreCaller<Boolean> listingCaller = new StoreCaller<Boolean>() {
             @Override
             protected Boolean doCall() throws ContentStoreException {
-                Map<String, String> metadata = null;
-                metadata = store.getContentMetadata(spaceId, contentId);
-                return (null != metadata);
+                Map<String, String> properties = null;
+                properties = store.getContentProperties(spaceId, contentId);
+                return (null != properties);
             }
 
             @Override

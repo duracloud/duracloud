@@ -26,7 +26,7 @@
 
   <bean id="contentUpdateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice" ref="contentUpdateAdvice"/>
-    <property name="pattern" value=".*StatelessStorageProvider.setContentMetadata"/>
+    <property name="pattern" value=".*StatelessStorageProvider.setContentProperties"/>
   </bean>
 
   <!-- AOP Advice - Content Delete -->
@@ -62,7 +62,7 @@
 
   <bean id="spaceUpdateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice" ref="spaceUpdateAdvice"/>
-    <property name="pattern" value=".*StatelessStorageProvider.setSpaceMetadata"/>
+    <property name="pattern" value=".*StatelessStorageProvider.setSpaceProperties"/>
   </bean>
 
   <!-- AOP Advice - Space Delete -->

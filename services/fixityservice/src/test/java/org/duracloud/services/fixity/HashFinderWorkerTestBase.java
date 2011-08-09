@@ -88,10 +88,10 @@ public abstract class HashFinderWorkerTestBase {
         return new AutoCloseInputStream(new ByteArrayInputStream(text.getBytes()));
     }
 
-    protected Map<String, String> getMetadata(String hash) {
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(StorageProvider.METADATA_CONTENT_MD5, hash);
-        return metadata;
+    protected Map<String, String> getProperties(String hash) {
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(StorageProvider.PROPERTIES_CONTENT_MD5, hash);
+        return properties;
     }
 
     protected abstract ContentStore createContentStore()

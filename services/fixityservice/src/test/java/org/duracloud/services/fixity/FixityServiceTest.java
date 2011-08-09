@@ -416,7 +416,7 @@ public class FixityServiceTest {
                                          EasyMock.<Map<String, String>>isNull()))
             .andReturn("junk-md5")
             .anyTimes();
-        EasyMock.expect(store.getSpaceMetadata(outputSpaceId)).andReturn(null);
+        EasyMock.expect(store.getSpaceProperties(outputSpaceId)).andReturn(null);
 
         EasyMock.makeThreadSafe(store, true);
 

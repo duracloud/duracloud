@@ -7,8 +7,6 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.durastore.error.ResourceException;
-import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,8 +44,8 @@ public class SpaceRestExceptionsTest {
     }
 
     @Test
-    public void testGetSpaceMetadata() throws Exception {
-        Response response = spaceRest.getSpaceMetadata(null, null);
+    public void testGetSpaceProperties() throws Exception {
+        Response response = spaceRest.getSpaceProperties(null, null);
         support.verifyErrorResponse(response);
     }
 
@@ -58,8 +56,8 @@ public class SpaceRestExceptionsTest {
     }
 
     @Test
-    public void testUpdateSpaceMetadata() throws Exception {
-        Response response = spaceRest.updateSpaceMetadata(null, null);
+    public void testUpdateSpaceProperties() throws Exception {
+        Response response = spaceRest.updateSpaceProperties(null, null);
         support.verifyErrorResponse(response);
     }
 

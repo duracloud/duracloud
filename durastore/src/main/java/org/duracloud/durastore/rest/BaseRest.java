@@ -45,17 +45,17 @@ public abstract class BaseRest {
 
     public static final String HEADER_PREFIX = "x-dura-meta-";
     public static final String SPACE_ACCESS_HEADER =
-        HEADER_PREFIX + StorageProvider.METADATA_SPACE_ACCESS;
+        HEADER_PREFIX + StorageProvider.PROPERTIES_SPACE_ACCESS;
     public static final String CONTENT_MIMETYPE_HEADER =
-        HEADER_PREFIX + StorageProvider.METADATA_CONTENT_MIMETYPE;
+        HEADER_PREFIX + StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
 
     /**
-     * Looks through the request headers and pulls out user metadata.
+     * Looks through the request headers and pulls out user properties.
      * Only includes items which are not in the exceptions list.
      */
-    protected Map<String, String> getUserMetadata(String... exceptions) {
+    protected Map<String, String> getUserProperties(String... exceptions) {
         MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
-        Map<String, String> userMetadata = new HashMap<String, String>();
+        Map<String, String> userProperties = new HashMap<String, String>();
         Iterator<String> headerNames = rHeaders.keySet().iterator();
         while(headerNames.hasNext()) {
             String headerName = headerNames.next();
@@ -69,11 +69,11 @@ public abstract class BaseRest {
                 if(include) {
                     String noPrefixName =
                         headerName.substring(HEADER_PREFIX.length());
-                    userMetadata.put(noPrefixName,
+                    userProperties.put(noPrefixName,
                                      rHeaders.getFirst(headerName));
                 }
             }
         }
-        return userMetadata;
+        return userProperties;
     }
 }

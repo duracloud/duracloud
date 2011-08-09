@@ -32,8 +32,8 @@ public abstract class StorageProviderBase implements StorageProvider {
 
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> spaceMetadata = getSpaceMetadata(spaceId);
-        String spaceAccess = spaceMetadata.get(METADATA_SPACE_ACCESS);
+        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
+        String spaceAccess = spaceProperties.get(PROPERTIES_SPACE_ACCESS);
 
         if(spaceAccess == null) {
             // No space access set, set to CLOSED
@@ -52,8 +52,8 @@ public abstract class StorageProviderBase implements StorageProvider {
 
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> spaceMetadata = getSpaceMetadata(spaceId);
-        String spaceAccess = spaceMetadata.get(METADATA_SPACE_ACCESS);
+        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
+        String spaceAccess = spaceProperties.get(PROPERTIES_SPACE_ACCESS);
 
         AccessType currentAccess = null;
         if(spaceAccess != null) {
@@ -65,8 +65,8 @@ public abstract class StorageProviderBase implements StorageProvider {
         }
 
         if(!access.equals(currentAccess)) {
-            spaceMetadata.put(METADATA_SPACE_ACCESS, access.name());
-            setSpaceMetadata(spaceId, spaceMetadata);
+            spaceProperties.put(PROPERTIES_SPACE_ACCESS, access.name());
+            setSpaceProperties(spaceId, spaceProperties);
         }
     }
 
@@ -77,16 +77,17 @@ public abstract class StorageProviderBase implements StorageProvider {
         log.debug("deleteSpace(" + spaceId + ")");
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> spaceMetadata = getSpaceMetadata(spaceId);
-        spaceMetadata.put("is-delete", "true");
-        setSpaceMetadata(spaceId, spaceMetadata);
+        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
+        spaceProperties.put("is-delete", "true");
+        setSpaceProperties(spaceId, spaceProperties);
 
         SpaceDeleteWorker deleteThread = getSpaceDeleteWorker(spaceId);
         new Thread(deleteThread).start();
     }
 
     protected class SpaceDeleteWorker implements Runnable {
-        protected final Logger log = LoggerFactory.getLogger(SpaceDeleteWorker.class);
+        protected final Logger log =
+            LoggerFactory.getLogger(SpaceDeleteWorker.class);
 
         private String spaceId;
 
@@ -107,7 +108,8 @@ public abstract class StorageProviderBase implements StorageProvider {
 
                 while(contents.hasNext()) {
                     String contentId = contents.next();
-                    log.debug("deleteContent(" + spaceId + ", " + contentId + ") - count=" + count);
+                    log.debug("deleteContent(" + spaceId + ", " +
+                              contentId + ") - count=" + count);
 
                     try {
                         deleteContent(spaceId, contentId);
@@ -120,11 +122,14 @@ public abstract class StorageProviderBase implements StorageProvider {
             }
 
             if(contents.hasNext()) {
-                log.debug("deleteSpaceContents(" + spaceId + ") exceeded retries");
+                log.debug("deleteSpaceContents(" + spaceId +
+                          ") exceeded retries");
 
-                Map<String, String> spaceMetadata = getSpaceMetadata(spaceId);
-                spaceMetadata.put("delete-error", "Unable to delete all content items");
-                setSpaceMetadata(spaceId, spaceMetadata);
+                Map<String, String> spaceProperties =
+                    getSpaceProperties(spaceId);
+                spaceProperties.put("delete-error",
+                                    "Unable to delete all content items");
+                setSpaceProperties(spaceId, spaceProperties);
             }
             else {
                 log.debug("removeSpace(" + spaceId + ")");

@@ -31,58 +31,59 @@ import static org.duracloud.storage.error.StorageException.NO_RETRY;
 public class StorageProviderUtil {
 
     /**
-     * Loads a stream containing metadata and populates a map
-     * with the metadata name/value pairs.
+     * Loads a stream containing properties and populates a map
+     * with the properties name/value pairs.
      *
      * @param is
      * @return
      * @throws StorageException
      */
-    public static Map<String, String> loadMetadata(InputStream is)
+    public static Map<String, String> loadProperties(InputStream is)
     throws StorageException {
-        Map<String, String> metadataMap = null;
+        Map<String, String> propertiesMap = null;
         if(is != null) {
             try {
-                String metadata = readStringFromStream(is);
-                metadataMap = deserializeMap(metadata);
+                String properties = readStringFromStream(is);
+                propertiesMap = deserializeMap(properties);
             } catch(Exception e) {
-                String err = "Could not read metadata " +
+                String err = "Could not read properties " +
                              " due to error: " + e.getMessage();
                 throw new StorageException(err, e);
             }
         }
 
-        if(metadataMap == null) {
-            metadataMap = new HashMap<String, String>();
+        if(propertiesMap == null) {
+            propertiesMap = new HashMap<String, String>();
         }
 
-        return metadataMap;
+        return propertiesMap;
     }
 
     /**
-     * Converts metadata stored in a Map into a stream for storage purposes.
+     * Converts properties stored in a Map into a stream for storage purposes.
      *
-     * @param metadataMap
+     * @param propertiesMap
      * @return
      * @throws StorageException
      */
-    public static ByteArrayInputStream storeMetadata(Map<String, String> metadataMap)
+    public static ByteArrayInputStream storeProperties(
+        Map<String, String> propertiesMap)
     throws StorageException {
         // Pull out known computed values
-        metadataMap.remove(StorageProvider.METADATA_SPACE_COUNT);
+        propertiesMap.remove(StorageProvider.PROPERTIES_SPACE_COUNT);
 
         // Serialize Map
-        byte[] metadata = null;
+        byte[] properties = null;
         try {
-            String serializedMetadata = serializeMap(metadataMap);
-            metadata = serializedMetadata.getBytes("UTF-8");
+            String serializedProperties = serializeMap(propertiesMap);
+            properties = serializedProperties.getBytes("UTF-8");
         } catch (Exception e) {
-            String err = "Could not store metadata" +
+            String err = "Could not store properties" +
                          " due to error: " + e.getMessage();
             throw new StorageException(err);
         }
 
-        ByteArrayInputStream is = new ByteArrayInputStream(metadata);
+        ByteArrayInputStream is = new ByteArrayInputStream(properties);
         return is;
     }
 
@@ -104,8 +105,8 @@ public class StorageProviderUtil {
                                          String checksum)
         throws StorageException {
         String providerChecksum =
-            provider.getContentMetadata(spaceId, contentId).
-            get(StorageProvider.METADATA_CONTENT_CHECKSUM);
+            provider.getContentProperties(spaceId, contentId).
+            get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM);
         return compareChecksum(providerChecksum, spaceId, contentId, checksum);
     }
 

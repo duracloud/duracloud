@@ -71,7 +71,7 @@ public class StorageReportHandlerTest {
 
     @Test
     public void testStoreReport() throws Exception {
-        Capture<Map<String, String>> metadataCapture =
+        Capture<Map<String, String>> propertiesCapture =
             new Capture<Map<String, String>>();
 
         StorageReportHandler handler = setUpMocksStoreReport();
@@ -100,7 +100,7 @@ public class StorageReportHandlerTest {
     }
 
     private StorageReportHandler setUpMockStore() throws Exception {
-        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
+        EasyMock.expect(mockStore.getSpaceProperties(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
 
@@ -154,7 +154,7 @@ public class StorageReportHandlerTest {
 
     private StorageReportHandler setUpMocksGetStorageReport(String reportId)
         throws Exception {
-        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
+        EasyMock.expect(mockStore.getSpaceProperties(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
 
@@ -207,7 +207,7 @@ public class StorageReportHandlerTest {
 
     private StorageReportHandler setUpMocksGetLatestStorageReport()
         throws Exception {
-        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
+        EasyMock.expect(mockStore.getSpaceProperties(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
 
@@ -242,7 +242,7 @@ public class StorageReportHandlerTest {
 
     private StorageReportHandler setUpMocksGetStorageReportList()
         throws Exception {
-        EasyMock.expect(mockStore.getSpaceMetadata(EasyMock.isA(String.class)))
+        EasyMock.expect(mockStore.getSpaceProperties(EasyMock.isA(String.class)))
             .andReturn(null)
             .times(1);
 
@@ -272,14 +272,14 @@ public class StorageReportHandlerTest {
         String existingLogContent = "Existing Error Message";
         InputStream existingStream =
             new ByteArrayInputStream(existingLogContent.getBytes("UTF-8"));
-        Map<String, String> metadata = new HashMap<String, String>();
-        metadata.put(ContentStore.CONTENT_SIZE,
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(ContentStore.CONTENT_SIZE,
                      String.valueOf(existingLogContent.length()));
 
         Content content = new Content();
         content.setId(errorLogName);
         content.setStream(existingStream);
-        content.setMetadata(metadata);
+        content.setProperties(properties);
 
         EasyMock.expect(mockStore.getContent(spaceId, errorLogName))
             .andReturn(content)

@@ -80,12 +80,12 @@ public class StatelessStorageProviderImpl
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getContentMetadata(StorageProvider targetProvider,
-                                                  String storeId,
-                                                  String spaceId,
-                                                  String contentId)
+    public Map<String, String> getContentProperties(StorageProvider targetProvider,
+                                                    String storeId,
+                                                    String spaceId,
+                                                    String contentId)
             throws StorageException {
-        return targetProvider.getContentMetadata(spaceId, contentId);
+        return targetProvider.getContentProperties(spaceId, contentId);
     }
 
     /**
@@ -127,10 +127,10 @@ public class StatelessStorageProviderImpl
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceMetadata(StorageProvider targetProvider,
-                                                String storeId,
-                                                String spaceId) throws StorageException {
-        return targetProvider.getSpaceMetadata(spaceId);
+    public Map<String, String> getSpaceProperties(StorageProvider targetProvider,
+                                                  String storeId,
+                                                  String spaceId) throws StorageException {
+        return targetProvider.getSpaceProperties(spaceId);
     }
 
     /**
@@ -145,13 +145,13 @@ public class StatelessStorageProviderImpl
     /**
      * {@inheritDoc}
      */
-    public void setContentMetadata(StorageProvider targetProvider,
-                                   String storeId,
-                                   String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata)
+    public void setContentProperties(StorageProvider targetProvider,
+                                     String storeId,
+                                     String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties)
             throws StorageException {
-        targetProvider.setContentMetadata(spaceId, contentId, contentMetadata);
+        targetProvider.setContentProperties(spaceId, contentId, contentProperties);
     }
 
     /**
@@ -167,12 +167,12 @@ public class StatelessStorageProviderImpl
     /**
      * {@inheritDoc}
      */
-    public void setSpaceMetadata(StorageProvider targetProvider,
-                                 String storeId,
-                                 String spaceId,
-                                 Map<String, String> spaceMetadata)
+    public void setSpaceProperties(StorageProvider targetProvider,
+                                   String storeId,
+                                   String spaceId,
+                                   Map<String, String> spaceProperties)
             throws StorageException {
-        targetProvider.setSpaceMetadata(spaceId, spaceMetadata);
+        targetProvider.setSpaceProperties(spaceId, spaceProperties);
     }
 
 }

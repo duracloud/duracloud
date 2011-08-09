@@ -116,13 +116,13 @@ public abstract class ProbedStorageProvider
         return result;
     }
 
-    public Map<String, String> getContentMetadata(String spaceId,
-                                                  String contentId)
+    public Map<String, String> getContentProperties(String spaceId,
+                                                    String contentId)
             throws StorageException {
-        startMetric("getContentMetadata");
+        startMetric("getContentProperties");
         Map<String, String> result =
-                storageProvider.getContentMetadata(spaceId, contentId);
-        stopMetric("getContentMetadata");
+                storageProvider.getContentProperties(spaceId, contentId);
+        stopMetric("getContentProperties");
         return result;
     }
 
@@ -156,11 +156,11 @@ public abstract class ProbedStorageProvider
         return result;
     }
 
-    public Map<String, String> getSpaceMetadata(String spaceId)
+    public Map<String, String> getSpaceProperties(String spaceId)
             throws StorageException {
-        startMetric("getSpaceMetadata");
-        Map<String, String> result = storageProvider.getSpaceMetadata(spaceId);
-        stopMetric("getSpaceMetadata");
+        startMetric("getSpaceProperties");
+        Map<String, String> result = storageProvider.getSpaceProperties(spaceId);
+        stopMetric("getSpaceProperties");
         return result;
     }
 
@@ -171,13 +171,15 @@ public abstract class ProbedStorageProvider
         return result;
     }
 
-    public void setContentMetadata(String spaceId,
-                                   String contentId,
-                                   Map<String, String> contentMetadata)
+    public void setContentProperties(String spaceId,
+                                     String contentId,
+                                     Map<String, String> contentProperties)
             throws StorageException {
-        startMetric("setContentMetadata");
-        storageProvider.setContentMetadata(spaceId, contentId, contentMetadata);
-        stopMetric("setContentMetadata");
+        startMetric("setContentProperties");
+        storageProvider.setContentProperties(spaceId,
+                                             contentId,
+                                             contentProperties);
+        stopMetric("setContentProperties");
     }
 
     public void setSpaceAccess(String spaceId, AccessType access)
@@ -187,12 +189,12 @@ public abstract class ProbedStorageProvider
         stopMetric("setSpaceAccess");
     }
 
-    public void setSpaceMetadata(String spaceId,
-                                 Map<String, String> spaceMetadata)
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProperties)
             throws StorageException {
-        startMetric("setSpaceMetadata");
-        storageProvider.setSpaceMetadata(spaceId, spaceMetadata);
-        stopMetric("setSpaceMetadata");
+        startMetric("setSpaceProperties");
+        storageProvider.setSpaceProperties(spaceId, spaceProperties);
+        stopMetric("setSpaceProperties");
     }
 
 }

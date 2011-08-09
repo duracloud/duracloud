@@ -94,7 +94,7 @@
 
     <dependency>
       <groupId>org.duracloud.services.hadoop</groupId>
-      <artifactId>fixity-metadata-processor</artifactId>
+      <artifactId>fixity-properties-processor</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

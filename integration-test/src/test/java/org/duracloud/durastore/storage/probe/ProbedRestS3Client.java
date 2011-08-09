@@ -365,7 +365,7 @@ public class ProbedRestS3Client
     public S3Object getObject(GetObjectRequest getObjectRequest)
         throws AmazonClientException {
         startMetric("getObject");
-        S3Object result = super.getObject(getObjectRequest); 
+        S3Object result = super.getObject(getObjectRequest);
         stopMetric("getObject");
         return result;
     }

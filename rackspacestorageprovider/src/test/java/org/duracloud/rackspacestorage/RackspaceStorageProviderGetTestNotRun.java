@@ -96,22 +96,22 @@ public class RackspaceStorageProviderGetTestNotRun {
     }
 
     @Test
-    public void testGetContentMetadata() {
-        System.out.println("--- TEST GET CONTENT METADATA ---");
+    public void testGetContentProperties() {
+        System.out.println("--- TEST GET CONTENT PROPERTIES ---");
         String spaceId = getSpaceId();
         String contentId = getContentId(spaceId);
 
         int failures = 0;
         for(int i=0; i < attempts; i++) {
             try {
-                rackspaceProvider.getContentMetadata(spaceId, contentId);
+                rackspaceProvider.getContentProperties(spaceId, contentId);
             } catch (Exception e) {
-                System.out.println("Failure getting object metadata: " +
+                System.out.println("Failure getting object properties: " +
                                    e.getMessage());
                 failures++;
             }
         }
-        System.out.println("TEST GET CONTENT METADATA RESULT: " + failures +
+        System.out.println("TEST GET CONTENT PROPERTIES RESULT: " + failures +
                            " failures " + " out of " + attempts + " attempts.");
     }
 

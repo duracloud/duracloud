@@ -46,11 +46,11 @@ public class StorageProviderBaseTest {
         providerTest.throwIfSpaceNotExist(spaceId);
         EasyMock.expectLastCall();
 
-        EasyMock.expect(providerTest.getSpaceMetadata(spaceId))
+        EasyMock.expect(providerTest.getSpaceProperties(spaceId))
             .andReturn(new HashMap<String, String>())
             .once();
 
-        providerTest.setSpaceMetadata(EasyMock.<String>anyObject(),
+        providerTest.setSpaceProperties(EasyMock.<String>anyObject(),
                                       EasyMock.<Map<String, String>>anyObject());
         EasyMock.expectLastCall();
 
@@ -156,11 +156,11 @@ public class StorageProviderBaseTest {
             EasyMock.expectLastCall().andThrow(new NotFoundException(""));
         }
 
-        EasyMock.expect(providerTest.getSpaceMetadata(spaceId))
+        EasyMock.expect(providerTest.getSpaceProperties(spaceId))
             .andReturn(new HashMap<String, String>());
 
-        providerTest.setSpaceMetadata(EasyMock.<String>anyObject(),
-                                      EasyMock.<Map<String, String>>anyObject());
+        providerTest.setSpaceProperties(EasyMock.<String>anyObject(),
+                                        EasyMock.<Map<String, String>>anyObject());
         EasyMock.expectLastCall();
 
         EasyMock.replay(providerTest);
@@ -194,15 +194,18 @@ public class StorageProviderBaseTest {
                                                     String prefix,
                                                     long maxResults,
                                                     String marker){
-            return test.getSpaceContentsChunked(spaceId,prefix,maxResults,marker);
+            return test.getSpaceContentsChunked(spaceId,
+                                                prefix,
+                                                maxResults,
+                                                marker);
         }
         public void createSpace(String spaceId){test.createSpace(spaceId);}
-        public Map<String, String> getSpaceMetadata(String spaceId){
-            return test.getSpaceMetadata(spaceId);
+        public Map<String, String> getSpaceProperties(String spaceId){
+            return test.getSpaceProperties(spaceId);
         }
-        public void setSpaceMetadata(String spaceId,
-                                     Map<String, String> spaceMetadata){
-            test.setSpaceMetadata(spaceId,spaceMetadata);
+        public void setSpaceProperties(String spaceId,
+                                       Map<String, String> spaceProperties){
+            test.setSpaceProperties(spaceId,spaceProperties);
         }
         public AccessType getSpaceAccess(String spaceId){
             return test.getSpaceAccess(spaceId);
@@ -217,20 +220,25 @@ public class StorageProviderBaseTest {
                                  long contentSize,
                                  String contentChecksum,
                                  InputStream content){
-            return test.addContent(spaceId,contentId,contentMimeType,contentSize,contentChecksum,content);
+            return test.addContent(spaceId,
+                                   contentId,
+                                   contentMimeType,
+                                   contentSize,
+                                   contentChecksum,
+                                   content);
         }
         public void deleteContent(String spaceId,
                                   String contentId){
             test.deleteContent(spaceId,contentId);
         }
-        public void setContentMetadata(String spaceId,
-                                       String contentId,
-                                       Map<String, String> contentMetadata){
-            test.setContentMetadata(spaceId,contentId,contentMetadata);
+        public void setContentProperties(String spaceId,
+                                         String contentId,
+                                         Map<String, String> contentProperties){
+            test.setContentProperties(spaceId,contentId,contentProperties);
         }
-        public Map<String, String> getContentMetadata(String spaceId,
-                                                      String contentId){
-            return test.getContentMetadata(spaceId,contentId);
+        public Map<String, String> getContentProperties(String spaceId,
+                                                        String contentId){
+            return test.getContentProperties(spaceId,contentId);
         }
 
         public void setTest(StorageProviderBase test) {

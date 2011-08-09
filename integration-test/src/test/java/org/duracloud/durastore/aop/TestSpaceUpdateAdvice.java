@@ -8,7 +8,6 @@
 package org.duracloud.durastore.aop;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.durastore.rest.BaseRest;
@@ -19,8 +18,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -30,6 +27,9 @@ import javax.jms.Session;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <pre>
@@ -151,12 +151,12 @@ public class TestSpaceUpdateAdvice
             url = RestTestHelper.getBaseUrl() + "/badSpaceId";
         }
 
-        // Add metadata
+        // Add properties
         Map<String, String> headers = new HashMap<String, String>();
         String newSpaceAccess = "CLOSED";
         headers.put(BaseRest.SPACE_ACCESS_HEADER, newSpaceAccess);
-        String newSpaceMetadata = "Updated Space Metadata";
-        headers.put(RestTestHelper.METADATA_NAME, newSpaceMetadata);
+        String newSpaceProperties = "Updated Space Properties";
+        headers.put(RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
         HttpResponse response = restHelper.post(url, null, headers);
         String responseText = response.getResponseBody();
         int statusCode = response.getStatusCode();

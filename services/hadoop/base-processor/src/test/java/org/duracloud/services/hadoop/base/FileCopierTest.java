@@ -92,7 +92,7 @@ public class FileCopierTest {
         }
 
         @Override
-        protected String getMd5FromMetadata() throws IOException {
+        protected String getMd5FromProperties() throws IOException {
             ChecksumUtil checksumUtil =
                 new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
             return checksumUtil.generateChecksum(file);

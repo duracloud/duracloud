@@ -7,8 +7,6 @@
  */
 package org.duracloud.retrieval.source;
 
-import java.io.InputStream;
-
 /**
  * @author: Bill Branan
  * Date: Oct 12, 2010
@@ -26,7 +24,7 @@ public interface RetrievalSource {
 
     /**
      * Provides the checksum of the specified source file based on the file's
-     * metadata.
+     * properties.
      *
      * @param contentItem the file to consider
      * @return MD5 checksum of the given file

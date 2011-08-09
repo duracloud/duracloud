@@ -19,8 +19,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -30,6 +28,9 @@ import javax.jms.Session;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <pre>
@@ -161,12 +162,12 @@ public class TestContentUpdateAdvice
             url = RestTestHelper.getBaseUrl() + suffix;
         }
 
-        // Update metadata
+        // Update properties
         Map<String, String> headers = new HashMap<String, String>();
         String newContentMime = "text/plain";
         headers.put(HttpHeaders.CONTENT_TYPE, newContentMime);
-        String newMetaName = BaseRest.HEADER_PREFIX + "new-metadata";
-        String newMetaValue = "New Metadata Value";
+        String newMetaName = BaseRest.HEADER_PREFIX + "new-properties";
+        String newMetaValue = "New Properties Value";
         headers.put(newMetaName, newMetaValue);
         
         response = restHelper.post(url, null, headers);
