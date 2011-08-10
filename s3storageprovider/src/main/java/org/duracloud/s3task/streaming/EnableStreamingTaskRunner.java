@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.model.CanonicalGrantee;
 import com.amazonaws.services.s3.model.Grant;
 import com.amazonaws.services.s3.model.Permission;
 import org.apache.commons.lang.StringUtils;
+import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
@@ -41,6 +42,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
     private final Logger log = LoggerFactory.getLogger(EnableStreamingTaskRunner.class);    
 
     private static final String TASK_NAME = "enable-streaming";
+    public static final int maxRetries = 8;
 
     public EnableStreamingTaskRunner(S3StorageProvider s3Provider,
                                      AmazonS3Client s3Client,
@@ -205,21 +207,10 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         while(contentIds.hasNext()) {
             String contentId = contentIds.next();
             try {
-                AccessControlList contentACL =
-                    s3Client.getObjectAcl(bucketName, contentId);
-
-                // Determine if grant already exists
-                boolean grantExists = checkACL(contentACL,
-                                               s3Grantee.getIdentifier(),
-                                               Permission.Read);
-
-                if(!grantExists) {
-                    contentACL.grantPermission(s3Grantee,
-                                               Permission.Read);
-                    s3Client.setObjectAcl(bucketName, contentId, contentACL);
-                }
+                setACL(bucketName, contentId, s3Grantee);
                 successfulSet++;
-            } catch(AmazonServiceException e) {
+            } catch(DuraCloudCheckedException e) {
+                log.error(e.getMessage());
                 failedSet.add(contentId);
             }
         }
@@ -241,6 +232,37 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         return results.toString();
     }
 
+    private void setACL(String bucketName,
+                        String contentId,
+                        CanonicalGrantee s3Grantee)
+        throws DuraCloudCheckedException{
+        for(int i=0; i<maxRetries; i++) {
+            try {
+                AccessControlList contentACL =
+                    s3Client.getObjectAcl(bucketName, contentId);
+
+                // Determine if grant already exists
+                boolean grantExists = checkACL(contentACL,
+                                               s3Grantee.getIdentifier(),
+                                               Permission.Read);
+                if(!grantExists) {
+                    contentACL.grantPermission(s3Grantee,
+                                               Permission.Read);
+                    s3Client.setObjectAcl(bucketName, contentId, contentACL);
+                }
+                return;
+            } catch(AmazonServiceException e) {
+                log.warn("Exception encountered attempting to set streaming " +
+                         "ACL for S3 content: " + contentId + " in bucket: " +
+                         bucketName + ", error: " + e.getMessage());
+                wait(i);
+            }
+            throw new DuraCloudCheckedException(
+                "Unable to set streaming ACL for " + contentId +
+                " in bucket " + bucketName);
+        }
+    }
+
     /*
      * Determines if the provided ACL includes the given permission for
      * the given grantee
@@ -257,6 +279,13 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
             }
         }
         return false;
+    }
+
+    private void wait(int index) {
+        try {
+            Thread.sleep(1000 * index);
+        } catch(InterruptedException e) {
+        }
     }
 
 }
