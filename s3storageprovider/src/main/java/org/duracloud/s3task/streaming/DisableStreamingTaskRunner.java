@@ -10,6 +10,7 @@ package org.duracloud.s3task.streaming;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
@@ -27,7 +28,8 @@ import java.util.List;
  */
 public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
 
-    private final Logger log = LoggerFactory.getLogger(DisableStreamingTaskRunner.class);    
+    private final Logger log =
+        LoggerFactory.getLogger(DisableStreamingTaskRunner.class);
 
     private static final String TASK_NAME = "disable-streaming";
 
@@ -80,26 +82,21 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
      *
      * @return results of the ACL setting activity
      */
-    private String resetContentAccess(String spaceId, String bucketName) {
-
+    private String resetContentAccess(String spaceId,
+                                      String bucketName) {
         // Get a list of items in the space
-        Iterator<String> contentIds =
-            s3Provider.getSpaceContents(spaceId, null);
+        Iterator<String> contentIds = getSpaceContents(spaceId);
 
-        // Attempt to set private ACL permission
+        // Set ACL permissions for all items back to private
         int successfulSet = 0;
         List<String> failedSet = new ArrayList<String>();
         while(contentIds.hasNext()) {
             String contentId = contentIds.next();
-
             try {
-                s3Client.setObjectAcl(bucketName,
-                                      contentId,
-                                      CannedAccessControlList.Private);
+                resetACL(bucketName, contentId);
                 successfulSet++;
-            } catch(AmazonServiceException e) {
-                log.error("Error setting ACL for object " + contentId + ": " +
-                          e.getMessage(), e);
+            } catch(DuraCloudCheckedException e) {
+                log.error(e.getMessage());
                 failedSet.add(contentId);
             }
         }
@@ -120,6 +117,27 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
         results.trimToSize();
 
         return results.toString();
+    }
+
+    private void resetACL(String bucketName,
+                          String contentId)
+        throws DuraCloudCheckedException {
+        for(int i=0; i<maxRetries; i++) {
+            try {
+                s3Client.setObjectAcl(bucketName,
+                                      contentId,
+                                      CannedAccessControlList.Private);
+                return;
+            } catch(AmazonServiceException e) {
+                log.warn("Exception encountered attempting to reset streaming " +
+                         "ACL for S3 content: " + contentId + " in bucket: " +
+                         bucketName + ", error: " + e.getMessage());
+                wait(i);
+            }
+            throw new DuraCloudCheckedException(
+                "Unable to reset streaming ACL for " + contentId +
+                " in bucket " + bucketName);
+        }
     }
 
 }

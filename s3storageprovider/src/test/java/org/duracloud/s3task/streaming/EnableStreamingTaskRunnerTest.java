@@ -14,6 +14,7 @@ import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.model.cloudfront.LoggingStatus;
 import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
+import org.jets3t.service.model.cloudfront.S3Origin;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 import org.junit.Test;
@@ -110,19 +111,19 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
+        S3Origin origin = new S3Origin("origin");
         StreamingDistribution dist =
             new StreamingDistribution("id", "status", null, "domainName",
-                                      "origin", null, "comment", true);
+                                      origin, null, "comment", true);
 
         EasyMock
             .expect(service.createStreamingDistribution(
-                EasyMock.isA(String.class),
+                EasyMock.isA(S3Origin.class),
                 EasyMock.<String>isNull(),
                 EasyMock.<String[]>isNull(),
                 EasyMock.<String>isNull(),
                 EasyMock.eq(true),
                 EasyMock.<LoggingStatus>isNull(),
-                EasyMock.isA(String.class),
                 EasyMock.eq(false),
                 EasyMock.<String[]>isNull()))
             .andReturn(dist)
@@ -184,11 +185,11 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
+        S3Origin origin = new S3Origin("origin", "originAccessId");
         StreamingDistributionConfig config =
-            new StreamingDistributionConfig("origin", "callerReference",
+            new StreamingDistributionConfig(origin, "callerReference",
                                             new String[0], "comment", true,
-                                            null, "originId", false, null,
-                                            null);
+                                            null, false, null, null);
 
         EasyMock
             .expect(service.getStreamingDistributionConfig(
@@ -204,9 +205,10 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             .andReturn(oaIdentity)
             .times(1);
 
+        S3Origin origin2 = new S3Origin("bucketName");
         StreamingDistribution dist =
             new StreamingDistribution("id", "status", null, "domainName",
-                                      "bucketName", null, "comment", true);
+                                      origin2, null, "comment", true);
         StreamingDistribution[] distributions = {dist};
 
         EasyMock

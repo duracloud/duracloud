@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
+import org.jets3t.service.model.cloudfront.S3Origin;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.junit.Test;
 
@@ -121,9 +122,10 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
+        S3Origin origin = new S3Origin("bucketName");
         StreamingDistribution dist =
             new StreamingDistribution("id", "status", null, "domainName",
-                                      "bucketName", null, "comment", true);
+                                      origin, null, "comment", true);
         StreamingDistribution[] distributions = {dist};
 
         EasyMock

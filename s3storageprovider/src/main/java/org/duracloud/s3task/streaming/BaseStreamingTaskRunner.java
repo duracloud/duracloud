@@ -8,13 +8,18 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
+import org.jets3t.service.model.cloudfront.S3Origin;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -22,6 +27,11 @@ import java.util.List;
  * Date: Jun 1, 2010
  */
 public abstract class BaseStreamingTaskRunner implements TaskRunner {
+
+    private final Logger log =
+        LoggerFactory.getLogger(BaseStreamingTaskRunner.class);
+
+    protected static final int maxRetries = 8;
 
     protected S3StorageProvider s3Provider;
     protected AmazonS3Client s3Client;
@@ -53,13 +63,19 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
 
         if(distributions != null) {
             for(StreamingDistribution dist : distributions) {
-                if(bucketName.equals(dist.getOriginAsBucketName())) {
+                if(isDistFromBucket(bucketName, dist)) {
                     return dist;
                 }
             }
         }
 
         return null;
+    }
+
+    private boolean isDistFromBucket(String bucketName,
+                                     StreamingDistribution dist) {
+        S3Origin origin = (S3Origin)dist.getOrigin();
+        return bucketName.equals(origin.getOriginAsBucketName());
     }
 
     /*
@@ -75,11 +91,37 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
             new ArrayList<StreamingDistribution>();
 
         for(StreamingDistribution dist : distributions) {
-            if(bucketName.equals(dist.getOriginAsBucketName())) {
+            if(isDistFromBucket(bucketName, dist)) {
                 distList.add(dist);
             }
         }
 
         return distList;
     }
+
+    /*
+     * Get a listing of items in a space
+     */
+    protected Iterator<String> getSpaceContents(String spaceId) {
+        for(int i=0; i<maxRetries; i++) {
+            try {
+                return s3Provider.getSpaceContents(spaceId, null);
+            } catch(Exception e) {
+                log.warn("Exception encountered attempting to get contents " +
+                         "for streaming space: " + spaceId +
+                         ", error message: " + e.getMessage());
+                wait(i);
+            }
+        }
+        throw new DuraCloudRuntimeException("Exceeded retries attempting to " +
+                                            "get space contents for " + spaceId);
+    }
+
+    protected void wait(int index) {
+        try {
+            Thread.sleep(1000 * index);
+        } catch(InterruptedException e) {
+        }
+    }
+
 }

@@ -19,8 +19,8 @@ import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.DistributionConfig;
 import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
+import org.jets3t.service.model.cloudfront.S3Origin;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 import org.slf4j.Logger;
@@ -39,10 +39,10 @@ import java.util.Set;
  */
 public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
 
-    private final Logger log = LoggerFactory.getLogger(EnableStreamingTaskRunner.class);    
+    private final Logger log =
+        LoggerFactory.getLogger(EnableStreamingTaskRunner.class);
 
     private static final String TASK_NAME = "enable-streaming";
-    public static final int maxRetries = 8;
 
     public EnableStreamingTaskRunner(S3StorageProvider s3Provider,
                                      AmazonS3Client s3Client,
@@ -86,6 +86,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
                         cfService.updateStreamingDistributionConfig(distId,
                                                                     null,
                                                                     null,
+                                                                    null,
                                                                     true,
                                                                     null);
                     }
@@ -97,7 +98,9 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
 
             if(distId == null) { // No existing distribution, need to create
                 oaIdentityId = getOriginAccessId();
-                String origin = cfService.sanitizeS3BucketName(bucketName);
+                S3Origin origin =
+                    new S3Origin(cfService.sanitizeS3BucketName(bucketName),
+                                 oaIdentityId);
                 StreamingDistribution dist =
                     cfService.createStreamingDistribution(origin,
                                                           null,
@@ -105,7 +108,6 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
                                                           null,
                                                           true,
                                                           null,
-                                                          oaIdentityId,
                                                           false,
                                                           null);
                 domainName = dist.getDomainName();
@@ -141,7 +143,8 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         throws CloudFrontServiceException {
         StreamingDistributionConfig config =
             cfService.getStreamingDistributionConfig(distributionId);
-        return config.getOriginAccessIdentity();
+        S3Origin origin = (S3Origin)config.getOrigin();
+        return origin.getOriginAccessIdentity();
     }
 
     /*
@@ -188,7 +191,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         throws CloudFrontServiceException {
         // Clean up the origin access id if necessary
         oaIdentityId = StringUtils.removeStart(oaIdentityId,
-            DistributionConfig.ORIGIN_ACCESS_IDENTITY_PREFIX);
+            CloudFrontService.ORIGIN_ACCESS_IDENTITY_PREFIX);
 
         // Get the origin access identity to use
         OriginAccessIdentity oaIdentity =
@@ -197,8 +200,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         CanonicalGrantee s3Grantee = new CanonicalGrantee(s3UserId);
 
         // Get a list of items in the space
-        Iterator<String> contentIds =
-            s3Provider.getSpaceContents(spaceId, null);
+        Iterator<String> contentIds = getSpaceContents(spaceId);
 
         // Attempt to set a new ACL permission allowing read for origin
         // access identity to each content item
@@ -279,13 +281,6 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
             }
         }
         return false;
-    }
-
-    private void wait(int index) {
-        try {
-            Thread.sleep(1000 * index);
-        } catch(InterruptedException e) {
-        }
     }
 
 }
