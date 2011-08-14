@@ -10,52 +10,13 @@
 	
 	<tiles:putAttribute name="body">
 		<script type="text/javascript">
-			$(function(){
-				$("#username").focus();
-				
-				var login = function(){
-					var loginForm = $("#loginForm");
-					var message =$("#msg-error");
-					var feedback = $("#feedback");
-					message.makeHidden();
-					feedback.fadeIn();					
-
-					$.ajax({
-						type:"POST",
-						url: "/duradmin/j_spring_security_check",
-						data: loginForm.serialize(), 
-						cache: false,
-					  	success: function(data) {
-					  	 	try{
-	   						  feedback.fadeOut();					
-							  dc.debug("data="+data);
-							  if(data.indexOf("Login") > 0){
-								  message.makeVisible();
-								  message.fadeIn();
-							  }else{
-		 						  location.reload(true);
-							  }
-					  	 	}catch(err){
-								dc.error(err);
-								alert("an unexpected error occurred: " + err);
-					  	 	}
-					  },
-					  error: function( xhr,text, errorThrown){
-						  feedback.fadeOut();					
-						  dc.displayErrorDialog(xhr, text, errorThrown);
-					  },
-
-					});
-				};
-				
-				$("#button-login").click(function(evt){
-					evt.stopPropagation();
-					login();
-				});
-
-				$("#loginForm input").bindEnterKey(login);
-				
+		$(function() {
+			$("#username").focus();
+			$("#button-login").click(function(evt) {
+				evt.stopPropagation();
+				dc.login($("#loginForm"));
 			});
+		});		
 		</script>
 
 		<form id="loginForm" action="${pageContext.request.contextPath}/j_spring_security_check"  method="post" onsubmit="return false;" >
@@ -70,12 +31,12 @@
 						
 						<ul>
 							<li class="clearfix">
-								<label for="j_username">Username</label>							
+								<label for="username">Username</label>							
 								<input type="text" id="username" name="j_username" class="field"/>	
 							</li>
 							<li class="clearfix">
-								<label for="j_password">Password</label>
-								<input type="password" name="j_password" class="field"/>
+								<label for="password">Password</label>
+								<input id="password" type="password" name="j_password" class="field"/>
 							</li>
 							<li class="clearfix">
 								<button id="button-login" class="primary  float-r">Login</button>											

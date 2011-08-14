@@ -426,6 +426,46 @@ $(function(){
 			});		
 		};
 
+        /**
+        * Login function
+        * 
+        * @return jqXHR Jquery XmlHttpRequest object.
+        */
+        dc.login = function(/* jquery object */form) {
+            var message = $("#msg-error");
+            var feedback = $("#feedback");
+            return $.ajax({
+                type : "POST",
+                url : "/duradmin/j_spring_security_check",
+                data : form.serialize(),
+                cache : false,
+                beforeSend : function() {
+                    message.makeHidden();
+                    feedback.fadeIn();
+                },
+                complete : function() {
+                    feedback.fadeOut();
+                },
+                success : function(data, textStatus, jqXHR) {
+                    try {
+                        dc.debug("data=" + data);
+                        if (data.indexOf(form.attr("id")) > 0) {
+                            message.makeVisible();
+                            message.fadeIn();
+                        } else {
+                            location.reload(true);
+                        }
+                    } catch (err) {
+                        dc.error(err);
+                        dc.displayErrorDialog(jqXHR, text,
+                                "An unexpected error occurred: " + err);
+                    }
+                },
+                error : function(jqXHR, text, errorThrown) {
+                    dc.displayErrorDialog(xhr, text, errorThrown);
+                },
+            });
+        };		
 	})();
 });
 
