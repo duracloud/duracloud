@@ -35,14 +35,22 @@ $.widget("ui.propertiesviewer",
 					
 					
 					var triggerAdd = function(){
-						disableControls();
-						that.element.trigger("dc-add", { 
-											  value: that._getValue(), 
-											  success: fSuccess,
-											  failure: function(text){
-												enableControls();
-												that._addFailure(text);
-											  },});
+						if(that._isValid()){
+    					    disableControls();
+    						that.element
+    						    .trigger(
+    						        "dc-add", 
+    						        { 
+        							  value: that._getValue(), 
+        							  success: fSuccess,
+        							  failure: function(text){
+        								enableControls();
+        								that._addFailure(text);
+        							  },
+    						        }
+    						    );
+                        }
+
 					};
 										  
 					//attach listeners
@@ -57,7 +65,6 @@ $.widget("ui.propertiesviewer",
 				
 				this._initializeDataContainer();
 			}, 
-			
 			
 			destroy: function(){ 
 				//tabular destroy here
@@ -129,31 +136,36 @@ $.widget("ui.propertiesviewer",
 				controls.append(
 					$(document.createElement("td"))
 						.addClass("name")
-						.html("<div><input type='text' value='[name]' class='name-txt' size='15'/></div>")
+						.html("<div><input type='text' placeholder='[name]' class='name-txt' size='15'/></div>")
 				);
 
 				controls.append(
 						$(document.createElement("td"))
 							.addClass("value")
-							.html("<div><input type='text' value='[value]' class='value-txt' size='20'/><input type='button' value='+'/><div class='dc-expando-status'></div></div>")
+							.html("<div><input type='text' placeholder='[value]' class='value-txt' size='20'/><input type='button' value='+'/><div class='dc-expando-status'></div></div>")
 					);
-				
-				$("input[type=text]", controls).focus(function(){
-					$(this).val('');
-				});
 				
 				return controls;
 				
 			},
 
 			_getValue: function(){
-				var fields = { 
-						name: $(".name-txt",this.element).first().val(),
+			    var that = this;
+				return { 
+						name: that._getNameFieldValue(),
 						value: $(".value-txt",this.element).val(),
 				};
-				
-				return fields;
 			},
+			
+			_getNameFieldValue: function(){
+			    return $(".name-txt",this.element).first().val();
+			},
+			
+	         _isValid: function(){
+	             var v = this._getNameFieldValue();
+	             return v != null && v.trim() != '';
+            },
+
 
 			_getDataContainer: function(){
 				return $("table", this.element);
@@ -163,12 +175,17 @@ $.widget("ui.propertiesviewer",
 			_createDataChild: function(data){
 				var child = $(document.createElement("tr"));
 				//add the name element
-				child.append($(document.createElement("td")).addClass("name").html(data.name));
+				child.append($(document.createElement("td"))
+				                .addClass("name")
+				                .html(data.name));
 				//add the value value
 				var valueCell = $(document.createElement("td"));
 				child.append(valueCell.addClass("value").html(data.value));
 				//append remove button
-				button = $(document.createElement("span")).addClass("dc-mouse-panel float-r").makeHidden().append("<input type='button' value='x'/>");
+				button = $(document.createElement("span"))
+				            .addClass("dc-mouse-panel float-r")
+				            .makeHidden()
+				            .append("<input type='button' value='x'/>");
 				valueCell.append(button);
 				return child;
 			},
