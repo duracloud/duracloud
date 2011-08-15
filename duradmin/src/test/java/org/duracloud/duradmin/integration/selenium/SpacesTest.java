@@ -7,9 +7,12 @@
  */
 package org.duracloud.duradmin.integration.selenium;
 
-
-
-public class SpacesHomeTest
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ */
+public class SpacesTest
         extends SpaceTestBase{
 
     
@@ -19,7 +22,7 @@ public class SpacesHomeTest
         
     }
    
-    public void testSpaces() throws Exception {
+    public void testBasic() throws Exception {
         navigateToSpacesPage();
     }
 }

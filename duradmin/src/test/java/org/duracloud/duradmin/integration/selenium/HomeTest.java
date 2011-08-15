@@ -8,19 +8,26 @@
 package org.duracloud.duradmin.integration.selenium;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class HomeTest
         extends SeleniumTestBase{
-
+    protected static Logger log = LoggerFactory.getLogger(HomeTest.class);
+    
     public void setUp() throws Exception {
-        setUp("http://localhost:8080/duradmin/", "*firefox");
+        super.setUp();
     }
 
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+    
     @Test
     public void testHome() throws Exception {
         goHome();
-        assertTrue(selenium.isTextPresent("Welcome"));
-        assertTrue(selenium.isElementPresent("storageProviderId"));
+        assertTrue(selenium.isElementPresent("css=#dc-tabs-panel"));
     }
 }

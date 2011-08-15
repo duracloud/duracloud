@@ -18,11 +18,5 @@ public class ServicesTestBase
         super.setUp();
         
     }
-   
-    protected void navigateToServicesPage() throws Exception{
-        goHome();
-        clickAndWait("//a[@id='servicesMenuItem']");
-        assertTrue(selenium.isTextPresent("Deployed"));
-    }
 
 }

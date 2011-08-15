@@ -8,24 +8,21 @@
 package org.duracloud.duradmin.integration.selenium;
 
 
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ */
+public class ServicesTest
+        extends ServicesTestBase{
 
-public class AddSpacesTest
-        extends SpaceTestBase{
-
-    
     public void setUp() throws Exception {
         super.setUp();
-        navigateToSpacesPage();
+        
     }
     
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
+    public void test() throws Exception{
+        navigateToServicesPage();
     }
-
-    public void testAddAndRemoveSpace() throws Exception {
-        String spaceId = addSpace();
-        removeSpace(spaceId);
-
-    }
+    
 }
