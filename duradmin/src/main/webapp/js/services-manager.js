@@ -15,7 +15,6 @@ $(function() {
 	var serviceDetailPaneId = "#service-detail-pane";
 	var detailPaneId = "#detail-pane";
 	var servicesListViewId = "#services-list-view";
-	var servicesListId = "#services-list";
 	
 	centerLayout = $('#page-content').layout({
 		west__size:				800
@@ -59,17 +58,15 @@ $(function() {
 
 	
 	var loadDeploymentDetail = function(service,deployment){
-		
-		if(service == null){
-			
+		if(!service){
 			$(detailPaneId).fadeOut("slow", function(){
 				$(this).html('');
 			});
 			return;
 		};
+
 		var serviceDetailPane = $(serviceDetailPaneId).clone();
 
-		
 		//set the title of the pane
 		$(".service-name", serviceDetailPane.first()).html(service.displayName);
 		$(".service-version", serviceDetailPane.first()).html(service.serviceVersion);
@@ -95,8 +92,9 @@ $(function() {
 					},
 					
 					success: function(){
-						dc.done();
-						$(servicesListId).selectablelist("removeById", deriveDeploymentId(service,deployment));
+						var servicesList = getServicesList();
+					    dc.done();
+					    servicesList.selectablelist("removeById", deriveDeploymentId(service,deployment));
 						future.success();
 					},
 					
@@ -139,6 +137,17 @@ $(function() {
 			                }
 						)
 					);
+				
+				//fire an event for anyone interested in updating the view
+				//based on the changes.
+                var event = jQuery.Event("DEPLOYMENT_CONFIG_UPDATED");
+                event.value = {
+                    config: config,
+                    deployment: deployment,
+                    service: service,
+                };
+                
+                $(document).trigger(event);
 			},
 		});
 		
@@ -229,10 +238,46 @@ $(function() {
 		return id.split("-")[1];
 	};
 
+	var insertDeployedService = function(service, deployment, select){
+	    var serviceList = getServicesList();
+	    var id = deriveDeploymentId(service,deployment);
+	    var item =  $.fn.create(("tr"))
+                            .attr("id", id)
+                            .addClass("dc-item")
+                            .addClass(resolveServiceCssClass(service))
+                            .append($.fn.create("td").addClass("icon").append($.fn.create("div")))
+                            .append($.fn.create("td").html(service.displayName + " - " + service.serviceVersion))
+                            .append($.fn.create("td").html(deployment.hostname))
+                            .append($.fn.create("td").addClass("service-status").html(deployment.status[0]));
+        
+        serviceList.selectablelist('addItem',item,{service:service, deployment:deployment});   
+        if(select){
+            serviceList.selectablelist("setCurrentItemById", id, true);
+        }
+        
+        $(document).bind("DEPLOYMENT_CONFIG_UPDATED", function(evt){
+            var v = evt.value;
+            var d = v.deployment;
+            var s = v.service;
+            var c = v.config;
+            
+            if(deriveDeploymentId(s,d) == id){
+                $.each(c, function(i,prop){
+                    if(prop.name == "Service Status"){
+                        $(".service-status", item).html(prop.value);
+                    }
+                });
+            }
+        });
+	};
+
+	var getServicesList = function(){
+	    return $("#services-list");
+	};
 
 	var loadDeployedServiceList = function(services){
 		//alert("services count = " + services.length);
-		var servicesList = $(servicesListId);
+		var servicesList = getServicesList();
 		var panel = $("#deployed-services");
 		var table = $("#deployed-services-table");
 		
@@ -252,39 +297,32 @@ $(function() {
 			var service = services[i];
 			for(d in service.deployments){
 				var deployment = service.deployments[d];
-				var item =  $.fn.create(("tr"))
-								.attr("id", deriveDeploymentId(service,deployment))
-								.addClass("dc-item")
-								.addClass(resolveServiceCssClass(service))
-								.append($.fn.create("td").addClass("icon").append($.fn.create("div")))
-								.append($.fn.create("td").html(service.displayName + " - " + service.serviceVersion))
-								.append($.fn.create("td").html(deployment.hostname))
-								.append($.fn.create("td").html(deployment.status[0]));
-								
-				servicesList.selectablelist('addItem',item,{service:service, deployment:deployment});	   
+				insertDeployedService(service, deployment, (i == 0 && d == 0));
 			}
 		}
-
 
 		table.show();
 		//bind for current item change listener
 		servicesList.bind("currentItemChanged", function(evt,state){
 			var currentItem = state.currentItem;
-			var service = null;
-			var deployment = null;
-			if(currentItem != null){
+			var service, deployment;
+			if(currentItem){
 				var data = currentItem.data;
-				if(data != null || data != undefined){
-					service = data.service;
-					deployment = data.deployment;
-				}
+			    if(data){
+			        service = data.service;
+			        deployment = data.deployment;
+			    }
+	            //load detail
+	            loadDeploymentDetail(service,deployment);
+			}else if(servicesList.selectablelist("length") > 0){
+	            //the current item will be null if it was removed
+                //if there are no services, this won't do anything.
+			    servicesList.selectablelist("setFirstItemAsCurrent");
+			}else{
+			    loadDeploymentDetail(null,null);
 			}
-			loadDeploymentDetail(service,deployment);
 		});
-
-
 	};
-	
 	
 	var refreshDeployedServices = function(){
 		
@@ -297,9 +335,9 @@ $(function() {
 				loadDeployedServiceList(data.services);
 				var id = $(detailPaneId + " #deployment-id").val();
 				if(id != null && id != undefined){
-					$(servicesListId).selectablelist("setCurrentItemById", id, true);
+					getServicesList().selectablelist("setCurrentItemById", id, true);
 				}else{
-					$(servicesListId).selectablelist("setFirstItemAsCurrent");
+					getServicesList().selectablelist("setFirstItemAsCurrent");
 				}
 			},
 			failure: function(text){
@@ -469,7 +507,7 @@ $(function() {
 		
 		},
 		open: function(e){
-			var currentItem = $(servicesListId).selectablelist("currentItem");
+			var currentItem = getServicesList().selectablelist("currentItem");
 			
 			
 			if(currentItem == null || currentItem == undefined){
@@ -522,8 +560,7 @@ $(function() {
 					type: "POST",
 					success: function(data){
 						dc.done();
-						loadDeploymentDetail(data.serviceInfo, data.deployment);
-						refreshDeployedServices();
+						insertDeployedService(data.serviceInfo, data.deployment, true);
 					},
 				});
 
