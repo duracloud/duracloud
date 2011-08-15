@@ -392,8 +392,8 @@ table {
 				<div id="main-content-panel">
 				<div id="main-content-tabs">
 				<ul>
-					<li><a href="#tabs-storage"><span>Storage</span></a></li>
-					<li><a href="#tabs-services"><span>Services</span></a></li>
+					<li><a id="storage-tab-link" href="#tabs-storage"><span>Storage</span></a></li>
+					<li><a id="services-tab-link" href="#tabs-services"><span>Services</span></a></li>
 				</ul>
 
 				<div id="tabs-services">
@@ -450,10 +450,10 @@ table {
 							<div class="service-header">
 									<table>
 										<tr>
-											<td class="service-name">Service</td>									
+											<td class="service-name"><a href="#">Service</a></td>									
 											<td class="service-status">Status</td>
 											<td class="service-start-time">Start</td>
-											<td class="service-stop-time">Stop</td>
+											<td class="service-stop-time"><a href="#">Stop</a></td>
 											<td class="service-duration">Duration</td>
 											<td class="service-report">Report</td>
 

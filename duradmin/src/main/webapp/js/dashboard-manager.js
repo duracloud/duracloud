@@ -5,7 +5,9 @@
  */
 
 
-
+/**
+ * A panel with a title, a graph, an associated data table.
+ */
 (function(){
 	$.widget("ui.graphpanel", {  
 		options: {
@@ -89,7 +91,9 @@
 	});
 })();
 
-
+/**
+ * The bread crumb widget
+ */
 (function(){
 	$.widget("ui.breadcrumb", {  
 		options: {
@@ -174,8 +178,18 @@
 			this._title(newElement.element);
 		},
 	});
-	
-	$.widget("ui.basegraphpanel", {
+
+})();
+
+
+/**
+ * The graph panels
+ */
+(function(){
+    /**
+     * The base graph panel widget
+     */
+    $.widget("ui.basegraphpanel", {
 		_storageReport: null,
 		_init: function(){
 			var that = this;
@@ -285,6 +299,9 @@
 
 	});
 	
+	/**
+	 * The storage provider widget
+	 */
 	$.widget("ui.storageprovider", 
 		$.extend({}, $.ui.basegraphpanel.prototype, {
 			_storageProvider: null,
@@ -391,7 +408,9 @@
 	);
 
 
-
+	/**
+	 * The space graph widget
+	 */
 	$.widget("ui.spacegraphpanel", 
 		$.extend({}, $.ui.storageprovider.prototype, 
 			{
@@ -443,7 +462,9 @@
 		)
 	);	
 
-	
+	/**
+	 * The storage summary panel widget
+	 */
 	$.widget("ui.summarypanel", 
 		$.extend({}, $.ui.basegraphpanel.prototype, {
 			_init: function(){
@@ -566,11 +587,14 @@
 			}
 		)
 	);	
-
-	
 })();
 
-
+/**
+ *  A date slider component that wraps a jquery ui slider
+ *  and updates start, end, and current value 
+ *  labels on slide and emits change events with 
+ *  a date range instead of integer values. 
+ */
 (function(){
 	var ONE_DAY  =  1000*60*60*24;
 
@@ -660,9 +684,6 @@
 		},
 	});
 })();
-
-
-var centerLayout,mainContentLayout;
 
 function plotPieChart(element, data, labelValueFormatter){
 	var that, labelFormatter;
@@ -963,10 +984,6 @@ $(function() {
 	var getCurrentReportId = function(storageReportIds){
 		return storageReportIds[getSliderIndex()];
 	};
-	
-	var getCurrentStorageReport = function(storageReportIds){
-		return reportMap[getCurrentReportId(storageReportIds)];
-	};
 
 	var getSlider = function(){
 		return $( "#report-date-slider" );
@@ -981,10 +998,8 @@ $(function() {
 		$("#report-link").attr("href", "/duradmin/storagereport/get?reportId="+storageReportId+"&format=xml");
 	};
 	
-	var initSlider = function(storageReportIds){
+	var initSlider = function(reportMap,storageReportIds){
 		var slider = getSlider();
-
-		
 		slider.slider({
 			value:storageReportIds.length-1,
 			min: 0,
@@ -994,7 +1009,7 @@ $(function() {
 				updateSelectedDate(storageReportIds[ui.value]);
 			},
 			change: function( event, ui ) {
-				getStorageReport(storageReportIds[ui.value], function(storageReport){
+				getStorageReport(reportMap,storageReportIds[ui.value], function(storageReport){
 					fireStorageReportChangedEvent(storageReport);
 				});
 			}
@@ -1014,14 +1029,14 @@ $(function() {
 		$(document).trigger(event);		
 	};
 
-	var getStorageReport = function(storageReportId, callback){
+	var getStorageReport = function(reportMap, storageReportId, callback){
 		var report = reportMap[storageReportId];
 		if(report){
 			if(callback){
 				callback(report);
 			}
 		}else{
-			dc.busy("Loading...");
+			dc.busy("Preparing charts...", {modal:true});
 			
 			dc.ajax({
 				url: "/duradmin/storagereport/get?reportId=" + storageReportId,
@@ -1093,7 +1108,10 @@ $(function() {
 	};
 	
 	var initializeStoragePanel = function(storagePanel){
-		dc.log("initializing storage panel");
+	     var reportMap = {};
+
+	    dc.log("initializing storage panel");
+		
 		initGraphSwitcher();
 		initBreadcrumb();
 		initStorageProviderView();
@@ -1104,7 +1122,7 @@ $(function() {
 			getBreadcrumb().breadcrumb("up");
 		});
 
-		dc.busy("Loading reports...");
+		dc.busy("Loading reports...", {modal: true});
 
 		getStorageReportIds(
 		{
@@ -1115,7 +1133,7 @@ $(function() {
 				storageReportIds.reverse();
 				
 				//initialize date controls
-				initSlider(storageReportIds);
+				initSlider(reportMap,storageReportIds);
 
 				$("#report-start-range").html(formatChartDate(storageReportIds[0]));
 				$("#report-end-range").html(formatChartDate(storageReportIds[storageReportIds.length-1]));
@@ -1123,7 +1141,7 @@ $(function() {
 
 				updateSelectedDate(currentId)
 				//load the most recent report
-				getStorageReport(currentId, function(storageReport){
+				getStorageReport(reportMap, currentId, function(storageReport){
 					fireStorageReportChangedEvent(storageReport);
 				});
 			},
@@ -1173,22 +1191,129 @@ $(function() {
 			};
 		});		
 	};
-	
-	var serviceReportMap = {};
-	var serviceReportList = null;
-	var serviceSlider = null;
-	var initializeServicesPanel = function(/*element*/ servicesPanel){
-		dc.log("initializing services panel");
-		//init toggle of deployed and completed
-		$("#installed-radio").attr("checked", true);
-		
-		$("input[name='phase']", servicesPanel).click(function(evt, ui){
-			$("#completed-services-panel, #installed-services-panel", servicesPanel).toggle();
-		});
 
-		var servicesList = getServiceListUI(servicesPanel);
+	/**
+	 * This function is responsible for initializing the services panel
+	 */
+	var initializeServicesPanel = function(/*element*/ servicesPanel){
+		var serviceReportMap = {},
+			serviceReportList,
+			serviceSlider, 
+			completedServicesInitialized = false;
+		
+		dc.log("initializing services panel");
+
+		//this function is defined within the outer function
+		//since it depends on enclosed variables - ie serviceReportMap, etc.
+		var lazilyInitCompletedServicesPanel = function(){
+			//load service report ids
+			getServiceReportIds({
+				success:function(srlist){
+					var sliderValue;
+					serviceReportList = srlist;
+					serviceReportMap = {};
+					
+					//populate map with keys - ie the service report content ids
+					$.each(serviceReportList, function(i, serviceReportId){
+						serviceReportMap[serviceReportId] = null;
+					});
+					
+					//initialize panel
+					initializeCompletedServicesPanel(servicesPanel, serviceReportList);
+
+					var currentSort = null;
+					var currentSummaries;
+					//service name sort handler
+					//notice the technique here:  the click handler
+					//is defined by a function that immediately executes
+					//and returns a function - thus asc and desc are only
+					//initialized once since the click handler definition
+					//will only get executed once when the list of report ids
+					//is initially loaded.
+					$(".service-name a").click(function(){
+						
+						var asc = function(a,b){
+							return a.name > b.name;
+						};
+						
+						var desc = function(a,b){
+							return a.name < b.name;
+						};
+						
+						return function(){
+							currentSort = (currentSort === desc) ? asc : desc;
+							loadViewer();
+						};
+					}());
+
+					//service stop time sort handler
+					$(".service-stop-time a").click(function(){
+						var asc = function(a,b){
+							return compareServiceSummaries(a,b,true);
+						};
+						
+						var desc = function(a,b){
+							return compareServiceSummaries(a,b,false);
+						};
+						
+						//make default current sort desc
+						currentSort = desc;
+						
+						return function(){
+							currentSort = (currentSort === desc) ? asc : desc;
+							loadViewer();
+						};
+					}());
+					
+					var loadViewer = function(){
+						loadCompletedServiceViewer(currentSummaries, servicesPanel, currentSort);
+					};
+					
+					//define refresh function
+					var refreshServicesList = function(){
+						var sliderValue = serviceSlider.dateslider("value");
+						dc.debug("slider value:" + sliderValue);
+						
+						getServicesList(
+							serviceReportList,serviceReportMap, sliderValue, 
+							{ 
+								success:function(services)
+								{
+									currentSummaries = services;
+									loadViewer();
+									dc.done();
+								}
+							});
+					};
+
+					//build service slider
+					serviceSlider =	createServiceSlider(servicesPanel, serviceReportList, refreshServicesList);
+					//execute refresh
+					refreshServicesList();
+				},
+			});
+		};
+		
+		//init toggle of deployed and completed
+		//necessary for firefox - otherwise radios can go out of 
+		//sync on a refresh.
+		$("#installed-radio", servicesPanel).attr("checked", true);
+
+		//bind to radio click
+		$("input[name='phase']", servicesPanel).click(function(evt){
+			$("#completed-services-panel, #installed-services-panel", servicesPanel).toggle();
+			//lazily initialize completed services panel
+			if(!completedServicesInitialized && $(evt.target).attr("id") == "completed-radio"){
+				lazilyInitCompletedServicesPanel();
+				completedServicesInitialized = true;
+			}
+		});
+		
+		//initialize services list filter
+		var servicesList = getServicesListSelector(servicesPanel);
 		
 		//initialize service list
+		//on selecton changed do filter
 		servicesList.selectablelist(
 			{
 				clickable: false,
@@ -1199,6 +1324,7 @@ $(function() {
 			}
 		);
 
+		//attach status filter listeners
 		$("#success-checkbox, #failure-checkbox, #started-checkbox", servicesPanel).click(function(){
 			filterServices(servicesPanel);
 		});
@@ -1209,46 +1335,48 @@ $(function() {
 			
 		});
 		
-		initInstalledServices(servicesPanel);
-
-		//load service report ids
-		getServiceReportIds({
-			success:function(data){
-				dc.done();
-				serviceReportList = data;
-				$.each(serviceReportList, function(i, serviceReportId){
-					serviceReportMap[serviceReportId] = null;
-				});
-				
-				serviceSlider = initializeServiceSlider(servicesPanel, serviceReportList);
-				
-				buildCompletedServicesList(servicesPanel);
-			},
-		});
+		getInstalledServices(
+			{ 
+				success: function(serviceSummaries)
+				{
+					dc.done();
+					//load the summaries
+					loadInstalledServices(serviceSummaries);
+				}
+			}
+		);
 	};
 	
-	var initInstalledServices = function(servicesPanel){
-		dc.busy("Loading installed services...");
+	/**
+	 * backend ajax call to get the list of installed services.
+	 */
+	var getInstalledServices = function(callback){
+		dc.busy("Retrieving installed services...", {modal:true});
 		dc.ajax({
 			url: "/duradmin/servicesreport/deployed",
 			type:"GET",
-			async: true, 
+			async:true,
 			success: function(result){
-				loadInstalledServices(result.serviceSummaries, servicesPanel);
+				callback.success(result.serviceSummaries);
 			},
 		    failure: function(textStatus){
+				dc.done();
 				alert("failed to get installed services");
 			},
 		});
 	};
 	
-	var getServiceListUI = function(servicesPanel){
+	var getServicesListSelector = function(servicesPanel){
 		return $( "#service-list" , servicesPanel);
 	};
 
 	var getSelectedServices = function(servicesPanel){
-		return getServiceListUI(servicesPanel).selectablelist("getSelectedData");
+		return getServicesListSelector(servicesPanel).selectablelist("getSelectedData");
 	};
+	
+	/**
+	 * returns an object describing the state of the status filter.
+	 */
 	var getSelectedStatuses = function(servicesPanel){
 		return {
 			success: $("#success-checkbox", servicesPanel).is(":checked"),
@@ -1258,144 +1386,203 @@ $(function() {
 		};
 	};
 
+	/**
+	 * Filters the currently loaded list of service summaries 
+	 * by hiding all those not matching the criteria defined by 
+	 * the various filters.
+	 */
 	var filterServices = function(servicesPanel){
 		var selectedStatuses = getSelectedStatuses();
 		var selectedServices = getSelectedServices(servicesPanel);
 
-		$("#completed-services-panel .service", servicesPanel).not(":first-child").each(function(i, se){
-			var remove = false, inlist = false, serviceElement = $(se);
-			if(!selectedStatuses.success){
-				if(serviceElement.hasClass("successful-service")){
-					remove = true;
-				}
-			}
-			
-			if(!remove && !selectedStatuses.failure){
-				if(serviceElement.hasClass("failed-service")){
-					remove = true;
-				}
-			}
-
-			if(!remove && !selectedStatuses.started){
-				if(serviceElement.hasClass("started-service")){
-					remove = true;
-				}
-			}
-			
-			if(!remove){
-				$.each(selectedServices, function(j, selectedService){
-					if(selectedService.name == $(".service-name", serviceElement).html()){
-						inlist = true;
+		$("#completed-services-panel .service", servicesPanel)
+			.not(":first-child")
+			.each(function(i, se){
+				var remove = false, inlist = false, serviceElement = $(se);
+				if(!selectedStatuses.success){
+					if(serviceElement.hasClass("successful-service")){
+						remove = true;
 					}
-				});
-				
-				if(!inlist){
-					remove = true;
 				}
-			}
-			
-			if(!remove){
-				serviceElement.show();
-			}else{
-				serviceElement.hide();
-			}
-		});
-		
+				
+				if(!remove && !selectedStatuses.failure){
+					if(serviceElement.hasClass("failed-service")){
+						remove = true;
+					}
+				}
+	
+				if(!remove && !selectedStatuses.started){
+					if(serviceElement.hasClass("started-service")){
+						remove = true;
+					}
+				}
+				
+				if(!remove){
+					$.each(selectedServices, function(j, selectedService){
+						var serviceName =  $(".service-name", serviceElement).html();
+						if(selectedService.name == serviceName){
+							inlist = true;
+						}
+					});
+					
+					if(!inlist){
+						remove = true;
+					}
+				}
+				
+				if(!remove){
+					serviceElement.show();
+				}else{
+					serviceElement.hide();
+				}
+			});
 	};
 	
-	var buildCompletedServicesList = function(servicesPanel){
-		var sliderValue = serviceSlider.dateslider("value");
-		dc.debug("slider value:" + sliderValue);
-		var serviceList = getServiceListUI(servicesPanel);
-		var services  = buildServicesList(serviceReportList,serviceReportMap, sliderValue);
-		var uniqueServices  = listUniqueServices(services);
-		var selectedServices = getSelectedServices(servicesPanel);
-		
-		serviceList.selectablelist("clear");
-		$.each(uniqueServices, function(i,service){
-			var item = $.fn.create("div"), select = false;
-			item.attr("id", service.id);
-			item.html(service.name);
-			if(selectedServices.length == 0){
-				select = true;
-			}else{
-				$(selectedServices).each(function(i, selectedService){
-					if(selectedService.name == service.name ){
-						select = true;
-						return false;
-					}
-				});
-			}
-			
-			serviceList.selectablelist("addItem", item, service, select);
-			//todo select any items that were previously selected.
-		});
-		
-		
-		$("#service-list-selection-controls .select-all").click(function(){
-			serviceList.selectablelist("select", true);
-		});
+	var initializeCompletedServicesPanel = function(servicesPanel){
+		$("#service-list-selection-controls .select-all", servicesPanel)
+			.click(function(){
+				getServicesListSelector(servicesPanel)
+					.selectablelist("select", true);
+			});
 
-		$("#service-list-selection-controls .select-none").click(function(){
-			serviceList.selectablelist("select", false);
-		});
+		$("#service-list-selection-controls .select-none", servicesPanel)
+			.click(function(){
+				getServicesListSelector(servicesPanel)
+					.selectablelist("select", false);
+			});
+	};
 
-		loadCompletedServiceViewer(services, servicesPanel);
+	/**
+	 * returns a css class based on the serviceSummary's status field.
+	 */
+    var getServiceStatusClass = function(serviceSummary){
+            var status = getServiceStatus(serviceSummary);
+            if(status =="SUCCESS"){
+                    return "successful-service";
+            }else if(status =="FAILED"){
+                    return "failed-service";
+            }else{
+                    return "started-service";
+            }    
+    };
+	
+    /**
+     * Loads the selectable list of services used for filtering the 
+     * view by service type.
+     */
+    var loadServiceSelector = function(/*dom node*/servicesPanel, /*array*/serviceSummaries){
+        var serviceList, 
+            uniqueServices;
+
+        //reference the currently selected services
+        serviceList = getServicesListSelector(servicesPanel);
+        selectedServices = getSelectedServices(servicesPanel);
+
+        //resolve the set of unique services in the new set
+        //and sort them.
+        uniqueServices  = listUniqueServices(serviceSummaries);
+        uniqueServices.sort(function(a,b){
+            return a.name > b.name;
+        });
+
+        //clear the old service selector and reload
+        serviceList.selectablelist("clear");
+        $.each(uniqueServices, function(i,service){
+            //for service add and select if the service
+            //was selected in the previous list.
+            var item = $.fn.create("div"), select = false;
+            item.attr("id", service.id);
+            item.html(service.name);
+
+            if(selectedServices.length == 0){
+                select = true;
+            }else{
+                $(selectedServices).each(function(i, selectedService){
+                    if(selectedService.name == service.name ){
+                        select = true;
+                        return false;
+                    }
+                });
+            }
+
+            serviceList.selectablelist("addItem", item, service, select);
+        });        
+    };
+    
+    /**
+     * Loads the specified serviceSummary array into the view
+     */
+	var loadCompletedServiceViewer = function(/*array of servicesummaries*/serviceSummaries, servicesPanel, serviceSummarySort){
+		var slider, 
+			selectedServices, 
+			serviceViewer,
+			template;
+
+		serviceSummaries.sort(serviceSummarySort);
+
+		loadServiceSelector(servicesPanel, serviceSummaries);
+
+		//remove the currently displayed service summaries except the first
+		//as it is used as a template.
+		serviceViewer = $("#completed-services-panel #service-viewer", servicesPanel);
+		serviceViewer.children().not(":first").remove();
+		template = serviceViewer.children().first();
+		
+		//append new servicesummaries
+		$.each(serviceSummaries, function(i, ss){
+		    var node = createCompletedServiceSummaryNode(template,ss);
+	        serviceViewer.append(node);
+		});
+		
+		//filter the view based on the current filter state
 		filterServices(servicesPanel);		
 	};
-	
-	var getServiceStatusClass = function(serviceSummary){
-		var status = getServiceStatus(serviceSummary);
-		if(status =="SUCCESS"){
-			return "successful-service";
-		}else if(status =="FAILED"){
-			return "failed-service";
-		}else{
-			return "started-service";
-		}
-	};
 
-	var loadCompletedServiceViewer = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
-		var serviceViewer = $("#completed-services-panel #service-viewer", servicesPanel);
-		serviceViewer.children().not(":first").remove();
-		var template = serviceViewer.children().first();
-		$.each(serviceSummaries, function(i, ss){
-			var node = template.clone();
-			node.addClass(getServiceStatusClass(ss));
-			serviceViewer.append(node);
-			$(".service-name", node).html(ss.name);
-			var stopTime = getStopTime(ss);
-			var startTime = getStartTime(ss);
-			
-			var duration = "--";
-			if(stopTime != null){
-				duration = calculateDuration(startTime, stopTime);
-			}
-			$(".service-start-time", node).html(startTime.toLocaleDateString());
-			$(".service-stop-time", node).html(stopTime !== null ? stopTime.toLocaleDateString() : "--");
-			$(".service-duration", node).html(duration);
-			$(".service-status", node).html(getServiceStatusPretty(ss));
-			var reportId = ss.properties['Report'];
-			var reportNode = $(".service-report a", node);
-			if(reportId){
-				reportNode
-					.attr("href","/durastore/"+ reportId)
-					.attr("title","Download Service Report");
-			}else{
-				reportNode.remove();
-			}
-			
-			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
-			
-			var props = $.extend({}, ss.properties);
-			delete props['Service Status'];
-			delete props['Report'];
+	/**
+	 * Create a new dom node from a prototype node and serviceSummary object.
+	 */
+	var createCompletedServiceSummaryNode = function(/*dom node*/ template, /*service summary*/ ss){
+        var node, props,duration,stopTime,startTime, reportId, reportNode;
+        node = template.clone();
+        node.addClass(getServiceStatusClass(ss));
+        $(".service-name", node).html(ss.name);
+        stopTime = getStopTime(ss);
+        startTime = getStartTime(ss);
+        var duration = "--";
+        if(stopTime != null){
+            duration = calculateDuration(startTime, stopTime);
+        }
 
-			$(".service-properties", node).append(dc.createTable(toArray(props)));
-			node.show();
-		});
+        $(".service-start-time", node).html(startTime.toLocaleDateString());
+        $(".service-stop-time", node).html(stopTime !== null ? stopTime.toLocaleDateString() : "--");
+        $(".service-duration", node).html(duration);
+        $(".service-status", node).html(getServiceStatusPretty(ss));
+        
+        reportId = ss.properties['Report'];
+        reportNode = $(".service-report a", node);
+        if(reportId){
+            reportNode
+                .attr("href","/durastore/", reportId)
+                .attr("title","Download Service Report");
+        }else{
+            reportNode.remove();
+        }
+
+        $(".service-report a", node).attr("title","Download Service Report");
+        $(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
+        
+        var props = $.extend({}, ss.properties);
+        delete props['Service Status'];
+        delete props['Report'];
+
+        $(".service-properties", node).append(dc.createTable(toArray(props)));
+        node.show();
+        return node;
 	};
 	
+	/**
+	 * loads a list of summaries into the installed services viewer
+	 */
 	var loadInstalledServices = function(/*array of servicesummaries*/serviceSummaries, servicesPanel){
 		var serviceViewer = $("#installed-services-panel #service-viewer", servicesPanel);
 		serviceViewer.children().not(":first").remove();
@@ -1407,8 +1594,9 @@ $(function() {
 			$(".service-name", node).html(ss.name);
 			var stopTime = getStopTime(ss);
 			if(stopTime == null){
-				stopTime = new Date();
-			}
+        		stopTime = new Date();
+		    }
+			
 			var startTime = getStartTime(ss);
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
@@ -1424,6 +1612,9 @@ $(function() {
 		});
 	};
 	
+	/**
+	 * converts a map into a two-dimensional array
+	 */
 	var toArray = function(map){
 		var a = [];
 		$.each(map, function(name, value){
@@ -1437,12 +1628,12 @@ $(function() {
 		var d = new Date(dateString);
 		
 		return new Date(Date.UTC(
-				d.getFullYear(), 
-				d.getMonth(), 
-				d.getDate(), 
-				d.getHours(), 
-				d.getMinutes(), 
-				d.getSeconds()));
+						d.getFullYear(), 
+						d.getMonth(), 
+						d.getDate(), 
+						d.getHours(), 
+						d.getMinutes(), 
+						d.getSeconds()));
 	};
 	
 	
@@ -1460,24 +1651,33 @@ $(function() {
 	}
 
 	var getStartTime = function(serviceSummary){
-		return convertDateStringToUTC(serviceSummary.properties['Start Time']);
+		return convertDateStringToUTC(
+				serviceSummary.properties['Start Time']);
 	}
 
-	var MINUTE = 1000*60;
-	var HOUR = MINUTE*60;
-	var DAY = HOUR*24;
+	/**
+	 * Calculates the duration based on start and end dates and returns nicely formatted
+	 * human readable string representation.
+	 */
 	var calculateDuration = function(/*date*/start, /*date*/stop){
-		var result, days, hours, minutes, ms = stop.getTime()-start.getTime();
-		days = Math.floor(ms/DAY);
-		hours = Math.floor((ms % DAY)/HOUR);
-		minutes = Math.floor((ms % HOUR)/MINUTE);
-		seconds = Math.round((ms % MINUTE)/1000);
-		result = "";
-		if(days > 0) result += days +"d";
-		result += " " + hours + "h"
-		result += " " + minutes +  "m";
-		result += " " + seconds + "s";
-		return result;
+	    var MINUTE = 1000*60;
+	    var HOUR = MINUTE*60;
+	    var DAY = HOUR*24;
+	    
+	    return function(){
+	        var result, days, hours, minutes, ms = stop.getTime()-start.getTime();
+	        days = Math.floor(ms/DAY);
+	        hours = Math.floor((ms % DAY)/HOUR);
+	        minutes = Math.floor((ms % HOUR)/MINUTE);
+	        seconds = Math.round((ms % MINUTE)/1000);
+	        result = "";
+	        if(days > 0) result += days +"d";
+	        result += " " + hours + "h"
+	        result += " " + minutes +  "m";
+	        result += " " + seconds + "s";
+	        return result;
+	        
+	    };
 	};
 	
 	var getServiceStatus = function(serviceSummary){
@@ -1489,72 +1689,98 @@ $(function() {
 		return status.substring(0,1).toUpperCase() + status.substring(1).toLowerCase();
 	}
 
-	var buildServicesList = function(serviceReportList, servicesReportMap, sliderValue){
+	
+	/**
+	 * This function returns a list of serviceSummaries based on the state of the slider.
+	 * It checks the servicesReportMap first to see if the summaries have already been cached
+	 * before making a back end call. After making the call, the freshly downloaded report is 
+	 * cached.
+	 */
+	var getServicesList = function(serviceReportList, servicesReportMap, sliderValue, callback){
 		var low = sliderValue.lowBound, high = sliderValue.highBound;
 		var servicesArray = [];
-		
-		dc.busy("Building service summary list...");
-		$.each(serviceReportList, function(i,serviceReportId){
-			var serviceSummaries, 
-				reportDate = convertServicesReportIdToDate(serviceReportId),
-				reportLowDate = getFirstDayOfMonth(reportDate),
-				reportHighDate = getLastDayOfMonth(reportDate);
-			//if the report does not overlap with the slider range
-			if(reportLowDate > high || reportHighDate < low) {
-				return true;
-			}
-			
-			serviceSummaries = servicesReportMap[serviceReportId];
-			if(!serviceSummaries){
-				getServiceSummaries(serviceReportId, 
-					{ 
-						success: function(summaries){
-							serviceSummaries = summaries;
-						}
-					}
-				);
-			}
 
-			$.each(serviceSummaries, function(j,ss){
-				var time = getStopTime(ss);
-				if(!time){
-					time = new Date();
+		dc.busy("Retrieving service summaries...", {modal:true});
+
+		//run as function as callback so that 
+		//above dialog gets displayed
+		var asyncFunc = function(){
+			$.each(serviceReportList, function(i,serviceReportId){
+				
+				var serviceSummaries, 
+					reportDate = convertServicesReportIdToDate(serviceReportId),
+					reportLowDate = getFirstDayOfMonth(reportDate),
+					reportHighDate = getLastDayOfMonth(reportDate);
+	
+				//if the report does not overlap with the slider range
+				if(reportLowDate > high || reportHighDate < low) {
+					return true;
 				}
-				if(time >= low && time <= high )
-					servicesArray.push(ss);
+				
+				serviceSummaries = servicesReportMap[serviceReportId];
+				if(!serviceSummaries){
+					getServiceSummaries(serviceReportId, 
+						{ 
+							success: function(summaries){
+								serviceSummaries = summaries;
+								servicesReportMap[serviceReportId] = summaries;
+							}
+						}
+					);
+				}
+	
+				$.each(serviceSummaries, function(j,ss){
+					var time = getStopTime(ss);
+					if(!time){
+						time = new Date();
+					}
+					if(time >= low && time <= high )
+						servicesArray.push(ss);
+				});
+	
 			});
-		});
-		
-		dc.done();
-		
-		servicesArray.sort(function(a,b){
-			var sa, sb;
-			sa = getStopTime(a);
-
-			if(!sa){
-				sa = getStartTime(a);
-			}
-
-			sb = getStopTime(b);
-			if(!sb){
-				sb = getStartTime(b);
-			}
 			
-			if(null == sa && null == sb) {
-	            return 0;
-	        } else if(null != sa && null == sb) {
-	            return -1;
-	        } else if(null == sa && null != sb) {
-	            return 1;
-	        } else { // Both dates are non-null
-	        	return sb.getTime()-sa.getTime(); 
-	        }
-		});
-
+			callback.success(servicesArray);
+		};
 		
-		return servicesArray;
+		//run async
+		setTimeout(asyncFunc,100);
 	};
 
+	/**
+	 * a reverseable comparator for service summaries
+	 * that implements the same logic as is found in 
+	 * ServiceSummary.java#compareTo method.  
+	 */
+	var compareServiceSummaries = function(a,b,/*boolean*/ascending){
+		var sa, sb;
+		sa = getStopTime(a);
+
+		if(!sa){
+			sa = getStartTime(a);
+		}
+
+		sb = getStopTime(b);
+		if(!sb){
+			sb = getStartTime(b);
+		}
+		
+		if(null == sa && null == sb) {
+            return 0;
+        } else if(null != sa && null == sb) {
+            return ascending ? 1 : -1;
+        } else if(null == sa && null != sb) {
+            return ascending ? -1 : 1;
+        } else { // Both dates are non-null
+        	return ascending ? 
+        				sa.getTime()-sb.getTime() : 
+			        		sb.getTime()-sa.getTime(); 
+        }	
+	};
+
+	/**
+	 * returns a new array of service summaries uniqued by name.
+	 */
 	var listUniqueServices = function(services){
 		var map = {}, i, newlist = [];
 		$.each(services, function(i, service){
@@ -1565,30 +1791,21 @@ $(function() {
 			newlist.push(map[i]);
 		}
 		
-		newlist.sort(function(a,b){
-			return a.name > b.name;
-		});
-
 		return newlist;
 	};
 	
+	/**
+	 * returns the completed service summaries for the specified service report id
+	 */
 	var getServiceSummaries = function(serviceReportId, callback){
-		if(serviceReportMap[serviceReportId]){
-			callback.success(serviceReportMap[serviceReportId]);
-			return;
-		}
-
-		dc.busy("Retrieving service summaries...");
+		var date = convertServicesReportIdToDate(serviceReportId);
+		dc.busy("Retrieving service summaries for " + (date.getUTCMonth()+1)+"/"+date.getUTCFullYear());
 		dc.ajax({
 			url: "/duradmin/servicesreport/completed/get?reportId=" +serviceReportId,
 			type:"GET",
 			async: false, 
 			success: function(result){
-				dc.done();
 				var serviceSummaries = result.serviceSummaries;
-				//sorting can be removed when service summaries are 
-				//being sorted properly - ie most recently stopped first
-				serviceReportMap[serviceReportId] = serviceSummaries;
 				callback.success(serviceSummaries);
 				return true;
 			},
@@ -1598,11 +1815,12 @@ $(function() {
 				return false;
 			},
 		});
-		
-		
 	};
-	
-	var initializeServiceSlider = function(servicesPanel, serviceReportList){
+
+	/**
+	 * Initializes and returns the service date slider.
+	 */
+	var createServiceSlider = function(servicesPanel, serviceReportList, changeHandler){
 		var firstIndex = 0;
 		var lastIndex = serviceReportList.length-1;
 		var firstDate = getFirstDayOfMonth(convertServicesReportIdToDate(serviceReportList[firstIndex]));
@@ -1614,12 +1832,13 @@ $(function() {
 			maxDate: upperDate,
 			lowBound: lowerDate, 
 			highBound: upperDate,
-			change: function(event, ui){
-				buildCompletedServicesList(servicesPanel);
-			}
+			change: changeHandler,
 		});
 	};
 	
+	/**
+	 * returns the completed service reports as an array of content ids.
+	 */
 	var getServiceReportIds = function(callback){
 		dc.busy("Retrieving service report list...");
 		dc.ajax({
@@ -1636,57 +1855,58 @@ $(function() {
 		});
 	};
 	
+	/**
+	 * main routine for initializing page
+     */
+	var initPage = function(){
+	    var centerLayout,mainContentLayout;
 
-	$('#page-content').layout();
-	
-	centerLayout = $('#page-content').layout({
-	center__paneSelector:	"#main-content-panel"
-	});
-	
-	mainContentLayout = $('#main-content-panel').layout({
-		// minWidth: 300 // ALL panes
-			north__size: 			90	
-		,	north__paneSelector:     ".north"
-		,   north__resizable:   false
-		,   north__slidable:    false
-		,   north__spacing_open:			0			
-		,	north__togglerLength_open:		0			
-		,	north__togglerLength_closed:	0			
-		,	center__paneSelector:	".center"
-		});
+	    $('#page-content').layout();
+	    
+	    centerLayout = $('#page-content').layout({
+	    center__paneSelector:   "#main-content-panel"
+	    });
+	    
+	    mainContentLayout = $('#main-content-panel').layout({
+	        // minWidth: 300 // ALL panes
+	            north__size:            90  
+	        ,   north__paneSelector:     ".north"
+	        ,   north__resizable:   false
+	        ,   north__slidable:    false
+	        ,   north__spacing_open:            0           
+	        ,   north__togglerLength_open:      0           
+	        ,   north__togglerLength_closed:    0           
+	        ,   center__paneSelector:   ".center"
+	        });
+	    
+	    //initialize the tabs
+	    $("#main-content-tabs").tabs();
+	    $("#main-content-tabs").tabs("select", 1);
 
-	
-	var reportMap = {};
-	//initialize the tabs
-	$("#main-content-tabs").tabs();
-	$("#main-content-tabs").tabs("select", 1);
+	    //lazily initialize tabs.
+	    var tabInitState = {
+	        "tabs-storage": {
+	            load: initializeStoragePanel,
+	        },
+	        "tabs-services": {
+	            load: initializeServicesPanel,
+	        },
+	    };
 
-	//lazily initialize tabs.
-	
-	var tabInitState = {
-		"tabs-storage": {
-			load: initializeStoragePanel,
-		},
-		"tabs-services": {
-			load: initializeServicesPanel,
-		},
+	    $('#main-content-tabs').bind('tabsselect', function(event, ui) {
+	        var tabId = $(ui.panel).attr("id");
+	        var initState = tabInitState[tabId];
+	        if(initState){
+	            if(!initState.initialized){
+	                initState.load(ui.panel);
+	                initState.initialized = true;
+	            }
+	        }
+	    });
+
+	    $("#main-content-tabs").tabs("select", 0);
 	};
-
-
 	
-	$('#main-content-tabs').bind('tabsselect', function(event, ui) {
-		var tabId = $(ui.panel).attr("id");
-		var initState = tabInitState[tabId];
-		if(initState){
-			if(!initState.initialized){
-				
-				initState.load(ui.panel);
-				initState.initialized = true;
-			}
-		}
-	});
-
-	$("#main-content-tabs").tabs("select", 0);
-
-
+	//it all starts here (at the end) :).
+	initPage();
 });
