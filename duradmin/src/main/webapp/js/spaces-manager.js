@@ -1379,6 +1379,31 @@ $(function(){
 		}
 	};
 
+	/**
+	 * This was added to fix this problem: 
+	 * https://jira.duraspace.org/browse/DURACLOUD-432
+	 * It's apparently an html5 issue.
+	 * 
+	 * http://dev.w3.org/html5/spec/number-state.html
+	 * 4.10.7.1.18 File Upload state
+	 */
+	var extractFilename = function (path) {
+	    if(!path){
+	        return null;
+	    }
+
+	    if (path.substr(0, 12) == "C:\\fakepath\\")
+	      return path.substr(12); // modern browser
+	    var x;
+	    x = path.lastIndexOf('/');
+	    if (x >= 0) // Unix-based path
+	      return path.substr(x+1);
+	    x = path.lastIndexOf('\\');
+	    if (x >= 0) // Windows-based path
+	      return path.substr(x+1);
+	    return path; // just the filename
+	  };
+	  
 	///////////////////////////////////////////
 	///Add Content Item Dialog Definition Start
 	///////////////////////////////////////////
@@ -1402,7 +1427,8 @@ $(function(){
 							 spaceId: getCurrentSpaceId(), 
 							 contentId: $("#contentId", form).val()};
 
-					var filename = $("#file", form).val();
+					var filename = extractFilename($("#file", form).val());
+					
 					
 					if(contentItem.contentId == null || contentItem.contentId.trim() == ''){
 						contentItem.contentId = filename;

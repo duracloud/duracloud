@@ -58,7 +58,7 @@ public class ContentItemUploadController implements Controller{
 
 	private ContentStoreManager contentStoreManager;
 	
-	private class ProgressAdapter implements ProgressListener{
+    private static class ProgressAdapter implements ProgressListener{
 			long bytesRead = 0;
 			long totalBytes = -1;
 			private ProgressListener listener = null;
