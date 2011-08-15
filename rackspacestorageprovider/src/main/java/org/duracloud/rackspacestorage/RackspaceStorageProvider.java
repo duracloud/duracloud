@@ -20,6 +20,7 @@ import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
+import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -487,6 +488,19 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
         }
+    }
+
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) {
+        throwIfContentNotExist(sourceSpaceId, sourceContentId);
+        throwIfSpaceNotExist(destSpaceId);
+
+        // TODO: call FilesClient.copyObject() when available.
+
+        return "not-yet-implemented";
     }
 
     /**

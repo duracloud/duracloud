@@ -187,6 +187,21 @@ public interface StorageProvider {
                              InputStream content);
 
     /**
+     * This method copies the content item found in source-space with the id of
+     * source-content-id into the dest-space, naming it to dest-content-id.
+     *
+     * @param sourceSpaceId   of content to copy
+     * @param sourceContentId of content to copy
+     * @param destSpaceId     where copied content will end up
+     * @param destContentId   given to copied content
+     * @return MD5 checksum of destination content item
+     */
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId);
+
+    /**
      * Gets content from a space.
      *
      * @param spaceId - ID of the space

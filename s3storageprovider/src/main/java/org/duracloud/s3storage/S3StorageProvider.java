@@ -10,17 +10,7 @@ package org.duracloud.s3storage;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.StorageClass;
+import com.amazonaws.services.s3.model.*;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
@@ -497,6 +487,55 @@ public class S3StorageProvider extends StorageProviderBase {
                                                    spaceId,
                                                    contentId,
                                                    checksum);
+    }
+
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) {
+        log.debug("copyContent({}, {}, {}, {})",
+                  new Object[]{sourceSpaceId,
+                               sourceContentId,
+                               destSpaceId,
+                               destContentId});
+
+        String sourceBucketName = getBucketName(sourceSpaceId);
+        String destBucketName = getBucketName(destSpaceId);
+
+        throwIfContentNotExist(sourceBucketName, sourceContentId);
+        throwIfSpaceNotExist(destSpaceId);
+
+        CopyObjectRequest request = new CopyObjectRequest(sourceBucketName,
+                                                          sourceContentId,
+                                                          destBucketName,
+                                                          destContentId);
+        request.setStorageClass(this.storageClass);
+        request.setCannedAccessControlList(CannedAccessControlList.Private);
+
+        CopyObjectResult result = doCopyObject(request);
+        return StorageProviderUtil.compareChecksum(this,
+                                                   sourceSpaceId,
+                                                   sourceContentId,
+                                                   result.getETag());
+    }
+
+    private CopyObjectResult doCopyObject(CopyObjectRequest request) {
+        try {
+            return s3Client.copyObject(request);
+            
+        } catch (Exception e) {
+            StringBuilder err = new StringBuilder("Error copying from: ");
+            err.append(request.getSourceBucketName());
+            err.append(" / ");
+            err.append(request.getSourceKey());
+            err.append(", to: ");
+            err.append(request.getDestinationBucketName());
+            err.append(" / ");
+            err.append(request.getDestinationKey());
+            log.error(err.toString() + "msg: {}", e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        }
     }
 
     /**

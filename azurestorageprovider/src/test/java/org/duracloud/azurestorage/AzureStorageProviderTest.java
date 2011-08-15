@@ -9,6 +9,7 @@ package org.duracloud.azurestorage;
 
 import org.easymock.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -124,4 +125,48 @@ public class AzureStorageProviderTest {
 
         replay(blobStorage, blobContainer);
     }
+
+    @Test
+    public void testCopyContent() {
+        setUpCopyContentMocks();
+
+        AzureStorageProvider provider = new AzureStorageProvider(blobStorage);
+
+        String srcSpaceId = "spaceId";
+        String srcContentId = "contentId";
+        String destSpaceId = "destSpaceId";
+        String destContentId = "destContentId";
+        String md5 = provider.copyContent(srcSpaceId,
+                                          srcContentId,
+                                          destSpaceId,
+                                          destContentId);
+
+        Assert.assertNotNull(md5);
+        Assert.assertEquals("no-md5-guarantees", md5);
+    }
+
+    private void setUpCopyContentMocks() {
+        EasyMock.expect(blobStorage.getBlobContainer(EasyMock.<String>anyObject()))
+            .andReturn(blobContainer)
+            .times(2);
+
+        EasyMock.expect(blobStorage.isContainerExist(EasyMock.<String>anyObject()))
+            .andReturn(true);
+
+        EasyMock.expect(blobContainer.isBlobExist(EasyMock.<String>anyObject()))
+            .andReturn(true);
+
+        EasyMock.expect(blobContainer.getName()).andReturn("container-name");
+        EasyMock.expect(blobContainer.copyBlob(EasyMock.<String>anyObject(),
+                                               EasyMock.<String>anyObject(),
+                                               EasyMock.<String>anyObject()))
+            .andReturn(false);
+        EasyMock.expect(blobContainer.copyBlob(EasyMock.<String>anyObject(),
+                                               EasyMock.<String>anyObject(),
+                                               EasyMock.<String>anyObject()))
+            .andReturn(true);
+
+        replay(blobStorage, blobContainer);
+    }
+
 }

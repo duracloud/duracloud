@@ -491,6 +491,15 @@ public class EMCStorageProvider extends StorageProviderBase {
         }
     }
 
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) {
+
+        throw new UnsupportedOperationException("copyContent not implemented");
+    }
+
     private String doAddContent(String spaceId,
                                 String contentId,
                                 String mimeType,

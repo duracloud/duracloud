@@ -15,6 +15,7 @@ import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
+import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.soyatec.windowsazure.blob.*;
@@ -485,13 +486,73 @@ public class AzureStorageProvider extends StorageProviderBase {
             blobProperties.setContentMD5(base64);
 
             if (blobContainer.isBlobExist(contentName)) {
-                blobContainer.updateBlockBlob(blobProperties, blobContents);                
-            }
-            else
+                blobContainer.updateBlockBlob(blobProperties, blobContents);
+            } else {
                 blobContainer.createBlockBlob(blobProperties, blobContents);
+            }
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
+        }
+    }
+
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) throws StorageException {
+        String sourceContainerName = getContainerName(sourceSpaceId);
+        String destContainerName = getContainerName(destSpaceId);
+
+        throwIfContentNotExist(sourceContainerName, sourceContentId);
+        throwIfSpaceNotExist(destSpaceId);
+
+        IBlobContainer blobContainer = blobStorage.getBlobContainer(
+            sourceContainerName);
+
+        doCopyBlob(sourceContentId,
+                   destContentId,
+                   destContainerName,
+                   blobContainer);
+
+        return "no-md5-guarantees";
+    }
+
+    private void doCopyBlob(String sourceContentId,
+                            String destContentId,
+                            String destContainerName,
+                            IBlobContainer blobContainer) {
+        boolean success = false;
+        final int numTries = 5;
+        int tries = 0;
+        while (!success && tries++ < numTries) {
+            try {
+                success = blobContainer.copyBlob(destContainerName,
+                                                 destContentId,
+                                                 sourceContentId);
+            } catch (Exception e) {
+                log.warn("Exception copying blob: {}", e.getMessage());
+            }
+
+            if (!success) {
+                log.warn("Error copying blob: {} / {}, {}. Tries left: {}",
+                         new Object[]{blobContainer.getName(),
+                                      sourceContentId,
+                                      tries,
+                                      numTries - tries});
+            }
+        }
+
+        if (!success) {
+            StringBuilder err = new StringBuilder("Error copying blob from: ");
+            err.append(blobContainer.getName());
+            err.append(" / ");
+            err.append(sourceContentId);
+            err.append(", to: ");
+            err.append(destContainerName);
+            err.append(" / ");
+            err.append(destContentId);
+            throw new StorageException(err.toString());
         }
     }
 

@@ -57,6 +57,18 @@ public class BrokeredStorageProvider
                                            content);
     }
 
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) {
+        return dispatchProvider.copyContent(targetProvider,
+                                            sourceSpaceId,
+                                            sourceContentId,
+                                            destSpaceId,
+                                            destContentId);
+    }
+
     public void createSpace(String spaceId) throws StorageException {
         dispatchProvider.createSpace(targetProvider, storeId, spaceId);
     }

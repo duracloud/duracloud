@@ -37,6 +37,18 @@ public class StatelessStorageProviderImpl
                                          content);
     }
 
+    @Override
+    public String copyContent(StorageProvider targetProvider,
+                              String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) throws StorageException {
+        return targetProvider.copyContent(sourceSpaceId,
+                                          sourceContentId,
+                                          destSpaceId,
+                                          destContentId);
+    }
+
     /**
      * {@inheritDoc}
      */

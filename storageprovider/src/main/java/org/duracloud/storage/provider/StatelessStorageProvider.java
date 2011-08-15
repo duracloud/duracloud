@@ -27,6 +27,13 @@ public interface StatelessStorageProvider {
                                       InputStream content)
             throws StorageException;
 
+    public String copyContent(StorageProvider targetProvider,
+                              String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId)
+            throws StorageException;
+
     public abstract void createSpace(StorageProvider targetProvider,
                                      String storeId,
                                      String spaceId)

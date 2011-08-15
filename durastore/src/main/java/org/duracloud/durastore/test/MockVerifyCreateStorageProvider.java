@@ -99,6 +99,15 @@ public class MockVerifyCreateStorageProvider implements StorageProvider {
         return null;
     }
 
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) {
+        // Default method body
+        return null;
+    }
+
     public InputStream getContent(String spaceId, String contentId) {
         // Default method body
         return null;

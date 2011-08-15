@@ -58,6 +58,14 @@ public class MockStorageProvider
         return new String();
     }
 
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) {
+        return null;
+    }
+
     public void createSpace(String spaceId) throws StorageException {
         this.spaceId = spaceId;
         List<String> spacesList = new ArrayList<String>();

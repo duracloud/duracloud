@@ -227,6 +227,18 @@ public class StorageProviderBaseTest {
                                    contentChecksum,
                                    content);
         }
+
+        @Override
+        public String copyContent(String sourceSpaceId,
+                                  String sourceContentId,
+                                  String destSpaceId,
+                                  String destContentId) {
+            return test.copyContent(sourceSpaceId,
+                                    sourceContentId,
+                                    destSpaceId,
+                                    destContentId);
+        }
+
         public void deleteContent(String spaceId,
                                   String contentId){
             test.deleteContent(spaceId,contentId);

@@ -10,6 +10,7 @@ package org.duracloud.s3storage;
 import com.amazonaws.services.s3.Headers;
 import junit.framework.Assert;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.web.RestHttpHelper;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -331,7 +334,35 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
             assertEquals(advChecksum, checksum);
         }
 
+        waitForEventualConsistency(spaceId, contentId);
+
         compareChecksum(s3Provider, spaceId, contentId, checksum);
+    }
+
+    private void waitForEventualConsistency(String spaceId, String contentId) {
+        final int maxTries = 10;
+        int tries = 0;
+
+        Map<String, String> props = null;
+        while (null == props && tries++ < maxTries) {
+            try {
+                props = s3Provider.getContentProperties(spaceId, contentId);
+            } catch (Exception e) {
+                // do nothing
+            }
+
+            if (null == props) {
+                sleep(tries * 500);
+            }
+        }
+    }
+
+    private void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
     }
 
     private Map<String, String> testSpaceProperties(String spaceId,
@@ -594,6 +625,111 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         Assert.assertNotNull(properties.get(name10));
         Assert.assertNotNull(properties.get(name11));
         Assert.assertNotNull(properties.get(name12));
+    }
+
+    @Test
+    public void testCopyContentDifferentSpace() throws Exception {
+        String srcSpaceId = getNewSpaceId();
+        String destSpaceId = getNewSpaceId();
+
+        String srcContentId = getNewContentId();
+        String destContentId = getNewContentId();
+
+        doTestCopyContent(srcSpaceId, srcContentId, destSpaceId, destContentId);
+    }
+
+    @Test
+    public void testCopyContentSameSpaceSameName() throws Exception {
+        String srcSpaceId = getNewSpaceId();
+
+        String srcContentId = getNewContentId();
+
+        doTestCopyContent(srcSpaceId, srcContentId, srcSpaceId, srcContentId);
+    }
+
+    @Test
+    public void testCopyContentSameSpaceDifferentName() throws Exception {
+        String srcSpaceId = getNewSpaceId();
+
+        String srcContentId = getNewContentId();
+        String destContentId = getNewContentId();
+
+        doTestCopyContent(srcSpaceId, srcContentId, srcSpaceId, destContentId);
+    }
+
+    private void doTestCopyContent(String srcSpaceId,
+                                   String srcContentId,
+                                   String destSpaceId,
+                                   String destContentId) throws Exception {
+        this.s3Provider.createSpace(srcSpaceId);
+        if (!srcSpaceId.equals(destSpaceId)) {
+            this.s3Provider.createSpace(destSpaceId);
+        }
+
+        log.info("source     : {} / {}", srcSpaceId, srcContentId);
+        log.info("destination: {} / {}", destSpaceId, destContentId);
+
+        addContent(srcSpaceId, srcContentId, CONTENT_MIME_VALUE, false);
+
+        ChecksumUtil cksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String cksum = cksumUtil.generateChecksum(CONTENT_DATA);
+
+        Map<String, String> userProps = new HashMap<String, String>();
+        userProps.put("name0", "value0");
+        userProps.put("color", "green");
+        userProps.put("state", "VA");
+
+        s3Provider.setContentProperties(srcSpaceId, srcContentId, userProps);
+        Map<String, String> props = s3Provider.getContentProperties(srcSpaceId,
+                                                                    srcContentId);
+        verifyContent(srcSpaceId,
+                      srcContentId,
+                      cksum,
+                      props,
+                      userProps.keySet());
+
+        String md5 = s3Provider.copyContent(srcSpaceId,
+                                            srcContentId,
+                                            destSpaceId,
+                                            destContentId);
+        Assert.assertNotNull(md5);
+        Assert.assertEquals(cksum, md5);
+
+        verifyContent(destSpaceId,
+                      destContentId,
+                      md5,
+                      props,
+                      userProps.keySet());
+    }
+
+    private void verifyContent(String spaceId,
+                               String contentId,
+                               String md5,
+                               Map<String, String> props,
+                               Set<String> keys) throws IOException {
+        InputStream content = s3Provider.getContent(spaceId, contentId);
+        Assert.assertNotNull(content);
+
+        String text = IOUtils.toString(content);
+        Assert.assertEquals(CONTENT_DATA, text);
+
+        ChecksumUtil cksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String cksumFromStore = cksumUtil.generateChecksum(text);
+        Assert.assertEquals(md5, cksumFromStore);
+
+        Map<String, String> propsFromStore = s3Provider.getContentProperties(
+            spaceId,
+            contentId);
+        Assert.assertNotNull(propsFromStore);
+        Assert.assertEquals(props.size(), propsFromStore.size());
+
+        for (String key : keys) {
+            Assert.assertTrue(propsFromStore.containsKey(key));
+            Assert.assertTrue(props.containsKey(key));
+            Assert.assertEquals(props.get(key), propsFromStore.get(key));
+        }
+
+        log.info("props: " + propsFromStore);
     }
 
 }

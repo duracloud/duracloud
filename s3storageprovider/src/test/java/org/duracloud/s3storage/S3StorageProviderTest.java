@@ -8,6 +8,9 @@
 package org.duracloud.s3storage;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.StorageClass;
@@ -118,6 +121,83 @@ public class S3StorageProviderTest {
 
     private InputStream createStream(String content) {
         return new ByteArrayInputStream(content.getBytes());
+    }
+
+    @Test
+    public void testCopyContent() {
+        Capture<CopyObjectRequest> capturedRequest =
+            createS3ClientCopyContent();
+        String accessKey = "accessKey";
+        S3StorageProvider provider = new S3StorageProvider(s3Client,
+                                                           accessKey,
+                                                           null);
+
+        String srcSpaceId = "spaceId";
+        String srcContentId = "contentId";
+        String destSpaceId = "destSpaceId";
+        String destContentId = "destContentId";
+        String md5 = provider.copyContent(srcSpaceId,
+                                          srcContentId,
+                                          destSpaceId,
+                                          destContentId);
+
+        Assert.assertNotNull(md5);
+
+        CopyObjectRequest request = capturedRequest.getValue();
+        Assert.assertNotNull(request);
+
+        String srcBucket = request.getSourceBucketName();
+        String srcKey = request.getSourceKey();
+        String destBucket = request.getDestinationBucketName();
+        String destKey = request.getDestinationKey();
+        String storageClass = request.getStorageClass();
+
+        Assert.assertNotNull(srcBucket);
+        Assert.assertNotNull(srcKey);
+        Assert.assertNotNull(destBucket);
+        Assert.assertNotNull(destKey);
+        Assert.assertNotNull(storageClass);
+
+        String lowerSrcSpaceId = (accessKey + "." + srcSpaceId).toLowerCase();
+        String lowerDestSpaceId = (accessKey + "." + destSpaceId).toLowerCase();
+
+        Assert.assertEquals(lowerSrcSpaceId, srcBucket);
+        Assert.assertEquals(srcContentId, srcKey);
+        Assert.assertEquals(lowerDestSpaceId, destBucket);
+        Assert.assertEquals(destContentId, destKey);
+        Assert.assertEquals(StorageClass.Standard.toString(), storageClass);
+    }
+
+    private Capture<CopyObjectRequest> createS3ClientCopyContent() {
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+
+        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+                                                   EasyMock.isA(String.class)))
+            .andReturn(null);
+        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
+            .andReturn(true)
+            .times(2);
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        String checksum = "checksum";
+        objectMetadata.addUserMetadata(StorageProvider.PROPERTIES_CONTENT_CHECKSUM,
+                                       checksum);
+        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+                                                   EasyMock.isA(String.class)))
+            .andReturn(objectMetadata);
+
+        CopyObjectResult result = EasyMock.createMock("CopyObjectResult",
+                                                      CopyObjectResult.class);
+        EasyMock.expect(result.getETag()).andReturn(checksum);
+        EasyMock.replay(result);
+
+        Capture<CopyObjectRequest> capturedRequest =
+            new Capture<CopyObjectRequest>();
+        EasyMock.expect(s3Client.copyObject(EasyMock.capture(capturedRequest)))
+            .andReturn(result);
+
+        EasyMock.replay(s3Client);
+        return capturedRequest;
     }
 
     @Test

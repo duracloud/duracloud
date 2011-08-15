@@ -89,6 +89,20 @@ public abstract class ProbedStorageProvider
         return result;
     }
 
+    @Override
+    public String copyContent(String sourceSpaceId,
+                              String sourceContentId,
+                              String destSpaceId,
+                              String destContentId) {
+        startMetric("copyContent");
+        String result = storageProvider.copyContent(sourceSpaceId,
+                                                    sourceContentId,
+                                                    destSpaceId,
+                                                    destContentId);
+        stopMetric("copyContent");
+        return result;
+    }
+
     public void createSpace(String spaceId) throws StorageException {
         startMetric("createSpace");
         storageProvider.createSpace(spaceId);

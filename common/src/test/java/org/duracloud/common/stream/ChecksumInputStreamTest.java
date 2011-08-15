@@ -10,6 +10,7 @@ package org.duracloud.common.stream;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import org.duracloud.common.util.ChecksumUtil;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +34,13 @@ public class ChecksumInputStreamTest {
         ChecksumUtil util = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         trueChecksum = util.generateChecksum(contentStream);
         contentStream.reset();
+    }
+
+    @After
+    public void teardown() throws IOException {
+        if (null != contentStream) {
+            contentStream.close();
+        }
     }
 
     @Test
@@ -65,7 +73,9 @@ public class ChecksumInputStreamTest {
 
         String md5 = ChecksumUtil.checksumBytesToString(md5Bytes);
         assertNotNull(md5);
+
         assertEquals(trueChecksum, md5);
+        assertEquals(trueChecksum, stream.getMD5());
     }
 
     @Test
@@ -79,6 +89,7 @@ public class ChecksumInputStreamTest {
         String md5 = ChecksumUtil.checksumBytesToString(md5Bytes);
         assertNotNull(md5);
         assertEquals(trueChecksum, md5);
+        assertEquals(trueChecksum, stream.getMD5());
     }
 
     private void doTest(String checksum) throws IOException {
