@@ -9,6 +9,7 @@ package org.duracloud.rackspacestorage;
 
 import com.rackspacecloud.client.cloudfiles.FilesClient;
 import junit.framework.Assert;
+import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -25,13 +26,16 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -55,11 +59,10 @@ public class TestRackspaceStorageProvider {
             LoggerFactory.getLogger(TestRackspaceStorageProvider.class);
 
     RackspaceStorageProvider rackspaceProvider;
+    private final List<String> spaceIds = new ArrayList<String>();
 
     FilesClient filesClient;
-
-    private static String SPACE_ID = null;
-    private static final String CONTENT_ID = "duracloud-test-content";
+    
     private static final String SPACE_PROPS_NAME = "custom-space-properties";
     private static final String SPACE_PROPS_VALUE = "Testing Space";
     private static final String CONTENT_PROPS_NAME = "custom-content-properties";
@@ -82,20 +85,23 @@ public class TestRackspaceStorageProvider {
         rackspaceProvider = new RackspaceStorageProvider(username, password);
         filesClient = new FilesClient(username, password);
         assertTrue(filesClient.login());
-
-        String random = String.valueOf(new Random().nextInt(99999));
-        SPACE_ID = "duracloud-test-bucket." + random;
     }
 
     @After
     public void tearDown() {
-        try {
-            rackspaceProvider.deleteSpace(SPACE_ID);
-        } catch(Exception e) {
-            // Ignore, the space has likely already been deleted
-        }
+        clean();
         rackspaceProvider = null;
         filesClient = null;
+    }
+
+    private void clean() {
+        for (String spaceId : spaceIds) {
+            try {
+                rackspaceProvider.deleteSpace(spaceId);
+            } catch (Exception e) {
+                // do nothing.
+            }
+        }
     }
 
     private Credential getCredential() throws Exception {
@@ -104,9 +110,23 @@ public class TestRackspaceStorageProvider {
                                                 StorageProviderType.RACKSPACE));
     }
 
+    private String getNewSpaceId() {
+        String random = String.valueOf(new Random().nextInt(99999));
+        String spaceId = "rackstore-test-space-" + random;
+        spaceIds.add(spaceId);
+        return spaceId;
+    }
+
+    private String getNewContentId() {
+        String random = String.valueOf(new Random().nextInt(99999));
+        String contentId = "rackstore-test-content-" + random;
+        return contentId;
+    }
+
     @Test
     public void testRackspaceStorageProvider() throws Exception {
         /* Test Spaces */
+        String SPACE_ID = getNewSpaceId();
 
         // test createSpace()
         log.debug("Test createSpace()");
@@ -162,6 +182,7 @@ public class TestRackspaceStorageProvider {
 
         // test addContent()
         log.debug("Test addContent()");
+        String CONTENT_ID = getNewContentId();
         addContent(SPACE_ID, CONTENT_ID, CONTENT_MIME_VALUE, false);
 
         // test getContentProperties()
@@ -314,7 +335,36 @@ public class TestRackspaceStorageProvider {
             assertEquals(advChecksum, checksum);
         }
 
+        waitForEventualConsistency(spaceId, contentId);
+
         compareChecksum(rackspaceProvider, spaceId, contentId, checksum);
+    }
+
+    private void waitForEventualConsistency(String spaceId, String contentId) {
+        final int maxTries = 10;
+        int tries = 0;
+
+        Map<String, String> props = null;
+        while (null == props && tries++ < maxTries) {
+            try {
+                props = rackspaceProvider.getContentProperties(spaceId,
+                                                               contentId);
+            } catch (Exception e) {
+                // do nothing
+            }
+
+            if (null == props) {
+                sleep(tries * 500);
+            }
+        }
+    }
+
+    private void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            // do nothing
+        }
     }
 
     private Map<String, String> testSpaceProperties(String spaceId,
@@ -342,7 +392,7 @@ public class TestRackspaceStorageProvider {
 
     @Test
     public void testNotFound() {
-        String spaceId = SPACE_ID;
+        String spaceId = getNewSpaceId();
         String contentId = "NonExistantContent";
         String failMsg = "Should throw NotFoundException attempting to " +
                          "access a space which does not exist";
@@ -480,6 +530,113 @@ public class TestRackspaceStorageProvider {
         } catch (NotFoundException expected) {
             assertNotNull(expected);
         }
+    }
+
+    @Test
+    public void testCopyContentDifferentSpace() throws Exception {
+        String srcSpaceId = getNewSpaceId();
+        String destSpaceId = getNewSpaceId();
+
+        String srcContentId = getNewContentId();
+        String destContentId = getNewContentId();
+
+        doTestCopyContent(srcSpaceId, srcContentId, destSpaceId, destContentId);
+    }
+
+    @Test
+    public void testCopyContentSameSpaceSameName() throws Exception {
+        String srcSpaceId = getNewSpaceId();
+
+        String srcContentId = getNewContentId();
+
+        doTestCopyContent(srcSpaceId, srcContentId, srcSpaceId, srcContentId);
+    }
+
+    @Test
+    public void testCopyContentSameSpaceDifferentName() throws Exception {
+        String srcSpaceId = getNewSpaceId();
+
+        String srcContentId = getNewContentId();
+        String destContentId = getNewContentId();
+
+        doTestCopyContent(srcSpaceId, srcContentId, srcSpaceId, destContentId);
+    }
+
+    private void doTestCopyContent(String srcSpaceId,
+                                   String srcContentId,
+                                   String destSpaceId,
+                                   String destContentId) throws Exception {
+        this.rackspaceProvider.createSpace(srcSpaceId);
+        if (!srcSpaceId.equals(destSpaceId)) {
+            this.rackspaceProvider.createSpace(destSpaceId);
+        }
+
+        log.info("source     : {} / {}", srcSpaceId, srcContentId);
+        log.info("destination: {} / {}", destSpaceId, destContentId);
+
+        addContent(srcSpaceId, srcContentId, CONTENT_MIME_VALUE, false);
+
+        ChecksumUtil cksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String cksum = cksumUtil.generateChecksum(CONTENT_DATA);
+
+        Map<String, String> userProps = new HashMap<String, String>();
+        userProps.put("name0", "value0");
+        userProps.put("color", "green");
+        userProps.put("state", "VA");
+
+        rackspaceProvider.setContentProperties(srcSpaceId,
+                                               srcContentId,
+                                               userProps);
+        Map<String, String> props = rackspaceProvider.getContentProperties(
+            srcSpaceId,
+            srcContentId);
+        verifyContent(srcSpaceId,
+                      srcContentId,
+                      cksum,
+                      props,
+                      userProps.keySet());
+
+        String md5 = rackspaceProvider.copyContent(srcSpaceId,
+                                                   srcContentId,
+                                                   destSpaceId,
+                                                   destContentId);
+        Assert.assertNotNull(md5);
+        Assert.assertEquals(cksum, md5);
+
+        verifyContent(destSpaceId,
+                      destContentId,
+                      md5,
+                      props,
+                      userProps.keySet());
+    }
+
+    private void verifyContent(String spaceId,
+                               String contentId,
+                               String md5,
+                               Map<String, String> props,
+                               Set<String> keys) throws IOException {
+        InputStream content = rackspaceProvider.getContent(spaceId, contentId);
+        Assert.assertNotNull(content);
+
+        String text = IOUtils.toString(content);
+        Assert.assertEquals(CONTENT_DATA, text);
+
+        ChecksumUtil cksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
+        String cksumFromStore = cksumUtil.generateChecksum(text);
+        Assert.assertEquals(md5, cksumFromStore);
+
+        Map<String, String> propsFromStore =
+            rackspaceProvider.getContentProperties(spaceId, contentId);
+        Assert.assertNotNull(propsFromStore);
+        Assert.assertEquals(props.size(), propsFromStore.size());
+
+        for (String key : keys) {
+            Assert.assertTrue(propsFromStore.containsKey(key));
+            Assert.assertTrue(props.containsKey(key));
+            Assert.assertEquals(props.get(key), propsFromStore.get(key));
+        }
+
+        log.info("props: " + propsFromStore);
     }
 
 }

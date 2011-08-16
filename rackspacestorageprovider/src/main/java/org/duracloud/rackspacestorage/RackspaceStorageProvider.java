@@ -15,6 +15,7 @@ import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
+import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -539,12 +540,52 @@ public class RackspaceStorageProvider extends StorageProviderBase {
                               String sourceContentId,
                               String destSpaceId,
                               String destContentId) {
+        log.debug("copyContent({}, {}, {}, {})",
+                  new Object[]{sourceSpaceId,
+                               sourceContentId,
+                               destSpaceId,
+                               destContentId});
+
         throwIfContentNotExist(sourceSpaceId, sourceContentId);
         throwIfSpaceNotExist(destSpaceId);
 
-        // TODO: call FilesClient.copyObject() when available.
+        String md5 = doCopyContent(sourceSpaceId,
+                                   sourceContentId,
+                                   destSpaceId,
+                                   destContentId);
 
-        return "not-yet-implemented";
+        return StorageProviderUtil.compareChecksum(this,
+                                                   sourceSpaceId,
+                                                   sourceContentId,
+                                                   md5);
+    }
+
+    private String doCopyContent(String sourceSpaceId,
+                                 String sourceContentId,
+                                 String destSpaceId,
+                                 String destContentId) {
+        StringBuilder err = new StringBuilder("Could not copy content from: ");
+        err.append(sourceSpaceId);
+        err.append(" / ");
+        err.append(sourceContentId);
+        err.append(", to: ");
+        err.append(destSpaceId);
+        err.append(" / ");
+        err.append(destContentId);
+        err.append(", due to error: ");
+        try {
+            return filesClient.copyObject(sourceSpaceId,
+                                          sourceContentId,
+                                          destSpaceId,
+                                          destContentId);
+
+        } catch (HttpException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (IOException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        }
     }
 
     /**
