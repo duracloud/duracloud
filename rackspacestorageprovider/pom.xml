@@ -44,14 +44,19 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
     </dependency>
   
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>rackspace-java-cloudfiles</artifactId>
-      <version>1.5.3</version>
+      <version>1.8.0</version>
     </dependency>
 
     <!-- test -->

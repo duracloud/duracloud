@@ -7,20 +7,14 @@
  */
 package org.duracloud.rackspacestorage;
 
-import com.rackspacecloud.client.cloudfiles.FilesAuthorizationException;
-import com.rackspacecloud.client.cloudfiles.FilesClient;
-import com.rackspacecloud.client.cloudfiles.FilesContainer;
-import com.rackspacecloud.client.cloudfiles.FilesContainerInfo;
-import com.rackspacecloud.client.cloudfiles.FilesNotFoundException;
-import com.rackspacecloud.client.cloudfiles.FilesObject;
-import com.rackspacecloud.client.cloudfiles.FilesObjectMetaData;
+import com.rackspacecloud.client.cloudfiles.*;
+import org.apache.http.HttpException;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
-import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,9 +84,16 @@ public class RackspaceStorageProvider extends StorageProviderBase {
                 "Rackspace containers due to error: ");
         try {
             return filesClient.listContainers();
+
         } catch (FilesAuthorizationException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
+        } catch (FilesException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (HttpException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
@@ -188,6 +189,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (HttpException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
         }
     }
 
@@ -200,7 +207,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
                                                       String prefix,
                                                       int limit,
                                                       String marker)
-        throws IOException {
+        throws IOException, FilesException {
         int retryLimit = 10;
         int retries = 0;
         List<FilesObject> objectList = null;
@@ -215,6 +222,14 @@ public class RackspaceStorageProvider extends StorageProviderBase {
                 log.error("Error listing objects.", e);
                 objectList = null;                
                 if(retries < retryLimit) {
+                    retries++;
+                } else {
+                    throw e;
+                }
+            } catch (FilesException e) {
+                log.error("Error listing objects.", e);
+                objectList = null;
+                if (retries < retryLimit) {
                     retries++;
                 } else {
                     throw e;
@@ -248,6 +263,8 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         try {
             return filesClient.containerExists(containerName);
         } catch (IOException e) {
+            return false;
+        } catch (HttpException e) {
             return false;
         }
     }
@@ -289,6 +306,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (HttpException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
         }
     }
 
@@ -317,6 +340,15 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
         } catch (IOException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesInvalidNameException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, NO_RETRY);
+        } catch (FilesContainerNotEmptyException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, NO_RETRY);
+        } catch (HttpException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
         }
@@ -363,6 +395,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
         } catch (IOException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (HttpException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
         }
@@ -487,6 +525,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
+        } catch (FilesException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (HttpException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
         }
     }
 
@@ -535,6 +579,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         } catch (IOException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesInvalidNameException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, NO_RETRY);
+        } catch (HttpException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
         }
     }
 
@@ -575,6 +625,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
         } catch (IOException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (HttpException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
         }
@@ -636,6 +692,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             throw new StorageException(err.toString(), e, NO_RETRY);
         } catch (IOException e) {
             throwIfContentNotExist(spaceId, contentId);
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesInvalidNameException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, NO_RETRY);
+        } catch (HttpException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
         }
@@ -717,6 +779,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, NO_RETRY);
         } catch (IOException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, RETRY);
+        } catch (FilesInvalidNameException e) {
+            err.append(e.getMessage());
+            throw new StorageException(err.toString(), e, NO_RETRY);
+        } catch (HttpException e) {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
         }

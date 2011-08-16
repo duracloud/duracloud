@@ -8,7 +8,7 @@
 package org.duracloud.durastore.storage.probe;
 
 import com.rackspacecloud.client.cloudfiles.*;
-import org.apache.commons.httpclient.HttpException;
+import org.apache.http.HttpException;
 import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
 import org.duracloud.common.util.metrics.MetricsProbed;
@@ -154,7 +154,7 @@ public class ProbedFilesClient
                                                     String path,
                                                     int limit,
                                                     String marker)
-            throws IOException, HttpException, FilesException {
+            throws IOException, FilesException {
         startMetric("listObjectsStaringWith");
         List<FilesObject> result =
                 super.listObjectsStartingWith(container,
@@ -168,7 +168,7 @@ public class ProbedFilesClient
 
     @Override
     public List<FilesObject> listObjects(String container) throws IOException,
-            HttpException, FilesAuthorizationException, FilesException {
+            FilesAuthorizationException, FilesException {
         startMetric("listObjects");
         List<FilesObject> result = super.listObjects(container);
         stopMetric("listObjects");
@@ -378,26 +378,26 @@ public class ProbedFilesClient
     }
 
     @Override
-    public boolean storeObjectAs(String container,
+    public String storeObjectAs(String container,
                                  File obj,
                                  String contentType,
                                  String name) throws IOException,
             HttpException, FilesException {
         startMetric("storeObjectAs");
-        boolean result = super.storeObjectAs(container, obj, contentType, name);
+        String result = super.storeObjectAs(container, obj, contentType, name);
         stopMetric("storeObjectAs");
         return result;
     }
 
     @Override
-    public boolean storeObjectAs(String container,
+    public String storeObjectAs(String container,
                                  File obj,
                                  String contentType,
                                  String name,
                                  IFilesTransferCallback callback)
             throws IOException, HttpException, FilesException {
         startMetric("storeObjectAs");
-        boolean result =
+        String result =
                 super
                         .storeObjectAs(container,
                                        obj,
@@ -409,14 +409,14 @@ public class ProbedFilesClient
     }
 
     @Override
-    public boolean storeObjectAs(String container,
+    public String storeObjectAs(String container,
                                  File obj,
                                  String contentType,
                                  String name,
                                  Map<String, String> metadata)
             throws IOException, HttpException, FilesException {
         startMetric("storeObjectAs");
-        boolean result =
+        String result =
                 super
                         .storeObjectAs(container,
                                        obj,
@@ -428,7 +428,7 @@ public class ProbedFilesClient
     }
 
     @Override
-    public boolean storeObjectAs(String container,
+    public String storeObjectAs(String container,
                                  File obj,
                                  String contentType,
                                  String name,
@@ -436,7 +436,7 @@ public class ProbedFilesClient
                                  IFilesTransferCallback callback)
             throws IOException, HttpException, FilesException {
         startMetric("storeObjectAs");
-        boolean result =
+        String result =
                 super.storeObjectAs(container,
                                     obj,
                                     contentType,
@@ -448,10 +448,10 @@ public class ProbedFilesClient
     }
 
     @Override
-    public boolean storeObject(String container, File obj, String contentType)
+    public String storeObject(String container, File obj, String contentType)
             throws IOException, HttpException, FilesException {
         startMetric("storeObject");
-        boolean result = super.storeObject(container, obj, contentType);
+        String result = super.storeObject(container, obj, contentType);
         stopMetric("storeObject");
         return result;
     }
@@ -491,14 +491,14 @@ public class ProbedFilesClient
     }
 
     @Override
-    public boolean storeStreamedObject(String container,
+    public String storeStreamedObject(String container,
                                        InputStream data,
                                        String contentType,
                                        String name,
                                        Map<String, String> metadata)
             throws IOException, HttpException, FilesException {
         startMetric("storeStreamedObject");
-        boolean result =
+        String result =
                 super.storeStreamedObject(container,
                                           data,
                                           contentType,
