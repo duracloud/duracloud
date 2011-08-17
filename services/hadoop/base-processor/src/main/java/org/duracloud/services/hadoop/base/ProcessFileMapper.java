@@ -46,6 +46,10 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Writable,
     public static final String RESULT_PATH = "result-file-path";
     public static final String ERR_MESSAGE = "error-message";
 
+    // Max time to wait for a thread to complete work
+    // Currently 12 hours (approx. time required to move 5GB over a 1 Mbps pipe)
+    public static final long MAX_THREAD_WAIT = 43200000;
+
     protected static final UriPathUtil pathUtil = new UriPathUtil();
 
     protected JobConf jobConf;
@@ -252,27 +256,51 @@ public class ProcessFileMapper extends MapReduceBase implements Mapper<Writable,
     }
 
     /**
-     * This method starts the copy thread and lets the hadoop framework know
-     * that it is still alive, even if the file transfer takes a long time.
-     * By default, hadoop times-out after ten minutes if it does not hear back
-     * from a work node.
+     * This method starts the copy thread and waits up to the max wait time
+     * for it to complete.
      */
     private String doCopy(File localFile,
-                        Path remotePath,
-                        boolean toLocal,
-                        Reporter reporter) throws IOException {
+                          Path remotePath,
+                          boolean toLocal,
+                          Reporter reporter) throws IOException {
         FileCopier copier = new FileCopier(localFile,
                                            remotePath,
                                            toLocal);
         Thread thread = new Thread(copier);
         thread.start();
 
-        while (thread.isAlive()) {
-            sleep(500);
-            reporter.progress();
+        boolean copyCompleted = waitOnThread(thread, reporter, MAX_THREAD_WAIT);
+        if(!copyCompleted) {
+            copier.terminate();
+            thread.interrupt(); // should interrupt any blocking I/O calls
+            throw new IOException("Timeout reached attempting to perform copy. " +
+                                  "Local file: " + localFile.getName() +
+                                  ", Remote path " + remotePath.getName() +
+                                  ", From remote to local? " + toLocal);
         }
 
         return copier.getMd5();
+    }
+
+    /**
+     * This method waits for a thread to complete and lets the hadoop
+     * framework know that it is still alive during that time. By default,
+     * hadoop times-out after ten minutes if it does not hear back
+     * from a work node.
+     * 
+     * @return true if the thread completed its work, false if not
+     */
+    protected boolean waitOnThread(Thread thread,
+                                   Reporter reporter,
+                                   long maxWait) {
+        long start = System.currentTimeMillis();
+        while (thread.isAlive() &&
+               System.currentTimeMillis() < start + maxWait) {
+            sleep(1000);
+            reporter.progress();
+        }
+        // return success if the thread has completed
+        return !thread.isAlive();
     }
 
     protected ContentStore getContentStore() throws IOException {

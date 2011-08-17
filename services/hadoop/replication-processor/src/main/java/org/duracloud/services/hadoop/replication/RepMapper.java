@@ -104,10 +104,11 @@ public class RepMapper extends ProcessFileMapper {
                                                    resultInfo);
             Thread thread = new Thread(replicator);
             thread.start();
-
-            while (thread.isAlive()) {
-                sleep(1000);
-                reporter.progress();
+            boolean repCompleted =
+                waitOnThread(thread, reporter, MAX_THREAD_WAIT);
+            if(!repCompleted) {
+                thread.interrupt(); // should interrupt any blocking I/O calls
+                attempts = MAX_ATTEMPTS; // don't continue to try this file
             }
 
             if(replicator.isSuccess()) {

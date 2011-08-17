@@ -80,6 +80,9 @@ public class Replicator implements Runnable {
         } catch(IOException e) {
             System.out.println("IOException: " + e.getMessage());
             exception = e;
+        } catch(Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            exception = e;
         }
     }
 

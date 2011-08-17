@@ -38,12 +38,15 @@ public class FileCopier implements Runnable {
     private static final UriPathUtil pathUtil = new UriPathUtil();
     private static final MD5Util md5Util = new MD5Util();
 
+    private boolean terminate;
+
     public FileCopier(File localFile,
                       Path remotePath,
                       boolean toLocal) {
         this.localFile = localFile;
         this.remotePath = remotePath;
         this.toLocal = toLocal;
+        this.terminate = false;
     }
 
     @Override
@@ -62,11 +65,15 @@ public class FileCopier implements Runnable {
         }
     }
 
+    public void terminate() {
+        this.terminate = true;
+    }
+
     private void copyFileToLocal() throws IOException {
         int tries = 0;
         int maxTries = 5;
         boolean md5Valid = false;
-        while (!md5Valid && tries++ < maxTries) {
+        while (!md5Valid && tries++ < maxTries && !terminate) {
             try {
                 doCopyFileToLocal();
                 String md5Local = getMd5FromLocal();

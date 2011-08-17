@@ -13,6 +13,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.duracloud.services.hadoop.store.FileWithMD5;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,6 +131,84 @@ public class ProcessFileMapperTest {
                                       String outputPath,
                                       Reporter reporter) throws IOException {
             return outputPath + "/" + fileName;
+        }
+    }
+
+    /*
+     * Verifies that waitOnThread() exits properly when thread is not active
+     * at the start.
+     */
+    @Test
+    public void testWaitOnThread1() {
+        ProcessFileMapper mapper = new ProcessFileMapper();
+        Reporter reporter = setUpReporterMock(false); // expect no calls
+
+        // thread not started, so not active
+        Thread thread = new WaitingThread(0);
+        boolean result = mapper.waitOnThread(thread, reporter, 5000);
+        assertEquals(true, result);
+
+        EasyMock.verify(reporter);
+    }
+
+    /*
+     * Verifies that waitOnThread() exits properly when thread terminates
+     */
+    @Test
+    public void testWaitOnThread2() {
+        ProcessFileMapper mapper = new ProcessFileMapper();
+        Reporter reporter = setUpReporterMock(true);
+
+        Thread thread = new WaitingThread(3000);
+        thread.start();
+        // Will wait for a long time unless it notices that the
+        // thread is complete
+        boolean result = mapper.waitOnThread(thread, reporter, 1000000);
+        assertEquals(true, result);
+
+        EasyMock.verify(reporter);
+    }
+
+    /*
+     * Verifies that waitOnThread() exits properly when max timeout is reached
+     */
+    @Test
+    public void testWaitOnThread3() {
+        ProcessFileMapper mapper = new ProcessFileMapper();
+        Reporter reporter = setUpReporterMock(true);
+
+        Thread thread = new WaitingThread(1000000);
+        thread.start();
+        // Will wait for a long time unless it stops at the max timeout
+        boolean result = mapper.waitOnThread(thread, reporter, 3000);
+        assertEquals(false, result);
+        thread.interrupt();
+
+        EasyMock.verify(reporter);
+    }
+
+    private Reporter setUpReporterMock(boolean expectCalls) {
+        Reporter reporter = EasyMock.createMock(Reporter.class);
+        if(expectCalls) {
+            reporter.progress();
+            EasyMock.expectLastCall().atLeastOnce();
+        }
+        EasyMock.replay(reporter);
+        return reporter;
+    }
+
+    private class WaitingThread extends Thread {
+        private long waitMillis;
+
+        public WaitingThread(long waitMillis) {
+            this.waitMillis = waitMillis;
+        }
+
+        @Override
+        public void run() {
+            try {
+                this.sleep(waitMillis);
+            } catch(InterruptedException e) {}
         }
     }
 
