@@ -48,6 +48,8 @@ public abstract class BaseRest {
         HEADER_PREFIX + StorageProvider.PROPERTIES_SPACE_ACCESS;
     public static final String CONTENT_MIMETYPE_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
+    public static final String COPY_SOURCE_HEADER =
+        HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
 
     /**
      * Looks through the request headers and pulls out user properties.

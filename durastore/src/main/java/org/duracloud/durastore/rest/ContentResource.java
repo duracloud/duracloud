@@ -42,6 +42,12 @@ public interface ContentResource {
                       String storeID)
         throws ResourceException, InvalidIdException;
 
+    String copyContent(String srcSpaceID,
+                       String srcContentID,
+                       String destSpaceID,
+                       String destContentID,
+                       String storeID) throws ResourceException;
+
     void deleteContent(String spaceID, String contentID, String storeID)
         throws ResourceException;
 }

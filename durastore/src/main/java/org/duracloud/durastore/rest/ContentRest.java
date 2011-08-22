@@ -13,6 +13,7 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.storage.error.InvalidIdException;
+import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -335,15 +337,29 @@ public class ContentRest extends BaseRest {
     }
 
     /**
+     * see ContentResource.addContent() and ContentResource.copyContent().
+     * 
+     * @return 201 response indicating content added/copied successfully
+     */
+    @PUT
+    public Response putContent(@PathParam("spaceID") String spaceID,
+                               @PathParam("contentID") String contentID,
+                               @QueryParam("storeID") String storeID,
+                               @HeaderParam(BaseRest.COPY_SOURCE_HEADER) String copySource) {
+        if (null != copySource) {
+            return copyContent(spaceID, contentID, storeID, copySource);
+
+        } else {
+            return addContent(spaceID, contentID, storeID);
+        }
+    }
+
+    /**
      * see ContentResource.addContent()
      * @return 201 response indicating content added successfully
      */
-    @PUT
-    public Response addContent(@PathParam("spaceID")
-                               String spaceID,
-                               @PathParam("contentID")
+    private Response addContent(String spaceID,
                                String contentID,
-                               @QueryParam("storeID")
                                String storeID) {
         StringBuilder msg = new StringBuilder("adding content(");
         msg.append(spaceID);
@@ -354,7 +370,7 @@ public class ContentRest extends BaseRest {
         msg.append(")");
 
         try {
-            log.debug(msg.toString());
+            log.info(msg.toString());
             return doAddContent(spaceID, contentID, storeID);
 
         } catch (InvalidIdException e) {
@@ -408,6 +424,135 @@ public class ContentRest extends BaseRest {
     }
 
     /**
+     * see ContentResource.copyContent()
+     *
+     * @return 201 response indicating content copied successfully
+     */
+    private Response copyContent(String spaceID,
+                                 String contentID,
+                                 String storeID,
+                                 String copySource) {
+        StringBuilder msg = new StringBuilder("copying content from (");
+        msg.append(copySource);
+        msg.append(") to (");
+        msg.append(spaceID);
+        msg.append(" / ");
+        msg.append(contentID);
+        msg.append(", ");
+        msg.append(storeID);
+        msg.append(")");
+        log.info(msg.toString());
+
+        try {
+            return doCopyContent(spaceID, contentID, storeID, copySource);
+
+        } catch (InvalidIdException e) {
+            return responseBad(msg.toString(), e, BAD_REQUEST);
+
+        } catch (InvalidRequestException e) {
+            return responseBad(msg.toString(), e, BAD_REQUEST);
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response doCopyContent(String destSpaceID,
+                                   String destContentID,
+                                   String storeID,
+                                   String copySource) throws Exception {
+        StringBuilder msg = new StringBuilder();
+
+        // Verify no body to request.
+        RestUtil.RequestContent content = restUtil.getRequestContent(request,
+                                                                     headers);
+        if (null != content && content.getSize() > 0) {
+            msg.append("Body should not be present in copy-content request:");
+            msg.append(" from ");
+            msg.append(copySource);
+            msg.append(", with body size: ");
+            msg.append(content.getSize());
+            log.error(msg.toString());
+            throw new InvalidRequestException(msg.toString());
+        }
+
+        if (null == copySource || copySource.isEmpty()) {
+            msg.append("Missing header: ");
+            msg.append(COPY_SOURCE_HEADER);
+            log.error(msg.toString());
+            throw new InvalidRequestException(msg.toString());
+        }
+
+        String srcSpaceID = getSpaceId(copySource);
+        String srcContentID = getContentId(copySource);
+        if (null == srcSpaceID || null == srcContentID) {
+            msg.append("Malformed ");
+            msg.append(COPY_SOURCE_HEADER);
+            msg.append(" header: ");
+            msg.append(copySource);
+            log.error(msg.toString());
+            throw new InvalidRequestException(msg.toString());
+        }
+
+        // Do the underlying copy.
+        msg.append("copying content from (");
+        msg.append(srcSpaceID);
+        msg.append(" / ");
+        msg.append(srcContentID);
+        msg.append(")");
+        log.info(msg.toString());
+        String checksum = contentResource.copyContent(srcSpaceID,
+                                                      srcContentID,
+                                                      destSpaceID,
+                                                      destContentID,
+                                                      storeID);
+
+        // Construct the response.
+        URI location = uriInfo.getRequestUri();
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, checksum);
+        return addContentPropertiesToResponse(Response.created(location),
+                                              properties);
+    }
+
+    private String getSpaceId(String copySource) {
+        String[] spaceAndContent = splitSpaceAndContentIds(copySource);
+        return null == spaceAndContent ? null : spaceAndContent[0];
+    }
+
+    private String getContentId(String copySource) {
+        String[] spaceAndContent = splitSpaceAndContentIds(copySource);
+        return null == spaceAndContent ? null : spaceAndContent[1];
+    }
+
+    private String[] splitSpaceAndContentIds(String copySource) {
+        if (null == copySource || copySource.isEmpty()) {
+            return null;
+        }
+
+        while (copySource.charAt(0) == '/') {
+            copySource = copySource.substring(1, copySource.length());
+        }
+
+        int index = copySource.indexOf("/");
+        if (-1 == index || index == copySource.length() - 1) {
+            return null;
+        }
+
+        String[] spaceAndContent = new String[2];
+        spaceAndContent[0] = copySource.substring(0, index);
+        spaceAndContent[1] = copySource.substring(index + 1,
+                                                  copySource.length());
+        return spaceAndContent;
+    }
+
+    /**
      * see ContentResource.removeContent()
      * @return 200 response indicating content removed successfully
      */
@@ -451,7 +596,11 @@ public class ContentRest extends BaseRest {
                                  Exception e,
                                  Response.Status status) {
         log.error("Error: " + msg, e);
-        String entity = e.getMessage() == null ? "null" : e.getMessage();
+        return responseBad(e.getMessage(), status);
+    }
+
+    private Response responseBad(String msg, Response.Status status) {
+        String entity = msg == null ? "null" : msg;
         return Response.status(status).entity(entity).build();
     }
 

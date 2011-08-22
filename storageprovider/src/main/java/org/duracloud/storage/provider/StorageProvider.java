@@ -38,6 +38,7 @@ public interface StorageProvider {
     public static final String PROPERTIES_CONTENT_SIZE = "content-size";
     public static final String PROPERTIES_CONTENT_CHECKSUM = "content-checksum";
     public static final String PROPERTIES_CONTENT_MODIFIED = "content-modified";
+    public static final String PROPERTIES_COPY_SOURCE = "copy-source";
 
     /* Reserved property names */
     public static final String PROPERTIES_CONTENT_MD5 = "content-md5";

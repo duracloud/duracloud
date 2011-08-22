@@ -44,6 +44,26 @@ public class ResourceException extends DuraCloudCheckedException {
         setArgs(task, spaceId, contentId, t.getMessage());
     }
 
+    public ResourceException(String task,
+                             String srcSpaceId,
+                             String srcContentId,
+                             String destSpaceId,
+                             String destContentId,
+                             Throwable t) {
+        super(buildErrMsg(task,
+                          srcSpaceId,
+                          srcContentId,
+                          destSpaceId,
+                          destContentId,
+                          t), t, messageKeyContent);
+        setArgs(task,
+                srcSpaceId,
+                srcContentId,
+                destSpaceId,
+                destContentId,
+                t.getMessage());
+    }
+
     private static String buildErrMsg(String task,
                                       String spaceId,
                                       Throwable t) {
@@ -72,4 +92,27 @@ public class ResourceException extends DuraCloudCheckedException {
         errMsg.append(t.getMessage());
         return errMsg.toString();
     }
+
+    private static String buildErrMsg(String task,
+                                      String srcSpaceId,
+                                      String srcContentId,
+                                      String destSpaceId,
+                                      String destContentId,
+                                      Throwable t) {
+        StringBuilder errMsg = new StringBuilder();
+        errMsg.append("Error attempting to ");
+        errMsg.append(task);
+        errMsg.append(" '");
+        errMsg.append(srcSpaceId);
+        errMsg.append(" / ");
+        errMsg.append(srcContentId);
+        errMsg.append("' to '");
+        errMsg.append(destSpaceId);
+        errMsg.append(" / ");
+        errMsg.append(destContentId);
+        errMsg.append("' due to: ");
+        errMsg.append(t.getMessage());
+        return errMsg.toString();
+    }
+
 }

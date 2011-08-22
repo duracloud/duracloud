@@ -161,6 +161,51 @@ public class ContentResourceImpl implements ContentResource {
     }
 
     /**
+     * This method copies the content found in space srcSpaceID with id
+     * srcContentID to the space destSpaceID within the same content store
+     * (storeID) to the id of destContentID.
+     * 
+     * @param srcSpaceID of content to copy
+     * @param srcContentID of content to copy
+     * @param destSpaceID of copied content
+     * @param destContentID of copied content
+     * @param storeID of both source and destination content
+     * @return MD5 checksum of the content as computed by the storage provider
+     * @throws ResourceException
+     */
+    @Override
+    public String copyContent(String srcSpaceID,
+                              String srcContentID,
+                              String destSpaceID,
+                              String destContentID,
+                              String storeID) throws ResourceException {
+        try {
+            StorageProvider storage = storageProviderFactory.getStorageProvider(
+                storeID);
+
+            return storage.copyContent(srcSpaceID,
+                                       srcContentID,
+                                       destSpaceID,
+                                       destContentID);
+
+        } catch (NotFoundException e) {
+            throw new ResourceNotFoundException("copy content",
+                                                srcSpaceID,
+                                                srcContentID,
+                                                destSpaceID,
+                                                destContentID,
+                                                e);
+        } catch (StorageException e) {
+            throw new ResourceException("copy content",
+                                        srcSpaceID,
+                                        srcContentID,
+                                        destSpaceID,
+                                        destContentID,
+                                        e);
+        }
+    }
+
+    /**
      * Removes a piece of content.
      *
      * @param spaceID
