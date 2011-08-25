@@ -56,8 +56,7 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>rackspace-java-cloudfiles</artifactId>
-      <version>1.8.0</version>
-      <classifier>copy-patch</classifier>
+      <version>1.9.1</version>
     </dependency>
 
     <!-- test -->
