@@ -414,6 +414,67 @@ public class ContentStoreImpl implements ContentStore{
         }
     }
 
+    @Override
+    public String copyContent(String srcSpaceId,
+                              String srcContentId,
+                              String destSpaceId,
+                              String destContentId)
+        throws ContentStoreException {
+        validateSpaceId(srcSpaceId);
+        validateSpaceId(destSpaceId);
+        validateContentId(srcContentId);
+        validateContentId(destContentId);
+
+        String task = "copy content";
+        String url = buildContentURL(destSpaceId, destContentId);
+
+        String header = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
+        String value = srcSpaceId + "/" + srcContentId;
+
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put(header, value);
+
+        try {
+            HttpResponse response = restHelper.put(url, null, headers);
+            checkResponse(response, HttpStatus.SC_CREATED);
+            Header checksum =
+                response.getResponseHeader(HttpHeaders.CONTENT_MD5);
+            if (checksum == null) {
+                checksum = response.getResponseHeader(HttpHeaders.ETAG);
+            }
+            return checksum.getValue();
+            
+        } catch (InvalidIdException e) {
+            throw new InvalidIdException(task,
+                                         srcSpaceId,
+                                         srcContentId,
+                                         destSpaceId,
+                                         destContentId,
+                                         e);
+        } catch (NotFoundException e) {
+            throw new NotFoundException(task,
+                                        srcSpaceId,
+                                        srcContentId,
+                                        destSpaceId,
+                                        destContentId,
+                                        e);
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(task,
+                                            srcSpaceId,
+                                            srcContentId,
+                                            destSpaceId,
+                                            destContentId,
+                                            e);
+        } catch (Exception e) {
+            throw new ContentStoreException(task,
+                                            srcSpaceId,
+                                            srcContentId,
+                                            destSpaceId,
+                                            destContentId,
+                                            e);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */

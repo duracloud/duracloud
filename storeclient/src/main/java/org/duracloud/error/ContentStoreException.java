@@ -53,6 +53,26 @@ public class ContentStoreException extends DuraCloudCheckedException {
         setArgs(task, spaceId, contentId, t.getMessage());
     }
 
+    public ContentStoreException(String task,
+                                 String srcSpaceId,
+                                 String srcContentId,
+                                 String destSpaceId,
+                                 String destContentId,
+                                 Throwable t) {
+        super(buildErrMsg(task,
+                          srcSpaceId,
+                          srcContentId,
+                          destSpaceId,
+                          destContentId,
+                          t));
+        setArgs(task,
+                srcSpaceId,
+                srcContentId,
+                destSpaceId,
+                destContentId,
+                t.getMessage());
+    }
+
     private static String buildErrMsg(String task,
                                       String spaceId,
                                       Throwable t) {
@@ -77,6 +97,27 @@ public class ContentStoreException extends DuraCloudCheckedException {
         errMsg.append(contentId);
         errMsg.append("' in '");
         errMsg.append(spaceId);
+        errMsg.append("' due to: ");
+        errMsg.append(t.getMessage());
+        return errMsg.toString();
+    }
+
+    private static String buildErrMsg(String task,
+                                      String srcSpaceId,
+                                      String srcContentId,
+                                      String destSpaceId,
+                                      String destContentId, Throwable t) {
+        StringBuilder errMsg = new StringBuilder();
+        errMsg.append("Error attempting to ");
+        errMsg.append(task);
+        errMsg.append(" '");
+        errMsg.append(srcContentId);
+        errMsg.append("' in '");
+        errMsg.append(srcSpaceId);
+        errMsg.append("' to '");
+        errMsg.append(destContentId);
+        errMsg.append("' in '");
+        errMsg.append(destSpaceId);
         errMsg.append("' due to: ");
         errMsg.append(t.getMessage());
         return errMsg.toString();

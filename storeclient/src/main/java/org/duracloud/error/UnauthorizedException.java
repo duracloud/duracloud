@@ -34,4 +34,13 @@ public class UnauthorizedException extends ContentStoreException {
         super(task, spaceId, contentId, e);
     }
 
+    public UnauthorizedException(String task,
+                                 String srcSpaceId,
+                                 String srcContentId,
+                                 String destSpaceId,
+                                 String destContentId,
+                                 Exception e) {
+        super(task, srcSpaceId, srcContentId, destSpaceId, destContentId, e);
+    }
+
 }

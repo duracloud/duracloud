@@ -213,6 +213,16 @@ public class ContentStoreCache
 
     }
 
+    @Override
+    public String copyContent(String srcSpaceId,
+                              String srcContentId,
+                              String destSpaceId,
+                              String destContentId)
+        throws ContentStoreException {
+        // Default method body
+        return null;
+    }
+
     /**
      * Gets content from a space.
      * 

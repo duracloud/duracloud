@@ -13,11 +13,6 @@
     of the application
   -->
   <bean id="contentStoreManagerFactory" class="org.duracloud.duradmin.contentstore.ContentStoreManagerFactoryImpl"/>
-  <!-- 
-  <bean id="contentStoreManagerFactory" class="org.duracloud.duradmin.mock.contentstore.MockContentStoreManagerFactoryImpl"/>
-   -->  
-
-
   
   <bean id="contentStoreManagerTarget"  factory-bean="contentStoreManagerFactory" factory-method="create" />
 

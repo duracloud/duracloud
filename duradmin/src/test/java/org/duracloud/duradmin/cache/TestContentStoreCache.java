@@ -7,38 +7,50 @@
  */
 package org.duracloud.duradmin.cache;
 
-import junit.framework.TestCase;
-
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.duradmin.mock.contentstore.MockContentStoreManagerFactoryImpl;
+import org.duracloud.client.ContentStore;
+import org.easymock.classextension.EasyMock;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestContentStoreCache
-        extends TestCase {
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestContentStoreCache {
 
     private ContentStoreCache cache;
+    private ContentStore contentStore;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         cache = new ContentStoreCache();
-        ContentStoreManager manager =
-                new MockContentStoreManagerFactoryImpl().create();
-        cache.setContentStore(manager.getPrimaryContentStore());
+        contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
 
+        cache.setContentStore(contentStore);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        // TODO Auto-generated method stub
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
+        EasyMock.verify(contentStore);
     }
 
+    private void replayMocks() {
+        EasyMock.replay(contentStore);
+    }
+
+    @Test
     public void testGetContentStoreCache() {
+        replayMocks();
         Assert.assertNotNull(cache.getContentStore());
     }
 
+    @Test
     public void testGetSpaces() throws Exception {
+        List<String> spaces = new ArrayList<String>();
+        EasyMock.expect(contentStore.getSpaces()).andReturn(spaces);
+        replayMocks();
+        
         Assert.assertNotNull(cache.getSpaces());
     }
 }

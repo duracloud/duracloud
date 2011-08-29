@@ -29,4 +29,12 @@ public class InvalidIdException extends ContentStoreException {
         super(task, spaceId, contentId, e);
     }
 
+    public InvalidIdException(String task,
+                              String srcSpaceId,
+                              String srcContentId,
+                              String destSpaceId,
+                              String destContentId,
+                              Exception e) {
+        super(task, srcSpaceId, srcContentId, destSpaceId, destContentId, e);
+    }
 }

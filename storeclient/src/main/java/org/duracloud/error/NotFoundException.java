@@ -29,4 +29,13 @@ public class NotFoundException extends ContentStoreException {
         super(task, spaceId, contentId, e);
     }
 
+    public NotFoundException(String task,
+                             String srcSpaceId,
+                             String srcContentId,
+                             String destSpaceId,
+                             String destContentId,
+                             Exception e) {
+        super(task, srcSpaceId, srcContentId, destSpaceId, destContentId, e);
+    }
+
 }
