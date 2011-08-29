@@ -365,20 +365,24 @@ public class ServiceXmlGeneratorTest {
         String xmlProfessionalName = registry.getName() + ".xml";
         String xmlPreservationName = registry.getNamePreservation() + ".xml";
         String xmlMediaName = registry.getNameMedia() + ".xml";
+        String xmlTrialName = registry.getNameTrial() + ".xml";
 
         // verify all xml files were created
         File xmlProfessional = new File(outputDirPath, xmlProfessionalName);
         File xmlPreservation = new File(outputDirPath, xmlPreservationName);
         File xmlMedia = new File(outputDirPath, xmlMediaName);
+        File xmlTrial = new File(outputDirPath, xmlTrialName);
 
         Assert.assertTrue(xmlProfessional.getPath(), xmlProfessional.exists());
         Assert.assertTrue(xmlPreservation.getPath(), xmlPreservation.exists());
         Assert.assertTrue(xmlMedia.getPath(), xmlMedia.exists());
+        Assert.assertTrue(xmlTrial.getPath(), xmlTrial.exists());
 
         // verify each xml files has correct services
         verifyServiceXmlProfessional(xmlProfessional);
         verifyServiceXmlPreservation(xmlPreservation);
         verifyServiceXmlMedia(xmlMedia);
+        verifyServiceXmlTrial(xmlTrial);
     }
 
     private void verifyServiceXmlProfessional(File xmlFile)
@@ -427,6 +431,24 @@ public class ServiceXmlGeneratorTest {
         verifyService(services.get(2), "mediastreamingservice-", 8);
         verifyService(services.get(3), "imagemagickservice-", 9);
         verifyService(services.get(4), "webapputilservice-", 10);
+    }
+
+    private void verifyServiceXmlTrial(File xmlFile)
+        throws FileNotFoundException {
+        List<ServiceInfo> services = getServicesFromXml(xmlFile);
+        Assert.assertNotNull(services);
+
+        int count = 8;
+        Assert.assertEquals(xmlFile.getName(), count, services.size());
+
+        verifyService(services.get(0), "fixityservice-", 0);
+        verifyService(services.get(1), "bitintegritytoolsservice-", 2);
+        verifyService(services.get(2), "duplicationservice-", 4);
+        verifyService(services.get(3), "j2kservice-", 5);
+        verifyService(services.get(4), "imageconversionservice-", 6);
+        verifyService(services.get(5), "mediastreamingservice-", 8);
+        verifyService(services.get(6), "imagemagickservice-", 9);
+        verifyService(services.get(7), "webapputilservice-", 10);
     }
 
     private void verifyService(ServiceInfo service, String prefix, int id) {
