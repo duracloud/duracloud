@@ -60,6 +60,7 @@ public class ServiceXmlGenerator {
         generateServiceXmlProfessional(dirPath);
         generateServiceXmlPreservation(dirPath);
         generateServiceXmlMedia(dirPath);
+        generateServiceXmlTrial(dirPath);
     }
 
     private void generateServiceXmlProfessional(String dirPath)
@@ -78,6 +79,12 @@ public class ServiceXmlGenerator {
         doGenerateServiceXml(dirPath,
                              getRepositoryNameMedia(),
                              getServicesMedia());
+    }
+
+    private void generateServiceXmlTrial(String dirPath) throws IOException {
+        doGenerateServiceXml(dirPath,
+                             getRepositoryNameTrial(),
+                             getServicesTrial());
     }
 
     private void doGenerateServiceXml(String dirPath,
@@ -102,6 +109,10 @@ public class ServiceXmlGenerator {
 
     private String getRepositoryNameMedia() {
         return new ServiceRegistryName(version).getNameMedia();
+    }
+
+    private String getRepositoryNameTrial() {
+        return new ServiceRegistryName(version).getNameTrial();
     }
 
     private String getServicesAsXml(List<ServiceInfo> services) {
@@ -131,6 +142,22 @@ public class ServiceXmlGenerator {
         List<ServiceInfo> results = new ArrayList<ServiceInfo>();
 
         List<ServiceInfo> services = getServices();
+        results.add(services.get(5));
+        results.add(services.get(6));
+        results.add(services.get(8));
+        results.add(services.get(9));
+        results.add(services.get(10));
+
+        return results;
+    }
+
+    private List<ServiceInfo> getServicesTrial() {
+        List<ServiceInfo> results = new ArrayList<ServiceInfo>();
+
+        List<ServiceInfo> services = getServices();
+        results.add(services.get(0));
+        results.add(services.get(2));
+        results.add(services.get(4));
         results.add(services.get(5));
         results.add(services.get(6));
         results.add(services.get(8));

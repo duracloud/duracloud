@@ -19,6 +19,7 @@ public class ServiceRegistryName {
     private static final String SUFFIX = "-service-repo";
     private static final String PRESERVATION_AND_ARCHIVING = "-pna";
     private static final String MEDIA = "-med";
+    private static final String TRIAL = "-trial";
 
     public ServiceRegistryName(String version) {
         this.version = version;
@@ -37,6 +38,11 @@ public class ServiceRegistryName {
     public String getNameMedia() {
         String v = version.replaceAll("\\.", "-");
         return PREFIX + v.toLowerCase() + SUFFIX + MEDIA;
+    }
+
+    public String getNameTrial() {
+        String v = version.replaceAll("\\.", "-");
+        return PREFIX + v.toLowerCase() + SUFFIX + TRIAL;
     }
 
 }
