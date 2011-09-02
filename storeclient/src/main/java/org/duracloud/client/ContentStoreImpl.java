@@ -475,6 +475,23 @@ public class ContentStoreImpl implements ContentStore{
         }
     }
 
+    @Override
+    public String moveContent(String srcSpaceId,
+                              String srcContentId,
+                              String destSpaceId,
+                              String destContentId)
+        throws ContentStoreException {
+        String md5 = copyContent(srcSpaceId,
+                    srcContentId,
+                    destSpaceId,
+                    destContentId);
+
+        deleteContent(srcSpaceId,
+                      srcContentId);
+
+        return md5;
+    }
+
     /**
      * {@inheritDoc}
      */

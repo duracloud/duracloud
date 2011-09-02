@@ -8,6 +8,7 @@
 package org.duracloud.client;
 
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -168,5 +169,44 @@ public class ContentStoreImplTest {
             .andReturn(response);
 
         return capturedHeaders;
+    }
+
+    @Test
+    public void testMoveContent() throws Exception {
+        String srcSpaceId = "src-space-id";
+        String srcContentId = "src-content-id";
+        String destSpaceId = "dest-space-id";
+        String destContentId = "dest-content-id";
+
+        String expectedMd5 = "md5";
+        int expectedStatus = 201;
+        Capture<Map<String, String>> capturedHeaders = createCopyContentMocks(
+            destSpaceId,
+            destContentId,
+            expectedMd5,
+            expectedStatus);
+
+        RestHttpHelper.HttpResponse response = EasyMock.createMock(
+            "HttpResponse",
+            RestHttpHelper.HttpResponse.class);
+        EasyMock.expect(response.getStatusCode()).andReturn(HttpStatus.SC_OK);
+        EasyMock.expect(restHelper.delete(EasyMock.<String>notNull()))
+            .andReturn(response);
+        EasyMock.replay(response);        
+        replayMocks();
+
+        String md5 = contentStore.moveContent(srcSpaceId,
+                                              srcContentId,
+                                              destSpaceId,
+                                              destContentId);
+        Assert.assertNotNull(md5);
+        Assert.assertEquals(expectedMd5, md5);
+
+        Assert.assertNotNull(capturedHeaders);
+        Map<String, String> headers = capturedHeaders.getValue();
+        Assert.assertNotNull(headers);
+        Assert.assertEquals(1, headers.size());
+        Assert.assertEquals(srcSpaceId + "/" + srcContentId, headers.get(
+            HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE));
     }
 }

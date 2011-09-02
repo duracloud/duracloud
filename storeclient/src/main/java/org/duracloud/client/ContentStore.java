@@ -248,6 +248,22 @@ public interface ContentStore {
                               String destContentId) throws ContentStoreException;
 
     /**
+     * This method moves the content item found in source-space with the id of
+     * source-content-id into the dest-space, naming it to dest-content-id.
+     *
+     * @param srcSpaceId of content to move
+     * @param srcContentId of content to move
+     * @param destSpaceId where moved content will end up
+     * @param destContentId given to moved content
+     * @return MD5 checksum of destination content item
+     * @throws ContentStoreException on error
+     */
+    public String moveContent(String srcSpaceId,
+                              String srcContentId,
+                              String destSpaceId,
+                              String destContentId) throws ContentStoreException;
+
+    /**
      * Gets content from a space.
      *
      * @param spaceId the identifier of the DuraCloud Space
