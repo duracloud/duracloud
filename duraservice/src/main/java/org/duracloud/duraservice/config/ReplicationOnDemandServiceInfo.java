@@ -145,8 +145,10 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
                                        "Copy to this store",
                                        storeOptions);
 
-        TextUserConfig repSpace =
-            new TextUserConfig("repSpaceId", "Copy to this space");
+        SingleSelectUserConfig repSpace =
+            new SingleSelectUserConfig("repSpaceId",
+                                       "Copy to this space",
+                                       spaceOptions);
 
         // Include all user configs
         repServiceUserConfig.add(sourceSpace);
