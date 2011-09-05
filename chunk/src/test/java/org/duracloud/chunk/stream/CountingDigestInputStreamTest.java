@@ -43,6 +43,9 @@ public class CountingDigestInputStreamTest {
         String md5 = stream.getMD5();
         Assert.assertNotNull(md5);
 
+        md5 = stream.getMD5();
+        Assert.assertNotNull(md5);
+
         String realMD5 = getContentMD5();
 
         if (preserveMD5) {

@@ -27,8 +27,8 @@ public class ChunksManifest extends ChunksManifestBean {
 
     private int chunkIndex = -1;
     private final static String mimetype = "application/xml";
-    private final static String chunkSuffix = ".dura-chunk-";
-    private final static String manifestSuffix = ".dura-manifest";
+    public final static String chunkSuffix = ".dura-chunk-";
+    public final static String manifestSuffix = ".dura-manifest";
     private static final int MAX_CHUNKS = 9999;
 
 

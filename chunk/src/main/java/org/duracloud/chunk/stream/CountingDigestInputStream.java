@@ -25,6 +25,7 @@ import java.security.DigestInputStream;
 public class CountingDigestInputStream extends CountingInputStream {
 
     private boolean preserveMD5;
+    private String md5;
 
     /**
      * The digest capabilities are turned off if the arg preserveMD5 is false
@@ -36,6 +37,7 @@ public class CountingDigestInputStream extends CountingInputStream {
                                      boolean preserveMD5) {
         super(wrapStream(inputStream, preserveMD5));
         this.preserveMD5 = preserveMD5;
+        this.md5 = null;
     }
 
     private static InputStream wrapStream(InputStream inputStream,
@@ -48,10 +50,12 @@ public class CountingDigestInputStream extends CountingInputStream {
     }
 
     public String getMD5() {
-        if (preserveMD5) {
-            return ChecksumUtil.getChecksum((DigestInputStream) this.in);
-        } else {
-            return "MD5-not-preserved";
+        if (!preserveMD5) {
+            md5 = "MD5-not-preserved";
+
+        } else if (null == md5) {
+            md5 = ChecksumUtil.getChecksum((DigestInputStream) this.in);
         }
+        return md5;
     }
 }

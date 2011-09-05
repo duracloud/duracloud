@@ -88,6 +88,7 @@
         <module>serviceclient</module>
         <module>servicesadminclient</module>
         <module>chunk</module>
+        <module>stitch</module>
         <module>duradmin</module>
         <module>synctool</module>
         <module>retrievaltool</module>
