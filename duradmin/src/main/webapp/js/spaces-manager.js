@@ -161,8 +161,8 @@ $(function(){
 
 	$.validator
 	.addMethod("illegalchars", function(value, element) { 
-	  return  /^[^\\?]*$/.test(value); 
-	}, "A Content ID cannot contain  '?' or '\\'");
+        return  !(/^.*([\\]|[?]|[;]).*$/.test(value));
+	}, "A Content ID cannot contain  '?' or '\\' or ';'");
 	//end validator definitions
 	
 	// //////////////////////////////////////////
@@ -1498,8 +1498,7 @@ $(function(){
 			var that = this;
 			$("#add-content-item-form").validate({
 				rules: {
-					contentItemId: {
-						required:true,
+					contentId: {
 						minlength: 1,
 						illegalchars: true,
 					},
