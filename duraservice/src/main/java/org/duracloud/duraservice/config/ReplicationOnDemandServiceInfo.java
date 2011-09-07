@@ -109,11 +109,14 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
                 throw new RuntimeException("Unexpected ModeType: " + modeType);
         }
 
+        List<UserConfigModeSet> modeSets = new ArrayList<UserConfigModeSet>();
+        modeSets.add(getStorageProviderSelection());
+
         UserConfigMode mode = new UserConfigMode();
         mode.setDisplayName(modeType.getDesc());
         mode.setName(modeType.getKey());
         mode.setUserConfigs(userConfigs);
-        mode.setUserConfigModeSets(null);
+        mode.setUserConfigModeSets(modeSets);
         return mode;
     }
 
@@ -140,20 +143,8 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
                                        "Source Space",
                                        spaceOptions);
 
-        SingleSelectUserConfig repStore =
-            new SingleSelectUserConfig("repStoreId",
-                                       "Copy to this store",
-                                       storeOptions);
-
-        SingleSelectUserConfig repSpace =
-            new SingleSelectUserConfig("repSpaceId",
-                                       "Copy to this space",
-                                       spaceOptions);
-
         // Include all user configs
         repServiceUserConfig.add(sourceSpace);
-        repServiceUserConfig.add(repStore);
-        repServiceUserConfig.add(repSpace);
 
         return repServiceUserConfig;
     }
@@ -207,6 +198,35 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
             "instanceType",
             "Type of Server Instance",
             instanceTypeOptions);
+    }
+
+    private UserConfigModeSet getStorageProviderSelection() {
+        UserConfigModeSet modeSet = new UserConfigModeSet();
+        modeSet.setName("repStoreId");
+        modeSet.setDisplayName("Copy to this store");
+        modeSet.setValue(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
+
+        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
+        userConfigs.add(new SingleSelectUserConfig("repSpaceId",
+                                                   "Copy to this space",
+                                                   getSpaceOptions()));
+
+        UserConfigMode mode = new UserConfigMode();
+        mode.setUserConfigs(userConfigs);
+
+        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+        modes.add(mode);
+
+        modeSet.setModes(modes);
+        return modeSet;
+    }
+
+    private List<Option> getSpaceOptions() {
+        List<Option> spaceOptions = new ArrayList<Option>();
+        spaceOptions.add(new Option("Spaces",
+                                    ServiceConfigUtil.SPACES_VAR,
+                                    false));
+        return spaceOptions;
     }
 
     protected enum ModeType {
