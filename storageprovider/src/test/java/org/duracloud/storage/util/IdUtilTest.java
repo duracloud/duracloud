@@ -80,7 +80,11 @@ public class IdUtilTest {
 
         // Backslash
         id = "test\\content";
-        checkInvalidContentId(id);        
+        checkInvalidContentId(id);
+
+        // Semicolon
+        id = "test;content";
+        checkInvalidContentId(id);
 
         // Too long
         id = "test-content";
@@ -92,7 +96,7 @@ public class IdUtilTest {
         // Test valid content IDs
 
         // Special characters
-        id = "test-content-~!@#$%^&*()_+=-`;':/.,<>\"[]{}| ";
+        id = "test-content-~!@#$%^&*()_+=-`':/.,<>\"[]{}| ";
         IdUtil.validateContentId(id);
     }
 
