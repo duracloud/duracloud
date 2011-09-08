@@ -27,6 +27,7 @@ public class StatusManager {
     private long succeeded;
     private long failed;
     private String startTime;
+    private String version;
 
     private static StatusManager instance;
 
@@ -87,11 +88,15 @@ public class StatusManager {
         return failed;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getPrintableStatus() {
         StringBuilder status = new StringBuilder();
 
         status.append("\n--------------------------------------\n");
-        status.append(" Retrieval Tool Status");
+        status.append(" Retrieval Tool " + version + " - Status");
         status.append("\n--------------------------------------\n");
         status.append("Start Time: " + startTime + "\n");
         status.append("Current Time: " + DATE_FORMAT.format(new Date()) + "\n");

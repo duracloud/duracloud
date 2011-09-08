@@ -31,12 +31,13 @@ public class RetrievalToolConfig implements Serializable {
     private File workDir;
     private boolean overwrite;
     private int numThreads;
+    private String version;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
 
         config.append("\n--------------------------------------\n");
-        config.append(" Retrieval Tool Configuration");
+        config.append(" Retrieval Tool " + version + " - Configuration");
         config.append("\n--------------------------------------\n");
 
         if(allSpaces) {
@@ -168,4 +169,9 @@ public class RetrievalToolConfig implements Serializable {
     public void setNumThreads(int numThreads) {
         this.numThreads = numThreads;
     }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
 }

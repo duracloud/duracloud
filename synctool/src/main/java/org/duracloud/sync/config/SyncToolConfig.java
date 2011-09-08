@@ -33,12 +33,13 @@ public class SyncToolConfig implements Serializable {
     private long maxFileSize;
     private boolean syncDeletes;
     private boolean exitOnCompletion;
+    private String version;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
 
         config.append("\n--------------------------------------\n");
-        config.append(" Sync Tool Configuration");
+        config.append(" Sync Tool " + version + " - Configuration");
         config.append("\n--------------------------------------\n");
 
         config.append("Content Directories:\n");
@@ -189,4 +190,9 @@ public class SyncToolConfig implements Serializable {
     public void setExitOnCompletion(boolean exitOnCompletion) {
         this.exitOnCompletion = exitOnCompletion;
     }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
 }

@@ -30,6 +30,7 @@ public class StatusManager {
     private List<File> failed;
     private String startTime;
     private ChangedList changedList;
+    private String version;
 
     private static StatusManager instance;
 
@@ -84,11 +85,15 @@ public class StatusManager {
         return failed;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getPrintableStatus() {
         StringBuilder status = new StringBuilder();
 
-        status.append("\n--------------------------------------\n");
-        status.append(" Sync Tool Status");
+        status.append("\n---------------------------------------\n");
+        status.append(" Sync Tool " + version + " - Status");
         status.append("\n--------------------------------------\n");
         status.append("Start Time: " + startTime + "\n");
         status.append("Current Time: " + DATE_FORMAT.format(new Date()) + "\n");

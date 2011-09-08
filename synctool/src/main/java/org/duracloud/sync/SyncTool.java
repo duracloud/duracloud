@@ -8,6 +8,7 @@
 package org.duracloud.sync;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.sync.backup.SyncBackupManager;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.config.SyncToolConfigParser;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
 /**
  * Starting point for the Sync Tool. The purpose of this tool is to synchronize
@@ -52,6 +54,8 @@ import java.io.InputStreamReader;
  */
 public class SyncTool {
 
+    private static final String SYNCTOOL_PROPERTIES = "synctool.properties";
+
     private final Logger logger = LoggerFactory.getLogger(SyncTool.class);
     private SyncToolConfig syncConfig;
     private SyncManager syncManager;
@@ -60,10 +64,18 @@ public class SyncTool {
     private SyncEndpoint syncEndpoint;
     private DirWalker dirWalker;
     private LogUtil logUtil;
+    private String version;
+
+    public SyncTool() {
+        Properties props =
+            ApplicationConfig.getPropsFromResource(SYNCTOOL_PROPERTIES);
+        this.version = props.getProperty("version");
+    }
 
     private SyncToolConfig processCommandLineArgs(String[] args) {
         SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
         syncConfig = syncConfigParser.processCommandLine(args);
+        syncConfig.setVersion(version);
         return syncConfig;
     }
 
@@ -145,6 +157,7 @@ public class SyncTool {
 
     private void listenForExit() {
         StatusManager statusManager = StatusManager.getInstance();
+        statusManager.setVersion(version);
         BufferedReader br =
             new BufferedReader(new InputStreamReader(System.in));
         boolean exit = false;
@@ -177,6 +190,7 @@ public class SyncTool {
 
     private void waitForExit() {
         StatusManager statusManager = StatusManager.getInstance();
+        statusManager.setVersion(version);
         int loops = 0;
         boolean exit = false;
         while(!exit) {
@@ -271,7 +285,7 @@ public class SyncTool {
         StringBuilder help = new StringBuilder();
 
         help.append("\n--------------------------------------\n");
-        help.append(" Sync Tool Help");
+        help.append(" Sync Tool " + version + " - Help");
         help.append("\n--------------------------------------\n");
 
         help.append("The following commands are available:\n");

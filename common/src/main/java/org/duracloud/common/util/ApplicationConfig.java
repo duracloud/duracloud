@@ -26,7 +26,7 @@ public class ApplicationConfig {
     protected static final Logger log =
             LoggerFactory.getLogger(ApplicationConfig.class);
 
-    protected static Properties getPropsFromResource(String resourceName) {
+    public static Properties getPropsFromResource(String resourceName) {
         Properties props = new Properties();
         AutoCloseInputStream in =
                 new AutoCloseInputStream(ApplicationConfig.class

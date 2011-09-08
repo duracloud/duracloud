@@ -8,6 +8,7 @@
 package org.duracloud.retrieval;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.retrieval.config.RetrievalToolConfig;
 import org.duracloud.retrieval.config.RetrievalToolConfigParser;
 import org.duracloud.retrieval.mgmt.CSVFileOutputWriter;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,6 +45,9 @@ import java.util.concurrent.Executors;
  */
 public class RetrievalTool {
 
+    private static final String RETRIEVALTOOL_PROPERTIES =
+        "retrievaltool.properties";
+
     private final Logger logger = LoggerFactory.getLogger(RetrievalTool.class);
     private RetrievalToolConfig retConfig;
     private ExecutorService executor;
@@ -50,11 +55,19 @@ public class RetrievalTool {
     private RetrievalManager retManager;
     private RetrievalSource retSource;
     private LogUtil logUtil;
+    private String version;
+
+    public RetrievalTool() {
+        Properties props =
+            ApplicationConfig.getPropsFromResource(RETRIEVALTOOL_PROPERTIES);
+        this.version = props.getProperty("version");
+    }
 
     private RetrievalToolConfig processCommandLineArgs(String[] args) {
         RetrievalToolConfigParser retConfigParser =
             new RetrievalToolConfigParser();
         retConfig = retConfigParser.processCommandLine(args);
+        retConfig.setVersion(version);
 
         logger.info("Running Retrieval Tool with configuration: " +
                     retConfig.getPrintableConfig());
@@ -101,6 +114,7 @@ public class RetrievalTool {
 
     private void waitForExit() {
         StatusManager statusManager = StatusManager.getInstance();
+        statusManager.setVersion(version);
 
         int loops = 0;
         while(!retManager.isComplete()) {
