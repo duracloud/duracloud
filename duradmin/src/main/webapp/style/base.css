@@ -512,6 +512,19 @@ ul.dc-user-config > li:last-child {
 .dc-item-list .service-video td.icon div { background-position:-168px 0; }
 .dc-item-list .service-filetransform td.icon div { background-position:-210px 0; }
 
+/* bitintegrity */
+.dc-item-list .service-0 td.icon div { background-position:-84px 0; }
+.dc-item-list .service-1 td.icon div { background-position:-84px 0; }
+.dc-item-list .service-2 td.icon div { background-position:-84px 0; }
+
+/* image */
+.dc-item-list .service-5 td.icon div { background-position:-126px 0; }
+.dc-item-list .service-6 td.icon div { background-position:-126px 0; }
+.dc-item-list .service-7 td.icon div { background-position:-126px 0; }
+
+/* filetransform */
+.dc-item-list .service-8 td.icon div { background-position:-210px 0; }
+
 .dc-selected-list-item {
 	background-color:#7e7e7e;
 }

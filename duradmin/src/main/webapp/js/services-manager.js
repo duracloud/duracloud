@@ -52,11 +52,6 @@ $(function() {
 	
 	detailPane = $(detailPaneId).layout(detailLayoutOptions);
 	
-	var resolveServiceCssClass = function(services){
-		return "service-replicate";
-	};
-
-	
 	var loadDeploymentDetail = function(service,deployment){
 		if(!service){
 			$(detailPaneId).fadeOut("slow", function(){
@@ -244,7 +239,7 @@ $(function() {
 	    var item =  $.fn.create(("tr"))
                             .attr("id", id)
                             .addClass("dc-item")
-                            .addClass(resolveServiceCssClass(service))
+                            .addClass("service-" + id)
                             .append($.fn.create("td").addClass("icon").append($.fn.create("div")))
                             .append($.fn.create("td").html(service.displayName + " - " + service.serviceVersion))
                             .append($.fn.create("td").html(deployment.hostname))
@@ -440,7 +435,7 @@ $(function() {
 						$("#available-services-list")
 							.selectablelist("addItem", $.fn.create("tr")
 												.attr("id", service.id)
-												.addClass(dc.getServiceTypeImageClass(service.serviceName))
+												.addClass("service-" + service.id)
 												.append($.fn.create("td").addClass("icon").append($.fn.create("div")))
 												.append($.fn.create("td").html(service.displayName)), service);
 

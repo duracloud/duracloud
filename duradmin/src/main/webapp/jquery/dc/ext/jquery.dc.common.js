@@ -239,10 +239,7 @@ $(function(){
 			}
 			return table;
 		};
-		
-		dc.getServiceTypeImageClass = function(serviceName){
-			return "service-replicate";
-		};
+
 		dc.getMimetypeImageClass = function(mimetype){
 		var mtc = "";
 		if(mimetype.indexOf("audio") > -1){
