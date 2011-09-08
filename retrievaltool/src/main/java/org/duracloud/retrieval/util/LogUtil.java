@@ -92,6 +92,7 @@ public class LogUtil {
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
+        rootLogger.setLevel(Level.INFO);
         rootLogger.addAppender(depFileAppender);
     }
 
