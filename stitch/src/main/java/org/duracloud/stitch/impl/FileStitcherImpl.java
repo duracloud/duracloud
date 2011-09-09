@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MD5;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_SIZE;
@@ -72,13 +73,14 @@ public class FileStitcherImpl implements FileStitcher {
             contentId.endsWith(ChunksManifest.manifestSuffix);
     }
 
-    private ChunksManifest getManifest(String spaceId, String contentId)
+    @Override
+    public ChunksManifest getManifest(String spaceId, String manifestId)
         throws InvalidManifestException {
-        Content content = dataSource.getContent(spaceId, contentId);
+        Content content = dataSource.getContent(spaceId, manifestId);
         if (null == content) {
             String msg = "No content found!";
             log.error(msg);
-            throw new InvalidManifestException(spaceId, contentId, msg);
+            throw new InvalidManifestException(spaceId, manifestId, msg);
         }
 
         try {
@@ -87,7 +89,7 @@ public class FileStitcherImpl implements FileStitcher {
         } catch (Exception e) {
             String msg = "Error deserializing manifest!";
             log.error(msg);
-            throw new InvalidManifestException(spaceId, contentId, msg, e);
+            throw new InvalidManifestException(spaceId, manifestId, msg, e);
         }
     }
 
@@ -126,6 +128,7 @@ public class FileStitcherImpl implements FileStitcher {
         props.put(PROPERTIES_CONTENT_SIZE, contentSize);
         props.put(PROPERTIES_CONTENT_MIMETYPE, header.getSourceMimetype());
         props.put(PROPERTIES_CONTENT_MD5, header.getSourceMD5());
+        props.put(PROPERTIES_CONTENT_CHECKSUM, header.getSourceMD5());
 
         return props;
     }

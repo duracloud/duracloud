@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.*;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MD5;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_SIZE;
@@ -110,7 +111,7 @@ public class FileStitcherImplTest {
         Map<String, String> props = content.getProperties();
         Assert.assertNotNull(props);
 
-        Assert.assertEquals(3, props.size());
+        Assert.assertEquals(4, props.size());
         Assert.assertTrue(props.containsKey(PROPERTIES_CONTENT_SIZE));
         Assert.assertNotNull(props.get(PROPERTIES_CONTENT_SIZE));
 
@@ -119,6 +120,9 @@ public class FileStitcherImplTest {
 
         Assert.assertTrue(props.containsKey(PROPERTIES_CONTENT_MD5));
         Assert.assertNotNull(props.get(PROPERTIES_CONTENT_MD5));
+
+        Assert.assertTrue(props.containsKey(PROPERTIES_CONTENT_CHECKSUM));
+        Assert.assertNotNull(props.get(PROPERTIES_CONTENT_CHECKSUM));
     }
 
     @Test

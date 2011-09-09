@@ -102,19 +102,10 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         logger.info("Syncing file " + syncFile.getAbsolutePath() +
                     " to DuraCloud with ID " + contentId);
 
+        Map<String, String> contentProperties = getContentProperties(spaceId,
+                                                                     contentId);
+        boolean dcFileExists = (null != contentProperties);
         try {
-            Map<String, String> contentProperties = null;
-            boolean dcFileExists = false;
-            try {
-                contentProperties =
-                     contentStore.getContentProperties(spaceId, contentId);
-                if(contentProperties != null) {
-                    dcFileExists = true;
-                }
-            } catch(NotFoundException e) {
-                dcFileExists = false;
-            }
-
             if(syncFile.exists()) {
                 String localChecksum = computeChecksum(syncFile);
 
@@ -141,7 +132,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                         logger.debug("Local file {} deleted, " +
                                      "removing from DuraCloud.",
                                      syncFile.getAbsolutePath());
-                        contentStore.deleteContent(spaceId, contentId);
+                        deleteContent(spaceId, contentId);
                     } else {
                         logger.debug("Ignoring delete of file {}",
                                      syncFile.getAbsolutePath());
@@ -153,6 +144,23 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         }
 
         return true;
+    }
+
+    protected Map<String, String> getContentProperties(String spaceId,
+                                                       String contentId) {
+        Map<String, String> props = null;
+        try {
+            props = contentStore.getContentProperties(spaceId, contentId);
+
+        } catch (ContentStoreException e) {
+            logger.info("Content properties !exist: {}/{}", spaceId, contentId);
+        }
+        return props;
+    }
+
+    protected void deleteContent(String spaceId, String contentId)
+        throws ContentStoreException {
+        contentStore.deleteContent(spaceId, contentId);
     }
 
     protected void addUpdateContent(String contentId,

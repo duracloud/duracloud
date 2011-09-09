@@ -7,6 +7,7 @@
  */
 package org.duracloud.stitch;
 
+import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.domain.Content;
 import org.duracloud.stitch.error.InvalidManifestException;
 
@@ -30,5 +31,17 @@ public interface FileStitcher {
      *                                  retrieving the manifest.
      */
     public Content getContentFromManifest(String spaceId, String contentId)
+        throws InvalidManifestException;
+
+    /**
+     * This method returns the deserialized ChunksManifest object found in the
+     * arg spaceId with the arg manifestId.
+     *
+     * @param spaceId    of manifest content item
+     * @param manifestId of manifest content item
+     * @return deserialized ChunksManifest
+     * @throws InvalidManifestException on error
+     */
+    public ChunksManifest getManifest(String spaceId, String manifestId)
         throws InvalidManifestException;
 }
