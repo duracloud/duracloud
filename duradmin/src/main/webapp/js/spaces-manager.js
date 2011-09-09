@@ -1304,11 +1304,12 @@ $(function(){
 		},
 		
 		close: function() {
-	
+
 		},
 		
 		open: function(e){
 			$("#add-space-form").resetForm();
+            $("#add-space-dialog .access-switch").accessswitch("on");
 
 			//wrapping in a setTimeout seems to be necessary 
 			//to get this to run properly:  the dialog must be 
@@ -1352,13 +1353,13 @@ $(function(){
 	});
 
 	//implements enter key behavior
-	$("#add-space-form #spaceId").bindEnterKey(
-		$.debounce(200, function(evt){
-			evt.stopPropagation();
-			addSpaceButtonHandler();
-		})
-	);
-	
+    $("#add-space-form #spaceId").keypress(function(evt) {
+      if(evt.which == 13){
+         evt.stopPropagation();
+         addSpaceButtonHandler();
+       }
+    });
+
 	///////////////////////////////////////////
 	///Add Space Dialog Definition End ^
 	///////////////////////////////////////////
