@@ -136,11 +136,11 @@ public class ServiceXmlGeneratorTest {
         Assert.assertTrue(foundWebapputil);
         //Assert.assertTrue(foundHellowebappwrapper);
         Assert.assertTrue(foundJ2k);
-//        Assert.assertTrue(foundImageconversion);
+        Assert.assertTrue(foundImageconversion);
         Assert.assertTrue(foundMediaStreaming);
         Assert.assertTrue(foundFixity);
         Assert.assertTrue(foundFixityTools);
-//        Assert.assertTrue(foundBulkImageConversion);
+        Assert.assertTrue(foundBulkImageConversion);
         Assert.assertTrue(foundAmazonFixity);
         Assert.assertTrue(foundRepOnDemand);
     }
