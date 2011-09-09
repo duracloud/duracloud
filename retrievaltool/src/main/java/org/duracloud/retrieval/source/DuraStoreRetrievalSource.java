@@ -8,6 +8,7 @@
 package org.duracloud.retrieval.source;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;

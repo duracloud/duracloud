@@ -9,6 +9,7 @@ package org.duracloud.retrieval.source;
 
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.easymock.IAnswer;
 import org.easymock.classextension.EasyMock;

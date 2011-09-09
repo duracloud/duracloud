@@ -7,6 +7,8 @@
  */
 package org.duracloud.retrieval.source;
 
+import org.duracloud.common.model.ContentItem;
+
 /**
  * @author: Bill Branan
  * Date: Oct 12, 2010

@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.retrieval.source;
+package org.duracloud.common.model;
 
 /**
  * @author: Bill Branan

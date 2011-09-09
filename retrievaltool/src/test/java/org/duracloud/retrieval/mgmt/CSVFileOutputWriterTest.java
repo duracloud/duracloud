@@ -8,8 +8,8 @@
 package org.duracloud.retrieval.mgmt;
 
 import org.apache.commons.io.FileUtils;
+import org.duracloud.common.model.ContentItem;
 import org.duracloud.retrieval.RetrievalTestBase;
-import org.duracloud.retrieval.source.ContentItem;
 import org.junit.Test;
 
 import java.io.File;

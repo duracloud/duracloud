@@ -7,7 +7,7 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.retrieval.source.ContentItem;
+import org.duracloud.common.model.ContentItem;
 
 import java.io.BufferedWriter;
 import java.io.File;

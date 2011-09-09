@@ -7,7 +7,7 @@
  */
 package org.duracloud.retrieval.mgmt;
 
-import org.duracloud.retrieval.source.ContentItem;
+import org.duracloud.common.model.ContentItem;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

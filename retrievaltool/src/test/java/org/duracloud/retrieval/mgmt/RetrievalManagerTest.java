@@ -7,9 +7,9 @@
  */
 package org.duracloud.retrieval.mgmt;
 
+import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.retrieval.RetrievalTestBase;
-import org.duracloud.retrieval.source.ContentItem;
 import org.duracloud.retrieval.source.ContentStream;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.easymock.classextension.EasyMock;

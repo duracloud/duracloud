@@ -9,7 +9,7 @@ package org.duracloud.retrieval;
 
 import org.apache.commons.io.FileUtils;
 import org.duracloud.retrieval.mgmt.OutputWriter;
-import org.duracloud.retrieval.source.ContentItem;
+import org.duracloud.common.model.ContentItem;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;

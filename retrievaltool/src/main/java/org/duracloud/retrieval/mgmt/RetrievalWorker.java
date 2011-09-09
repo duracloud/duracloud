@@ -9,8 +9,8 @@ package org.duracloud.retrieval.mgmt;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.retrieval.source.ContentItem;
 import org.duracloud.retrieval.source.ContentStream;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.slf4j.Logger;
