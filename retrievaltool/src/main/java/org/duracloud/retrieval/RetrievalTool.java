@@ -15,7 +15,7 @@ import org.duracloud.retrieval.mgmt.CSVFileOutputWriter;
 import org.duracloud.retrieval.mgmt.OutputWriter;
 import org.duracloud.retrieval.mgmt.RetrievalManager;
 import org.duracloud.retrieval.mgmt.StatusManager;
-import org.duracloud.retrieval.source.DuraStoreRetrievalSource;
+import org.duracloud.retrieval.source.DuraStoreStitchingRetrievalSource;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.duracloud.retrieval.util.LogUtil;
 import org.duracloud.retrieval.util.StoreClientUtil;
@@ -96,7 +96,7 @@ public class RetrievalTool {
                                           retConfig.getPassword(),
                                           retConfig.getStoreId());
         retSource =
-            new DuraStoreRetrievalSource(contentStore,
+            new DuraStoreStitchingRetrievalSource(contentStore,
                                          retConfig.getSpaces(),
                                          retConfig.isAllSpaces());
 

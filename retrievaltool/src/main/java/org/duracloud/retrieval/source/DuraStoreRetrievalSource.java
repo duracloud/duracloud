@@ -95,17 +95,21 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
 
     @Override
     public ContentStream getSourceContent(ContentItem contentItem) {
+        Content content = doGetContent(contentItem);
+        String checksum =
+            content.getProperties().get(ContentStore.CONTENT_CHECKSUM);
+        return new ContentStream(content.getStream(), checksum);
+    }
+
+    protected Content doGetContent(ContentItem contentItem) {
         try {
-            Content content =
-                contentStore.getContent(contentItem.getSpaceId(),
-                                        contentItem.getContentId());
-            String checksum =
-                content.getProperties().get(ContentStore.CONTENT_CHECKSUM);
-            return new ContentStream(content.getStream(), checksum);
-        } catch(ContentStoreException e) {
-            throw new RuntimeException("Unable to get content for " +
-                                       contentItem.toString() + " due to: " + 
-                                       e.getMessage());
+            return contentStore.getContent(contentItem.getSpaceId(),
+                                           contentItem.getContentId());
+        } catch (ContentStoreException e) {
+            throw new RuntimeException(
+                "Unable to get content for " + contentItem.toString() +
+                    " due to: " + e.getMessage());
         }
     }
+
 }

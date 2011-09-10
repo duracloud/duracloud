@@ -9,6 +9,7 @@ package org.duracloud.retrieval.mgmt;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.retrieval.source.ContentStream;
@@ -107,8 +108,14 @@ public class RetrievalWorker implements Runnable {
      * Gets the local storage file for the content item
      */
     protected File getLocalFile() {
+        ChunkUtil util = new ChunkUtil();
+        String contentId = contentItem.getContentId();
+        if (util.isChunkManifest(contentId)) {
+            contentId = util.preChunkedContentId(contentId);
+        }
+
         File spaceDir = new File(contentDir, contentItem.getSpaceId());
-        return new File(spaceDir, contentItem.getContentId());
+        return new File(spaceDir, contentId);
     }
 
     /*

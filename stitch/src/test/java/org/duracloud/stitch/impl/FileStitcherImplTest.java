@@ -101,12 +101,17 @@ public class FileStitcherImplTest {
 
     @Test
     public void testGetContentFromManifest() throws Exception {
-        createMocks(VALID);
+        createMocks(VALID_CHUNKS);
         replayMocks();
 
         stitcher = new FileStitcherImpl(dataSource);
         Content content = stitcher.getContentFromManifest(spaceId, contentId);
         Assert.assertNotNull(content);
+
+        InputStream stream = content.getStream();
+        while (stream.read() != -1) {
+            // spin through the content.
+        }
 
         Map<String, String> props = content.getProperties();
         Assert.assertNotNull(props);
@@ -164,10 +169,7 @@ public class FileStitcherImplTest {
         }
 
         Content content = null;
-        if (mode == VALID) {
-            content = createManifestContent();
-
-        } else if (mode == VALID_CHUNKS) {
+        if (mode == VALID_CHUNKS) {
             List<Integer> indexes = new ArrayList<Integer>();
             indexes.add(3);
             indexes.add(4);
@@ -182,12 +184,6 @@ public class FileStitcherImplTest {
 
         EasyMock.expect(dataSource.getContent(spaceId, contentId)).andReturn(
             content);
-    }
-
-    private Content createManifestContent() {
-        long sourceByteSize = 5;
-        ChunksManifest manifest = createManifest(sourceByteSize);
-        return doCreateManifestContent(manifest);
     }
 
     private Content createManifestContentWithChunks(List<Integer> chunkIndexes) {
@@ -257,7 +253,6 @@ public class FileStitcherImplTest {
     }
 
     protected enum MODE {
-        VALID,
         VALID_CHUNKS,
         ERROR_NAME,
         ERROR_NULL,

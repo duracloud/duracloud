@@ -6,19 +6,21 @@ package org.duracloud.stitch.impl;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.ChunksManifestBean;
 import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
+import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.stitch.FileStitcher;
 import org.duracloud.stitch.datasource.DataSource;
 import org.duracloud.stitch.error.InvalidManifestException;
+import org.duracloud.stitch.stream.MultiContentInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.io.SequenceInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Vector;
 
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MD5;
@@ -56,12 +58,11 @@ public class FileStitcherImpl implements FileStitcher {
         ChunksManifest manifest = getManifest(spaceId, contentId);
 
         // collect ordered sequence of chunk streams.
-        SequenceInputStream sequenceStream = getChunkSequenceStream(spaceId,
-                                                                    manifest);
+        InputStream multiStream = getChunkSequenceStream(spaceId, manifest);
 
         // package the chunks as the reconstituted content item.
         Content content = new Content();
-        content.setStream(sequenceStream);
+        content.setStream(multiStream);
         content.setId(manifest.getHeader().getSourceContentId());
         content.setProperties(getContentProperties(manifest));
 
@@ -93,8 +94,8 @@ public class FileStitcherImpl implements FileStitcher {
         }
     }
 
-    private SequenceInputStream getChunkSequenceStream(String spaceId,
-                                                       ChunksManifest manifest)
+    private InputStream getChunkSequenceStream(String spaceId,
+                                               ChunksManifest manifest)
         throws InvalidManifestException {
         // sort chunks by their index.
         Map<Integer, String> sortedChunkIds = new TreeMap<Integer, String>();
@@ -103,21 +104,19 @@ public class FileStitcherImpl implements FileStitcher {
         }
 
         // collect ordered sequence of chunk streams.
-        Vector<InputStream> chunkStreams = new Vector<InputStream>();
-        Content chunk;
+        List<ContentItem> chunks = new ArrayList<ContentItem>();
         for (String chunkId : sortedChunkIds.values()) {
-            chunk = dataSource.getContent(spaceId, chunkId);
-            chunkStreams.add(chunk.getStream());
+            chunks.add(new ContentItem(spaceId, chunkId));
         }
 
-        if (null == chunkStreams.elements()) {
+        if (chunks.size() == 0) {
             String msg = "No chunk streams found!";
             log.error(msg);
             String contentId = manifest.getHeader().getSourceContentId();
             throw new InvalidManifestException(spaceId, contentId, msg);
         }
 
-        return new SequenceInputStream(chunkStreams.elements());
+        return new MultiContentInputStream(dataSource, chunks);
     }
 
     private Map<String, String> getContentProperties(ChunksManifest manifest) {
