@@ -23,7 +23,7 @@
     <intercept-url pattern="/jquery/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/favicon.ico" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/**" access="ROLE_USER"  />
-    <form-login login-page="/login" always-use-default-target="false"  authentication-failure-url="/login?error=true" />
+    <form-login login-page="/login" always-use-default-target="false"  authentication-failure-url="" />
     <anonymous />
     <http-basic />
     <logout logout-url="/logout"/>
