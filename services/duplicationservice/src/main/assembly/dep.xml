@@ -9,6 +9,7 @@
       <scope>provided</scope>
       <includes>
         <include>org.duracloud.services:duplicationservice</include>
+        <include>org.duracloud.services:computelistenerservice</include>
         <include>org.duracloud:storageprovider</include>
         <include>org.duracloud:storeclient</include>
         <include>javax.activation:com.springsource.javax.activation</include>

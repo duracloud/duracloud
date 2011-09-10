@@ -21,7 +21,8 @@
     <module>poms</module>
     <module>provision</module>
     <module>servicescommon</module>    
-    <module>computeservice</module>    
+    <module>computeservice</module>
+    <module>computelistenerservice</module>
     <module>helloservice</module>    
     <module>duplicationservice</module>
     <module>tomcatconfig</module>

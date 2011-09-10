@@ -7,38 +7,24 @@
  */
 package org.duracloud.services.duplication;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQTopic;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.services.BaseService;
+import org.duracloud.services.listener.BaseListenerService;
 import org.duracloud.services.ComputeService;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jms.listener.AbstractMessageListenerContainer;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.TextMessage;
 import java.util.Dictionary;
 
-public class DuplicationService extends BaseService
-        implements ComputeService, MessageListener, ManagedService {
-
-    protected static final String STORE_ID = "storeId";
-
-    protected static final String SPACE_ID = "spaceId";
-
-    protected static final String CONTENT_ID = "contentId";
+public class DuplicationService extends BaseListenerService
+        implements ComputeService, ManagedService {
 
     private static final Logger log =
             LoggerFactory.getLogger(DuplicationService.class);
@@ -49,8 +35,6 @@ public class DuplicationService extends BaseService
 
     private String context;
 
-    private String brokerURL;
-
     private String username;
 
     private String password;
@@ -58,24 +42,6 @@ public class DuplicationService extends BaseService
     private String fromStoreId;
 
     private String toStoreId;
-
-    private String spaceCreateTopic;
-
-    private String spaceUpdateTopic;
-
-    private String spaceDeleteTopic;
-
-    private String contentCreateTopic;
-
-    private String contentUpdateTopic;
-
-    private String contentDeleteTopic;
-
-    private AbstractMessageListenerContainer jmsContainer;
-
-    private ActiveMQConnectionFactory connectionFactory;
-
-    private Destination destination;
 
     private SpaceDuplicator spaceDuplicator;
 
@@ -97,14 +63,8 @@ public class DuplicationService extends BaseService
         log.info("fromStoreId: " + fromStoreId);
         log.info("toStoreId: " + toStoreId);
 
-        jmsContainer = new DefaultMessageListenerContainer();
-        connectionFactory.setBrokerURL(brokerURL);
-        jmsContainer.setConnectionFactory(connectionFactory);
-        jmsContainer.setDestination(destination);
-        jmsContainer.setMessageSelector(STORE_ID + " = '" + fromStoreId + "'");
-        jmsContainer.setMessageListener(this);
-        jmsContainer.start();
-        jmsContainer.initialize();
+        String messageSelector = STORE_ID + " = '" + fromStoreId + "'";
+        initializeMessaging(messageSelector);
 
         ContentStoreManager storeManager =
             new ContentStoreManagerImpl(host, port, context);
@@ -128,8 +88,7 @@ public class DuplicationService extends BaseService
         contentDuplicator = new ContentDuplicator(fromStore,
                                               toStore);
 
-        log.info("Listener container started: ");
-        log.info("jmsContainer.isRunning()");
+        log.info("Listener container started: " + jmsContainer.isRunning());
         log.info("**********");
         log.info("Duplication Service Listener Started");
         super.start();
@@ -139,66 +98,12 @@ public class DuplicationService extends BaseService
     @Override
     public void stop() throws Exception {
         log.info("Stopping Duplication Service");
-        jmsContainer.stop();
+        terminateMessaging();
         setServiceStatus(ServiceStatus.STOPPED);
     }
 
-    public ActiveMQConnectionFactory getConnectionFactory() {
-        return connectionFactory;
-    }
-
-    public void setConnectionFactory(ActiveMQConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
-
-    public Destination getDestination() {
-        return destination;
-    }
-
-    public void setDestination(Destination destination) {
-        this.destination = destination;
-    }
-
-    public void onMessage(Message message) {
-        if (log.isDebugEnabled()) {
-            log.debug("Message recieved in Duplication Service: " + message);
-        }
-
-        String topic = null;
-
-        try {
-            topic = ((ActiveMQTopic)message.getJMSDestination()).getTopicName();
-            log.debug("Message topic name- "+topic);
-        } catch(JMSException jmse) {
-            log.error("Error getting message topic name", jmse);
-        }
-        
-        if (message instanceof MapMessage) {
-            handleMapMessage((MapMessage) message, topic);
-        } else if (message instanceof TextMessage) {
-            handleTextMessage(((TextMessage) message));
-        } else {
-            String error =
-                    "Message received which cannot be processed: " + message;
-            log.warn(error);
-        }
-    }
-
-    private void handleTextMessage(TextMessage message) {
-        try {
-            String msgText = message.getText();
-            String msg =
-                    "Text message received in duplication service: " + msgText;
-            log.warn(msg);
-        } catch (JMSException je) {
-            String error =
-                    "Error occured processing text message: " + je.getMessage();
-            log.error(error);
-            throw new RuntimeException(error, je);
-        }
-    }
-
-    private void handleMapMessage(MapMessage message, String topic) {
+    @Override
+    protected void handleMapMessage(MapMessage message, String topic) {
         try {
             String spaceId = message.getString(SPACE_ID);
             String contentId = message.getString(CONTENT_ID);
@@ -260,14 +165,6 @@ public class DuplicationService extends BaseService
         this.context = context;
     }
 
-    public String getBrokerURL() {
-        return brokerURL;
-    }
-
-    public void setBrokerURL(String brokerURL) {
-        this.brokerURL = brokerURL;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -298,54 +195,6 @@ public class DuplicationService extends BaseService
 
     public void setToStoreId(String toStoreId) {
         this.toStoreId = toStoreId;
-    }
-
-    public String getSpaceCreateTopic() {
-        return spaceCreateTopic;
-    }
-
-    public void setSpaceCreateTopic(String spaceCreateTopic) {
-        this.spaceCreateTopic = spaceCreateTopic;
-    }
-
-    public String getSpaceUpdateTopic() {
-        return spaceUpdateTopic;
-    }
-
-    public void setSpaceUpdateTopic(String spaceUpdateTopic) {
-        this.spaceUpdateTopic = spaceUpdateTopic;
-    }
-
-    public String getSpaceDeleteTopic() {
-        return spaceDeleteTopic;
-    }
-
-    public void setSpaceDeleteTopic(String spaceDeleteTopic) {
-        this.spaceDeleteTopic = spaceDeleteTopic;
-    }
-
-    public String getContentCreateTopic() {
-        return contentCreateTopic;
-    }
-
-    public void setContentCreateTopic(String contentCreateTopic) {
-        this.contentCreateTopic = contentCreateTopic;
-    }
-
-    public String getContentUpdateTopic() {
-        return contentUpdateTopic;
-    }
-
-    public void setContentUpdateTopic(String contentUpdateTopic) {
-        this.contentUpdateTopic = contentUpdateTopic;
-    }
-
-    public String getContentDeleteTopic() {
-        return contentDeleteTopic;
-    }
-
-    public void setContentDeleteTopic(String contentDeleteTopic) {
-        this.contentDeleteTopic = contentDeleteTopic;
     }
 
 }

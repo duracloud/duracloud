@@ -32,7 +32,7 @@
     <property name="contentDeleteTopic" value="org.duracloud.topic.change.content.delete"/>
     <!-- <property name="jmsContainer" ref="jmsContainer" />  -->
     <property name="connectionFactory" ref="connFactory" />
-    <property name="destination" ref="changeDestination" />
+    <property name="destination" ref="listenerDestination" />
     <property name="serviceId" value="duplicationservice-${project.version}" />
   </bean>
 

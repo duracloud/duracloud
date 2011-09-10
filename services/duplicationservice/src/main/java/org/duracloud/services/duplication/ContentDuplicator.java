@@ -110,7 +110,7 @@ public class ContentDuplicator {
         } catch(NotFoundException nfe) {
             String error = "Unable to create content " + contentId + " in space " +
                            spaceId + " due to not found error: " + nfe.getMessage();
-            log.error(error, nfe);
+            log.debug(error, nfe);
 
             createSpace(spaceId);
 
@@ -123,7 +123,7 @@ public class ContentDuplicator {
         } catch(ContentStoreException ce) {
             String error = "Unable to replicate content " + contentId + " in space " +
                            spaceId + " due to error: " + ce.getMessage();
-            log.error(error, ce);
+            log.warn(error, ce);
 
             doAddContent(spaceId,
                          contentId,
@@ -183,13 +183,14 @@ public class ContentDuplicator {
             String error = "Unable to update content properties " + contentId +
                            " in space " + spaceId + " due to not found error: " +
                            nfe.getMessage();
-            log.error(error, nfe);
+            log.debug(error, nfe);
 
             createContent(spaceId, contentId);
         } catch (ContentStoreException cse) {
-            String error = "Unable to update content " + contentId + " in space " + spaceId +
+            String error = "Unable to update content " + contentId +
+                           " in space " + spaceId +
                            " due to error: " + cse.getMessage();
-            log.error(error, cse);
+            log.warn(error, cse);
 
             setProperties(spaceId, contentId, contentMeta);
         }

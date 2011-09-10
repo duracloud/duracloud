@@ -59,6 +59,13 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.duracloud.services</groupId>
+      <artifactId>computelistenerservice</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
     
     <dependency>
       <groupId>org.duracloud</groupId>
