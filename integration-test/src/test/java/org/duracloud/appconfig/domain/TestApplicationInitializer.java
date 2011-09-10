@@ -8,7 +8,6 @@
 package org.duracloud.appconfig.domain;
 
 import org.duracloud.appconfig.ApplicationInitializer;
-import org.duracloud.appconfig.domain.BaseTestUtil;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.DuraCloudUserType;
 import org.duracloud.common.web.RestHttpHelper;
@@ -41,15 +40,13 @@ public class TestApplicationInitializer extends BaseTestUtil {
         Properties appProps = createAppProps();
         Properties storeProps = createDurastoreProps();
         Properties serviceProps = createDuraserviceProps();
-        // TODO: restore following when duradmin is in baseline
-        // Properties adminProps = createDuradminProps();
+        Properties adminProps = createDuradminProps();
         Properties securityProps = createSecurityProps();
 
         props.putAll(appProps);
         props.putAll(storeProps);
         props.putAll(serviceProps);
-        // TODO: restore following when duradmin is in baseline
-        // props.putAll(adminProps);
+        props.putAll(adminProps);
         props.putAll(securityProps);
 
         propsFile = File.createTempFile("app-init-full-", ".props");
@@ -76,8 +73,7 @@ public class TestApplicationInitializer extends BaseTestUtil {
 
         props.put(pWild + DuraserviceConfig.hostKey, "localhost");
         props.put(pWild + DuraserviceConfig.portKey, BaseTestUtil.getPort());
-        // TODO: restore following when duradmin is in baseline
-        // props.put(pAdmin + DuraserviceConfig.contextKey, "duradmin");
+        props.put(pAdmin + DuraserviceConfig.contextKey, "duradmin");
         props.put(pStore + DuraserviceConfig.contextKey, "durastore");
         props.put(pService + DuraserviceConfig.contextKey, "duraservice");
 
@@ -129,7 +125,6 @@ public class TestApplicationInitializer extends BaseTestUtil {
         String p0 = prefix + DuraserviceConfig.primaryInstanceKey + dot;
         String p1 = prefix + DuraserviceConfig.userStoreKey + dot;
         String p2 = prefix + DuraserviceConfig.serviceStoreKey + dot;
-        String p3 = prefix + DuraserviceConfig.serviceComputeKey + dot;
 
         props.put(p0 + DuraserviceConfig.hostKey, "localhost");
         props.put(p0 + DuraserviceConfig.servicesAdminPortKey,
@@ -143,19 +138,18 @@ public class TestApplicationInitializer extends BaseTestUtil {
         props.put(p1 + DuraserviceConfig.msgBrokerUrlKey,
                   "tcp://localhost:61617");
 
+        Credential credential =
+            BaseTestUtil.getCredential(ResourceType.fromDuraCloudUserType(
+                DuraCloudUserType.ROOT));
         props.put(p2 + DuraserviceConfig.hostKey, "localhost");
         props.put(p2 + DuraserviceConfig.portKey, BaseTestUtil.getPort());
         props.put(p2 + DuraserviceConfig.contextKey, "durastore");
+        props.put(p2 + DuraserviceConfig.usernameKey, credential.getUsername());
+        props.put(p2 + DuraserviceConfig.passwordKey, credential.getPassword());
         props.put(p2 + DuraserviceConfig.spaceIdKey,
                   "duracloud-service-repository");
-
-        Credential credential = BaseTestUtil.getCredential(ResourceType.fromDuraCloudUserType(
-            DuraCloudUserType.ROOT));
-        props.put(p3 + DuraserviceConfig.typeKey,
-                  StorageProviderType.AMAZON_S3.name());
-        props.put(p3 + DuraserviceConfig.imageIdKey, "1");
-        props.put(p3 + DuraserviceConfig.usernameKey, credential.getUsername());
-        props.put(p3 + DuraserviceConfig.passwordKey, credential.getPassword());
+        props.put(p2 + DuraserviceConfig.serviceXmlIdKey,
+                  "duracloud-service-repository.xml");
 
         return props;
     }

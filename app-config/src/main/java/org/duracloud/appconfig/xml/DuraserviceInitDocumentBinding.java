@@ -61,20 +61,10 @@ public class DuraserviceInitDocumentBinding {
             serviceStore.setHost(serviceStorage.getChildText("host"));
             serviceStore.setPort(serviceStorage.getChildText("port"));
             serviceStore.setContext(serviceStorage.getChildText("context"));
+            serviceStore.setUsername(serviceStorage.getChildText("username"));
+            serviceStore.setPassword(serviceStorage.getChildText("password"));
             serviceStore.setSpaceId(serviceStorage.getChildText("spaceId"));
-
-            Element serviceComputeProvider = servicesConfig.getChild(
-                "serviceCompute");
-            DuraserviceConfig.ServiceCompute serviceCompute = new DuraserviceConfig.ServiceCompute();
-            String computeProviderType = serviceComputeProvider.getChildText(
-                "type");
-            serviceCompute.setType(computeProviderType);
-            serviceCompute.setImageId(serviceComputeProvider.getChildText(
-                "imageId"));
-            Element computeCredential = serviceComputeProvider.getChild(
-                "computeProviderCredential");
-            serviceCompute.setUsername(computeCredential.getChildText("username"));
-            serviceCompute.setPassword(computeCredential.getChildText("password"));
+            serviceStore.setServiceXmlId(serviceStorage.getChildText("serviceXmlId"));
 
         } catch (Exception e) {
             String error = "Error encountered attempting to parse " +
@@ -99,7 +89,6 @@ public class DuraserviceInitDocumentBinding {
             DuraserviceConfig.PrimaryInstance instance = duraserviceConfig.getPrimaryInstance();
             DuraserviceConfig.UserStore userStore = duraserviceConfig.getUserStore();
             DuraserviceConfig.ServiceStore serviceStore = duraserviceConfig.getServiceStore();
-            DuraserviceConfig.ServiceCompute serviceCompute = duraserviceConfig.getServiceCompute();
 
             xml.append("<servicesConfig>");
             xml.append("  <primaryServiceInstance>");
@@ -123,20 +112,15 @@ public class DuraserviceInitDocumentBinding {
             xml.append("    <port>" + serviceStore.getPort() + "</port>");
             xml.append("    <context>" + serviceStore.getContext());
             xml.append("</context>");
+            xml.append("    <username>" + serviceStore.getUsername());
+            xml.append("</username>");
+            xml.append("    <password>" + serviceStore.getPassword());
+            xml.append("</password>");
             xml.append("    <spaceId>" + serviceStore.getSpaceId());
             xml.append("</spaceId>");
+            xml.append("    <serviceXmlId>" + serviceStore.getServiceXmlId());
+            xml.append("</serviceXmlId>");
             xml.append("  </serviceStorage>");
-            xml.append("  <serviceCompute>");
-            xml.append("    <type>" + serviceCompute.getType() + "</type>");
-            xml.append("    <imageId>" + serviceCompute.getImageId());
-            xml.append("</imageId>");
-            xml.append("    <computeProviderCredential>");
-            xml.append("      <username>" + serviceCompute.getUsername());
-            xml.append("</username>");
-            xml.append("      <password>" + serviceCompute.getPassword());
-            xml.append("</password>");
-            xml.append("    </computeProviderCredential>");
-            xml.append("  </serviceCompute>");
             xml.append("</servicesConfig>");
         }
         return xml.toString();

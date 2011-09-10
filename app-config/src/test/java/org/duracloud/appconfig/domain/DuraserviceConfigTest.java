@@ -23,11 +23,6 @@ public class DuraserviceConfigTest {
     private DuraserviceConfig.PrimaryInstance primaryInstance = new DuraserviceConfig.PrimaryInstance();
     private DuraserviceConfig.UserStore userStore = new DuraserviceConfig.UserStore();
     private DuraserviceConfig.ServiceStore serviceStore = new DuraserviceConfig.ServiceStore();
-    private DuraserviceConfig.ServiceCompute serviceCompute = new DuraserviceConfig.ServiceCompute();
-
-//    private String host = "host";
-//    private String port = "port";
-//    private String context = "context";
 
     private String instanceHost = "instanceHost";
     private String servicesAdminPort = "servicesAdminPort";
@@ -41,12 +36,10 @@ public class DuraserviceConfigTest {
     private String serviceStoreHost = "serviceStoreHost";
     private String serviceStorePort = "serviceStorePort";
     private String serviceStoreContext = "serviceStoreContext";
-    private String spaceId = "spaceId";
-
-    private String type = "type";
-    private String imageId = "imageId";
     private String username = "username";
     private String password = "password";
+    private String spaceId = "spaceId";
+    private String serviceXmlId = "serviceXmlId";
 
     @Before
     public void setUp() {
@@ -62,12 +55,10 @@ public class DuraserviceConfigTest {
         serviceStore.setHost(serviceStoreHost);
         serviceStore.setPort(serviceStorePort);
         serviceStore.setContext(serviceStoreContext);
+        serviceStore.setUsername(username);
+        serviceStore.setPassword(password);
         serviceStore.setSpaceId(spaceId);
-
-        serviceCompute.setType(type);
-        serviceCompute.setImageId(imageId);
-        serviceCompute.setUsername(username);
-        serviceCompute.setPassword(password);
+        serviceStore.setServiceXmlId(serviceXmlId);
     }
 
 
@@ -83,10 +74,6 @@ public class DuraserviceConfigTest {
 
         String dot = ".";
         String prefix = DuraserviceConfig.QUALIFIER + dot;
-
-//        props.put(prefix + DuraserviceConfig.hostKey, host);
-//        props.put(prefix + DuraserviceConfig.portKey, port);
-//        props.put(prefix + DuraserviceConfig.contextKey, context);
 
         String p0 = prefix + DuraserviceConfig.primaryInstanceKey + dot;
         props.put(p0 + DuraserviceConfig.hostKey, instanceHost);
@@ -105,35 +92,23 @@ public class DuraserviceConfigTest {
         props.put(p2 + DuraserviceConfig.hostKey, serviceStoreHost);
         props.put(p2 + DuraserviceConfig.portKey, serviceStorePort);
         props.put(p2 + DuraserviceConfig.contextKey, serviceStoreContext);
+        props.put(p2 + DuraserviceConfig.usernameKey, username);
+        props.put(p2 + DuraserviceConfig.passwordKey, password);
         props.put(p2 + DuraserviceConfig.spaceIdKey, spaceId);
-
-        String p3 = prefix + DuraserviceConfig.serviceComputeKey + dot;
-        props.put(p3 + DuraserviceConfig.typeKey, type);
-        props.put(p3 + DuraserviceConfig.imageIdKey, imageId);
-        props.put(p3 + DuraserviceConfig.usernameKey, username);
-        props.put(p3 + DuraserviceConfig.passwordKey, password);
+        props.put(p2 + DuraserviceConfig.serviceXmlIdKey, serviceXmlId);
 
         return props;
     }
 
     private void verifyDuraserviceConfig(DuraserviceConfig config) {
 
-//        Assert.assertNotNull(config.getHost());
-//        Assert.assertNotNull(config.getPort());
-//        Assert.assertNotNull(config.getContext());
-//        Assert.assertEquals(config.getHost(), host);
-//        Assert.assertEquals(config.getPort(), port);
-//        Assert.assertEquals(config.getContext(), context);
-
         DuraserviceConfig.PrimaryInstance pi = config.getPrimaryInstance();
         DuraserviceConfig.UserStore us = config.getUserStore();
         DuraserviceConfig.ServiceStore ss = config.getServiceStore();
-        DuraserviceConfig.ServiceCompute sc = config.getServiceCompute();
 
         Assert.assertNotNull(pi);
         Assert.assertNotNull(us);
         Assert.assertNotNull(ss);
-        Assert.assertNotNull(sc);
 
         Assert.assertNotNull(pi.getHost());
         Assert.assertNotNull(pi.getServicesAdminPort());
@@ -154,20 +129,17 @@ public class DuraserviceConfigTest {
         Assert.assertNotNull(ss.getHost());
         Assert.assertNotNull(ss.getPort());
         Assert.assertNotNull(ss.getContext());
+        Assert.assertNotNull(ss.getUsername());
+        Assert.assertNotNull(ss.getPassword());
         Assert.assertNotNull(ss.getSpaceId());
+        Assert.assertNotNull(ss.getServiceXmlId());
         Assert.assertEquals(serviceStoreHost, ss.getHost());
         Assert.assertEquals(serviceStorePort, ss.getPort());
         Assert.assertEquals(serviceStoreContext, ss.getContext());
+        Assert.assertEquals(username, ss.getUsername());
+        Assert.assertEquals(password, ss.getPassword());
         Assert.assertEquals(spaceId, ss.getSpaceId());
-
-        Assert.assertNotNull(sc.getType());
-        Assert.assertNotNull(sc.getImageId());
-        Assert.assertNotNull(sc.getUsername());
-        Assert.assertNotNull(sc.getPassword());
-        Assert.assertEquals(type, sc.getType());
-        Assert.assertEquals(imageId, sc.getImageId());
-        Assert.assertEquals(username, sc.getUsername());
-        Assert.assertEquals(password, sc.getPassword());
+        Assert.assertEquals(serviceXmlId, ss.getServiceXmlId());
     }
 
 }

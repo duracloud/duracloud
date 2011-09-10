@@ -27,24 +27,21 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
     protected static final String primaryInstanceKey = "primary-instance";
     protected static final String userStoreKey = "user-storage";
     protected static final String serviceStoreKey = "service-storage";
-    protected static final String serviceComputeKey = "service-compute";
 
     protected static final String hostKey = "host";
     protected static final String portKey = "port";
     protected static final String contextKey = "context";
+    protected static final String usernameKey = "username";
+    protected static final String passwordKey = "password";
     protected static final String servicesAdminPortKey = "services-admin-port";
     protected static final String servicesAdminContextKey = "services-admin-context";
     protected static final String msgBrokerUrlKey = "msg-broker-url";
     protected static final String spaceIdKey = "space-id";
-    protected static final String typeKey = "type";
-    protected static final String imageIdKey = "image-id";
-    protected static final String usernameKey = "username";
-    protected static final String passwordKey = "password";
+    protected static final String serviceXmlIdKey = "service-xml-id";
 
     private PrimaryInstance primaryInstance = new PrimaryInstance();
     private UserStore userStore = new UserStore();
     private ServiceStore serviceStore = new ServiceStore();
-    private ServiceCompute serviceCompute = new ServiceCompute();
 
     protected String getQualifier() {
         return QUALIFIER;
@@ -71,9 +68,6 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
 
         } else if (prefix.equalsIgnoreCase(serviceStoreKey)) {
             loadServiceStore(suffix, value);
-
-        } else if (prefix.equalsIgnoreCase(serviceComputeKey)) {
-            loadServiceCompute(suffix, value);
 
         } else {
             String msg = "unknown key: " + key + " (" + value + ")";
@@ -129,31 +123,20 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
         } else if (key.equalsIgnoreCase(contextKey)) {
             this.serviceStore.setContext(value);
 
+        } else if (key.equalsIgnoreCase(usernameKey)) {
+            this.serviceStore.setUsername(value);
+
+        } else if (key.equalsIgnoreCase(passwordKey)) {
+            this.serviceStore.setPassword(value);
+
         } else if (key.equalsIgnoreCase(spaceIdKey)) {
             this.serviceStore.setSpaceId(value);
 
+        } else if (key.equalsIgnoreCase(serviceXmlIdKey)) {
+            this.serviceStore.setServiceXmlId(value);
+
         } else {
             String msg = "unknown srvStore key: " + key + " (" + value + ")";
-            log.error(msg);
-            throw new DuraCloudRuntimeException(msg);
-        }
-    }
-
-    private void loadServiceCompute(String key, String value) {
-        if (key.equalsIgnoreCase(typeKey)) {
-            this.serviceCompute.setType(value);
-
-        } else if (key.equalsIgnoreCase(imageIdKey)) {
-            this.serviceCompute.setImageId(value);
-
-        } else if (key.equalsIgnoreCase(usernameKey)) {
-            this.serviceCompute.setUsername(value);
-
-        } else if (key.equalsIgnoreCase(passwordKey)) {
-            this.serviceCompute.setPassword(value);
-
-        } else {
-            String msg = "unknown srvCompute key: " + key + " (" + value + ")";
             log.error(msg);
             throw new DuraCloudRuntimeException(msg);
         }
@@ -181,14 +164,6 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
 
     public void setServiceStore(ServiceStore serviceStore) {
         this.serviceStore = serviceStore;
-    }
-
-    public ServiceCompute getServiceCompute() {
-        return serviceCompute;
-    }
-
-    public void setServiceCompute(ServiceCompute serviceCompute) {
-        this.serviceCompute = serviceCompute;
     }
 
     public static class PrimaryInstance {
@@ -264,7 +239,10 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
         private String host;
         private String port;
         private String context;
+        private String username;
+        private String password;
         private String spaceId;
+        private String serviceXmlId;
 
         public String getHost() {
             return host;
@@ -290,37 +268,6 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
             this.context = context;
         }
 
-        public String getSpaceId() {
-            return spaceId;
-        }
-
-        public void setSpaceId(String spaceId) {
-            this.spaceId = spaceId;
-        }
-    }
-
-    public static class ServiceCompute {
-        private String type;
-        private String imageId;
-        private String username;
-        private String password;
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public String getImageId() {
-            return imageId;
-        }
-
-        public void setImageId(String imageId) {
-            this.imageId = imageId;
-        }
-
         public String getUsername() {
             return username;
         }
@@ -335,6 +282,22 @@ public class DuraserviceConfig extends BaseConfig implements AppConfig {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getSpaceId() {
+            return spaceId;
+        }
+
+        public void setSpaceId(String spaceId) {
+            this.spaceId = spaceId;
+        }
+
+        public String getServiceXmlId() {
+            return serviceXmlId;
+        }
+
+        public void setServiceXmlId(String serviceXmlId) {
+            this.serviceXmlId = serviceXmlId;
         }
     }
 

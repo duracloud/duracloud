@@ -18,6 +18,7 @@ import org.duracloud.common.model.Credential;
 public class ServiceStore extends Store {
 
     private String spaceId;
+    private String serviceXmlId;
     private String username;
     private String password;
 
@@ -27,6 +28,14 @@ public class ServiceStore extends Store {
 
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
+    }
+
+    public String getServiceXmlId() {
+        return serviceXmlId;
+    }
+
+    public void setServiceXmlId(String serviceXmlId) {
+        this.serviceXmlId = serviceXmlId;
     }
 
     public void setUsername(String username) {

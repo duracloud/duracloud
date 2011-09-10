@@ -12,9 +12,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
-import org.duracloud.computeprovider.domain.ComputeProviderType;
 import org.duracloud.domain.Content;
-import org.duracloud.duraservice.domain.ServiceCompute;
 import org.duracloud.duraservice.domain.ServiceComputeInstance;
 import org.duracloud.duraservice.domain.ServiceStore;
 import org.duracloud.duraservice.domain.UserStore;
@@ -84,9 +82,6 @@ public class ServiceManager implements LocalServicesManager {
 
     // Store in which services packages reside
     private ServiceStore serviceStore = null;
-
-    // ServiceCompute used to run service compute instances
-    private ServiceCompute serviceCompute = null;
 
     private int serviceDeploymentIds = 0;
 
@@ -183,23 +178,10 @@ public class ServiceManager implements LocalServicesManager {
             serviceStore.setHost(serviceStorage.getChildText("host"));
             serviceStore.setPort(serviceStorage.getChildText("port"));
             serviceStore.setContext(serviceStorage.getChildText("context"));
+            serviceStore.setUsername(serviceStorage.getChildText("username"));
+            serviceStore.setPassword(serviceStorage.getChildText("password"));
             serviceStore.setSpaceId(serviceStorage.getChildText("spaceId"));
-
-            Element serviceComputeProvider = servicesConfig.getChild("serviceCompute");
-            serviceCompute = new ServiceCompute();
-            String computeProviderType = serviceComputeProvider.getChildText("type");
-            serviceCompute.setType(ComputeProviderType.fromString(computeProviderType));
-            serviceCompute.setImageId(serviceComputeProvider.getChildText("imageId"));
-            Element computeCredential =
-                serviceComputeProvider.getChild("computeProviderCredential");
-            String serviceComputeUsername = computeCredential.getChildText("username");
-            String serviceComputePassword = computeCredential.getChildText("password");
-            serviceCompute.setUsername(serviceComputeUsername);
-            serviceCompute.setPassword(serviceComputePassword);
-
-            // FIXME: These credentials should come from a 'service-store' config element.
-            serviceStore.setUsername(serviceComputeUsername);
-            serviceStore.setPassword(serviceComputePassword);
+            serviceStore.setServiceXmlId(serviceStorage.getChildText("serviceXmlId"));
 
         } catch (Exception e) {
             String error = "Error encountered attempting to parse DuraService " +
@@ -229,11 +211,11 @@ public class ServiceManager implements LocalServicesManager {
      */
     private void refreshServicesList() {
         String servicesSpaceId = serviceStore.getSpaceId();
-        String configFileName = servicesSpaceId + ".xml";
-        log.debug("refreshing services list: "+configFileName);
+        String serviceXmlId = serviceStore.getServiceXmlId();
+        log.debug("refreshing services list: " + serviceXmlId);
         try {
             Content servicesInfoFile =
-                serviceStoreClient.getContent(servicesSpaceId, configFileName);
+                serviceStoreClient.getContent(servicesSpaceId, serviceXmlId);
 
             this.services = ServicesConfigDocument.getServiceList(
                 servicesInfoFile.getStream());
