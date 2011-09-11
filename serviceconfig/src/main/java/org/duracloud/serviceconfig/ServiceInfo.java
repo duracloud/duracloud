@@ -283,4 +283,29 @@ public class ServiceInfo implements Serializable, Cloneable {
         return clone;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ServiceInfo[");
+        sb.append("id=");
+        sb.append(id);
+        sb.append(", contentId=");
+        sb.append(contentId);
+        
+        if (null != deployments) {
+            sb.append(", deployments={");
+            for (Deployment d : deployments) {
+                sb.append(d.getId());
+                sb.append(",");
+            }
+            if (sb.charAt(sb.length() - 1) == ',') {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            sb.append("}");
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
+
 }

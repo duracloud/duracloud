@@ -114,6 +114,7 @@ public class ServiceManager implements LocalServicesManager {
      * @param configXml the xml used to initialize the service manager
      */
     public void configure(InputStream configXml) {
+        clearState();
         parseManagerConfigXml(configXml);
 
         ServiceComputeInstance serviceComputeInstance = serviceComputeInstanceUtil
@@ -125,14 +126,30 @@ public class ServiceManager implements LocalServicesManager {
         serviceComputeInstances.add(serviceComputeInstance);
     }
 
-    protected void initialize() {
+    private void clearState() {
         try {
-            initializeServicesList();
-        } catch (ContentStoreException cse) {
-            String error = "Could not build services list due " +
-            		       "to exception: " + cse.getMessage();
-            throw new ServiceException(error, cse);
+            undeployAllServices();
+
+        } catch (Exception e) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("Non-fatal error undeploying existing services, ");
+            msg.append("due to: {}\n");
+            msg.append("Services remaining: {}");
+            log.warn(msg.toString(), e.getMessage(), deployedServices);
         }
+
+        clearCache();
+
+        primaryHost = null;
+        primaryServicesAdminPort = null;
+        primaryServicesAdminContext = null;
+        services = null;
+        deployedServices = new ArrayList<ServiceInfo>();
+        serviceStoreClient = null;
+        userStore = null;
+        serviceStore = null;
+        serviceDeploymentIds = 0;
+        serviceComputeInstances = new ArrayList<ServiceComputeInstance>();
     }
 
     /*
@@ -146,6 +163,16 @@ public class ServiceManager implements LocalServicesManager {
 
         if(serviceStoreClient == null) {
             initialize();
+        }
+    }
+
+    protected void initialize() {
+        try {
+            initializeServicesList();
+        } catch (ContentStoreException cse) {
+            String error = "Could not build services list due " +
+            		       "to exception: " + cse.getMessage();
+            throw new ServiceException(error, cse);
         }
     }
 
@@ -1079,17 +1106,22 @@ public class ServiceManager implements LocalServicesManager {
         // which occurs when there are no further deployments of a service
         List<DeploymentInstance> deployments =
             new ArrayList<DeploymentInstance>();
-        for(ServiceInfo service : deployedServices) {
-            for(Deployment deployment : service.getDeployments()) {
-                deployments.add(new DeploymentInstance(service.getId(),
-                                                       deployment.getId()));
+        for (ServiceInfo service : deployedServices) {
+            if (service.isSystemService()) {
+                log.debug("Skip undeployment of system service: {}", service);
+
+            } else {
+                for (Deployment deployment : service.getDeployments()) {
+                    deployments.add(new DeploymentInstance(service.getId(),
+                                                           deployment.getId()));
+                }
             }
         }
 
         for(DeploymentInstance deployment : deployments) {
             try {
                 undeployService(deployment.serviceId, deployment.deploymentId);
-            } catch(NoSuchDeployedServiceException e) {
+            } catch(Exception e) {
                 String error = "Could not undeploy a service in the deployed " +
                     "services list. ServiceID: " + deployment.serviceId +
                     ", DeploymentID: " + deployment.deploymentId;
