@@ -38,7 +38,7 @@ public class StopController
         ServletOutputStream out = response.getOutputStream();
         out.println("in stop-controller");
         out.close();
-        return new ModelAndView();
+        return null;
     }
 
     public ServiceStopper getServiceStopper() {
