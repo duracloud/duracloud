@@ -239,7 +239,7 @@ $(function() {
 	    var item =  $.fn.create(("tr"))
                             .attr("id", id)
                             .addClass("dc-item")
-                            .addClass("service-" + id)
+                            .addClass("service-" + service.id)
                             .append($.fn.create("td").addClass("icon").append($.fn.create("div")))
                             .append($.fn.create("td").html(service.displayName + " - " + service.serviceVersion))
                             .append($.fn.create("td").html(deployment.hostname))
