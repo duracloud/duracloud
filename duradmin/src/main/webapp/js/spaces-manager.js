@@ -1416,7 +1416,7 @@ $(function(){
 		autoOpen: false,
 		show: 'blind',
 		hide: 'blind',
-		height: 275,
+		height: 300,
 		resizable: false,
 		closeOnEscape:true,
 		modal: true,
