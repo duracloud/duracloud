@@ -62,7 +62,8 @@ $(function(){
 			var errorText = xhr.responseText;
 			try{
 				var response = $.parseJSON(errorText);
-				errorText = response['exception.message'];
+				errorText = "cause: " + response['exception.message'];
+				errorText += "; stacktrace: " + response['exception.stacktrace'];
 			}catch(error){
 				
 			}

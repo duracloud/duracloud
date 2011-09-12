@@ -169,6 +169,8 @@
 
 						<div class="button-bar">				
 							<button class="featured edit-content-item-button"><i class="pre pencil"></i>Edit</button>
+							<button class="copy-content-item-button"><i class="pre copy"></i>Copy</button>
+
 							<a class="button download-content-item-button"><i class="pre download"></i>Download</a>
 							<a class="button view-content-item-button" target="_blank" style="display:none"><i class="pre view"></i>View</a>
 							<button class="delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete</button>						
@@ -256,6 +258,36 @@
 				</form>
 				</div>
 
+				<div id="copy-content-item-dialog" class="dialog"
+					style="display: none" title="Copy Content Item">
+					<h1 class="dc-dialog-title">Copy Content Item</h1>
+					<form id="copy-content-item-form" onsubmit="return false;">
+						<input type="hidden" name="storeId" id="storeId" />
+						<div id="form-fields" class="form-fields">
+							<fieldset>
+								<ul>
+									<li class="row clearfix">
+										<label for="spaceId">Space</label>
+										<select id="spaceId" name="spaceId"></select>
+									</li>
+									<li class="row clearfix">
+										<label for="contentId">Content Id</label>
+										<input type="text" name="contentId"
+												id="contentId" class="field" style="width:325px" />
+									</li>
+									<li class="row clearfix">
+										<label for="deleteAfterCopy">Delete original after copy?</label>
+										<input type="checkbox" id="deleteAfterCopy" name="deleteAfterCopy"/>
+									</li>
+									<li class="row clearfix">
+										<label for="navigateToCopy">Navigate to new item after copy?</label>
+										<input type="checkbox" id="navigateToCopy" checked="checked" name="navigateToCopy"/>
+									</li>
+								</ul>
+							</fieldset>
+						</div>
+					</form>
+				</div>
 
 				<div id="add-remove-properties-dialog" class="dialog" style="display:none;overflow:auto"
 					title="Add/Remove Properties and Tags">
@@ -265,8 +297,6 @@
 					
 					</div>				
 				</div>
-
-
 			</tiles:putAttribute>
 
 			<tiles:putAttribute name="main-footer">
@@ -283,7 +313,6 @@
 			</tiles:putAttribute>
 		</tiles:insertDefinition>
 	</tiles:putAttribute>
-
 </tiles:insertDefinition>
 
 

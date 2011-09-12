@@ -149,6 +149,12 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 	                properties.put(ContentStore.CONTENT_MIMETYPE, mimetype);
 	                contentStore.setContentProperties(spaceId, contentId, properties);
 	            }
+	        }else if ("copy".equals(method)){
+	          return  handleCopyContentItem(request,
+                    contentItem,
+                    spaceId,
+                    contentId,
+                    contentStore);
 	        }else{ 
                 PropertiesUtils.handle(method,
                                        "space [" + spaceId + "]",
@@ -172,8 +178,42 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 	    }
 	}
 
+    private ModelAndView handleCopyContentItem(
+        HttpServletRequest request, ContentItem contentItem, String spaceId,
+        String contentId, ContentStore contentStore)
+        throws ContentStoreException, MalformedURLException {
+        String destSpaceId = request.getParameter("destSpaceId");
+        String destContentId = request.getParameter("destContentId");
+        if(Boolean.valueOf(request.getParameter("deleteOriginal"))){
+            contentStore.moveContent(
+                spaceId,
+                contentId, 
+                destSpaceId, 
+                destContentId);
+        }else{
+            contentStore.copyContent(
+                spaceId,
+                contentId,
+                destSpaceId,
+                destContentId);
+        }
+        ContentItem result = new ContentItem();
+        result.setStoreId(contentItem.getStoreId());
+        result.setSpaceId(destSpaceId);
+        result.setContentId(destContentId);
+        SpaceUtil.populateContentItem(getBaseURL(request),
+            result,
+            result.getSpaceId(),
+            result.getContentId(),
+            contentStore,
+            servicesManager);
+        return createModel(result);
+        
+    }
 
-	public static String getBaseURL(HttpServletRequest request) throws MalformedURLException{
+
+
+    public static String getBaseURL(HttpServletRequest request) throws MalformedURLException{
 		URL url = new URL(request.getRequestURL().toString());
 		int port =  url.getPort();
 		String baseURL = url.getProtocol() + "://" + url.getHost() + ":" +

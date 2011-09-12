@@ -15,7 +15,47 @@
 var centerLayout, listBrowserLayout, spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
 
 $(function(){
+    /**
+     * Load form validators
+     */
+    (function(){
+        //reusable validators that are used with various forms.
+        //used in conjunctions with the jquery.validate.js and jquery.form
+        $.validator
+        .addMethod("mimetype", function(value, element) { 
+          return  value == null || value == '' || /^(\w[-]?)*\w\/(\w[-+]?)*\w$/.test(value);
+        }, "Invalid Mimetype");
 
+        $.validator
+        .addMethod("startswith", function(value, element) { 
+          return  /^[a-z0-9]/.test(value); 
+        }, "Invalid");
+
+        $.validator
+            .addMethod("endswith", function(value, element) { 
+              return  /[a-z0-9.]$/.test(value); 
+            }, "Invalid");
+        
+        $.validator.addMethod("spacelower", function(value,element){return /^[a-z0-9.-]*$/.test(value);}, 
+                "Invalid");
+        
+        $.validator.addMethod("notip", function(value,element){return !(/^[0-9]+.[0-9]+.[0-9]+.[0-9]+$/.test(value));}, 
+                "Invalid");
+
+        $.validator.addMethod("dotnum", function(value,element){return !(/^.*([.][0-9])[^.]*$/.test(value));},
+                "Invalid");   
+
+        $.validator.addMethod("misc", function(value,element){return !(/^.*([.][-]|[-][.]|[.][.]).*$/.test(value));}, 
+                "Invalid");
+
+        $.validator
+        .addMethod("illegalchars", function(value, element) { 
+            return  !(/^.*([\\]|[?]|[;]).*$/.test(value));
+        }, "A Content ID cannot contain  '?' or '\\' or ';'");
+        //end validator definitions        
+    })();
+    
+    
 	//perform layout first
 	centerLayout = $('#page-content').layout({
 	// minWidth: 300 // ALL panes
@@ -126,44 +166,7 @@ $(function(){
 
 	initProviderStoreSelectbox();		
 
-	////////////////////////////////////////////
-	//  provider selection defs end
-	////////////////////////////////////////////
-	
-	//reusable validators that are used with various forms.
-	//used in conjunctions with the jquery.validate.js and jquery.form
-	$.validator
-	.addMethod("mimetype", function(value, element) { 
-	  return  value == null || value == '' || /^(\w[-]?)*\w\/(\w[-+]?)*\w$/.test(value);
-	}, "Invalid Mimetype");
 
-	$.validator
-	.addMethod("startswith", function(value, element) { 
-	  return  /^[a-z0-9]/.test(value); 
-	}, "Invalid");
-
-	$.validator
-		.addMethod("endswith", function(value, element) { 
-		  return  /[a-z0-9.]$/.test(value); 
-		}, "Invalid");
-	
-	$.validator.addMethod("spacelower", function(value,element){return /^[a-z0-9.-]*$/.test(value);}, 
-			"Invalid");
-	
-	$.validator.addMethod("notip", function(value,element){return !(/^[0-9]+.[0-9]+.[0-9]+.[0-9]+$/.test(value));}, 
-			"Invalid");
-
-    $.validator.addMethod("dotnum", function(value,element){return !(/^.*([.][0-9])[^.]*$/.test(value));},
-            "Invalid");   
-
-	$.validator.addMethod("misc", function(value,element){return !(/^.*([.][-]|[-][.]|[.][.]).*$/.test(value));}, 
-			"Invalid");
-
-	$.validator
-	.addMethod("illegalchars", function(value, element) { 
-        return  !(/^.*([\\]|[?]|[;]).*$/.test(value));
-	}, "A Content ID cannot contain  '?' or '\\' or ';'");
-	//end validator definitions
 	
 	// //////////////////////////////////////////
 	// sets contents of object-name class
@@ -1640,7 +1643,110 @@ $(function(){
 	};
 	
 
-	
+	var copyContentItem = function(evt, contentItem){
+	    var d = $("#copy-content-item-dialog");
+	    d.dialog({
+	        autoOpen: true,
+            show: 'blind',
+            hide: 'blind',
+            height: 400,
+            resizable: false,
+            closeOnEscape:true,
+            modal: true,
+            width:700,
+            buttons: {
+	           "OK": function(){
+                   var form = $("form", d),
+                       storeId         = $("#storeId", d).val(),
+                       destSpaceId     = $("#spaceId", d).val(),
+                       destContentId   = $("#contentId", d).val(),
+                       navigateToCopy  = $("#navigateToCopy", d).is(":checked"),
+                       deleteAfterCopy = $("#deleteAfterCopy", d).is(":checked"),
+                       callback;
+                   
+                   if(form.valid()){
+                       d.dialog("close");
+                       dc.busy("Performing copy...", {modal: true});
+                       
+                       dc.store.copyContentItem(
+                            storeId, 
+                            contentItem.spaceId, 
+                            contentItem.contentId, 
+                            destSpaceId,
+                            destContentId, 
+                            deleteAfterCopy, 
+                            {
+                               success: function(copiedContentItem){
+                                   dc.done();
+                                   if(deleteAfterCopy){
+                                       $("#content-item-list").selectablelist("removeById", contentItem.contentId);
+                                   }
+
+                                   if(contentItem.spaceId == copiedContentItem.spaceId){
+                                       addContentItemToList(copiedContentItem);
+                                       if(navigateToCopy){
+                                           loadContentItem(copiedContentItem);
+                                       }
+
+                                   }else{
+                                       getSpace(copiedContentItem.spaceId, function(space){
+                                           loadContentItems(space);
+                                           if(navigateToCopy){
+                                               loadContentItem(copiedContentItem);
+                                           }
+                                       });
+                                   }
+                               }
+                           });
+                   }
+	           },
+               "Cancel": function(){
+                   $(this).dialog('close');
+                },
+	        },
+	        
+	        open: function(){
+	            var that = this;
+	            var contentIdField = $("#contentId", that);
+                var spaceSelect = $("#spaceId", that);
+                spaceSelect.children().remove();
+
+	            $.validator
+	            .addMethod("contentIdAlreadyInSpace", function(value, element) { 
+	                return !(spaceSelect.val() == contentItem.spaceId
+	                        && contentItem.contentId == value);
+	            }, "New content id equals current id. Change it or copy to another space.");
+	            
+	            $("form",this).validate({
+                    rules: {
+                        contentId: {
+                            required: true,
+                            minlength: 1,
+                            illegalchars: true,
+                            contentIdAlreadyInSpace: true,
+                        },
+                    },
+                });
+
+	            $("#storeId", this).val(contentItem.storeId);
+                contentIdField.val(contentItem.contentId);
+                
+	            $.each(spacesArray, function(i,item){
+	                var option  = $.fn.create("option"),
+	                    spaceId = item.spaceId;
+	                option.attr("value", spaceId);
+	                option.html(spaceId);
+	                if(contentItem.spaceId == spaceId) option.attr("selected", "selected");
+	                spaceSelect.append(option);
+	            });
+	            
+                setTimeout(function(){
+                    contentIdField.get(0).select();
+                },100);
+	        }
+	    });
+	    
+	};
 	
 	var deleteContentItem = function(evt, contentItem){
 		evt.stopPropagation();
@@ -1802,7 +1908,12 @@ $(function(){
 		$(".delete-content-item-button",pane)
 			.click(function(evt){
 				deleteContentItem(evt,contentItem);
-			});
+		});
+
+        $(".copy-content-item-button",pane)
+        .click(function(evt){
+            copyContentItem(evt,contentItem);
+        });
 		
 		var mimetype = contentItem.properties.mimetype;
 		
@@ -1918,9 +2029,11 @@ $(function(){
 					showContentItemListStatus("Loading...");
 				},
 				success: function(space){
-					if(getCurrentProviderStoreId() == space.storeId && getCurrentSpaceId() == space.spaceId){
+                    //select space if not already selected
+                    $("#spaces-list").selectablelist("setCurrentItemById", space.spaceId, false);
+				    if(getCurrentProviderStoreId() == space.storeId){
 						dc.done();
-						if(space == undefined || space == null){
+						if(!space){
 							dc.error("error: space == " + space);
 						}else{
 							setHash(space);
@@ -1952,7 +2065,7 @@ $(function(){
 				if(xhr.status == 404){
 					alert(contentId + " does not exist.");
 				}else{
-					alert("Unable to retrieve content [" + contentId + "]:" + text);
+				    dc.displayErrorDialog(xhr, text, text)
 				}
 			},
 
@@ -2107,21 +2220,39 @@ $(function(){
 	};
 	
 	var addContentItemToList = function(contentItem){
-		var node =  document.createElement("div");
-		var actions = document.createElement("div");
-        var content = document.createElement("span");
+		var node, actions, content, deleteButton, copyButton;
+		
+		deleteButton = 
+		        $("<button class='delete-space-button icon-only'>" +
+		        		"<i class='pre trash'></i>" +
+		        		"</button>")
+                .click(function(evt){
+                    deleteContentItem(evt,contentItem);
+		        });
 
-		var deleteButton = $("<button class='delete-space-button featured icon-only'><i class='pre trash'></i></button>");
-		deleteButton.click(function(evt){
-			deleteContentItem(evt,
-								contentItem);
-		});
-		$(actions).append(deleteButton);
-        $(content).attr("class", "dc-item-content")
+		copyButton = 
+              $("<button title='copy content item' class='copy-button featured icon-only'>" +
+                      "<i class='pre copy'></i>" +
+                      "</button>")
+              .click(function(evt){
+                  evt.stopPropagation();
+                  copyContentItem(evt,contentItem);
+              });
+
+	    actions = $.fn.create("div");
+        actions.append(copyButton);
+        actions.append(deleteButton);
+
+        content = $.fn.create("span");
+		content.attr("class", "dc-item-content")
                   .html(contentItem.contentId);
-		$(node).attr("id", contentItem.contentId)
+
+        node =  $.fn.create("div");
+
+		node.attr("id", contentItem.contentId)
 			   .append(content)
 			   .append(actions);
+		
 		return $("#content-item-list").selectablelist('addItem',node, contentItem);
 	};
 

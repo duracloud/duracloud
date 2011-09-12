@@ -124,7 +124,7 @@ var dc;
 	
 	/**
 	 * @param Object contentItem
-	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
+	 * @param Object callback The callback must implement success and failure methods. optional begin method is supported.
 	 */
 	dc.store.DeleteContentItem = function(contentItem, callback){
 		dc.ajax({
@@ -136,10 +136,39 @@ var dc;
 		},callback);
 	};
 
+	dc.store._appendNVPair = function(name, value){
+	    return "&"+name+"="+encodeURIComponent(value);
+	}
 
 	/**
+     * @param Object contentItem
+     * @param Object callback The callback must implement success and failure methods. optional begin method is supported.
+     */
+    dc.store.copyContentItem = function(storeId, spaceId, contentId, destSpaceId, destContentId, deleteOriginal, callback){
+        var anvp = dc.store._appendNVPair;
+        return dc.ajax({
+                        url: "/duradmin/spaces/content", 
+                        data: "".concat(
+                              anvp("action", "put"),
+                              anvp("method", "copy"),
+                              anvp("deleteOriginal", deleteOriginal),
+                              anvp("storeId", storeId),
+                              anvp("spaceId", spaceId),
+                              anvp("contentId", contentId),
+                              anvp("destSpaceId", destSpaceId),
+                              anvp("destContentId", destContentId)
+                            ),
+                        type: "POST",
+                        success: function(result){
+                            callback.success(result.contentItem);
+                        }
+                    },callback);
+    };
+
+	
+	/**
 	 * @param Object serialized form data
-	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
+	 * @param Object callback The callback must implement success and failure methods. optional begin method is supported.
 	 */
 	dc.store.UpdateContentItemMimetype = function(data, callback){
 		dc.ajax({
