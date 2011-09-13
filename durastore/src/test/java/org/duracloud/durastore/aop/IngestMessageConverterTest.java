@@ -108,6 +108,9 @@ public class IngestMessageConverterTest {
         mapMsg.setStringProperty(IngestMessageConverter.STORE_ID, storeId);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setStringProperty(IngestMessageConverter.SPACE_ID, spaceId);
+        EasyMock.expectLastCall().once();
+
         mapMsg.setString(IngestMessageConverter.SPACE_ID, spaceId);
         EasyMock.expectLastCall().once();
 

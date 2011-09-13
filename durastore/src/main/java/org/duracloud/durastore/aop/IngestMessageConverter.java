@@ -7,15 +7,15 @@
  */
 package org.duracloud.durastore.aop;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.Session;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
+
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.Session;
 
 public class IngestMessageConverter
         implements MessageConverter {
@@ -58,6 +58,7 @@ public class IngestMessageConverter
 
         MapMessage msg = session.createMapMessage();
         msg.setStringProperty(STORE_ID, ingestMsg.getStoreId());
+        msg.setStringProperty(SPACE_ID, ingestMsg.getSpaceId());
         msg.setString(CONTENT_ID, ingestMsg.getContentId());
         msg.setString(MIMETYPE, ingestMsg.getContentMimeType());
         msg.setString(SPACE_ID, ingestMsg.getSpaceId());

@@ -482,7 +482,7 @@ public class ServiceManager implements LocalServicesManager {
                                    ServicesAdminClient servicesAdmin)
         throws Exception {
         int waitMillis = 2000;
-        int maxLoops = 5;
+        int maxLoops = 10;
         for (int i = 0; i < maxLoops; i++) {
             if (servicesAdmin.isServiceDeployed(contentId)) {
                 return;

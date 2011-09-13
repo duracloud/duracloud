@@ -81,12 +81,16 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
         SystemConfig password = new SystemConfig("password",
                                                  ServiceConfigUtil.STORE_PWORD_VAR,
                                                  "no-password");
+        SystemConfig brokerURL = new SystemConfig("brokerURL",
+                                                  ServiceConfigUtil.STORE_MSG_BROKER_VAR,
+                                                  "tcp://localhost:61617");
 
         systemConfig.add(host);
         systemConfig.add(port);
         systemConfig.add(context);
         systemConfig.add(username);
         systemConfig.add(password);
+        systemConfig.add(brokerURL);
 
         msService.setSystemConfigs(systemConfig);
 

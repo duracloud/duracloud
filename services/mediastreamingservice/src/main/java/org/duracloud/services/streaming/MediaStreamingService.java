@@ -11,13 +11,15 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
-import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
+import org.duracloud.services.listener.BaseListenerService;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import java.io.File;
 import java.util.Dictionary;
 import java.util.Map;
@@ -28,8 +30,8 @@ import java.util.Map;
  * @author Bill Branan
  *         Date: May 12, 2010
  */
-public class MediaStreamingService extends BaseService implements ComputeService,
-                                                                  ManagedService {
+public class MediaStreamingService extends BaseListenerService
+    implements ComputeService, ManagedService {
 
     private final Logger log = LoggerFactory.getLogger(MediaStreamingService.class);
 
@@ -66,7 +68,7 @@ public class MediaStreamingService extends BaseService implements ComputeService
 
         File workDir = new File(getServiceWorkDir());
         workDir.setWritable(true);
-       
+
         // Start worker thread
         worker = new EnableStreamingWorker(contentStore,
                                            mediaViewerSpaceId,
@@ -76,6 +78,9 @@ public class MediaStreamingService extends BaseService implements ComputeService
         Thread workerThread = new Thread(worker);
         workerThread.start();
 
+        String messageSelector = SPACE_ID + " = '" + mediaSourceSpaceId + "'";
+        initializeMessaging(messageSelector);
+
         super.start();
         setServiceStatus(ServiceStatus.PROCESSING);
     }
@@ -84,6 +89,9 @@ public class MediaStreamingService extends BaseService implements ComputeService
     public void stop() throws Exception {
         log("Stopping Media Streaming Service");
         this.setServiceStatus(ServiceStatus.STOPPING);
+
+        // Stop listening for new additions to the space
+        terminateMessaging();
         
         // Start worker thread
         DisableStreamingWorker worker =
@@ -222,6 +230,29 @@ public class MediaStreamingService extends BaseService implements ComputeService
                 ", which is not valid. Setting value to default: " +
                 DEFAULT_MEDIA_SOURCE_SPACE_ID);
             this.mediaSourceSpaceId = DEFAULT_MEDIA_SOURCE_SPACE_ID;
+        }
+    }
+
+    @Override
+    protected void handleMapMessage(MapMessage message, String topic) {
+        try {
+            String spaceId = message.getString(SPACE_ID);
+            String contentId = message.getString(CONTENT_ID);
+
+            if(getContentCreateTopic().equals(topic)) {
+                log.info("Content item {} added to media space {}, " +
+                         "setting permissions for streaming",
+                         contentId,
+                         spaceId);
+                // TODO: Actually set permissions for new item!!
+                System.out.println("--- New Content Item to Stream: " +
+                                   spaceId + "/" + contentId + " ---");
+            }
+        } catch (JMSException je) {
+            String error =
+                    "Error occured processing map message: " + je.getMessage();
+            log.error(error);
+            throw new RuntimeException(error, je);
         }
     }
 

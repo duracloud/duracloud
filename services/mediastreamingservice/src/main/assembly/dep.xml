@@ -19,9 +19,20 @@
       <scope>provided</scope>
       <includes>
         <include>org.duracloud.services:mediastreamingservice</include>
+        <include>org.duracloud.services:computelistenerservice</include>
         <include>org.duracloud:storeclient</include>
         <include>org.duracloud:storageprovider</include>
         <include>org.jdom:com.springsource.org.jdom</include>
+
+        <!-- JMS -->
+        <include>org.springframework:spring-jms</include>
+        <include>javax.jms:com.springsource.javax.jms</include>
+        <include>org.apache.activemq:com.springsource.org.apache.activemq</include>
+        <include>org.apache.geronimo.specs:com.springsource.javax.management.j2ee</include>
+        <include>javax.ejb:com.springsource.javax.ejb</include>
+        <include>javax.xml.rpc:com.springsource.javax.xml.rpc</include>
+        <include>javax.xml.soap:com.springsource.javax.xml.soap</include>
+        <include>javax.activation:com.springsource.javax.activation</include>
       </includes>      
     </dependencySet>
   </dependencySets>

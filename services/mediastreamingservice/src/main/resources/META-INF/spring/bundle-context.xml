@@ -18,6 +18,10 @@
     <property name="duraStoreContext" value="durastore"/>
     <property name="mediaViewerSpaceId" value="media-viewer"/>
     <property name="mediaSourceSpaceId" value="media-source"/>
+    <property name="brokerURL" value="tcp://localhost:61617"/>
+    <property name="contentCreateTopic" value="org.duracloud.topic.ingest"/>
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="destination" ref="listenerDestination" />
   </bean>
 
 </beans>
