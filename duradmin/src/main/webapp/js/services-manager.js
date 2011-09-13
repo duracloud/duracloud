@@ -556,6 +556,7 @@ $(function() {
 					success: function(data){
 						dc.done();
 						insertDeployedService(data.serviceInfo, data.deployment, true);
+		                refreshDeployedServices();
 					},
 				});
 
