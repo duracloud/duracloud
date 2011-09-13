@@ -20,9 +20,7 @@
   </bean>
   
   <bean id="ingestDestination" class="org.apache.activemq.command.ActiveMQTopic">
-    <!--enable new queue name after duplicate-on-change is activated-->
-    <!--<constructor-arg index="0" value="org.duracloud.topic.change.content.ingest" />-->
-    <constructor-arg index="0" value="org.duracloud.topic.ingest" />
+    <constructor-arg index="0" value="org.duracloud.topic.change.content.ingest" />
   </bean>
   
   <bean id="ingestJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
