@@ -514,7 +514,8 @@ $(function() {
 			var data = currentItem.data;
 
 			serviceConfig.serviceconfig("load", data.service, data.deployment);
-			
+
+            $("#reconfigure-service-dialog .name").html("Reconfigure " + data.service.displayName);
 		},
 	});
 	
@@ -565,6 +566,8 @@ $(function() {
 		},
 		
 		open: function(e){
+            var service = deployServiceConfig.serviceconfig("data").service;
+            $("#configure-service-dialog .name").html("Configure " + service.displayName);
 		},
 	});
 	
