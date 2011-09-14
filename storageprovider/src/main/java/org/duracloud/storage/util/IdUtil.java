@@ -95,11 +95,6 @@ public class IdUtil {
             throw new InvalidIdException(err);
         }
 
-        if(contentID.contains(";")) {
-            String err = "Content ID may not include the ';' character";
-            throw new InvalidIdException(err);
-        }
-
         int utfLength;
         int urlLength;
         try {

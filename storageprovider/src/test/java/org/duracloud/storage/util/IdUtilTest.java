@@ -82,10 +82,6 @@ public class IdUtilTest {
         id = "test\\content";
         checkInvalidContentId(id);
 
-        // Semicolon
-        id = "test;content";
-        checkInvalidContentId(id);
-
         // Too long
         id = "test-content";
         while(id.getBytes().length <= 1024) {
@@ -96,7 +92,7 @@ public class IdUtilTest {
         // Test valid content IDs
 
         // Special characters
-        id = "test-content-~!@#$%^&*()_+=-`':/.,<>\"[]{}| ";
+        id = "test-content-~!@#$%^&*()_+=-`;':/.,<>\"[]{}| ";
         IdUtil.validateContentId(id);
     }
 

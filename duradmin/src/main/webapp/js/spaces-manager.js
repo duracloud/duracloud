@@ -50,8 +50,8 @@ $(function(){
 
         $.validator
         .addMethod("illegalchars", function(value, element) { 
-            return  !(/^.*([\\]|[?]|[;]).*$/.test(value));
-        }, "A Content ID cannot contain  '?' or '\\' or ';'");
+            return  !(/^.*([\\]|[?]).*$/.test(value));
+        }, "A Content ID cannot contain  '?' or '\\'");
         //end validator definitions        
     })();
     
