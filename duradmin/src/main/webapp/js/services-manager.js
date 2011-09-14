@@ -425,7 +425,7 @@ $(function() {
 				success: function(data){
 					showMessage("");
 					var services = data.services;
-					if(services == undefined){
+					if(services == undefined || services == null || services.length <= 0){
 						showMessage("There are no available services.");
 						return;
 					}
