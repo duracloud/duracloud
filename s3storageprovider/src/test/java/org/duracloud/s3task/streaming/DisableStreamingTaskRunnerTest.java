@@ -36,7 +36,7 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
     @Test
     public void testGetName() throws Exception {
         DisableStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV1(), createMockCFServiceV1());
+            createRunner(createMockS3ClientV1(), createMockCFServiceV1());
 
         String name = runner.getName();
         assertEquals("disable-streaming", name);
@@ -49,7 +49,7 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
     @Test
     public void testPerformTask1() throws Exception {
         DisableStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV1(), createMockCFServiceV2());
+            createRunner(createMockS3ClientV1(), createMockCFServiceV3());
 
         try {
             runner.performTask(null);
@@ -72,7 +72,7 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
      *
      * listStreamingDistributions (1) - returns null
      */
-    private CloudFrontService createMockCFServiceV2() throws Exception {
+    private CloudFrontService createMockCFServiceV3() throws Exception {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
@@ -92,13 +92,13 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
     @Test
     public void testPerformTask2() throws Exception {
         DisableStreamingTaskRunner runner =
-            createRunner(createMockS3ClientV2(), createMockCFServiceV3());
+            createRunner(createMockS3ClientV3(), createMockCFServiceV4());
 
         String results = runner.performTask("spaceId");
         assertNotNull(results);
     }
 
-    private AmazonS3Client createMockS3ClientV2() throws Exception {
+    private AmazonS3Client createMockS3ClientV3() throws Exception {
         AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
 
         service.setObjectAcl(EasyMock.isA(String.class),
@@ -118,7 +118,7 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
      *
      * listStreamingDistributions (1) - returns a list with a valid dist (matching bucket name)
      */
-    private CloudFrontService createMockCFServiceV3() throws Exception {
+    private CloudFrontService createMockCFServiceV4() throws Exception {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 

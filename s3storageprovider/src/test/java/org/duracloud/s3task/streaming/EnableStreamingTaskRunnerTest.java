@@ -8,7 +8,6 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.AccessControlList;
 import org.duracloud.common.util.SerializationUtil;
 import org.easymock.classextension.EasyMock;
 import org.jets3t.service.CloudFrontService;
@@ -16,7 +15,6 @@ import org.jets3t.service.model.cloudfront.LoggingStatus;
 import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
 import org.jets3t.service.model.cloudfront.S3Origin;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 import org.junit.Test;
 
 import java.util.Map;
@@ -43,7 +41,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testGetName() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV1(), createMockCFServiceV1());
+            createRunner(createMockS3ClientV1(), createMockCFServiceV1());
 
         String name = runner.getName();
         assertEquals("enable-streaming", name);
@@ -56,7 +54,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask1() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3ClientV2(), createMockCFServiceV2());
+            createRunner(createMockS3ClientV2(), createMockCFServiceV3());
 
         try {
             runner.performTask(null);
@@ -70,32 +68,6 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         testResults(results);
     }
 
-    private AmazonS3Client createMockS3ClientV2() throws Exception {
-        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
-
-        // Note that EasyMock appears to return the same ACL object
-        // each time this method is called, meaning that once a grant
-        // is added to the ACL returned from the first call to getObjectAcl
-        // all subsequent calls to getObjectAcl also have that grant.
-        // That's why putObjectAcl is expected only once, because when the
-        // grant exists, that call is skipped.
-        EasyMock
-            .expect(service.getObjectAcl(EasyMock.isA(String.class),
-                                         EasyMock.isA(String.class)))
-            .andReturn(new AccessControlList())
-            // Number determined by the number of items returned by the
-            // MockS3Provider.getSpaceContents()
-            .times(3);
-
-        service.setObjectAcl(EasyMock.isA(String.class),
-                             EasyMock.isA(String.class),
-                             EasyMock.isA(AccessControlList.class));
-        EasyMock.expectLastCall().times(1);
-
-        EasyMock.replay(service);
-        return service;
-    }
-
     /*
      * For testing the case where a distribution and origin access id do not
      * exist and are created.
@@ -107,7 +79,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
      * getOriginAccessIdentity (1) - returns valid oaid
      * listStreamingDistributions (1) - returns null
      */
-    private CloudFrontService createMockCFServiceV2() throws Exception {
+    private CloudFrontService createMockCFServiceV3() throws Exception {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
@@ -165,59 +137,11 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask2() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3ClientV2(), createMockCFServiceV3());
+            createRunner(createMockS3ClientV2(), createMockCFServiceV2());
 
         String results = runner.performTask("spaceId");
         assertNotNull(results);
         testResults(results);
-    }
-    
-    /*
-     * For testing the case where a distribution and origin access identity
-     * already exist and are used as is.
-     * In short, these are the calls that are expected:
-     *
-     * getStreamingDistributionConfig (1) - returns valid config (includes oaid, enabled)
-     * getOriginAccessIdentity (1) - returns valid oaid
-     * listStreamingDistributions (1) - returns a list with a valid dist (matching bucket name)
-     */
-    private CloudFrontService createMockCFServiceV3() throws Exception {
-        CloudFrontService service =
-            EasyMock.createMock(CloudFrontService.class);
-
-        S3Origin origin = new S3Origin("origin", "originAccessId");
-        StreamingDistributionConfig config =
-            new StreamingDistributionConfig(origin, "callerReference",
-                                            new String[0], "comment", true,
-                                            null, false, null, null);
-
-        EasyMock
-            .expect(service.getStreamingDistributionConfig(
-                EasyMock.isA(String.class)))
-            .andReturn(config)
-            .times(1);
-
-        OriginAccessIdentity oaIdentity =
-            new OriginAccessIdentity("id", "s3CanonicalUserId", "comment");
-
-        EasyMock
-            .expect(service.getOriginAccessIdentity(EasyMock.isA(String.class)))
-            .andReturn(oaIdentity)
-            .times(1);
-
-        S3Origin origin2 = new S3Origin("bucketName");
-        StreamingDistribution dist =
-            new StreamingDistribution("id", "status", null, "domainName",
-                                      origin2, null, "comment", true);
-        StreamingDistribution[] distributions = {dist};
-
-        EasyMock
-            .expect(service.listStreamingDistributions())
-            .andReturn(distributions)
-            .times(1);
-
-        EasyMock.replay(service);
-        return service;
     }
 
     private void testResults(String results) {

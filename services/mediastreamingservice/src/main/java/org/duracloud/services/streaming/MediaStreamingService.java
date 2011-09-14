@@ -23,6 +23,8 @@ import javax.jms.MapMessage;
 import java.io.File;
 import java.util.Dictionary;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Service which provides media streaming capabilities
@@ -51,6 +53,7 @@ public class MediaStreamingService extends BaseListenerService
 
     private ContentStore contentStore;
     private EnableStreamingWorker worker;
+    private ExecutorService updateExecutor;
 
     @Override
     public void start() throws Exception {
@@ -78,6 +81,8 @@ public class MediaStreamingService extends BaseListenerService
         Thread workerThread = new Thread(worker);
         workerThread.start();
 
+        updateExecutor = Executors.newCachedThreadPool();
+
         String messageSelector = SPACE_ID + " = '" + mediaSourceSpaceId + "'";
         initializeMessaging(messageSelector);
 
@@ -92,13 +97,16 @@ public class MediaStreamingService extends BaseListenerService
 
         // Stop listening for new additions to the space
         terminateMessaging();
-        
+
+        // Shut down update executor
+        updateExecutor.shutdown();
+
         // Start worker thread
         DisableStreamingWorker worker =
             new DisableStreamingWorker(contentStore, mediaSourceSpaceId);
         Thread workerThread = new Thread(worker);
         workerThread.start();
-        
+
         this.setServiceStatus(ServiceStatus.STOPPED);
     }
 
@@ -240,13 +248,16 @@ public class MediaStreamingService extends BaseListenerService
             String contentId = message.getString(CONTENT_ID);
 
             if(getContentCreateTopic().equals(topic)) {
-                log.info("Content item {} added to media space {}, " +
-                         "setting permissions for streaming",
-                         contentId,
+                log.warn("Content item {} added to media space {}, " +
+                         "setting permissions for streaming", contentId,
                          spaceId);
-                // TODO: Actually set permissions for new item!!
-                System.out.println("--- New Content Item to Stream: " +
-                                   spaceId + "/" + contentId + " ---");
+
+                // Push add item task to thread executor
+                AddStreamingItemWorker addItemWorker =
+                    new AddStreamingItemWorker(contentStore,
+                                               spaceId,
+                                               contentId);
+                updateExecutor.execute(addItemWorker);
             }
         } catch (JMSException je) {
             String error =

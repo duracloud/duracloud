@@ -35,7 +35,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testGetName() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV1(), createMockCFServiceV1());
+            createRunner(createMockS3ClientV1(), createMockCFServiceV1());
 
         String name = runner.getName();
         assertEquals("delete-streaming", name);
@@ -48,7 +48,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask1() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV1(), createMockCFServiceV2());
+            createRunner(createMockS3ClientV1(), createMockCFServiceV3());
 
         try {
             runner.performTask(null);
@@ -71,7 +71,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
      *
      * listStreamingDistributions (1) - returns null
      */
-    private CloudFrontService createMockCFServiceV2() throws Exception {
+    private CloudFrontService createMockCFServiceV3() throws Exception {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
@@ -91,7 +91,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask2() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3ServiceV1(), createMockCFServiceV3());
+            createRunner(createMockS3ClientV1(), createMockCFServiceV4());
 
         String results = runner.performTask("spaceId");
         assertNotNull(results);
@@ -106,7 +106,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
      * getStreamingDistributionInfo (1) - return valid info, deployed
      * deleteStreamingDistribution (1) - void return
      */
-    private CloudFrontService createMockCFServiceV3() throws Exception {
+    private CloudFrontService createMockCFServiceV4() throws Exception {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
