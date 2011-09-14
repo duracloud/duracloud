@@ -57,15 +57,23 @@ public class ServiceXmlGenerator {
      * @throws IOException
      */
     public void generateServiceXml(String dirPath) throws IOException {
+        generateServiceXmlAll(dirPath);
         generateServiceXmlProfessional(dirPath);
         generateServiceXmlPreservation(dirPath);
         generateServiceXmlMedia(dirPath);
         generateServiceXmlTrial(dirPath);
     }
 
+    private void generateServiceXmlAll(String dirPath)
+        throws IOException {
+        doGenerateServiceXml(dirPath, getRepositoryName(), getServices());
+    }
+
     private void generateServiceXmlProfessional(String dirPath)
         throws IOException {
-        doGenerateServiceXml(dirPath, getRepositoryName(), getServicesProfessional());
+        doGenerateServiceXml(dirPath,
+                             getRepositoryNameProfessional(),
+                             getServicesProfessional());
     }
 
     private void generateServiceXmlPreservation(String dirPath)
@@ -101,6 +109,10 @@ public class ServiceXmlGenerator {
 
     private String getRepositoryName() {
         return new ServiceRegistryName(version).getName();
+    }
+
+    private String getRepositoryNameProfessional() {
+        return new ServiceRegistryName(version).getNameProfessional();
     }
 
     private String getRepositoryNamePreservation() {

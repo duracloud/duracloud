@@ -17,6 +17,7 @@ public class ServiceRegistryName {
 
     private static final String PREFIX = "duracloud-";
     private static final String SUFFIX = "-service-repo";
+    private static final String PROFESSIONAL = "-pro";
     private static final String PRESERVATION_AND_ARCHIVING = "-pna";
     private static final String MEDIA = "-med";
     private static final String TRIAL = "-trial";
@@ -28,6 +29,11 @@ public class ServiceRegistryName {
     public String getName() {
         String v = version.replaceAll("\\.", "-");
         return PREFIX + v.toLowerCase() + SUFFIX;
+    }
+
+    public String getNameProfessional() {
+        String v = version.replaceAll("\\.", "-");
+        return PREFIX + v.toLowerCase() + SUFFIX + PROFESSIONAL;
     }
 
     public String getNamePreservation() {
