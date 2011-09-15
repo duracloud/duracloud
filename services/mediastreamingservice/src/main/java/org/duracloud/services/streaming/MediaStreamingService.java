@@ -247,7 +247,8 @@ public class MediaStreamingService extends BaseListenerService
             String spaceId = message.getString(SPACE_ID);
             String contentId = message.getString(CONTENT_ID);
 
-            if(getContentCreateTopic().equals(topic)) {
+            if(getContentCreateTopic().equals(topic) ||
+               getContentCopyTopic().equals(topic)) {
                 log.warn("Content item {} added to media space {}, " +
                          "setting permissions for streaming", contentId,
                          spaceId);

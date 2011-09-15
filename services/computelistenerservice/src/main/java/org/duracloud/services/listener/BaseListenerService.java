@@ -40,6 +40,7 @@ public abstract class BaseListenerService extends BaseService
     private String spaceUpdateTopic;
     private String spaceDeleteTopic;
     private String contentCreateTopic;
+    private String contentCopyTopic;
     private String contentUpdateTopic;
     private String contentDeleteTopic;
 
@@ -159,6 +160,14 @@ public abstract class BaseListenerService extends BaseService
 
     public void setContentCreateTopic(String contentCreateTopic) {
         this.contentCreateTopic = contentCreateTopic;
+    }
+
+    public String getContentCopyTopic() {
+        return contentCopyTopic;
+    }
+
+    public void setContentCopyTopic(String contentCopyTopic) {
+        this.contentCopyTopic = contentCopyTopic;
     }
 
     public String getContentUpdateTopic() {

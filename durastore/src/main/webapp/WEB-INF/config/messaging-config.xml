@@ -31,6 +31,10 @@
   
   <bean id="ingestMsgConverter" class="org.duracloud.durastore.aop.IngestMessageConverter" />
 
+  <bean id="copyContentDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.change.content.copy" />
+  </bean>
+
   <bean id="updateContentDestination" class="org.apache.activemq.command.ActiveMQTopic">
     <constructor-arg index="0" value="org.duracloud.topic.change.content.update" />
   </bean>
@@ -38,6 +42,14 @@
   <bean id="deleteContentDestination" class="org.apache.activemq.command.ActiveMQTopic">
     <constructor-arg index="0" value="org.duracloud.topic.change.content.delete" />
   </bean>
+
+  <bean id="contentCopyJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory" ref="connFactory" />
+    <property name="defaultDestination" ref="copyContentDestination" />
+    <property name="messageConverter" ref="contentCopyMsgConverter" />
+  </bean>
+
+  <bean id="contentCopyMsgConverter" class="org.duracloud.durastore.aop.ContentCopyMessageConverter" />
 
   <bean id="contentJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
     <property name="connectionFactory" ref="connFactory" />

@@ -28,6 +28,7 @@
     <property name="spaceUpdateTopic" value="org.duracloud.topic.change.space.update"/>
     <property name="spaceDeleteTopic" value="org.duracloud.topic.change.space.delete"/>
     <property name="contentCreateTopic" value="org.duracloud.topic.change.content.ingest"/>
+    <property name="contentCopyTopic" value="org.duracloud.topic.change.content.copy"/>
     <property name="contentUpdateTopic" value="org.duracloud.topic.change.content.update"/>
     <property name="contentDeleteTopic" value="org.duracloud.topic.change.content.delete"/>
     <!-- <property name="jmsContainer" ref="jmsContainer" />  -->

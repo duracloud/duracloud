@@ -63,6 +63,7 @@ public class BrokeredStorageProvider
                               String destSpaceId,
                               String destContentId) {
         return dispatchProvider.copyContent(targetProvider,
+                                            storeId,
                                             sourceSpaceId,
                                             sourceContentId,
                                             destSpaceId,

@@ -10,7 +10,7 @@
   </bean>
    
   <bean id="listenerDestination" class="org.apache.activemq.command.ActiveMQTopic">
-    <constructor-arg value="org.duracloud.topic.change.content.ingest" />
+    <constructor-arg value="org.duracloud.topic.change.content.ingest,org.duracloud.topic.change.content.copy" />
   </bean>
 
 </beans>

@@ -28,6 +28,7 @@ public interface StatelessStorageProvider {
             throws StorageException;
 
     public String copyContent(StorageProvider targetProvider,
+                              String storeId,
                               String sourceSpaceId,
                               String sourceContentId,
                               String destSpaceId,

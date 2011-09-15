@@ -17,6 +17,18 @@
     <property name="pattern" value=".*StatelessStorageProvider.addContent"/>
   </bean>
 
+  <!-- AOP Advice - Copy Content -->
+  <bean id="contentCopyAdvice" class="org.duracloud.durastore.aop.ContentCopyAdvice" >
+    <property name="contentJmsTemplate" ref="contentCopyJmsTemplate" />
+    <property name="destination" ref="copyContentDestination" />
+    <property name="order" value="3" />
+  </bean>
+
+  <bean id="contentCopyAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+    <property name="advice" ref="contentCopyAdvice"/>
+    <property name="pattern" value=".*StatelessStorageProvider.copyContent"/>
+  </bean>
+
   <!-- AOP Advice - Content Update -->
   <bean id="contentUpdateAdvice" class="org.duracloud.durastore.aop.ContentUpdateAdvice" >
     <property name="contentJmsTemplate" ref="contentJmsTemplate" />

@@ -120,6 +120,9 @@ public class DuplicationService extends BaseListenerService
             else if(getContentCreateTopic().equals(topic)) {
                 contentDuplicator.createContent(spaceId, contentId);
             }
+            else if(getContentCopyTopic().equals(topic)) {
+                contentDuplicator.createContent(spaceId, contentId);
+            }
             else if(getContentUpdateTopic().equals(topic)) {
                 contentDuplicator.updateContent(spaceId, contentId);
             }

@@ -39,6 +39,7 @@ public class StatelessStorageProviderImpl
 
     @Override
     public String copyContent(StorageProvider targetProvider,
+                              String storeId,
                               String sourceSpaceId,
                               String sourceContentId,
                               String destSpaceId,
