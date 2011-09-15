@@ -1341,7 +1341,7 @@ $(function(){
 	$("#add-space-form").validate({
 		rules: {
 			spaceId: {
-				rangelength: [3,63],
+				rangelength: [3,42],
 				startswith: true,
 				endswith: true,
 				spacelower: true,

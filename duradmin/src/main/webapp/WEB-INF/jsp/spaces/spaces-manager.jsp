@@ -187,7 +187,7 @@
 				<div class="hint">
 					<h2>Space ID's must follow these rules:</h2>
 					<ul class="bullets">
-						<li>Must be 3 to 63 characters long</li>
+						<li>Must be 3 to 42 characters long</li>
 						<li>ONLY use lowercase letters, numbers, periods, and dashes</li>
 						<li>Do NOT use spaces or underscores</li>
 						<li>Do NOT start or end with a dash</li>

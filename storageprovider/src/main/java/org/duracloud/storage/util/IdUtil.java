@@ -26,8 +26,8 @@ public class IdUtil {
         throws InvalidIdException {
         if(spaceID == null ||
            spaceID.trim().length() < 3 ||
-           spaceID.trim().length() > 63) {
-            String err = "Space ID must be between 3 and 63 characters long";
+           spaceID.trim().length() > 42) {
+            String err = "Space ID must be between 3 and 42 characters long";
             throw new InvalidIdException(err);
         }
 

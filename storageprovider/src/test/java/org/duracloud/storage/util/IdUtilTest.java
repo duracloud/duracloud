@@ -58,7 +58,7 @@ public class IdUtilTest {
         IdUtil.validateSpaceId("a0.1b.2c.3d.4e.f6");
         IdUtil.validateSpaceId("tes");
         IdUtil.validateSpaceId("test-space-test-space-test-space-" +
-                               "test-space-test-space-test-spa");
+                               "test-spac");
     }
 
     private void checkInvalidSpaceId(String id) {
