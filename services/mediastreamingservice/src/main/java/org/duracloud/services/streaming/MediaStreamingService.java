@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  *         Date: May 12, 2010
  */
 public class MediaStreamingService extends BaseListenerService
-    implements ComputeService, ManagedService {
+    implements ComputeService, ManagedService, StreamingUpdateListener {
 
     private final Logger log = LoggerFactory.getLogger(MediaStreamingService.class);
 
@@ -54,6 +54,7 @@ public class MediaStreamingService extends BaseListenerService
     private ContentStore contentStore;
     private EnableStreamingWorker worker;
     private ExecutorService updateExecutor;
+    private int updateAdditions;
 
     @Override
     public void start() throws Exception {
@@ -81,6 +82,7 @@ public class MediaStreamingService extends BaseListenerService
         Thread workerThread = new Thread(worker);
         workerThread.start();
 
+        updateAdditions = 0;
         updateExecutor = Executors.newCachedThreadPool();
 
         String messageSelector = SPACE_ID + " = '" + mediaSourceSpaceId + "'";
@@ -140,6 +142,11 @@ public class MediaStreamingService extends BaseListenerService
         if(enableStreamingResult != null) {
             props.put("Results of Enabling Streaming",
                       enableStreamingResult);
+        }
+
+        if(updateAdditions > 0) {
+            props.put("Streaming files added after service start",
+                      String.valueOf(updateAdditions));
         }
 
         return props;
@@ -257,7 +264,8 @@ public class MediaStreamingService extends BaseListenerService
                 AddStreamingItemWorker addItemWorker =
                     new AddStreamingItemWorker(contentStore,
                                                spaceId,
-                                               contentId);
+                                               contentId,
+                                               this);
                 updateExecutor.execute(addItemWorker);
             }
         } catch (JMSException je) {
@@ -266,6 +274,12 @@ public class MediaStreamingService extends BaseListenerService
             log.error(error);
             throw new RuntimeException(error, je);
         }
+    }
+
+    @Override
+    public void successfulStreamingAddition(String mediaSpaceId,
+                                            String mediaContentId) {
+        ++updateAdditions;
     }
 
     private void log(String logMsg) {

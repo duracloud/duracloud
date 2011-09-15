@@ -30,16 +30,19 @@ public class AddStreamingItemWorker implements Runnable {
     private ContentStore contentStore;
     private String mediaSpaceId;
     private String mediaContentId;
+    private StreamingUpdateListener updateListener;
 
     private String addStreamingItemResult = null;
     private String error = null;
 
     public AddStreamingItemWorker(ContentStore contentStore,
                                   String mediaSpaceId,
-                                  String mediaContentId) {
+                                  String mediaContentId,
+                                  StreamingUpdateListener updateListener) {
         this.contentStore = contentStore;
         this.mediaSpaceId = mediaSpaceId;
         this.mediaContentId = mediaContentId;
+        this.updateListener = updateListener;
     }
 
     public String getAddStreamingItemResult() {
@@ -66,11 +69,17 @@ public class AddStreamingItemWorker implements Runnable {
      */
     private void addStreamingItem() throws ContentStoreException {
         String taskParams = mediaSpaceId + ":" + mediaContentId;
+
         String addStreamingItemResponse =
             contentStore.performTask(ADD_STREAMING_ITEM_TASK, taskParams);
+
         Map<String, String> responseMap =
             SerializationUtil.deserializeMap(addStreamingItemResponse);
         addStreamingItemResult = responseMap.get("results");
+        if(addStreamingItemResult.contains("completed")) {
+            updateListener.successfulStreamingAddition(mediaSpaceId,
+                                                       mediaContentId);
+        }
     }
 
     private void log(String logMsg, Exception e) {

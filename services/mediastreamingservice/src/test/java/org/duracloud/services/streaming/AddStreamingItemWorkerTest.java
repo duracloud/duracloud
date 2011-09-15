@@ -25,12 +25,13 @@ import static org.junit.Assert.assertNotNull;
  * @author: Bill Branan
  * Date: 9/14/11
  */
-public class AddStreamingItemWorkerTest {
+public class AddStreamingItemWorkerTest implements StreamingUpdateListener{
 
     private ContentStore contentStore;
     private String spaceId = "spaceId";
     private String contentId = "contentId";
     private String params = spaceId + ":" + contentId;
+    private int updateSuccess = 0;
 
     @Before
     public void setUp() throws Exception {
@@ -42,7 +43,7 @@ public class AddStreamingItemWorkerTest {
         ContentStore contentStore = EasyMock.createMock(ContentStore.class);
 
         Map<String, String> results = new HashMap<String, String>();
-        results.put("results", "success");
+        results.put("results", "completed");
 
         EasyMock
             .expect(contentStore.performTask("add-streaming-item", params))
@@ -62,11 +63,17 @@ public class AddStreamingItemWorkerTest {
     @Test
     public void testAddStreamingItemWorker() throws Exception {
         AddStreamingItemWorker worker =
-            new AddStreamingItemWorker(contentStore, spaceId, contentId);
+            new AddStreamingItemWorker(contentStore, spaceId, contentId, this);
         worker.run();
         String result = worker.getAddStreamingItemResult();
         assertNotNull(result);
-        assertEquals("success", result);
+        assertEquals("completed", result);
+        assertEquals(1, updateSuccess);
     }
 
+    @Override
+    public void successfulStreamingAddition(String mediaSpaceId,
+                                            String mediaContentId) {
+        ++updateSuccess;
+    }
 }
