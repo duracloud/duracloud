@@ -37,6 +37,9 @@ import java.util.Map;
 public class EnableStreamingWorker implements Runnable {
 
     private static final String ENABLE_STREAMING_TASK = "enable-streaming";
+    private static final String SINGLE_PLAYER_NAME = "singleplayer.html";
+    private static final String PLAYLIST_PLAYER_NAME = "playlistplayer.html";
+    private static final String PLAYLIST_NAME = "playlist.xml";
 
     private final Logger log = LoggerFactory.getLogger(EnableStreamingWorker.class);
 
@@ -67,8 +70,8 @@ public class EnableStreamingWorker implements Runnable {
     public void run() {
         try {
             createDistribution();
-            createPlaylist();
-            createPlayers();
+            File playlist = createPlaylist();
+            createPlayers(playlist.getName());
 
             // Move files from work dir to media viewer space
             moveFilesToSpace(workDir.listFiles(),
@@ -98,6 +101,10 @@ public class EnableStreamingWorker implements Runnable {
         return error;        
     }
 
+    public String getMediaSourceSpaceId() {
+        return mediaSourceSpaceId;
+    }
+
     /*
      * Create/enable distribution
      */
@@ -113,14 +120,15 @@ public class EnableStreamingWorker implements Runnable {
     /*
      * Create playlist in work dir
      */
-    private void createPlaylist() throws ContentStoreException {
+    private File createPlaylist() throws ContentStoreException {
         String playlistXml =
             playlistCreator.createPlaylist(contentStore, mediaSourceSpaceId);
-        storePlaylist(playlistXml, workDir);
+        return storePlaylist(playlistXml, workDir);
     }
 
     private File storePlaylist(String playlistXml, File workDir) {
-        File playlist = new File(workDir, "playlist.xml");
+        File playlist =
+            new File(workDir, mediaSourceSpaceId + "-" + PLAYLIST_NAME);
 
         FileOutputStream fileStream;
         try {
@@ -145,10 +153,9 @@ public class EnableStreamingWorker implements Runnable {
     /*
      * Replace variables in example player html files
      */
-    private void createPlayers() throws ContentStoreException {
-        String sampleMediaId =
-            getIdFromSpace(contentStore, mediaSourceSpaceId);
-        updatePlayers(workDir, streamHost, sampleMediaId);
+    private void createPlayers(String playlistName) throws ContentStoreException {
+        String sampleMediaId = getIdFromSpace(contentStore, mediaSourceSpaceId);
+        updatePlayers(workDir, streamHost, sampleMediaId, playlistName);
     }
 
     private String getIdFromSpace(ContentStore contentStore, String spaceId)
@@ -163,14 +170,25 @@ public class EnableStreamingWorker implements Runnable {
 
     private void updatePlayers(File workDir,
                                String streamHost,
-                               String sampleMediaId) {
-        File singlePlayer = new File(workDir, "singleplayer.html");
-        File playlistPlayer = new File(workDir, "playlistplayer.html");
+                               String sampleMediaId,
+                               String playlistName) {
+        File singlePlayerOrig = new File(workDir, SINGLE_PLAYER_NAME);
+        File playlistPlayerOrig = new File(workDir, PLAYLIST_PLAYER_NAME);
+
+        File singlePlayer =
+            new File(workDir, mediaSourceSpaceId + "-" + SINGLE_PLAYER_NAME);
+        File playlistPlayer =
+            new File(workDir, mediaSourceSpaceId + "-" + PLAYLIST_PLAYER_NAME);
 
         try {
+            FileUtils.copyFile(singlePlayerOrig, singlePlayer);
+            FileUtils.copyFile(playlistPlayerOrig, playlistPlayer);
             IOUtil.fileFindReplace(singlePlayer, "$STREAM-HOST", streamHost);
             IOUtil.fileFindReplace(singlePlayer, "$MEDIA-FILE", sampleMediaId);
             IOUtil.fileFindReplace(playlistPlayer, "$STREAM-HOST", streamHost);
+            IOUtil.fileFindReplace(playlistPlayer,
+                                   "$PLAYLIST_NAME",
+                                   playlistName);
         } catch(IOException e) {
             throw new RuntimeException("Unable to update player files due to: "
                                        + e.getMessage());
@@ -185,7 +203,11 @@ public class EnableStreamingWorker implements Runnable {
 
         List<File> toAdd = new ArrayList<File>();
         for (File file : files) {
-            toAdd.add(file);
+            String name = file.getName();
+            if(!name.equals(SINGLE_PLAYER_NAME) &&
+               !name.equals(PLAYLIST_PLAYER_NAME)) {
+                toAdd.add(file);
+            }
         }
 
         int maxloops = 20;

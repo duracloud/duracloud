@@ -74,27 +74,29 @@
 				return select;
 
 			}else if(inputType == "MULTISELECT"){
-				var select =  $.fn.create("ul");
+                var selectSize = 8;
+                if(uc.options.length < selectSize) {
+                    selectSize = uc.options.length;
+                }
+
+				var select =  $.fn.create("select")
+								  .attr("name", controlId)
+								  .attr("id", controlId)
+                                  .attr("multiple", "true")
+                                  .attr("size", selectSize);
+
 				for(i = 0; i < uc.options.length; i++){
 					var o = uc.options[i];
-					var li = $.fn.create("li");
-					var id = o.id + "-" + i;
-					var option = $.fn.create("input")
-									.attr("name", controlId+"-"+checkbox+"-"+i)
-									.attr("type","checkbox")
-									.attr("value", o.value);
+					var option = $.fn.create("option")
+									 .attr("value", o.value)
+									 .html(o.displayName);
 					if(o.selected){
-						option.attr("checked", "true");
+						option.attr("selected", "true");
 					}
-					
-					li.append(option).append("label")
-										.attr("for", id)
-										.html(o.displayName);
-					select.append(li);
+					select.append(option);
 				}
-				
+
 				return select;
-				
 			}else{
 				throw Error("input type [" + inputType + "] not recognized");
 			}

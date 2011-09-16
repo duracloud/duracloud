@@ -21,7 +21,11 @@ import org.slf4j.LoggerFactory;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,9 +56,11 @@ public class MediaStreamingService extends BaseListenerService
     private String mediaSourceSpaceId;
 
     private ContentStore contentStore;
-    private EnableStreamingWorker worker;
+    private List<EnableStreamingWorker> streamingWorkers;
+    private ExecutorService streamingExecutor;
     private ExecutorService updateExecutor;
     private int updateAdditions;
+    private String[] mediaSourceSpaceIds;
 
     @Override
     public void start() throws Exception {
@@ -73,23 +79,44 @@ public class MediaStreamingService extends BaseListenerService
         File workDir = new File(getServiceWorkDir());
         workDir.setWritable(true);
 
-        // Start worker thread
-        worker = new EnableStreamingWorker(contentStore,
-                                           mediaViewerSpaceId,
-                                           mediaSourceSpaceId,
-                                           playlistCreator,
-                                           workDir);
-        Thread workerThread = new Thread(worker);
-        workerThread.start();
+        mediaSourceSpaceIds = mediaSourceSpaceId.split(",");
+
+        // Start enable streaming worker threads
+        streamingWorkers = new LinkedList<EnableStreamingWorker>();
+        streamingExecutor = Executors.newSingleThreadExecutor();
+        for(String spaceId : mediaSourceSpaceIds) {
+            EnableStreamingWorker worker =
+                new EnableStreamingWorker(contentStore,
+                                          mediaViewerSpaceId,
+                                          spaceId,
+                                          playlistCreator,
+                                          workDir);
+            streamingWorkers.add(worker);
+            streamingExecutor.execute(worker);
+        }
 
         updateAdditions = 0;
         updateExecutor = Executors.newCachedThreadPool();
 
-        String messageSelector = SPACE_ID + " = '" + mediaSourceSpaceId + "'";
-        initializeMessaging(messageSelector);
+        // Set message selector
+        initializeMessaging(createMessageSelector(mediaSourceSpaceIds));
 
         super.start();
         setServiceStatus(ServiceStatus.PROCESSING);
+    }
+
+    protected String createMessageSelector(String[] spaceIds) {
+        String messageSelector = "";
+        Iterator<String> spaceIdsIterator =
+            Arrays.asList(spaceIds).iterator();
+        while(spaceIdsIterator.hasNext()) {
+            String select = SPACE_ID + " = '" + spaceIdsIterator.next() + "'";
+            messageSelector += "(" + select + ")";
+            if(spaceIdsIterator.hasNext()) {
+                messageSelector += " OR ";
+            }
+        }
+        return messageSelector;
     }
 
     @Override
@@ -103,45 +130,58 @@ public class MediaStreamingService extends BaseListenerService
         // Shut down update executor
         updateExecutor.shutdown();
 
-        // Start worker thread
-        DisableStreamingWorker worker =
-            new DisableStreamingWorker(contentStore, mediaSourceSpaceId);
-        Thread workerThread = new Thread(worker);
-        workerThread.start();
+        // Start disable streaming worker threads
+        for(String spaceId : mediaSourceSpaceIds) {
+            DisableStreamingWorker worker =
+                new DisableStreamingWorker(contentStore, spaceId);
+            streamingExecutor.execute(worker);
+        }
+
+        // Indicate that streaming executor should shut down after
+        // all tasks have completed.
+        streamingExecutor.shutdown();
 
         this.setServiceStatus(ServiceStatus.STOPPED);
     }
 
     @Override
     public Map<String, String> getServiceProps() {
-        // Set data from worker
-        String streamHost = null;
-        String enableStreamingResult = null;
-        if(worker != null) {
-            if(worker.isComplete()) {
-                setServiceStatus(ServiceStatus.STARTED);
-                streamHost = worker.getStreamHost();
-                enableStreamingResult = worker.getEnableStreamingResult();
-            }
-
-            String error = worker.getError();
-            if(error != null) {
-                setError(error);
-            }
-        }
-
         // Get the base properties set
         Map<String, String> props = super.getServiceProps();
 
-        // Add additional properties
-        if(streamHost != null) {
-            props.put("Streaming Host", streamHost);
-            props.put("RTMP Streaming URL", "rtmp://"+streamHost+"/cfx/st");
+        // Set data from workers
+        boolean complete = true;
+        for(EnableStreamingWorker worker : streamingWorkers) {
+            if(worker != null) {
+                String spaceId = worker.getMediaSourceSpaceId();
+                if(worker.isComplete()) {
+                    String streamHost = worker.getStreamHost();
+                    if(streamHost != null) {
+                        props.put("Streaming Host for " + spaceId, streamHost);
+                        props.put("RTMP Streaming URL for " + spaceId,
+                                  "rtmp://"+streamHost+"/cfx/st");
+                    }
+
+                    String enableStreamingResult =
+                        worker.getEnableStreamingResult();
+                    if(enableStreamingResult != null) {
+                        props.put("Enable Streaming Result for " + spaceId,
+                                  enableStreamingResult);
+                    }
+                } else {
+                    complete = false;
+                }
+
+                String error = worker.getError();
+                if(error != null) {
+                    props.put(ComputeService.ERROR_KEY, error);
+                }
+            }
         }
 
-        if(enableStreamingResult != null) {
-            props.put("Results of Enabling Streaming",
-                      enableStreamingResult);
+        if(complete) {
+            this.setServiceStatus(ServiceStatus.STARTED);
+            props.put(ComputeService.STATUS_KEY, getServiceStatus().name());
         }
 
         if(updateAdditions > 0) {

@@ -7,17 +7,6 @@
  */
 package org.duracloud.duradmin.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
@@ -26,6 +15,17 @@ import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 public class ServiceInfoUtilTest {
@@ -42,10 +42,12 @@ public class ServiceInfoUtilTest {
     	TextUserConfig tuc = new TextUserConfig("test","Test");
         tuc.setValue("testValue1");
         assertEquals("testValue1", tuc.getValue());
-        Map<String,String> params = new HashMap<String,String>();
-        params.put(key, "testValue1");
+        Map<String,String[]> params = new HashMap<String,String[]>();
+        String[] values1 = {"testValue1"};
+        params.put(key, values1);
         assertFalse(ServiceInfoUtil.applyValues(tuc, params, namespace));
-        params.put(key, "testValue2");
+        String[] values2 = {"testValue2"};
+        params.put(key, values2);
         assertTrue(ServiceInfoUtil.applyValues(tuc, params, namespace));
     }
 
@@ -58,16 +60,18 @@ public class ServiceInfoUtilTest {
         options.add(new Option("Value 1", "1", false));
         options.add(new Option("Value 2", "2", false));
         options.add(new Option("Value 3", "3", false));
-        SingleSelectUserConfig uc = new SingleSelectUserConfig("test","Test", options);
+        SingleSelectUserConfig uc =
+            new SingleSelectUserConfig("test","Test", options);
 
         assertNull(uc.getSelectedValue());
         uc.select("2");
         assertEquals("2", uc.getSelectedValue());
         
-        Map<String,String> params = new HashMap<String,String>();
-        params.put(key, "1");
-        assertTrue(ServiceInfoUtil.applyValues(uc, params,namespace));
-        assertFalse(ServiceInfoUtil.applyValues(uc, params,namespace));
+        Map<String,String[]> params = new HashMap<String,String[]>();
+        String[] values = {"1"};
+        params.put(key, values);
+        assertTrue(ServiceInfoUtil.applyValues(uc, params, namespace));
+        assertFalse(ServiceInfoUtil.applyValues(uc, params, namespace));
     }
 
     @Test
@@ -79,15 +83,16 @@ public class ServiceInfoUtilTest {
         options.add(new Option("Value 1", "1", false));
         options.add(new Option("Value 2", "2", false));
         options.add(new Option("Value 3", "3", false));
-        MultiSelectUserConfig uc = new MultiSelectUserConfig("test","Test", options);
+        MultiSelectUserConfig uc =
+            new MultiSelectUserConfig("test","Test", options);
 
-        Map<String,String> params = new HashMap<String,String>();
-        params.put(key+"-checkbox-0", "checked");
-        params.put(key+"-checkbox-1", "checked");
-        params.put(key+"-checkbox-2", "checked");
+        Map<String,String[]> params = new HashMap<String,String[]>();
+        String[] values1 = {"1", "3"};
+        params.put(key, values1);
         assertTrue(ServiceInfoUtil.applyValues(uc, params,namespace));
 
-        params.remove(key+"-checkbox-2");
+        String[] values2 = {"1"};
+        params.put(key, values2);
         assertTrue(ServiceInfoUtil.applyValues(uc, params,namespace));
         assertFalse(ServiceInfoUtil.applyValues(uc, params,namespace));
     }
@@ -96,12 +101,14 @@ public class ServiceInfoUtilTest {
     public void testModeSetWithSingleMode() {
     	List<Option> options = new LinkedList<Option>();
         options.add(new Option("Value 1", "1", false));
-        SingleSelectUserConfig uc = new SingleSelectUserConfig("test","Test", options);
-        UserConfigModeSet ms = new UserConfigModeSet(Arrays.asList(new UserConfig[]{uc}));
+        SingleSelectUserConfig uc =
+            new SingleSelectUserConfig("test","Test", options);
+
+        UserConfigModeSet ms =
+            new UserConfigModeSet(Arrays.asList(new UserConfig[]{uc}));
         ms.getModes().get(0).setSelected(false);
-        ServiceInfoUtil.applyValues(ms, new HashMap<String,String>(), null);
+        ServiceInfoUtil.applyValues(ms, new HashMap<String,String[]>(), null);
         assertTrue(ms.getModes().get(0).isSelected());
-        
     }
 
 

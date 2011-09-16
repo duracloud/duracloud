@@ -3,6 +3,7 @@ package org.duracloud.duraservice.config;
 import org.duracloud.duraservice.mgmt.ServiceConfigUtil;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
+import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
@@ -47,7 +48,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
                                    false);
         spaceOptions.add(spaces);
 
-        SingleSelectUserConfig mediaSourceSpace = new SingleSelectUserConfig(
+        MultiSelectUserConfig mediaSourceSpace = new MultiSelectUserConfig(
             "mediaSourceSpaceId",
             "Source Media Space",
             spaceOptions);

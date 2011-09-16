@@ -8,28 +8,27 @@
 
 package org.duracloud.duradmin.services.controller;
 
-import java.text.MessageFormat;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.duracloud.duradmin.util.ServiceInfoUtil;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
-import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.DeploymentOption.Location;
+import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.text.MessageFormat;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static org.duracloud.services.ComputeService.SYSTEM_PREFIX;
 
@@ -158,11 +157,6 @@ public class ServiceController implements Controller {
 		return new ModelAndView("jsonView", "serviceInfo", servicesManager.getService(serviceId));
 	}
 
-	
-
-
-
-	
 	private ModelAndView deploy(Integer serviceId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		List<ServiceInfo> services = this.servicesManager.getAvailableServices();
 		ServiceInfo serviceInfo = getServiceInfo(serviceId,services);

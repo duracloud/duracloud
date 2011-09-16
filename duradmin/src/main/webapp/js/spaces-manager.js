@@ -861,7 +861,7 @@ $(function(){
                                     var m;
                                     for(m in userConfigs){
                                         var uc = userConfigs[m];
-                                        if(uc.name == "mediaSourceSpaceId" && uc.displayValue == contentItem.spaceId){
+                                        if(uc.name == "mediaSourceSpaceId" && uc.displayValue.indexOf(contentItem.spaceId) != -1){
                                             sourceMediaSpace = true;
                                             break;
                                         }
@@ -876,7 +876,7 @@ $(function(){
 										var k;
 										for(k in data.properties){
 											var prop = data.properties[k];
-											if(prop.name == 'Streaming Host'){
+ 											if(prop.name == 'Streaming Host for ' + contentItem.spaceId){
 												streamingHost = prop.value;
 												setTimeout(function(){
 													//async necessary to let the DOM update itself so that the mediaspace dom element is present.

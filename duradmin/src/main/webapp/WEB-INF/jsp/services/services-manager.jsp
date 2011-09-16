@@ -87,7 +87,7 @@
 			
 				<div class="dc-service-detail-wrapper" id="dc-service-detail-wrapper"> 
 					<div id="service-detail" class="dialog-detail">
-						<p>Select a service to get more details about it</p>
+						<p>Select a service for further details</p>
 					</div>
 				</div> 
 			</div>

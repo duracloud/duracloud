@@ -130,8 +130,8 @@ public class EnableStreamingWorkerTest {
 
         EnableStreamingWorker worker =
             new EnableStreamingWorker(contentStore,
-                                      "sourceSpaceId",
                                       "viewerSpaceId",
+                                      "sourceSpaceId",
                                       playlistCreator,
                                       workDir);
 

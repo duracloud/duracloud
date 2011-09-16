@@ -7,13 +7,6 @@
  */
 package org.duracloud.duradmin.util;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
@@ -22,6 +15,12 @@ import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class ServiceInfoUtil {
@@ -32,8 +31,12 @@ public class ServiceInfoUtil {
      * @param parameters
      * @return true if value changed
      */
-    public static boolean applyValues(TextUserConfig userConfig, Map<String,String> parameters, String namespace){
-        String newValue = parameters.get(namespace+"."+userConfig.getName());
+    public static boolean applyValues(TextUserConfig userConfig,
+                                      Map<String,String[]> parameters,
+                                      String namespace){
+        String[] newValues = parameters.get(namespace+"."+userConfig.getName());
+        String newValue =
+            (newValues != null && newValues.length > 0) ? newValues[0] : null;
         String oldValue = userConfig.getValue();
         userConfig.setValue(newValue);
 
@@ -46,13 +49,16 @@ public class ServiceInfoUtil {
      * @param parameters
      * @return true if value changed
      */
-    public static boolean applyValues(SingleSelectUserConfig userConfig, Map<String,String> parameters,String namespace){
-        String newValue = parameters.get(namespace+"."+userConfig.getName());
+    public static boolean applyValues(SingleSelectUserConfig userConfig,
+                                      Map<String,String[]> parameters,
+                                      String namespace){
+        String[] newValues = parameters.get(namespace+"."+userConfig.getName());
+        String newValue =
+            (newValues != null && newValues.length > 0) ? newValues[0] : null;
         String oldValue = userConfig.getSelectedValue();
         userConfig.select(newValue);
         return !StringUtils.equals(newValue, oldValue);
     }
-
 
     /**
      * 
@@ -60,20 +66,22 @@ public class ServiceInfoUtil {
      * @param parameters
      * @return true if value changed
      */
-    public static boolean applyValues(MultiSelectUserConfig userConfig, Map<String,String> parameters,String namespace){
-        String name = namespace+"."+userConfig.getName();
+    public static boolean applyValues(MultiSelectUserConfig userConfig,
+                                      Map<String,String[]> parameters,
+                                      String namespace){
+        String[] newValues = parameters.get(namespace+"."+userConfig.getName());
         String oldValue = getValuesAsString(userConfig);
         userConfig.deselectAll();
 
-        for(String key : parameters.keySet()){
-            if(key.startsWith(name+"-checkbox-")){
-                int index = Integer.valueOf(key.substring(key.lastIndexOf("-")+1));
-                userConfig.getOptions().get(index).setSelected(true);
+        for(String newValue : newValues) {
+            for(Option option : userConfig.getOptions()) {
+                if(newValue.equals(option.getValue())) {
+                    option.setSelected(true);
+                }
             }
         }
-        
+
         String newValue = getValuesAsString(userConfig);
-        
         return !StringUtils.equals(newValue, oldValue);
     }
     
@@ -88,27 +96,29 @@ public class ServiceInfoUtil {
         return b.toString();
     }
 
-    
     public static void applyValues(List<UserConfigModeSet> userConfigModeSets,
-           	HttpServletRequest request) {
-    	Map<String,String> map = new HashMap<String,String>();
+                                   HttpServletRequest request) {
+    	Map<String,String[]> map = new HashMap<String,String[]>();
     	Map parameters = request.getParameterMap();
     	Enumeration<String> e = request.getParameterNames();
     	while(e.hasMoreElements()){
     		String key = e.nextElement();
-    		map.put(key, request.getParameter(key));
+    		map.put(key, request.getParameterValues(key));
     	}
     	
     	for(UserConfigModeSet userConfigModeSet : userConfigModeSets){
-    		applyValues(userConfigModeSet, map,null);
+    		applyValues(userConfigModeSet, map, null);
     	}
 	}
 
     public static void applyValues(UserConfigModeSet userConfigModeSet,
-			Map<String, String> map, String namespace) {
+			                       Map<String, String[]> map,
+                                   String namespace) {
     	String name = userConfigModeSet.getName();
     	String key = (namespace == null ? name : namespace + "." + name); 
-    	String newValue = map.get(key);
+    	String[] newValues = map.get(key);
+        String newValue =
+            (newValues != null && newValues.length > 0) ? newValues[0] : null;
         userConfigModeSet.setValue(newValue);
     	
     	for(UserConfigMode mode : userConfigModeSet.getModes()){
@@ -136,8 +146,8 @@ public class ServiceInfoUtil {
 	}
 
 	private static boolean applyValues(UserConfig userConfig,
-                                    Map<String, String> parameters,
-                                    String namespace) {
+                                       Map<String, String[]> parameters,
+                                       String namespace) {
         if(userConfig instanceof TextUserConfig){
             return applyValues((TextUserConfig)userConfig, parameters,namespace);
         }else if(userConfig instanceof SingleSelectUserConfig){
