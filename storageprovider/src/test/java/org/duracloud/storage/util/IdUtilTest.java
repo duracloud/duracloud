@@ -35,7 +35,7 @@ public class IdUtilTest {
         invalidIds.add("test-.space"); // Dash next to a period
         invalidIds.add("te");          // Too short
         invalidIds.add("test-space-test-space-test-space-" +
-                       "test-space-test-space-test-spac)"); // Too long
+                       "test-space)"); // Too long
         invalidIds.add("127.0.0.1");   // Formatted as an IP address
         invalidIds.add("1-test-space");    // Begins with a number
         invalidIds.add("1000-test-space"); // Begins with a number
