@@ -38,7 +38,8 @@ public class RetrievalManagerTest extends RetrievalTestBase {
         RetrievalSource source = new MockRetrievalSource(numTestFiles);
 
         RetrievalManager retManager =
-            new RetrievalManager(source, tempDir, tempDir, false, 1, outWriter);
+            new RetrievalManager(source, tempDir, tempDir,
+                                 false, 1, outWriter, true);
 
         retManager.run();
 

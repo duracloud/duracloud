@@ -41,6 +41,7 @@ public class RetrievalWorker implements Runnable {
     private File contentDir;
     private boolean overwrite;
     private OutputWriter outWriter;
+    private boolean createSpaceDir;
     private int attempts;
 
     private StatusManager statusManager;
@@ -52,12 +53,14 @@ public class RetrievalWorker implements Runnable {
                            RetrievalSource source,
                            File contentDir,
                            boolean overwrite,
-                           OutputWriter outWriter) {
+                           OutputWriter outWriter,
+                           boolean createSpaceDir) {
         this.contentItem = contentItem;
         this.source = source;
         this.contentDir = contentDir;
         this.overwrite = overwrite;
         this.outWriter = outWriter;
+        this.createSpaceDir = createSpaceDir;
         this.statusManager = StatusManager.getInstance();
         this.attempts = 0;
     }
@@ -114,8 +117,14 @@ public class RetrievalWorker implements Runnable {
             contentId = util.preChunkedContentId(contentId);
         }
 
-        File spaceDir = new File(contentDir, contentItem.getSpaceId());
-        return new File(spaceDir, contentId);
+        File localFile;
+        if(createSpaceDir) {
+            File spaceDir = new File(contentDir, contentItem.getSpaceId());
+            localFile = new File(spaceDir, contentId);
+        } else {
+            localFile = new File(contentDir, contentId);
+        }
+        return localFile;
     }
 
     /*

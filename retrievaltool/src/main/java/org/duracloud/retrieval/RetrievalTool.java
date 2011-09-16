@@ -101,12 +101,14 @@ public class RetrievalTool {
                                          retConfig.isAllSpaces());
 
         outWriter = new CSVFileOutputWriter(retConfig.getWorkDir());
+        boolean createSpaceDir = retConfig.getSpaces().size() > 1;
         retManager = new RetrievalManager(retSource,
                                           retConfig.getContentDir(),
                                           retConfig.getWorkDir(),
                                           retConfig.isOverwrite(),
                                           retConfig.getNumThreads(),
-                                          outWriter);
+                                          outWriter,
+                                          createSpaceDir);
 
         executor = Executors.newFixedThreadPool(1);
         executor.execute(retManager);

@@ -36,6 +36,7 @@ public class RetrievalManager implements Runnable {
     private boolean overwrite;
     private ThreadPoolExecutor workerPool;
     private OutputWriter outWriter;
+    private boolean createSpaceDir;
     private boolean complete;
 
     public RetrievalManager(RetrievalSource source,
@@ -43,13 +44,15 @@ public class RetrievalManager implements Runnable {
                             File workDir,
                             boolean overwrite,
                             int threads,
-                            OutputWriter outWriter) {
+                            OutputWriter outWriter,
+                            boolean createSpaceDir) {
         logger.info("Starting Retrieval Manager with " + threads + " threads");
         this.source = source;
         this.contentDir = contentDir;
         this.workDir = workDir;
         this.overwrite = overwrite;
-        this.outWriter = outWriter; 
+        this.outWriter = outWriter;
+        this.createSpaceDir = createSpaceDir;
 
         // Create thread pool for retrieval workers
         workerPool =
@@ -91,7 +94,8 @@ public class RetrievalManager implements Runnable {
                                                          source,
                                                          contentDir,
                                                          overwrite,
-                                                         outWriter);
+                                                         outWriter,
+                                                         createSpaceDir);
             workerPool.execute(worker);
             return true;
         } catch(RejectedExecutionException e) {

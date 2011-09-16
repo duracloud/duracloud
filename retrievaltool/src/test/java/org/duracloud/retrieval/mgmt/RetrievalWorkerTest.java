@@ -99,6 +99,14 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         for(String pathElem : contentId.split("/")) {
             assertTrue(localFile.getAbsolutePath().contains(pathElem));
         }
+
+        worker = createRetrievalWorkerSingleSpace(true);
+        localFile = worker.getLocalFile();
+        assertNotNull(localFile);
+        assertFalse(localFile.getAbsolutePath().contains(spaceId));
+        for(String pathElem : contentId.split("/")) {
+            assertTrue(localFile.getAbsolutePath().contains(pathElem));
+        }
     }
 
     @Test
@@ -177,7 +185,17 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
                                    new MockRetrievalSource(),
                                    tempDir,
                                    overwrite,
-                                   createMockOutputWriter());
+                                   createMockOutputWriter(),
+                                   true);
+    }
+
+    private RetrievalWorker createRetrievalWorkerSingleSpace(boolean overwrite) {
+        return new RetrievalWorker(new ContentItem(spaceId, contentId),
+                                   new MockRetrievalSource(),
+                                   tempDir,
+                                   overwrite,
+                                   createMockOutputWriter(),
+                                   false);
     }
 
     private RetrievalWorker createBrokenRetrievalWorker(boolean overwrite) {
@@ -185,7 +203,8 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
                                    new BrokenMockRetrievalSource(),
                                    tempDir,
                                    overwrite,
-                                   createMockOutputWriter());
+                                   createMockOutputWriter(),
+                                   true);
     }
 
     private class MockRetrievalSource implements RetrievalSource {
