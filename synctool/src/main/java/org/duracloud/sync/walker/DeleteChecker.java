@@ -26,6 +26,7 @@ public class DeleteChecker implements Runnable {
 
     private Iterator<String> filesList;
     private List<File> syncDirs;
+    private boolean complete = false;
 
     /**
      * Creates a delete checker
@@ -72,10 +73,17 @@ public class DeleteChecker implements Runnable {
                 }
             }
         }
+        complete = true;
     }
 
-    public static void start(Iterator<String> filesList,
-                             List<File> syncDirs) {
-        (new Thread(new DeleteChecker(filesList, syncDirs))).start();
+    public boolean checkComplete() {
+        return complete;
+    }
+
+    public static DeleteChecker start(Iterator<String> filesList,
+                                      List<File> syncDirs) {
+        DeleteChecker deleteChecker = new DeleteChecker(filesList, syncDirs);
+        (new Thread(deleteChecker)).start();
+        return deleteChecker;
     }
 }

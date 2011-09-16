@@ -63,6 +63,7 @@ public class SyncTool {
     private DirectoryUpdateMonitor dirMonitor;
     private SyncEndpoint syncEndpoint;
     private DirWalker dirWalker;
+    private DeleteChecker deleteChecker;
     private LogUtil logUtil;
     private String version;
 
@@ -144,8 +145,8 @@ public class SyncTool {
     }
 
     private void startDeleteChecker() {
-        DeleteChecker.start(syncEndpoint.getFilesList(),
-                            syncConfig.getContentDirs());
+        deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
+                                            syncConfig.getContentDirs());
     }
 
     private void startDirMonitor() {
@@ -194,7 +195,7 @@ public class SyncTool {
         int loops = 0;
         boolean exit = false;
         while(!exit) {
-            if(dirWalker.walkComplete()) {
+            if(dirWalker.walkComplete() && deleteChecker.checkComplete()) {
                 if(ChangedList.getInstance().getListSize() <= 0) {
                     if(statusManager.getInWork() <= 0) {
                         exit = true;
