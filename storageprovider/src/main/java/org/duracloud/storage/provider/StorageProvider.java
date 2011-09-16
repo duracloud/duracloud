@@ -51,8 +51,6 @@ public interface StorageProvider {
     public static final DateFormat RFC822_DATE_FORMAT =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
 
-    public static final int HTTP_NOT_FOUND = 404;
-
     public static final long DEFAULT_MAX_RESULTS = 1000;
 
     /**

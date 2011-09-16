@@ -11,7 +11,12 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.duplication.impl.ContentDuplicatorImpl;
+import org.duracloud.services.duplication.impl.SpaceDuplicatorImpl;
+import org.duracloud.services.duplication.result.DuplicationResultListener;
+import org.duracloud.services.duplication.result.ResultListener;
 import org.duracloud.services.listener.BaseListenerService;
 import org.duracloud.services.ComputeService;
 import org.osgi.service.cm.ConfigurationException;
@@ -43,6 +48,8 @@ public class DuplicationService extends BaseListenerService
 
     private String toStoreId;
 
+    private String outputSpaceId;
+
     private SpaceDuplicator spaceDuplicator;
 
     private ContentDuplicator contentDuplicator;
@@ -71,34 +78,60 @@ public class DuplicationService extends BaseListenerService
 
         storeManager.login(credential);
 
-        ContentStore fromStore = null;
-        ContentStore toStore = null;
+        ContentStore fromStore;
+        ContentStore toStore;
+        ContentStore primaryStore;
         try {
             fromStore = storeManager.getContentStore(fromStoreId);
             toStore = storeManager.getContentStore(toStoreId);
+            primaryStore = storeManager.getPrimaryContentStore();
+
         } catch(ContentStoreException cse) {
             String error = "Unable to create connections to content " +
             		       "stores for duplication " + cse.getMessage();
             log.error(error);
+            super.setError(error);
+            return;
         }
 
-        spaceDuplicator = new SpaceDuplicator(fromStore,
-                                              toStore);
+        super.start();
 
-        contentDuplicator = new ContentDuplicator(fromStore,
-                                              toStore);
+        String reportId = getReportContentId(fromStore, toStore);
+        super.setReportId(outputSpaceId, reportId);
 
+        ResultListener listener = new DuplicationResultListener(primaryStore,
+                                                                outputSpaceId,
+                                                                reportId,
+                                                                super.getServiceWorkDir());
+
+        spaceDuplicator = getSpaceDuplicator(fromStore, toStore, listener);
+        contentDuplicator = getContentDuplicator(fromStore, toStore, listener);
+
+        log.info("reportId: " + reportId);
         log.info("Listener container started: " + jmsContainer.isRunning());
         log.info("**********");
         log.info("Duplication Service Listener Started");
-        super.start();
+        
         setServiceStatus(ServiceStatus.STARTED);
+    }
+
+    private String getReportContentId(ContentStore fromStore,
+                                      ContentStore toStore) {
+        StringBuilder reportId = new StringBuilder("duplication-on-change/");
+        reportId.append(fromStore.getStorageProviderType());
+        reportId.append("-to-");
+        reportId.append(toStore.getStorageProviderType());
+        reportId.append("-report-");
+        reportId.append(DateUtil.nowMid());
+        reportId.append(".csv");
+        return reportId.toString();
     }
 
     @Override
     public void stop() throws Exception {
         log.info("Stopping Duplication Service");
         terminateMessaging();
+        contentDuplicator.stop();
         setServiceStatus(ServiceStatus.STOPPED);
     }
 
@@ -133,6 +166,7 @@ public class DuplicationService extends BaseListenerService
             String error =
                     "Error occured processing map message: " + je.getMessage();
             log.error(error);
+            super.setError(error);
             throw new RuntimeException(error, je);
         }
     }
@@ -140,6 +174,29 @@ public class DuplicationService extends BaseListenerService
     @SuppressWarnings("unchecked")
     public void updated(Dictionary properties) throws ConfigurationException {
         // Implementation not needed. Update performed through setters.
+    }
+
+    private SpaceDuplicator getSpaceDuplicator(ContentStore fromStore,
+                                               ContentStore toStore,
+                                               ResultListener listener) {
+        if (null == spaceDuplicator) {
+            spaceDuplicator = new SpaceDuplicatorImpl(fromStore, toStore);
+        }
+        return spaceDuplicator;
+    }
+
+    private ContentDuplicator getContentDuplicator(ContentStore fromStore,
+                                                   ContentStore toStore,
+                                                   ResultListener listener) {
+        if (null == contentDuplicator) {
+            SpaceDuplicator spaceDuplicator = getSpaceDuplicator(fromStore,
+                                                                 toStore,
+                                                                 listener);
+            contentDuplicator = new ContentDuplicatorImpl(fromStore,
+                                                          toStore,
+                                                          spaceDuplicator);
+        }
+        return contentDuplicator;
     }
 
     public String getHost() {
@@ -200,4 +257,11 @@ public class DuplicationService extends BaseListenerService
         this.toStoreId = toStoreId;
     }
 
+    public String getOutputSpaceId() {
+        return outputSpaceId;
+    }
+
+    public void setOutputSpaceId(String outputSpaceId) {
+        this.outputSpaceId = outputSpaceId;
+    }
 }

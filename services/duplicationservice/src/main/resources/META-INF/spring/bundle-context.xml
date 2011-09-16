@@ -23,7 +23,8 @@
     <property name="context" value="durastore"/>
     <property name="brokerURL" value="tcp://localhost:61617"/> 
     <property name="fromStoreId" value="1"/>                   
-    <property name="toStoreId" value="5"/>                     
+    <property name="toStoreId" value="5"/>
+    <property name="outputSpaceId" value="${service.output.spaceid}"/>
     <property name="spaceCreateTopic" value="org.duracloud.topic.change.space.create"/>
     <property name="spaceUpdateTopic" value="org.duracloud.topic.change.space.update"/>
     <property name="spaceDeleteTopic" value="org.duracloud.topic.change.space.delete"/>

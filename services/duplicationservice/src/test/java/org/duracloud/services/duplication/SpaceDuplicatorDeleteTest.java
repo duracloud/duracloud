@@ -9,10 +9,17 @@ package org.duracloud.services.duplication;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.duplication.error.DuplicationException;
+import org.duracloud.services.duplication.impl.SpaceDuplicatorImpl;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author Andrew Woods
+ *         Date: Jan 21, 2011
+ */
 public class SpaceDuplicatorDeleteTest {
 
     private SpaceDuplicator replicator;
@@ -20,21 +27,20 @@ public class SpaceDuplicatorDeleteTest {
     private ContentStore fromStore;
     private ContentStore toStore;
 
-    private String spaceId = "space-id";
-    private String contentId = "content-id";
+    private int waitMillis = 1;
 
+    private String spaceId = "space-id";
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(fromStore);
-        EasyMock.verify(toStore);
+        EasyMock.verify(fromStore, toStore);
     }
 
     private void init(Mode cmd) throws ContentStoreException {
         fromStore = createMockFromStore(cmd);
         toStore = createMockToStore(cmd);
 
-        replicator = new SpaceDuplicator(fromStore, toStore);
+        replicator = new SpaceDuplicatorImpl(fromStore, toStore, waitMillis);
     }
 
     @Test
@@ -52,7 +58,13 @@ public class SpaceDuplicatorDeleteTest {
     @Test
     public void testDeleteSpaceException() throws Exception {
         init(Mode.EXCEPTION);
-        replicator.deleteSpace(spaceId);
+        try {
+            replicator.deleteSpace(spaceId);
+            Assert.fail("exception expected");
+            
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     private ContentStore createMockFromStore(Mode cmd)
@@ -86,7 +98,7 @@ public class SpaceDuplicatorDeleteTest {
                 EasyMock.expectLastCall();
                 break;
             case EXCEPTION:
-                int retryTimes = 1;
+                int retryTimes = 4;
                 store.deleteSpace(spaceId);
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
                     "test-exception")).times(retryTimes);

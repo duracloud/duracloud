@@ -544,7 +544,7 @@ public class ContentStoreImpl implements ContentStore{
                                      String contentId,
                                      Map<String, String> contentProperties)
             throws ContentStoreException {
-        String task = "udpate content properties";
+        String task = "update content properties";
         String url = buildContentURL(spaceId, contentId);
         Map<String, String> headers =
             convertPropertiesToHeaders(contentProperties);

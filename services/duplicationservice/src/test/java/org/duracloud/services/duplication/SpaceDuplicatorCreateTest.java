@@ -9,6 +9,7 @@ package org.duracloud.services.duplication;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.duplication.impl.SpaceDuplicatorImpl;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class SpaceDuplicatorCreateTest {
         fromStore = createMockFromStore(cmd);
         toStore = createMockToStore(cmd);
 
-        replicator = new SpaceDuplicator(fromStore, toStore);
+        replicator = new SpaceDuplicatorImpl(fromStore, toStore);
     }
 
     @Test

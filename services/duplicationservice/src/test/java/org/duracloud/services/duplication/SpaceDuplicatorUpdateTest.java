@@ -10,8 +10,11 @@ package org.duracloud.services.duplication;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.services.duplication.error.DuplicationException;
+import org.duracloud.services.duplication.impl.SpaceDuplicatorImpl;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +32,8 @@ public class SpaceDuplicatorUpdateTest {
     private ContentStore fromStore;
     private ContentStore toStore;
 
+    private final int waitMillis = 1;
+
     private String spaceId = "space-id";
 
 
@@ -38,15 +43,14 @@ public class SpaceDuplicatorUpdateTest {
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(fromStore);
-        EasyMock.verify(toStore);
+        EasyMock.verify(fromStore, toStore);
     }
 
     private void init(Mode cmd) throws ContentStoreException {
         fromStore = createMockFromStore(cmd);
         toStore = createMockToStore(cmd);
 
-        replicator = new SpaceDuplicator(fromStore, toStore);
+        replicator = new SpaceDuplicatorImpl(fromStore, toStore, waitMillis);
     }
 
     @Test
@@ -70,31 +74,61 @@ public class SpaceDuplicatorUpdateTest {
     @Test
     public void testNotFoundUpdateSpace() throws Exception {
         init(Mode.NOT_FOUND);
-        replicator.updateSpace(spaceId);
+        try {
+            replicator.updateSpace(spaceId);
+            Assert.fail("exception expected");
+            
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void testNotFoundCreateExceptionUpdateSpace() throws Exception {
         init(Mode.NOT_FOUND_CREATE_EXCEPTION);
-        replicator.updateSpace(spaceId);
+        try {
+            replicator.updateSpace(spaceId);
+            Assert.fail("exception expected");
+
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void testCreateExceptionUpdateSpace() throws Exception {
         init(Mode.CREATE_EXCEPTION);
-        replicator.updateSpace(spaceId);
+        try {
+            replicator.updateSpace(spaceId);
+            Assert.fail("exception expected");
+
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void testGetAccessExceptionUpdateSpace() throws Exception {
         init(Mode.GET_ACCESS_EXCEPTION);
-        replicator.updateSpace(spaceId);
+        try {
+            replicator.updateSpace(spaceId);
+            Assert.fail("exception expected");
+
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void testSetAccessExceptionUpdateSpace() throws Exception {
         init(Mode.SET_ACCESS_EXCEPTION);
-        replicator.updateSpace(spaceId);
+        try {
+            replicator.updateSpace(spaceId);
+            Assert.fail("exception expected");
+
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     private ContentStore createMockFromStore(Mode cmd)
@@ -125,19 +159,20 @@ public class SpaceDuplicatorUpdateTest {
     private void mockGetSpaceAccessExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
-            case CREATE_EXCEPTION:
-            case SET_PROPERTIES_EXCEPTION:
-            case NOT_FOUND:
             case NOT_FOUND_CREATE_EXCEPTION:
-            case SET_ACCESS_EXCEPTION:
+            case NOT_FOUND:
+            case CREATE_EXCEPTION:
+                break;
+            case SET_PROPERTIES_EXCEPTION:
             case OK:
                 EasyMock.expect(store.getSpaceAccess(spaceId)).andReturn(
                     createSpaceAccess(cmd));
                 break;
+            case SET_ACCESS_EXCEPTION:
             case GET_ACCESS_EXCEPTION:
                 store.getSpaceAccess(spaceId);
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
-                    "test-exception"));
+                    "test-exception")).times(4);
                 break;
         }
     }
@@ -150,9 +185,7 @@ public class SpaceDuplicatorUpdateTest {
     }
 
     private ContentStore.AccessType createSpaceAccess(Mode cmd) {
-        ContentStore.AccessType spaceAccess = ContentStore.AccessType.OPEN;
-
-        return spaceAccess;
+        return ContentStore.AccessType.OPEN;
     }
 
     private ContentStore createMockToStore(Mode cmd)
@@ -162,7 +195,6 @@ public class SpaceDuplicatorUpdateTest {
 
         mockSetSpacePropertiesExpectation(cmd, store);
         mockSetSpaceAccessExpectation(cmd, store);
-        mockCreateSpaceExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
@@ -189,7 +221,7 @@ public class SpaceDuplicatorUpdateTest {
             case NOT_FOUND:
                 store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new NotFoundException(
-                    "test-exception"));
+                    "test-exception")).times(4);
                 break;
         }
     }
@@ -197,40 +229,15 @@ public class SpaceDuplicatorUpdateTest {
     private void mockSetSpaceAccessExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
-            case SET_PROPERTIES_EXCEPTION:
-            case NOT_FOUND:
             case NOT_FOUND_CREATE_EXCEPTION:
+            case NOT_FOUND:
             case CREATE_EXCEPTION:
+            case SET_ACCESS_EXCEPTION:
+                break;
+            case SET_PROPERTIES_EXCEPTION:
             case OK:
                 store.setSpaceAccess(spaceId, createSpaceAccess(cmd));
                 EasyMock.expectLastCall();
-                break;
-            case SET_ACCESS_EXCEPTION:
-                store.setSpaceAccess(spaceId, createSpaceAccess(cmd));
-                EasyMock.expectLastCall().andThrow(new NotFoundException(
-                    "test-exception"));
-                break;
-        }
-    }
-
-    private void mockCreateSpaceExpectation(Mode cmd, ContentStore store)
-        throws ContentStoreException {
-        switch (cmd) {
-            case NOT_FOUND:
-                store.createSpace(spaceId, createSpaceProperties(cmd));
-                EasyMock.expectLastCall();
-                break;
-            case NOT_FOUND_CREATE_EXCEPTION:
-                store.createSpace(spaceId, createSpaceProperties(cmd));
-                EasyMock.expectLastCall().andThrow(new ContentStoreException(
-                    "test-exception")).times(2);
-                store.createSpace(spaceId, createSpaceProperties(cmd));
-                EasyMock.expectLastCall();
-                break;
-            case CREATE_EXCEPTION:
-                store.createSpace(spaceId, createSpaceProperties(cmd));
-                EasyMock.expectLastCall().andThrow(new ContentStoreException(
-                    "test-exception")).times(3);
                 break;
         }
     }

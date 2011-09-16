@@ -12,8 +12,11 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.duplication.error.DuplicationException;
+import org.duracloud.services.duplication.impl.ContentDuplicatorImpl;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,10 +32,13 @@ import java.util.Map;
  */
 public class ContentDuplicatorCreateTest {
 
-    private ContentDuplicator replicator;
+    private ContentDuplicator duplicator;
+    private SpaceDuplicator spaceDuplicator;
 
     private ContentStore fromStore;
     private ContentStore toStore;
+
+    private final int waitMillis = 1;
 
     private String spaceId = "space-id";
     private String contentId = "content-id";
@@ -42,7 +48,7 @@ public class ContentDuplicatorCreateTest {
     private InputStream contentStream;
     private String checksum;
     private String mimeGood = "text/plain";
-    private String mimeOther = "application/octet-stream";
+    private String mimeOther = null;
 
 
     @Before
@@ -66,8 +72,7 @@ public class ContentDuplicatorCreateTest {
             contentStream.close();
         }
 
-        EasyMock.verify(fromStore);
-        EasyMock.verify(toStore);
+        EasyMock.verify(fromStore, toStore, spaceDuplicator);
 
         if (null != content) {
             EasyMock.verify(content);
@@ -77,44 +82,56 @@ public class ContentDuplicatorCreateTest {
     private void init(Mode cmd) throws ContentStoreException {
         fromStore = createMockFromStore(cmd);
         toStore = createMockToStore(cmd);
+        spaceDuplicator = EasyMock.createMock("SpaceDuplicator",
+                                              SpaceDuplicator.class);
+        EasyMock.replay(fromStore, toStore, spaceDuplicator);
 
-        replicator = new ContentDuplicator(fromStore, toStore);
+        duplicator = new ContentDuplicatorImpl(fromStore,
+                                               toStore,
+                                               spaceDuplicator,
+                                               waitMillis);
     }
 
     @Test
     public void testReplicateContent() throws Exception {
         init(Mode.OK);
-        replicator.createContent(spaceId, contentId);
+        duplicator.createContent(spaceId, contentId);
     }
 
     @Test
     public void testReplicateContentNoProperties() throws Exception {
         init(Mode.EMPTY_PROPERTIES);
-        replicator.createContent(spaceId, contentId);
+        duplicator.createContent(spaceId, contentId);
     }
 
     @Test
     public void testReplicateContentNullProperties() throws Exception {
         init(Mode.NULL_PROPERTIES);
-        replicator.createContent(spaceId, contentId);
+        duplicator.createContent(spaceId, contentId);
     }
 
     @Test
     public void testReplicateContentNullContent() throws Exception {
         init(Mode.NULL_CONTENT);
-        replicator.createContent(spaceId, contentId);
+        try {
+            duplicator.createContent(spaceId, contentId);
+            Assert.fail("exception expected");
+            
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void testReplicateContentNullInput() throws Exception {
         init(Mode.NULL_INPUT);
-        replicator.createContent(null, null);
+        duplicator.createContent(null, null);
     }
 
     @Test
     public void testReplicateContentAddException() throws Exception {
         init(Mode.ADD_EXCEPTION);
-        replicator.createContent(spaceId, contentId);
+        duplicator.createContent(spaceId, contentId);
     }
 
     private ContentStore createMockFromStore(Mode cmd)
@@ -122,12 +139,12 @@ public class ContentDuplicatorCreateTest {
         ContentStore store = EasyMock.createMock("FromStore",
                                                  ContentStore.class);
 
-        EasyMock.expect(store.getStorageProviderType()).andReturn("f-type");
+        EasyMock.expect(store.getStorageProviderType())
+            .andReturn("f-type")
+            .anyTimes();
 
         mockGetContentExpectation(cmd, store);
         mockGetSpacePropertiesExpectation(cmd, store);
-
-        EasyMock.replay(store);
         return store;
     }
 
@@ -178,7 +195,6 @@ public class ContentDuplicatorCreateTest {
         Map<String, String> properties = new HashMap<String, String>();
 
         switch (cmd) {
-
             case EMPTY_PROPERTIES:
                 break;
 
@@ -202,12 +218,12 @@ public class ContentDuplicatorCreateTest {
     private ContentStore createMockToStore(Mode cmd)
         throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ToStore", ContentStore.class);
-        EasyMock.expect(store.getStorageProviderType()).andReturn("t-type");
+        EasyMock.expect(store.getStorageProviderType())
+            .andReturn("t-type")
+            .anyTimes();
 
         mockAddContentExpectation(cmd, store);
         mockCreateSpaceExpectation(cmd, store);
-
-        EasyMock.replay(store);
         return store;
     }
 
@@ -245,13 +261,14 @@ public class ContentDuplicatorCreateTest {
                 mimeType = mimeOther;
                 // fall-through
             default:
-                EasyMock.expect(store.addContent(spaceId,
-                                                 contentId,
-                                                 contentStream,
-                                                 text.length(),
-                                                 mimeType,
-                                                 checksum,
-                                                 createContentProperties(cmd)))
+                EasyMock.expect(store.addContent(EasyMock.eq(spaceId),
+                                                 EasyMock.eq(contentId),
+                                                 EasyMock.<InputStream>anyObject(),
+                                                 EasyMock.eq((long) text.length()),
+                                                 EasyMock.eq(mimeType),
+                                                 EasyMock.eq(checksum),
+                                                 EasyMock.eq(
+                                                     createContentProperties(cmd))))
                     .andReturn(checksum);
         }
     }

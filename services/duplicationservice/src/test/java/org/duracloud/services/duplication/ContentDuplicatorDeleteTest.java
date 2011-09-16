@@ -9,8 +9,11 @@ package org.duracloud.services.duplication;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.duplication.error.DuplicationException;
+import org.duracloud.services.duplication.impl.ContentDuplicatorImpl;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -19,10 +22,13 @@ import org.junit.Test;
  */
 public class ContentDuplicatorDeleteTest {
 
-    private ContentDuplicator replicator;
+    private ContentDuplicator duplicator;
+    private SpaceDuplicator spaceDuplicator;
 
     private ContentStore fromStore;
     private ContentStore toStore;
+
+    private final int waitMillis = 1;
 
     private String spaceId = "space-id";
     private String contentId = "content-id";
@@ -30,27 +36,38 @@ public class ContentDuplicatorDeleteTest {
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(fromStore);
-        EasyMock.verify(toStore);
+        EasyMock.verify(fromStore, toStore, spaceDuplicator);
     }
 
     private void init(Mode cmd) throws ContentStoreException {
         fromStore = createMockFromStore(cmd);
         toStore = createMockToStore(cmd);
+        spaceDuplicator = EasyMock.createMock("SpaceDuplicator",
+                                              SpaceDuplicator.class);
+        EasyMock.replay(fromStore, toStore, spaceDuplicator);
 
-        replicator = new ContentDuplicator(fromStore, toStore);
+        duplicator = new ContentDuplicatorImpl(fromStore,
+                                               toStore,
+                                               spaceDuplicator,
+                                               waitMillis);
     }
 
     @Test
     public void testDeleteContent() throws Exception {
         init(Mode.OK);
-        replicator.deleteContent(spaceId, contentId);
+        duplicator.deleteContent(spaceId, contentId);
     }
 
     @Test
     public void testDeleteContentException() throws Exception {
         init(Mode.EXCEPTION);
-        replicator.deleteContent(spaceId, contentId);
+        try {
+            duplicator.deleteContent(spaceId, contentId);
+            Assert.fail("exception expected");
+            
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     private ContentStore createMockFromStore(Mode cmd)
@@ -59,8 +76,6 @@ public class ContentDuplicatorDeleteTest {
                                                  ContentStore.class);
 
         EasyMock.expect(store.getStorageProviderType()).andReturn("f-type");
-
-        EasyMock.replay(store);
         return store;
     }
 
@@ -68,11 +83,11 @@ public class ContentDuplicatorDeleteTest {
         throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ToStore", ContentStore.class);
 
-        EasyMock.expect(store.getStorageProviderType()).andReturn("t-type");
+        EasyMock.expect(store.getStorageProviderType())
+            .andReturn("t-type")
+            .anyTimes();
 
         mockSetDeleteContentExpectation(cmd, store);
-
-        EasyMock.replay(store);
         return store;
     }
 

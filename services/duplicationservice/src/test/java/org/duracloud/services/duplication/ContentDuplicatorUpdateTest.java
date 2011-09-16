@@ -11,8 +11,11 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.services.duplication.error.DuplicationException;
+import org.duracloud.services.duplication.impl.ContentDuplicatorImpl;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,9 +31,12 @@ import java.util.Map;
 public class ContentDuplicatorUpdateTest {
 
     private ContentDuplicator replicator;
+    private SpaceDuplicator spaceDuplicator;
 
     private ContentStore fromStore;
     private ContentStore toStore;
+
+    private final int waitMillis = 1;
 
     private String spaceId = "space-id";
     private String contentId = "content-id";
@@ -53,8 +59,7 @@ public class ContentDuplicatorUpdateTest {
             contentStream.close();
         }
 
-        EasyMock.verify(fromStore);
-        EasyMock.verify(toStore);
+        EasyMock.verify(fromStore, toStore, spaceDuplicator);
 
         if (null != content) {
             EasyMock.verify(content);
@@ -64,8 +69,14 @@ public class ContentDuplicatorUpdateTest {
     private void init(Mode cmd) throws ContentStoreException {
         fromStore = createMockFromStore(cmd);
         toStore = createMockToStore(cmd);
+        spaceDuplicator = EasyMock.createMock("SpaceDuplicator",
+                                              SpaceDuplicator.class);
+        EasyMock.replay(fromStore, toStore, spaceDuplicator);
 
-        replicator = new ContentDuplicator(fromStore, toStore);
+        replicator = new ContentDuplicatorImpl(fromStore,
+                                               toStore,
+                                               spaceDuplicator,
+                                               waitMillis);
     }
 
     @Test
@@ -77,7 +88,13 @@ public class ContentDuplicatorUpdateTest {
     @Test
     public void testUpdateContentGetPropertiesException() throws Exception {
         init(Mode.GET_PROPERTIES_EXCEPTION);
-        replicator.updateContent(spaceId, contentId);
+        try {
+            replicator.updateContent(spaceId, contentId);
+            Assert.fail("exception expected");
+            
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -107,8 +124,6 @@ public class ContentDuplicatorUpdateTest {
 
         mockGetContentPropertiesExpectation(cmd, store);
         mockGetContentExpectation(cmd, store);
-
-        EasyMock.replay(store);
         return store;
     }
 
@@ -120,7 +135,8 @@ public class ContentDuplicatorUpdateTest {
 
             case GET_PROPERTIES_EXCEPTION:
                 EasyMock.expect(store.getContentProperties(spaceId, contentId))
-                    .andThrow(new ContentStoreException("test-exception"));
+                    .andThrow(new ContentStoreException("test-exception"))
+                    .times(4);
                 break;
 
             default:
@@ -172,8 +188,6 @@ public class ContentDuplicatorUpdateTest {
 
         mockSetContentPropertiesExpectation(cmd, store);
         mockAddContentExpectation(cmd, store);
-
-        EasyMock.replay(store);
         return store;
     }
 
@@ -193,7 +207,7 @@ public class ContentDuplicatorUpdateTest {
                 break;
 
             case SET_PROPERTIES_EXCEPTION:
-                int numRetries = 4;
+                int numRetries = 5;
                 store.setContentProperties(spaceId,
                                          contentId,
                                          createContentProperties(cmd));
