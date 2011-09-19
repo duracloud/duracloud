@@ -616,7 +616,6 @@
 
 			this._updateSelectedRangeText(o.lowBound, o.highBound);
 			this._updateSelectedRangeValues(o.lowBound, o.highBound);
-			
 			$(".date-slider", this.element).slider({
 				range: true,
 				min: 0,
@@ -637,6 +636,9 @@
 					}
 				}
 			});
+
+            $(".date-slider", this.element).addClass("dc-slider");
+
 		},
 		
 		_updateSelectedRangeText: function(lowBound, highBound){
@@ -878,12 +880,12 @@ $(function() {
 	 
 	var formatChartDate = function(/*string*/reportId){
 		return new Date(convertStorageReportIdToMs(reportId))
-					.toLocaleDateString();
+					.toString('MMM-dd-yyyy');
 	};
 	
 	var formatSelectedDate = function(/*string*/reportId){
 		return new Date(convertStorageReportIdToMs(reportId))
-					.toLocaleDateString();
+					.toString('MMM-dd-yyyy');
 	};
 
 	/**
@@ -894,7 +896,14 @@ $(function() {
 	var convertStorageReportIdToMs = function(storageReportId){
 		var pattern = /report\/storage-report-(.*)[.]xml/i;
 		var newVal = pattern.exec(storageReportId)[1].replace(/_/g, ':');
-		return new Date(newVal).getTime();
+
+	     // Chrome and Firefox parse the dates properly, but safari chokes:
+	     // http://stackoverflow.com/questions/4310953/invalid-date-in-safari
+	     // Safari doesn't recognize:
+	     //"So, it seems that YYYY-MM-DD is included 
+	     // in the standard, but for some reason, Safari doesn't support it."
+	     // Using DateJs to solve this problem. Another reason to use dojo btw.
+	 	return Date.parse(newVal).getTime();
 	};
 
 	/**
@@ -1014,6 +1023,7 @@ $(function() {
 				});
 			}
 		});
+		
 		
 		$(document).bind("storagereportchanged", function(evt){
 			var storageReport = evt.storageReport;
@@ -1549,12 +1559,12 @@ $(function() {
         stopTime = getStopTime(ss);
         startTime = getStartTime(ss);
         var duration = "--";
-        if(stopTime != null){
+        if(stopTime){
             duration = calculateDuration(startTime, stopTime);
         }
 
-        $(".service-start-time", node).html(startTime.toLocaleDateString());
-        $(".service-stop-time", node).html(stopTime !== null ? stopTime.toLocaleDateString() : "--");
+        $(".service-start-time", node).html(!startTime ? "--" : startTime.toString('MMM-dd-yyyy'));
+        $(".service-stop-time", node).html(!stopTime ? "--" : stopTime.toString('MMM-dd-yyyy'));
         $(".service-duration", node).html(duration);
         $(".service-status", node).html(getServiceStatusPretty(ss));
         
@@ -1601,7 +1611,7 @@ $(function() {
 			var duration = calculateDuration(startTime, stopTime);
 			$(".service-duration", node).html(duration);
 			$(".service-status", node).html(getServiceStatusPretty(ss));
-			$(".service-start-time", node).html(stopTime.toLocaleDateString());
+			$(".service-start-time", node).html(stopTime.toString('MMM-dd-yyyy'));
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
 			var props = $.extend({}, ss.properties);
@@ -1625,7 +1635,7 @@ $(function() {
 	};
 	
 	var convertDateStringToUTC = function(dateString){
-		var d = new Date(dateString);
+		var d = Date.parse(dateString);
 		
 		return new Date(Date.UTC(
 						d.getFullYear(), 
@@ -1636,7 +1646,6 @@ $(function() {
 						d.getSeconds()));
 	};
 	
-	
 	/**
 	 * returns the current date/time if there is no stop time found in the service
 	 * summary properties.
@@ -1644,15 +1653,15 @@ $(function() {
 	var getStopTime = function(serviceSummary){
 		var timeString = serviceSummary.properties['Stop Time'];
 		if(!timeString){
-			return null;
-		}else{
-			return convertDateStringToUTC(timeString);
+	        return null;
 		}
+		
+        return convertDateStringToUTC(timeString);
 	}
 
 	var getStartTime = function(serviceSummary){
-		return convertDateStringToUTC(
-				serviceSummary.properties['Start Time']);
+        var timeString = serviceSummary.properties['Start Time'];
+        return convertDateStringToUTC(timeString);
 	}
 
 	/**

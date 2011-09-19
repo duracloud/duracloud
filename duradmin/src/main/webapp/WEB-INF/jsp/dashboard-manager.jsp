@@ -21,6 +21,7 @@
 
 		<style>
 
+
 	
 #report-date-slider-wrapper {
 	min-width: 250px;
@@ -29,8 +30,12 @@
 	margin-right: 10px;
 }
 
+#report-date-slider, .date-slider {
+  background-color:#6e6e6e;
+}
+
 #toolbar {
-	padding: 10px 4px;
+	padding: 5px 5px;
 }
 
 
@@ -39,8 +44,8 @@
 	/* required settings */
 	position:relative;
 	overflow:hidden;
-	width: 1000px;
-	height:400px;
+	width: 1100px;
+	height:420px;
 }
 
 .scrollable > .items {
@@ -51,7 +56,7 @@
 
 .scrollable > .items > div {
 	float:left;
-	width:1000px;
+	width:1100px;
 }
 
 .dc-slider-value { /*padding-top:10px;*/
@@ -59,14 +64,20 @@
 	min-width: 250x;
 }
 
-.dc-date-slider {
-
+.dc-slider {
+  background-color:#DDD;
 }
 
 .dc-navigation {
 	width:49%;
-	float:right;
+    color: #555;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 25px;
+    padding: 5px;
+    float:right;
 }
+
 
 .dc-small-graph-panel>h3,.dc-small-graph-panel>div {
 	padding: 5px;
@@ -101,36 +112,24 @@
 	/*z-index:-1;*/
 }
 
-.dc-navigation {
-	color: #555;
-	cursor: pointer;
-	font-size: 13px;
-	line-height: 25px;
-	padding: 5px;
-}
+
 
 .dc-breadcrumb {
-	width:49%;
-	float:left;
+  width:49%;
+  float:left;
+  padding:5px;
 }
 
-a.button {
-	padding-bottom:7px;
-}
 
-a.download-button {
-    margin-left: 12px;
+a.download-button, a.back-link {
     height: 12px;
     line-height: 0px;
 }
 
 #main-content-tabs>div {
 	background: #FFFFFF;
-	/*
-	overflow: auto;
-	min-height: 500px;
-	*/
 	color: #555;
+    background: #9E9E9E url(../images/bg_list_browser_header.gif) no-repeat top right
 }
 
 #main-content-panel {
@@ -138,21 +137,31 @@ a.download-button {
 }
 
 .ui-widget-content {
+/*
 	border: 1px solid #aaaaaa;
 	background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50%
 		repeat-x;
 	color: #222222;
+  background:#9e9e9e url(../images/bg_list_browser_header.gif) no-repeat top right !important;
+
+ */
+ 
 }
 
-.north {
-	height:60px;
-	
+
+.highlight-box {
+  	background-color: #DDD;
+    border: 1px solid #EEE;
+}
+
+.north{
+  height:100px;    
 }
 
 .diptych > div {
   width:480px;
-  margin:10px;
   display: inline-block;
+  padding:5px;
 }
 
 .diptych .header {
@@ -174,7 +183,7 @@ a.download-button {
 }
 
 .graph-switch a {
-	color:black;
+	/*color:black;*/
 }
 
 .back-link:hover{
@@ -315,16 +324,27 @@ table {
 
 #service-list-panel {
 	width:74%; 
-	min-height:200px; 
 	float:left; 
-	max-height:500px;
-	padding:10px;
+	padding:0px;
+}
+
+.center {
+  min-height:460px;
+  max-height:460px;
+}
+
+.services-panel, #service-list-filter, #service-list-panel {
+	min-height:525px; 
+	max-height:525px;
+	overflow:auto;
+}
+
+#service-list-filter, #service-list-panel {
+  overflow:auto;
 }
 
 .services-panel {
-	min-height:300px; 
-	max-height:425px;
-	overflow:auto
+  overflow:hidden;
 }
 
 .service-configuration {
@@ -348,11 +368,10 @@ table {
 	border-top: 1px solid #DDDDDD;	
 }
 
-#service-list-filter {
+#service-list-filter  {
 	float:right; 
 	width:23%; 
 	background-color:#EEEEEE;
-	
 }
 
 
@@ -372,6 +391,15 @@ table {
 }
 
 
+.pane-L1-body a {
+  color: #555;
+}
+
+a.button {
+  padding-bottom:7px;
+    color:#AAA;
+}
+
 
 </style>
 
@@ -381,14 +409,6 @@ table {
 			<tiles:putAttribute name="mainTab">dashboard</tiles:putAttribute>
 
 			<tiles:putAttribute name="main-content">
-				<!-- 
-				<div class="center-north" id="center-pane-north">
-				<div class="float-l">
-				<h1>Welcome</h1>
-				</div>
-				</div>
-				 -->
-
 				<div id="main-content-panel">
 				<div id="main-content-tabs">
 				<ul>
@@ -396,7 +416,7 @@ table {
 					<li><a id="services-tab-link" href="#tabs-services"><span>Services</span></a></li>
 				</ul>
 
-				<div id="tabs-services">
+				<div id="tabs-services" class="ui-corner-all">
 					<div id="toolbar" class="ui-widget-header ui-corner-all">
 						<span id="phase">
 							<input type="radio" id="installed-radio" name="phase" checked="checked"/><label for="installed-radio">Installed</label>
@@ -404,7 +424,7 @@ table {
 						</span>
 
 					</div>
-					<div id="installed-services-panel" class="services-panel"  >
+					<div id="installed-services-panel" class="services-panel highlight-box ui-corner-all"  >
 						<div class="service-header">
 								<table>
 									<tr>
@@ -445,7 +465,7 @@ table {
 					
 					<div id="completed-services-panel" class="services-panel" style="display:none;">
 						
-						<div id="service-list-panel">
+						<div id="service-list-panel" class="highlight-box ui-corner-all">
 
 							<div class="service-header">
 									<table>
@@ -493,7 +513,7 @@ table {
 							</div>
 						</div>
 					
-						<div id="service-list-filter">
+						<div id="service-list-filter" class="highlight-box ui-corner-all">
 							<h3>Date Range</h3>
 							<div id="service-date-slider">
 								<table>
@@ -559,30 +579,32 @@ table {
 									
 				</div>
 
-				<div id="tabs-storage">
-
-				<div class="north dc-report-panel ">
-				<div id="report-breadcrumb" class="dc-breadcrumb"></div>
-				<div class="dc-navigation">
-					<div class="dc-slider-value">
+				<div id="tabs-storage" class="ui-corner-all">
+				  <div class="north">
+                    <div id="report-breadcrumb" class="dc-breadcrumb"></div>
+                    <div class="dc-navigation">
+                      <div class="dc-slider-value">
                         <span id="report-selected-date"></span>
-                        <a id="report-link" class="button download-button" target="_NEW" href="x"><i class="pre download"></i>Download Full Report</a>
-                    </div>
-					<div class="dc-date-slider">
-					<div id="report-start-range"></div>
-					<div id="report-date-slider-wrapper">
-						<div id="report-date-slider"></div>
-					</div>
-					<div id="report-end-range"></div>
-				</div>
-				</div>
-				</div>
-				<div class="center">
-				
-				<div class="scrollable">
+                         <a
+                          id="report-link" class="button download-button"
+                          target="_NEW" href="x"><i class="pre download"></i>Download
+                          Full Report</a>
+  
+                      </div>
+                      <div class="dc-date-slider">
+                        <div id="report-start-range"></div>
+                        <div id="report-date-slider-wrapper">
+                          <div id="report-date-slider"></div>
+                        </div>
+                        <div id="report-end-range"></div>
+                      </div>
+                  </div>
+               </div>
+              <div class="center highlight-box ui-corner-all">
+              <div class="scrollable">
 				<div class="items">
-				<div id="storage-summary">
-					<div id="toolbar" class="ui-widget-header ui-corner-all">
+				<div id="storage-summary" >
+					<div id="toolbar" class="ui-widget-header">
 						<span class="graph-switch" >
 							<input type="radio" id="entity-radio-0" class="entity-radio" name="radio0" checked="checked" /><label  for="entity-radio-0">Storage Providers</label>
 							<input type="radio" id="mimetype-radio-0" class="mimetype-radio"  name="radio0" /><label for="mimetype-radio-0">File Type</label>
@@ -602,9 +624,9 @@ table {
 
 				</div>
 				<div id="storage-provider">
-					<div id="toolbar"  class="ui-widget-header ui-corner-all">
+					<div id="toolbar"  class="ui-widget-header">
 						<div class="graph-switch">
-							<a href="#" class="back-link">&lt; Back</a>
+							<a href="#" class="button back-link"><i class="pre back"></i>Back</a>
 							<input type="radio" id="entity-radio-1" class="entity-radio" name="radio" checked="checked" /><label  for="entity-radio-1">Spaces</label>
 							<input type="radio" id="mimetype-radio-1" class="mimetype-radio"  name="radio" /><label for="mimetype-radio-1">File Type</label>
 						</div>
@@ -624,9 +646,9 @@ table {
 
 				</div>
 				<div id="space">
-					<div id="toolbar"  class="ui-widget-header ui-corner-all">
+					<div id="toolbar"  class="ui-widget-header">
 						<div class="graph-switch">
-							<a href="#" class="back-link">&lt; Back</a>
+							<a href="#" class="button back-link"><i class="pre back"></i>Back</a>
 						</div>
 					</div>
 					<div class="diptych mimetype-panel">
@@ -639,8 +661,8 @@ table {
 				</div>
 				</div>
 				</div>
-				</div>
-				</div>
+                </div>
+     			</div>
 				</div>
 			</tiles:putAttribute>
 			<tiles:putAttribute name="main-footer">

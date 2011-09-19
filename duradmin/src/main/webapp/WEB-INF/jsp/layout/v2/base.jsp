@@ -17,6 +17,10 @@
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/dialogs.css" type="text/css" />
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/buttons.css" type="text/css" />
 
+    <!-- non jquery third party plugins -->
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/thirdparty/date.js"></script>
+
+
 	<!-- jquery core, ui and css -->
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-ui.js"></script>
