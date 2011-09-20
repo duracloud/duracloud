@@ -16,10 +16,10 @@ package org.duracloud.services.duplication.result;
 public interface ResultListener {
 
     /**
-     * This method processes the arg duplication result.
+     * This method processes the arg duplication event.
      *
-     * @param result to be processed
+     * @param event to be processed
      */
-    public void processResult(DuplicationResult result);
+    public void processResult(DuplicationEvent event);
 
 }

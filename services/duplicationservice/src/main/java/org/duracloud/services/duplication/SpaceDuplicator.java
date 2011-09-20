@@ -35,4 +35,9 @@ public interface SpaceDuplicator {
      * @param spaceId of space to delete
      */
     public void deleteSpace(String spaceId);
+
+    /**
+     * This method performs any necessary clean-up of the SpaceDuplicator.
+     */
+    public void stop();
 }

@@ -21,8 +21,9 @@ public interface ContentDuplicator {
      *
      * @param spaceId   of content item
      * @param contentId of content item
+     * @return checksum of content
      */
-    public void createContent(String spaceId, String contentId);
+    public String createContent(String spaceId, String contentId);
 
     /**
      * This method updates an existing content item in the arg spaceId with the

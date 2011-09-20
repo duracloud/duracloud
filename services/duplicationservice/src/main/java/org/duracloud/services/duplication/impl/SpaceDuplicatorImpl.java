@@ -133,6 +133,11 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
         }
     }
 
+    @Override
+    public void stop() {
+        log.info("stop() not implemented!");
+    }
+
     private boolean doCreateSpace(final String spaceId,
                                   final Map<String, String> properties) {
         try {

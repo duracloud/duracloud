@@ -100,13 +100,25 @@ public class ContentDuplicatorUpdateTest {
     @Test
     public void testUpdateContentSetPropertiesException() throws Exception {
         init(Mode.SET_PROPERTIES_EXCEPTION);
-        replicator.updateContent(spaceId, contentId);
+        try {
+            replicator.updateContent(spaceId, contentId);
+            Assert.fail("exception expected");
+            
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void testUpdateContentNotFound() throws Exception {
         init(Mode.NOT_FOUND);
-        replicator.updateContent(spaceId, contentId);
+        try {
+            replicator.updateContent(spaceId, contentId);
+            Assert.fail("exception expected");
+
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -181,7 +193,18 @@ public class ContentDuplicatorUpdateTest {
         throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ToStore", ContentStore.class);
 
-        int times = cmd == Mode.NOT_FOUND ? 2 : 1;
+        int times;
+        switch (cmd) {
+            case NOT_FOUND:
+                times = 3;
+                break;
+            case SET_PROPERTIES_EXCEPTION:
+                times = 2;
+                break;
+            default:
+                times = 1;
+        }
+        
         EasyMock.expect(store.getStorageProviderType())
             .andReturn("t-type")
             .times(times);

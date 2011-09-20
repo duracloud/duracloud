@@ -68,13 +68,13 @@ public class ContentDuplicatorImpl implements ContentDuplicator {
     }
 
     @Override
-    public void createContent(String spaceId, String contentId) {
+    public String createContent(String spaceId, String contentId) {
         logDebug("Creating", spaceId, contentId);
 
         if (null == spaceId || null == contentId) {
             String err = "Space or content to create is null: {}, {}.";
             log.warn(err, spaceId, contentId);
-            return;
+            return null;
         }
 
         Content content = getContent(spaceId, contentId);
@@ -100,7 +100,7 @@ public class ContentDuplicatorImpl implements ContentDuplicator {
             err.append(" from ");
             err.append(fromStore.getStorageProviderType());
             log.error(err.toString());
-            return;
+            return null;
         }
 
         String mimeType = null;
@@ -140,32 +140,31 @@ public class ContentDuplicatorImpl implements ContentDuplicator {
             fileReaper.track(tmpFile, contentStream);
         }
 
-        addContent(spaceId,
-                   contentId,
-                   contentStream,
-                   contentSize,
-                   mimeType,
-                   checksum,
-                   properties);
+        return addContent(spaceId,
+                          contentId,
+                          contentStream,
+                          contentSize,
+                          mimeType,
+                          checksum,
+                          properties);
     }
 
-    private void addContent(String spaceId,
-                            String contentId,
-                            InputStream contentStream,
-                            long contentSize,
-                            String mimeType,
-                            String checksum,
-                            Map<String, String> properties) {
-        boolean success = false;
+    private String addContent(String spaceId,
+                              String contentId,
+                              InputStream contentStream,
+                              long contentSize,
+                              String mimeType,
+                              String checksum,
+                              Map<String, String> properties) {
+        String md5 = null;
         try {
-            toStore.addContent(spaceId,
-                               contentId,
-                               contentStream,
-                               contentSize,
-                               mimeType,
-                               checksum,
-                               properties);
-            success = true;
+            md5 = toStore.addContent(spaceId,
+                                     contentId,
+                                     contentStream,
+                                     contentSize,
+                                     mimeType,
+                                     checksum,
+                                     properties);
 
         } catch (NotFoundException nfe) {
             log.info("Unable to create content {}/{} in {}, due to: {}",
@@ -189,34 +188,34 @@ public class ContentDuplicatorImpl implements ContentDuplicator {
         }
 
         // Try again if it did not succeed.
-        if (!success) {
-            doAddContent(spaceId,
-                         contentId,
-                         contentSize,
-                         mimeType,
-                         checksum,
-                         properties);
+        if (null == md5) {
+            md5 = doAddContent(spaceId,
+                               contentId,
+                               contentSize,
+                               mimeType,
+                               checksum,
+                               properties);
         }
+        return md5;
     }
 
-    private void doAddContent(final String spaceId,
-                              final String contentId,
-                              final long contentSize,
-                              final String mimeType,
-                              final String checksum,
-                              final Map<String, String> properties) {
+    private String doAddContent(final String spaceId,
+                                final String contentId,
+                                final long contentSize,
+                                final String mimeType,
+                                final String checksum,
+                                final Map<String, String> properties) {
         try {
-            new StoreCaller<Boolean>(waitMillis) {
-                protected Boolean doCall() throws Exception {
+            return new StoreCaller<String>(waitMillis) {
+                protected String doCall() throws Exception {
                     Content content = getContent(spaceId, contentId);
-                    toStore.addContent(spaceId,
-                                       contentId,
-                                       content.getStream(),
-                                       contentSize,
-                                       mimeType,
-                                       checksum,
-                                       properties);
-                    return true;
+                    return toStore.addContent(spaceId,
+                                              contentId,
+                                              content.getStream(),
+                                              contentSize,
+                                              mimeType,
+                                              checksum,
+                                              properties);
                 }
             }.call();
 
@@ -257,8 +256,10 @@ public class ContentDuplicatorImpl implements ContentDuplicator {
             throw new DuplicationException(err.toString());
         }
 
+        boolean success = false;
         try {
             toStore.setContentProperties(spaceId, contentId, props);
+            success = true;
 
         } catch (NotFoundException nfe) {
             String err = "Unable to update content props for {}/{}, due to: {}";
@@ -274,7 +275,18 @@ public class ContentDuplicatorImpl implements ContentDuplicator {
 
             // Try setting the properties again.
             log.info("Trying to readd content props {}/{}", spaceId, contentId);
-            setProperties(spaceId, contentId, props);
+            success = setProperties(spaceId, contentId, props);
+        }
+
+        if (!success) {
+            StringBuilder err = new StringBuilder();
+            err.append("Error updating content: ");
+            err.append(spaceId);
+            err.append("/");
+            err.append(contentId);
+            err.append(", to ");
+            err.append(toStore.getStorageProviderType());
+            throw new DuplicationException(err.toString());
         }
     }
 

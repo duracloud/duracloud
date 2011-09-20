@@ -14,7 +14,9 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.duplication.impl.ContentDuplicatorImpl;
+import org.duracloud.services.duplication.impl.ContentDuplicatorReportingImpl;
 import org.duracloud.services.duplication.impl.SpaceDuplicatorImpl;
+import org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImpl;
 import org.duracloud.services.duplication.result.DuplicationResultListener;
 import org.duracloud.services.duplication.result.ResultListener;
 import org.duracloud.services.listener.BaseListenerService;
@@ -28,11 +30,10 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import java.util.Dictionary;
 
-public class DuplicationService extends BaseListenerService
-        implements ComputeService, ManagedService {
+public class DuplicationService extends BaseListenerService implements ComputeService, ManagedService {
 
     private static final Logger log =
-            LoggerFactory.getLogger(DuplicationService.class);
+        LoggerFactory.getLogger(DuplicationService.class);
 
     private String host;
 
@@ -73,8 +74,9 @@ public class DuplicationService extends BaseListenerService
         String messageSelector = STORE_ID + " = '" + fromStoreId + "'";
         initializeMessaging(messageSelector);
 
-        ContentStoreManager storeManager =
-            new ContentStoreManagerImpl(host, port, context);
+        ContentStoreManager storeManager = new ContentStoreManagerImpl(host,
+                                                                       port,
+                                                                       context);
 
         storeManager.login(credential);
 
@@ -86,9 +88,9 @@ public class DuplicationService extends BaseListenerService
             toStore = storeManager.getContentStore(toStoreId);
             primaryStore = storeManager.getPrimaryContentStore();
 
-        } catch(ContentStoreException cse) {
+        } catch (ContentStoreException cse) {
             String error = "Unable to create connections to content " +
-            		       "stores for duplication " + cse.getMessage();
+                "stores for duplication " + cse.getMessage();
             log.error(error);
             super.setError(error);
             return;
@@ -111,7 +113,7 @@ public class DuplicationService extends BaseListenerService
         log.info("Listener container started: " + jmsContainer.isRunning());
         log.info("**********");
         log.info("Duplication Service Listener Started");
-        
+
         setServiceStatus(ServiceStatus.STARTED);
     }
 
@@ -132,6 +134,7 @@ public class DuplicationService extends BaseListenerService
         log.info("Stopping Duplication Service");
         terminateMessaging();
         contentDuplicator.stop();
+        spaceDuplicator.stop();
         setServiceStatus(ServiceStatus.STOPPED);
     }
 
@@ -141,30 +144,30 @@ public class DuplicationService extends BaseListenerService
             String spaceId = message.getString(SPACE_ID);
             String contentId = message.getString(CONTENT_ID);
 
-            if(getSpaceCreateTopic().equals(topic)) {
+            if (getSpaceCreateTopic().equals(topic)) {
                 spaceDuplicator.createSpace(spaceId);
-            }
-            else if(getSpaceUpdateTopic().equals(topic)) {
+
+            } else if (getSpaceUpdateTopic().equals(topic)) {
                 spaceDuplicator.updateSpace(spaceId);
-            }
-            else if(getSpaceDeleteTopic().equals(topic)) {
+
+            } else if (getSpaceDeleteTopic().equals(topic)) {
                 spaceDuplicator.deleteSpace(spaceId);
-            }
-            else if(getContentCreateTopic().equals(topic)) {
+
+            } else if (getContentCreateTopic().equals(topic)) {
                 contentDuplicator.createContent(spaceId, contentId);
-            }
-            else if(getContentCopyTopic().equals(topic)) {
+
+            } else if (getContentCopyTopic().equals(topic)) {
                 contentDuplicator.createContent(spaceId, contentId);
-            }
-            else if(getContentUpdateTopic().equals(topic)) {
+
+            } else if (getContentUpdateTopic().equals(topic)) {
                 contentDuplicator.updateContent(spaceId, contentId);
-            }
-            else if(getContentDeleteTopic().equals(topic)) {
+
+            } else if (getContentDeleteTopic().equals(topic)) {
                 contentDuplicator.deleteContent(spaceId, contentId);
             }
         } catch (JMSException je) {
             String error =
-                    "Error occured processing map message: " + je.getMessage();
+                "Error occured processing map message: " + je.getMessage();
             log.error(error);
             super.setError(error);
             throw new RuntimeException(error, je);
@@ -180,7 +183,8 @@ public class DuplicationService extends BaseListenerService
                                                ContentStore toStore,
                                                ResultListener listener) {
         if (null == spaceDuplicator) {
-            spaceDuplicator = new SpaceDuplicatorImpl(fromStore, toStore);
+            SpaceDuplicator sd = new SpaceDuplicatorImpl(fromStore, toStore);
+            spaceDuplicator = new SpaceDuplicatorReportingImpl(sd, listener);
         }
         return spaceDuplicator;
     }
@@ -189,12 +193,14 @@ public class DuplicationService extends BaseListenerService
                                                    ContentStore toStore,
                                                    ResultListener listener) {
         if (null == contentDuplicator) {
-            SpaceDuplicator spaceDuplicator = getSpaceDuplicator(fromStore,
-                                                                 toStore,
-                                                                 listener);
-            contentDuplicator = new ContentDuplicatorImpl(fromStore,
-                                                          toStore,
-                                                          spaceDuplicator);
+            SpaceDuplicator sd = getSpaceDuplicator(fromStore,
+                                                    toStore,
+                                                    listener);
+            ContentDuplicator cd = new ContentDuplicatorImpl(fromStore,
+                                                             toStore,
+                                                             sd);
+            contentDuplicator = new ContentDuplicatorReportingImpl(cd,
+                                                                   listener);
         }
         return contentDuplicator;
     }
