@@ -192,17 +192,23 @@ public class SyncTool {
     private void waitForExit() {
         StatusManager statusManager = StatusManager.getInstance();
         statusManager.setVersion(version);
+        boolean syncDeletes = syncConfig.syncDeletes();
+
         int loops = 0;
         boolean exit = false;
         while(!exit) {
-            if(dirWalker.walkComplete() && deleteChecker.checkComplete()) {
-                if(ChangedList.getInstance().getListSize() <= 0) {
-                    if(statusManager.getInWork() <= 0) {
-                        exit = true;
-                        System.out.println("Sync Tool processing " +
-                                           "complete, final status:");
-                        System.out.println(statusManager.getPrintableStatus());
-                        break;
+            if(dirWalker.walkComplete()) {
+                if(!syncDeletes ||
+                   (syncDeletes && deleteChecker.checkComplete())) {
+                    if(ChangedList.getInstance().getListSize() <= 0) {
+                        if(statusManager.getInWork() <= 0) {
+                            exit = true;
+                            System.out.println(
+                                "Sync Tool processing complete, final status:");
+                            System.out.println(
+                                statusManager.getPrintableStatus());
+                            break;
+                        }
                     }
                 }
             }
