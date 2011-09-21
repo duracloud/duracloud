@@ -414,7 +414,37 @@ a.button {
 				<ul>
 					<li><a id="storage-tab-link" href="#tabs-storage"><span>Storage</span></a></li>
 					<li><a id="services-tab-link" href="#tabs-services"><span>Services</span></a></li>
+					<li><a id="tools-tab-link" href="#tabs-tools"><span>Tools</span></a></li>
 				</ul>
+
+                <div id="tabs-tools" class="ui-corner-all">
+                    <div class="tools-header">
+                    <h3>DuraCloud Tools:</h3>
+                    </div>
+
+					<div class="highlight-box ui-corner-all">
+                        <div class="tools-all">
+                        All DuraCloud tools can be <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Downloads">downloaded here</a>.
+                        </div>
+
+                        <a class="tool-header" target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Sync+Tool">Sync Tool:</a>
+                        <div class="tool-description">
+                        The Sync Tool is a utility which will allow you to transfer (or "copy") files from a local file system to DuraCloud and subsequently keep the files in DuraCloud synchronized with those on the local system. Note that the capabilities of the chunker tool are part of the sync tool. <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Sync+Tool">Learn more and download the Sync Tool here.</a>
+                        </div>
+                        <a class="tool-header" target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Retrieval+Tool">Retrieval Tool:</a>
+                        <div class="tool-description">
+                        The Retrieval Tool is a utility which will allow you to transfer (or "retrieve") digital content from DuraCloud to your local file system. Note that the capabilities of the stitcher tool are part of the retrieval tool. <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Retrieval+Tool">Learn more and download the Retrieval Tool here.</a>
+                        </div>
+                        <a class="tool-header" target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Chunker+Tool">Chunker Tool:</a>
+                        <div class="tool-description">
+                        The Chunker Tool is a utility which will allow you to copy large files from a local file system to DuraCloud in a "one-off" manner and "chunk" those files into a size specified by you. <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Chunker+Tool">Learn more and download the Chunker Tool here.</a>
+                        </div>
+                        <a class="tool-header" target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Stitcher+Tool">Stitcher Tool:</a>
+                        <div class="tool-description">
+                        The Stitcher Tool is a utility which will allow you to retrieve chunked files from DuraCloud and have those files "stitched" back together on your local file system. <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Stitcher+Tool">Learn more and download the Stitcher Tool here.</a>
+                        </div>
+                    </div>
+                </div>
 
 				<div id="tabs-services" class="ui-corner-all">
 					<div id="toolbar" class="ui-widget-header ui-corner-all">

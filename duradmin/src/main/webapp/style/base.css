@@ -1125,5 +1125,28 @@ table.tablesorter tr {
 	border-bottom: 1px solid #CCCCCC;
 }
 
+/*
+ *Dashboard Tools
+*/
+.tools-header {
+    padding-top:15px;
+    padding-bottom:15px;
+}
+.tools-all {
+    margin-left:15px;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+.tool-header {
+    font-weight:bold;
+    margin-left:15px;
+    text-decoration:none;
+}
+.tool-description {
+    margin-left:30px;
+    margin-right:30px;
+	padding-top:10px;
+	padding-bottom:10px;
+}
 
 	

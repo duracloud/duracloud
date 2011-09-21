@@ -24,7 +24,7 @@
 		<div id="dc-user" class="float-r">
 			${pageContext.request.userPrincipal.name}
 			<ul class="horizontal-list" style="margin-top:10px;">
-				<li id="help"><a class="icon-link" href="#"><i class="pre help"></i>Help</a></li>
+				<li id="help"><a target="_blank" class="icon-link" href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Help+Center"><i class="pre help"></i>Help</a></li>
 				<li><a class="icon-link" href='<c:url value="/logout"/>' class="logout"><i class="pre logoff"></i>Logout</a></li>
 			</ul>		
 		</div>			
