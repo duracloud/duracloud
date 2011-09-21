@@ -8,6 +8,7 @@
 package org.duracloud.services.j2kservice;
 
 import org.apache.commons.io.FilenameUtils;
+import org.duracloud.common.web.NetworkUtil;
 import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.common.error.ServiceRuntimeException;
@@ -30,9 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import static org.duracloud.common.web.NetworkUtil.waitForShutdown;
-import static org.duracloud.common.web.NetworkUtil.waitForStartup;
 
 /**
  * This class acts at the OSGi service representative of Djatoka webapp deployed
@@ -58,6 +56,7 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
     private String password;
 
     private WebAppUtil webappUtil;
+    private NetworkUtil networkUtil = new NetworkUtil();
 
     private static final String DEFAULT_URL = "http://example.org";
     private static final String APACHE_FLAG = "WITH_APACHE";
@@ -82,7 +81,7 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
                                              env,
                                              getFilters());
 
-        waitForStartup(url.toString());
+        networkUtil.waitForStartup(url.toString());
         super.start();
         setServiceStatus(ServiceStatus.STARTED);
     }
@@ -136,7 +135,7 @@ public class J2kWebappWrapper extends BaseService implements ComputeService, Man
 
         getWebappUtil().unDeploy(url);
 
-        waitForShutdown(url.toString());
+        networkUtil.waitForShutdown(url.toString());
         setUrl(DEFAULT_URL);
         this.setServiceStatus(ServiceStatus.STOPPED);
     }

@@ -9,6 +9,8 @@ package org.duracloud.servicesutil.util.catalog;
 
 import org.apache.commons.io.FilenameUtils;
 import org.duracloud.servicesutil.util.error.IllegalBundleNameException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -22,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: Dec 11, 2009
  */
 public class BundleCatalog {
+
+    private static final Logger log =
+        LoggerFactory.getLogger(BundleCatalog.class);
 
     private static Map<String, Integer> catalog = new ConcurrentHashMap<String, Integer>();
 
@@ -45,6 +50,8 @@ public class BundleCatalog {
         }
 
         catalog.put(name, count + 1);
+
+        log.debug("Registering: {}, previous count: {}", name, count);
         return firstOccurrence;
     }
 
@@ -71,16 +78,17 @@ public class BundleCatalog {
             catalog.put(name, count - 1);
         }
 
+        log.debug("Unregistering: {}, previous count: {}", name, count);
         return lastUsage;
     }
 
     private static String normalizeName(String name) {
         String ext = FilenameUtils.getExtension(name);
-        if (!ext.equals("jar")) {
-            throw new IllegalBundleNameException("Must be a jar: " + name);
+        if (!ext.equals("jar") && !ext.equals("zip")) {
+            throw new IllegalBundleNameException("Must be jar or zip: " + name);
         }
 
-        return FilenameUtils.getBaseName(name);
+        return FilenameUtils.getName(name);
     }
 
     /**

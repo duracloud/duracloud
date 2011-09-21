@@ -32,6 +32,7 @@
     <module>hellowebappwrapper</module>
     <module>scriptservice</module>
     <module>j2kservice</module>
+    <module>cloudsyncservice</module>
     <module>imagemagickservice</module>
     <module>imageconversionservice</module>
     <module>mediastreamingservice</module>

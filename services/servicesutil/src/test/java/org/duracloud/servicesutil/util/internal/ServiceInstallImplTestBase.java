@@ -38,9 +38,9 @@ public class ServiceInstallImplTestBase {
     protected final String serviceContent1 = "not-much-more-content";
     protected final String serviceContent2 = "not-much-more-content-war";
 
-    protected final String entryName0 = "entry-name.jar";
-    protected final String entryName1 = "entry-name.txt";
-    protected final String entryName2 = "entry-name.war";
+    protected final String entryName0 = "entry-name0.jar";
+    protected final String entryName1 = "entry-name1.txt";
+    protected final String entryName2 = "entry-name2.war";
 
     protected void tearDown() throws Exception {
         BundleCatalog.clearCatalog();

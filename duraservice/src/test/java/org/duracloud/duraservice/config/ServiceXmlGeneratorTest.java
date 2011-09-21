@@ -36,7 +36,7 @@ import java.util.Properties;
 public class ServiceXmlGeneratorTest {
 
     private static final String PROJECT_VERSION_PROP = "PROJECT_VERSION";
-    private static final int NUM_SERVICES = 11;
+    private static final int NUM_SERVICES = 12;
 
     @Test
     public void testBuildServiceList() {
@@ -61,6 +61,7 @@ public class ServiceXmlGeneratorTest {
         boolean foundBulkImageConversion = false;
         boolean foundAmazonFixity = false;
         boolean foundRepOnDemand = false;
+        boolean foundCloudSync = false;
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             String contentId = serviceInfo.getContentId();
@@ -123,6 +124,11 @@ public class ServiceXmlGeneratorTest {
                 "replication-on-demand-service-" + ver + ".zip")) {
                 foundRepOnDemand = true;
                 verifyRepOnDemand(serviceInfo);
+
+            } else if (contentId.equals(
+                "cloudsyncservice-" + ver + ".zip")) {
+                foundCloudSync = true;
+                verifyCloudSync(serviceInfo);
 
             } else {
                 Assert.fail("unexpected contentId: " + contentId);
@@ -265,10 +271,25 @@ public class ServiceXmlGeneratorTest {
         int numUserConfigs = 0;
         int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
-        
+
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
         setsModesConfigs.add(Arrays.asList(1,3));
         verifyServiceModes(setsModesConfigs, serviceInfo);
+    }
+
+    private void verifyCloudSync(ServiceInfo serviceInfo) {
+        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
+        Assert.assertNotNull(systemConfigs);
+        Assert.assertEquals(4, systemConfigs.size());
+
+        verifyDurastoreCredential(systemConfigs);
+
+        String ver = getVersion();
+        String dependencyServiceId = "10";
+        String dependencyContentId = "webapputilservice-" + ver + ".zip";
+        verifyDependencies(serviceInfo,
+                           dependencyServiceId,
+                           dependencyContentId);
     }
 
     private void verifyServiceInfo(int numUserConfigs,
@@ -394,7 +415,7 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> services = getServicesFromXml(xmlFile);
         Assert.assertNotNull(services);
 
-        int count = 11;
+        int count = NUM_SERVICES;
         Assert.assertEquals(xmlFile.getName(), count, services.size());
 
         verifyService(services.get(0), "fixityservice-", 0);
@@ -408,6 +429,7 @@ public class ServiceXmlGeneratorTest {
         verifyService(services.get(8), "mediastreamingservice-", 8);
         verifyService(services.get(9), "imagemagickservice-", 9);
         verifyService(services.get(10), "webapputilservice-", 10);
+        verifyService(services.get(11), "cloudsyncservice-", 11);
     }
 
     private void verifyServiceXmlProfessional(File xmlFile)

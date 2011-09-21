@@ -41,7 +41,8 @@ public class ServiceXmlGenerator {
                                                 new BulkImageConversionServiceInfo(),
                                                 new MediaStreamingServiceInfo(),
                                                 new ImageMagickServiceInfo(),
-                                                new WebappUtilServiceInfo()};
+                                                new WebappUtilServiceInfo(),
+                                                new CloudSyncServiceInfo()};
 
     private String version;
 

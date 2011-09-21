@@ -22,7 +22,7 @@ public class WebappUtilServiceInfo extends AbstractServiceInfo {
         webappUtilService.setDisplayName("System Utility - WebApp");
         webappUtilService.setUserConfigVersion("1.0");
         webappUtilService.setServiceVersion(version);
-        webappUtilService.setMaxDeploymentsAllowed(1);
+        webappUtilService.setMaxDeploymentsAllowed(-1);
         webappUtilService.setSystemService(true);
 
         webappUtilService.setDeploymentOptions(getSimpleDeploymentOptions());

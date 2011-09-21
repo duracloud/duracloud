@@ -11,6 +11,7 @@ import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.services.common.error.ServiceException;
 import org.duracloud.services.common.util.BundleHome;
+import org.duracloud.servicesutil.util.catalog.BundleCatalog;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,8 @@ public class ServiceInstallerImplTest extends ServiceInstallImplTestBase {
     @After
     public void tearDown() throws Exception {
         super.tearDown();
+
+        BundleCatalog.clearCatalog();
         
         FileUtils.deleteQuietly(installer.getBundleHome().getHome());
 
@@ -138,7 +141,7 @@ public class ServiceInstallerImplTest extends ServiceInstallImplTestBase {
     }
 
     private void verifyEntry(ZipFile file, String entryName, String content)
-            throws Exception, IOException {
+            throws Exception {
         ZipEntry entry = file.getEntry(entryName);
         Assert.assertNotNull(entry);
         Assert.assertEquals(entryName, entry.getName());

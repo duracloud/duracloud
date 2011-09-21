@@ -88,7 +88,11 @@ public class ServiceInstallerImpl extends ServiceInstallBase implements ServiceI
         }
     }
 
-    private void storeInAttic(String name, InputStream bundle) {
+    private void storeInAttic(String name, InputStream bundle)
+        throws ServiceException {
+        if (isZip(name)) {
+            BundleCatalog.register(name);
+        }
         storeInDir(getBundleHome().getAttic(), name, bundle);
     }
 

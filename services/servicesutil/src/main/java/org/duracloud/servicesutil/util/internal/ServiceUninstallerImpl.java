@@ -43,9 +43,12 @@ public class ServiceUninstallerImpl extends ServiceInstallBase
 
         if (isJar(name)) {
             uninstallBundleFromHomeAndAttic(name);
+            
         } else if (isZip(name)) {
-            uninstallBagAndBundles(name);
-            removeWorkDir(name);
+            if (uninstallBagAndBundles(name)) {
+                removeWorkDir(name);
+            }
+            
         } else {
             throwServiceException("Unsupported filetype: '" + name + "'");
         }
@@ -59,8 +62,10 @@ public class ServiceUninstallerImpl extends ServiceInstallBase
         }
     }
 
-    private void uninstallBagAndBundles(String zipName)
+    private boolean uninstallBagAndBundles(String zipName)
         throws IOException, ServiceException {
+        boolean uninstallZip = BundleCatalog.unRegister(zipName);
+
         ZipFile zip = new ZipFile(getBundleHome().getFromAttic(zipName));
         Enumeration entries = zip.entries();
 
@@ -84,7 +89,10 @@ public class ServiceUninstallerImpl extends ServiceInstallBase
                                        zip.getName(), e);
         }
 
-        delete(getBundleHome().getAttic(), zipName);
+        if (uninstallZip) {
+            delete(getBundleHome().getAttic(), zipName);
+        }
+        return uninstallZip;
     }
 
     private void removeWorkDir(String name) throws IOException, ServiceException {

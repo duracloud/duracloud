@@ -147,7 +147,7 @@ public class ContentDuplicatorReportingImpl implements ContentDuplicator {
             inboxQ.add(event);
             
         } else {
-            log.info("omitting event submission: {}, q: {}", event, inboxQ);
+            log.info("omitting submitEvent: {}, q: {}", event, inboxQ.size());
         }
     }
 
@@ -243,7 +243,7 @@ public class ContentDuplicatorReportingImpl implements ContentDuplicator {
     }
 
     private void processSuccess(DuplicationEvent event) {
-        log.debug("processing success: {}", event);
+        log.debug("processing success: {}, q: {}", event, inboxQ.size());
 
         // clear the tracking of this event.
         retryTally.remove(event);

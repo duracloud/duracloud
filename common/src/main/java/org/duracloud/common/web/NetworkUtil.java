@@ -17,63 +17,33 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+/**
+ * This class is a utility for monitoring the state of network resources.
+ *
+ * @author Andrew Woods
+ *         Date: Jan 01, 2009
+ */
 public class NetworkUtil {
 
     protected static final Logger log = LoggerFactory.getLogger(NetworkUtil.class);
 
-    /**
-     * <pre>
-     * This method provides the current environment's IP address,
-     * taking into account the Internet connection to any of the available
-     * machine's Network interfaces.
-     * <p/>
-     * The outputs can be in octatos or in IPV6 format.
-     * </pre>
-     */
-    public static String getCurrentEnvironmentNetworkIp() {
-        Enumeration<NetworkInterface> netInterfaces = null;
-        try {
-            netInterfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException e) {
-            log.error("Error getting network interfaces", e);
-        }
-
-        while (netInterfaces.hasMoreElements()) {
-            NetworkInterface ni = netInterfaces.nextElement();
-            Enumeration<InetAddress> address = ni.getInetAddresses();
-            while (address.hasMoreElements()) {
-                InetAddress addr = address.nextElement();
-                if (!addr.isLoopbackAddress() && addr.isSiteLocalAddress() &&
-                    !(addr.getHostAddress().indexOf(":") > -1)) {
-                    return addr.getHostAddress();
-                }
-            }
-        }
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            log.warn("Error getting localhost address", e);
-            return "127.0.0.1";
-        }
-    }
-
-    public static void waitForStartup(String url)
+    public void waitForStartup(String url)
         throws DuraCloudCheckedException {
         isRunning(url, true);
     }
 
-    public static void waitForShutdown(String url)
+    public void waitForShutdown(String url)
         throws DuraCloudCheckedException {
         isRunning(url, false);
     }
 
-    private static void isRunning(String url, boolean state)
+    private void isRunning(String url, boolean state)
         throws DuraCloudCheckedException {
         int tries = 0;
         int maxTries = 20;
         boolean running = isRunning(url);
         while (running != state && tries++ < maxTries) {
-            sleep(500);
+            sleep(1000);
             running = isRunning(url);
         }
 
@@ -88,7 +58,7 @@ public class NetworkUtil {
         }
     }
 
-    private static boolean isRunning(String url) {
+    private boolean isRunning(String url) {
         boolean running = false;
 
         RestHttpHelper httpHelper = new RestHttpHelper();
@@ -99,14 +69,20 @@ public class NetworkUtil {
             // do nothing.
         }
 
-        if (response != null && response.getStatusCode() == 200) {
-            running = true;
+        if (response != null) {
+            int status = response.getStatusCode();
+            if (status == 200 || status == 302) {
+                running = true;
+
+            } else {
+                log.debug("status code: {}", status);
+            }
         }
 
         return running;
     }
 
-    private static void sleep(long millis) {
+    private void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {

@@ -11,8 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.util.IOUtil;
-import static org.duracloud.common.web.NetworkUtil.waitForShutdown;
-import static org.duracloud.common.web.NetworkUtil.waitForStartup;
+import org.duracloud.common.web.NetworkUtil;
 import org.duracloud.services.webapputil.error.WebAppDeployerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,8 @@ public class TomcatInstance {
     private File catalinaHome;
     private int port;
 
+    private NetworkUtil networkUtil = new NetworkUtil();
+
     public TomcatInstance(File catalinaHome, int port) {
         this.catalinaHome = catalinaHome;
         this.port = port;
@@ -56,7 +57,7 @@ public class TomcatInstance {
     public void start(Map<String, String> env) {
         runScript(getStartUpScript(), env);
         try {
-            waitForStartup(getLocalUrl());
+            networkUtil.waitForStartup(getLocalUrl());
         } catch (DuraCloudCheckedException e) {
             throw new WebAppDeployerException("Unable to start tomcat", e);
         }
@@ -69,7 +70,7 @@ public class TomcatInstance {
     public void stop() {
         runScript(getShutdownScript());
         try {
-            waitForShutdown(getLocalUrl());
+            networkUtil.waitForShutdown(getLocalUrl());
         } catch (DuraCloudCheckedException e) {
             throw new WebAppDeployerException("Unable to stop tomcat", e);
         }
