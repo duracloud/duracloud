@@ -51,6 +51,12 @@ public class StorageReportResource {
                                                       reportPrefix,
                                                       errorLogName);
         this.reportBuilder = new StorageReportBuilder(storeMgr, reportHandler);
+
+        // if a scheduler already exists, shut it down before making a new one
+        if(null != this.reportScheduler) {
+            this.reportScheduler.cancelStorageReportSchedule();
+            this.reportScheduler.cancelStorageReport();
+        }
         this.reportScheduler = new StorageReportScheduler(reportBuilder);
 
         // adds default report schedule: weekly at 1 AM on Saturday
