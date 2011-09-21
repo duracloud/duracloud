@@ -2039,6 +2039,13 @@ $(function(){
 							setHash(space);
 							loadHandler(space);
 						}
+                        var i;
+                        for(i in space.extendedProperties){
+                            var prop = space.extendedProperties[i];
+                            if(prop.name == "is-delete" && prop.value == "true") {
+                                alert("The space '" + space.spaceId + "' is in the process of being deleted.");
+                            }
+                        }
 						//showContentItemListStatus();
 					}
 				}, 
