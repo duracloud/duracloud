@@ -52,6 +52,11 @@ $(function(){
         .addMethod("illegalchars", function(value, element) { 
             return  !(/^.*([\\]|[?]).*$/.test(value));
         }, "A Content ID cannot contain  '?' or '\\'");
+
+        $.validator
+        .addMethod("reserved", function(value, element) {
+            return  !(/^(init|stores|spaces|security|tasks)$/.test(value));
+        }, "A Space ID cannot be a reserved name");
         //end validator definitions        
     })();
     
@@ -1348,6 +1353,7 @@ $(function(){
 				notip: true,
                 dotnum: true,
 				misc: true,
+                reserved: true,
 			},
 		},
 		messages: {
