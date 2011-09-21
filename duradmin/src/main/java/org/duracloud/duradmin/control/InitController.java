@@ -7,17 +7,7 @@
  */
 package org.duracloud.duradmin.control;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
-import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.duracloud.common.util.InitUtil;
 import org.duracloud.duradmin.config.DuradminConfig;
 import org.duracloud.duradmin.contentstore.ContentStoreProvider;
 import org.duracloud.duradmin.domain.AdminInit;
@@ -25,6 +15,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
+import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
 
 /**
  * This class initializes the application based on the xml body of the
@@ -47,9 +49,18 @@ public class InitController extends BaseCommandController {
                                   Object o,
                                   BindException be) throws Exception {
         String method = request.getMethod();
-        if (!method.equalsIgnoreCase("POST")) {
+        if (method.equalsIgnoreCase("POST")) {
+            return initialize(request, response);
+        } else if(method.equalsIgnoreCase("GET")) {
+            return isInitialized(response);
+        } else {
             return respond(response, "unsupported: " + method, SC_METHOD_NOT_ALLOWED);
         }
+    }
+
+    private ModelAndView initialize(HttpServletRequest request,
+                                    HttpServletResponse response) throws Exception {
+        log.debug("Initializing " + APP_NAME);
 
         ServletInputStream xml = request.getInputStream();
         if (xml != null) {
@@ -85,9 +96,20 @@ public class InitController extends BaseCommandController {
         contentStoreProvider.reinitializeContentStoreManager();
     }
 
+    private ModelAndView isInitialized(HttpServletResponse response) {
+        if(DuradminConfig.isInitialized()) {
+            String text = InitUtil.getInitializedText(APP_NAME);
+            return respond(response, text, SC_OK);
+        } else {
+            String text = InitUtil.getNotInitializedText(APP_NAME);
+            return respond(response, text, SC_SERVICE_UNAVAILABLE);
+        }
+    }
+
     private ModelAndView respond(HttpServletResponse response, String msg, int status) {
         response.setStatus(status);
         log.info("writing response: status = " + status + "; msg = " + msg);
         return new ModelAndView("jsonView", "response", msg);
     }
+
 }

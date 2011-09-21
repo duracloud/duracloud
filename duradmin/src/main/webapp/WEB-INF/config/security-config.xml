@@ -15,6 +15,7 @@
   </beans:bean>
 
   <http auto-config="false" entry-point-ref="authenticationProcessingFilterEntryPoint">
+    <intercept-url pattern="/init" method="GET" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url  pattern="/security" access="ROLE_ADMIN" />
     <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/style/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />

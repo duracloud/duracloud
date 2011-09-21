@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 public class DuraserviceConfig extends BaseConfig implements AppConfig {
     private final Logger log = LoggerFactory.getLogger(DuraserviceConfig.class);
 
-    private static final String INIT_RESOURCE = "/services";
-
     public static final String QUALIFIER = "duraservice";
     protected static final String primaryInstanceKey = "primary-instance";
     protected static final String userStoreKey = "user-storage";

@@ -6,6 +6,11 @@
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
   <!-- REST API resources -->
+  <bean id="initRest" class="org.duracloud.duraservice.rest.InitRest" >
+    <constructor-arg ref="serviceResource"/>
+    <constructor-arg ref="restUtil"/>
+  </bean>
+
   <bean id="serviceRest" class="org.duracloud.duraservice.rest.ServiceRest" >
     <constructor-arg ref="serviceResource"/>
     <constructor-arg ref="restUtil"/>

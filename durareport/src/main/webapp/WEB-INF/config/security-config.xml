@@ -26,6 +26,8 @@
     <intercept-url pattern="/security" method="POST" access="ROLE_ADMIN"/>
     <intercept-url pattern="/security" method="GET" access="ROLE_ADMIN"/>
 
+    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS"/>
+
     <intercept-url pattern="/**" access="ROLE_USER"/>
 
     <anonymous />

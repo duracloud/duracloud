@@ -7,10 +7,10 @@
  */
 package org.duracloud.duradmin.config;
 
-import java.util.Properties;
-
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.duradmin.domain.AdminInit;
+
+import java.util.Properties;
 
 /**
  * This class provides configuration properties associated with the duracloud
@@ -36,6 +36,8 @@ public class DuradminConfig
     private static String duraserviceContextKey = "duraserviceContext";
 
     private static String durareportContextKey = "durareportContext";
+
+    private static boolean initialized = false;
 
     private static Properties getProps() {
         return getPropsFromResource(getConfigFileName());
@@ -70,6 +72,11 @@ public class DuradminConfig
 
     public static void setConfig(AdminInit init) {
         config = init;
+        initialized = true;
+    }
+
+    public static boolean isInitialized() {
+        return initialized;
     }
 
     public static String getDuraStoreHost() {

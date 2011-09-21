@@ -37,6 +37,18 @@ public class ServiceReportResource {
                                                       summaryDirectory);
     }
 
+    /**
+     * Indicates whether or not initialization has occurred.
+     */
+    public boolean isInitialized() {
+        try {
+            checkInitialized();
+            return true;
+        } catch(RuntimeException e) {
+            return false;
+        }
+    }
+
     public InputStream getDeployedServicesReport(){
         checkInitialized();
         return reportBuilder.getDeployedServicesReport();

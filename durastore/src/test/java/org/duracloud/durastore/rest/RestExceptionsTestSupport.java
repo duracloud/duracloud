@@ -23,17 +23,21 @@ import javax.ws.rs.core.Response;
  */
 public class RestExceptionsTestSupport {
 
-
     protected void verifyErrorResponse(Response response) {
+        int expectedStatus = Response.Status
+            .INTERNAL_SERVER_ERROR
+            .getStatusCode();
+        verifyErrorResponse(response, expectedStatus);
+    }
+
+    protected void verifyErrorResponse(Response response,
+                                       int expectedStatus) {
         Assert.assertNotNull(response);
 
         String entity = (String) response.getEntity();
         Assert.assertNotNull(entity);
 
         int status = response.getStatus();
-        int expectedStatus = Response.Status
-            .INTERNAL_SERVER_ERROR
-            .getStatusCode();
         Assert.assertEquals(expectedStatus, status);
     }
 
@@ -54,6 +58,7 @@ public class RestExceptionsTestSupport {
             StorageProviderFactory.class);
         EasyMock.expect(factory.getStorageAccounts()).andThrow(
             createRuntimeException()).anyTimes();
+        EasyMock.expect(factory.isInitialized()).andReturn(false).anyTimes();
 
         EasyMock.replay(factory);
         return factory;

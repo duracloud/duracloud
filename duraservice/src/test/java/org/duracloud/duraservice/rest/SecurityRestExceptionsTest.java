@@ -26,6 +26,7 @@ public class SecurityRestExceptionsTest {
 
     private SecurityRest securityRest;
     private RestUtil restUtil;
+    private RestExceptionsTestSupport support = new RestExceptionsTestSupport();
 
     @Before
     public void setUp() throws Exception {
@@ -37,20 +38,7 @@ public class SecurityRestExceptionsTest {
     @Test
     public void testInitializeUsers() throws Exception {
         Response response = securityRest.initializeUsers();
-        verifyErrorResponse(response);
-    }
-
-    private void verifyErrorResponse(Response response) {
-        Assert.assertNotNull(response);
-
-        String entity = (String) response.getEntity();
-        Assert.assertNotNull(entity);
-
-        int status = response.getStatus();
-        int expectedStatus = Response.Status
-            .INTERNAL_SERVER_ERROR
-            .getStatusCode();
-        Assert.assertEquals(expectedStatus, status);
+        support.verifyErrorResponse(response);
     }
 
     private DuracloudUserDetailsService createUserDetailsService() {

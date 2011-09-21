@@ -29,7 +29,6 @@ import java.util.Set;
 public class DurastoreConfig extends BaseConfig implements AppConfig {
     private final Logger log = LoggerFactory.getLogger(DurastoreConfig.class);
 
-    private static final String INIT_RESOURCE = "/stores";
     public static final String QUALIFIER = "durastore";
 
     protected static final String storageAccountKey = "storage-acct";

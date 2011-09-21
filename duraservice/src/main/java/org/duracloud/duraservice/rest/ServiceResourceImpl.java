@@ -44,6 +44,11 @@ public class ServiceResourceImpl implements ServiceResource {
     }
 
     @Override
+    public boolean isConfigured() {
+        return servicesManager.isConfigured();
+    }
+
+    @Override
     public String getDeployedServices() {
         List<ServiceInfo> deployedServices = doGetDeployedServices();
         ServicesConfigDocument configDoc = new ServicesConfigDocument();

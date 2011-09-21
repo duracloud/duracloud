@@ -25,4 +25,9 @@ public interface LocalServicesManager extends ServicesManager {
      * @param configXml the xml used to initialize the service manager
      */
     public void configure(InputStream configXml);
+
+    /**
+     * Determines if the service manager has been configured
+     */
+    public boolean isConfigured();
 }

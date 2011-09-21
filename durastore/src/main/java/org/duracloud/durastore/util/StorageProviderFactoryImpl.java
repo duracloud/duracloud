@@ -35,7 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Bill Branan
  */
-public class StorageProviderFactoryImpl extends ProviderFactoryBase implements StorageProviderFactory {
+public class StorageProviderFactoryImpl extends ProviderFactoryBase
+    implements StorageProviderFactory {
 
     protected static final String PRIMARY = "PRIMARY";
 

@@ -31,4 +31,6 @@ public abstract class BaseRest {
     public static final String XML = MediaType.APPLICATION_XML;
     public static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN_TYPE;
 
+    public static final String APP_NAME = "DuraService";
+
 }

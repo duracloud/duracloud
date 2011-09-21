@@ -15,7 +15,6 @@ import org.duracloud.appconfig.xml.DurareportInitDocumentBinding;
  */
 public class DurareportConfig extends DuradminConfig {
 
-    private static final String INIT_RESOURCE = "/reports";
     public static final String QUALIFIER = "durareport";
 
     @Override

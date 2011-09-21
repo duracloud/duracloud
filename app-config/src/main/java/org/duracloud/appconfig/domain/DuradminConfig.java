@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
 public class DuradminConfig extends BaseConfig implements AppConfig {
     private final Logger log = LoggerFactory.getLogger(DuradminConfig.class);
 
-    private static final String INIT_RESOURCE = "/init";
-
     public static final String QUALIFIER = "duradmin";
     public static final String duraStoreHostKey = "durastore-host";
     public static final String duraStorePortKey = "durastore-port";

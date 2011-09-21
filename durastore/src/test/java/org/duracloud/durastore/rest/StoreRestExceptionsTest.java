@@ -7,11 +7,8 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.util.StorageProviderFactory;
-import org.duracloud.durastore.util.TaskProviderFactory;
-import org.easymock.classextension.EasyMock;
-import org.junit.Assert;
+import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,21 +24,15 @@ public class StoreRestExceptionsTest {
 
     private StoreRest storeRest;
     private StorageProviderFactory storageProviderFactory;
-    private RestUtil restUtil;
+    private StorageAccountsDocumentBinding documentBinding;
 
     private RestExceptionsTestSupport support = new RestExceptionsTestSupport();
 
     @Before
     public void setUp() throws Exception {
         storageProviderFactory = support.createStorageProviderFactory();
-        restUtil = support.createRestUtil();
-        storeRest = new StoreRest(storageProviderFactory, restUtil);
-    }
-
-    @Test
-    public void testInitializeStores() throws Exception {
-        Response response = storeRest.initializeStores();
-        support.verifyErrorResponse(response);
+        documentBinding = new StorageAccountsDocumentBinding();
+        storeRest = new StoreRest(storageProviderFactory, documentBinding);
     }
 
     @Test

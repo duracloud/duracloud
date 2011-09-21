@@ -8,12 +8,12 @@
 package org.duracloud.duraservice.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.serviceapi.error.NotFoundException;
-import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.duraservice.error.NoSuchDeployedServiceException;
 import org.duracloud.duraservice.error.NoSuchServiceComputeInstanceException;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,51 +69,6 @@ public class ServiceRest extends BaseRest {
 
         ServiceList(String type) {
             this.type = type;
-        }
-    }
-
-    /**
-     * Initializes DuraService.
-     * POST content should be similar to:
-     *
-     * <servicesConfig>
-     *   <userStorage>
-     *     <host>[USER-STORAGE-HOST-NAME]</host>
-     *     <port>[USER-STORAGE-PORT]</port>
-     *     <context>[USER-STORAGE-CONTEXT]</context>
-     *     <msgBrokerUrl>[USER-STORAGE-MSG-BROKER-URL]</msgBrokerUrl>
-     *   </userStorage>
-     *   <serviceStorage>
-     *     <host>[SERVICES-STORAGE-HOST-NAME]</host>
-     *     <port>[SERVICES-STORAGE-PORT]</port>
-     *     <context>[SERVICES-STORAGE-CONTEXT]</context>
-     *     <spaceId>[SERVICES-STORAGE-SPACE-ID]</spaceId>
-     *   </serviceStorage>
-     *   <serviceCompute>
-     *     <type>AMAZON_EC2</type>
-     *     <imageId>[MACHINE-IMAGE-ID]</imageId>
-     *     <computeProviderCredential>
-     *       <username>[USERNAME]</username>
-     *       <password>[PASSWORD]</password>
-     *     </computeProviderCredential>
-     *   </serviceCompute>
-     * </servicesConfig>
-     *
-     * @return 200 on success
-     */
-    @Path("/services")
-    @POST
-    public Response initializeServices() {
-        String msg = "initializing services";
-
-        try {
-            RestUtil.RequestContent content = restUtil.getRequestContent(request, headers);
-            serviceResource.configureManager(content.getContentStream());
-            String responseText = "Initialization Successful";
-            return responseOk(msg, responseText);
-
-        } catch (Exception e) {
-            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -461,17 +416,18 @@ public class ServiceRest extends BaseRest {
         }
     }
 
-    private Response responseOk(String msg, String text) {
-        log.debug(msg);
-        return Response.ok(text, TEXT_PLAIN).build();
-    }
-
     private Response responseBad(String msg,
                                  Exception e,
                                  Response.Status status) {
-        log.error("Error: " + msg, e);
-        String entity = e.getMessage() == null ? "null" : e.getMessage();
-        return Response.status(status).entity(entity).build();
+        String text = e.getMessage() == null ? "null" : e.getMessage();
+        return responseBad(msg, text, status);
+    }
+
+    private Response responseBad(String msg,
+                                 String text,
+                                 Response.Status status) {
+        log.error("Error while " + msg + ": " + text);
+        return Response.status(status).entity(text).build();
     }
 
     private Response buildNotFoundResponse(DuraCloudCheckedException e) {
@@ -480,6 +436,5 @@ public class ServiceRest extends BaseRest {
         response.entity(e.getFormattedMessage());
         return response.build();
     }
-
 
 }

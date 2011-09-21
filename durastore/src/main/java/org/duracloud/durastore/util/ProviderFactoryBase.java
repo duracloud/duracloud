@@ -48,6 +48,15 @@ public class ProviderFactoryBase {
         return storageAccountManager;
     }
 
+    public boolean isInitialized() {
+        try {
+            checkInitialized();
+            return true;
+        } catch(StorageException e) {
+            return false;
+        }
+    }
+
     /*
      * Ensures that the account manager has been initialized
      */

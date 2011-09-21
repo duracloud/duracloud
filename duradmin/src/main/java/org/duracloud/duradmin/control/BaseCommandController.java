@@ -7,9 +7,6 @@
  */
 package org.duracloud.duradmin.control;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.duradmin.contentstore.ContentStoreProvider;
 import org.duracloud.duradmin.util.MessageUtils;
@@ -23,8 +20,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 public abstract class BaseCommandController
         extends AbstractCommandController {
+
+    public static final String APP_NAME = "DurAdmin";
 
     protected final Logger log = LoggerFactory.getLogger(BaseCommandController.class);
 

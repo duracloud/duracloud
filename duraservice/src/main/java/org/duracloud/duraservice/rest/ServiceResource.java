@@ -17,28 +17,33 @@ import java.io.InputStream;
  *         Date: Aug 31, 2010
  */
 public interface ServiceResource {
-    void configureManager(InputStream configXml);
+    public void configureManager(InputStream configXml);
 
-    String getDeployedServices();
+    public boolean isConfigured();
 
-    String getAvailableServices();
+    public String getDeployedServices();
 
-    String getService(int serviceId) throws NotFoundException;
+    public String getAvailableServices();
 
-    String getDeployedService(int serviceId, int deploymentId)
+    public String getService(int serviceId) throws NotFoundException;
+
+    public String getDeployedService(int serviceId, int deploymentId)
         throws NotFoundException;
 
-    String getDeployedServiceProps(int serviceId, int deploymentId)
+    public String getDeployedServiceProps(int serviceId, int deploymentId)
         throws NotFoundException;
 
-    int deployService(int serviceId, String serviceHost, InputStream serviceXml)
+    public int deployService(int serviceId,
+                             String serviceHost,
+                             InputStream serviceXml)
         throws NotFoundException, ServicesException;
 
-    void updateServiceConfig(int serviceId,
+    public void updateServiceConfig(int serviceId,
                              int deploymentId,
                              InputStream serviceXml)
         throws NotFoundException, ServicesException;
 
-    void undeployService(int serviceId, int deploymentId)
+    public void undeployService(int serviceId, int deploymentId)
         throws NotFoundException, ServicesException;
+
 }

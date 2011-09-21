@@ -18,6 +18,8 @@ import java.util.Map;
  */
 public interface AppConfig {
 
+    public static final String INIT_RESOURCE = "/init";
+
     /**
      * This method loads this classes configuration elements from the provided
      * properties.

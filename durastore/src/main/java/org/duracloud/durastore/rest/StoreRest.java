@@ -7,7 +7,6 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.util.StorageProviderFactory;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -31,36 +29,12 @@ public class StoreRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(StoreRest.class);
 
     private StorageProviderFactory storageProviderFactory;
-    private RestUtil restUtil;
     private StorageAccountsDocumentBinding documentBinding;
 
-    public StoreRest(StorageProviderFactory storageProviderFactory, RestUtil restUtil) {
+    public StoreRest(StorageProviderFactory storageProviderFactory,
+                     StorageAccountsDocumentBinding documentBinding) {
         this.storageProviderFactory = storageProviderFactory;
-        this.restUtil = restUtil;
-        this.documentBinding = new StorageAccountsDocumentBinding();
-    }
-
-    /**
-     * Initializes the instance. Expects as POST data
-     * an XML file which includes credentials for all
-     * available storage providers accounts.
-     *
-     * @return 200 on success
-     */
-    @POST
-    public Response initializeStores(){
-        String msg = "initializing stores.";
-
-        RestUtil.RequestContent content = null;
-        try {
-            content = restUtil.getRequestContent(request, headers);
-            storageProviderFactory.initialize(content.getContentStream());
-            String responseText = "Initialization Successful";
-            return responseOk(msg, responseText);
-
-        } catch (Exception e) {
-            return responseBad(msg, e);
-        }
+        this.documentBinding = documentBinding;
     }
 
     /**
@@ -70,29 +44,29 @@ public class StoreRest extends BaseRest {
      */
     @GET
     public Response getStores(){
+        String msg = "getting stores.";
         try {
-            return doGetStores();
+            return doGetStores(msg);
 
         } catch (StorageException se) {
-            return responseBad("getting stores.", se);
+            return responseBad(msg, se);
 
         } catch (Exception e) {
-            return responseBad("getting stores.", e);
+            return responseBad(msg, e);
         }
     }
 
-    private Response doGetStores() {
+    private Response doGetStores(String msg) {
         List<StorageAccount> accts = storageProviderFactory.getStorageAccounts();
         boolean includeCredentials = false;
         String xml = documentBinding.createDocumentFrom(accts,
                                                         includeCredentials);
+        return responseOkXml(msg, xml);
+    }
 
-        return Response.ok(xml, APPLICATION_XML).build();
-        }
-
-    private Response responseOk(String msg, String text) {
+    private Response responseOkXml(String msg, String xml) {
         log.debug(msg);
-        return Response.ok(text, TEXT_PLAIN).build();
+        return Response.ok(xml, APPLICATION_XML).build();
     }
 
     private Response responseBad(String msg, Exception e) {

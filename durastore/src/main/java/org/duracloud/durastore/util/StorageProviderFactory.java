@@ -22,6 +22,8 @@ public interface StorageProviderFactory {
 
     public void initialize(InputStream accountXml);
 
+    public boolean isInitialized();
+
     public List<StorageAccount> getStorageAccounts();
 
     public StorageProvider getStorageProvider() throws StorageException;

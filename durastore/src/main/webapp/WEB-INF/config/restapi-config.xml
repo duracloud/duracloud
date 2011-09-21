@@ -6,9 +6,14 @@
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
   <!-- REST API resources -->
-  <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" >
+  <bean id="initRest" class="org.duracloud.durastore.rest.InitRest" >
     <constructor-arg ref="storageProviderFactory"/>
     <constructor-arg ref="restUtil"/>
+  </bean>
+
+  <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" >
+    <constructor-arg ref="storageProviderFactory"/>
+    <constructor-arg ref="storageAccountsDocumentBinding"/>
   </bean>
 
   <bean id="taskRest" class="org.duracloud.durastore.rest.TaskRest" >
@@ -31,6 +36,9 @@
   </bean>
 
   <!-- Support beans -->
+  <bean id="storageAccountsDocumentBinding"
+        class="org.duracloud.storage.xml.StorageAccountsDocumentBinding" />
+
   <bean id="spaceResource" class="org.duracloud.durastore.rest.SpaceResource" >
     <constructor-arg ref="storageProviderFactory"/>
   </bean>

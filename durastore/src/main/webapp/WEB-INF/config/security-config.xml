@@ -21,6 +21,8 @@
       Set initial access as if all spaces are 'open'.
       'closed' spaces will be handled by the spaceAccessVoter.
      -->
+    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS"/>
+
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
 

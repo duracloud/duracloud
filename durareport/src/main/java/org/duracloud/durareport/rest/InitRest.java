@@ -14,6 +14,7 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.client.ServicesManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.rest.RestUtil;
+import org.duracloud.common.util.InitUtil;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.serviceapi.ServicesManager;
@@ -23,16 +24,19 @@ import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
+import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
+
 /**
  * @author: Bill Branan
  * Date: 5/12/11
  */
-@Path("/reports")
+@Path("/init")
 public class InitRest extends BaseRest {
 
     private final Logger log = LoggerFactory.getLogger(InitRest.class);
@@ -65,7 +69,7 @@ public class InitRest extends BaseRest {
      */
     @POST
     public Response initialize(){
-        log.debug("Initializing DuraReport");
+        log.debug("Initializing " + APP_NAME);
 
         RestUtil.RequestContent content = null;
         try {
@@ -100,5 +104,20 @@ public class InitRest extends BaseRest {
         ServiceSummarizer summarizer = new ServiceSummarizerImpl(servicesMgr);
         serviceResource.initialize(summaryDirectory, summarizer);
     }
-    
+
+    @GET
+    public Response isInitialized() {
+        log.debug("checking initialized");
+
+        boolean initialized = storageResource.isInitialized() &&
+                              serviceResource.isInitialized();
+        if(initialized) {
+            String text = InitUtil.getInitializedText(APP_NAME);
+            return responseOk(text);
+        } else {
+            String text = InitUtil.getNotInitializedText(APP_NAME);
+            return responseBad(text, SERVICE_UNAVAILABLE);
+        }
+    }
+
 }

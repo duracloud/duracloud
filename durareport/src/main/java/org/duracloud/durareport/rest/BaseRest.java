@@ -35,6 +35,8 @@ public class BaseRest {
         MediaType.APPLICATION_XML_TYPE;
     public static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN_TYPE;
 
+    public static final String APP_NAME = "DuraReport";
+
     protected Response responseOk(String text) {
         return Response.ok(text, TEXT_PLAIN).build();
     }
@@ -52,14 +54,20 @@ public class BaseRest {
     }
 
     protected Response responseBadRequest(Exception e) {
-        String entity = e.getMessage() == null ? "null" : e.getMessage();
-        return Response.status(Response.Status.BAD_REQUEST)
-                       .entity(entity).build();
+        return responseBad(e, Response.Status.BAD_REQUEST);
     }
 
     protected Response responseBad(Exception e) {
-        String entity = e.getMessage() == null ? "null" : e.getMessage();
-        return Response.serverError().entity(entity).build();
+        return responseBad(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+
+    protected Response responseBad(Exception e, Response.Status status) {
+        String text = e.getMessage() == null ? "null" : e.getMessage();
+        return responseBad(text, status);
+    }
+
+    protected Response responseBad(String text, Response.Status status) {
+        return Response.status(status).entity(text).build();
     }
 
 }

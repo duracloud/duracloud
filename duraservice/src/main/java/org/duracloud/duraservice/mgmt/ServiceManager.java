@@ -152,6 +152,16 @@ public class ServiceManager implements LocalServicesManager {
         serviceComputeInstances = new ArrayList<ServiceComputeInstance>();
     }
 
+    @Override
+    public boolean isConfigured() {
+        try {
+            checkConfigured();
+            return true;
+        } catch(ServiceException e) {
+            return false;
+        }
+    }
+
     /*
      * Determines if the service mananger has been initialized.
      */

@@ -311,9 +311,15 @@ public class SpaceRest extends BaseRest {
     private Response responseBad(String msg,
                                  Exception e,
                                  Response.Status status) {
-        log.error("Error: " + msg, e);
-        String entity = e.getMessage() == null ? "null" : e.getMessage();
-        return Response.status(status).entity(entity).build();
+        String text = e.getMessage() == null ? "null" : e.getMessage();
+        return responseBad(msg, text, status);
+    }
+
+    private Response responseBad(String msg,
+                                 String text,
+                                 Response.Status status) {
+        log.error("Error while " + msg + ": " + text);
+        return Response.status(status).entity(text).build();
     }
 
 }

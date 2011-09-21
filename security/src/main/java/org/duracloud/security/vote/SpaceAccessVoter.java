@@ -9,7 +9,6 @@ package org.duracloud.security.vote;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
-import static org.duracloud.security.vote.VoterUtil.debugText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -22,6 +21,8 @@ import org.springframework.security.vote.AccessDecisionVoter;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.duracloud.security.vote.VoterUtil.debugText;
 
 /**
  * @author Andrew Woods
@@ -84,7 +85,9 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             return ContentStore.AccessType.CLOSED;
         }
 
-        if (spaceId.equals("spaces") || spaceId.equals("stores")) {
+        if (spaceId.equals("spaces") ||
+            spaceId.equals("stores") ||
+            spaceId.equals("init")) {
             return ContentStore.AccessType.OPEN;
         }
 
