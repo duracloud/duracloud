@@ -1414,6 +1414,36 @@ $(function(){
 	    return path; // just the filename
 	  };
 	  
+	  
+	  /**
+	   * @param contentItem
+	   * @param callback - an object with an onProceed() function
+	   *                 that is called if the content item exists and the user has said
+	   *                 continue with the operation or the content item doesn't exist.
+	   */
+	  var checkIfContentItemExists = function(contentItem, callback){
+          dc.store.CheckIfContentItemExists(
+                  contentItem, 
+                  { 
+                      success: function(exists){
+                          if(exists){
+                              if(!confirm("A content ID with this name already exists. Overwrite?")){
+                                  if(callback.onCancel) callback.onCancel();
+                                  return;
+                              }
+                          }
+
+                          if(callback.onProceed) callback.onProceed();
+
+                      },
+                      
+                      failure: function(message){
+                          alert("check for existing content item failed: " + message);
+                      }
+                  }
+              );	      
+	  }
+	  
 	///////////////////////////////////////////
 	///Add Content Item Dialog Definition Start
 	///////////////////////////////////////////
@@ -1447,52 +1477,45 @@ $(function(){
 					$("#storeId", form).val(contentItem.storeId);
 					var dialog = $("#add-content-item-dialog").find(".ui-dialog");
 					dialog.hide();
-					dc.store.CheckIfContentItemExists(
-						contentItem, 
-						{ 
-							success: function(exists){
-								if(exists){
-									if(!confirm("A content ID with this name already exists. Overwrite?")){
-										dialog.show();
-										return;
-									}
-								}
-	
-								$(that).dialog("enable");
-								$(that).dialog("close");
-	
-								var updateFunc =  function(data){
-									poller();
-									var ci = data.contentItem;
-									var storeId = getCurrentProviderStoreId();
-									var spaceId = getCurrentSpaceId();
+
+					checkIfContentItemExists(
+					    contentItem, 
+					    {
+					        onCancel:function(){
+					            dialog.show();
+					        },
+    					    onProceed:function(){
+                                $(that).dialog("enable");
+                                $(that).dialog("close");
+    
+                                var updateFunc =  function(data){
+                                    poller();
+                                    var ci = data.contentItem;
+                                    var storeId = getCurrentProviderStoreId();
+                                    var spaceId = getCurrentSpaceId();
                                     ci.contentId = decodeURIComponent(ci.encodedContentId);
-									if( ci.storeId == storeId && ci.spaceId == spaceId && $("#content-item-list [id='"+ci.contentId+"']").size() == 0){
-										addContentItemToList(ci);
-									}
-								};
-									
-								var key = encodeURIComponent(contentItem.storeId) + "/" +
+                                    if( ci.storeId == storeId && ci.spaceId == spaceId && $("#content-item-list [id='"+ci.contentId+"']").size() == 0){
+                                        addContentItemToList(ci);
+                                    }
+                                };
+                                    
+                                var key = encodeURIComponent(contentItem.storeId) + "/" +
                                           encodeURIComponent(contentItem.spaceId) + "/" +
                                           encodeURIComponent(contentItem.contentId);
-								var callback = {
-									key: key,
-									begin: function(){
-										$("#upload-viewer").dialog("open");
-									},
-									failure: function(){
-										alert("upload failed for " + key);
-									},
-									success: updateFunc,
-								};
-	
-								dc.store.AddContentItem(form, callback);
-							},
-							
-							failure: function(message){
-								alert("check for existing content item failed: " + message);
-							}
-						}
+                                var callback = {
+                                    key: key,
+                                    begin: function(){
+                                        $("#upload-viewer").dialog("open");
+                                    },
+                                    failure: function(){
+                                        alert("upload failed for " + key);
+                                    },
+                                    success: updateFunc,
+                                };
+    
+                                dc.store.AddContentItem(form, callback);
+    					    }
+					    }
 					);
 				}
 			},
@@ -1655,11 +1678,11 @@ $(function(){
 	        autoOpen: true,
             show: 'blind',
             hide: 'blind',
-            height: 400,
+            height: 350,
             resizable: false,
             closeOnEscape:true,
             modal: true,
-            width:700,
+            width:650,
             buttons: {
 	           "OK": function(){
                    var form = $("form", d),
@@ -1668,42 +1691,58 @@ $(function(){
                        destContentId   = $("#contentId", d).val(),
                        navigateToCopy  = $("#navigateToCopy", d).is(":checked"),
                        deleteAfterCopy = $("#deleteAfterCopy", d).is(":checked"),
-                       callback;
+                       callback,
+                       nci;
                    
                    if(form.valid()){
-                       d.dialog("close");
+                       d.dialog("disable");
                        dc.busy("Performing copy...", {modal: true});
+
+                       nci = {
+                         storeId:storeId,
+                         spaceId:destSpaceId,
+                         contentId:destContentId,
+                       };
                        
-                       dc.store.copyContentItem(
-                            storeId, 
-                            contentItem.spaceId, 
-                            contentItem.contentId, 
-                            destSpaceId,
-                            destContentId, 
-                            deleteAfterCopy, 
-                            {
-                               success: function(copiedContentItem){
+                       checkIfContentItemExists(
+                           nci,
+                           {
+                               onCancel: function(){
+                                   d.dialog("enable");
                                    dc.done();
-                                   if(deleteAfterCopy){
-                                       $("#content-item-list").selectablelist("removeById", contentItem.contentId);
-                                   }
-
-                                   if(contentItem.spaceId == copiedContentItem.spaceId){
-                                       addContentItemToList(copiedContentItem);
-                                       if(navigateToCopy){
-                                           loadContentItem(copiedContentItem);
-                                       }
-
-                                   }else{
-                                       getSpace(copiedContentItem.spaceId, function(space){
-                                           loadContentItems(space);
-                                           if(navigateToCopy){
-                                               loadContentItem(copiedContentItem);
-                                           }
-                                       });
+                               },
+                               onProceed: function(){
+                                   d.dialog("enable");
+                                   d.dialog("close");
+                                   dc.store.copyContentItem(
+                                           storeId, contentItem.spaceId, contentItem.contentId, 
+                                           destSpaceId, destContentId, deleteAfterCopy, 
+                                           {
+                                              success: function(copiedContentItem){
+                                                  dc.done();
+                                                  if(deleteAfterCopy){
+                                                      $("#content-item-list").selectablelist("removeById", contentItem.contentId);
+                                                  }
+    
+                                                  if(contentItem.spaceId == copiedContentItem.spaceId){
+                                                      addContentItemToList(copiedContentItem);
+                                                      if(navigateToCopy){
+                                                          loadContentItem(copiedContentItem);
+                                                      }
+                                                  }else{
+                                                      getSpace(copiedContentItem.spaceId, function(space){
+                                                          loadContentItems(space);
+                                                          if(navigateToCopy){
+                                                              loadContentItem(copiedContentItem);
+                                                          }
+                                                      });
+                                                  }
+                                              }
+                                          }
+                                       );                               
                                    }
                                }
-                           });
+                           );
                    }
 	           },
                "Cancel": function(){
@@ -1723,7 +1762,7 @@ $(function(){
 	                        && contentItem.contentId == value);
 	            }, "New content id equals current id. Change it or copy to another space.");
 	            
-	            $("form",this).validate({
+	            var validator = $("form",this).validate({
                     rules: {
                         contentId: {
                             required: true,
@@ -1733,6 +1772,13 @@ $(function(){
                         },
                     },
                 });
+	            
+	            //on change event above doesn't seem to work for select boxes
+	            $("select", this).change(function(){
+	                validator.form(); //validates the form.
+	            });
+	            
+	            validator.resetForm();
 
 	            $("#storeId", this).val(contentItem.storeId);
                 contentIdField.val(contentItem.contentId);
@@ -2244,7 +2290,7 @@ $(function(){
 		        });
 
 		copyButton = 
-              $("<button title='copy content item' class='copy-button featured icon-only'>" +
+              $("<button title='copy content item' class='copy-button icon-only'>" +
                       "<i class='pre copy'></i>" +
                       "</button>")
               .click(function(evt){

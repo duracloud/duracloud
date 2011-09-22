@@ -10,7 +10,7 @@
 {
 	-moz-border-radius:5px;
 	border-radius:5px;
-	background:url("../images/bg_L1.png") no-repeat center top transparent;
+	background:url("../images/bg_L1.png") no-repeat center top #777;
 	border:1px solid #333;
 	color:#ccc;
 	font-size:13px;
