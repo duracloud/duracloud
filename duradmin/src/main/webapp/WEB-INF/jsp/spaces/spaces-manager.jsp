@@ -187,13 +187,14 @@
 				<div class="hint">
 					<h2>Space ID's must follow these rules:</h2>
 					<ul class="bullets">
-						<li>Must be 3 to 42 characters long</li>
-						<li>ONLY use lowercase letters, numbers, periods, and dashes</li>
-						<li>Do NOT use spaces or underscores</li>
-						<li>Do NOT start or end with a dash</li>
-						<li>Do NOT format as an IP address, like 10.1.10.8</li>
-						<li>Do NOT use these combinations of period and dashes: '..' '-.' or '.-'</li>
-                        <li>The last period may not be immediately followed by a number</li>
+						<li>Must be between 3 and 42 characters long</li>
+						<li>Includes ONLY lowercase letters, numbers, periods, and dashes</li>
+						<li>Does NOT include spaces or underscores</li>
+						<li>Does NOT start or end with a dash</li>
+						<li>Is NOT formatted as an IP address (e.g. 1.1.1.1)</li>
+						<li>Does NOT combine periods and dashes as '..' '-.' or '.-'</li>
+                        <li>Does NOT immediately follow the last period with a number</li>
+                        <li>Is NOT a reserved name: init, stores, spaces, security, task</li>
 					</ul>
 				</div>
 				<form id="add-space-form">
