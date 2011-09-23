@@ -496,18 +496,18 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         ChecksumInputStream wrappedContent =
             new ChecksumInputStream(content, contentChecksum);
 
-        storeStreamedObject(contentId,
-                            contentMimeType,
-                            spaceId,
-                            properties,
-                            wrappedContent);
+        String providerChecksum = storeStreamedObject(contentId,
+                                                      contentMimeType,
+                                                      spaceId,
+                                                      properties,
+                                                      wrappedContent);
 
         // Compare checksum
-        String finalChecksum = wrappedContent.getMD5();
-        return compareChecksum(this, spaceId, contentId, finalChecksum);
+        String checksum = wrappedContent.getMD5();
+        return compareChecksum(providerChecksum, spaceId, contentId, checksum);
     }
 
-    private void storeStreamedObject(String contentId, String contentMimeType,
+    private String storeStreamedObject(String contentId, String contentMimeType,
                                      String spaceId,
                                      Map<String, String> properties,
                                      ChecksumInputStream wrappedContent) {
@@ -518,7 +518,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
                 + " due to error: ");
 
         try {
-            filesClient.storeStreamedObject(containerName,
+            return filesClient.storeStreamedObject(containerName,
                                             wrappedContent,
                                             contentMimeType,
                                             contentId,
