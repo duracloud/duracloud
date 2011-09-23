@@ -10,6 +10,7 @@ package org.duracloud.durastore.rest;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.rest.RestUtil;
+import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.storage.error.InvalidIdException;
@@ -490,7 +491,7 @@ public class ContentRest extends BaseRest {
         }
 
         String srcSpaceID = getSpaceId(copySource);
-        String srcContentID = getContentId(copySource);
+        String srcContentID = EncodeUtil.urlDecode(getContentId(copySource));
         if (null == srcSpaceID || null == srcContentID) {
             msg.append("Malformed ");
             msg.append(COPY_SOURCE_HEADER);

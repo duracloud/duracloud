@@ -426,6 +426,8 @@ public class ContentStoreImpl implements ContentStore{
         validateContentId(destContentId);
 
         String task = "copy content";
+
+        srcContentId = EncodeUtil.urlEncode(srcContentId);
         String url = buildContentURL(destSpaceId, destContentId);
 
         String header = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
