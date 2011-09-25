@@ -8,8 +8,10 @@
   <fileSets>
     <fileSet>
       <directory>src/main/resources</directory>
+      <outputDirectory>/</outputDirectory>
+      <filtered>true</filtered>
       <includes>
-        <include>*.properties</include>
+        <include>logback.xml</include>
       </includes>
     </fileSet>
   </fileSets>
