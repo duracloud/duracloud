@@ -244,6 +244,8 @@ public class FileChunker {
         if (contentId.startsWith(File.separator)) {
             contentId = contentId.substring(1, contentId.length());
         }
+        // Replace backslash (\) with forward slash (/) for all content IDs
+        contentId = contentId.replaceAll("\\\\", "/");
         return contentId;
     }
 

@@ -96,14 +96,22 @@ public class FileStitcherDriver {
 
         OutputStream outputStream = null;
         try {
+            // Create any needed subdirectories
+            File parentDir = outFile.getParentFile();
+            if(!parentDir.exists()) {
+                parentDir.mkdirs();
+                parentDir.setWritable(true);
+            }
+
+            // Write content
             outputStream = new FileOutputStream(outFile);
-            IOUtils.copy(content.getStream(), outputStream);
+            IOUtils.copyLarge(content.getStream(), outputStream);
 
         } catch (IOException e) {
             StringBuilder msg = new StringBuilder();
             msg.append("Error writing content: ");
             msg.append(content.getId());
-            msg.append("to output file: ");
+            msg.append(" to output file: ");
             msg.append(outFile.getAbsolutePath());
             throw new DuraCloudRuntimeException(msg.toString(), e);
 
