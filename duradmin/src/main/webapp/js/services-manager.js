@@ -115,11 +115,11 @@ $(function() {
 			},
 
 			success: function(response){
-				var config = response.properties;
+				var properties = response.properties;
 				var data = new Array();
-				if(config != undefined){
-					for(i = 0; i < config.length; i++){
-						data[i] = [config[i].name, config[i].value];
+				if(properties != undefined){
+					for(i = 0; i < properties.length; i++){
+						data[i] = [properties[i].name, properties[i].value];
 					}			
 				}
 				
@@ -132,17 +132,8 @@ $(function() {
 			                }
 						)
 					);
-				
-				//fire an event for anyone interested in updating the view
-				//based on the changes.
-                var event = jQuery.Event("DEPLOYMENT_CONFIG_UPDATED");
-                event.value = {
-                    config: config,
-                    deployment: deployment,
-                    service: service,
-                };
-                
-                $(document).trigger(event);
+
+				fireDeploymentPropertiesUpdatedEvent(service,deployment,properties);
 			},
 		});
 		
@@ -157,6 +148,20 @@ $(function() {
 		
 		$(detailPaneId).replaceContents(serviceDetailPane, detailLayoutOptions);
 
+	};
+	
+	var fireDeploymentPropertiesUpdatedEvent = function(service,deployment,properties){
+        //fire an event for anyone interested in updating the view
+        //based on the changes.
+        var event = jQuery.Event("DEPLOYMENT_CONFIG_UPDATED");
+        event.value = {
+            properties: properties,
+            deployment: deployment,
+            service: service,
+        };
+        
+        $(document).trigger(event);
+	    
 	};
 	
 	var resolveUserConfigValue =  function(uc, delim, showRaw){
@@ -254,16 +259,31 @@ $(function() {
             var v = evt.value;
             var d = v.deployment;
             var s = v.service;
-            var c = v.config;
+            var properties = v.properties;
             
             if(deriveDeploymentId(s,d) == id){
-                $.each(c, function(i,prop){
-                    if(prop.name == "Service Status"){
-                        $(".service-status", item).html(prop.value);
+                $.each(properties, function(i,p){
+                    if(p.name == "Service Status"){
+                        $(".service-status", item).html(p.value);
+                        return false;
                     }
                 });
             }
         });
+        
+        dc.service.GetServiceDeploymentConfig(service, deployment, {
+            failure: function(message){
+                alert("Failed to get service deployment details: " + message);
+            },
+
+            success: function(response){
+                fireDeploymentPropertiesUpdatedEvent(
+                        service,
+                        deployment,
+                        response.properties);
+            },
+        });
+	
 	};
 
 	var getServicesList = function(){
