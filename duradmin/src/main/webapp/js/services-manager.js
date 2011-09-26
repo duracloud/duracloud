@@ -153,7 +153,7 @@ $(function() {
 	var fireDeploymentPropertiesUpdatedEvent = function(service,deployment,properties){
         //fire an event for anyone interested in updating the view
         //based on the changes.
-        var event = jQuery.Event("DEPLOYMENT_CONFIG_UPDATED");
+        var event = jQuery.Event("DEPLOYMENT_PROPERTIES_UPDATED");
         event.value = {
             properties: properties,
             deployment: deployment,
@@ -255,7 +255,7 @@ $(function() {
             serviceList.selectablelist("setCurrentItemById", id, true);
         }
         
-        $(document).bind("DEPLOYMENT_CONFIG_UPDATED", function(evt){
+        $(document).bind("DEPLOYMENT_PROPERTIES_UPDATED", function(evt){
             var v = evt.value;
             var d = v.deployment;
             var s = v.service;
