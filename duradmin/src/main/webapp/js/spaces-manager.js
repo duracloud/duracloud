@@ -2282,7 +2282,7 @@ $(function(){
 		var node, actions, content, deleteButton, copyButton;
 		
 		deleteButton = 
-		        $("<button class='delete-space-button icon-only'>" +
+		        $("<button title='delete content item' class='delete-space-button icon-only'>" +
 		        		"<i class='pre trash'></i>" +
 		        		"</button>")
                 .click(function(evt){
