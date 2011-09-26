@@ -2544,6 +2544,14 @@ $(function(){
 		handleContentListStateChangedEvent(evt,state);
 	});
 
+    $("#content-item-list").bind("itemRemoved", function(evt,state){
+        var ci = state.data;
+        if(isObjectAlreadyDisplayedInDetail(ci.spaceId + "/"+ ci.contentId)){
+            showGenericDetailPane();
+        }
+    });
+
+	
 	// /////////////////////////////////////////
 	// /click on a space list item
 	var spacesArray = new Array();

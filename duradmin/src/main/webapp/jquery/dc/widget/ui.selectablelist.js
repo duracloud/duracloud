@@ -108,8 +108,14 @@ $.widget("ui.selectablelist",{
 		);
 	},
 
-	_fireItemRemoved: function(item){
-		this.element.trigger("itemRemoved", {item: item});
+	_fireItemRemoved: function(item, data){
+		this.element.trigger(
+		  "itemRemoved", 
+		  {
+		      item: item,
+		      data: data,
+		  }
+	    );
 	},
 
 
@@ -175,10 +181,10 @@ $.widget("ui.selectablelist",{
 	
 	removeById: function(elementId) {
 		var item = $("[id='"+elementId+"']", this.element).first();
-		this._removeDataById(elementId);
+		var data = this._removeDataById(elementId);
 		item.remove();
 		this._fireCurrentItemChanged(null,null);
-		this._fireItemRemoved(item);
+		this._fireItemRemoved(item, data);
 	},
 
 	idExists: function(elementId) {
@@ -206,7 +212,7 @@ $.widget("ui.selectablelist",{
 			var e = this.dataMap[i];
 			if(e.key == id){
 				this.dataMap.splice(i,1);
-				return e.data;
+				return e.value;
 			};
 		}
 		return null;
