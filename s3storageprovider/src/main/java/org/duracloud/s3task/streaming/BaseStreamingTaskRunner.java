@@ -166,10 +166,10 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
                          bucketName + ", error: " + e.getMessage());
                 wait(i);
             }
-            throw new DuraCloudCheckedException(
-                "Unable to set streaming ACL for " + contentId +
-                " in bucket " + bucketName);
         }
+        throw new DuraCloudCheckedException(
+            "Unable to set streaming ACL for " + contentId +
+            " in bucket " + bucketName);
     }
 
     /*

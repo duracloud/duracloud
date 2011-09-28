@@ -21,17 +21,16 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
         ServiceInfo msService = new ServiceInfo();
         msService.setId(index);
         msService.setContentId("mediastreamingservice-" + version + ".zip");
-        String desc = "The Media Streamer provides streaming " +
-            "for video and audio files. This service takes " +
-            "advantage of the Amazon Cloudfront streaming capabilities, " +
-            "so files to be streamed must be within a space on an Amazon " +
-            "provider. All media to be streamed by this service needs to be " +
-            "within a single space. More information about which files can " +
-            "be streamed can be found in the Cloudfront documentation. After " +
-            "the service has started, the space chosen as the viewer space " +
-            "will include a playlist including all items in the media space " +
-            "as well as example html files which can be used to display a " +
-            "viewer.";
+        String desc = "The Media Streamer provides streaming for video and " +
+            "audio files. This service takes advantage of the Amazon " +
+            "Cloudfront streaming capabilities, so files to be streamed must " +
+            "be within a space on an Amazon provider. Media to be streamed " +
+            "by this service can be in multiple spaces. More information " +
+            "about which file formats can be streamed can be found in the " +
+            "Cloudfront documentation. After the service has started, the " +
+            "space chosen as the viewer space will include a playlist for " +
+            "each media space (which will include all items in a space) as " +
+            "well as example html files which can be used to display a viewer.";
         msService.setDescription(desc);
         msService.setDisplayName("Media Streamer");
         msService.setUserConfigVersion("1.0");
@@ -50,7 +49,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
 
         MultiSelectUserConfig mediaSourceSpace = new MultiSelectUserConfig(
             "mediaSourceSpaceId",
-            "Source Media Space",
+            "Source Media Space (select multiple spaces by holding ctrl or cmd)",
             spaceOptions);
 
         SingleSelectUserConfig mediaViewerSpace = new SingleSelectUserConfig(

@@ -245,6 +245,7 @@ public class SyncTool {
     public void runSyncTool(SyncToolConfig syncConfig) {
         this.syncConfig = syncConfig;
         setupLogging();
+        logger.info("Starting Sync Tool version " + version);
         System.out.print("\nStarting up the Sync Tool ...");
         startSyncManager();
 
