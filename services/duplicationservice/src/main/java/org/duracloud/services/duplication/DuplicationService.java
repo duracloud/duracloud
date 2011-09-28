@@ -144,6 +144,9 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
             String spaceId = message.getString(SPACE_ID);
             String contentId = message.getString(CONTENT_ID);
 
+            log.debug("handling message for item: {}/{}, on topic: {}",
+                     new Object[]{spaceId, contentId, topic});
+
             if (getSpaceCreateTopic().equals(topic)) {
                 spaceDuplicator.createSpace(spaceId);
 

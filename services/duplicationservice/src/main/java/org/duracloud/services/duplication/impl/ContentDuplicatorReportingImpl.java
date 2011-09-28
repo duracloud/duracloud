@@ -147,7 +147,7 @@ public class ContentDuplicatorReportingImpl implements ContentDuplicator {
             inboxQ.add(event);
             
         } else {
-            log.info("omitting submitEvent: {}, q: {}", event, inboxQ.size());
+            log.debug("omitting submitEvent: {}, q: {}", event, inboxQ.size());
         }
     }
 
