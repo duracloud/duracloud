@@ -147,6 +147,7 @@ public class RetrievalTool {
     public void runRetrievalTool(RetrievalToolConfig retConfig) {
         this.retConfig = retConfig;
         setupLogging();
+        logger.info("Starting Retrieval Tool version " + version);
         System.out.print("\nStarting up the Retrieval Tool ...");
         startRetrievalManager();
         System.out.println("... Startup Complete");
