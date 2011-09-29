@@ -7,10 +7,21 @@
  */
 package org.duracloud.s3storage;
 
-import com.amazonaws.AmazonServiceException;
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
@@ -97,7 +108,7 @@ public class S3StorageProvider extends StorageProviderBase {
         try {
             return s3Client.listBuckets();
         }
-        catch (AmazonServiceException e) {
+        catch (AmazonClientException e) {
             String err = "Could not retrieve list of S3 buckets due to error: "
                     + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -177,7 +188,7 @@ public class S3StorageProvider extends StorageProviderBase {
         try {
             ObjectListing objectListing = s3Client.listObjects(request);
             return objectListing.getObjectSummaries();
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             String err = "Could not get contents of S3 bucket " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -281,7 +292,7 @@ public class S3StorageProvider extends StorageProviderBase {
         String bucketName = getBucketName(spaceId);
         try {
             return s3Client.createBucket(bucketName);
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             String err = "Could not create S3 bucket with name " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -308,7 +319,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
         try {
             s3Client.deleteBucket(bucketName);
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             String err = "Could not delete S3 bucket with name " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -374,7 +385,7 @@ public class S3StorageProvider extends StorageProviderBase {
                     created = bucket.getCreationDate();
                 }
             }
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             String err = "Could not retrieve S3 bucket listing due to error: " +
                          e.getMessage();
             throw new StorageException(err, e, RETRY);
@@ -468,25 +479,56 @@ public class S3StorageProvider extends StorageProviderBase {
         putRequest.setCannedAcl(CannedAccessControlList.Private);
 
         // Add the object
-        PutObjectResult putResult;
+        String etag;
         try {
-            putResult = s3Client.putObject(putRequest);
-        } catch (AmazonServiceException e) {
-            String err = "Could not add content " + contentId +
-                         " with type " + contentMimeType +
-                         " and size " + contentSize +
-                         " to S3 bucket " + bucketName + " due to error: " +
-                         e.getMessage();
-            throw new StorageException(err, e, NO_RETRY);
+            PutObjectResult putResult = s3Client.putObject(putRequest);
+            etag = putResult.getETag();
+        } catch (AmazonClientException e) {
+            etag = doesContentExist(bucketName, contentId);
+            if(null == etag) {
+                String err = "Could not add content " + contentId +
+                             " with type " + contentMimeType +
+                             " and size " + contentSize +
+                             " to S3 bucket " + bucketName + " due to error: " +
+                             e.getMessage();
+                throw new StorageException(err, e, NO_RETRY);
+            }
         }
 
         // Compare checksum
-        String providerChecksum = getETagValue(putResult.getETag());
+        String providerChecksum = getETagValue(etag);
         String checksum = wrappedContent.getMD5();
         return StorageProviderUtil.compareChecksum(providerChecksum,
                                                    spaceId,
                                                    contentId,
                                                    checksum);
+    }
+
+    /*
+     * Determines if a content item exists. If so, returns its MD5.
+     * If not, returns null.
+     */
+    protected String doesContentExist(String bucketName, String contentId) {
+        int maxAttempts = 5;
+        for(int i=0; i<maxAttempts; i++) {
+            try {
+                ObjectMetadata metadata =
+                    s3Client.getObjectMetadata(bucketName, contentId);
+                if(null != metadata) {
+                  return metadata.getETag();
+                }
+            } catch(AmazonClientException e) {
+                wait(2);
+            }
+        }
+        return null;
+    }
+
+    private void wait(int seconds) {
+        try {
+            Thread.sleep(1000 * seconds);
+        } catch(InterruptedException e) {
+        }
     }
 
     @Override
@@ -550,7 +592,7 @@ public class S3StorageProvider extends StorageProviderBase {
         try {
              S3Object contentItem = s3Client.getObject(bucketName, contentId);
             return contentItem.getObjectContent();
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not retrieve content " + contentId
                     + " in S3 bucket " + bucketName + " due to error: "
@@ -578,7 +620,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
         try {
             s3Client.deleteObject(bucketName, contentId);
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             String err = "Could not delete content " + contentId
                     + " from S3 bucket " + bucketName
                     + " due to error: " + e.getMessage();
@@ -643,7 +685,7 @@ public class S3StorageProvider extends StorageProviderBase {
     private void throwIfContentNotExist(String bucketName, String contentId) {
         try {
              s3Client.getObjectMetadata(bucketName, contentId);
-        } catch(AmazonServiceException e) {
+        } catch(AmazonClientException e) {
             String err = "Could not find content item with ID " + contentId +
                 " in S3 bucket " + bucketName + ". S3 error: " + e.getMessage();
             throw new NotFoundException(err);
@@ -655,7 +697,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                             boolean retry) {
         try {
             return s3Client.getObjectMetadata(bucketName, contentId);
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not get details for content " + contentId
                     + " in S3 bucket " + bucketName + " due to error: "
@@ -677,7 +719,7 @@ public class S3StorageProvider extends StorageProviderBase {
             copyRequest.setStorageClass(this.storageClass);
             copyRequest.setNewObjectMetadata(objMetadata);
             s3Client.copyObject(copyRequest);
-        } catch (AmazonServiceException e) {
+        } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not update metadata for content "
                     + contentId + " in S3 bucket " + bucketName

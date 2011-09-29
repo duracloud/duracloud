@@ -7,7 +7,9 @@
  */
 package org.duracloud.s3storage;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author: Bill Branan
@@ -231,6 +234,32 @@ public class S3StorageProviderTest {
             return contents;
         }
 
+    }
+
+    @Test
+    public void testDoesContentExist() {
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+
+        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+                                                   EasyMock.isA(String.class)))
+            .andThrow(new AmazonClientException("message"));
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        String etag = "etag";
+        objectMetadata.setHeader(Headers.ETAG, etag);
+        EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
+                                                   EasyMock.isA(String.class)))
+            .andReturn(objectMetadata);
+
+        EasyMock.replay(s3Client);
+
+        Map<String, String> options = new HashMap<String,String>();
+        S3StorageProvider provider =
+            new S3StorageProvider(s3Client, "accessKey", options);
+
+        String resultEtag = provider.doesContentExist("bucketname", "contentId");
+        assertNotNull(resultEtag);
+        assertEquals(etag, resultEtag);
     }
 
 }
