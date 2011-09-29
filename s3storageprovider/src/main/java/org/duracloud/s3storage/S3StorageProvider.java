@@ -714,8 +714,6 @@ public class S3StorageProvider extends StorageProviderBase {
                                                                   contentId,
                                                                   bucketName,
                                                                   contentId);
-            copyRequest.setCannedAccessControlList(
-                CannedAccessControlList.Private);
             copyRequest.setStorageClass(this.storageClass);
             copyRequest.setNewObjectMetadata(objMetadata);
             s3Client.copyObject(copyRequest);
