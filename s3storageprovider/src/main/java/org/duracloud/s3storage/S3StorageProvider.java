@@ -10,6 +10,7 @@ package org.duracloud.s3storage;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
@@ -710,6 +711,8 @@ public class S3StorageProvider extends StorageProviderBase {
                                         String contentId,
                                         ObjectMetadata objMetadata) {
         try {
+            AccessControlList originalACL =
+                s3Client.getObjectAcl(bucketName, contentId);
             CopyObjectRequest copyRequest = new CopyObjectRequest(bucketName,
                                                                   contentId,
                                                                   bucketName,
@@ -717,6 +720,7 @@ public class S3StorageProvider extends StorageProviderBase {
             copyRequest.setStorageClass(this.storageClass);
             copyRequest.setNewObjectMetadata(objMetadata);
             s3Client.copyObject(copyRequest);
+            s3Client.setObjectAcl(bucketName, contentId, originalACL);
         } catch (AmazonClientException e) {
             throwIfContentNotExist(bucketName, contentId);
             String err = "Could not update metadata for content "
