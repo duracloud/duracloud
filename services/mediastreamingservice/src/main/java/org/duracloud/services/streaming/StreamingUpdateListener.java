@@ -16,4 +16,8 @@ public interface StreamingUpdateListener {
     public void successfulStreamingAddition(String mediaSpaceId,
                                             String mediaContentId);
 
+    public void failedStreamingAddition(String mediaSpaceId,
+                                        String mediaContentId,
+                                        String failureMessage);
+
 }

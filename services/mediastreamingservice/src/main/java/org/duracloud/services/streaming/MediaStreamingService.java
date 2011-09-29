@@ -300,6 +300,10 @@ public class MediaStreamingService extends BaseListenerService
                          "setting permissions for streaming", contentId,
                          spaceId);
 
+                // Give time for the newly added item to become available and
+                // ensure there are no conflicts with the add content actions.
+                wait(5);
+
                 // Push add item task to thread executor
                 AddStreamingItemWorker addItemWorker =
                     new AddStreamingItemWorker(contentStore,
@@ -319,7 +323,25 @@ public class MediaStreamingService extends BaseListenerService
     @Override
     public void successfulStreamingAddition(String mediaSpaceId,
                                             String mediaContentId) {
+        log.info("Attempt to stream added content item {} in " +
+                 "space {} was successful", mediaContentId, mediaSpaceId);
         ++updateAdditions;
+    }
+
+    @Override
+    public void failedStreamingAddition(String mediaSpaceId,
+                                        String mediaContentId,
+                                        String failureMessage) {
+        log.error("Attempt to stream added content item {} in " +
+                  "space {} FAILED due to: {}",
+                  new Object[] {mediaContentId, mediaSpaceId, failureMessage});
+    }
+
+    private void wait(int seconds) {
+        try {
+            Thread.sleep(1000 * seconds);
+        } catch(InterruptedException e) {
+        }
     }
 
     private void log(String logMsg) {

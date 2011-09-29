@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
  * @author: Bill Branan
  * Date: 9/14/11
  */
-public class AddStreamingItemWorkerTest implements StreamingUpdateListener{
+public class AddStreamingItemWorkerTest implements StreamingUpdateListener {
 
     private ContentStore contentStore;
     private String spaceId = "spaceId";
@@ -76,4 +76,11 @@ public class AddStreamingItemWorkerTest implements StreamingUpdateListener{
                                             String mediaContentId) {
         ++updateSuccess;
     }
+
+    @Override
+    public void failedStreamingAddition(String mediaSpaceId,
+                                        String mediaContentId,
+                                        String failureMessage) {
+    }
+
 }

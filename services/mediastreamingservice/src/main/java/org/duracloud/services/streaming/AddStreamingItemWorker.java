@@ -79,6 +79,10 @@ public class AddStreamingItemWorker implements Runnable {
         if(addStreamingItemResult.contains("completed")) {
             updateListener.successfulStreamingAddition(mediaSpaceId,
                                                        mediaContentId);
+        } else {
+            updateListener.failedStreamingAddition(mediaSpaceId,
+                                                   mediaContentId,
+                                                   addStreamingItemResult);
         }
     }
 
