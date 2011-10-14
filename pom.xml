@@ -92,6 +92,7 @@
         <module>duradmin</module>
         <module>synctool</module>
         <module>retrievaltool</module>
+        <module>uploadtool</module>
         <module>integration-test</module>
     </modules>
 

@@ -86,6 +86,13 @@ public class SyncManager implements ChangeHandler {
         workerPool.shutdown();
     }
 
+    public void terminateSync() {
+        logger.info("Closing Sync Manager, terminating sync");
+        changeWatcher.endWatch();
+        watcherPool.shutdownNow();
+        workerPool.shutdownNow();
+    }
+
     /**
      * Notifies the SyncManager that a file has changed
      *

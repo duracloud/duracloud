@@ -30,6 +30,9 @@ public class DirWalker extends DirectoryWalker implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(DirWalker.class);
 
+    private static DirWalker dirWalker;
+    private boolean continueWalk;
+
     private List<File> topDirs;
     private ChangedList fileList;
     private int files = 0;
@@ -45,9 +48,14 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         walkDirs();
     }
 
+    public void stopWalk() {
+        continueWalk = false;
+    }
+
     protected void walkDirs() {
+        continueWalk = true;
         for(File dir : topDirs) {
-            if(dir.exists() && dir.isDirectory()) {
+            if(dir.exists() && dir.isDirectory() && continueWalk) {
                 try {
                     List results = new ArrayList();
                     walk(dir, results);
@@ -71,8 +79,15 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         fileList.addChangedFile(file);
     }
 
+    @Override
+    protected boolean handleIsCancelled(File file,
+                                        int depth,
+                                        Collection results) throws IOException {
+        return !continueWalk;
+    }
+
     public static DirWalker start(List<File> topDirs) {
-        DirWalker dirWalker = new DirWalker(topDirs);
+        dirWalker = new DirWalker(topDirs);
         (new Thread(dirWalker)).start();
         return dirWalker;
     }
