@@ -46,11 +46,14 @@ public class RackspaceStorageProvider extends StorageProviderBase {
 
     private final Logger log = LoggerFactory.getLogger(RackspaceStorageProvider.class);
 
+    private static String authUrl= "https://auth.api.rackspacecloud.com/v1.0";
     private FilesClient filesClient = null;
 
-    public RackspaceStorageProvider(String username, String apiAccessKey) {
+    public RackspaceStorageProvider(String username,
+                                    String apiAccessKey,
+                                    String authUrl) {
         try {
-            filesClient = new FilesClient(username, apiAccessKey);
+            filesClient = new FilesClient(username, apiAccessKey, authUrl);
             if (!filesClient.login()) {
                 throw new Exception("Login to Rackspace failed");
             }
@@ -59,6 +62,10 @@ public class RackspaceStorageProvider extends StorageProviderBase {
                     + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
+    }
+
+    public RackspaceStorageProvider(String username, String apiAccessKey) {
+        this(username, apiAccessKey, authUrl);
     }
 
     public RackspaceStorageProvider(FilesClient filesClient) {

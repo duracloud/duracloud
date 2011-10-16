@@ -281,6 +281,11 @@ h3 { font-size:1em; }
     background:url(../images/azure.png) no-repeat;
 }
 
+.sdsc-logo
+{
+    background:url(../images/sdsc.png) no-repeat;
+}
+
 .ui-layout-resizer
 { 
 	background-color:#4b4b4b;

@@ -71,6 +71,7 @@
         <module>computeprovider</module>
         <module>ec2typicacomputeprovider</module>
         <module>s3storageprovider</module>
+        <module>sdscstorageprovider</module>
         <module>rackspacestorageprovider</module>
         <module>emcstorageprovider</module>
         <module>azurestorageprovider</module>

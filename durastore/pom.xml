@@ -80,6 +80,12 @@
 
         <dependency>
             <groupId>org.duracloud</groupId>
+            <artifactId>sdscstorageprovider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.duracloud</groupId>
             <artifactId>azurestorageprovider</artifactId>
             <version>${project.version}</version>
         </dependency>

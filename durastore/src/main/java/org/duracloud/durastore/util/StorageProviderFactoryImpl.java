@@ -15,6 +15,7 @@ import org.duracloud.emcstorage.EMCStorageProvider;
 import org.duracloud.irodsstorage.IrodsStorageProvider;
 import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.sdscstorage.SDSCStorageProvider;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -126,6 +127,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new AzureStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.RACKSPACE)) {
             storageProvider = new RackspaceStorageProvider(username, password);
+        } else if (type.equals(StorageProviderType.SDSC)) {
+            storageProvider = new SDSCStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.EMC)) {
             storageProvider = new EMCStorageProvider(username, password);
 
