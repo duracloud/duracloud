@@ -80,10 +80,16 @@ $(function() {
 								, onText: "Deploy"
 								, offText: "Undeploy"
 		}).bind("turnOff", function(evt, future){
-			
+
+			var undeploy = confirm("Are you sure you want to undeploy " + service.displayName);
+
+            if(undeploy == false){
+                return;
+            }
+
 			var callback = {
 					begin: function(){
-						dc.busy("Undeploying " + service.displayName);
+                        dc.busy("Undeploying " + service.displayName);
 					},
 					
 					success: function(){
