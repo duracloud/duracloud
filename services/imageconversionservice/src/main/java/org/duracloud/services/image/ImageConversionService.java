@@ -76,7 +76,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
 
         File workDir = new File(getServiceWorkDir());
         String resultsId = "image-transformer/image-transformer-results-" +
-            DateUtil.nowMid() + ".csv";
+            DateUtil.nowMid() + ".tsv";
         super.setReportId(outputSpaceId, resultsId);
         conversionThread = new ConversionThread(contentStore,
                                                 this,

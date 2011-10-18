@@ -33,6 +33,7 @@ public class MimeTypeUtil {
         map.put("pdf", "application/pdf");
         map.put("psd", "image/psd");
         map.put("csv", "text/csv");
+        map.put("tsv", "text/tab-separated-values");
         map.put("txt", "text/plain");
         return map;
     }

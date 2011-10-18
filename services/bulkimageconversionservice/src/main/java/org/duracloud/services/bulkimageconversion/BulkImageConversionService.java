@@ -75,7 +75,7 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
 
             String preName = "image-transformer-bulk/image-transformer-results";
             String date = "-" + DateUtil.nowMid();
-            String postName = ".csv";
+            String postName = ".tsv";
 
             String newContentId = preName + date + postName;
             super.setReportId(getDestSpaceId(), newContentId);

@@ -73,10 +73,10 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
             // FIXME: this propertiesMd5ContentId value is currently hard-coded
             // into the FixityPropertiesOutputFormat.java.
             String date = DateUtil.nowMid();
-            String genMd5ContentId = PREFIX + "results.csv";
-            String newContentId = PREFIX + "results-" + date + ".csv";
-            String propertiesMd5ContentId = PREFIX + "properties-results.csv";
-            String newMetadatContentId = PREFIX + "properties-results-" + date + ".csv";
+            String genMd5ContentId = PREFIX + "results.tsv";
+            String newContentId = PREFIX + "results-" + date + ".tsv";
+            String propertiesMd5ContentId = PREFIX + "properties-results.tsv";
+            String newMetadatContentId = PREFIX + "properties-results-" + date + ".tsv";
             String header = "space-id" + DELIM + "content-id" + DELIM + "hash";
             List<String> deleteFiles = new ArrayList<String>();
             deleteFiles.add(newContentId);
@@ -128,7 +128,7 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                 log.info("second hadoop worker not added: " + mode);
             }
 
-            String reportContentId = PREFIX + "report-" + date + ".csv";
+            String reportContentId = PREFIX + "report-" + date + ".tsv";
             super.setReportId(getDestSpaceId(), reportContentId);
             VerifyHashesPostJobWorker verifyWorker = new VerifyHashesPostJobWorker(
                 previousWorker,

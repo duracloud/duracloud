@@ -36,7 +36,7 @@ public class ServiceResultProcessorTest {
 
     private String outputSpaceId = "output-space-id";
     private String outputContentId = "output-content-id";
-    private String mime = "text/csv";
+    private String mime = "text/tab-separated-values";
 
     private final String SPACE_PREFIX = "test-space-id-";
     private final String CONTENT_PREFIX = "test-content-id-";

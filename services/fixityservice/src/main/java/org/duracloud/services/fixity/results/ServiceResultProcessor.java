@@ -94,7 +94,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
                                     outputContentId,
                                     resultsStream,
                                     resultsFile.length(),
-                                    "text/csv",
+                                    "text/tab-separated-values",
                                     null,
                                     null);
         } catch (ContentStoreException e) {

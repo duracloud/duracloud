@@ -397,7 +397,7 @@ public class FixityServiceTest {
                                          EasyMock.eq(reportContentId),
                                          EasyMock.<InputStream>anyObject(),
                                          EasyMock.gt(0L),
-                                         EasyMock.eq("text/csv"),
+                                         EasyMock.eq("text/tab-separated-values"),
                                          EasyMock.<String>isNull(),
                                          EasyMock.<Map<String, String>>isNull()))
             .andReturn("")
@@ -411,7 +411,7 @@ public class FixityServiceTest {
                                          EasyMock.eq(outputContentId),
                                          EasyMock.<InputStream>anyObject(),
                                          EasyMock.anyLong(),
-                                         EasyMock.eq("text/csv"),
+                                         EasyMock.eq("text/tab-separated-values"),
                                          EasyMock.<String>isNull(),
                                          EasyMock.<Map<String, String>>isNull()))
             .andReturn("junk-md5")

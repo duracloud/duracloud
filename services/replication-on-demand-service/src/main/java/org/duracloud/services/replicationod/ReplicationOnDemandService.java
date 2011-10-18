@@ -66,7 +66,7 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
 
             String preName = "duplicate-on-demand/duplicate-results";
             String date = "-" + DateUtil.nowMid();
-            String postName = ".csv";
+            String postName = ".tsv";
 
             String newContentId = preName + date + postName;
             super.setReportId(getDestSpaceId(), newContentId);
