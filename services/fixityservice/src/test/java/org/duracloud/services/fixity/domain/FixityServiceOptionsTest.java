@@ -354,9 +354,9 @@ public class FixityServiceOptionsTest {
 
         Assert.assertNotNull(serviceOptions.getOutputContentId());
         Assert.assertNotNull(serviceOptions.getReportContentId());
-        Assert.assertEquals("bit-integrity/fingerprints-" + qualifier + ".csv",
+        Assert.assertEquals("bit-integrity/fingerprints-" + qualifier + ".tsv",
                             serviceOptions.getOutputContentId());
-        Assert.assertEquals("bit-integrity/fixity-report-" + qualifier + ".csv",
+        Assert.assertEquals("bit-integrity/fixity-report-" + qualifier + ".tsv",
                             serviceOptions.getReportContentId());
     }
 

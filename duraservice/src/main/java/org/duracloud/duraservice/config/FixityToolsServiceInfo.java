@@ -218,13 +218,13 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
     private TextUserConfig getContentIdOfProvidedListingConfig() {
         return new TextUserConfig("providedListingContentIdA",
                                   "Input listing name",
-                                  "item-listing.csv");
+                                  "item-listing.tsv");
     }
 
     private TextUserConfig getContentIdOfProvidedListingBConfig() {
         return new TextUserConfig("providedListingContentIdB",
                                   "Second input listing name",
-                                  "fingerprints.csv");
+                                  "fingerprints.tsv");
     }
 
     private List<Option> getSpaceOptions() {

@@ -26,12 +26,12 @@ public class FixityServiceOptions {
     private final static String defaultPrefix = "bit-integrity";
     private final static String defaultHashApproach = GENERATED.name();
     private final static String defaultOutputContentId =
-        defaultPrefix + "/fingerprints-" + timestamp + ".csv";
+        defaultPrefix + "/fingerprints-" + timestamp + ".tsv";
     private final static String defaultReportContentId =
-        defaultPrefix + "/fixity-report-" + timestamp + ".csv";
+        defaultPrefix + "/fixity-report-" + timestamp + ".tsv";
 
     public final static String defaultGenContentId =
-        defaultPrefix + "/fingerprints-gen-" + timestamp + ".csv";
+        defaultPrefix + "/fingerprints-gen-" + timestamp + ".tsv";
 
     private String mode;
     private String hashApproach;
