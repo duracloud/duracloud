@@ -23,7 +23,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.duracloud.upload.UploadTool</mainClass>
+              <mainClass>org.duracloud.upload.UploadToolFrame</mainClass>
             </manifest>
           </archive>
         </configuration>

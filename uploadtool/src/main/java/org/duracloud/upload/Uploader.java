@@ -10,6 +10,7 @@ package org.duracloud.upload;
 import org.duracloud.client.ContentStore;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.SyncEndpoint;
+import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.util.StoreClientUtil;
 import org.duracloud.sync.walker.DirWalker;
@@ -24,6 +25,7 @@ import java.util.List;
 public class Uploader {
 
     private SyncManager syncManager;
+    private StatusManager statusManager;
     private DirWalker dirWalker;
 
     private String host;
@@ -65,6 +67,15 @@ public class Uploader {
         syncManager.beginSync();
 
         dirWalker = DirWalker.start(contentDirs);
+        statusManager = StatusManager.getInstance();
+    }
+
+    public UploadStatus getUploadStatus() {
+        long queueSize = statusManager.getQueueSize();
+        long completed = statusManager.getSucceeded() +
+                        statusManager.getFailed().size();
+        boolean complete = queueSize == 0;
+        return new UploadStatus(complete, queueSize + completed, completed);
     }
 
     public void stopUpload() {

@@ -34,21 +34,18 @@ public class UploadToolFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 4) {
-            System.out.println(
-                "Parameters expected: host, username, password, spaceId");
-            System.exit(1);
+        UploadTool uploadTool;
+
+        if (args.length == 4) {
+            String host = args[0];
+            String username = args[1];
+            String password = args[2];
+            String spaceId = args[3];
+
+            uploadTool = new UploadTool(host, username, password, spaceId);
+        } else {
+            uploadTool = new UploadTool();
         }
-
-        String host = args[0];
-        String username = args[1];
-        String password = args[2];
-        String spaceId = args[3];
-
-        UploadTool uploadTool = new UploadTool(host,
-                                               username,
-                                               password,
-                                               spaceId);
 
         UploadToolFrame frame = new UploadToolFrame();
         frame.start("DuraCloud Upload Tool", uploadTool);

@@ -7,163 +7,110 @@
  */
 package org.duracloud.upload;
 
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
-import org.apache.commons.io.FileUtils;
+import org.duracloud.upload.panel.CompletedPanel;
+import org.duracloud.upload.panel.ConnectionPanel;
+import org.duracloud.upload.panel.SelectionPanel;
+import org.duracloud.upload.panel.StatusPanel;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author: Bill Branan
  * Date: 10/13/11
  */
-public class UploadTool extends JPanel {
+public class UploadTool extends JPanel implements UploadFacilitator {
 
     private String host;
     private String username;
     private String password;
     private String spaceId;
 
-    private JTable itemTable;
-    private DefaultTableModel itemTableModel;
-    private JButton addItemButton;
-    private JButton removeItemButton;
-    private JButton uploadButton;
-    private JFileChooser fileChooser;
-    private ChangeListener listener;
+    private static final String CONNECTION_PANEL = "connectionPanel";
+    private static final String SELECTION_PANEL = "selectionPanel";
+    private static final String STATUS_PANEL = "statusPanel";
+    private static final String COMPLETED_PANEL = "completedPanel";
+
     private Uploader uploader;
-    private boolean uploading = false;
+    private StatusPanel statusPanel;
 
-    private static final String columnSpecs = // 6 columns
-        "left:max(40dlu;pref)," + "5dlu," + "left:max(40dlu;pref)," + "5dlu," +
-            "left:max(40dlu;pref)," + "pref:grow";
-    private static final String rowSpecs = // 3 rows
-        "90dlu:grow," + "5dlu," + "pref";
+    /**
+     * Starts the upload tool in a mode which will ask the user for connection
+     * parameters. This is for stand-alone use of the tool.
+     */
+    public UploadTool() {
+        super(new CardLayout());
 
+        this.add(new ConnectionPanel(this), CONNECTION_PANEL);
+        this.add(new SelectionPanel(this), SELECTION_PANEL);
+        statusPanel = new StatusPanel(this);
+        this.add(statusPanel, STATUS_PANEL);
+        this.add(new CompletedPanel(this), COMPLETED_PANEL);
+    }
+
+    /**
+     * Starts the upload tool by passing in connection params, so the user
+     * will not be asked for this information. This is for embedded use of
+     * the tool (applet).
+     *
+     * @param host at which DuraCloud can be found
+     * @param username necessary to connect to DuraCloud
+     * @param password necessary to connect to DuraCloud
+     * @param spaceId location to which content will be uploaded
+     */
     public UploadTool(String host,
                       String username,
                       String password,
                       String spaceId) {
-        super(new FormLayout(columnSpecs, rowSpecs));
+        super(new CardLayout());
 
-        initComponents(new ChangeListener());
+        this.add(new SelectionPanel(this), SELECTION_PANEL);
+        this.add(new StatusPanel(this), STATUS_PANEL);
+        this.add(new CompletedPanel(this), COMPLETED_PANEL);
 
-        JScrollPane tablePane = new JScrollPane(itemTable);
+        connect(host, username, password, spaceId);
+    }
 
-        CellConstraints cc = new CellConstraints();
-        add(tablePane, cc.xyw(1, 1, 6));
-        add(addItemButton, cc.xy(1, 3));
-        add(removeItemButton, cc.xy(3, 3));
-        add(uploadButton, cc.xy(5, 3));
+    private void setViewPanel(String panelId) {
+        CardLayout layout = (CardLayout)getLayout();
+        layout.show(this, panelId);
+    }
 
+    @Override
+    public void connect(String host,
+                        String username,
+                        String password,
+                        String spaceId) {
         this.host = host;
         this.username = username;
         this.password = password;
         this.spaceId = spaceId;
+
+        setViewPanel(SELECTION_PANEL);
     }
 
-    private void initComponents(ActionListener actionListener) {
-        String[] itemColumnNames = {"Folder Name", "Total Size", "Location"};
-        itemTableModel = new DefaultTableModel(itemColumnNames, 0);
-        itemTable = new JTable(itemTableModel);
-
-        addItemButton = new JButton("Add Folders For Upload");
-        URL addIcon = this.getClass().getClassLoader().getResource("add.png");
-        addItemButton.setIcon(new ImageIcon(addIcon));
-        addItemButton.addActionListener(actionListener);
-
-        removeItemButton = new JButton("Remove Selected Folders");
-        URL removeIcon =
-            this.getClass().getClassLoader().getResource("minus.png");
-        removeItemButton.setIcon(new ImageIcon(removeIcon));
-        removeItemButton.addActionListener(actionListener);
-
-        uploadButton = new JButton("Start Upload");
-        URL startUploadIcon =
-            this.getClass().getClassLoader().getResource("arrow_up.png");
-        uploadButton.setIcon(new ImageIcon(startUploadIcon));
-        uploadButton.addActionListener(actionListener);
-
-        fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    }
-
-    private class ChangeListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if(e.getSource() == addItemButton) {
-                int returnVal = fileChooser.showOpenDialog(itemTable);
-
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File dir = fileChooser.getSelectedFile();
-                    // Add file to itemTable
-                    String name = dir.getName();
-                    String size = FileUtils
-                        .byteCountToDisplaySize(FileUtils.sizeOfDirectory(dir));
-                    String location = dir.getAbsolutePath();
-                    itemTableModel.addRow(new String[]{name, size, location});
-                }
-            } else if(e.getSource() == removeItemButton) {
-                int[] selectedRows = itemTable.getSelectedRows();
-                Arrays.sort(selectedRows);
-                for(int i = selectedRows.length-1; i >= 0; i--) {
-                    itemTableModel.removeRow(selectedRows[i]);
-                }
-            } else if(e.getSource() == uploadButton && !uploading) {
-                List<File> dirs = new ArrayList();
-                int rowCount = itemTableModel.getRowCount();
-                for(int i=0; i<rowCount; i++) {
-                    String path =
-                        String.valueOf(itemTableModel.getValueAt(i, 2));
-                    File directory = new File(path);
-                    if(directory.exists() && directory.isDirectory()) {
-                        dirs.add(directory);
-                    }
-                }
-                setButtonsUploading();
-                startUpload(dirs);
-                uploading = true;
-            } else if(e.getSource() == uploadButton && uploading) {
-                uploader.stopUpload();
-                setButtonsPreUpload();
-                uploading = false;
-            }
-        }
-    }
-
-    private void setButtonsPreUpload() {
-        URL startUploadIcon =
-            this.getClass().getClassLoader().getResource("arrow_up.png");
-        uploadButton.setIcon(new ImageIcon(startUploadIcon));
-        uploadButton.setText("Start Upload");
-        addItemButton.setEnabled(true);
-        removeItemButton.setEnabled(true);
-    }
-
-    private void setButtonsUploading() {
-        URL startUploadIcon =
-            this.getClass().getClassLoader().getResource("cancel.png");
-        uploadButton.setIcon(new ImageIcon(startUploadIcon));
-        uploadButton.setText("Stop Upload");
-        addItemButton.setEnabled(false);
-        removeItemButton.setEnabled(false);
-    }
-
-    private void startUpload(List<File> dirs) {
+    @Override
+    public void startUpload(List<File> dirs) {
         try {
             uploader = new Uploader(host, username, password, spaceId, dirs);
             uploader.startUpload();
+            statusPanel.monitorStatus(uploader);
+            setViewPanel(STATUS_PANEL);
         } catch(Exception e) {
-            JOptionPane.showMessageDialog(itemTable, e.getMessage());
+            JOptionPane.showMessageDialog(this, e.getMessage());
         }
+    }
+
+    @Override
+    public void completeUpload() {
+        setViewPanel(COMPLETED_PANEL);
+    }
+
+    @Override
+    public void exit() {
+        System.exit(0);
     }
 
 }
