@@ -25,7 +25,7 @@ import java.util.List;
  * @author: Bill Branan
  * Date: 10/13/11
  */
-public class UploadTool {
+public class UploadTool extends JPanel {
 
     private String host;
     private String username;
@@ -42,36 +42,32 @@ public class UploadTool {
     private Uploader uploader;
     private boolean uploading = false;
 
+    private static final String columnSpecs = // 6 columns
+        "left:max(40dlu;pref)," + "5dlu," + "left:max(40dlu;pref)," + "5dlu," +
+            "left:max(40dlu;pref)," + "pref:grow";
+    private static final String rowSpecs = // 3 rows
+        "90dlu:grow," + "5dlu," + "pref";
+
     public UploadTool(String host,
                       String username,
                       String password,
                       String spaceId) {
+        super(new FormLayout(columnSpecs, rowSpecs));
+
+        initComponents(new ChangeListener());
+
+        JScrollPane tablePane = new JScrollPane(itemTable);
+
+        CellConstraints cc = new CellConstraints();
+        add(tablePane, cc.xyw(1, 1, 6));
+        add(addItemButton, cc.xy(1, 3));
+        add(removeItemButton, cc.xy(3, 3));
+        add(uploadButton, cc.xy(5, 3));
+
         this.host = host;
         this.username = username;
         this.password = password;
         this.spaceId = spaceId;
-    }
-
-    public void start() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createUI();
-            }
-        });
-    }
-
-    private void createUI() {
-        //Create and set up the window.
-        JFrame frame = new JFrame("DuraCloud Upload Tool");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        initComponents(new ChangeListener());
-        JPanel panel = createFormLayout();
-        frame.getContentPane().add(panel);
-
-        //Display the window.
-        frame.pack();
-        frame.setVisible(true);
     }
 
     private void initComponents(ActionListener actionListener) {
@@ -98,26 +94,6 @@ public class UploadTool {
 
         fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    }
-
-    private JPanel createFormLayout() {
-        String columnSpecs= // 6 columns
-            "left:max(40dlu;pref)," + "5dlu," + "left:max(40dlu;pref)," +
-            "5dlu," + "left:max(40dlu;pref)," + "pref:grow";
-        String rowSpecs= // 3 rows
-            "90dlu:grow," + "5dlu," + "pref";
-        FormLayout layout = new FormLayout(columnSpecs, rowSpecs);
-
-        JPanel panel = new JPanel(layout);
-        JScrollPane tablePane = new JScrollPane(itemTable);
-
-        CellConstraints cc = new CellConstraints();
-        panel.add(tablePane, cc.xyw(1, 1, 6));
-        panel.add(addItemButton, cc.xy(1, 3));
-        panel.add(removeItemButton, cc.xy(3, 3));
-        panel.add(uploadButton, cc.xy(5, 3));
-
-        return panel;
     }
 
     private class ChangeListener implements ActionListener {
@@ -188,23 +164,6 @@ public class UploadTool {
         } catch(Exception e) {
             JOptionPane.showMessageDialog(itemTable, e.getMessage());
         }
-    }
-
-    public static void main(String[] args) {
-        if(args.length != 4) {
-            System.out.println("Parameters expected: host, username, " +
-                               "password, spaceId");
-            System.exit(1);
-        }
-
-        String host = args[0];
-        String username = args[1];
-        String password = args[2];
-        String spaceId = args[3];
-
-        UploadTool uploadTool =
-            new UploadTool(host, username, password, spaceId);
-        uploadTool.start();
     }
 
 }
