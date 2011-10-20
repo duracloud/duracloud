@@ -13,11 +13,16 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <repositories />
+
   <properties>
     <jquery.target.path>jquery</jquery.target.path>
     <jquery.plugin.target.path>jquery/plugins</jquery.plugin.target.path>
-  
+    <storepass>storepass</storepass>
+    <keypass>keypass</keypass>
+    <keystore>${project.build.directory}/keystore</keystore>
+    <gen>true</gen>
   </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -130,6 +135,56 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo.webstart</groupId>
+        <artifactId>webstart-maven-plugin</artifactId>
+        <version>1.0-beta-2</version>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>jnlp-download-servlet</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <jnlpFiles>
+            <jnlpFile>
+              <templateFilename>template.vm</templateFilename>
+              <outputFilename>upload.jnlp</outputFilename>
+              <jarResources>
+                <jarResource>
+                  <groupId>org.duracloud</groupId>
+                  <artifactId>uploadtool</artifactId>
+                  <version>${project.version}</version>
+                  <mainClass>org.duracloud.upload.UploadToolApplet
+                  </mainClass>
+                </jarResource>
+              </jarResources>
+            </jnlpFile>
+          </jnlpFiles>
+          <sign>
+            <keystore>${keystore}</keystore>
+            <keypass>${keypass}</keypass>
+            <storepass>${storepass}</storepass>
+            <alias>uploadapplet</alias>
+
+            <storetype>jks</storetype>
+            <validity>365</validity>
+            <dnameCn>${user.name}</dnameCn>
+            <dnameOu>DuraCloud</dnameOu>
+            <dnameO>DuraSpace</dnameO>
+            <dnameL>Winchester</dnameL>
+            <dnameSt>MA</dnameSt>
+            <dnameC>US</dnameC>
+            
+            <keystoreConfig>
+              <gen>${gen}</gen>
+            </keystoreConfig>
+          </sign>
+        </configuration>
       </plugin>
 
     </plugins>
@@ -321,7 +376,14 @@
       <scope>runtime</scope>
     </dependency>
      -->
-    
+
+    <dependency>
+      <groupId>org.codehaus.mojo.webstart</groupId>
+      <artifactId>webstart-jnlp-servlet</artifactId>
+      <version>1.0-6.0.02_ea_b02.2</version>
+      <scope>runtime</scope>
+    </dependency>
+
     <dependency>
       <groupId>net.sf.json-lib</groupId>
       <artifactId>json-lib</artifactId>

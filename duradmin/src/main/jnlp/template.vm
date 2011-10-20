@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+">
+
+  <information>
+    <title>${project.name}</title>
+    <vendor>${project.organization.name}</vendor>
+    <homepage href="${informationHomepage}"/>
+  </information>
+
+  <resources>
+    <j2se version="${j2seVersion}"/>
+    ${dependencies}
+  </resources>
+
+  <applet-desc
+    name="DuraCloud Upload Tool"
+    main-class="${mainClass}"
+    width="800"
+    height="200">
+  </applet-desc>
+
+  <update check="background"/>
+
+  <security>
+    <all-permissions/>
+  </security>
+
+</jnlp>

@@ -22,10 +22,10 @@ public class UploadToolApplet extends JApplet {
 
     @Override
     public void init() {
-        String host = "host";
-        String username = "username";
-        String password = "password";
-        String spaceId = "spaceId";
+        final String host = getParameter("host");
+        final String username = getParameter("username");
+        final String password = getParameter("password");
+        final String spaceId = getParameter("spaceId");
 
         final UploadTool uploadTool = new UploadTool(host,
                                                      username,
@@ -47,6 +47,10 @@ public class UploadToolApplet extends JApplet {
     private void createGUI(String title, JComponent component) {
         super.setName(title);
         setContentPane(component);
+    }
+
+    public void setSpaceId(String spaceId) {
+        log.info("setting spaceId: {}", spaceId);
     }
 
 }

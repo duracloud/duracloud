@@ -90,10 +90,10 @@
         <module>servicesadminclient</module>
         <module>chunk</module>
         <module>stitch</module>
+        <module>uploadtool</module>
         <module>duradmin</module>
         <module>synctool</module>
         <module>retrievaltool</module>
-        <module>uploadtool</module>
         <module>integration-test</module>
     </modules>
 
