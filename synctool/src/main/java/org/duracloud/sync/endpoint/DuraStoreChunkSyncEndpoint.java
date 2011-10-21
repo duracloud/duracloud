@@ -21,7 +21,6 @@ import org.duracloud.stitch.impl.FileStitcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -128,9 +127,12 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
 
     @Override
     protected void addUpdateContent(String contentId,
-                                    String contentChecksum,
-                                    File syncFile) {
-        chunker.addContent(getSpaceId(), contentId, contentChecksum, syncFile);
+                                    MonitoredFile syncFile) {
+        chunker.addContent(getSpaceId(),
+                           contentId,
+                           syncFile.getChecksum(),
+                           syncFile.length(),
+                           syncFile.getStream());
     }
 
     @Override

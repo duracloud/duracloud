@@ -7,6 +7,7 @@
  */
 package org.duracloud.sync.mgmt;
 
+import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class SyncWorker implements Runnable {
     private File watchDir;
     private SyncEndpoint syncEndpoint;
     private StatusManager statusManager;
+    private boolean complete;
+    private MonitoredFile monitoredFile;
 
     /**
      * Creates a SyncWorker to handle syncing a file
@@ -41,16 +44,18 @@ public class SyncWorker implements Runnable {
         this.watchDir = watchDir;
         this.syncEndpoint = endpoint;
         this.statusManager = StatusManager.getInstance();
+        this.complete = false;
+        this.monitoredFile = new MonitoredFile(syncFile.getFile());
     }
 
     public void run() {
         boolean success;
-        File file = syncFile.getFile();
         try {
-            success = syncEndpoint.syncFile(file, watchDir);
+            success = syncEndpoint.syncFile(monitoredFile, watchDir);
         } catch(Exception e) {
             logger.error("Exception syncing file " +
-                file.getAbsolutePath() + " was " + e.getMessage(), e);
+                         syncFile.getFile().getAbsolutePath() +
+                         " was " + e.getMessage(), e);
             success = false;
         }
 
@@ -59,6 +64,11 @@ public class SyncWorker implements Runnable {
         } else {
             retryOnFailure();
         }
+        complete = true;
+    }
+
+    public boolean isComplete() {
+        return complete;
     }
 
     private void retryOnFailure() {
@@ -75,5 +85,9 @@ public class SyncWorker implements Runnable {
             logger.error("Failed to sync file " + syncFilePath + " after " +
                 syncAttempts + " attempts. No further attempts will be made.");
         }
+    }
+
+    public MonitoredFile getMonitoredFile() {
+        return monitoredFile;
     }
 }

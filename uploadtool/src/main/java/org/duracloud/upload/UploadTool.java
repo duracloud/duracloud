@@ -45,7 +45,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
 
         this.add(new ConnectionPanel(this), CONNECTION_PANEL);
         this.add(new SelectionPanel(this), SELECTION_PANEL);
-        statusPanel = new StatusPanel(this);
+        this.statusPanel = new StatusPanel(this);
         this.add(statusPanel, STATUS_PANEL);
         this.add(new CompletedPanel(this), COMPLETED_PANEL);
     }
@@ -64,12 +64,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
                       String username,
                       String password,
                       String spaceId) {
-        super(new CardLayout());
-
-        this.add(new SelectionPanel(this), SELECTION_PANEL);
-        this.add(new StatusPanel(this), STATUS_PANEL);
-        this.add(new CompletedPanel(this), COMPLETED_PANEL);
-
+        this();
         connect(host, username, password, spaceId);
     }
 
@@ -94,10 +89,10 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     @Override
     public void startUpload(List<File> dirs) {
         try {
+            setViewPanel(STATUS_PANEL);
             uploader = new Uploader(host, username, password, spaceId, dirs);
             uploader.startUpload();
             statusPanel.monitorStatus(uploader);
-            setViewPanel(STATUS_PANEL);
         } catch(Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }

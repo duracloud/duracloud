@@ -49,5 +49,6 @@ public class DirWalkerTest extends SyncTestBase {
                                 TrueFileFilter.INSTANCE);
 
         assertEquals(walkerFilesFound, tempDirFiles.size());
+        assertEquals(walkerFilesFound, dirWalker.getFilesCount());
     }
 }

@@ -96,4 +96,8 @@ public class DirWalker extends DirectoryWalker implements Runnable {
         return complete;
     }
 
+    public int getFilesCount() {
+        return files;
+    }
+
 }

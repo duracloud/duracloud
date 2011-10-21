@@ -9,6 +9,7 @@ package org.duracloud.upload;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
+import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
@@ -71,11 +72,21 @@ public class Uploader {
     }
 
     public UploadStatus getUploadStatus() {
-        long queueSize = statusManager.getQueueSize();
-        long completed = statusManager.getSucceeded() +
+        int completed = Long.valueOf(statusManager.getSucceeded()).intValue() +
                         statusManager.getFailed().size();
-        boolean complete = queueSize == 0;
-        return new UploadStatus(complete, queueSize + completed, completed);
+        boolean complete = (statusManager.getQueueSize() == 0 &&
+                            statusManager.getInWork() == 0);
+        UploadStatus status = new UploadStatus(complete,
+                                               dirWalker.getFilesCount(),
+                                               completed);
+
+        for(MonitoredFile file : syncManager.getFilesInTransfer()) {
+            status.addFileInTransfer(file.getName(),
+                                     file.length(),
+                                     file.getStreamBytesRead());
+        }
+
+        return status;
     }
 
     public void stopUpload() {

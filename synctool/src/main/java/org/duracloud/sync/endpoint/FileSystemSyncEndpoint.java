@@ -7,12 +7,15 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -51,7 +54,7 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
         this.syncDeletes = syncDeletes;
     }
 
-    public boolean syncFile(File syncFile, File watchDir) {
+    public boolean syncFile(MonitoredFile syncFile, File watchDir) {
         boolean success = false;
         File syncToFile = getSyncToFile(syncFile, watchDir);
 
@@ -60,11 +63,15 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
                     "\n   to " + syncToFile.getAbsolutePath());
 
         if(syncFile.exists()) { // File was added or updated
+            InputStream inStream = null;
+            OutputStream outStream = null;
             try {
                 if(!syncToFile.getParentFile().exists()) {
                     createParentDir(syncToFile.getParentFile());
                 }
-                FileUtils.copyFile(syncFile, syncToFile);
+                inStream = syncFile.getStream();
+                outStream = new FileOutputStream(syncToFile);
+                IOUtils.copy(inStream, outStream);
                 success = true;
             } catch(IOException e) {
                 logger.error("Unable to sync updated file " +
@@ -72,6 +79,9 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
                     syncToFile.getAbsolutePath() + " due to " +
                     e.getMessage(), e);
                 success = false;
+            } finally {
+                IOUtils.closeQuietly(inStream);
+                IOUtils.closeQuietly(outStream);
             }
         } else { // File was deleted
             if(syncDeletes) {
@@ -87,7 +97,7 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
         parentDir.mkdir();
     }
 
-    protected File getSyncToFile(File syncFile, File watchDir) {
+    protected File getSyncToFile(MonitoredFile syncFile, File watchDir) {
         URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
         return new File(syncToDir, relativeFileURI.getPath());
     }

@@ -36,11 +36,10 @@ public class SelectionPanel extends JPanel {
     private JFileChooser fileChooser;
     private UploadFacilitator facilitator;
 
-    private static final String columnSpecs = // 6 columns
-        "left:max(40dlu;pref)," + "5dlu," + "left:max(40dlu;pref)," + "5dlu," +
-            "left:max(40dlu;pref)," + "pref:grow";
-    private static final String rowSpecs = // 3 rows
-        "90dlu:grow," + "5dlu," + "pref";
+    private static final String columnSpecs = // 7 columns
+        "3dlu,pref,3dlu,pref,3dlu:grow,pref,3dlu";
+    private static final String rowSpecs = // 5 rows
+        "3dlu,90dlu:grow,3dlu,pref,3dlu";
 
     public SelectionPanel(UploadFacilitator facilitator) {
         super(new FormLayout(columnSpecs, rowSpecs));
@@ -50,10 +49,10 @@ public class SelectionPanel extends JPanel {
         JScrollPane tablePane = new JScrollPane(itemTable);
 
         CellConstraints cc = new CellConstraints();
-        add(tablePane, cc.xyw(1, 1, 6));
-        add(addItemButton, cc.xy(1, 3));
-        add(removeItemButton, cc.xy(3, 3));
-        add(uploadButton, cc.xy(5, 3));
+        add(tablePane, cc.xyw(2, 2, 5));
+        add(addItemButton, cc.xy(2, 4));
+        add(removeItemButton, cc.xy(4, 4));
+        add(uploadButton, cc.xy(6, 4));
 
         this.facilitator = facilitator;
     }

@@ -7,11 +7,13 @@
  */
 package org.duracloud.sync.mgmt;
 
+import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,6 +38,7 @@ public class SyncManager implements ChangeHandler {
     private SyncEndpoint endpoint;
     private ExecutorService watcherPool;
     private ThreadPoolExecutor workerPool;
+    private ArrayList<SyncWorker> workerList;
 
     /**
      * Creates a SyncManager which, when started, will watch for updates to
@@ -58,7 +61,7 @@ public class SyncManager implements ChangeHandler {
 
         // Create thread pool for changeWatcher
         watcherPool = Executors.newFixedThreadPool(1);
-        // Create thread pool for watchers
+        // Create thread pool for workers
         workerPool =
             new ThreadPoolExecutor(threads,
                                    threads,
@@ -66,6 +69,7 @@ public class SyncManager implements ChangeHandler {
                                    TimeUnit.NANOSECONDS,
                                    new SynchronousQueue(),
                                    new ThreadPoolExecutor.AbortPolicy());
+        workerList = new ArrayList<SyncWorker>();
     }
 
     /**
@@ -102,9 +106,9 @@ public class SyncManager implements ChangeHandler {
     public boolean handleChangedFile(ChangedFile changedFile) {
         File watchDir = getWatchDir(changedFile.getFile());
         try {
-            workerPool.execute(
-                new SyncWorker(changedFile, watchDir, endpoint)
-            );
+            SyncWorker worker = new SyncWorker(changedFile, watchDir, endpoint);
+            workerPool.execute(worker);
+            addToWorkerList(worker);
             return true;
         } catch(RejectedExecutionException e) {
             return false;
@@ -128,4 +132,35 @@ public class SyncManager implements ChangeHandler {
         throw new RuntimeException("File " + changedFile.getAbsolutePath() +
                                    " is not in any watched directory");
     }
+
+    private void addToWorkerList(SyncWorker workerToAdd) {
+        cleanWorkerList();
+        for(int i=0; i<workerList.size(); i++) {
+            SyncWorker worker = workerList.get(i);
+            if(worker.getMonitoredFile().getAbsolutePath().equals(
+               workerToAdd.getMonitoredFile().getAbsolutePath())) {
+                workerList.remove(i);
+            }
+        }
+        workerList.add(workerToAdd);
+    }
+
+    private void cleanWorkerList() {
+        for(int i=0; i<workerList.size(); i++) {
+            SyncWorker worker = workerList.get(i);
+            if(worker.isComplete()) {
+                workerList.remove(i);
+            }
+        }
+    }
+
+    public List<MonitoredFile> getFilesInTransfer() {
+        cleanWorkerList();
+        List<MonitoredFile> monitoredFiles = new ArrayList<MonitoredFile>();
+        for(SyncWorker worker : (ArrayList<SyncWorker>)workerList.clone()) {
+            monitoredFiles.add(worker.getMonitoredFile());
+        }
+        return monitoredFiles;
+    }
+
 }

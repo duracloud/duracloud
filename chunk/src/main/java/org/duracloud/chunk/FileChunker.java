@@ -108,8 +108,33 @@ public class FileChunker {
                            String destContentId,
                            String fileChecksum,
                            File file) {
+        addContent(destSpaceId,
+                   destContentId,
+                   fileChecksum,
+                   file.length(),
+                   getInputStream(file));
+    }
+
+    /**
+     * This method pushes the content file to the space destSpaceId with the
+     * content ID destContentId
+     *
+     * @param destSpaceId   of content destination
+     * @param destContentId of content
+     * @param fileChecksum MD5 checksum of file or null if not known
+     * @param stream        to add
+     */
+    public void addContent(String destSpaceId,
+                           String destContentId,
+                           String fileChecksum,
+                           long fileSize,
+                           InputStream stream) {
         try {
-            doAddContent(destSpaceId, destContentId, fileChecksum, file);
+            doAddContent(destSpaceId,
+                         destContentId,
+                         fileChecksum,
+                         fileSize,
+                         getInputStream(stream));
         } catch(NotFoundException e) {
             throw new DuraCloudRuntimeException(e);
         }
@@ -149,20 +174,19 @@ public class FileChunker {
     private void doAddContent(File baseDir, String destSpaceId, File file)
         throws NotFoundException {
         String destContentId = getContentId(baseDir, file);
-        doAddContent(destSpaceId, destContentId, null, file);
+        InputStream stream = getInputStream(file);
+        doAddContent(destSpaceId, destContentId, null, file.length(), stream);
     }
 
     private void doAddContent(String destSpaceId,
                               String destContentId,
                               String fileChecksum,
-                              File file)        
+                              long fileSize,
+                              InputStream stream)
         throws NotFoundException {
         long maxChunkSize = options.getMaxChunkSize();
         boolean ignoreLargeFiles = options.isIgnoreLargeFiles();
         boolean preserveChunkMD5s = options.isPreserveChunkMD5s();
-
-        InputStream stream = getInputStream(file);
-        long fileSize = file.length();
 
         log.debug("loading file: " + destContentId + "[" + fileSize + "]");
         if (fileSize <= maxChunkSize) {
@@ -197,8 +221,7 @@ public class FileChunker {
             }
 
         } else {
-            log.info("Ignoring: [" + file.getAbsolutePath() + "," +
-                     destContentId + "]");
+            log.info("Ignoring: [" + destContentId + "]");
             contentWriter.ignore(destSpaceId, destContentId, fileSize);
         }
 
@@ -251,10 +274,14 @@ public class FileChunker {
 
     private InputStream getInputStream(File file) {
         try {
-            return new AutoCloseInputStream(new FileInputStream(file));
+            return getInputStream(new FileInputStream(file));
         } catch (FileNotFoundException e) {
             throw new DuraCloudRuntimeException(e.getMessage(), e);
         }
+    }
+
+    private InputStream getInputStream(InputStream stream) {
+        return new AutoCloseInputStream(stream);
     }
 
     /**

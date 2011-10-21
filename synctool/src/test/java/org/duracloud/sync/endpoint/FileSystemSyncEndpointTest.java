@@ -7,14 +7,15 @@
  */
 package org.duracloud.sync.endpoint;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertFalse;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.SyncTestBase;
 import org.junit.Test;
 
 import java.io.File;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * @author: Bill Branan
@@ -29,7 +30,7 @@ public class FileSystemSyncEndpointTest extends SyncTestBase {
             new FileSystemSyncEndpoint(syncToDir, true);
 
         File watchDir = new File("/a/b/d/e");
-        File syncFile = new File("/a/b/d/e/f/g.txt");
+        MonitoredFile syncFile = new MonitoredFile(new File("/a/b/d/e/f/g.txt"));
         File syncToFile = syncEndpoint.getSyncToFile(syncFile, watchDir);
 
         assertEquals(new File("/a/b/c/f/g.txt").getAbsolutePath(),
@@ -43,7 +44,8 @@ public class FileSystemSyncEndpointTest extends SyncTestBase {
             new FileSystemSyncEndpoint(syncToDir, true);
 
         File watchDir = createTempDir("watchDir");
-        File syncFile = File.createTempFile("sync", "file", watchDir);
+        MonitoredFile syncFile =
+            new MonitoredFile(File.createTempFile("sync", "file", watchDir));
         assertTrue(syncFile.exists());
 
         File syncToFile = new File(syncToDir, syncFile.getName());

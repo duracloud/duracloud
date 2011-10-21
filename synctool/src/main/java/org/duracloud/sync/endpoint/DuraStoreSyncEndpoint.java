@@ -8,16 +8,12 @@
 package org.duracloud.sync.endpoint;
 
 import org.duracloud.client.ContentStore;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.MimetypeUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -39,12 +35,10 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private ContentStore contentStore;
     private String spaceId;
     private boolean syncDeletes;
-    private MimetypeUtil mimeUtil;
 
     public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String spaceId,
                                  boolean syncDeletes) {
-        this.mimeUtil = new MimetypeUtil();
         this.contentStore = contentStore;
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
@@ -97,7 +91,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         }
     }
 
-    public boolean syncFile(File syncFile, File watchDir) {
+    public boolean syncFile(MonitoredFile syncFile, File watchDir) {
         String contentId = getContentId(syncFile, watchDir);
         logger.info("Syncing file " + syncFile.getAbsolutePath() +
                     " to DuraCloud with ID " + contentId);
@@ -107,24 +101,22 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         boolean dcFileExists = (null != contentProperties);
         try {
             if(syncFile.exists()) {
-                String localChecksum = computeChecksum(syncFile);
-
                 if(dcFileExists) { // File was updated
                     String dcChecksum =
                         contentProperties.get(ContentStore.CONTENT_CHECKSUM);
-                    if(dcChecksum.equals(localChecksum)) {
+                    if(dcChecksum.equals(syncFile.getChecksum())) {
                         logger.debug("Checksum for local file {} matches " +
                             "file in DuraCloud, no update needed.",
                             syncFile.getAbsolutePath());
                     } else {
                         logger.debug("Local file {} changed, updating DuraCloud.",
                                      syncFile.getAbsolutePath());
-                        addUpdateContent(contentId, localChecksum, syncFile);
+                        addUpdateContent(contentId, syncFile);
                     }
                 } else { // File was added
                     logger.debug("Local file {} added, moving to DuraCloud.",
                                  syncFile.getAbsolutePath());
-                    addUpdateContent(contentId, localChecksum, syncFile);
+                    addUpdateContent(contentId, syncFile);
                 }
             } else { // File was deleted
                 if(dcFileExists) {
@@ -163,35 +155,23 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         contentStore.deleteContent(spaceId, contentId);
     }
 
-    protected void addUpdateContent(String contentId,
-                                    String contentCheckdum,
-                                    File syncFile)
+    protected void addUpdateContent(String contentId, MonitoredFile syncFile)
         throws ContentStoreException {
-        InputStream fileStream;
-        try {
-            fileStream = new FileInputStream(syncFile);
-        } catch(FileNotFoundException e) {
-            throw new RuntimeException("Could not get stream for " +
-                "file: " + syncFile.getAbsolutePath() + " due to " +
-                e.getMessage(), e);
-        }
-
-        String mimetype = mimeUtil.getMimeType(syncFile);
-
+        InputStream syncStream = syncFile.getStream();
         try {
             contentStore.addContent(spaceId,
                                     contentId,
-                                    fileStream,
+                                    syncStream,
                                     syncFile.length(),
-                                    mimetype,
-                                    contentCheckdum,
+                                    syncFile.getMimetype(),
+                                    syncFile.getChecksum(),
                                     null);
         } finally {
             try {
-                fileStream.close();
+                syncStream.close();
             } catch(IOException e) {
                 logger.error("Error attempting to close stream for file " +
-                    syncFile.getAbsolutePath() + ": " + e.getMessage(), e);
+                             contentId + ": " + e.getMessage(), e);
             }
         }
     }
@@ -200,24 +180,9 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
      * Determines the content ID of a file: the path of the file relative to
      * the watched directory
      */
-    private String getContentId(File syncFile, File watchDir) {
+    private String getContentId(MonitoredFile syncFile, File watchDir) {
         URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
         return relativeFileURI.getPath();
-    }
-
-    /*
-     * Computes the checksum of a local file
-     */
-    private String computeChecksum(File file) {
-        try {
-        ChecksumUtil cksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
-        return cksumUtil.generateChecksum(file);
-        } catch(FileNotFoundException e) {
-            throw new RuntimeException("File not found: " +
-                file.getAbsolutePath(), e);
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public Iterator<String> getFilesList() {

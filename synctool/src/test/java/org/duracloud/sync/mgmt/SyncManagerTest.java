@@ -7,8 +7,8 @@
  */
 package org.duracloud.sync.mgmt;
 
-import static junit.framework.Assert.assertEquals;
 import org.duracloud.sync.SyncTestBase;
+import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +17,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author: Bill Branan
@@ -53,7 +55,7 @@ public class SyncManagerTest extends SyncTestBase {
     }
 
     private class TestEndpoint implements SyncEndpoint {
-        public boolean syncFile(File file, File watchDir) {
+        public boolean syncFile(MonitoredFile file, File watchDir) {
             handledFiles++;
             return true;
         }

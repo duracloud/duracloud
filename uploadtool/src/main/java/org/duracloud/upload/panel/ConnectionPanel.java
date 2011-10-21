@@ -40,10 +40,10 @@ public class ConnectionPanel extends JPanel {
 
     private UploadFacilitator facilitator;
 
-    private static final String columnSpecs = // 8 columns
-        "30dlu,right:max(30dlu;pref),6dlu,pref,2dlu,60dlu,2dlu,60dlu";
-    private static final String rowSpecs = // 10 rows
-        "10dlu,pref,5dlu,pref,5dlu,pref,5dlu,pref,10dlu,pref";
+    private static final String columnSpecs = // 9 columns
+        "20dlu,right:max(30dlu;pref),6dlu,pref,2dlu,25dlu:grow,2dlu,70dlu,20dlu";
+    private static final String rowSpecs = // 11 rows
+        "10dlu,pref,5dlu,pref,5dlu,pref,5dlu,pref,8dlu:grow,pref,5dlu";
 
     public ConnectionPanel(UploadFacilitator facilitator) {
         super(new FormLayout(columnSpecs, rowSpecs));
