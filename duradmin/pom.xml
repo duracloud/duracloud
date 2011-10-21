@@ -620,5 +620,13 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>profile-clover</id>
+      <properties>
+        <gen>false</gen>
+      </properties>
+    </profile>
+
   </profiles>
 </project>
