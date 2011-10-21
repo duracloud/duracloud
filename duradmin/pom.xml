@@ -623,9 +623,20 @@
 
     <profile>
       <id>profile-clover</id>
-      <properties>
-        <gen>false</gen>
-      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo.webstart</groupId>
+            <artifactId>webstart-maven-plugin</artifactId>
+            <version>1.0-beta-2</version>
+            <executions>
+              <execution>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
 
   </profiles>
