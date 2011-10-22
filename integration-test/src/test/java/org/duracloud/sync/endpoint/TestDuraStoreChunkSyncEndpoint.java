@@ -31,8 +31,8 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
         testSync(endpoint);
 
         // Test chunking
-        File largeFile = File.createTempFile("large", "file", tempDir);
-        FileOutputStream fos = new FileOutputStream(largeFile);
+        File tmpFile = File.createTempFile("large", "file", tempDir);
+        FileOutputStream fos = new FileOutputStream(tmpFile);
 
         int filesize = maxFileSize + maxFileSize/2;
         for(int i=0;  i< filesize; i++) {
@@ -41,6 +41,7 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
         fos.flush();
         fos.close();
 
+        MonitoredFile largeFile = new MonitoredFile(tmpFile);
         endpoint.syncFile(largeFile, tempDir);
         testEndpoint(endpoint, 3);
     }

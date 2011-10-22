@@ -46,13 +46,14 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
 
         // Sync new file
         File tempFile = File.createTempFile("temp", "file", tempDir);
-        endpoint.syncFile(tempFile, tempDir);
+        MonitoredFile monitoredFile = new MonitoredFile(tempFile);
+        endpoint.syncFile(monitoredFile, tempDir);
         List<String> endpointContents = testEndpoint(endpoint, 1);
         assertEquals(tempFile.getName(), endpointContents.get(0));
 
         // Sync deleted file
         tempFile.delete();
-        endpoint.syncFile(tempFile, tempDir);
+        endpoint.syncFile(monitoredFile, tempDir);
         testEndpoint(endpoint, 0);
     }
 
@@ -63,13 +64,14 @@ public class DuraStoreSyncTestBase extends SyncIntegrationTestBase {
 
         // Sync new file
         File tempFile = File.createTempFile("temp", "file", tempDir);
-        endpoint.syncFile(tempFile, tempDir);
+        MonitoredFile monitoredFile = new MonitoredFile(tempFile);
+        endpoint.syncFile(monitoredFile, tempDir);
         List<String> endpointContents = testEndpoint(endpoint, 1);
         assertEquals(tempFile.getName(), endpointContents.get(0));
 
         // Ensure file is not deleted at endpoint
         tempFile.delete();
-        endpoint.syncFile(tempFile, tempDir);
+        endpoint.syncFile(monitoredFile, tempDir);
         endpointContents = testEndpoint(endpoint, 1);
         assertEquals(tempFile.getName(), endpointContents.get(0));
     }
