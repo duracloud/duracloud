@@ -25,6 +25,8 @@ public interface UploadFacilitator {
 
     public void startUpload(List<File> itemsToUpload);
 
+    public void showStatus();
+
     public void completeUpload();
 
     public void exit();

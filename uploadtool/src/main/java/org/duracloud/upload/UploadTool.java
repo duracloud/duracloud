@@ -10,6 +10,7 @@ package org.duracloud.upload;
 import org.duracloud.upload.panel.CompletedPanel;
 import org.duracloud.upload.panel.ConnectionPanel;
 import org.duracloud.upload.panel.SelectionPanel;
+import org.duracloud.upload.panel.StartupPanel;
 import org.duracloud.upload.panel.StatusPanel;
 
 import javax.swing.*;
@@ -32,10 +33,12 @@ public class UploadTool extends JPanel implements UploadFacilitator {
 
     private static final String CONNECTION_PANEL = "connectionPanel";
     private static final String SELECTION_PANEL = "selectionPanel";
+    private static final String STARTUP_PANEL = "startupPanel";
     private static final String STATUS_PANEL = "statusPanel";
     private static final String COMPLETED_PANEL = "completedPanel";
 
     private Uploader uploader;
+    private StartupPanel startupPanel;
     private StatusPanel statusPanel;
 
     /**
@@ -47,6 +50,8 @@ public class UploadTool extends JPanel implements UploadFacilitator {
 
         this.add(new ConnectionPanel(this), CONNECTION_PANEL);
         this.add(new SelectionPanel(this), SELECTION_PANEL);
+        this.startupPanel = new StartupPanel(this);
+        this.add(startupPanel, STARTUP_PANEL);
         this.statusPanel = new StatusPanel(this);
         this.add(statusPanel, STATUS_PANEL);
         this.add(new CompletedPanel(this), COMPLETED_PANEL);
@@ -97,7 +102,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     @Override
     public void startUpload(List<File> items) {
         try {
-            setViewPanel(STATUS_PANEL);
+            setViewPanel(STARTUP_PANEL);
             uploader = new Uploader(host,
                                     port,
                                     username,
@@ -106,10 +111,16 @@ public class UploadTool extends JPanel implements UploadFacilitator {
                                     storeId,
                                     items);
             uploader.startUpload();
-            statusPanel.monitorStatus(uploader);
+            startupPanel.monitorStatus(uploader);
         } catch(Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
+    }
+
+    @Override
+    public void showStatus() {
+        statusPanel.monitorStatus(uploader);
+        setViewPanel(STATUS_PANEL);
     }
 
     @Override

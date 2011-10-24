@@ -69,8 +69,4 @@ public class CompletedPanel extends JPanel {
         }
     }
 
-    private void displayMessage(String msg) {
-        JOptionPane.showMessageDialog(this, msg);
-    }
-
 }
