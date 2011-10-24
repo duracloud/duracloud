@@ -58,7 +58,7 @@ public class BulkUploadController extends AbstractRestController<Space> {
         ModelAndView mav = new ModelAndView("upload-tool");
         try {
             ContentStore cs =
-                contentStoreManager.getPrimaryContentStore();
+                contentStoreManager.getContentStore(space.getStoreId());
             mav.addObject("contentStore", cs);
 
             org.duracloud.domain.Space cloudSpace =

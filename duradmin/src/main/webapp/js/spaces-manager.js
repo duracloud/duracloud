@@ -2204,7 +2204,7 @@ $(function(){
 		list.selectablelist("clear");
 		$("#content-item-list-view").find("button,input,a").fadeIn();
 		$("#bulk-add-content-item")
-		    .attr("href", "spaces/bulk-upload?spaceId=" + escape(space.spaceId))
+		    .attr("href", "spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
 		    .attr("target", "bulk-upload-" + escape(space.spaceId));
 		    
 		addContentItemsToList(space);

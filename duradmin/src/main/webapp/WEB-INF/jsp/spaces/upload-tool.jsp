@@ -28,16 +28,19 @@
         See UploadToolApplet.java--%>
             var attributes = {
                 id : 'uploader',
-                width : 800,
+                width : 900,
                 height : 200
             };
             var parameters = {
                 jnlp_href : '/duradmin/webstart/upload.jnlp',
                 boxborder : 'false',
                 host : '${pageContext.request.serverName}',
+                port : '${pageContext.request.serverPort}',
                 username : '${user.username}',
                 password : '${user.password}',
-                spaceId : '${space.spaceId}'
+                spaceId : '${space.spaceId}',
+                storeId : '${space.storeId}'
+
             };
             deployJava.runApplet(attributes,
                     parameters, '1.6');
