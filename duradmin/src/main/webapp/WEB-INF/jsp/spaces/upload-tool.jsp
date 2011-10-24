@@ -28,8 +28,8 @@
         See UploadToolApplet.java--%>
             var attributes = {
                 id : 'uploader',
-                width : 900,
-                height : 200
+                width : 790,
+                height : 190
             };
             var parameters = {
                 jnlp_href : '/duradmin/webstart/upload.jnlp',

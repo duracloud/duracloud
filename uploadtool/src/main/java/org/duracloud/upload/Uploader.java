@@ -30,20 +30,26 @@ public class Uploader {
     private DirWalker dirWalker;
 
     private String host;
+    private int port;
     private String username;
     private String password;
     private String spaceId;
+    private String storeId;
     private List<File> contentDirs;
 
     public Uploader(String host,
+                    int port,
                     String username,
                     String password,
                     String spaceId,
+                    String storeId,
                     List<File> contentDirs) {
         this.host = host;
+        this.port = port;
         this.username = username;
         this.password = password;
         this.spaceId = spaceId;
+        this.storeId = storeId;
         this.contentDirs = contentDirs;
     }
 
@@ -51,11 +57,11 @@ public class Uploader {
         StoreClientUtil clientUtil = new StoreClientUtil();
         ContentStore contentStore =
             clientUtil.createContentStore(host,
-                                          443,  // port
+                                          port,
                                           null, // default context
                                           username,
                                           password,
-                                          null); // primary content store
+                                          storeId);
         SyncEndpoint syncEndpoint =
             new DuraStoreChunkSyncEndpoint(contentStore,
                                            spaceId,

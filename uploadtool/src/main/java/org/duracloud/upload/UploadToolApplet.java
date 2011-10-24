@@ -23,14 +23,18 @@ public class UploadToolApplet extends JApplet {
     @Override
     public void init() {
         final String host = getParameter("host");
+        final int port = Integer.valueOf(getParameter("port"));
         final String username = getParameter("username");
         final String password = getParameter("password");
         final String spaceId = getParameter("spaceId");
+        final String storeId = getParameter("storeId");
 
         final UploadTool uploadTool = new UploadTool(host,
+                                                     port,
                                                      username,
                                                      password,
-                                                     spaceId);
+                                                     spaceId,
+                                                     storeId);
 
         try {
             SwingUtilities.invokeAndWait(new Runnable() {

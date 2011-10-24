@@ -104,7 +104,12 @@ public class ConnectionPanel extends JPanel {
                     displayMessage("All fields are required");
                 } else {
                     String fullHost = host + HOST_SUFFIX;
-                    facilitator.connect(fullHost, username, password, spaceId);
+                    facilitator.connect(fullHost,
+                                        443,   // Expect https connection
+                                        username,
+                                        password,
+                                        spaceId,
+                                        null); // Primary storage provider
                 }
             }
         }

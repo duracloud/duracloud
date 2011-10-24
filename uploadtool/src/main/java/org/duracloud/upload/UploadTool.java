@@ -24,9 +24,11 @@ import java.util.List;
 public class UploadTool extends JPanel implements UploadFacilitator {
 
     private String host;
+    private int port;
     private String username;
     private String password;
     private String spaceId;
+    private String storeId;
 
     private static final String CONNECTION_PANEL = "connectionPanel";
     private static final String SELECTION_PANEL = "selectionPanel";
@@ -61,11 +63,13 @@ public class UploadTool extends JPanel implements UploadFacilitator {
      * @param spaceId location to which content will be uploaded
      */
     public UploadTool(String host,
+                      int port,
                       String username,
                       String password,
-                      String spaceId) {
+                      String spaceId,
+                      String storeId) {
         this();
-        connect(host, username, password, spaceId);
+        connect(host, port, username, password, spaceId, storeId);
     }
 
     private void setViewPanel(String panelId) {
@@ -75,13 +79,17 @@ public class UploadTool extends JPanel implements UploadFacilitator {
 
     @Override
     public void connect(String host,
+                        int port,
                         String username,
                         String password,
-                        String spaceId) {
+                        String spaceId,
+                        String storeId) {
         this.host = host;
+        this.port = port;
         this.username = username;
         this.password = password;
         this.spaceId = spaceId;
+        this.storeId = storeId;
 
         setViewPanel(SELECTION_PANEL);
     }
@@ -90,7 +98,13 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     public void startUpload(List<File> dirs) {
         try {
             setViewPanel(STATUS_PANEL);
-            uploader = new Uploader(host, username, password, spaceId, dirs);
+            uploader = new Uploader(host,
+                                    port,
+                                    username,
+                                    password,
+                                    spaceId,
+                                    storeId,
+                                    dirs);
             uploader.startUpload();
             statusPanel.monitorStatus(uploader);
         } catch(Exception e) {

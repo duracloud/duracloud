@@ -36,13 +36,24 @@ public class UploadToolFrame extends JFrame {
     public static void main(String[] args) {
         UploadTool uploadTool;
 
-        if (args.length == 4) {
-            String host = args[0];
-            String username = args[1];
-            String password = args[2];
-            String spaceId = args[3];
+        String storeId = null;
+        if(args.length == 6) {
+            storeId = args[5];
+        }
 
-            uploadTool = new UploadTool(host, username, password, spaceId);
+        if (args.length >= 5) {
+            String host = args[0];
+            int port = Integer.valueOf(args[1]);
+            String username = args[2];
+            String password = args[3];
+            String spaceId = args[4];
+
+            uploadTool = new UploadTool(host,
+                                        port,
+                                        username,
+                                        password,
+                                        spaceId,
+                                        storeId);
         } else {
             uploadTool = new UploadTool();
         }

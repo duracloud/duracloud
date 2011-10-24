@@ -17,9 +17,11 @@ import java.util.List;
 public interface UploadFacilitator {
 
     public void connect(String host,
+                        int port,
                         String username,
                         String password,
-                        String spaceId);
+                        String spaceId,
+                        String storeId);
 
     public void startUpload(List<File> itemsToUpload);
 
