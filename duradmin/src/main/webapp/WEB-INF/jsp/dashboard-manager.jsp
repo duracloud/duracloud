@@ -444,34 +444,7 @@ a.button {
                         The Stitcher Tool is a utility which will allow you to retrieve chunked files from DuraCloud and have those files "stitched" back together on your local file system. <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Stitcher+Tool">Learn more and download the Stitcher Tool here.</a>
                         </div>
 
-                        <%--The uploader applet below DOES NOT belong here.
-                            It is only here temporarily until it finds its true
-                            home somewhere on the 'spaces' tab.
-                            A.Woods 20-Oct-2011--%>
-                        <script src="https://www.java.com/js/deployJava.js"></script>
-                        <script>
-                            <%--Illustrates how to pass params into the applet's
-                                init() method.
-                                See UploadToolApplet.java--%>
-                            var attributes = {id:'uploader', width:800, height:200};
-                            var parameters = {
-                                jnlp_href: '/duradmin/webstart/upload.jnlp',
-                                boxborder: 'false',
-                                host: 'somehost',
-                                username: 'someusername',
-                                password: 'somepassword',
-                                spaceId: 'somespaceid'
-                            };
-                            deployJava.runApplet(attributes, parameters, '1.6');
-                        </script>
-
-                        <script>
-                            <%--Illustrates how to make calls on the applet
-                                created above.--%>
-                            uploader.setSpaceId('differentspaceid');
-                        </script>
-                        <%--End temp uploader section--%>
-
+                       
                     </div>
                 </div>
 

@@ -1618,9 +1618,37 @@ $(function(){
 	
 	
 	$('.add-content-item-button').live("click",
-			function(evt){
-				$("#add-content-item-dialog").dialog("open");
-			});
+	    function(evt){
+		    $("#add-content-item-dialog").dialog("open");
+	    }
+	);
+	
+	
+	//open bulk upload tool window only if it is not already open
+	//otherwise simply activate it.
+	(function(){
+	    var uploadWindows = {};
+	    $('#bulk-add-content-item').live("click",
+            function(evt){
+                var link = $(evt.target),
+                    windowName = link.attr("target"),
+                    currentWindow = uploadWindows[windowName];
+                
+                if( currentWindow && !currentWindow.closed ){
+                    $(currentWindow).focus();
+                }else{
+                    currentWindow = window.open(
+                        link.attr("href"),
+                        windowName,
+                        "menubar=0,resizable=0,width=810,height=250");
+                
+                    uploadWindows[windowName] = currentWindow;
+                }
+                evt.stopPropagation();
+                return false;
+            }
+        );
+	})();
 	
 	var scrollToCurrentSpace = function(){
 		var spacesList = $("#spaces-list");
@@ -2174,7 +2202,11 @@ $(function(){
 		listView = $("content-item-list-view");		
 		list = $("#content-item-list");
 		list.selectablelist("clear");
-		$("#content-item-list-view button,#content-item-list-view input").fadeIn();
+		$("#content-item-list-view").find("button,input,a").fadeIn();
+		$("#bulk-add-content-item")
+		    .attr("href", "spaces/bulk-upload?spaceId=" + escape(space.spaceId))
+		    .attr("target", "bulk-upload-" + escape(space.spaceId));
+		    
 		addContentItemsToList(space);
 		updateNavigationControls(space);
 
@@ -2563,8 +2595,9 @@ $(function(){
 
 	var clearContents = function(){
 		$("#content-item-list").selectablelist("clear");
-		$("#content-item-list-view button").fadeOut();
-		$("#content-item-list-view input").val('').fadeOut();
+		$("#content-item-list-view").find("button,a,input").fadeOut();
+		$("#content-item-list-view").val('');
+		
 	};
 
 	var clearSpaces = function(){

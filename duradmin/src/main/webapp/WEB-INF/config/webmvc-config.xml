@@ -39,6 +39,7 @@
         <prop key="/spaces/content">contentItemController</prop>
         <prop key="/spaces/content/upload">contentItemUploadController</prop>
         <prop key="/spaces/space">spaceController</prop>
+        <prop key="/spaces/bulk-upload">bulkUploadController</prop>
         <prop key="/spaces/upload">uploadController</prop>
         <prop key="/services">servicesController</prop>
         <prop key="/services/service">serviceController</prop>
@@ -57,6 +58,11 @@
   <bean id="spacesController" class="org.duracloud.duradmin.spaces.controller.SpacesController">
     <property name="contentStoreManager" ref="contentStoreManager" />
   </bean>
+  <bean id="bulkUploadController" class="org.duracloud.duradmin.spaces.controller.BulkUploadController">
+    <property name="contentStoreManager" ref="contentStoreManager" />
+    <property name="userDetailsService" ref="userDetailsSvc" />
+  </bean>
+
   <bean id="uploadController" class="org.duracloud.controller.UploadController" />
   <bean id="contentItemController" class="org.duracloud.duradmin.spaces.controller.ContentItemController">
     <property name="contentStoreManager" ref="contentStoreManager" />

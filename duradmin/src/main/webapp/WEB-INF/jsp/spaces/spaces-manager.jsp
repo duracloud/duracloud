@@ -81,6 +81,8 @@
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
 				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add Content Item</button>
+                <a class="float-r" style="margin:5px;"  id="bulk-add-content-item">Bulk Add Content</a>
+
 				<h2>Content Items</h2>   
                 </div>
 				<div class="header-section">
