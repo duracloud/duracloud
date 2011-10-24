@@ -20,8 +20,9 @@ import java.util.List;
 
 /**
  * Handles the walking of a set of directory trees. Each file found in the
- * tree is added to the changed file list. This is the starting point
- * for synchronization.
+ * tree is added to the changed file list. Any files found among the listed
+ * directories will also be added to the changed file list. This is the
+ * starting point for synchronization.
  *
  * @author: Bill Branan
  * Date: Mar 17, 2010
@@ -33,14 +34,14 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     private static DirWalker dirWalker;
     private boolean continueWalk;
 
-    private List<File> topDirs;
+    private List<File> filesAndDirs;
     private ChangedList fileList;
     private int files = 0;
     private boolean complete = false;
 
-    protected DirWalker(List<File> topDirs) {
+    protected DirWalker(List<File> filesAndDirs) {
         super();
-        this.topDirs = topDirs;
+        this.filesAndDirs = filesAndDirs;
         fileList = ChangedList.getInstance();
     }
 
@@ -54,18 +55,22 @@ public class DirWalker extends DirectoryWalker implements Runnable {
 
     protected void walkDirs() {
         continueWalk = true;
-        for(File dir : topDirs) {
-            if(dir.exists() && dir.isDirectory() && continueWalk) {
-                try {
-                    List results = new ArrayList();
-                    walk(dir, results);
-                } catch(IOException e) {
-                    throw new RuntimeException("Error walking directory " +
-                        dir.getAbsolutePath() + ":" + e.getMessage(), e);
+        for(File item : filesAndDirs) {
+            if(item.exists() && continueWalk) {
+                if(item.isDirectory()) { // Directory
+                    try {
+                        List results = new ArrayList();
+                        walk(item, results);
+                    } catch(IOException e) {
+                        throw new RuntimeException("Error walking directory " +
+                            item.getAbsolutePath() + ":" + e.getMessage(), e);
+                    }
+                } else { // File
+                    handleFile(item, 0, null);
                 }
             } else {
-                logger.warn("Skipping " + dir.getAbsolutePath() +
-                            ", as it does not point to a directory");
+                logger.warn("Skipping " + item.getAbsolutePath() +
+                            ", as it does not exist");
             }
         }
         logger.info("Found " + files +

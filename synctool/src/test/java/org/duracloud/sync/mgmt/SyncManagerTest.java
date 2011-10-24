@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 
 /**
  * @author: Bill Branan
@@ -84,6 +85,9 @@ public class SyncManagerTest extends SyncTestBase {
                      syncManager.getWatchDir(new File("/a/b/q/r/file.txt")));
         assertEquals(tempDir2,
                      syncManager.getWatchDir(new File("/a/c/t/u/file.txt")));
+
+        // Should return null when file is not included in a watch dir
+        assertNull(syncManager.getWatchDir(new File("/d/file.txt")));
     }
 
 }

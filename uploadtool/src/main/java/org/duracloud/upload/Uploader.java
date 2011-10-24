@@ -35,7 +35,7 @@ public class Uploader {
     private String password;
     private String spaceId;
     private String storeId;
-    private List<File> contentDirs;
+    private List<File> contentItems;
 
     public Uploader(String host,
                     int port,
@@ -43,14 +43,14 @@ public class Uploader {
                     String password,
                     String spaceId,
                     String storeId,
-                    List<File> contentDirs) {
+                    List<File> contentItems) {
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
         this.spaceId = spaceId;
         this.storeId = storeId;
-        this.contentDirs = contentDirs;
+        this.contentItems = contentItems;
     }
 
     public void startUpload() {
@@ -67,13 +67,13 @@ public class Uploader {
                                            spaceId,
                                            false,
                                            1073741824); // 1GB chunk size
-        syncManager = new SyncManager(contentDirs,
+        syncManager = new SyncManager(contentItems,
                                       syncEndpoint,
                                       3, // threads
                                       10000); // change list poll frequency
         syncManager.beginSync();
 
-        dirWalker = DirWalker.start(contentDirs);
+        dirWalker = DirWalker.start(contentItems);
         statusManager = StatusManager.getInstance();
     }
 

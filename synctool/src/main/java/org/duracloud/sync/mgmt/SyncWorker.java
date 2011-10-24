@@ -37,6 +37,8 @@ public class SyncWorker implements Runnable {
      * Creates a SyncWorker to handle syncing a file
      *
      * @param file the file to sync
+     * @param watchDir dir under watch where file exists or null if file
+     *                 does not reside in a watched directory
      * @param endpoint the endpoint to which the file should be synced
      */
     public SyncWorker(ChangedFile file, File watchDir, SyncEndpoint endpoint) {

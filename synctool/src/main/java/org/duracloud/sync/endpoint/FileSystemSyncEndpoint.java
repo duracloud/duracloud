@@ -59,7 +59,6 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
         File syncToFile = getSyncToFile(syncFile, watchDir);
 
         logger.info("Syncing file: " + syncFile.getAbsolutePath() +
-                    "\n   in watchDir " + watchDir.getAbsolutePath() +
                     "\n   to " + syncToFile.getAbsolutePath());
 
         if(syncFile.exists()) { // File was added or updated
@@ -98,8 +97,14 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
     }
 
     protected File getSyncToFile(MonitoredFile syncFile, File watchDir) {
-        URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
-        return new File(syncToDir, relativeFileURI.getPath());
+        File syncToFile;
+        if(null == watchDir) {
+            syncToFile = new File(syncToDir, syncFile.getName());
+        } else {
+            URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
+            syncToFile = new File(syncToDir, relativeFileURI.getPath());
+        }
+        return syncToFile;
     }
 
     public Iterator<String> getFilesList() {

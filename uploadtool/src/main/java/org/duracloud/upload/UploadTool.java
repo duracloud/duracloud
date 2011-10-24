@@ -95,7 +95,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     }
 
     @Override
-    public void startUpload(List<File> dirs) {
+    public void startUpload(List<File> items) {
         try {
             setViewPanel(STATUS_PANEL);
             uploader = new Uploader(host,
@@ -104,7 +104,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
                                     password,
                                     spaceId,
                                     storeId,
-                                    dirs);
+                                    items);
             uploader.startUpload();
             statusPanel.monitorStatus(uploader);
         } catch(Exception e) {

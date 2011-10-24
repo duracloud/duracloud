@@ -116,7 +116,8 @@ public class SyncManager implements ChangeHandler {
     }
 
     /*
-     * Determines which of the watched directories includes the changed file
+     * Determines which of the watched directories includes the changed file.
+     * Returns null if the file is not included in any watch directories.
      */
     protected File getWatchDir(File changedFile) {
         for(File watchDir : watchDirs) {
@@ -129,8 +130,7 @@ public class SyncManager implements ChangeHandler {
                 }
             }
         }
-        throw new RuntimeException("File " + changedFile.getAbsolutePath() +
-                                   " is not in any watched directory");
+        return null;
     }
 
     private void addToWorkerList(SyncWorker workerToAdd) {

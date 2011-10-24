@@ -178,11 +178,16 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
 
     /*
      * Determines the content ID of a file: the path of the file relative to
-     * the watched directory
+     * the watched directory. If the watched directory is null, the content ID
+     * is simply the name of the file.
      */
-    private String getContentId(MonitoredFile syncFile, File watchDir) {
-        URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
-        return relativeFileURI.getPath();
+    protected String getContentId(MonitoredFile syncFile, File watchDir) {
+        String contentId = syncFile.getName();
+        if(null != watchDir) {
+            URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
+            contentId = relativeFileURI.getPath();
+        }
+        return contentId;
     }
 
     public Iterator<String> getFilesList() {

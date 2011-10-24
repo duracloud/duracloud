@@ -56,4 +56,24 @@ public class FileSystemSyncEndpointTest extends SyncTestBase {
         FileUtils.deleteDirectory(syncToDir);
         FileUtils.deleteDirectory(watchDir);
     }
+
+    @Test
+    public void testSyncFileNoWatchDir() throws Exception {
+        File syncToDir = createTempDir("syncToDir");
+        FileSystemSyncEndpoint syncEndpoint =
+            new FileSystemSyncEndpoint(syncToDir, true);
+
+        File baseFile = File.createTempFile("sync", "file");
+        MonitoredFile syncFile = new MonitoredFile(baseFile);
+        assertTrue(syncFile.exists());
+
+        File syncToFile = new File(syncToDir, syncFile.getName());
+        assertFalse(syncToFile.exists());
+        syncEndpoint.syncFile(syncFile, null);
+        assertTrue(syncToFile.exists());
+
+        FileUtils.deleteDirectory(syncToDir);
+        FileUtils.deleteQuietly(baseFile);
+    }
+
 }

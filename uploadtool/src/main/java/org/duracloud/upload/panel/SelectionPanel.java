@@ -58,16 +58,16 @@ public class SelectionPanel extends JPanel {
     }
 
     private void initComponents(ActionListener actionListener) {
-        String[] itemColumnNames = {"Folder Name", "Total Size", "Location"};
+        String[] itemColumnNames = {"Item Name", "Total Size", "Location"};
         itemTableModel = new DefaultTableModel(itemColumnNames, 0);
         itemTable = new JTable(itemTableModel);
 
-        addItemButton = new JButton("Add Folders For Upload");
+        addItemButton = new JButton("Add Files and Folders");
         URL addIcon = this.getClass().getClassLoader().getResource("add.png");
         addItemButton.setIcon(new ImageIcon(addIcon));
         addItemButton.addActionListener(actionListener);
 
-        removeItemButton = new JButton("Remove Selected Folders");
+        removeItemButton = new JButton("Remove Selected");
         URL removeIcon =
             this.getClass().getClassLoader().getResource("minus.png");
         removeItemButton.setIcon(new ImageIcon(removeIcon));
@@ -80,7 +80,8 @@ public class SelectionPanel extends JPanel {
         uploadButton.addActionListener(actionListener);
 
         fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fileChooser.setMultiSelectionEnabled(true);
     }
 
     private class ChangeListener implements ActionListener {
@@ -88,15 +89,8 @@ public class SelectionPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             if(e.getSource() == addItemButton) {
                 int returnVal = fileChooser.showOpenDialog(itemTable);
-
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File dir = fileChooser.getSelectedFile();
-                    // Add file to itemTable
-                    String name = dir.getName();
-                    String size = FileUtils
-                        .byteCountToDisplaySize(FileUtils.sizeOfDirectory(dir));
-                    String location = dir.getAbsolutePath();
-                    itemTableModel.addRow(new String[]{name, size, location});
+                    addItemsToList(fileChooser.getSelectedFiles());
                 }
             } else if(e.getSource() == removeItemButton) {
                 int[] selectedRows = itemTable.getSelectedRows();
@@ -105,19 +99,47 @@ public class SelectionPanel extends JPanel {
                     itemTableModel.removeRow(selectedRows[i]);
                 }
             } else if(e.getSource() == uploadButton) {
-                List<File> dirs = new ArrayList();
+                List<File> items = new ArrayList();
                 int rowCount = itemTableModel.getRowCount();
                 for(int i=0; i<rowCount; i++) {
                     String path =
                         String.valueOf(itemTableModel.getValueAt(i, 2));
-                    File directory = new File(path);
-                    if(directory.exists() && directory.isDirectory()) {
-                        dirs.add(directory);
+                    File item = new File(path);
+                    if(item.exists()) {
+                        items.add(item);
                     }
                 }
-                facilitator.startUpload(dirs);
+                facilitator.startUpload(items);
             }
         }
+    }
+
+    private void addItemsToList(File[] items) {
+        for(File item : items) {
+            // Add to itemTable
+            String name = item.getName();
+            String size = String.valueOf(item.length());
+            String location = item.getAbsolutePath();
+            if(item.isDirectory()) {
+                name = name + " (folder)";
+                size = FileUtils.byteCountToDisplaySize(
+                    FileUtils.sizeOfDirectory(item));
+            }
+            if(!isDuplicate(location)) {
+                itemTableModel.addRow(new String[]{name, size, location});
+            }
+        }
+    }
+
+    public boolean isDuplicate(String addedPath) {
+        int rowCount = itemTableModel.getRowCount();
+        for(int i=0; i<rowCount; i++) {
+            String itemPath = String.valueOf(itemTableModel.getValueAt(i, 2));
+            if(itemPath.equals(addedPath)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
