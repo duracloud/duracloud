@@ -1628,7 +1628,7 @@ $(function(){
 	//otherwise simply activate it.
 	(function(){
 	    var uploadWindows = {};
-	    $('#bulk-add-content-item').live("click",
+	    $('.bulk-add-content-item').live("click",
             function(evt){
                 var link = $(evt.target),
                     windowName = link.attr("target"),
@@ -1640,7 +1640,7 @@ $(function(){
                     currentWindow = window.open(
                         link.attr("href"),
                         windowName,
-                        "menubar=0,resizable=0,width=810,height=250");
+                        "menubar=0,resizable=0,width=850,height=400");
                 
                     uploadWindows[windowName] = currentWindow;
                 }
@@ -2203,7 +2203,7 @@ $(function(){
 		list = $("#content-item-list");
 		list.selectablelist("clear");
 		$("#content-item-list-view").find("button,input,a").fadeIn();
-		$("#bulk-add-content-item")
+		$(".bulk-add-content-item")
 		    .attr("href", "spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
 		    .attr("target", "bulk-upload-" + escape(space.spaceId));
 		    

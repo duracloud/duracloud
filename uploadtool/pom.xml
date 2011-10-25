@@ -93,6 +93,13 @@
       <artifactId>forms</artifactId>
       <version>1.2.1</version>
     </dependency>
-
+    
+    <dependency> 
+      <groupId>com.sun</groupId> 
+      <artifactId>plugin</artifactId> 
+      <version>1.6.0_26-b03</version> 
+      <scope>provided</scope> 
+    </dependency> 
+    
   </dependencies>
 </project>

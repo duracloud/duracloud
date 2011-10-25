@@ -80,8 +80,8 @@
 				<div id="content-item-list-view" class="dc-list-item-viewer">
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
-				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add Content Item</button>
-                <a class="float-r" style="margin:5px;"  id="bulk-add-content-item">Bulk Add Content</a>
+				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add One</button>
+                <a class="float-r  button featured bulk-add-content-item"><i class="pre plus"></i>Add Many</a>
 
 				<h2>Content Items</h2>   
                 </div>
@@ -112,7 +112,8 @@
 							<div class="r access-switch"></div>
 						</div>
 						<div class="button-bar">
-							<button class="featured add-content-item-button"><i class="pre plus"></i>Add Content Item</button>
+							<button class="featured add-content-item-button"><i class="pre plus"></i>Add One Item</button>
+                            <a class="button featured bulk-add-content-item"><i class="pre plus"></i>Add Many Items</a>
 							<button class="delete-space-button dc-delete-button"><i class="pre trash"></i>Delete Space</button>
 						</div>
 					</div>

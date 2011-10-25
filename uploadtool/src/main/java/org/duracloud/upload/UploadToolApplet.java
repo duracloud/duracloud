@@ -7,10 +7,15 @@
  */
 package org.duracloud.upload;
 
+import javax.swing.JApplet;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+
+import netscape.javascript.JSObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 
 /**
  * @author Andrew Woods
@@ -34,8 +39,18 @@ public class UploadToolApplet extends JApplet {
                                                      username,
                                                      password,
                                                      spaceId,
-                                                     storeId);
-
+                                                     storeId){
+            @Override
+            public void exit() {
+                JSObject win = (JSObject) JSObject.getWindow(UploadToolApplet.this);
+                win.eval("self.close();");
+                super.exit();
+            }
+            
+        };
+        
+        
+        
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
