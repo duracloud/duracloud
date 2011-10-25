@@ -30,10 +30,10 @@ public class StartupPanel extends JPanel {
     private UploadFacilitator facilitator;
     private Uploader uploader;
 
-    private static final String columnSpecs = // 4 columns
-        "70dlu,20dlu,80dlu,20dlu";
+    private static final String columnSpecs = // 5 columns
+        "135dlu,20dlu,80dlu,20dlu,135dlu";
     private static final String rowSpecs = // 4 rows
-        "20dlu,pref,10dlu,pref";
+        "30dlu,pref,10dlu,pref";
 
     public StartupPanel(UploadFacilitator facilitator) {
         super(new FormLayout(columnSpecs, rowSpecs));

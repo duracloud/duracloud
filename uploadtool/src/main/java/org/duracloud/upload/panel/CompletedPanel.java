@@ -32,10 +32,10 @@ public class CompletedPanel extends JPanel {
 
     private UploadFacilitator facilitator;
 
-    private static final String columnSpecs = // 6 columns
-        "50dlu,20dlu,60dlu,5dlu,60dlu,20dlu";
+    private static final String columnSpecs = // 7 columns
+        "115dlu,20dlu,60dlu,5dlu,60dlu,20dlu,115dlu";
     private static final String rowSpecs = // 4 rows
-        "20dlu,pref,10dlu,pref";
+        "30dlu,pref,10dlu,pref";
 
     public CompletedPanel(UploadFacilitator facilitator) {
         super(new FormLayout(columnSpecs, rowSpecs));
