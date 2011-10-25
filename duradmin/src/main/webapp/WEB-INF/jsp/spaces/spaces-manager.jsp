@@ -80,8 +80,8 @@
 				<div id="content-item-list-view" class="dc-list-item-viewer">
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
-				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add One</button>
-                <a class="float-r  button featured bulk-add-content-item"><i class="pre plus"></i>Add Many</a>
+                <a class="float-r  button featured bulk-add-content-item"><i class="pre plus"></i>Add Many Items</a>
+				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add One Item</button>
 
 				<h2>Content Items</h2>   
                 </div>

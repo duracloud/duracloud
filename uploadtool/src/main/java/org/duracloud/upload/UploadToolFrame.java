@@ -7,7 +7,9 @@
  */
 package org.duracloud.upload;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 /**
  * @author Andrew Woods

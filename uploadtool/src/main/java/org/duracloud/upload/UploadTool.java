@@ -7,18 +7,17 @@
  */
 package org.duracloud.upload;
 
-import java.awt.CardLayout;
-import java.io.File;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 import org.duracloud.upload.panel.CompletedPanel;
 import org.duracloud.upload.panel.ConnectionPanel;
 import org.duracloud.upload.panel.SelectionPanel;
 import org.duracloud.upload.panel.StartupPanel;
 import org.duracloud.upload.panel.StatusPanel;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import java.awt.CardLayout;
+import java.io.File;
+import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -142,6 +141,6 @@ public class UploadTool extends JPanel implements UploadFacilitator {
 
     @Override
     public void exit() {
-       System.exit(0);
+        System.exit(0);
     }
 }

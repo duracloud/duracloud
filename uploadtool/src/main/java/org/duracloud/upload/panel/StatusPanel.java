@@ -14,7 +14,12 @@ import org.duracloud.upload.UploadFacilitator;
 import org.duracloud.upload.UploadStatus;
 import org.duracloud.upload.Uploader;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JSeparator;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;

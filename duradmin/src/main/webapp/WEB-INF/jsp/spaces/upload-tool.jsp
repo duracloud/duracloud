@@ -32,7 +32,7 @@
       <c:choose>
         <c:when test="${not empty space}">
           <h2 style="margin-bottom:10px">
-            Upload multiple files to ${space.spaceId} in  ${storageProviderName}
+            Upload to ${space.spaceId} in  ${storageProviderName}
           </h2>
           
           <script>

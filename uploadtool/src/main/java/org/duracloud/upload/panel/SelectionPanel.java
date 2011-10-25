@@ -12,7 +12,12 @@ import com.jgoodies.forms.layout.FormLayout;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.upload.UploadFacilitator;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
