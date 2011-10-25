@@ -47,7 +47,10 @@ public class UploadTool extends JPanel implements UploadFacilitator {
      */
     public UploadTool() {
         super(new CardLayout());
+        addToolComponents();
+    }
 
+    private void addToolComponents() {
         this.add(new ConnectionPanel(this), CONNECTION_PANEL);
         this.add(new SelectionPanel(this), SELECTION_PANEL);
         this.startupPanel = new StartupPanel(this);
@@ -126,6 +129,13 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     @Override
     public void completeUpload() {
         setViewPanel(COMPLETED_PANEL);
+    }
+
+    @Override
+    public void restart() {
+        this.removeAll();
+        addToolComponents();
+        setViewPanel(SELECTION_PANEL);
     }
 
     @Override

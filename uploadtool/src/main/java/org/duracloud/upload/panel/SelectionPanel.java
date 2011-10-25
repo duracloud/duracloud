@@ -58,7 +58,7 @@ public class SelectionPanel extends JPanel {
     }
 
     private void initComponents(ActionListener actionListener) {
-        String[] itemColumnNames = {"Item Name", "Total Size", "Location"};
+        String[] itemColumnNames = {"Name", "Size", "Location"};
         itemTableModel = new DefaultTableModel(itemColumnNames, 0);
         itemTable = new JTable(itemTableModel);
 

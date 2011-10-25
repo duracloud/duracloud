@@ -31,4 +31,6 @@ public interface UploadFacilitator {
 
     public void exit();
 
+    public void restart();
+
 }

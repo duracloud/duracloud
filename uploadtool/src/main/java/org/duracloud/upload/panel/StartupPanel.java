@@ -29,7 +29,7 @@ public class StartupPanel extends JPanel {
     private Uploader uploader;
 
     private static final String columnSpecs = // 4 columns
-        "80dlu,15dlu,80dlu,15dlu";
+        "70dlu,20dlu,80dlu,20dlu";
     private static final String rowSpecs = // 4 rows
         "20dlu,pref,10dlu,pref";
 
@@ -52,6 +52,7 @@ public class StartupPanel extends JPanel {
                                     defaultFont.getStyle(),
                                     defaultFont.getSize()+11);
         startingLabel.setFont(updatedFont);
+        startingLabel.setHorizontalAlignment(JLabel.CENTER);
 
         spinnerBar = new JProgressBar();
         spinnerBar.setIndeterminate(true);
