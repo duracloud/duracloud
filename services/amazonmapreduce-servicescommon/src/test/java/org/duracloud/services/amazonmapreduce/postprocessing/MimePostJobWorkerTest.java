@@ -38,11 +38,11 @@ public class MimePostJobWorkerTest {
 
     private List<String> contents;
     private String file0 = "file.pdf";
-    private String file1 = "file.pdf.csv";
+    private String file1 = "file.pdf.tsv";
     private String file2 = "file";
 
     private String mime0 = "application/pdf";
-    private String mime1 = "text/csv";
+    private String mime1 = "text/tab-separated-values";
     private String mime2 = "application/octet-stream";
 
 
