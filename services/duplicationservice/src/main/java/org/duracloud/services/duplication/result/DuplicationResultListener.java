@@ -70,7 +70,7 @@ public class DuplicationResultListener implements ResultListener {
                                     reportId,
                                     resultsStream,
                                     resultsFile.length(),
-                                    "text/csv",
+                                    "text/tab-separated-values",
                                     null,
                                     null);
 

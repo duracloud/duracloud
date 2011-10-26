@@ -125,7 +125,7 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
         reportId.append(toStore.getStorageProviderType());
         reportId.append("-report-");
         reportId.append(DateUtil.nowMid());
-        reportId.append(".csv");
+        reportId.append(".tsv");
         return reportId.toString();
     }
 
