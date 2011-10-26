@@ -101,7 +101,7 @@ public class ConversionResultProcessor implements ConversionResultListener {
                                     resultsId,
                                     resultsStream,
                                     resultsFile.length(),
-                                    "text/csv",
+                                    "text/tab-separated-values",
                                     null,
                                     null);
         } catch(ContentStoreException e) {
