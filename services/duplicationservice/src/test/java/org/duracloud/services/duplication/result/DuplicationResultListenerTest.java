@@ -38,6 +38,8 @@ public class DuplicationResultListenerTest {
     private final String reportId = "report-content-id";
     private String workDir;
 
+    private final String mime = "text/tab-separated-values";
+
     @Before
     public void setUp() throws Exception {
         contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
@@ -116,7 +118,7 @@ public class DuplicationResultListenerTest {
                                                         EasyMock.eq(reportId),
                                                         EasyMock.<InputStream>anyObject(),
                                                         EasyMock.anyInt(),
-                                                        EasyMock.eq("text/csv"),
+                                                        EasyMock.eq(mime),
                                                         EasyMock.<String>isNull(),
                                                         EasyMock.<Map<String, String>>isNull()))
                     .andReturn("md5");
@@ -130,7 +132,7 @@ public class DuplicationResultListenerTest {
                                                         EasyMock.eq(reportId),
                                                         EasyMock.<InputStream>anyObject(),
                                                         EasyMock.anyInt(),
-                                                        EasyMock.eq("text/csv"),
+                                                        EasyMock.eq(mime),
                                                         EasyMock.<String>isNull(),
                                                         EasyMock.<Map<String, String>>isNull()))
                     .andThrow(new ContentStoreException("canned-exception"));
