@@ -9,7 +9,7 @@
   <beans:bean id="authenticationProcessingFilter"
               class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
     <beans:property name="authenticationManager" ref="authenticationManager" />
-    <beans:property name="authenticationFailureUrl" value="/login?error=true" />
+    <!--beans:property name="authenticationFailureUrl" value="/login?error=true" /-->
     <beans:property name="defaultTargetUrl" value="/" />
     <beans:property name="filterProcessesUrl" value="/j_spring_security_check" />
   </beans:bean>
@@ -25,7 +25,7 @@
     <intercept-url pattern="/favicon.ico" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/webstart/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/**" access="ROLE_USER"  />
-    <form-login login-page="/login" always-use-default-target="false"  authentication-failure-url="" />
+    <form-login login-page="/" always-use-default-target="false"  authentication-failure-url="" />
     <anonymous />
     <http-basic />
     <logout logout-url="/logout"/>
