@@ -20,6 +20,7 @@
     <storepass>storepass</storepass>
     <keypass>keypass</keypass>
     <keystore>${project.build.directory}/keystore</keystore>
+    <alias>uploadapplet</alias>
     <gen>true</gen>
   </properties>
 
@@ -169,7 +170,7 @@
             <keystore>${keystore}</keystore>
             <keypass>${keypass}</keypass>
             <storepass>${storepass}</storepass>
-            <alias>uploadapplet</alias>
+            <alias>${alias}</alias>
 
             <storetype>jks</storetype>
             <validity>365</validity>

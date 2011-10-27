@@ -56,6 +56,7 @@
                                                 password : '${user.password}',
                                                 spaceId : '${space.spaceId}',
                                                 storeId : '${space.storeId}',
+                                                separate_jvm : 'true',
                                                 MAYSCRIPT : 'true',
 
                                             };
