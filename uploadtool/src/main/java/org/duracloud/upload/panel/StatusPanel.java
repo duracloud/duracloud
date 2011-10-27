@@ -103,8 +103,11 @@ public class StatusPanel extends JPanel {
         uploadTotalLabel = new JLabel("");
 
         file1ProgressBar = new JProgressBar(0, 1);
+        file1ProgressBar.setVisible(false);
         file2ProgressBar = new JProgressBar(0, 1);
+        file2ProgressBar.setVisible(false);
         file3ProgressBar = new JProgressBar(0, 1);
+        file3ProgressBar.setVisible(false);
         uploadProgressBar = new JProgressBar(0, 1);
 
         separator = new JSeparator();
@@ -137,6 +140,7 @@ public class StatusPanel extends JPanel {
                 FileUtils.byteCountToDisplaySize(fit.getTotalSize()));
             file1ProgressBar.setMaximum(new Long(fit.getTotalSize()).intValue());
             file1ProgressBar.setValue(new Long(fit.getBytesRead()).intValue());
+            file1ProgressBar.setVisible(true);
             file1ProgressBar.setStringPainted(true);
         }  else {
             file1NameLabel.setText("");
@@ -144,6 +148,7 @@ public class StatusPanel extends JPanel {
             file1TotalLabel.setText("");
             file1ProgressBar.setMaximum(1);
             file1ProgressBar.setValue(0);
+            file1ProgressBar.setVisible(false);
             file1ProgressBar.setStringPainted(true);
         }
 
@@ -156,6 +161,7 @@ public class StatusPanel extends JPanel {
                 FileUtils.byteCountToDisplaySize(fit.getTotalSize()));
             file2ProgressBar.setMaximum(new Long(fit.getTotalSize()).intValue());
             file2ProgressBar.setValue(new Long(fit.getBytesRead()).intValue());
+            file2ProgressBar.setVisible(true);
             file2ProgressBar.setStringPainted(true);
         } else {
             file2NameLabel.setText("");
@@ -163,8 +169,10 @@ public class StatusPanel extends JPanel {
             file2TotalLabel.setText("");
             file2ProgressBar.setMaximum(1);
             file2ProgressBar.setValue(0);
+            file2ProgressBar.setVisible(false);
             file2ProgressBar.setStringPainted(true);
         }
+
         if(numFiles > 2) {
             UploadStatus.FileInTransfer fit = files.get(2);
             file3NameLabel.setText(fit.getName());
@@ -174,6 +182,7 @@ public class StatusPanel extends JPanel {
                 FileUtils.byteCountToDisplaySize(fit.getTotalSize()));
             file3ProgressBar.setMaximum(new Long(fit.getTotalSize()).intValue());
             file3ProgressBar.setValue(new Long(fit.getBytesRead()).intValue());
+            file3ProgressBar.setVisible(true);
             file3ProgressBar.setStringPainted(true);
         } else {
             file3NameLabel.setText("");
@@ -181,6 +190,7 @@ public class StatusPanel extends JPanel {
             file3TotalLabel.setText("");
             file3ProgressBar.setMaximum(1);
             file3ProgressBar.setValue(0);
+            file3ProgressBar.setVisible(false);
             file3ProgressBar.setStringPainted(true);
         }
     }

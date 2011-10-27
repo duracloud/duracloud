@@ -25,13 +25,6 @@ import java.util.List;
  */
 public class UploadTool extends JPanel implements UploadFacilitator {
 
-    private String host;
-    private int port;
-    private String username;
-    private String password;
-    private String spaceId;
-    private String storeId;
-
     private static final String CONNECTION_PANEL = "connectionPanel";
     private static final String SELECTION_PANEL = "selectionPanel";
     private static final String STARTUP_PANEL = "startupPanel";
@@ -93,32 +86,32 @@ public class UploadTool extends JPanel implements UploadFacilitator {
                         String password,
                         String spaceId,
                         String storeId) {
-        this.host = host;
-        this.port = port;
-        this.username = username;
-        this.password = password;
-        this.spaceId = spaceId;
-        this.storeId = storeId;
-
-        setViewPanel(SELECTION_PANEL);
+        try {
+            uploader =
+                new Uploader(host, port, username, password, spaceId, storeId);
+            setViewPanel(SELECTION_PANEL);
+        } catch (Exception e) {
+            String msg = "Could not connect to DuraCloud based on the " +
+                         "provided host, username, and password. Please " +
+                         "check these values and try again.";
+            showErrorMessage(msg);
+        }
     }
 
     @Override
     public void startUpload(List<File> items) {
         try {
             setViewPanel(STARTUP_PANEL);
-            uploader = new Uploader(host,
-                                    port,
-                                    username,
-                                    password,
-                                    spaceId,
-                                    storeId,
-                                    items);
-            uploader.startUpload();
+            uploader.startUpload(items);
             startupPanel.monitorStatus(uploader);
         } catch(Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
+            showErrorMessage("Error encountered on upload: " + e.getMessage());
         }
+    }
+
+    private void showErrorMessage(String msg) {
+        int type = JOptionPane.ERROR_MESSAGE;
+        JOptionPane.showMessageDialog(this, msg, "Error", type);
     }
 
     @Override
@@ -130,13 +123,6 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     @Override
     public void completeUpload() {
         setViewPanel(COMPLETED_PANEL);
-    }
-
-    @Override
-    public void restart() {
-        this.removeAll();
-        addToolComponents();
-        setViewPanel(SELECTION_PANEL);
     }
 
     @Override

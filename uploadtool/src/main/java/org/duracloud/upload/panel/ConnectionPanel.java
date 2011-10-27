@@ -48,7 +48,7 @@ public class ConnectionPanel extends JPanel {
     private UploadFacilitator facilitator;
 
     private static final String columnSpecs = // 9 columns
-        "20dlu,right:max(30dlu;pref),6dlu,pref,2dlu,25dlu:grow,2dlu,70dlu,20dlu";
+        "60dlu,right:max(30dlu;pref),6dlu,pref,2dlu,25dlu:grow,2dlu,70dlu,60dlu";
     private static final String rowSpecs = // 11 rows
         "10dlu,pref,5dlu,pref,5dlu,pref,5dlu,pref,8dlu:grow,pref,5dlu";
 
@@ -108,7 +108,7 @@ public class ConnectionPanel extends JPanel {
                    username.isEmpty() ||
                    password.isEmpty() ||
                    spaceId.isEmpty()) {
-                    displayMessage("All fields are required");
+                    displayMessage("All fields are required.");
                 } else {
                     String fullHost = host + HOST_SUFFIX;
                     facilitator.connect(fullHost,
@@ -123,7 +123,8 @@ public class ConnectionPanel extends JPanel {
     }
 
     private void displayMessage(String msg) {
-        JOptionPane.showMessageDialog(this, msg);
+        int type = JOptionPane.WARNING_MESSAGE;
+        JOptionPane.showMessageDialog(this, msg, "Notice", type);
     }
 
 }

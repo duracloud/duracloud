@@ -27,13 +27,12 @@ import java.net.URL;
 public class CompletedPanel extends JPanel {
 
     private JLabel completeLabel;
-    private JButton restartButton;
     private JButton exitButton;
 
     private UploadFacilitator facilitator;
 
     private static final String columnSpecs = // 7 columns
-        "115dlu,20dlu,60dlu,5dlu,60dlu,20dlu,115dlu";
+        "115dlu,20dlu,30dlu,60dlu,30dlu,20dlu,115dlu";
     private static final String rowSpecs = // 4 rows
         "30dlu,pref,10dlu,pref";
 
@@ -44,8 +43,7 @@ public class CompletedPanel extends JPanel {
 
         CellConstraints cc = new CellConstraints();
         add(completeLabel, cc.xyw(3, 2, 3));
-        add(restartButton, cc.xyw(2, 4, 2));
-        add(exitButton, cc.xyw(5, 4, 2));
+        add(exitButton, cc.xyw(4, 4, 1));
 
         this.facilitator = facilitator;
     }
@@ -59,12 +57,6 @@ public class CompletedPanel extends JPanel {
         completeLabel.setFont(updatedFont);
         completeLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        restartButton = new JButton("Start Over");
-        URL startOverIcon =
-            this.getClass().getClassLoader().getResource("restart.png");
-        restartButton.setIcon(new ImageIcon(startOverIcon));
-        restartButton.addActionListener(actionListener);
-
         exitButton = new JButton("Close");
         URL exitIcon =
             this.getClass().getClassLoader().getResource("close.png");
@@ -77,8 +69,6 @@ public class CompletedPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             if(e.getSource() == exitButton) {
                 facilitator.exit();
-            } else if (e.getSource() == restartButton) {
-                facilitator.restart();
             }
         }
     }

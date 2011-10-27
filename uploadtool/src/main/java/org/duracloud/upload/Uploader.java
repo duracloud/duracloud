@@ -28,6 +28,7 @@ public class Uploader {
     private SyncManager syncManager;
     private StatusManager statusManager;
     private DirWalker dirWalker;
+    private ContentStore contentStore;
 
     private String host;
     private int port;
@@ -35,33 +36,31 @@ public class Uploader {
     private String password;
     private String spaceId;
     private String storeId;
-    private List<File> contentItems;
 
     public Uploader(String host,
                     int port,
                     String username,
                     String password,
                     String spaceId,
-                    String storeId,
-                    List<File> contentItems) {
+                    String storeId) {
         this.host = host;
         this.port = port;
         this.username = username;
         this.password = password;
         this.spaceId = spaceId;
         this.storeId = storeId;
-        this.contentItems = contentItems;
-    }
 
-    public void startUpload() {
         StoreClientUtil clientUtil = new StoreClientUtil();
-        ContentStore contentStore =
+        contentStore =
             clientUtil.createContentStore(host,
                                           port,
                                           null, // default context
                                           username,
                                           password,
                                           storeId);
+    }
+
+    public void startUpload(List<File> contentItems) {
         SyncEndpoint syncEndpoint =
             new DuraStoreChunkSyncEndpoint(contentStore,
                                            spaceId,
