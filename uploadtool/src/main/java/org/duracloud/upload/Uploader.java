@@ -15,6 +15,8 @@ import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.util.StoreClientUtil;
 import org.duracloud.sync.walker.DirWalker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.List;
  * Date: 10/14/11
  */
 public class Uploader {
+
+    private static final Logger log = LoggerFactory.getLogger(Uploader.class);
 
     private SyncManager syncManager;
     private StatusManager statusManager;
@@ -61,6 +65,8 @@ public class Uploader {
     }
 
     public void startUpload(List<File> contentItems) {
+        log.info("Starting Upload with " + contentItems.size() + " items.");
+
         SyncEndpoint syncEndpoint =
             new DuraStoreChunkSyncEndpoint(contentStore,
                                            spaceId,
@@ -97,6 +103,7 @@ public class Uploader {
     public void stopUpload() {
         dirWalker.stopWalk();
         syncManager.terminateSync();
+        log.info("Upload Stopped");
     }
 
 }

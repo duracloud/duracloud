@@ -92,8 +92,8 @@ public class UploadTool extends JPanel implements UploadFacilitator {
                         String password,
                         String spaceId,
                         String storeId) {
-        log.debug("Connecting to: {}:{}/{}:{}",
-                  new Object[]{host, port, spaceId, storeId});
+        log.info("Upload Tool connecting to: {}:{}/{}:{}",
+                 new Object[]{host, port, spaceId, storeId});
         try {
             uploader =
                 new Uploader(host, port, username, password, spaceId, storeId);
@@ -113,7 +113,9 @@ public class UploadTool extends JPanel implements UploadFacilitator {
             uploader.startUpload(items);
             startupPanel.monitorStatus(uploader);
         } catch(Exception e) {
-            showErrorMessage("Error encountered on upload: " + e.getMessage());
+            String msg = "Error encountered on upload: " + e.getMessage();
+            log.error(msg);
+            showErrorMessage(msg);
         }
     }
 
@@ -130,6 +132,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
 
     @Override
     public void completeUpload() {
+        log.info("Upload Completed");
         setViewPanel(COMPLETED_PANEL);
     }
 
