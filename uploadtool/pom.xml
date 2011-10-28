@@ -34,17 +34,6 @@
               <goal>single</goal>
             </goals>
           </execution>
-        </executions>        
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.0-beta-1</version>
-        <executions>
-          <execution>
-            <phase>none</phase>
-          </execution>
         </executions>
       </plugin>
 
@@ -64,23 +53,27 @@
       <groupId>org.duracloud</groupId>
       <artifactId>synctool</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.13</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.6.0</version>
+      <artifactId>log4j-over-slf4j</artifactId>
     </dependency>
-    
+
     <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
 
     <dependency>
@@ -93,13 +86,13 @@
       <artifactId>forms</artifactId>
       <version>1.2.1</version>
     </dependency>
-    
-    <dependency> 
-      <groupId>com.sun</groupId> 
-      <artifactId>plugin</artifactId> 
-      <version>1.6.0_26-b03</version> 
-      <scope>provided</scope> 
-    </dependency> 
-    
+
+    <dependency>
+      <groupId>com.sun</groupId>
+      <artifactId>plugin</artifactId>
+      <version>1.6.0_26-b03</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 </project>

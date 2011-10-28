@@ -12,6 +12,8 @@ import org.duracloud.upload.panel.ConnectionPanel;
 import org.duracloud.upload.panel.SelectionPanel;
 import org.duracloud.upload.panel.StartupPanel;
 import org.duracloud.upload.panel.StatusPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -24,6 +26,8 @@ import java.util.List;
  * Date: 10/13/11
  */
 public class UploadTool extends JPanel implements UploadFacilitator {
+
+    private static final Logger log = LoggerFactory.getLogger(UploadTool.class);
 
     private static final String CONNECTION_PANEL = "connectionPanel";
     private static final String SELECTION_PANEL = "selectionPanel";
@@ -42,6 +46,8 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     public UploadTool() {
         super(new CardLayout());
         addToolComponents();
+
+        log.debug("constructing");
     }
 
     private void addToolComponents() {
@@ -86,6 +92,8 @@ public class UploadTool extends JPanel implements UploadFacilitator {
                         String password,
                         String spaceId,
                         String storeId) {
+        log.debug("Connecting to: {}:{}/{}:{}",
+                  new Object[]{host, port, spaceId, storeId});
         try {
             uploader =
                 new Uploader(host, port, username, password, spaceId, storeId);
