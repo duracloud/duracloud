@@ -18,6 +18,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -123,15 +124,18 @@ public class SelectionPanel extends JPanel {
         for(File item : items) {
             // Add to itemTable
             String name = item.getName();
-            String size = String.valueOf(item.length());
+            String size = FileUtils.byteCountToDisplaySize(item.length());
             String location = item.getAbsolutePath();
             if(item.isDirectory()) {
                 name = name + " (folder)";
-                size = FileUtils.byteCountToDisplaySize(
-                    FileUtils.sizeOfDirectory(item));
+                size = "calculating...";
             }
             if(!isDuplicate(location)) {
+                int rowToUpdate = itemTableModel.getRowCount();
                 itemTableModel.addRow(new String[]{name, size, location});
+                if(item.isDirectory()) { // Calculate directory size
+                    (new SizeWorker(item, rowToUpdate)).execute();
+                }
             }
         }
     }
@@ -145,6 +149,38 @@ public class SelectionPanel extends JPanel {
             }
         }
         return false;
+    }
+
+    /**
+     * Calculates the size of a directory in an independent thread, so as
+     * not to tie up the UI.
+     */
+    private class SizeWorker extends SwingWorker<String, String> {
+
+        private File directory;
+        private int rowToUpdate;
+
+        public SizeWorker(File directory, int rowToUpdate) {
+            this.directory = directory;
+            this.rowToUpdate = rowToUpdate;
+        }
+
+        @Override
+        protected String doInBackground() throws Exception {
+            return FileUtils.byteCountToDisplaySize(
+                       FileUtils.sizeOfDirectory(directory));
+        }
+
+        @Override
+        protected void done() {
+            String size;
+            try {
+                size = get();
+            } catch(Exception e) {
+                size = "";
+            }
+            itemTableModel.setValueAt(size, rowToUpdate, 1);
+        }
     }
 
 }
