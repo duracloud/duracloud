@@ -29,7 +29,7 @@ public class MonitoredFileInputStream extends FileInputStream {
     @Override
     public int read() throws IOException {
         int value = super.read();
-        if(value > 0) {
+        if(value > -1) {
             bytesRead++;
         }
         return value;
