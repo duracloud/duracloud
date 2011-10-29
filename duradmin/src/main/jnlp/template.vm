@@ -8,7 +8,7 @@
   </information>
 
   <resources>
-    <j2se version="${j2seVersion}"/>
+    <j2se version="${j2seVersion}" java-vm-args="-Xincgc -Xmx512M"/>
     ${dependencies}
   </resources>
 
