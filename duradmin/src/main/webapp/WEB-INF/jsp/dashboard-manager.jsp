@@ -427,6 +427,10 @@ a.button {
                         All DuraCloud tools can be <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Downloads">downloaded here</a>.
                         </div>
 
+                        <a class="tool-header" target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Upload+Tool">Upload Tool:</a>
+                        <div class="tool-description">
+                        The Upload Tool is a utility which will allow you to transfer (or "copy") files from a local file system to DuraCloud using a graphical interface. <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Upload+Tool">Learn more and download the Upload Tool here.</a>
+                        </div>
                         <a class="tool-header" target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Sync+Tool">Sync Tool:</a>
                         <div class="tool-description">
                         The Sync Tool is a utility which will allow you to transfer (or "copy") files from a local file system to DuraCloud and subsequently keep the files in DuraCloud synchronized with those on the local system. Note that the capabilities of the chunker tool are part of the sync tool. <a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Sync+Tool">Learn more and download the Sync Tool here.</a>
