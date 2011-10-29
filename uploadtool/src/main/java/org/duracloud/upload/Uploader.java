@@ -100,6 +100,14 @@ public class Uploader {
         return status;
     }
 
+    public long getSuccessfulTransfers() {
+        return statusManager.getSucceeded();
+    }
+
+    public List<File> getFailedTransfers() {
+        return statusManager.getFailed();
+    }
+
     public void stopUpload() {
         dirWalker.stopWalk();
         syncManager.terminateSync();

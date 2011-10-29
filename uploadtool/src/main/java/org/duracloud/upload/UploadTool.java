@@ -38,6 +38,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     private Uploader uploader;
     private StartupPanel startupPanel;
     private StatusPanel statusPanel;
+    private CompletedPanel completedPanel;
 
     /**
      * Starts the upload tool in a mode which will ask the user for connection
@@ -57,7 +58,8 @@ public class UploadTool extends JPanel implements UploadFacilitator {
         this.add(startupPanel, STARTUP_PANEL);
         this.statusPanel = new StatusPanel(this);
         this.add(statusPanel, STATUS_PANEL);
-        this.add(new CompletedPanel(this), COMPLETED_PANEL);
+        this.completedPanel = new CompletedPanel(this);
+        this.add(completedPanel, COMPLETED_PANEL);
     }
 
     /**
@@ -133,6 +135,7 @@ public class UploadTool extends JPanel implements UploadFacilitator {
     @Override
     public void completeUpload() {
         log.info("Upload Completed");
+        completedPanel.displayResults(uploader);
         setViewPanel(COMPLETED_PANEL);
     }
 
