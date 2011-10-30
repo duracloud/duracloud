@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>mimeutil</artifactId>
   <packaging>bundle</packaging>
-  <version>1.2.0</version>
+  <version>1.3.0-SNAPSHOT</version>
   <name>MimeType Utility</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.2.0</version>
+    <version>1.3.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
