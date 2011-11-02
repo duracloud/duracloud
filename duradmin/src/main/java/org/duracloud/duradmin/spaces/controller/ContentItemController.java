@@ -182,25 +182,33 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
         HttpServletRequest request, ContentItem contentItem, String spaceId,
         String contentId, ContentStore contentStore)
         throws ContentStoreException, MalformedURLException {
+        String destStoreId = request.getParameter("destStoreId");
         String destSpaceId = request.getParameter("destSpaceId");
         String destContentId = request.getParameter("destContentId");
         if(Boolean.valueOf(request.getParameter("deleteOriginal"))){
             contentStore.moveContent(
                 spaceId,
                 contentId, 
+                destStoreId,
                 destSpaceId, 
                 destContentId);
         }else{
             contentStore.copyContent(
                 spaceId,
                 contentId,
+                destStoreId,
                 destSpaceId,
                 destContentId);
         }
         ContentItem result = new ContentItem();
-        result.setStoreId(contentItem.getStoreId());
+        result.setStoreId(destStoreId);
         result.setSpaceId(destSpaceId);
         result.setContentId(destContentId);
+        
+        if(!contentStore.getStoreId().equals(result.getStoreId())){
+            contentStore = getContentStore(result);
+        }
+    
         SpaceUtil.populateContentItem(getBaseURL(request),
             result,
             result.getSpaceId(),

@@ -144,7 +144,7 @@ var dc;
      * @param Object contentItem
      * @param Object callback The callback must implement success and failure methods. optional begin method is supported.
      */
-    dc.store.copyContentItem = function(storeId, spaceId, contentId, destSpaceId, destContentId, deleteOriginal, callback){
+    dc.store.copyContentItem = function(storeId, spaceId, contentId, destStoreId, destSpaceId, destContentId, deleteOriginal, callback){
         var anvp = dc.store._appendNVPair;
         return dc.ajax({
                         url: "/duradmin/spaces/content", 
@@ -155,6 +155,7 @@ var dc;
                               anvp("storeId", storeId),
                               anvp("spaceId", spaceId),
                               anvp("contentId", contentId),
+                              anvp("destStoreId", destStoreId),
                               anvp("destSpaceId", destSpaceId),
                               anvp("destContentId", destContentId)
                             ),

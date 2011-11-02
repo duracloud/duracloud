@@ -156,6 +156,7 @@ $(function(){
 		$("#"+PROVIDER_SELECT_ID).flyoutselect(options).bind("changed",function(evt,state){
 			dc.cookie(PROVIDER_COOKIE_ID, state.value.id);
 			//dc.debug("value changed: new value=" + state.value.label);
+			setHash({storeId:state.value.id});
 			refreshSpaces(state.value.id);
 		});		 	
 	};
@@ -1029,9 +1030,9 @@ $(function(){
 					$(div).expandopanel("getContent").append(wrapper);
 					$(".center", target).append(div);	
 				}, 
-				failure:function(info){
-					alert("Get Space failed for: " + contentItem.spaceId);
-				},
+				//failure:function(info){
+				//	alert("Get Space failed for: " + contentItem.spaceId);
+				//},
 			},
 			{async: false});
 		
@@ -1706,7 +1707,7 @@ $(function(){
 	        autoOpen: true,
             show: 'blind',
             hide: 'blind',
-            height: 350,
+            height: 400,
             resizable: false,
             closeOnEscape:true,
             modal: true,
@@ -1714,6 +1715,7 @@ $(function(){
             buttons: {
 	           "OK": function(){
                    var form = $("form", d),
+                       destStoreId     = $("#destStoreId").val(),
                        storeId         = $("#storeId", d).val(),
                        destSpaceId     = $("#spaceId", d).val(),
                        destContentId   = $("#contentId", d).val(),
@@ -1727,7 +1729,7 @@ $(function(){
                        dc.busy("Performing copy...", {modal: true});
 
                        nci = {
-                         storeId:storeId,
+                         storeId:destStoreId,
                          spaceId:destSpaceId,
                          contentId:destContentId,
                        };
@@ -1744,7 +1746,7 @@ $(function(){
                                    d.dialog("close");
                                    dc.store.copyContentItem(
                                            storeId, contentItem.spaceId, contentItem.contentId, 
-                                           destSpaceId, destContentId, deleteAfterCopy, 
+                                           destStoreId, destSpaceId, destContentId, deleteAfterCopy, 
                                            {
                                               success: function(copiedContentItem){
                                                   dc.done();
@@ -1752,18 +1754,16 @@ $(function(){
                                                       $("#content-item-list").selectablelist("removeById", contentItem.contentId);
                                                   }
     
-                                                  if(contentItem.spaceId == copiedContentItem.spaceId){
+                                                  if(storeId == copiedContentItem.storeId && contentItem.spaceId == copiedContentItem.spaceId){
                                                       addContentItemToList(copiedContentItem);
                                                       if(navigateToCopy){
                                                           loadContentItem(copiedContentItem);
                                                       }
                                                   }else{
-                                                      getSpace(copiedContentItem.spaceId, function(space){
-                                                          loadContentItems(space);
-                                                          if(navigateToCopy){
-                                                              loadContentItem(copiedContentItem);
-                                                          }
-                                                      });
+                                                      if(navigateToCopy){
+                                                          setHash(copiedContentItem);
+                                                          loadWhatYouCan(copiedContentItem);
+                                                      }
                                                   }
                                               }
                                           }
@@ -1780,13 +1780,39 @@ $(function(){
 	        
 	        open: function(){
 	            var that = this;
+                var destStoreIdField = $("#destStoreId", that);
+                
+                //attach listener if destStoreId is a select box (ie multiple stores available)
+                //load list of spaces
+                $("select#destStoreId").change(
+                  function(evt){
+                      var that = this;
+                      var storeId = $(that).val();
+                      
+                      dc.store.GetSpaces(
+                         storeId, 
+                         {
+                          success:function(spaces){
+                             var selectedSpaceId = spaceSelect.val();
+                             spaceSelect.children().remove();
+                             $.each(spaces, function(index,space){
+                                 spaceSelect.append("<option>"+space+"</option>");
+                             });
+                             
+                             spaceSelect.val(selectedSpaceId);
+                          }
+                        }
+                      );
+                  }
+                );
+                
 	            var contentIdField = $("#contentId", that);
                 var spaceSelect = $("#spaceId", that);
                 spaceSelect.children().remove();
 
 	            $.validator
 	            .addMethod("contentIdAlreadyInSpace", function(value, element) { 
-	                return !(spaceSelect.val() == contentItem.spaceId
+	                return !(destStoreIdField.val() == contentItem.storeId && spaceSelect.val() == contentItem.spaceId
 	                        && contentItem.contentId == value);
 	            }, "New content id equals current id. Change it or copy to another space.");
 	            
@@ -1809,7 +1835,8 @@ $(function(){
 	            validator.resetForm();
 
 	            $("#storeId", this).val(contentItem.storeId);
-                contentIdField.val(contentItem.contentId);
+	            destStoreIdField.val(contentItem.storeId);
+	            contentIdField.val(contentItem.contentId);
                 
 	            $.each(spacesArray, function(i,item){
 	                var option  = $.fn.create("option"),
@@ -1916,9 +1943,9 @@ $(function(){
 									}
 								}
 							}, 
-							failure:function(info){
-								alert("Get Space failed for: " + space.spaceId);
-							},
+							//failure:function(info){
+							//	alert("Get Space failed for: " + space.spaceId);
+							//},
 						}
 					);				
 			};
@@ -2129,10 +2156,10 @@ $(function(){
 						//showContentItemListStatus();
 					}
 				}, 
-				failure:function(info){
-					dc.done();
-					alert("Get Space failed: " + info);
-				},
+				//failure:function(info){
+				//	dc.done();
+				//	alert("Get Space failed: " + info);
+				//},
 			}
 		);
 	};
@@ -2186,10 +2213,10 @@ $(function(){
 							handler(space);
 						}
 					}, 
-					failure:function(info){
-						dc.done();
-						alert("Get Space failed: " + info);
-					},
+					//failure:function(info){
+					//	dc.done();
+					//	alert("Get Space failed: " + info);
+					//},
 				},
 				{
 					prefix: prefix,

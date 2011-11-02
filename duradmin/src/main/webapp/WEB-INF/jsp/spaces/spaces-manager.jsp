@@ -267,9 +267,26 @@
 					<h1 class="dc-dialog-title">Copy Content Item</h1>
 					<form id="copy-content-item-form" onsubmit="return false;">
 						<input type="hidden" name="storeId" id="storeId" />
+                        <c:if test="${fn:length(contentStores) == 1 }">
+                          <input type="hidden" name="destStoreId" id="destStoreId" />
+                        </c:if>
+                        
 						<div id="form-fields" class="form-fields">
 							<fieldset>
 								<ul>
+                                  <c:if test="${fn:length(contentStores) > 1 }">
+                                    <li class="row clearfix">
+                                      <label for="destStoreId">Storage Provider</label>
+                                      <select id="destStoreId" name="destStoreId">
+                                        <c:forEach var="storeOption" items="${contentStores}">
+                                          <option value="${storeOption.storeId}">
+                                            <spring:message code="${fn:toLowerCase(storeOption.storageProviderType)}"/>
+                                          </option>
+                                        </c:forEach>
+                                      </select>
+                                    </li>
+                                  </c:if>
+
 									<li class="row clearfix">
 										<label for="spaceId">Space</label>
 										<select id="spaceId" name="spaceId"></select>
