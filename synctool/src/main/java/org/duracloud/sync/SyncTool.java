@@ -81,9 +81,9 @@ public class SyncTool {
     }
 
     /**
-     * Determines if the sync directory list has been changed since the
+     * Determines if the configuration has been changed since the
      * previous run. If it has, a restart cannot occur.
-     * @return true if sync directories have not been changed, false otherwise
+     * @return true if config has not been changed, false otherwise
      */
     private boolean restartPossible() {
         SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
@@ -91,10 +91,30 @@ public class SyncTool {
             syncConfigParser.retrievePrevConfig(syncConfig.getWorkDir());
 
         if(prevConfig != null) {
-            return syncConfig.getContentDirs().equals(prevConfig.getContentDirs());
+            return configEquals(syncConfig, prevConfig);
         } else {
             return false;
         }
+    }
+
+    protected boolean configEquals(SyncToolConfig currConfig,
+                                   SyncToolConfig prevConfig) {
+        if (currConfig.getHost().equals(prevConfig.getHost())) {
+            if (currConfig.getSpaceId().equals(prevConfig.getSpaceId())) {
+                String storeId = currConfig.getStoreId();
+                String prevStoreId = prevConfig.getStoreId();
+                if ((null == storeId && null == prevStoreId) ||
+                    (null != storeId && storeId.equals(prevStoreId))) {
+                    if (currConfig.syncDeletes() == prevConfig.syncDeletes()) {
+                        if (currConfig.getContentDirs()
+                                      .equals(prevConfig.getContentDirs())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private void setupLogging(){
