@@ -71,13 +71,14 @@ public class ContentRestExceptionsTest {
 
     @Test
     public void testAddContent() throws Exception {
-        Response response = contentRest.putContent(null, null, null, null);
+        Response response = contentRest.putContent(null, null, null, null,null);
         support.verifyErrorResponse(response);
     }
 
     @Test
     public void testCopyContent() throws Exception {
         Response response = contentRest.putContent(null,
+                                                   null,
                                                    null,
                                                    null,
                                                    "space/content");

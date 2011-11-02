@@ -440,11 +440,15 @@ public class ContentStoreImpl implements ContentStore{
         srcContentId = EncodeUtil.urlEncode(srcContentId);
         String url = buildContentURL(destStoreId, destSpaceId, destContentId);
 
-        String header = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
-        String value = storeId + "/" + srcSpaceId + "/" + srcContentId;
-
         Map<String, String> headers = new HashMap<String, String>();
-        headers.put(header, value);
+
+        String sourceHeader = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
+        String sourceValue =  srcSpaceId + "/" + srcContentId;
+        headers.put(sourceHeader, sourceValue);
+
+        String storeHeader = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE_STORE;
+        String storeValue =  destStoreId;
+        headers.put(storeHeader, storeValue);
 
         try {
             HttpResponse response = restHelper.put(url, null, headers);

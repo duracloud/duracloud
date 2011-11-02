@@ -50,8 +50,11 @@ public abstract class BaseRest {
         HEADER_PREFIX + StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
     public static final String COPY_SOURCE_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
+    public static final String COPY_SOURCE_STORE_HEADER = 
+        HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE_STORE;
 
     public static final String APP_NAME = "DuraStore";
+
 
     /**
      * Looks through the request headers and pulls out user properties.

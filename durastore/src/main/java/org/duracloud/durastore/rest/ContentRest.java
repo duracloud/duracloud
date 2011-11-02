@@ -346,9 +346,10 @@ public class ContentRest extends BaseRest {
     public Response putContent(@PathParam("spaceID") String spaceID,
                                @PathParam("contentID") String contentID,
                                @QueryParam("storeID") String storeID,
-                               @HeaderParam(BaseRest.COPY_SOURCE_HEADER) String copySource) {
+                               @HeaderParam(BaseRest.COPY_SOURCE_HEADER) String sourceStoreID,
+                               @HeaderParam(BaseRest.COPY_SOURCE_STORE_HEADER) String copySource) {
         if (null != copySource) {
-            return copyContent(spaceID, contentID, storeID, copySource);
+            return copyContent(spaceID, contentID, storeID, sourceStoreID, copySource);
 
         } else {
             return addContent(spaceID, contentID, storeID);
@@ -432,6 +433,7 @@ public class ContentRest extends BaseRest {
     private Response copyContent(String spaceID,
                                  String contentID,
                                  String storeID,
+                                 String sourceStoreID,
                                  String copySource) {
         StringBuilder msg = new StringBuilder("copying content from (");
         msg.append(copySource);
@@ -445,7 +447,7 @@ public class ContentRest extends BaseRest {
         log.info(msg.toString());
 
         try {
-            return doCopyContent(spaceID, contentID, storeID, copySource);
+            return doCopyContent(spaceID, contentID, storeID, sourceStoreID, copySource);
 
         } catch (InvalidIdException e) {
             return responseBad(msg.toString(), e, BAD_REQUEST);
@@ -467,6 +469,7 @@ public class ContentRest extends BaseRest {
     private Response doCopyContent(String destSpaceID,
                                    String destContentID,
                                    String storeID,
+                                   String sourceStoreID,
                                    String copySource) throws Exception {
         StringBuilder msg = new StringBuilder();
 
@@ -489,11 +492,13 @@ public class ContentRest extends BaseRest {
             log.error(msg.toString());
             throw new InvalidRequestException(msg.toString());
         }
-
-        String srcStoreID = getStoreId(copySource);
+        
+        if(sourceStoreID == null){
+            sourceStoreID = storeID;
+        }
         String srcSpaceID = getSpaceId(copySource);
         String srcContentID = EncodeUtil.urlDecode(getContentId(copySource));
-        if (srcStoreID == null || null == srcSpaceID || null == srcContentID) {
+        if (sourceStoreID == null || null == srcSpaceID || null == srcContentID) {
             msg.append("Malformed ");
             msg.append(COPY_SOURCE_HEADER);
             msg.append(" header: ");
@@ -503,15 +508,15 @@ public class ContentRest extends BaseRest {
         }
 
         // Do the underlying copy.
-        msg.append("copying content from (");
-        msg.append(srcStoreID);
-        msg.append(" / ");
+        msg.append("copying content from (store[");
+        msg.append(sourceStoreID);
+        msg.append("]: ");
         msg.append(srcSpaceID);
         msg.append(" / ");
         msg.append(srcContentID);
         msg.append(")");
         log.info(msg.toString());
-        String checksum = contentResource.copyContent(srcStoreID,
+        String checksum = contentResource.copyContent(sourceStoreID,
                                                       srcSpaceID,
                                                       srcContentID,
                                                       storeID,
@@ -526,19 +531,14 @@ public class ContentRest extends BaseRest {
                                               properties);
     }
 
-    private String getStoreId(String copySource) {
+    private String getSpaceId(String copySource) {
         String[] spaceAndContent = splitSpaceAndContentIds(copySource);
         return null == spaceAndContent ? null : spaceAndContent[0];
     }
 
-    private String getSpaceId(String copySource) {
-        String[] spaceAndContent = splitSpaceAndContentIds(copySource);
-        return null == spaceAndContent ? null : spaceAndContent[1];
-    }
-
     private String getContentId(String copySource) {
         String[] spaceAndContent = splitSpaceAndContentIds(copySource);
-        return null == spaceAndContent ? null : spaceAndContent[2];
+        return null == spaceAndContent ? null : spaceAndContent[1];
     }
 
     private String[] splitSpaceAndContentIds(String copySource) {
@@ -550,21 +550,14 @@ public class ContentRest extends BaseRest {
             copySource = copySource.substring(1, copySource.length());
         }
 
-        int spaceStartIndex = copySource.indexOf("/");
-        if (-1 == spaceStartIndex || spaceStartIndex == copySource.length() - 1) {
-            return null;
-        }
-
-        int contentStartIndex = copySource.indexOf("/", spaceStartIndex + 1);
+        int contentStartIndex = copySource.indexOf("/");
         if (-1 == contentStartIndex || contentStartIndex == copySource.length() - 1) {
             return null;
         }
 
-        
-        String[] spaceAndContent = new String[3];
-        spaceAndContent[0] = copySource.substring(0, spaceStartIndex);
-        spaceAndContent[1] = copySource.substring(spaceStartIndex+1, contentStartIndex);
-        spaceAndContent[2] = copySource.substring(contentStartIndex + 1,
+        String[] spaceAndContent = new String[2];
+        spaceAndContent[0] = copySource.substring(0, contentStartIndex);
+        spaceAndContent[1] = copySource.substring(contentStartIndex + 1,
                                                   copySource.length());
         return spaceAndContent;
     }

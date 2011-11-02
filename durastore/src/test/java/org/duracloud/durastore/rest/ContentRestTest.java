@@ -44,7 +44,7 @@ public class ContentRestTest {
     private static final String destSpaceId = "destSpaceId";
     private static final String destContentId = "destContentId";
     private static final String storeId = "0";
-    private static final String copySource = storeId + "/" +  srcSpaceId + "/" + srcContentId;
+    private static final String copySource = srcSpaceId + "/" + srcContentId;
 
 
     @Before
@@ -114,6 +114,7 @@ public class ContentRestTest {
 
         Response response = contentRest.putContent(destSpaceId,
                                                    destContentId,
+                                                   storeId,
                                                    storeId,
                                                    copySource);
         Assert.assertNotNull(response);

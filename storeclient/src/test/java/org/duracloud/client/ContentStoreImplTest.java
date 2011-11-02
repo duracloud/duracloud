@@ -103,9 +103,16 @@ public class ContentStoreImplTest {
         Assert.assertNotNull(capturedHeaders);
         Map<String, String> headers = capturedHeaders.getValue();
         Assert.assertNotNull(headers);
-        Assert.assertEquals(1, headers.size());
-        Assert.assertEquals(storeId + "/" + srcSpaceId + "/" + srcContentId, headers.get(
-            HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE));
+        Assert.assertEquals(2, headers.size());
+        Assert.assertEquals(srcSpaceId + "/" + srcContentId,
+                            headers.get(HEADER_PREFIX
+                                + StorageProvider.PROPERTIES_COPY_SOURCE));
+
+        if(!destStoreId.equals(this.storeId)){
+            Assert.assertEquals(destStoreId,
+                                headers.get(HEADER_PREFIX
+                                    + StorageProvider.PROPERTIES_COPY_SOURCE_STORE));
+        }
     }
 
     @Test
@@ -268,8 +275,14 @@ public class ContentStoreImplTest {
         Assert.assertNotNull(capturedHeaders);
         Map<String, String> headers = capturedHeaders.getValue();
         Assert.assertNotNull(headers);
-        Assert.assertEquals(1, headers.size());
-        Assert.assertEquals(storeId + "/" + srcSpaceId + "/" + srcContentId, headers.get(
+        Assert.assertEquals(2, headers.size());
+        Assert.assertEquals(srcSpaceId + "/" + srcContentId, headers.get(
             HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE));
+        if (!destStoreId.equals(this.storeId)) {
+            Assert.assertEquals(destStoreId,
+                                headers.get(HEADER_PREFIX
+                                    + StorageProvider.PROPERTIES_COPY_SOURCE_STORE));
+
+        }
     }
 }
