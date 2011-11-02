@@ -7,14 +7,15 @@
  */
 package org.duracloud.storage.util;
 
-import org.duracloud.storage.error.InvalidIdException;
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import org.duracloud.storage.error.InvalidIdException;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -96,6 +97,18 @@ public class IdUtilTest {
         IdUtil.validateContentId(id);
     }
 
+    @Test
+    public void testStoreIds() throws Exception {
+        IdUtil.validateStoreId("1000");
+        try{
+            String storeId = "abc";
+            IdUtil.validateStoreId(storeId);
+            fail("Exception expected attempting to validate store id: " + storeId);
+        }catch(Exception ex){
+            Assert.assertTrue(true);
+        }
+    }
+
     private void checkInvalidContentId(String id) {
          try {
             IdUtil.validateContentId(id);
@@ -104,5 +117,4 @@ public class IdUtilTest {
             assertNotNull(expected);
         }
     }
-
 }

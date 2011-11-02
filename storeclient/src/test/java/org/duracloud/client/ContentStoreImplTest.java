@@ -55,7 +55,16 @@ public class ContentStoreImplTest {
     }
 
     @Test
-    public void testCopyContent() throws Exception {
+    public void testCopyContentWithDefaultStoreId() throws Exception {
+        testCopyContent(storeId);
+    }
+
+    @Test
+    public void testCopyContentWithAlternateStoreId() throws Exception {
+        testCopyContent("1");
+    }
+
+    public void testCopyContent(String destStoreId) throws Exception {
         String srcSpaceId = "src-space-id";
         String srcContentId = "src-content-id";
         String destSpaceId = "dest-space-id";
@@ -64,16 +73,30 @@ public class ContentStoreImplTest {
         String expectedMd5 = "md5";
         int expectedStatus = 201;
         Capture<Map<String, String>> capturedHeaders = createCopyContentMocks(
+            destStoreId,
             destSpaceId,
             destContentId,
             expectedMd5,
             expectedStatus);
         replayMocks();
 
-        String md5 = contentStore.copyContent(srcSpaceId,
-                                              srcContentId,
-                                              destSpaceId,
-                                              destContentId);
+        
+        String md5;
+        if(storeId.equals(destStoreId)){
+            md5 = contentStore.copyContent(
+                srcSpaceId,
+                srcContentId,
+                destSpaceId,
+                destContentId);
+            
+        }else{
+            md5 = contentStore.copyContent(
+                srcSpaceId,
+                srcContentId,
+                destStoreId,
+                destSpaceId,
+                destContentId);
+        }
         Assert.assertNotNull(md5);
         Assert.assertEquals(expectedMd5, md5);
 
@@ -81,12 +104,21 @@ public class ContentStoreImplTest {
         Map<String, String> headers = capturedHeaders.getValue();
         Assert.assertNotNull(headers);
         Assert.assertEquals(1, headers.size());
-        Assert.assertEquals(srcSpaceId + "/" + srcContentId, headers.get(
+        Assert.assertEquals(storeId + "/" + srcSpaceId + "/" + srcContentId, headers.get(
             HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE));
     }
 
     @Test
-    public void testCopyContentError() throws Exception {
+    public void testCopyContentErrorWithDefaultStore() throws Exception {
+        testCopyContentError(storeId);
+    }
+
+    @Test
+    public void testCopyContentErrorWithAlternateStore() throws Exception {
+        testCopyContentError("1");
+    }
+
+    public void testCopyContentError(String destStoreId) throws Exception {
         String srcSpaceId = "src-space-id";
         String srcContentId = "src-content-id";
         String destSpaceId = "dest-space-id";
@@ -94,17 +126,27 @@ public class ContentStoreImplTest {
 
         String expectedMd5 = "md5";
         int status = 400;
-        createCopyContentMocksError(destSpaceId,
+        createCopyContentMocksError(destStoreId,
+                                    destSpaceId,
                                     destContentId,
                                     expectedMd5,
                                     status);
         replayMocks();
 
         try {
-            contentStore.copyContent(srcSpaceId,
-                                     srcContentId,
-                                     destSpaceId,
-                                     destContentId);
+            
+            if(storeId.equals(destStoreId)){
+                contentStore.copyContent(srcSpaceId,
+                                         srcContentId,
+                                         destSpaceId,
+                                         destContentId);
+            }else{
+                contentStore.copyContent(srcSpaceId,
+                                         srcContentId,
+                                         destStoreId,
+                                         destSpaceId,
+                                         destContentId);
+            }
             Assert.fail("exception expected");
 
         } catch (Exception e) {
@@ -113,7 +155,8 @@ public class ContentStoreImplTest {
 
     }
 
-    private void createCopyContentMocksError(String destSpaceId,
+    private void createCopyContentMocksError(String destStoreId,
+                                             String destSpaceId,
                                              String destContentId,
                                              String md5,
                                              int status) throws Exception {
@@ -132,7 +175,7 @@ public class ContentStoreImplTest {
 
         String fullURL =
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" +
-                storeId;
+                destStoreId;
         Capture<Map<String, String>> capturedHeaders =
             new Capture<Map<String, String>>();
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
@@ -142,7 +185,8 @@ public class ContentStoreImplTest {
 
     }
 
-    private Capture<Map<String, String>> createCopyContentMocks(String destSpaceId,
+    private Capture<Map<String, String>> createCopyContentMocks(String destStoreId,
+                                                                String destSpaceId,
                                                                 String destContentId,
                                                                 String md5,
                                                                 int status)
@@ -160,7 +204,7 @@ public class ContentStoreImplTest {
 
         String fullURL =
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" +
-                storeId;
+                destStoreId;
         Capture<Map<String, String>> capturedHeaders =
             new Capture<Map<String, String>>();
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
@@ -172,7 +216,16 @@ public class ContentStoreImplTest {
     }
 
     @Test
-    public void testMoveContent() throws Exception {
+    public void testMoveContentWithDefaultStore() throws Exception {
+        testMoveContent(storeId);
+    }
+
+    @Test
+    public void testMoveContentWithAlternateStore() throws Exception {
+        testMoveContent("1");
+    }
+
+    public void testMoveContent(String destStoreId) throws Exception {
         String srcSpaceId = "src-space-id";
         String srcContentId = "src-content-id";
         String destSpaceId = "dest-space-id";
@@ -181,6 +234,7 @@ public class ContentStoreImplTest {
         String expectedMd5 = "md5";
         int expectedStatus = 201;
         Capture<Map<String, String>> capturedHeaders = createCopyContentMocks(
+            destStoreId,
             destSpaceId,
             destContentId,
             expectedMd5,
@@ -195,10 +249,19 @@ public class ContentStoreImplTest {
         EasyMock.replay(response);        
         replayMocks();
 
-        String md5 = contentStore.moveContent(srcSpaceId,
-                                              srcContentId,
-                                              destSpaceId,
-                                              destContentId);
+        String md5;
+        if(destStoreId.equals(storeId)){
+            md5 = contentStore.moveContent(srcSpaceId,
+                                           srcContentId,
+                                           destSpaceId,
+                                           destContentId);
+        }else{
+            md5 = contentStore.moveContent(srcSpaceId,
+                                           srcContentId,
+                                           destStoreId,
+                                           destSpaceId,
+                                           destContentId);
+        }
         Assert.assertNotNull(md5);
         Assert.assertEquals(expectedMd5, md5);
 
@@ -206,7 +269,7 @@ public class ContentStoreImplTest {
         Map<String, String> headers = capturedHeaders.getValue();
         Assert.assertNotNull(headers);
         Assert.assertEquals(1, headers.size());
-        Assert.assertEquals(srcSpaceId + "/" + srcContentId, headers.get(
+        Assert.assertEquals(storeId + "/" + srcSpaceId + "/" + srcContentId, headers.get(
             HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE));
     }
 }

@@ -27,11 +27,14 @@ public class ResourceNotFoundException extends ResourceException {
     }
 
     public ResourceNotFoundException(String task,
+                                     String srcStoreId,
                                      String srcSpaceId,
                                      String srcContentId,
+                                     String destStoreId,
                                      String destSpaceId,
                                      String destContentId,
                                      Throwable t) {
-        super(task, srcSpaceId, srcContentId, destSpaceId, destContentId, t);
+        super(task, srcStoreId, srcSpaceId, srcContentId, destStoreId, destSpaceId, destContentId, t);
     }
+
 }

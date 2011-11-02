@@ -111,4 +111,12 @@ public class IdUtil {
             throw new InvalidIdException(err);
         }
     }
+
+    public static void validateStoreId(String storeId) throws InvalidIdException {
+        try{
+            Integer.parseInt(storeId);
+        }catch(NumberFormatException ex){
+            throw new InvalidIdException("StoreId [" + storeId + "] is not valid: " + ex.getMessage());
+        }
+    }
 }

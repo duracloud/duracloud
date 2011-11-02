@@ -45,14 +45,18 @@ public class ResourceException extends DuraCloudCheckedException {
     }
 
     public ResourceException(String task,
+                             String srcStoreId,
                              String srcSpaceId,
                              String srcContentId,
+                             String destStoreId,
                              String destSpaceId,
                              String destContentId,
                              Throwable t) {
         super(buildErrMsg(task,
+                          srcStoreId,
                           srcSpaceId,
                           srcContentId,
+                          destStoreId,
                           destSpaceId,
                           destContentId,
                           t), t, messageKeyContent);
@@ -94,8 +98,10 @@ public class ResourceException extends DuraCloudCheckedException {
     }
 
     private static String buildErrMsg(String task,
+                                      String srcStoreId,
                                       String srcSpaceId,
                                       String srcContentId,
+                                      String destStoreId,
                                       String destSpaceId,
                                       String destContentId,
                                       Throwable t) {
@@ -103,10 +109,14 @@ public class ResourceException extends DuraCloudCheckedException {
         errMsg.append("Error attempting to ");
         errMsg.append(task);
         errMsg.append(" '");
+        errMsg.append(srcStoreId);
+        errMsg.append(" / ");
         errMsg.append(srcSpaceId);
         errMsg.append(" / ");
         errMsg.append(srcContentId);
         errMsg.append("' to '");
+        errMsg.append(destStoreId);
+        errMsg.append(" / ");
         errMsg.append(destSpaceId);
         errMsg.append(" / ");
         errMsg.append(destContentId);

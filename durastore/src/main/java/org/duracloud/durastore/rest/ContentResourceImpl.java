@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.domain.Content;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.durastore.util.StorageProviderFactory;
@@ -165,20 +166,100 @@ public class ContentResourceImpl implements ContentResource {
      * srcContentID to the space destSpaceID within the same content store
      * (storeID) to the id of destContentID.
      * 
+     * @param srcStoreID of content to copy
      * @param srcSpaceID of content to copy
      * @param srcContentID of content to copy
      * @param destSpaceID of copied content
      * @param destContentID of copied content
-     * @param storeID of both source and destination content
+     * @param destStoreID of copied content
      * @return MD5 checksum of the content as computed by the storage provider
      * @throws ResourceException
      */
     @Override
-    public String copyContent(String srcSpaceID,
+    public String copyContent(String srcStoreID,
+                              String srcSpaceID,
                               String srcContentID,
+                              String destStoreID,
                               String destSpaceID,
-                              String destContentID,
-                              String storeID) throws ResourceException {
+                              String destContentID) throws ResourceException {
+        if(srcStoreID.equals(destStoreID)){
+            return copyContent(srcSpaceID,
+                               srcContentID,
+                               destSpaceID,
+                               destContentID,
+                               destStoreID);
+        }else{
+            return copyContentBetweenStorageProviders(srcStoreID,
+                                                      srcSpaceID,
+                                                      srcContentID,
+                                                      destStoreID,
+                                                      destSpaceID,
+                                                      destContentID);
+        }
+    }
+
+
+    private String copyContentBetweenStorageProviders(String srcStoreID,
+                                                      String srcSpaceID,
+                                                      String srcContentID,
+                                                      String destStoreID,
+                                                      String destSpaceID,
+                                                      String destContentID) throws ResourceException {
+
+        try {
+            StorageProvider srcStorage =
+                storageProviderFactory.getStorageProvider(srcStoreID);
+
+            StorageProvider destStorage =
+                storageProviderFactory.getStorageProvider(destStoreID);
+
+            InputStream inputStream =
+                srcStorage.getContent(srcSpaceID, srcContentID);
+
+            Map<String, String> properties =
+                srcStorage.getContentProperties(srcSpaceID, srcContentID);
+
+            String md5 =
+                destStorage.addContent(destSpaceID,
+                                       destContentID,
+                                       properties.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE),
+                                       Long.parseLong(properties.get(StorageProvider.PROPERTIES_CONTENT_SIZE)),
+                                       null,
+                                       inputStream);
+
+            destStorage.setContentProperties(destSpaceID,
+                                             destContentID,
+                                             properties);
+            
+            return md5;
+            
+        } catch (NotFoundException e) {
+            throw new ResourceNotFoundException("copy content",
+                                                srcStoreID,
+                                                srcSpaceID,
+                                                srcContentID,
+                                                destStoreID,
+                                                destSpaceID,
+                                                destContentID,
+                                                e);
+        } catch (StorageException e) {
+            throw new ResourceException("copy content",
+                                        srcStoreID,
+                                        srcSpaceID,
+                                        srcContentID,
+                                        destStoreID,
+                                        destSpaceID,
+                                        destContentID,
+                                        e);
+        }
+    }
+
+    private String copyContent(String srcSpaceID,
+                               String srcContentID,
+                               String destSpaceID,
+                               String destContentID,
+                               String storeID) throws ResourceException {
+
         try {
             StorageProvider storage = storageProviderFactory.getStorageProvider(
                 storeID);
@@ -190,21 +271,26 @@ public class ContentResourceImpl implements ContentResource {
 
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("copy content",
+                                                storeID,
                                                 srcSpaceID,
                                                 srcContentID,
+                                                storeID,
                                                 destSpaceID,
                                                 destContentID,
                                                 e);
         } catch (StorageException e) {
             throw new ResourceException("copy content",
+                                        storeID,
                                         srcSpaceID,
                                         srcContentID,
+                                        storeID,
                                         destSpaceID,
                                         destContentID,
                                         e);
         }
     }
-
+    
+    
     /**
      * Removes a piece of content.
      *

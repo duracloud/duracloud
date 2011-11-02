@@ -248,6 +248,23 @@ public interface ContentStore {
                               String destContentId) throws ContentStoreException;
 
     /**
+     * This method provides a way to copy a content item to another content provider.
+     *
+     * @param srcSpaceId of content to copy
+     * @param srcContentId of content to copy
+     * @param destStoreId where the copied content will end up 
+     * @param destSpaceId where copied content will end up
+     * @param destContentId given to copied content
+     * @return MD5 checksum of destination content item
+     * @throws ContentStoreException on error
+     */
+    public String copyContent(String srcSpaceId,
+                              String srcContentId,
+                              String destStoreId,
+                              String destSpaceId,
+                              String destContentId) throws ContentStoreException;
+    
+    /**
      * This method moves the content item found in source-space with the id of
      * source-content-id into the dest-space, naming it to dest-content-id.
      *
@@ -263,6 +280,25 @@ public interface ContentStore {
                               String destSpaceId,
                               String destContentId) throws ContentStoreException;
 
+    /**
+     * This method moves the content item found in source-space with the id of
+     * source-content-id into the dest-space, naming it to dest-content-id.
+     *
+     * @param srcSpaceId of content to move
+     * @param srcContentId of content to move
+     * @param destStoreId where moved content will end up
+     * @param destSpaceId where moved content will end up
+     * @param destContentId given to moved content
+     * @return MD5 checksum of destination content item
+     * @throws ContentStoreException on error
+     */
+    public String moveContent(String srcSpaceId,
+                              String srcContentId,
+                              String destStoreId,
+                              String destSpaceId,
+                              String destContentId) throws ContentStoreException;
+
+    
     /**
      * Gets content from a space.
      *

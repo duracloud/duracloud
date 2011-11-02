@@ -90,6 +90,10 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     private String addStoreIdQueryParameter(String url){
+        return addStoreIdQueryParameter(url, storeId);
+    }
+
+    private String addStoreIdQueryParameter(String url, String storeId){
         return addQueryParameter(url, "storeID", storeId);
     }
 
@@ -104,9 +108,13 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     private String buildContentURL(String spaceId, String contentId) {
+        return buildContentURL(storeId, spaceId, contentId);
+    }
+    
+    private String buildContentURL(String storeId, String spaceId, String contentId) {
         contentId = EncodeUtil.urlEncode(contentId);
         String url = buildURL("/" + spaceId + "/" + contentId);
-        return addStoreIdQueryParameter(url);
+        return addStoreIdQueryParameter(url, storeId);
     }
 
     private String buildTaskURL() {
@@ -417,9 +425,11 @@ public class ContentStoreImpl implements ContentStore{
     @Override
     public String copyContent(String srcSpaceId,
                               String srcContentId,
+                              String destStoreId,
                               String destSpaceId,
                               String destContentId)
         throws ContentStoreException {
+        validateStoreId(destStoreId);
         validateSpaceId(srcSpaceId);
         validateSpaceId(destSpaceId);
         validateContentId(srcContentId);
@@ -428,10 +438,10 @@ public class ContentStoreImpl implements ContentStore{
         String task = "copy content";
 
         srcContentId = EncodeUtil.urlEncode(srcContentId);
-        String url = buildContentURL(destSpaceId, destContentId);
+        String url = buildContentURL(destStoreId, destSpaceId, destContentId);
 
         String header = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE;
-        String value = srcSpaceId + "/" + srcContentId;
+        String value = storeId + "/" + srcSpaceId + "/" + srcContentId;
 
         Map<String, String> headers = new HashMap<String, String>();
         headers.put(header, value);
@@ -476,24 +486,54 @@ public class ContentStoreImpl implements ContentStore{
                                             e);
         }
     }
-
+    
+    @Override
+    public String copyContent(String srcSpaceId,
+                              String srcContentId,
+                              String destSpaceId,
+                              String destContentId)
+        throws ContentStoreException {
+        return copyContent(srcSpaceId, 
+                           srcContentId, 
+                           getStoreId(),
+                           destSpaceId,
+                           destContentId);
+    }
+    
     @Override
     public String moveContent(String srcSpaceId,
                               String srcContentId,
                               String destSpaceId,
                               String destContentId)
         throws ContentStoreException {
-        String md5 = copyContent(srcSpaceId,
-                    srcContentId,
-                    destSpaceId,
-                    destContentId);
+        return moveContent(srcSpaceId, 
+                           srcContentId, 
+                           getStoreId(), 
+                           destSpaceId, 
+                           destContentId);
+    }
 
-        deleteContent(srcSpaceId,
-                      srcContentId);
+    @Override
+    public String moveContent(String srcSpaceId, 
+                              String srcContentId, 
+                              String destStoreId,
+                              String destSpaceId, 
+                              String destContentId) throws ContentStoreException {
+
+        String md5 = copyContent(srcSpaceId,
+                                 srcContentId,
+                                 destStoreId,
+                                 destSpaceId,
+                                 destContentId);
+
+        deleteContent(srcSpaceId,srcContentId);
 
         return md5;
     }
+    
 
+
+    
     /**
      * {@inheritDoc}
      */
@@ -668,6 +708,17 @@ public class ContentStoreImpl implements ContentStore{
         return map2;
     }
 
+
+    public void validateStoreId(String storeId) throws InvalidIdException {
+        try {
+            IdUtil.validateStoreId(storeId);
+        } catch(org.duracloud.storage.error.InvalidIdException e) {
+            throw new InvalidIdException(e.getMessage());
+        }
+    }
+
+
+    
     /**
      * {@inheritDoc}
      */
@@ -730,5 +781,7 @@ public class ContentStoreImpl implements ContentStore{
                                             taskName + e.getMessage(), e);
         }
     }
+
+
 
 }

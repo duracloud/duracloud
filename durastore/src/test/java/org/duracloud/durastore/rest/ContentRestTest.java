@@ -44,7 +44,7 @@ public class ContentRestTest {
     private static final String destSpaceId = "destSpaceId";
     private static final String destContentId = "destContentId";
     private static final String storeId = "0";
-    private static final String copySource = srcSpaceId + "/" + srcContentId;
+    private static final String copySource = storeId + "/" +  srcSpaceId + "/" + srcContentId;
 
 
     @Before
@@ -130,16 +130,18 @@ public class ContentRestTest {
             "/" + destSpaceId + "/" + destContentId));
 
         // contentResource
-        EasyMock.expect(contentResource.copyContent(srcSpaceId,
+        EasyMock.expect(contentResource.copyContent(storeId,
+                                                    srcSpaceId,
                                                     srcContentId,
+                                                    storeId,
                                                     destSpaceId,
-                                                    destContentId,
-                                                    storeId)).andReturn("md5");
+                                                    destContentId)).andReturn("md5");
     }
 
     private void createCopyContentMocksError() throws Exception {
         RestUtil.RequestContent content = EasyMock.createMock("RequestContent",
                                                               RestUtil.RequestContent.class);
+        
         EasyMock.expect(content.getSize()).andReturn(5).times(2);
         EasyMock.replay(content);
 
