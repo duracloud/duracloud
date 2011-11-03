@@ -56,9 +56,6 @@
                                                 password : '${user.password}',
                                                 spaceId : '${space.spaceId}',
                                                 storeId : '${space.storeId}',
-                                                separate_jvm : 'true',
-                                                MAYSCRIPT : 'true',
-
                                             };
                                             deployJava.runApplet(attributes,
                                                     parameters, '1.6');
