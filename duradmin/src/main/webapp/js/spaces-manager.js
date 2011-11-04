@@ -1632,8 +1632,11 @@ $(function(){
 	    $('.bulk-add-content-item').live("click",
             function(evt){
                 var link = $(evt.target),
-                    windowName = link.attr("target"),
-                    currentWindow = uploadWindows[windowName];
+                    //FIXME when we resolve the problem with running multiple applets
+                    //the line below should be restored and the line after that removed.
+                    //windowName = link.attr("target"),
+                    windowName = 'duracloud-multi-file-upload-applet';
+                currentWindow = uploadWindows[windowName];
                 
                 if( currentWindow && !currentWindow.closed ){
                     $(currentWindow).focus();
