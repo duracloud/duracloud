@@ -4,7 +4,7 @@
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <name>DuraCloud</name>
     <url>http://duracloud.org</url>
 
@@ -285,8 +285,8 @@
     </pluginRepositories>
 
     <scm>
-        <connection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.0</connection>
-        <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.0</developerConnection>
+        <connection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.1</connection>
+        <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.1</developerConnection>
     </scm>
 
     <build>
