@@ -27,7 +27,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ops4j.pax.exam</groupId>
   <artifactId>maven-paxexam-plugin</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <packaging>maven-plugin</packaging>
 
   <name>OPS4J Pax Exam - Maven Plugin</name>
@@ -150,7 +150,7 @@
   </dependencies>
 
   <scm>
-    <connection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.0</connection>
-    <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.0</developerConnection>
+    <connection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.1</connection>
+    <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-1.2.1</developerConnection>
   </scm>
 </project>
