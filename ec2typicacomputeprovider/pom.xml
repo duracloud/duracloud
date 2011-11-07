@@ -3,13 +3,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>ec2typicacomputeprovider</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.1</version>
+  <version>1.2.0</version>
   <name>EC2 Typica Compute Provider</name>
   
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.2.1</version>
+    <version>1.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

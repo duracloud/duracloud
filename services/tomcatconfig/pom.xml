@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud.services</groupId>
   <artifactId>tomcatconfig</artifactId>
-  <version>1.2.1</version>
+  <version>1.2.0</version>
   <name>DuraCloud Tomcat-Config Bundle</name>
   <url>http://duracloud.org</url>
   <packaging>jar</packaging>
@@ -11,7 +11,7 @@
   <parent>
     <artifactId>services</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.2.1</version>
+    <version>1.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
  

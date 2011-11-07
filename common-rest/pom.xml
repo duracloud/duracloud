@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>common-rest</artifactId>
   <packaging>bundle</packaging>
-  <version>1.2.1</version>
+  <version>1.2.0</version>
   <name>Common REST</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.2.1</version>
+    <version>1.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
