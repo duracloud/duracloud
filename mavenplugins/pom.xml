@@ -4,14 +4,14 @@
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>mavenplugins</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <name>org.duracloud.plugins</name>
   <description>DuraCloud Maven Plugins</description>
 

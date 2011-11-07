@@ -664,9 +664,13 @@ input.dc-check-all
 	margin-bottom:10px;
 }
 
-h2
+h2,.footer-prompt
 {
     color:#999999;
+}
+
+.footer-prompt {
+  font-size: smaller;
 }
 
 .detail-pane h3

@@ -9,9 +9,21 @@
       Duracloud :: Upload Tool  ::  ${storageProviderName} :: ${spaceId} 
   </tiles:putAttribute>
   <tiles:putAttribute name="header-extensions">
-    <script src="https://www.java.com/js/deployJava.js"></script>
+    <script id="deployJava" src="https://www.java.com/js/deployJava.js"></script>
+
+    <!-- FIXME remove when applet loading bug is sorted out with chrome and safari
+               and possibly early versions of firefox on mac -->
+    <script type="text/javascript">
+	$(function(){
+          if(navigator.userAgent.match(/macintosh/i)){
+	    $("#applet-refresh-prompt").show();
+          }
+	});  	
+    </script>
+    <!-- fix me end -->
   </tiles:putAttribute>
   <tiles:putAttribute name="body">
+
     <div id="page-header" class="outer">
       <div id="left" class="float-l">
         <div id="dc-logo-panel">
@@ -32,11 +44,10 @@
       <c:choose>
         <c:when test="${not empty space}">
           <h2 style="margin-bottom:10px">
-            Upload to ${space.spaceId} in  ${storageProviderName}
+            Upload to ${space.spaceId} in  ${storageProviderName} 
           </h2>
           
           <script>
-                                            
                                         <%--Illustrates how to pass params into the applet's
         init() method.
         See UploadToolApplet.java--%>
@@ -53,15 +64,13 @@
                                                 host : '${pageContext.request.serverName}',
                                                 port : '${pageContext.request.serverPort}',
                                                 username : '${user.username}',
-                                                password : '${user.password}',
                                                 spaceId : '${space.spaceId}',
                                                 storeId : '${space.storeId}',
-                                                separate_jvm : 'true',
-                                                MAYSCRIPT : 'true',
-
+                                                session : '${user.password}',
                                             };
                                             deployJava.runApplet(attributes,
                                                     parameters, '1.6');
+
                                         </script>
 
           <script>
@@ -86,6 +95,9 @@
   
     </div>
     <div class="ui-layout-south footer">
+    <!-- FIXME remove when above fix me has been addressed -->
+    <p id="applet-refresh-prompt" style="display:none;" class="footer-prompt">If this window appears blank, click here: <a class="featured button" href="">Refresh</a></p>
+    <!-- fix me end -->
     </div>
   </tiles:putAttribute>
 </tiles:insertDefinition>
