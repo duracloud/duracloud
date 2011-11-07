@@ -29,7 +29,7 @@ public class UploadToolApplet extends JApplet {
         final String host = getParameter("host");
         final int port = Integer.valueOf(getParameter("port"));
         final String username = getParameter("username");
-        final String password = getParameter("password");
+        final String password = getParameter("session");
         final String spaceId = getParameter("spaceId");
         final String storeId = getParameter("storeId");
 
