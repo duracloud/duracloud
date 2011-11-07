@@ -205,8 +205,8 @@ public class ContentResourceImpl implements ContentResource {
                                                       String destStoreID,
                                                       String destSpaceID,
                                                       String destContentID) throws ResourceException {
-
         try {
+
             StorageProvider srcStorage =
                 storageProviderFactory.getStorageProvider(srcStoreID);
 
@@ -218,13 +218,25 @@ public class ContentResourceImpl implements ContentResource {
 
             Map<String, String> properties =
                 srcStorage.getContentProperties(srcSpaceID, srcContentID);
-
+            
+            Long contentSize = null;
+            
+            try{
+                String contentSizeString = properties.get(StorageProvider.PROPERTIES_CONTENT_SIZE);
+                if(contentSizeString != null){
+                    contentSize = Long.parseLong(contentSizeString);
+                }
+            } catch(NumberFormatException ex){
+                String msg = "content size could not be parsed: " + ex.getMessage();
+                log.warn(msg, ex);
+            }
+            
             String md5 =
                 destStorage.addContent(destSpaceID,
                                        destContentID,
                                        properties.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE),
-                                       Long.parseLong(properties.get(StorageProvider.PROPERTIES_CONTENT_SIZE)),
-                                       null,
+                                       contentSize,
+                                       properties.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
                                        inputStream);
 
             destStorage.setContentProperties(destSpaceID,
@@ -232,7 +244,6 @@ public class ContentResourceImpl implements ContentResource {
                                              properties);
             
             return md5;
-            
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("copy content",
                                                 srcStoreID,

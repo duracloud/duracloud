@@ -173,7 +173,7 @@ public class ContentResourceImplTest {
                                                        destContentId,
                                                        map.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE),
                                                        1000,
-                                                       null,
+                                                       map.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
                                                        is))
                 .andReturn(expectedMd5);
         
