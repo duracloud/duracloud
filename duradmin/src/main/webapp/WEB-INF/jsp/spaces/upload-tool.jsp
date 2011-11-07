@@ -13,7 +13,6 @@
 
     <!-- FIXME remove when applet loading bug is sorted out with chrome and safari
                and possibly early versions of firefox on mac -->
-    <c:if test="${empty sessionScope.reloaded}">
     <script type="text/javascript">
 	$(function(){
           if(navigator.userAgent.match(/macintosh/i)){
@@ -21,8 +20,6 @@
           }
 	});  	
     </script>
-    <c:set var="reloaded" scope="session" value="true"/>
-    </c:if>
     <!-- fix me end -->
   </tiles:putAttribute>
   <tiles:putAttribute name="body">
@@ -67,9 +64,9 @@
                                                 host : '${pageContext.request.serverName}',
                                                 port : '${pageContext.request.serverPort}',
                                                 username : '${user.username}',
-                                                password : '${user.password}',
                                                 spaceId : '${space.spaceId}',
                                                 storeId : '${space.storeId}',
+                                                session : '${user.password}',
                                             };
                                             deployJava.runApplet(attributes,
                                                     parameters, '1.6');
