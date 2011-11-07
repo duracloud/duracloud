@@ -3,13 +3,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duradmin</artifactId>
   <packaging>war</packaging>
-  <version>1.3.0-SNAPSHOT</version>
+  <version>1.2.1</version>
   <name>DuraCloud Administrator</name>
   <url>http://localhost:8080/${artifactId}</url>
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.2.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <repositories />
