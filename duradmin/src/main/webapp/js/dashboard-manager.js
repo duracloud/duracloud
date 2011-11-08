@@ -1572,7 +1572,7 @@ $(function() {
         reportNode = $(".service-report a", node);
         if(reportId){
             reportNode
-                .attr("href","/durastore/", reportId)
+                .attr("href","/durastore/" + reportId)
                 .attr("title","Download Service Report");
         }else{
             reportNode.remove();
