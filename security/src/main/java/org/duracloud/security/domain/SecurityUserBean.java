@@ -24,6 +24,7 @@ public class SecurityUserBean {
     private boolean credentialsNonExpired;
     private boolean accountNonLocked;
     private List<String> grantedAuthorities;
+    private List<String> groups;
 
     public static final String SCHEMA_VERSION = "0.2";
 
@@ -34,13 +35,21 @@ public class SecurityUserBean {
              false,
              false,
              false,
+             new ArrayList<String>(),
              new ArrayList<String>());
     }
 
     public SecurityUserBean(String username,
                             String password,
                             List<String> grantedAuthorities) {
-        this(username, password, true, true, true, true, grantedAuthorities);
+        this(username,
+             password,
+             true,
+             true,
+             true,
+             true,
+             grantedAuthorities,
+             new ArrayList<String>());
     }
 
     public SecurityUserBean(String username,
@@ -49,7 +58,8 @@ public class SecurityUserBean {
                             boolean accountNonExpired,
                             boolean credentialsNonExpired,
                             boolean accountNonLocked,
-                            List<String> grantedAuthorities) {
+                            List<String> grantedAuthorities,
+                            List<String> groups) {
         this.username = username;
         this.password = password;
         this.enabled = enabled;
@@ -57,6 +67,7 @@ public class SecurityUserBean {
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
         this.grantedAuthorities = grantedAuthorities;
+        this.groups = groups;
     }
 
     public String getUsername() {
@@ -137,4 +148,7 @@ public class SecurityUserBean {
         }
     }
 
+    public List<String> getGroups() {
+        return groups;
+    }
 }

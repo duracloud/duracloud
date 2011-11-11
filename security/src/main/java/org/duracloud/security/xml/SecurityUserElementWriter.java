@@ -54,6 +54,7 @@ public class SecurityUserElementWriter {
         userType.setAccountNonExpired(user.isAccountNonExpired());
         userType.setAccountNonLocked(user.isAccountNonLocked());
         userType.setGrantedAuthorities(user.getGrantedAuthorities());
+        userType.setGroups(user.getGroups());
     }
 
 }

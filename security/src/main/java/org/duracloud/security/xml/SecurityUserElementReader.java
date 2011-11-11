@@ -55,6 +55,7 @@ public class SecurityUserElementReader {
         boolean accountNonExpired = userType.getAccountNonExpired();
         boolean accountNonLocked = userType.getAccountNonLocked();
         List<String> authorities = userType.getGrantedAuthorities();
+        List<String> groups = userType.getGroups();
 
         return new SecurityUserBean(username,
                                     password,
@@ -62,7 +63,8 @@ public class SecurityUserElementReader {
                                     credentialsNonExpired,
                                     accountNonExpired,
                                     accountNonLocked,
-                                    authorities);
+                                    authorities,
+                                    groups);
     }
 
     private static void checkSchemaVersion(String schemaVersion) {

@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 
@@ -37,7 +36,8 @@ import java.util.Map;
 public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     private final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
-    private Map<String, User> usersTable = new HashMap<String, User>();
+    private Map<String, DuracloudUserDetails> usersTable =
+        new HashMap<String, DuracloudUserDetails>();
 
     private static final Credential systemUser = new SystemUserCredential();
     private static final RootUserCredential rootUser = new RootUserCredential();
@@ -111,13 +111,14 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
             grants[i] = new GrantedAuthorityImpl(grantBeans.get(i));
         }
 
-        User user = new User(u.getUsername(),
-                             u.getPassword(),
-                             u.isEnabled(),
-                             u.isAccountNonExpired(),
-                             u.isCredentialsNonExpired(),
-                             u.isAccountNonLocked(),
-                             grants);
+        DuracloudUserDetails user = new DuracloudUserDetails(u.getUsername(),
+                                                             u.getPassword(),
+                                                             u.isEnabled(),
+                                                             u.isAccountNonExpired(),
+                                                             u.isCredentialsNonExpired(),
+                                                             u.isAccountNonLocked(),
+                                                             grants,
+                                                             u.getGroups());
 
         usersTable.put(u.getUsername(), user);
     }
@@ -129,7 +130,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
      */
     public List<SecurityUserBean> getUsers() {
         List<SecurityUserBean> users = new ArrayList<SecurityUserBean>();
-        for (User user : this.usersTable.values()) {
+        for (DuracloudUserDetails user : this.usersTable.values()) {
             List<String> grants = getGrants(user.getAuthorities());
             SecurityUserBean bean = new SecurityUserBean(user.getUsername(),
                                                          user.getPassword(),
@@ -137,7 +138,8 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
                                                          user.isAccountNonExpired(),
                                                          user.isCredentialsNonExpired(),
                                                          user.isAccountNonLocked(),
-                                                         grants);
+                                                         grants,
+                                                         user.getGroups());
             if (isCustomUser(bean)) {
                 users.add(bean);
             }

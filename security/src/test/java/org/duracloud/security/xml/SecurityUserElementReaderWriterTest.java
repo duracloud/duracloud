@@ -31,6 +31,7 @@ public class SecurityUserElementReaderWriterTest {
     private final String usernamePrefix = "username-";
     private final String passwordPrefix = "password-";
     private final String grantPrefix = "ROLE-";
+    private final String groupPrefix = "group.";
 
     @After
     public void tearDown() throws IOException {
@@ -64,12 +65,18 @@ public class SecurityUserElementReaderWriterTest {
 
         SecurityUserBean user;
         List<String> grantedAuthorties;
+        List<String> groups;
         for (int i = 0; i < NUM_ENTRIES; ++i) {
             boolean flag = (i % 2 == 0);
 
             grantedAuthorties = new ArrayList<String>();
             for (int j = 0; j < i + 1; ++j) {
                 grantedAuthorties.add(grantPrefix + j);
+            }
+
+            groups = new ArrayList<String>();
+            for (int j = 0; j < i + 1; ++j) {
+                groups.add(groupPrefix + j);
             }
 
             if (fullBeans) {
@@ -79,7 +86,8 @@ public class SecurityUserElementReaderWriterTest {
                                             flag,
                                             flag,
                                             flag,
-                                            grantedAuthorties);
+                                            grantedAuthorties,
+                                            groups);
             } else {
                 user = new SecurityUserBean(usernamePrefix + i,
                                             passwordPrefix + i,
@@ -124,6 +132,13 @@ public class SecurityUserElementReaderWriterTest {
             Assert.assertEquals(index, grants.size() - 1);
             for (int i = 0; i < index; ++i) {
                 Assert.assertTrue(grants.contains(grantPrefix + i));
+            }
+
+            List<String> groups = user.getGroups();
+            Assert.assertNotNull(groups);
+            Assert.assertEquals(index, groups.size() - 1);
+            for (int i = 0; i < index; ++i) {
+                Assert.assertTrue(groups.contains(groupPrefix + i));
             }
         }
 

@@ -10,11 +10,11 @@ package org.duracloud.security;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.common.model.SystemUserCredential;
+import org.duracloud.security.impl.DuracloudUserDetails;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.GrantedAuthority;
 import org.duracloud.security.impl.UserDetailsServiceImpl;
@@ -39,6 +39,10 @@ public class UserDetailsServiceImplTest {
     private List<String> grantsB;
     private List<String> grantsC;
 
+    private List<String> groupsA;
+    private List<String> groupsB;
+    private List<String> groupsC;
+
     private List<SecurityUserBean> users;
 
     @Before
@@ -58,27 +62,43 @@ public class UserDetailsServiceImplTest {
 
         grantsC.add("ROLE_USER");
 
+        groupsA = new ArrayList<String>();
+        groupsB = new ArrayList<String>();
+        groupsC = new ArrayList<String>();
+
+        groupsA.add("group.b.0");
+
+        groupsB.add("group.b.0");
+        groupsB.add("group.b.1");
+
+        groupsC.add("group.c.0");
+        groupsC.add("group.c.1");
+        groupsC.add("group.c.2");
+
         SecurityUserBean user0 = new SecurityUserBean(usernameA,
                                                       "apw",
                                                       true,
                                                       true,
                                                       true,
                                                       true,
-                                                      grantsA);
+                                                      grantsA,
+                                                      groupsA);
         SecurityUserBean user1 = new SecurityUserBean(usernameB,
                                                       "apw",
                                                       true,
                                                       true,
                                                       true,
                                                       true,
-                                                      grantsB);
+                                                      grantsB,
+                                                      groupsB);
         SecurityUserBean user2 = new SecurityUserBean(usernameC,
                                                       "upw",
                                                       true,
                                                       true,
                                                       true,
                                                       true,
-                                                      grantsC);
+                                                      grantsC,
+                                                      groupsC);
         users = new ArrayList<SecurityUserBean>();
         users.add(user0);
         users.add(user1);
@@ -97,9 +117,9 @@ public class UserDetailsServiceImplTest {
     @Test
     public void testLoadUserByUsername() {
         userDetailsService.setUsers(users);
-        UserDetails udA = userDetailsService.loadUserByUsername(usernameA);
-        UserDetails udB = userDetailsService.loadUserByUsername(usernameB);
-        UserDetails udC = userDetailsService.loadUserByUsername(usernameC);
+        DuracloudUserDetails udA = (DuracloudUserDetails) userDetailsService.loadUserByUsername(usernameA);
+        DuracloudUserDetails udB = (DuracloudUserDetails) userDetailsService.loadUserByUsername(usernameB);
+        DuracloudUserDetails udC = (DuracloudUserDetails) userDetailsService.loadUserByUsername(usernameC);
 
         Assert.assertNotNull(udA);
         Assert.assertNotNull(udB);
@@ -129,6 +149,28 @@ public class UserDetailsServiceImplTest {
         }
         for (GrantedAuthority auth : gC) {
             Assert.assertTrue(grantsC.contains(auth.getAuthority()));
+        }
+
+        List<String> grpA = udA.getGroups();
+        List<String> grpB = udB.getGroups();
+        List<String> grpC = udC.getGroups();
+
+        Assert.assertNotNull(grpA);
+        Assert.assertNotNull(grpB);
+        Assert.assertNotNull(grpC);
+
+        Assert.assertEquals(groupsA.size(), grpA.size());
+        Assert.assertEquals(groupsB.size(), grpB.size());
+        Assert.assertEquals(groupsC.size(), grpC.size());
+
+        for (String grp : grpA) {
+            Assert.assertTrue(groupsA.contains(grp));
+        }
+        for (String grp : grpB) {
+            Assert.assertTrue(groupsB.contains(grp));
+        }
+        for (String grp : grpC) {
+            Assert.assertTrue(groupsC.contains(grp));
         }
 
         boolean thrown = false;
@@ -179,7 +221,8 @@ public class UserDetailsServiceImplTest {
                                                      true,
                                                      true,
                                                      true,
-                                                     grantsA);
+                                                     grantsA,
+                                                     groupsA);
 
         users = new ArrayList<SecurityUserBean>();
         users.add(user);
