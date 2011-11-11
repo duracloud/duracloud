@@ -38,6 +38,7 @@ public class SecurityConfig extends BaseConfig implements AppConfig {
     protected final static String credNonExpiredKey = "cred-non-expired";
     protected final static String acctNonLockedKey = "acct-non-locked";
     protected final static String grantsKey = "grants";
+    protected final static String groupsKey = "groups";
 
     private Map<String, SecurityUserBean> users = new HashMap<String, SecurityUserBean>();
 
@@ -101,6 +102,9 @@ public class SecurityConfig extends BaseConfig implements AppConfig {
 
         } else if (suffix.startsWith(grantsKey)) {
             user.addGrantedAuthority(value);
+
+        } else if (suffix.startsWith(groupsKey)) {
+            user.addGroup(value);
 
         } else {
             String msg = "unknown user key: " + key + " (" + value + ")";

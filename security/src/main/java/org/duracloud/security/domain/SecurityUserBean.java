@@ -148,6 +148,13 @@ public class SecurityUserBean {
         }
     }
 
+    public void addGroup(String group) {
+        if (null == this.groups) {
+            groups = new ArrayList<String>();
+        }
+        groups.add(group);
+    }
+
     public List<String> getGroups() {
         return groups;
     }

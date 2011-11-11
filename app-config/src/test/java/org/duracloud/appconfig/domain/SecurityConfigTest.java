@@ -32,6 +32,9 @@ public class SecurityConfigTest {
     private String[][] grants = {{"grant0a", "grant0b", "grant0c"},
                                  {"grant1a", "grant1b"},
                                  {"grant2a"}};
+    private String[][] groups = {{"group0a", "group0b", "group0c"},
+                                 {"group1a", "group1b"},
+                                 {"group2a"}};
 
     @Test
     public void testLoad() {
@@ -58,6 +61,11 @@ public class SecurityConfigTest {
             int x = 0;
             for (String grant : grants[i]) {
                 props.put(p + SecurityConfig.grantsKey + dot + x++, grant);
+            }
+
+            int y = 0;
+            for (String group : groups[i]) {
+                props.put(p + SecurityConfig.groupsKey + dot + y++, group);
             }
         }
         return props;
@@ -98,6 +106,13 @@ public class SecurityConfigTest {
         Assert.assertEquals(grants[i].length, granteds.size());
         for (int j = 0; j < grants[i].length; ++j) {
             Assert.assertTrue(granteds.contains(grants[i][j]));
+        }
+
+        List<String> grps = user.getGroups();
+        Assert.assertNotNull(grps);
+        Assert.assertEquals(groups[i].length, grps.size());
+        for (int j = 0; j < groups[i].length; ++j) {
+            Assert.assertTrue(grps.contains(groups[i][j]));
         }
 
         Assert.assertEquals(Boolean.valueOf(enableds[i]), user.isEnabled());
