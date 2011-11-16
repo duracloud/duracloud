@@ -101,6 +101,29 @@ public class SpaceResource {
     }
 
     /**
+     * Gets the ACLs of a space.
+     *
+     * @param spaceID
+     * @param storeID
+     * @return Map of space ACLs
+     */
+    public Map<String, String> getSpaceACLs(String spaceID, String storeID)
+        throws ResourceException {
+        try {
+            StorageProvider storage = storageProviderFactory.getStorageProvider(
+                storeID);
+            return storage.getSpaceACLs(spaceID);
+
+        } catch (NotFoundException e) {
+            throw new ResourceNotFoundException("retrieve space ACLs for",
+                                                spaceID,
+                                                e);
+        } catch (StorageException e) {
+            throw new ResourceException("retrieve space ACLs for", spaceID, e);
+        }
+    }
+
+    /**
      * Gets a listing of the contents of a space.
      *
      * @param spaceID
@@ -253,6 +276,32 @@ public class SpaceResource {
             throw new ResourceException("update space properties for",
                                         spaceID,
                                         e);
+        }
+    }
+
+    /**
+     * Updates the ACLs of a space.
+     *
+     * @param spaceID
+     * @param spaceACLs
+     * @param storeID
+     */
+    public void updateSpaceACLs(String spaceID,
+                                Map<String, String> spaceACLs,
+                                String storeID) throws ResourceException {
+        try {
+            StorageProvider storage = storageProviderFactory.getStorageProvider(
+                storeID);
+            if (null != spaceACLs) {
+                storage.setSpaceACLs(spaceID, spaceACLs);
+            }
+
+        } catch (NotFoundException e) {
+            throw new ResourceNotFoundException("update space ACLs for",
+                                                spaceID,
+                                                e);
+        } catch (StorageException e) {
+            throw new ResourceException("update space ACLs for", spaceID, e);
         }
     }
 

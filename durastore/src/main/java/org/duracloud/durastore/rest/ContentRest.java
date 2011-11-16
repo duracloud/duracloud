@@ -47,7 +47,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
  *
  * @author Bill Branan
  */
-@Path("/{spaceID}/{contentID: [^?]+}")
+@Path("/{spaceID: ^(acl)}/{contentID: [^?]+}")
 public class ContentRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(ContentRest.class);
 

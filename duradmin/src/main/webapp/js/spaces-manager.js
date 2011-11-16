@@ -55,7 +55,7 @@ $(function(){
 
         $.validator
         .addMethod("reserved", function(value, element) {
-            return  !(/^(init|stores|spaces|security|task)$/.test(value));
+            return  !(/^(init|stores|spaces|security|task|acl)$/.test(value));
         }, "A Space ID cannot be a reserved name");
         //end validator definitions        
     })();

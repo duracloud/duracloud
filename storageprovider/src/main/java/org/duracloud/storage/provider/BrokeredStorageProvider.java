@@ -167,4 +167,17 @@ public class BrokeredStorageProvider
                                             spaceProperties);
     }
 
+    @Override
+    public Map<String, String> getSpaceACLs(String spaceId) {
+        return dispatchProvider.getSpaceACLs(targetProvider, storeId, spaceId);
+    }
+
+    @Override
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+        dispatchProvider.setSpaceACLs(targetProvider,
+                                      storeId,
+                                      spaceId,
+                                      spaceACLs);
+    }
+
 }

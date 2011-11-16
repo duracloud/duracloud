@@ -32,6 +32,7 @@ public interface StorageProvider {
     public static final String PROPERTIES_SPACE_COUNT = "space-count";
     public static final String PROPERTIES_SPACE_SIZE = "space-total-size";
     public static final String PROPERTIES_SPACE_ACCESS = "space-access";
+    public static final String PROPERTIES_SPACE_ACL = "acl-";
 
     /* Content property names */
     public static final String PROPERTIES_CONTENT_MIMETYPE = "content-mimetype";
@@ -123,7 +124,7 @@ public interface StorageProvider {
      * Retrieves the properties associated with a space.
      *
      * @param spaceId - ID of the space
-     * @return Map of space properties or null if no properties exists
+     * @return Map of space properties or empty map if no properties exists
      * @throws NotFoundException if space with ID spaceId does not exist
      * @throws StorageException if errors occur
      */
@@ -139,6 +140,27 @@ public interface StorageProvider {
      */
     public void setSpaceProperties(String spaceId,
                                    Map<String, String> spaceProperties);
+
+    /**
+     * Retrieves the ACLs associated with a space.
+     *
+     * @param spaceId - ID of the space
+     * @return Map of space ACLs or empty map if none exists
+     * @throws NotFoundException if space with ID spaceId does not exist
+     * @throws StorageException  if errors occur
+     */
+    public Map<String, String> getSpaceACLs(String spaceId);
+
+    /**
+     * Sets the ACLs associated with a space.
+     *
+     * @param spaceId   - ID of the space
+     * @param spaceACLs - Updated space ACL. Note, null or empty arg spaceACLs
+     *                  will 'clear' the space ACLs.
+     * @throws NotFoundException if space with ID spaceId does not exist
+     * @throws StorageException  if errors occur
+     */
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs);
 
     /**
      * Gets the access setting of the space, either OPEN or CLOSED. An OPEN space is

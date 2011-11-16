@@ -161,7 +161,7 @@ public interface ContentStore {
      * Retrieves the properties associated with a space.
      *
      * @param spaceId the identifier of the DuraCloud Space
-     * @return Map of space properties or null if no properties exists
+     * @return Map of space properties or empty map if no properties exists
      * @throws NotFoundException if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
@@ -170,7 +170,7 @@ public interface ContentStore {
     
     /**
      * Sets the properties associated with a space. Only values included
-     * in the  properties map will be updated, others will remain unchanged.
+     * in the  properties map will be saved, others will be removed.
      *
      * @param spaceId the identifier of the DuraCloud Space
      * @param spaceProperties a map of properties entries for the space
@@ -180,7 +180,30 @@ public interface ContentStore {
     public void setSpaceProperties(String spaceId,
                                    Map<String, String> spaceProperties)
             throws ContentStoreException;
-    
+
+    /**
+     * Retrieves the ACLs associated with a space.
+     *
+     * @param spaceId the identifier of the DuraCloud Space
+     * @return Map of space ACLs or empty map if no properties exists
+     * @throws NotFoundException     if the space does not exist
+     * @throws ContentStoreException if an error occurs
+     */
+    public Map<String, String> getSpaceACLs(String spaceId)
+        throws ContentStoreException;
+
+    /**
+     * Sets the ACLs associated with a space. Only values included in the ACLs
+     * map will be saved, others will be removed.
+     *
+     * @param spaceId the identifier of the DuraCloud Space
+     * @param spaceACLs a map of ACL entries for the space (user|group -> right)
+     * @throws NotFoundException if the space does not exist
+     * @throws ContentStoreException if an error occurs
+     */
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs)
+        throws ContentStoreException;
+
     /**
      * Gets the access setting of the space, either OPEN or CLOSED. An OPEN
      * space is available for public viewing. A CLOSED space requires

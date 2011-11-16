@@ -211,4 +211,19 @@ public abstract class ProbedStorageProvider
         stopMetric("setSpaceProperties");
     }
 
+    @Override
+    public Map<String, String> getSpaceACLs(String spaceId) {
+        startMetric("getSpaceACLs");
+        Map<String, String> result = storageProvider.getSpaceACLs(spaceId);
+        stopMetric("getSpaceACLs");
+        return result;
+    }
+
+    @Override
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+        startMetric("setSpaceACLs");
+        storageProvider.setSpaceACLs(spaceId, spaceACLs);
+        stopMetric("setSpaceACLs");
+    }
+
 }

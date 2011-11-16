@@ -117,6 +117,11 @@ public class ContentStoreImpl implements ContentStore{
         return addStoreIdQueryParameter(url, storeId);
     }
 
+    private String buildAclURL(String spaceId) {
+        String url = buildURL("/acl/" + spaceId);
+        return addStoreIdQueryParameter(url);
+    }
+
     private String buildTaskURL() {
         String url = buildURL("/task");
         return addStoreIdQueryParameter(url);
@@ -318,7 +323,7 @@ public class ContentStoreImpl implements ContentStore{
     public void setSpaceProperties(String spaceId,
                                    Map<String, String> spaceProperties)
             throws ContentStoreException {
-        String task = "create space";
+        String task = "set space properties";
         String url = buildSpaceURL(spaceId);
         Map<String, String> headers = convertPropertiesToHeaders(spaceProperties);
         try {
@@ -327,6 +332,45 @@ public class ContentStoreImpl implements ContentStore{
         } catch(NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
         } catch(UnauthorizedException e) {
+            throw new UnauthorizedException(task, spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException(task, spaceId, e);
+        }
+    }
+
+    @Override
+    public Map<String, String> getSpaceACLs(String spaceId)
+        throws ContentStoreException {
+        String task = "get space ACLs";
+        String url = buildAclURL(spaceId);
+        try {
+            HttpResponse response = restHelper.head(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            return extractPropertiesFromHeaders(response);
+
+        } catch (NotFoundException e) {
+            throw new NotFoundException(task, spaceId, e);
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(task, spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException(task, spaceId, e);
+        }
+    }
+
+    @Override
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs)
+        throws ContentStoreException {
+        String task = "set space ACLs";
+        String url = buildAclURL(spaceId);
+        Map<String, String> headers = convertPropertiesToHeaders(spaceACLs);
+
+        try {
+            HttpResponse response = restHelper.post(url, null, headers);
+            checkResponse(response, HttpStatus.SC_OK);
+            
+        } catch (NotFoundException e) {
+            throw new NotFoundException(task, spaceId, e);
+        } catch (UnauthorizedException e) {
             throw new UnauthorizedException(task, spaceId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, e);

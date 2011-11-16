@@ -72,6 +72,17 @@ public class MockRetryStorageProvider implements StorageProvider {
         // Default method body
     }
 
+    @Override
+    public Map<String, String> getSpaceACLs(String spaceId) {
+        // Default method body
+        return null;
+    }
+
+    @Override
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+        // Default method body
+    }
+
     public AccessType getSpaceAccess(String spaceId) {
         // Default method body
         return AccessType.OPEN;

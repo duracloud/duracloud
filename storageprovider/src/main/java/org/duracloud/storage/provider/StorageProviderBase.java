@@ -10,6 +10,7 @@ package org.duracloud.storage.provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -68,6 +69,43 @@ public abstract class StorageProviderBase implements StorageProvider {
             spaceProperties.put(PROPERTIES_SPACE_ACCESS, access.name());
             setSpaceProperties(spaceId, spaceProperties);
         }
+    }
+
+    public Map<String, String> getSpaceACLs(String spaceId) {
+        Map<String, String> acls = new HashMap<String, String>();
+        Map<String, String> spaceProps = getSpaceProperties(spaceId);
+
+        for (String name : spaceProps.keySet()) {
+            if (name.startsWith(PROPERTIES_SPACE_ACL)) {
+                acls.put(name, spaceProps.get(name));
+            }
+        }
+
+        return acls;
+    }
+
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+        Map<String, String> newProps = new HashMap<String, String>();
+        Map<String, String> spaceProps = getSpaceProperties(spaceId);
+
+        // add existing non ACLs properties
+        for (String key : spaceProps.keySet()) {
+            if (!key.startsWith(PROPERTIES_SPACE_ACL)) {
+                newProps.put(key, spaceProps.get(key));
+            }
+        }
+
+        // ONLY add new ACLs
+        if (null != spaceACLs) {
+            for (String key : spaceACLs.keySet()) {
+                if (key.startsWith(PROPERTIES_SPACE_ACL)) {
+                    newProps.put(key, spaceACLs.get(key));
+                }
+            }
+        }
+
+        // save
+        setSpaceProperties(spaceId, newProps);
     }
 
     /**

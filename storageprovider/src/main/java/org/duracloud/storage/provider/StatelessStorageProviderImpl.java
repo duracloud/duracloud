@@ -146,6 +146,14 @@ public class StatelessStorageProviderImpl
         return targetProvider.getSpaceProperties(spaceId);
     }
 
+    @Override
+    public Map<String, String> getSpaceACLs(StorageProvider targetProvider,
+                                            String storeId,
+                                            String spaceId)
+        throws StorageException {
+        return targetProvider.getSpaceACLs(spaceId);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -186,6 +194,15 @@ public class StatelessStorageProviderImpl
                                    Map<String, String> spaceProperties)
             throws StorageException {
         targetProvider.setSpaceProperties(spaceId, spaceProperties);
+    }
+
+    @Override
+    public void setSpaceACLs(StorageProvider targetProvider,
+                             String storeId,
+                             String spaceId,
+                             Map<String, String> spaceACLs)
+        throws StorageException {
+        targetProvider.setSpaceACLs(spaceId, spaceACLs);
     }
 
 }

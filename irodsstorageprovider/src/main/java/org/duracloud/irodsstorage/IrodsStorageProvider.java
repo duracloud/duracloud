@@ -276,6 +276,16 @@ public class IrodsStorageProvider implements StorageProvider {
         setProperties(baseDirectory + "/" + spaceId, spaceProperties);
     }
 
+    @Override
+    public Map<String, String> getSpaceACLs(String spaceId) {
+        throw new UnsupportedOperationException("getSpaceACL not implemented.");
+    }
+
+    @Override
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+        throw new UnsupportedOperationException("setSpaceACL not implemented.");
+    }
+
     /**
      * Always return 'open'
      * 

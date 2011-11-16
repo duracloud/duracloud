@@ -87,6 +87,11 @@ public interface StatelessStorageProvider {
                                                            String spaceId)
             throws StorageException;
 
+    public abstract Map<String, String> getSpaceACLs(StorageProvider targetProvider,
+                                                     String storeId,
+                                                     String spaceId)
+        throws StorageException;
+
     public abstract Iterator<String> getSpaces(StorageProvider targetProvider,
                                                String storeId)
             throws StorageException;
@@ -109,5 +114,11 @@ public interface StatelessStorageProvider {
                                             String spaceId,
                                             Map<String, String> spaceProperties)
             throws StorageException;
+
+    public abstract void setSpaceACLs(StorageProvider targetProvider,
+                                      String storeId,
+                                      String spaceId,
+                                      Map<String, String> spaceACLs)
+        throws StorageException;
 
 }

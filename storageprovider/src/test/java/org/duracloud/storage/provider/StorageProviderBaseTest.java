@@ -10,6 +10,7 @@ package org.duracloud.storage.provider;
 import org.duracloud.storage.error.NotFoundException;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,206 +22,303 @@ import java.util.List;
 import java.util.Map;
 
 public class StorageProviderBaseTest {
-    private StorageProviderTest provider;
-    private StorageProviderBase providerTest;
-    private String spaceId = "testspace";
+
+    private StorageProviderBaseImpl providerBase;
+    private StorageProviderBase providerMock;
+
+    private final static String spaceId = "space-id";
+    private static Map<String, String> spaceProps;
+    private static Map<String, String> spaceACLs;
+
+    private final static String user0 = "user-0";
+    private final static String user1 = "user-1";
+    private final static String group0 = "group-0";
+
+    private final static String propName0 = "unknown-name";
+
+    private final static String mimePrefix =
+        StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
+    private final static String aclPrefix =
+        StorageProvider.PROPERTIES_SPACE_ACL;
 
     @Before
     public void setUp() throws Exception {
-        providerTest = EasyMock.createMock("StorageProviderBase",
+        providerMock = EasyMock.createMock("StorageProviderBase",
                                            StorageProviderBase.class);
-        provider = new StorageProviderTest();
-        provider.setTest(providerTest);
+        providerBase = new StorageProviderBaseImpl(providerMock);
+
+        spaceACLs = new HashMap<String, String>();
+        spaceACLs.put(aclPrefix + user0, "r");
+        spaceACLs.put(aclPrefix + group0, "r");
+        spaceACLs.put(aclPrefix + user1, "w");
+
+        spaceProps = new HashMap<String, String>();
+        spaceProps.put(propName0, "unknown-value");
+        spaceProps.put(mimePrefix, "text/plain");
+        spaceProps.putAll(spaceACLs);
     }
 
     @After
     public void tearDown() {
-        EasyMock.verify(providerTest);
+        EasyMock.verify(providerMock);
+    }
 
-        provider = null;
-        providerTest = null;
+    private void replayMocks() {
+        EasyMock.replay(providerMock);
+    }
+
+    @Test
+    public void testGetSpaceACLs() {
+        createGetSpaceACLsMocks();
+
+        Map<String, String> acls = providerBase.getSpaceACLs(spaceId);
+        Assert.assertNotNull(acls);
+
+        Assert.assertEquals(spaceACLs.size(), acls.size());
+    }
+
+    private void createGetSpaceACLsMocks() {
+        EasyMock.expect(providerMock.getSpaceProperties(spaceId)).andReturn(
+            spaceProps);
+
+        EasyMock.makeThreadSafe(providerMock, true);
+        replayMocks();
+    }
+
+    @Test
+    public void testSetSpaceACLs() {
+        EasyMock.expect(providerMock.getSpaceProperties(spaceId)).andReturn(
+            spaceProps);
+
+        Map<String, String> newProps = new HashMap<String, String>();
+        String name0 = aclPrefix + "name0";
+        String name1 = "name1";
+        String name2 = aclPrefix + "name2";
+        String name3 = mimePrefix + "name3";
+
+        String value0 = "value0";
+        String value1 = "value1";
+        String value2 = "value2";
+        String value3 = "value3";
+
+        newProps.put(name0, value0);
+        newProps.put(name1, value1);
+        newProps.put(name2, value2);
+        newProps.put(name3, value3);
+
+        Map<String, String> expectedProps = new HashMap<String, String>();
+        expectedProps.put(name0, value0);
+        expectedProps.put(name2, value2);
+        expectedProps.put(propName0, spaceProps.get(propName0));
+        expectedProps.put(mimePrefix, spaceProps.get(mimePrefix));
+
+        providerMock.setSpaceProperties(spaceId, expectedProps);
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        // This test passes if the mock objects verify.
+        providerBase.setSpaceACLs(spaceId, newProps);
     }
 
     @Test
     public void testDeleteSpace() {
-        providerTest.throwIfSpaceNotExist(spaceId);
+        providerMock.throwIfSpaceNotExist(spaceId);
         EasyMock.expectLastCall();
 
-        EasyMock.expect(providerTest.getSpaceProperties(spaceId))
-            .andReturn(new HashMap<String, String>())
-            .once();
+        EasyMock.expect(providerMock.getSpaceProperties(spaceId))
+                .andReturn(new HashMap<String, String>())
+                .once();
 
-        providerTest.setSpaceProperties(EasyMock.<String>anyObject(),
-                                      EasyMock.<Map<String, String>>anyObject());
-        EasyMock.expectLastCall();
-
-        EasyMock.replay(providerTest);
-
-        provider.deleteSpace(spaceId);
-    }
-
-    @Test
-    public void testEmptyDeleteWorker(){
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(new ArrayList<String>().iterator())
-            .once();
-
-        providerTest.removeSpace(spaceId);
-        EasyMock.expectLastCall();
-        
-        EasyMock.replay(providerTest);
-
-
-        StorageProviderBase.SpaceDeleteWorker worker =
-            provider.getSpaceDeleteWorker(spaceId);
-        worker.run();
-    }
-
-    @Test
-    public void testOnceDeleteWorker(){
-        String contentId = "content-id";
-        List<String> contents = new ArrayList<String>();
-        contents.add(contentId);
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .once();
-
-        providerTest.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall();
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(new ArrayList<String>().iterator())
-            .once();
-
-        providerTest.removeSpace(spaceId);
-        EasyMock.expectLastCall();
-
-        EasyMock.replay(providerTest);
-
-
-        StorageProviderBase.SpaceDeleteWorker worker =
-            provider.getSpaceDeleteWorker(spaceId);
-        worker.run();
-    }
-
-    @Test
-    public void testOnceMultipleDeleteWorker(){
-        String contentId = "content-id";
-        List<String> contents = new ArrayList<String>();
-        contents.add(contentId);
-        contents.add(contentId);
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(contents.iterator())
-            .once();
-
-        providerTest.deleteContent(spaceId, contentId);
-        EasyMock.expectLastCall().times(2);
-
-        EasyMock.expect(providerTest.getSpaceContents(EasyMock.eq(spaceId),
-                                                      EasyMock.<String>isNull()))
-            .andReturn(new ArrayList<String>().iterator())
-            .once();
-
-        providerTest.removeSpace(spaceId);
-        EasyMock.expectLastCall();
-
-        EasyMock.replay(providerTest);
-
-
-        StorageProviderBase.SpaceDeleteWorker worker =
-            provider.getSpaceDeleteWorker(spaceId);
-        worker.run();
-    }
-
-    @Test
-    public void testRetriesDeleteWorker(){
-        String contentId = "content-id";
-        List<String> contents = new ArrayList<String>();
-        contents.add(contentId);
-
-        EasyMock.expect(providerTest.getSpaceContents(spaceId, null))
-            .andReturn(contents.iterator());
-
-        // 5 tries, 5 failures
-        for (int i = 0; i < 5; ++i) {
-            EasyMock.expect(providerTest.getSpaceContents(spaceId, null))
-                .andReturn(contents.iterator());
-
-            providerTest.deleteContent(spaceId, contentId);
-            EasyMock.expectLastCall().andThrow(new NotFoundException(""));
-        }
-
-        EasyMock.expect(providerTest.getSpaceProperties(spaceId))
-            .andReturn(new HashMap<String, String>());
-
-        providerTest.setSpaceProperties(EasyMock.<String>anyObject(),
+        providerMock.setSpaceProperties(EasyMock.<String>anyObject(),
                                         EasyMock.<Map<String, String>>anyObject());
         EasyMock.expectLastCall();
 
-        EasyMock.replay(providerTest);
+        replayMocks();
 
+        providerBase.deleteSpace(spaceId);
+    }
+
+    @Test
+    public void testEmptyDeleteWorker() {
+        EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
+                                                      EasyMock.<String>isNull()))
+                .andReturn(new ArrayList<String>().iterator())
+                .once();
+
+        providerMock.removeSpace(spaceId);
+        EasyMock.expectLastCall();
+
+        replayMocks();
 
         StorageProviderBase.SpaceDeleteWorker worker =
-            provider.getSpaceDeleteWorker(spaceId);
+            providerBase.getSpaceDeleteWorker(spaceId);
         worker.run();
     }
 
-    public class StorageProviderTest extends StorageProviderBase {
-        private StorageProviderBase test;
-        protected void removeSpace(String spaceId){
-            test.removeSpace(spaceId);
+    @Test
+    public void testOnceDeleteWorker() {
+        String contentId = "content-id";
+        List<String> contents = new ArrayList<String>();
+        contents.add(contentId);
+
+        EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
+                                                      EasyMock.<String>isNull()))
+                .andReturn(contents.iterator())
+                .once();
+
+        providerMock.deleteContent(spaceId, contentId);
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
+                                                      EasyMock.<String>isNull()))
+                .andReturn(new ArrayList<String>().iterator())
+                .once();
+
+        providerMock.removeSpace(spaceId);
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        StorageProviderBase.SpaceDeleteWorker worker =
+            providerBase.getSpaceDeleteWorker(spaceId);
+        worker.run();
+    }
+
+    @Test
+    public void testOnceMultipleDeleteWorker() {
+        String contentId = "content-id";
+        List<String> contents = new ArrayList<String>();
+        contents.add(contentId);
+        contents.add(contentId);
+
+        EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
+                                                      EasyMock.<String>isNull()))
+                .andReturn(contents.iterator())
+                .once();
+
+        providerMock.deleteContent(spaceId, contentId);
+        EasyMock.expectLastCall().times(2);
+
+        EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
+                                                      EasyMock.<String>isNull()))
+                .andReturn(new ArrayList<String>().iterator())
+                .once();
+
+        providerMock.removeSpace(spaceId);
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        StorageProviderBase.SpaceDeleteWorker worker =
+            providerBase.getSpaceDeleteWorker(spaceId);
+        worker.run();
+    }
+
+    @Test
+    public void testRetriesDeleteWorker() {
+        String contentId = "content-id";
+        List<String> contents = new ArrayList<String>();
+        contents.add(contentId);
+
+        EasyMock.expect(providerMock.getSpaceContents(spaceId, null)).andReturn(
+            contents.iterator());
+
+        // 5 tries, 5 failures
+        for (int i = 0; i < 5; ++i) {
+            EasyMock.expect(providerMock.getSpaceContents(spaceId, null))
+                    .andReturn(contents.iterator());
+
+            providerMock.deleteContent(spaceId, contentId);
+            EasyMock.expectLastCall().andThrow(new NotFoundException(""));
         }
-        public Iterator<String> getSpaces(){
-            return test.getSpaces();
+
+        EasyMock.expect(providerMock.getSpaceProperties(spaceId))
+                .andReturn(new HashMap<String, String>());
+
+        providerMock.setSpaceProperties(EasyMock.<String>anyObject(),
+                                        EasyMock.<Map<String, String>>anyObject());
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        StorageProviderBase.SpaceDeleteWorker worker =
+            providerBase.getSpaceDeleteWorker(spaceId);
+        worker.run();
+    }
+
+    /**
+     * This is an implementation of the abstract StorageProviderBase class,
+     * which is the class actually under test.
+     */
+    public class StorageProviderBaseImpl extends StorageProviderBase {
+
+        private StorageProviderBase mock;
+
+        public StorageProviderBaseImpl(StorageProviderBase mock) {
+            super();
+            this.mock = mock;
         }
-        protected void throwIfSpaceNotExist(String spaceId){
-            test.throwIfSpaceNotExist(spaceId);
+
+        protected void removeSpace(String spaceId) {
+            mock.removeSpace(spaceId);
         }
-        public InputStream getContent(String spaceId,
-                                      String contentId){
-            return test.getContent(spaceId,contentId);
+
+        public Iterator<String> getSpaces() {
+            return mock.getSpaces();
         }
+
+        protected void throwIfSpaceNotExist(String spaceId) {
+            mock.throwIfSpaceNotExist(spaceId);
+        }
+
+        public InputStream getContent(String spaceId, String contentId) {
+            return mock.getContent(spaceId, contentId);
+        }
+
         public Iterator<String> getSpaceContents(String spaceId,
-                                                 String prefix){
-            return test.getSpaceContents(spaceId,prefix);
+                                                 String prefix) {
+            return mock.getSpaceContents(spaceId, prefix);
         }
+
         public List<String> getSpaceContentsChunked(String spaceId,
                                                     String prefix,
                                                     long maxResults,
-                                                    String marker){
-            return test.getSpaceContentsChunked(spaceId,
+                                                    String marker) {
+            return mock.getSpaceContentsChunked(spaceId,
                                                 prefix,
                                                 maxResults,
                                                 marker);
         }
-        public void createSpace(String spaceId){test.createSpace(spaceId);}
-        public Map<String, String> getSpaceProperties(String spaceId){
-            return test.getSpaceProperties(spaceId);
+
+        public void createSpace(String spaceId) {
+            mock.createSpace(spaceId);
         }
+
+        public Map<String, String> getSpaceProperties(String spaceId) {
+            return mock.getSpaceProperties(spaceId);
+        }
+
         public void setSpaceProperties(String spaceId,
-                                       Map<String, String> spaceProperties){
-            test.setSpaceProperties(spaceId,spaceProperties);
+                                       Map<String, String> spaceProperties) {
+            mock.setSpaceProperties(spaceId, spaceProperties);
         }
-        public AccessType getSpaceAccess(String spaceId){
-            return test.getSpaceAccess(spaceId);
+
+        public AccessType getSpaceAccess(String spaceId) {
+            return mock.getSpaceAccess(spaceId);
         }
-        public void setSpaceAccess(String spaceId,
-                                   AccessType access){
-            test.setSpaceAccess(spaceId,access);
+
+        public void setSpaceAccess(String spaceId, AccessType access) {
+            mock.setSpaceAccess(spaceId, access);
         }
+
         public String addContent(String spaceId,
                                  String contentId,
                                  String contentMimeType,
                                  long contentSize,
                                  String contentChecksum,
-                                 InputStream content){
-            return test.addContent(spaceId,
+                                 InputStream content) {
+            return mock.addContent(spaceId,
                                    contentId,
                                    contentMimeType,
                                    contentSize,
@@ -233,28 +331,25 @@ public class StorageProviderBaseTest {
                                   String sourceContentId,
                                   String destSpaceId,
                                   String destContentId) {
-            return test.copyContent(sourceSpaceId,
+            return mock.copyContent(sourceSpaceId,
                                     sourceContentId,
                                     destSpaceId,
                                     destContentId);
         }
 
-        public void deleteContent(String spaceId,
-                                  String contentId){
-            test.deleteContent(spaceId,contentId);
-        }
-        public void setContentProperties(String spaceId,
-                                         String contentId,
-                                         Map<String, String> contentProperties){
-            test.setContentProperties(spaceId,contentId,contentProperties);
-        }
-        public Map<String, String> getContentProperties(String spaceId,
-                                                        String contentId){
-            return test.getContentProperties(spaceId,contentId);
+        public void deleteContent(String spaceId, String contentId) {
+            mock.deleteContent(spaceId, contentId);
         }
 
-        public void setTest(StorageProviderBase test) {
-            this.test = test;
+        public void setContentProperties(String spaceId,
+                                         String contentId,
+                                         Map<String, String> contentProperties) {
+            mock.setContentProperties(spaceId, contentId, contentProperties);
+        }
+
+        public Map<String, String> getContentProperties(String spaceId,
+                                                        String contentId) {
+            return mock.getContentProperties(spaceId, contentId);
         }
     }
 }

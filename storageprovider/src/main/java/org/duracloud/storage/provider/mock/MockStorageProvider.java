@@ -142,6 +142,16 @@ public class MockStorageProvider
         this.spaceProperties = spaceProperties;
     }
 
+    @Override
+    public Map<String, String> getSpaceACLs(String spaceId) {
+        throw new UnsupportedOperationException("getSpaceACLs not implemented");
+    }
+
+    @Override
+    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+        throw new UnsupportedOperationException("setSpaceACLs not implemented");
+    }
+
     public String getSpaceId() {
         return spaceId;
     }

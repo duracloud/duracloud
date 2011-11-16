@@ -26,7 +26,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.Map;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -168,15 +167,52 @@ public class SpaceRest extends BaseRest {
         throws ResourceException {
         Map<String, String> properties =
             spaceResource.getSpaceProperties(spaceID, storeID);
-        if (properties != null) {
-            Iterator<String> propertiesNames = properties.keySet().iterator();
-            while (propertiesNames.hasNext()) {
-                String propertiesName = (String) propertiesNames.next();
-                String propertiesValue = properties.get(propertiesName);
-                response.header(HEADER_PREFIX + propertiesName, propertiesValue);
-            }
+
+        return addPropertiesToResponse(response, properties);
+    }
+
+    private Response addPropertiesToResponse(ResponseBuilder response,
+                                             Map<String, String> properties) {
+        for (String propName : properties.keySet()) {
+            response.header(HEADER_PREFIX + propName, properties.get(propName));
         }
         return response.build();
+    }
+
+    /**
+     * see SpaceResource.getSpaceACLs(String, String);
+     * @return 200 response with space ACLs included as header values
+     */
+    @Path("/acl/{spaceID}")
+    @HEAD
+    public Response getSpaceACLs(@PathParam("spaceID") String spaceID,
+                                 @QueryParam("storeID") String storeID) {
+        String msg = "getting space ACLs(" + spaceID + ", " + storeID + ")";
+
+        try {
+            log.debug(msg);
+            return addSpaceACLsToResponse(Response.ok(), spaceID, storeID);
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg, e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Adds the ACLs of a space as header values to the response.
+     */
+    private Response addSpaceACLsToResponse(ResponseBuilder response,
+                                            String spaceID,
+                                            String storeID)
+        throws ResourceException {
+        Map<String, String> acls = spaceResource.getSpaceACLs(spaceID, storeID);
+        return addPropertiesToResponse(response, acls);
     }
 
     /**
@@ -266,6 +302,43 @@ public class SpaceRest extends BaseRest {
                                             userProperties,
                                             storeID);
         String responseText = "Space " + spaceID + " updated successfully";
+        return Response.ok(responseText, TEXT_PLAIN).build();
+    }
+
+    /**
+     * This method sets the ACLs associated with a space.
+     * Only values included in the ACLs headers will be updated, others will
+     * be removed.
+     *
+     * @return 200 response
+     */
+    @Path("/acl/{spaceID}")
+    @POST
+    public Response updateSpaceACLs(@PathParam("spaceID") String spaceID,
+                                    @QueryParam("storeID") String storeID) {
+        String msg = "update space ACLs(" + spaceID + ", " + storeID + ")";
+
+        try {
+            log.debug(msg);
+            return doUpdateSpaceACLs(spaceID, storeID);
+
+        } catch (ResourceNotFoundException e) {
+            return responseBad(msg, e, NOT_FOUND);
+
+        } catch (ResourceException e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+
+        } catch (Exception e) {
+            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response doUpdateSpaceACLs(String spaceID, String storeID)
+        throws ResourceException {
+        Map<String, String> spaceACLs = getSpaceACLs();
+        spaceResource.updateSpaceACLs(spaceID, spaceACLs, storeID);
+
+        String responseText = "Space " + spaceID + " ACLs updated successfully";
         return Response.ok(responseText, TEXT_PLAIN).build();
     }
 
