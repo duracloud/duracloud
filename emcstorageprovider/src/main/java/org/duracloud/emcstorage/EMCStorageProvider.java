@@ -344,8 +344,8 @@ public class EMCStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceProperties(String spaceId) {
-        log.debug("getSpaceProperties(" + spaceId + ")");
+    protected Map<String, String> getAllSpaceProperties(String spaceId) {
+        log.debug("getAllSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -394,8 +394,8 @@ public class EMCStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties) {
+    protected void doSetSpaceProperties(String spaceId,
+                                        Map<String, String> spaceProperties) {
         log.debug("setSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);

@@ -293,7 +293,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         Date created = new Date(System.currentTimeMillis());
         spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
         spaceProperties.put(PROPERTIES_SPACE_ACCESS, AccessType.CLOSED.name());
-        setSpaceProperties(spaceId, spaceProperties);
+        doSetSpaceProperties(spaceId, spaceProperties);
     }
 
     private String formattedDate(Date created) {
@@ -365,8 +365,8 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceProperties(String spaceId) {
-        log.debug("getSpaceProperties(" + spaceId + ")");
+    protected Map<String, String> getAllSpaceProperties(String spaceId) {
+        log.debug("getAllSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -417,9 +417,9 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties) {
-        log.debug("setSpaceProperties(" + spaceId + ")");
+    protected void doSetSpaceProperties(String spaceId,
+                                        Map<String, String> spaceProperties) {
+        log.debug("doSetSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -464,7 +464,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     }
 
     private String getCreationTimestamp(String spaceId) {
-        Map<String, String> spaceMd = getSpaceProperties(spaceId);
+        Map<String, String> spaceMd = getAllSpaceProperties(spaceId);
         String creationTime = spaceMd.get(PROPERTIES_SPACE_CREATED);
 
         if (creationTime == null) {

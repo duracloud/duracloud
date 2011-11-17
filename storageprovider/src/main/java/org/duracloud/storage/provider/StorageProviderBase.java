@@ -24,6 +24,52 @@ public abstract class StorageProviderBase implements StorageProvider {
 
     protected abstract void throwIfSpaceNotExist(String spaceId);
     protected abstract void removeSpace(String spaceId);
+    protected abstract Map<String, String> getAllSpaceProperties(String spaceId);
+    protected abstract void doSetSpaceProperties(String spaceId,
+                                                 Map<String, String> spaceProps);
+
+    /**
+     * This method returns all of the space properties EXCEPT the ACLs
+     *
+     * @param spaceId - ID of the space
+     * @return map of space properties
+     */
+    public Map<String, String> getSpaceProperties(String spaceId) {
+        Map<String, String> spaceProps = new HashMap<String, String>();
+        Map<String, String> allProps = getAllSpaceProperties(spaceId);
+
+        // ONLY include non-ACL properties.
+        for (String name : allProps.keySet()) {
+            if (!name.startsWith(PROPERTIES_SPACE_ACL)) {
+                spaceProps.put(name, allProps.get(name));
+            }
+        }
+
+        return spaceProps;
+    }
+
+    /**
+     * This method adds all of the existing ACLs to the properties to be set.
+     *
+     * @param spaceId    - ID of the space
+     * @param spaceProps - Updated space properties
+     */
+    public void setSpaceProperties(String spaceId,
+                                   Map<String, String> spaceProps) {
+        // Although allProps contains only ACLs at first, arg props will be added.
+        Map<String, String> allProps = getSpaceACLs(spaceId);
+
+        // ONLY add non ACL properties
+        if (null != spaceProps) {
+            for (String key : spaceProps.keySet()) {
+                if (!key.startsWith(PROPERTIES_SPACE_ACL)) {
+                    allProps.put(key, spaceProps.get(key));
+                }
+            }
+        }
+
+        doSetSpaceProperties(spaceId, allProps);
+    }
 
     /**
      * {@inheritDoc}
@@ -33,7 +79,7 @@ public abstract class StorageProviderBase implements StorageProvider {
 
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
+        Map<String, String> spaceProperties = getAllSpaceProperties(spaceId);
         String spaceAccess = spaceProperties.get(PROPERTIES_SPACE_ACCESS);
 
         if(spaceAccess == null) {
@@ -53,8 +99,8 @@ public abstract class StorageProviderBase implements StorageProvider {
 
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
-        String spaceAccess = spaceProperties.get(PROPERTIES_SPACE_ACCESS);
+        Map<String, String> allProps = getAllSpaceProperties(spaceId);
+        String spaceAccess = allProps.get(PROPERTIES_SPACE_ACCESS);
 
         AccessType currentAccess = null;
         if(spaceAccess != null) {
@@ -66,18 +112,18 @@ public abstract class StorageProviderBase implements StorageProvider {
         }
 
         if(!access.equals(currentAccess)) {
-            spaceProperties.put(PROPERTIES_SPACE_ACCESS, access.name());
-            setSpaceProperties(spaceId, spaceProperties);
+            allProps.put(PROPERTIES_SPACE_ACCESS, access.name());
+            doSetSpaceProperties(spaceId, allProps);
         }
     }
 
     public Map<String, String> getSpaceACLs(String spaceId) {
         Map<String, String> acls = new HashMap<String, String>();
-        Map<String, String> spaceProps = getSpaceProperties(spaceId);
+        Map<String, String> allProps = getAllSpaceProperties(spaceId);
 
-        for (String name : spaceProps.keySet()) {
+        for (String name : allProps.keySet()) {
             if (name.startsWith(PROPERTIES_SPACE_ACL)) {
-                acls.put(name, spaceProps.get(name));
+                acls.put(name, allProps.get(name));
             }
         }
 
@@ -89,11 +135,7 @@ public abstract class StorageProviderBase implements StorageProvider {
         Map<String, String> spaceProps = getSpaceProperties(spaceId);
 
         // add existing non ACLs properties
-        for (String key : spaceProps.keySet()) {
-            if (!key.startsWith(PROPERTIES_SPACE_ACL)) {
-                newProps.put(key, spaceProps.get(key));
-            }
-        }
+        newProps.putAll(spaceProps);
 
         // ONLY add new ACLs
         if (null != spaceACLs) {
@@ -105,7 +147,7 @@ public abstract class StorageProviderBase implements StorageProvider {
         }
 
         // save
-        setSpaceProperties(spaceId, newProps);
+        doSetSpaceProperties(spaceId, newProps);
     }
 
     /**
@@ -115,9 +157,9 @@ public abstract class StorageProviderBase implements StorageProvider {
         log.debug("deleteSpace(" + spaceId + ")");
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
-        spaceProperties.put("is-delete", "true");
-        setSpaceProperties(spaceId, spaceProperties);
+        Map<String, String> allProps = getAllSpaceProperties(spaceId);
+        allProps.put("is-delete", "true");
+        doSetSpaceProperties(spaceId, allProps);
 
         SpaceDeleteWorker deleteThread = getSpaceDeleteWorker(spaceId);
         new Thread(deleteThread).start();
@@ -163,11 +205,9 @@ public abstract class StorageProviderBase implements StorageProvider {
                 log.debug("deleteSpaceContents(" + spaceId +
                           ") exceeded retries");
 
-                Map<String, String> spaceProperties =
-                    getSpaceProperties(spaceId);
-                spaceProperties.put("delete-error",
-                                    "Unable to delete all content items");
-                setSpaceProperties(spaceId, spaceProperties);
+                Map<String, String> allProps = getAllSpaceProperties(spaceId);
+                allProps.put("delete-error", "Unable to delete all contents");
+                doSetSpaceProperties(spaceId, allProps);
             }
             else {
                 log.debug("removeSpace(" + spaceId + ")");

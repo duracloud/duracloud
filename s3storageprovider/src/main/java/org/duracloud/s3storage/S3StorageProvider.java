@@ -275,7 +275,7 @@ public class S3StorageProvider extends StorageProviderBase {
         int maxLoops = 6;
         for (int loops = 0; !success && loops < maxLoops; loops++) {
             try {
-                setSpaceProperties(spaceId, spaceProperties);
+                doSetSpaceProperties(spaceId, spaceProperties);
                 success = true;
             } catch (NotFoundException e) {
                 success = false;
@@ -330,8 +330,8 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceProperties(String spaceId) {
-        log.debug("getSpaceProperties(" + spaceId + ")");
+    protected Map<String, String> getAllSpaceProperties(String spaceId) {
+        log.debug("getAllSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -404,15 +404,15 @@ public class S3StorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties) {
+    protected void doSetSpaceProperties(String spaceId,
+                                        Map<String, String> spaceProperties) {
         log.debug("setSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
 
         Map<String, String> originalProperties = null;
         try {
-            originalProperties = getSpaceProperties(spaceId);
+            originalProperties = getAllSpaceProperties(spaceId);
         } catch(NotFoundException e) {
             // Likely adding a new space, so no existing properties yet.
             originalProperties = new HashMap<String, String>();

@@ -288,7 +288,7 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceProperties(String spaceId) {
+    public Map<String, String> getAllSpaceProperties(String spaceId) {
         log.debug("getSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
@@ -351,8 +351,8 @@ public class AzureStorageProvider extends StorageProviderBase {
     /**
      * {@inheritDoc}
      */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties) {
+    protected void doSetSpaceProperties(String spaceId,
+                                        Map<String, String> spaceProperties) {
         log.debug("setSpaceProperties(" + spaceId + ")");
 
         throwIfSpaceNotExist(spaceId);
@@ -410,7 +410,7 @@ public class AzureStorageProvider extends StorageProviderBase {
     }
 
     private String getCreationTimestamp(String spaceId) {
-        Map<String, String> spaceMd = getSpaceProperties(spaceId);
+        Map<String, String> spaceMd = getAllSpaceProperties(spaceId);
         String creationTime = spaceMd.get(PROPERTIES_SPACE_CREATED);
 
         if (creationTime == null) {

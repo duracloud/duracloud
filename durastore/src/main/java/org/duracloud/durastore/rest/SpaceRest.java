@@ -219,7 +219,7 @@ public class SpaceRest extends BaseRest {
      * see SpaceResource.addSpace(String, String, String, String)
      * @return 201 response with request URI
      */
-    @Path("/{spaceID}")
+    @Path("/{spaceID: (?!acl$).*}")
     @PUT
     public Response addSpace(@PathParam("spaceID")
                              String spaceID,

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class StorageProviderBaseTest {
 
@@ -29,6 +30,7 @@ public class StorageProviderBaseTest {
     private final static String spaceId = "space-id";
     private static Map<String, String> spaceProps;
     private static Map<String, String> spaceACLs;
+    private static Map<String, String> userProps;
 
     private final static String user0 = "user-0";
     private final static String user1 = "user-1";
@@ -52,10 +54,13 @@ public class StorageProviderBaseTest {
         spaceACLs.put(aclPrefix + group0, "r");
         spaceACLs.put(aclPrefix + user1, "w");
 
+        userProps = new HashMap<String, String>();
+        userProps.put(propName0, "unknown-value");
+        userProps.put(mimePrefix, "text/plain");
+
         spaceProps = new HashMap<String, String>();
-        spaceProps.put(propName0, "unknown-value");
-        spaceProps.put(mimePrefix, "text/plain");
         spaceProps.putAll(spaceACLs);
+        spaceProps.putAll(userProps);
     }
 
     @After
@@ -65,6 +70,47 @@ public class StorageProviderBaseTest {
 
     private void replayMocks() {
         EasyMock.replay(providerMock);
+    }
+
+    @Test
+    public void testGetSpaceProperties() {
+        createGetSpacePropertiesMocks();
+
+        Map<String, String> props = providerBase.getSpaceProperties(spaceId);
+        Assert.assertNotNull(props);
+
+        Assert.assertEquals(userProps.size(), props.size());
+        Set<String> propKeys = props.keySet();
+        for (String key : userProps.keySet()) {
+            Assert.assertTrue(propKeys.contains(key));
+            Assert.assertEquals(userProps.get(key), props.get(key));
+        }
+    }
+
+    private void createGetSpacePropertiesMocks() {
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
+            spaceProps);
+
+        EasyMock.makeThreadSafe(providerMock, true);
+        replayMocks();
+    }
+
+    @Test
+    public void testSetSpaceProperties() {
+        createSetSpacePropertiesMocks();
+
+        providerBase.setSpaceProperties(spaceId, userProps);
+    }
+
+    private void createSetSpacePropertiesMocks() {
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
+            spaceProps);
+
+        providerMock.doSetSpaceProperties(spaceId, spaceProps);
+        EasyMock.expectLastCall();
+
+        EasyMock.makeThreadSafe(providerMock, true);
+        replayMocks();
     }
 
     @Test
@@ -78,7 +124,7 @@ public class StorageProviderBaseTest {
     }
 
     private void createGetSpaceACLsMocks() {
-        EasyMock.expect(providerMock.getSpaceProperties(spaceId)).andReturn(
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
             spaceProps);
 
         EasyMock.makeThreadSafe(providerMock, true);
@@ -87,7 +133,7 @@ public class StorageProviderBaseTest {
 
     @Test
     public void testSetSpaceACLs() {
-        EasyMock.expect(providerMock.getSpaceProperties(spaceId)).andReturn(
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
             spaceProps);
 
         Map<String, String> newProps = new HashMap<String, String>();
@@ -112,7 +158,7 @@ public class StorageProviderBaseTest {
         expectedProps.put(propName0, spaceProps.get(propName0));
         expectedProps.put(mimePrefix, spaceProps.get(mimePrefix));
 
-        providerMock.setSpaceProperties(spaceId, expectedProps);
+        providerMock.doSetSpaceProperties(spaceId, expectedProps);
         EasyMock.expectLastCall();
 
         replayMocks();
@@ -126,12 +172,11 @@ public class StorageProviderBaseTest {
         providerMock.throwIfSpaceNotExist(spaceId);
         EasyMock.expectLastCall();
 
-        EasyMock.expect(providerMock.getSpaceProperties(spaceId))
-                .andReturn(new HashMap<String, String>())
-                .once();
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
+            new HashMap<String, String>()).once();
 
-        providerMock.setSpaceProperties(EasyMock.<String>anyObject(),
-                                        EasyMock.<Map<String, String>>anyObject());
+        providerMock.doSetSpaceProperties(EasyMock.<String>anyObject(),
+                                          EasyMock.<Map<String, String>>anyObject());
         EasyMock.expectLastCall();
 
         replayMocks();
@@ -233,11 +278,11 @@ public class StorageProviderBaseTest {
             EasyMock.expectLastCall().andThrow(new NotFoundException(""));
         }
 
-        EasyMock.expect(providerMock.getSpaceProperties(spaceId))
-                .andReturn(new HashMap<String, String>());
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
+            new HashMap<String, String>());
 
-        providerMock.setSpaceProperties(EasyMock.<String>anyObject(),
-                                        EasyMock.<Map<String, String>>anyObject());
+        providerMock.doSetSpaceProperties(EasyMock.<String>anyObject(),
+                                          EasyMock.<Map<String, String>>anyObject());
         EasyMock.expectLastCall();
 
         replayMocks();
@@ -295,13 +340,14 @@ public class StorageProviderBaseTest {
             mock.createSpace(spaceId);
         }
 
-        public Map<String, String> getSpaceProperties(String spaceId) {
-            return mock.getSpaceProperties(spaceId);
+        protected Map<String, String> getAllSpaceProperties(String spaceId) {
+            return mock.getAllSpaceProperties(spaceId);
         }
 
-        public void setSpaceProperties(String spaceId,
-                                       Map<String, String> spaceProperties) {
-            mock.setSpaceProperties(spaceId, spaceProperties);
+        @Override
+        protected void doSetSpaceProperties(String spaceId,
+                                            Map<String, String> spaceProps) {
+            mock.doSetSpaceProperties(spaceId, spaceProps);
         }
 
         public AccessType getSpaceAccess(String spaceId) {
