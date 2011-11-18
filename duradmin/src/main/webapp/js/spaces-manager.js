@@ -1926,6 +1926,9 @@ $(function(){
 			}).bind("turnOff", function(evt, future){
 				toggleSpaceAccess(space, future);
 			});
+		
+        loadAclPane(detail, space);
+
 
 		loadProperties(detail, extractSpaceProperties(space));
 		
@@ -1975,12 +1978,22 @@ $(function(){
 			removeSpaceTag(space.spaceId, value, future);
 		});
 
+		
+		
 		$("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
 
 		loadContentItems(space);
 		
 	};
 
+	var loadAclPane = function(detail, space){
+        var viewerPane =  $.fn.create("div")
+                              .acleditor({open: false, space: space});
+        
+        $(".center", detail).append(viewerPane);
+        return viewerPane;	    
+	};
+	
 	
 	var extractSpaceProperties = function(space){
 		return [ 

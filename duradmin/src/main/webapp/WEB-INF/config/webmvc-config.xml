@@ -20,7 +20,7 @@
   <bean id="multipartResolver"
         class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
    -->
-  <context:component-scan base-package="org.duracloud.duradmin.control">
+  <context:component-scan base-package="org.duracloud.duradmin">
   
   </context:component-scan>
   <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
@@ -58,6 +58,8 @@
   <bean id="spacesController" class="org.duracloud.duradmin.spaces.controller.SpacesController">
     <property name="contentStoreManager" ref="contentStoreManager" />
   </bean>
+  
+
   <bean id="bulkUploadController" class="org.duracloud.duradmin.spaces.controller.BulkUploadController">
     <property name="contentStoreManager" ref="contentStoreManager" />
     <property name="userDetailsService" ref="userDetailsSvc" />

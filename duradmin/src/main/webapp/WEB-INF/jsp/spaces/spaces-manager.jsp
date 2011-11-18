@@ -38,6 +38,9 @@
 			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.propertiesviewer.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.tagsviewer.js"></script>
+    <script type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.acleditor.js"></script>
+
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.flyoutselect.js"></script>
 		<script type="text/javascript"
@@ -112,9 +115,12 @@
 							<div class="r access-switch"></div>
 						</div>
 						<div class="button-bar">
-							<button class="featured add-content-item-button"><i class="pre plus"></i>Add One Item</button>
+                            <!-- 
+                            <button class="featured add-content-item-button"><i class="pre plus"></i>Add One Item</button>
                             <a class="button featured bulk-add-content-item"><i class="pre plus"></i>Add Many Items</a>
-							<button class="delete-space-button dc-delete-button"><i class="pre trash"></i>Delete Space</button>
+							 -->
+              
+                            <button class="delete-space-button dc-delete-button"><i class="pre trash"></i>Delete Space</button>
 						</div>
 					</div>
 					<div class="center"></div>

@@ -664,6 +664,12 @@ input.dc-check-all
 	margin-bottom:10px;
 }
 
+.detail-pane th {
+	text-align: left;
+	background-color: #555;
+	padding: 5px 0px 5px 0px;
+}
+
 h2,.footer-prompt
 {
     color:#999999;
@@ -1167,4 +1173,26 @@ table.tablesorter tr {
 	padding:10px;
 }
 
-	
+.dc-controlpanel .dc-controlpanel-header > * {
+	float:right;
+}
+
+.dc-controlpanel .dc-controlpanel-header  {
+	background-color: #444;
+	padding: 5px;
+	height:25px;
+}
+
+.dc-controlpanel input[type="checkbox"]  {
+	margin:0px 5px 0px 5px !important;
+}
+
+table.dc-acls td:first-child {
+	width:50%;
+}
+
+table.dc-acls td:last-child {
+	width:25% ;
+}
+
+

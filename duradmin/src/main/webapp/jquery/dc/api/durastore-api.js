@@ -281,6 +281,58 @@ var dc;
 			   "&attachment=" + asAttachment;
 	};	
 
+	/**
+	 * @param storeId
+	 * @param spaceId
+	 */
+    dc.store.GetUnassignedSpaceAcls = function(storeId,spaceId, callback){
+        dc.ajax({
+            url: "/duradmin/spaces/acls/unassignedAcls?storeId="+storeId+"&spaceId="+spaceId, 
+            async: false,
+            cache: false,
+            success: function(data){
+                callback.success(data.acls);
+            },
+        }, callback);
+    };
+    
+    /**
+     * @param storeId
+     * @param spaceId
+     */
+    dc.store.GetSpaceAcls = function(storeId,spaceId, callback){
+        dc.ajax({
+            url: "/duradmin/spaces/acls?storeId="+storeId+"&spaceId="+spaceId, 
+            async: false,
+            cache: false,
+            success: function(data){
+                callback.success(data.acls);
+            },
+        }, callback);
+    };
+    
+    /**
+     * @formData is serialized form data containing the following required fields:
+     *             storeId 
+     *             spaceId
+     *           and one or more of the following non required fields:
+     *             read (users/groups to give read access to)
+     *             write (users/groups to give write access to)
+     * @param action - optional parameter. If value is set to "add" the acls in the form
+     *               will be added to the existing space acls rather than replacing them.              
+     *             
+     */
+    dc.store.UpdateSpaceAcls = function(/*serialized form data*/formData, /*boolean*/ add, callback){
+        dc.ajax({
+            url: "/duradmin/spaces/acls?action="+(add ? "add":""), 
+            async: false,
+            data: formData,
+            type: "post",
+            success: function(data){
+                callback.success(data.acls);
+            },
+        });
+    };
 })();
 
 

@@ -235,7 +235,7 @@ $(function(){
 							cell.addClass(columnDefs[j].cssClass);
 						}
 					}
-					cell.html(value);
+					cell.append(value);
 				}
 			}
 			return table;
