@@ -346,7 +346,7 @@ public class ContentStoreImpl implements ContentStore{
         try {
             HttpResponse response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
-            return extractPropertiesFromHeaders(response);
+            return extractPropertiesFromHeaders(response, StorageProvider.PROPERTIES_SPACE_ACL);
 
         } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
@@ -717,11 +717,16 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     private Map<String, String> extractPropertiesFromHeaders(HttpResponse response) {
+        return extractPropertiesFromHeaders(response, null);
+    }
+
+    private Map<String, String> extractPropertiesFromHeaders(HttpResponse response, String keyPrefix) {
         Map<String, String> properties = new HashMap<String, String>();
+        String prefix = HEADER_PREFIX + (keyPrefix != null ? keyPrefix : "");
         for (Header header : response.getResponseHeaders()) {
             String name = header.getName();
-            if (name.startsWith(HEADER_PREFIX)) {
-                properties.put(name.substring(HEADER_PREFIX.length()),
+            if (name.startsWith(prefix)) {
+                properties.put(name.substring(prefix.length()),
                              header.getValue());
             }
         }

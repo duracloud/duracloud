@@ -310,19 +310,22 @@ public class ContentStoreImplTest {
 
         Assert.assertEquals(acls.size(), headers.size());
 
+        String prefix = HEADER_PREFIX + ACL_PREFIX;
+
         Set<String> headerKeys = headers.keySet();
         for (String acl : acls.keySet()) {
-            Assert.assertTrue(headerKeys.contains(HEADER_PREFIX + ACL_PREFIX + acl));
+            Assert.assertTrue(headerKeys.contains(prefix + acl));
             Assert.assertEquals(acls.get(acl), headers.get(
-                HEADER_PREFIX + ACL_PREFIX + acl));
+                prefix + acl));
         }
     }
 
     private Map<String, String> createACLsForTest(String name) {
-        String name0 = HEADER_PREFIX + ACL_PREFIX + "name0";
+        String prefix = HEADER_PREFIX + ACL_PREFIX;
+        String name0 = prefix + "name0";
         String name1 = name;
-        String name2 = HEADER_PREFIX + "name2";
-        String name3 = HEADER_PREFIX + ACL_PREFIX + "name3";
+        String name2 = prefix + "name2";
+        String name3 = prefix + "name3";
 
         String value0 = "value0";
         String value1 = "value1";
@@ -380,8 +383,9 @@ public class ContentStoreImplTest {
         Assert.assertNotNull(acls.remove(name));
 
         Set<String> spaceACLKeys = spaceACLs.keySet();
+        String aclHeaderPrefix = HEADER_PREFIX + ACL_PREFIX;
         for (String acl : acls.keySet()) {
-            String aclNoPrefix = acl.substring(HEADER_PREFIX.length());
+            String aclNoPrefix = acl.substring(aclHeaderPrefix.length());
             Assert.assertTrue(spaceACLKeys.contains(aclNoPrefix));
             Assert.assertEquals(acls.get(acl), spaceACLs.get(aclNoPrefix));
         }
