@@ -16,20 +16,11 @@
   
   <bean id="contentStoreManagerTarget"  factory-bean="contentStoreManagerFactory" factory-method="create" />
 
-  <bean id="contentStoreSelector" class="org.duracloud.duradmin.contentstore.ContentStoreSelector"
-        scope="session">
-    <aop:scoped-proxy/>
-  </bean>
-
-  <bean id="contentStoreProvider"  class="org.duracloud.duradmin.contentstore.ContentStoreProvider">
-    <constructor-arg ref="contentStoreManager"/>
-    <constructor-arg ref="contentStoreSelector" />
-  </bean>
 
   <bean id="servicesManagerTarget" class="org.duracloud.duradmin.services.DuradminServicesManagerImpl"/>
 
   <bean id="controllerSupport" class="org.duracloud.duradmin.control.ControllerSupport">
-    <constructor-arg ref="contentStoreProvider"/>
+    <constructor-arg ref="contentStoreManager"/>
     <constructor-arg ref="servicesManager"/>
   </bean>
 
@@ -37,10 +28,6 @@
     <property name="controllerSupport" ref="controllerSupport"/>
   </bean>
 
-  <bean id="baseFormController" class="org.duracloud.duradmin.control.BaseFormController" abstract="true">
-    <property name="controllerSupport" ref="controllerSupport"/>
-  </bean>
-  
   <bean class="org.duracloud.duradmin.report.DuradminStorageReportManagerImpl"/>
   <bean class="org.duracloud.duradmin.report.DuradminServiceReportManagerImpl"/>
 

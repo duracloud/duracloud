@@ -7,10 +7,24 @@
  */
 package org.duracloud.duradmin.control;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
-import org.duracloud.duradmin.contentstore.ContentStoreProvider;
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.domain.AdminInit;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -19,17 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * @author Andrew Woods
@@ -54,20 +57,20 @@ public class InitControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        ContentStoreProvider provider = EasyMock.createMock(
-            "ContentStoreProvider",
-            ContentStoreProvider.class);
-        provider.reinitializeContentStoreManager();
+        ContentStoreManager contentStoreManager = EasyMock.createMock(
+            "ContentStoreManager",
+            ContentStoreManager.class);
+        contentStoreManager.reinitialize((String)EasyMock.anyObject(), (String)EasyMock.anyObject(), (String)EasyMock.anyObject());
         EasyMock.expectLastCall();
 
         ControllerSupport support = EasyMock.createMock("ControllerSupport",
                                                         ControllerSupport.class);
-        EasyMock.expect(support.getContentStoreProvider()).andReturn(provider);
+        EasyMock.expect(support.getContentStoreManager()).andReturn(contentStoreManager);
 
         controller = new InitController();
         controller.setControllerSupport(support);
 
-        EasyMock.replay(support, provider);
+        EasyMock.replay(support, contentStoreManager);
     }
 
     @After

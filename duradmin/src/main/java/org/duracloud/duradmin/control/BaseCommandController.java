@@ -7,11 +7,12 @@
  */
 package org.duracloud.duradmin.control;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.duradmin.contentstore.ContentStoreProvider;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.util.MessageUtils;
 import org.duracloud.duradmin.util.NavigationUtils;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +21,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public abstract class BaseCommandController
         extends AbstractCommandController {
 
@@ -30,7 +28,7 @@ public abstract class BaseCommandController
 
     protected final Logger log = LoggerFactory.getLogger(BaseCommandController.class);
 
-    private ControllerSupport controllerSupport;
+    protected ControllerSupport controllerSupport;
 
     @Override
     public ModelAndView handleRequest(HttpServletRequest request,
@@ -40,12 +38,8 @@ public abstract class BaseCommandController
         return controllerSupport.handle(mav, request, response);
     }
 
-    public ContentStore getContentStore() throws ContentStoreException {
-        return controllerSupport.getContentStore();
-    }
-
-    public ContentStoreProvider getContentStoreProvider() {
-        return controllerSupport.getContentStoreProvider();
+    public ContentStoreManager getContentStoreManager() {
+        return controllerSupport.getContentStoreManager();
     }
 
     protected ServicesManager getServicesManager() throws Exception {

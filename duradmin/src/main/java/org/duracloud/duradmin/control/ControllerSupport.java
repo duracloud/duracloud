@@ -7,47 +7,25 @@
  */
 package org.duracloud.duradmin.control;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.duradmin.contentstore.ContentStoreProvider;
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.util.MessageUtils;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ControllerSupport {
 
-    private ContentStoreProvider contentStoreProvider;
     private ServicesManager servicesManager;
-
-    public ControllerSupport(ContentStoreProvider contentStoreProvider,
-                             ServicesManager servicesManager) {
-        this.contentStoreProvider = contentStoreProvider;
+    private ContentStoreManager contentStoreManager; 
+    
+    public ControllerSupport(ServicesManager servicesManager, ContentStoreManager contentStoreManager ) {
         this.servicesManager = servicesManager;
+        this.contentStoreManager = contentStoreManager;
     }
 
-    public ContentStore getContentStore() throws ContentStoreException {
-        return getContentStoreProvider().getContentStore();
-    }
 
-    public ContentStoreProvider getContentStoreProvider() {
-        return contentStoreProvider;
-    }
-
-    public void setContentStoreProvider(ContentStoreProvider contentStoreProvider) {
-        this.contentStoreProvider = contentStoreProvider;
-    }
-
-    protected List<String> getSpaces() throws Exception {
-        List<String> spaces = getContentStore().getSpaces();
-        Collections.sort(spaces);
-        return spaces;
-    }
 
     public ModelAndView handle(ModelAndView modelAndView,
                                HttpServletRequest request,
@@ -71,5 +49,11 @@ public class ControllerSupport {
 
     public void setServicesManager(ServicesManager servicesManager) {
         this.servicesManager = servicesManager;
+    }
+
+
+
+    public ContentStoreManager getContentStoreManager() {
+        return this.contentStoreManager;
     }
 }

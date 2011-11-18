@@ -52,13 +52,11 @@ public class ContentItemDownloadController
             response.setHeader("Content-Disposition", contentDisposition.toString());
     	}
 
-    	for(ContentStore store : controllerSupport.getContentStoreProvider().getContentStores()){
-    		if(store.getStoreId().equals(storeId)){
-    		   	SpaceUtil.streamContent(store, response, spaceId, contentId);
-    	    	break;
-    		}
-    	}
-    	
-        return null;
+    	ContentStore store = 
+    	    controllerSupport.getContentStoreManager().getContentStore(storeId);
+
+    	SpaceUtil.streamContent(store, response, spaceId, contentId);
+
+    	return null;
     }
 }
