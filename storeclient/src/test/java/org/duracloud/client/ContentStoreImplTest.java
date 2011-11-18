@@ -312,9 +312,9 @@ public class ContentStoreImplTest {
 
         Set<String> headerKeys = headers.keySet();
         for (String acl : acls.keySet()) {
-            Assert.assertTrue(headerKeys.contains(HEADER_PREFIX + acl));
+            Assert.assertTrue(headerKeys.contains(HEADER_PREFIX + ACL_PREFIX + acl));
             Assert.assertEquals(acls.get(acl), headers.get(
-                HEADER_PREFIX + acl));
+                HEADER_PREFIX + ACL_PREFIX + acl));
         }
     }
 

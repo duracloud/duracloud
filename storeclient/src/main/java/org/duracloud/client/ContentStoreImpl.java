@@ -362,8 +362,9 @@ public class ContentStoreImpl implements ContentStore{
         throws ContentStoreException {
         String task = "set space ACLs";
         String url = buildAclURL(spaceId);
-        Map<String, String> headers = convertPropertiesToHeaders(spaceACLs);
-
+        Map<String, String> headers =
+            convertPropertiesToHeaders(spaceACLs, StorageProvider.PROPERTIES_SPACE_ACL);
+        
         try {
             HttpResponse response = restHelper.post(url, null, headers);
             checkResponse(response, HttpStatus.SC_OK);
@@ -702,10 +703,14 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     private Map<String, String> convertPropertiesToHeaders(Map<String, String> properties) {
+        return convertPropertiesToHeaders(properties, null);
+    }
+    
+    private Map<String, String> convertPropertiesToHeaders(Map<String, String> properties, String keyPrefix) {
         Map<String, String> headers = new HashMap<String, String>();
         if(properties != null) {
             for (String metaName : properties.keySet()) {
-                headers.put(HEADER_PREFIX + metaName, properties.get(metaName));
+                headers.put(HEADER_PREFIX + (keyPrefix != null ? keyPrefix : "") + metaName, properties.get(metaName));
             }
         }
         return headers;
