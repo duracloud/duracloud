@@ -13,7 +13,7 @@
 
 $.widget("ui.stacklayout",
     {  
-        _stack: [],
+        _stack: null,
         
         _activePanel: null,
         
@@ -26,20 +26,22 @@ $.widget("ui.stacklayout",
         }, 
         
         add: function(panel){
+            if(!this._stack){
+                this._stack = [];
+            }
             
             if(!panel){
                 throw "must specify child panel";
             }
 
             this._stack.push(panel);
+            this.element.append(panel);
             
             if(this._stack.length == 1){
                 this._activePanel = panel;
             }else{
                 panel.hide();
             }
-            
-            this.element.append(panel);
         },
 
         activate: function(panel){
