@@ -23,6 +23,10 @@
      -->
     <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS"/>
 
+    <!-- no one should be adding the 'acl' space, not even ROOT -->
+    <intercept-url pattern="/acl" method="PUT" access="ROLE_ROOT"/>
+    <intercept-url pattern="/acl/" method="PUT" access="ROLE_ROOT"/>
+
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
 
