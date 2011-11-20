@@ -360,7 +360,7 @@ public class IrodsStorageProvider implements StorageProvider {
                       " contentSize: " + contentSize);
 
             if(userProperties != null) {
-                MetaDataMap mDataMap = new MetaDataMap(path, coco);
+                MetaDataMap mDataMap = new MetaDataMap(path, co);
                 mDataMap.clear();
                 for (String e : userProperties.keySet()) {
                     mDataMap.put(e, userProperties.get(e), null);
