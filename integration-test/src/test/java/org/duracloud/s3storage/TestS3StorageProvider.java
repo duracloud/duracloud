@@ -326,6 +326,7 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         String checksum = s3Provider.addContent(spaceId,
                                                 contentId,
                                                 mimeType,
+                                                null,
                                                 contentSize,
                                                 advChecksum,
                                                 contentStream);
@@ -453,6 +454,7 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
             s3Provider.addContent(spaceId,
                                   contentId,
                                   CONTENT_MIME_VALUE,
+                                  null,
                                   contentSize,
                                   null,
                                   contentStream);

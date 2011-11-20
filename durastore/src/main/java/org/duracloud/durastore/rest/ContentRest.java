@@ -308,8 +308,6 @@ public class ContentRest extends BaseRest {
         throws ResourceException {
         MultivaluedMap<String, String> rHeaders =
             headers.getRequestHeaders();
-        Map<String, String> userProperties =
-            getUserProperties(CONTENT_MIMETYPE_HEADER);
 
         // Set mimetype in properties if it was provided
         String contentMimeType = null;
@@ -319,6 +317,21 @@ public class ContentRest extends BaseRest {
         if(contentMimeType == null && rHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
             contentMimeType = rHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
         }
+
+        contentResource.updateContentProperties(spaceID,
+                                                contentID,
+                                                contentMimeType,
+                                                getProperties(contentMimeType),
+                                                storeID);
+        String responseText = "Content " + contentID + " updated successfully";
+        return Response.ok(responseText, TEXT_PLAIN).build();
+    }
+
+    private Map<String, String> getProperties(String contentMimeType)
+        throws ResourceException {
+        Map<String, String> userProperties =
+            getUserProperties(CONTENT_MIMETYPE_HEADER);
+
         if(contentMimeType != null && !contentMimeType.equals("")) {
             if(validMimetype(contentMimeType)) {
                 userProperties.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE,
@@ -328,13 +341,7 @@ public class ContentRest extends BaseRest {
             }
         }
 
-        contentResource.updateContentProperties(spaceID,
-                                                contentID,
-                                                contentMimeType,
-                                                userProperties,
-                                                storeID);
-        String responseText = "Content " + contentID + " updated successfully";
-        return Response.ok(responseText, TEXT_PLAIN).build();
+        return userProperties;
     }
 
     /**
@@ -406,10 +413,10 @@ public class ContentRest extends BaseRest {
                                                   contentID,
                                                   content.getContentStream(),
                                                   content.getMimeType(),
+                                                  getProperties(content.getMimeType()),
                                                   content.getSize(),
                                                   checksum,
                                                   storeID);
-            updateContentProperties(spaceID, contentID, storeID);
             URI location = uriInfo.getRequestUri();
             Map<String, String> properties = new HashMap<String, String>();
             properties.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, checksum);

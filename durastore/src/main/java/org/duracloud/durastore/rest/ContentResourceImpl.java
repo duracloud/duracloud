@@ -135,6 +135,7 @@ public class ContentResourceImpl implements ContentResource {
                              String contentID,
                              InputStream content,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              int contentSize,
                              String checksum,
                              String storeID)
@@ -148,6 +149,7 @@ public class ContentResourceImpl implements ContentResource {
             return storage.addContent(spaceID,
                                       contentID,
                                       contentMimeType,
+                                      userProperties,
                                       contentSize,
                                       checksum,
                                       content);
@@ -235,13 +237,10 @@ public class ContentResourceImpl implements ContentResource {
                 destStorage.addContent(destSpaceID,
                                        destContentID,
                                        properties.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE),
+                                       properties,
                                        contentSize,
                                        properties.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
                                        inputStream);
-
-            destStorage.setContentProperties(destSpaceID,
-                                             destContentID,
-                                             properties);
             
             return md5;
         } catch (NotFoundException e) {

@@ -104,7 +104,9 @@ public class MockVerifyDeleteStorageProvider implements StorageProvider {
     }
 
     public String addContent(String spaceId, String contentId,
-                             String contentMimeType, long contentSize,
+                             String contentMimeType,
+                             Map<String, String> userProperties,
+                             long contentSize,
                              String contentChecksum, InputStream content) {
         // Default method body
         return null;

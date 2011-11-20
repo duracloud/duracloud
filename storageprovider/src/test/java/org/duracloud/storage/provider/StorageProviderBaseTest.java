@@ -361,12 +361,14 @@ public class StorageProviderBaseTest {
         public String addContent(String spaceId,
                                  String contentId,
                                  String contentMimeType,
+                                 Map<String, String> userProperties,
                                  long contentSize,
                                  String contentChecksum,
                                  InputStream content) {
             return mock.addContent(spaceId,
                                    contentId,
                                    contentMimeType,
+                                   userProperties,
                                    contentSize,
                                    contentChecksum,
                                    content);

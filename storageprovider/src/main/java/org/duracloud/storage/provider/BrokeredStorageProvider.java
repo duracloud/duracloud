@@ -43,6 +43,7 @@ public class BrokeredStorageProvider
     public String addContent(String spaceId,
                            String contentId,
                            String contentMimeType,
+                           Map<String, String> userProperties,
                            long contentSize,
                            String contentChecksum,
                            InputStream content) throws StorageException {
@@ -52,6 +53,7 @@ public class BrokeredStorageProvider
                                            spaceId,
                                            contentId,
                                            contentMimeType,
+                                           userProperties,
                                            contentSize,
                                            contentChecksum,
                                            content);

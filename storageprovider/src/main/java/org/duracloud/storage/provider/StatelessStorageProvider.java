@@ -22,6 +22,7 @@ public interface StatelessStorageProvider {
                                       String spaceId,
                                       String contentId,
                                       String contentMimeType,
+                                      Map<String, String> userProperties,
                                       long contentSize,
                                       String contentChecksum,
                                       InputStream content)

@@ -39,6 +39,8 @@ public class BrokeredStorageProviderTest {
 
     private final String contentMimeType = "contentMimeType";
 
+    private final Map<String, String> userProperties = null;
+
     private final long contentSize = 12L;
 
     private InputStream content;
@@ -80,12 +82,14 @@ public class BrokeredStorageProviderTest {
         directProvider.addContent(spaceId,
                                   contentId,
                                   contentMimeType,
+                                  userProperties,
                                   contentSize,
                                   null,
                                   content);
         broker.addContent(spaceId,
                           contentId,
                           contentMimeType,
+                          userProperties,
                           contentSize,
                           null,
                           content);
@@ -164,12 +168,14 @@ public class BrokeredStorageProviderTest {
         directProvider.addContent(spaceId,
                                   contentId,
                                   contentMimeType,
+                                  userProperties,
                                   contentSize,
                                   null,
                                   content);
         broker.addContent(spaceId,
                           contentId,
                           contentMimeType,
+                          userProperties,
                           contentSize,
                           null,
                           content);
@@ -186,12 +192,14 @@ public class BrokeredStorageProviderTest {
         directProvider.addContent(spaceId,
                                   contentId,
                                   contentMimeType,
+                                  userProperties,
                                   contentSize,
                                   null,
                                   content);
         broker.addContent(spaceId,
                           contentId,
                           contentMimeType,
+                          userProperties,
                           contentSize,
                           null,
                           content);

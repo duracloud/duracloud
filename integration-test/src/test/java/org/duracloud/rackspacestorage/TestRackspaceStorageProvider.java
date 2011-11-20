@@ -327,6 +327,7 @@ public class TestRackspaceStorageProvider {
         String checksum = rackspaceProvider.addContent(spaceId,
                                                        contentId,
                                                        mimeType,
+                                                        null,
                                                        contentSize,
                                                        advChecksum,
                                                        contentStream);
@@ -457,6 +458,7 @@ public class TestRackspaceStorageProvider {
             rackspaceProvider.addContent(spaceId,
                                          contentId,
                                          "text/plain",
+                                         null,
                                          contentSize,
                                          null,
                                          contentStream);

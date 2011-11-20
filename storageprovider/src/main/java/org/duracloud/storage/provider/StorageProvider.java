@@ -194,6 +194,7 @@ public interface StorageProvider {
      * @param spaceId - ID of the space
      * @param contentId - ID of the content in the space
      * @param contentMimeType - the MIME type of the content being added
+     * @param userProperties - the metadata associated with the content
      * @param contentSize - the file size (in bytes) of the content being added
      * @param contentChecksum - the MD5 checksum of the content being added (null if no checksum is known)
      * @param content - content to add
@@ -204,6 +205,7 @@ public interface StorageProvider {
     public String addContent(String spaceId,
                              String contentId,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content);

@@ -440,7 +440,7 @@ public class S3StorageProvider extends StorageProviderBase {
         String bucketName = getBucketName(spaceId);
         ByteArrayInputStream is = storeProperties(spaceProperties);
         addContent(spaceId, bucketName + SPACE_PROPERTIES_SUFFIX, "text/xml",
-                   is.available(), null, is);
+                   null, is.available(), null, is);
     }
 
     /**
@@ -449,6 +449,7 @@ public class S3StorageProvider extends StorageProviderBase {
     public String addContent(String spaceId,
                              String contentId,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
@@ -469,6 +470,15 @@ public class S3StorageProvider extends StorageProviderBase {
         objMetadata.setContentType(contentMimeType);
         if (contentSize > 0) {
             objMetadata.setContentLength(contentSize);
+        }
+
+        if(userProperties != null) {
+            for (String key : userProperties.keySet()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("[" + key + "|" + userProperties.get(key) + "]");
+                }
+                objMetadata.addUserMetadata(getSpaceFree(key), userProperties.get(key));
+            }
         }
 
         String bucketName = getBucketName(spaceId);

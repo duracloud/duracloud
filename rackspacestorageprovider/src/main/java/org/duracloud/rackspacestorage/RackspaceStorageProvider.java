@@ -440,6 +440,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         addContent(spaceId,
                    containerName + SPACE_PROPERTIES_SUFFIX,
                    "text/xml",
+                   null,
                    is.available(),
                    null,
                    is);
@@ -484,6 +485,7 @@ public class RackspaceStorageProvider extends StorageProviderBase {
     public String addContent(String spaceId,
                              String contentId,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
@@ -498,6 +500,16 @@ public class RackspaceStorageProvider extends StorageProviderBase {
 
         Map<String, String> properties = new HashMap<String, String>();
         properties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
+
+        if(userProperties != null) {
+            for (String key : userProperties.keySet()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("[" + key + "|" + userProperties.get(key) + "]");
+                }
+                properties.put(getSpaceFree(key),
+                               userProperties.get(key));
+            }
+        }
 
         // Wrap the content in order to be able to retrieve a checksum
         ChecksumInputStream wrappedContent =

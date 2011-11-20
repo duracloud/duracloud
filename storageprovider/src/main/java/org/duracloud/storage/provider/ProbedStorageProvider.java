@@ -74,6 +74,7 @@ public abstract class ProbedStorageProvider
     public String addContent(String spaceId,
                              String contentId,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content) throws StorageException {
@@ -82,6 +83,7 @@ public abstract class ProbedStorageProvider
                 storageProvider.addContent(spaceId,
                                            contentId,
                                            contentMimeType,
+                                           userProperties,
                                            contentSize,
                                            contentChecksum,
                                            content);

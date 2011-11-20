@@ -172,15 +172,10 @@ public class ContentResourceImplTest {
         EasyMock.expect(destStorageProvider.addContent(destSpaceId,
                                                        destContentId,
                                                        map.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE),
+                                                       map,
                                                        1000,
                                                        map.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
                                                        is))
                 .andReturn(expectedMd5);
-        
-        destStorageProvider.setContentProperties(destSpaceId, destContentId, map);
-
-        EasyMock.expectLastCall();
-                                                       
-
     }
 }

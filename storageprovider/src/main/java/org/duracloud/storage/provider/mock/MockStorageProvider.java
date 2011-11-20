@@ -25,6 +25,8 @@ public class MockStorageProvider
 
     private String contentMimeType;
 
+    private Map<String, String> userProperties;
+
     private long contentSize;
 
     private String contentChecksum;
@@ -44,12 +46,14 @@ public class MockStorageProvider
     public String addContent(String spaceId,
                              String contentId,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content) throws StorageException {
         this.spaceId = spaceId;
         this.contentId = contentId;
         this.contentMimeType = contentMimeType;
+        this.userProperties = userProperties;
         this.contentSize = contentSize;
         this.contentChecksum = contentChecksum;
         this.content = content;

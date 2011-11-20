@@ -139,6 +139,7 @@ public class StorageProvidersTestCore
                 provider.addContent(spaceKey,
                                     contentKey,
                                     mime,
+                                    null,
                                     data.length,
                                     advChecksum,
                                     contentStream);

@@ -323,6 +323,7 @@ public class IrodsStorageProvider implements StorageProvider {
     public String addContent(String spaceId,
                              String contentId,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
@@ -357,6 +358,14 @@ public class IrodsStorageProvider implements StorageProvider {
             log.trace("Finished writing irods path: " + path + " resource: " +
                       storageResource + " actual read: " + total +
                       " contentSize: " + contentSize);
+
+            if(userProperties != null) {
+                MetaDataMap mDataMap = new MetaDataMap(path, coco);
+                mDataMap.clear();
+                for (String e : userProperties.keySet()) {
+                    mDataMap.put(e, userProperties.get(e), null);
+                }
+            }
 
             return new IrodsOperations(co).stat(path).getChksum();
         } catch (IOException e) {

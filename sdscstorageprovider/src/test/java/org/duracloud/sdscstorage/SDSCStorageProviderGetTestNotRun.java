@@ -146,6 +146,7 @@ public class SDSCStorageProviderGetTestNotRun {
             md5 = sdscProvider.addContent(spaceId,
                                           contentId,
                                           contentMimeType,
+                                          null,
                                           contentSize,
                                           contentChecksum,
                                           content);

@@ -474,6 +474,7 @@ public class EMCStorageProvider extends StorageProviderBase {
     public String addContent(String spaceId,
                              String contentId,
                              String mimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
@@ -482,6 +483,7 @@ public class EMCStorageProvider extends StorageProviderBase {
                                 contentId,
                                 mimeType,
                                 contentSize,
+                                userProperties,
                                 contentChecksum,
                                 content);
         } catch (NotFoundException e) {
@@ -504,6 +506,7 @@ public class EMCStorageProvider extends StorageProviderBase {
                                 String contentId,
                                 String mimeType,
                                 long contentSize,
+                                Map<String, String> userProperties,
                                 String contentChecksum,
                                 InputStream content) {
         log.debug("addContent("+ spaceId +", "+ contentId +", "+
@@ -517,6 +520,14 @@ public class EMCStorageProvider extends StorageProviderBase {
         MetadataList metadataList = createRequiredContentMetadata(spaceId,
                                                                   contentId,
                                                                   mimeType);
+
+        if(userProperties != null) {
+            Set<String> keys = userProperties.keySet();
+            for (String key : keys) {
+                String val = userProperties.get(key);
+                metadataList.addMetadata(new Metadata(key, val, true));
+            }
+        }
 
         // Determine if object already exists.
         ObjectPath objectPath = getObjectPath(spaceId, contentId);

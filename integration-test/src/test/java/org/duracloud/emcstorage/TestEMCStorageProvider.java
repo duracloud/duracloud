@@ -242,6 +242,7 @@ public class TestEMCStorageProvider {
         String checksum = emcProvider.addContent(spaceKey,
                                                  contentKey,
                                                  mime,
+                                                 null,
                                                  data.length,
                                                  advChecksum,
                                                  contentStream);
@@ -860,6 +861,7 @@ public class TestEMCStorageProvider {
             emcProvider.addContent(spaceId,
                                    contentId,
                                    mimeText,
+                                   null,
                                    contentSize,
                                    null,
                                    contentStream);

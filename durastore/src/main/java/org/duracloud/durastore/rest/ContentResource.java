@@ -37,6 +37,7 @@ public interface ContentResource {
                       String contentID,
                       InputStream content,
                       String contentMimeType,
+                      Map<String, String> userProperties,
                       int contentSize,
                       String checksum,
                       String storeID)

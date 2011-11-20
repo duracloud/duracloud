@@ -91,6 +91,7 @@ public class S3StorageProviderTest {
         provider.addContent("spaceId",
                             "contentId",
                             "mime",
+                            null,
                             content.length(),
                             "checksum",
                             contentStream);

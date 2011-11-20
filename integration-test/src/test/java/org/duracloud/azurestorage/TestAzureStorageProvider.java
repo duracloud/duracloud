@@ -305,6 +305,7 @@ public class TestAzureStorageProvider {
         String checksum = azureProvider.addContent(spaceId,
                 contentId,
                 mimeType,
+                null,
                 contentSize,
                 advChecksum,
                 contentStream);
@@ -440,6 +441,7 @@ public class TestAzureStorageProvider {
             azureProvider.addContent(spaceId,
                     contentId,
                     "text/plain",
+                    null,
                     contentSize,
                     null,
                     contentStream);

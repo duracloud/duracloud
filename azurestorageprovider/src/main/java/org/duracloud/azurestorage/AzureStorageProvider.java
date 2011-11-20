@@ -430,6 +430,7 @@ public class AzureStorageProvider extends StorageProviderBase {
     public String addContent(String spaceId,
                              String contentId,
                              String contentMimeType,
+                             Map<String, String> userProperties,
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
@@ -450,7 +451,8 @@ public class AzureStorageProvider extends StorageProviderBase {
         storeStreamedObject(contentId,
                             contentMimeType,
                             spaceId,
-                            wrappedContent);
+                            wrappedContent,
+                            userProperties);
 
         // Compare checksum
         return wrappedContent.getMD5();
@@ -459,7 +461,8 @@ public class AzureStorageProvider extends StorageProviderBase {
     private void storeStreamedObject(String contentId,
                                      String contentMimeType,
                                      String spaceId,
-                                     ChecksumInputStream wrappedContent) {
+                                     ChecksumInputStream wrappedContent,
+                                     Map<String, String> userProperties) {
         String containerName = getContainerName(spaceId);
         String contentName = getContentName(contentId);
 
@@ -476,6 +479,13 @@ public class AzureStorageProvider extends StorageProviderBase {
             IBlobProperties blobProperties = new BlobProperties(contentName);
 
             blobProperties.setContentType(contentMimeType);
+
+            if(userProperties != null) {
+                NameValueCollection properties = new NameValueCollection();
+                properties.putAll(userProperties);
+
+                blobProperties.setMetadata(properties);
+            }
 
             /* Set Blob Contents */
             IBlobContents blobContents = new BlobContents(wrappedContent);
