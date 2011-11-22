@@ -8,6 +8,7 @@
 package org.duracloud.durastore.rest;
 
 import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -31,6 +32,7 @@ public class SpaceRestTest {
 
     private SpaceRest spaceRest;
     private SpaceResource spaceResource;
+    private SecurityContextUtil securityContextUtil;
     private HttpHeaders httpHeaders;
     private MultivaluedMap<String, String> headersMap;
 
@@ -70,17 +72,25 @@ public class SpaceRestTest {
                                          MultivaluedMap.class);
         spaceResource = EasyMock.createMock("SpaceResource",
                                             SpaceResource.class);
+        securityContextUtil = EasyMock.createMock("SecurityContextUtil",
+                                                  SecurityContextUtil.class);
 
-        spaceRest = new SpaceRest(spaceResource);
+        spaceRest = new SpaceRest(spaceResource, securityContextUtil);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(httpHeaders, headersMap, spaceResource);
+        EasyMock.verify(httpHeaders,
+                        headersMap,
+                        spaceResource,
+                        securityContextUtil);
     }
 
     private void replayMocks() {
-        EasyMock.replay(httpHeaders, headersMap, spaceResource);
+        EasyMock.replay(httpHeaders,
+                        headersMap,
+                        spaceResource,
+                        securityContextUtil);
     }
 
     @Test
@@ -193,7 +203,7 @@ public class SpaceRestTest {
         doCreateUpdatePropertiesMocks(spaceProps);
 
         // space resource mocks
-        spaceResource.updateSpaceProperties(spaceId, null, spaceProps, storeId);
+        spaceResource.updateSpaceProperties(spaceId, null, null, spaceProps, storeId);
         EasyMock.expectLastCall();
 
         replayMocks();

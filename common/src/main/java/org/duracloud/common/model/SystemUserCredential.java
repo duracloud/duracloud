@@ -29,6 +29,10 @@ public class SystemUserCredential extends Credential {
         return id;
     }
 
+    public static String getSystemUsername() {
+        return generateId();
+    }
+
     @Override
     public String toString() {
         return "Credential [system: hash(" + id.hashCode() + ")]";

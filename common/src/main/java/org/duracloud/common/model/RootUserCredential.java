@@ -22,7 +22,7 @@ public class RootUserCredential extends Credential {
         super(getRootUsername(), getRootPassword());
     }
 
-    static String getRootUsername() {
+    public static String getRootUsername() {
         String username = System.getProperty("root.username");
         if (null == username) {
             username = defaultUsername;
@@ -30,7 +30,7 @@ public class RootUserCredential extends Credential {
         return username;
     }
 
-    static String getRootPassword() {
+    private static String getRootPassword() {
         String password = System.getProperty("root.password");
         if (null == password) {
             password = defaultPassword;

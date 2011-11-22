@@ -8,74 +8,47 @@
 package org.duracloud.security.vote;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.security.domain.HttpVerb;
+import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.error.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.GrantedAuthority;
 import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
+import org.springframework.security.userdetails.UserDetails;
+import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.security.vote.AccessDecisionVoter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import static org.duracloud.security.vote.VoterUtil.debugText;
 
 /**
  * @author Andrew Woods
  *         Date: Mar 19, 2010
  */
 public abstract class SpaceAccessVoter implements AccessDecisionVoter {
+
     private final Logger log = LoggerFactory.getLogger(SpaceAccessVoter.class);
 
-    private Map<String, ContentStore.AccessType> spaceCache = new HashMap<String, ContentStore.AccessType>();
+    private Map<String, ContentStore.AccessType> spaceCache =
+        new HashMap<String, ContentStore.AccessType>();
+    private ContentStoreUtil contentStoreUtil;
+    private UserDetailsService userDetailsService;
 
-    /**
-     * This method checks the access state of the arg resource
-     * (space and provider) and makes denies access to anonymous principals if
-     * the space is closed.
-     *
-     * @param auth     principal seeking AuthZ
-     * @param resource that is under protection
-     * @param config   access-attributes defined on resource
-     * @return vote (AccessDecisionVoter.ACCESS_GRANTED, ACCESS_DENIED, ACCESS_ABSTAIN)
-     */
-    public int vote(Authentication auth,
-                    Object resource,
-                    ConfigAttributeDefinition config) {
-        String label = "SpaceAccessVoterImpl";
-        if (resource != null && !supports(resource.getClass())) {
-            log.debug(debugText(label, auth, config, resource, ACCESS_ABSTAIN));
-            return ACCESS_ABSTAIN;
-        }
-
-        HttpServletRequest httpRequest = getHttpServletRequest(resource);
-        if (null == httpRequest) {
-            log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
-            return ACCESS_DENIED;
-        }
-
-        // If space is 'open' or 'closed' only matters if user is anonymous.
-        if (!(auth instanceof AnonymousAuthenticationToken)) {
-            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
-            return ACCESS_GRANTED;
-        }
-
-        ContentStore.AccessType access = getSpaceAccess(httpRequest);
-        int grant = ACCESS_DENIED;
-        if (access.equals(ContentStore.AccessType.OPEN)) {
-            grant = ACCESS_GRANTED;
-        }
-
-        log.debug(debugText(label, auth, config, resource, grant));
-        return grant;
+    public SpaceAccessVoter(ContentStoreUtil contentStoreUtil,
+                            UserDetailsService userDetailsService) {
+        this.contentStoreUtil = contentStoreUtil;
+        this.userDetailsService = userDetailsService;
     }
 
-
-    private ContentStore.AccessType getSpaceAccess(HttpServletRequest request) {
+    protected ContentStore.AccessType getSpaceAccess(HttpServletRequest request) {
         String host = "localhost";
         String port = Integer.toString(request.getLocalPort());
 
@@ -87,6 +60,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
         if (spaceId.equals("spaces") ||
             spaceId.equals("stores") ||
+            spaceId.equals("acl") ||
             spaceId.equals("init")) {
             return ContentStore.AccessType.OPEN;
         }
@@ -142,11 +116,148 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             spaceId = spaceId.substring(1);
         }
 
+        if (spaceId.startsWith("acl/")) {
+            spaceId = spaceId.substring("acl/".length());
+        }
+
         int slashIndex = spaceId.indexOf("/");
         if (slashIndex > 0) {
             spaceId = spaceId.substring(0, slashIndex);
         }
         return spaceId;
+    }
+
+    /**
+     * This method returns the ACLs of the requested space, or an empty-map if
+     * there is an error or for certain 'keyword' spaces, or null if the space
+     * does not exist.
+     *
+     * @param request containing spaceId and storeId
+     * @return ACLs, empty-map, or null
+     */
+    protected Map<String, String> getSpaceACLs(HttpServletRequest request) {
+        Map<String, String> emptyACLs = new HashMap<String, String>();
+
+        String host = "localhost";
+        String port = Integer.toString(request.getLocalPort());
+
+        String storeId = getStoreId(request);
+        String spaceId = getSpaceId(request);
+        if (null == spaceId) {
+            return emptyACLs;
+        }
+
+        if (spaceId.equals("security") || spaceId.equals("init")) {
+            return emptyACLs;
+        }
+
+        ContentStore store = getContentStore(host, port, storeId);
+        if (null == store) {
+            return emptyACLs;
+        }
+
+        try {
+            return store.getSpaceACLs(spaceId);
+
+        } catch (NotFoundException nfe) {
+            log.info("Space !exist: {}, exception: {}", spaceId, nfe);
+            return null;
+
+        } catch (ContentStoreException e) {
+            log.warn("Error getting space ACLs: {}, exception: {}", spaceId, e);
+            return emptyACLs;
+        }
+    }
+
+    protected HttpVerb getHttpVerb(HttpServletRequest httpRequest) {
+        String method = httpRequest.getMethod();
+        try {
+            return HttpVerb.valueOf(method);
+
+        } catch (RuntimeException e) {
+            log.error("Error determining verb: {}, exception: {}", method, e);
+            return null;
+        }
+    }
+
+    protected List<String> getUserGroups(Authentication auth) {
+        DuracloudUserDetails userDetails =
+            (DuracloudUserDetails) auth.getPrincipal();
+        return userDetails.getGroups();
+    }
+
+    protected boolean groupsHaveReadAccess(List<String> userGroups,
+                                           Map<String, String> acls) {
+        return groupsHaveAccess(userGroups, acls, true);
+    }
+
+    protected boolean groupsHaveWriteAccess(List<String> userGroups,
+                                            Map<String, String> acls) {
+        return groupsHaveAccess(userGroups, acls, false);
+    }
+
+    private boolean groupsHaveAccess(List<String> userGroups,
+                                     Map<String, String> acls,
+                                     boolean isRead) {
+        if (null != userGroups) {
+            for (String group : userGroups) {
+                if (isRead && hasReadAccess(group, acls)) {
+                    return true;
+
+                } else if (!isRead && hasWriteAccess(group, acls)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected boolean hasReadAccess(String name, Map<String, String> acls) {
+        return hasAccess(name, acls, true);
+    }
+
+    protected boolean hasWriteAccess(String name, Map<String, String> acls) {
+        return hasAccess(name, acls, false);
+    }
+
+    private boolean hasAccess(String name,
+                              Map<String, String> acls,
+                              boolean isRead) {
+        if (RootUserCredential.getRootUsername().equals(name)) {
+            return true;
+        }
+
+        if (null == acls) {
+            return false;
+        }
+
+        if (acls.containsKey(name)) {
+            if (isRead) {
+                return "r".equals(acls.get(name)) || "w".equals(acls.get(name));
+
+            } else {
+                return "w".equals(acls.get(name));
+            }
+        }
+        return false;
+    }
+
+    protected boolean isAdmin(String name) {
+        UserDetails userDetails;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(name);
+            
+        } catch (UsernameNotFoundException e) {
+            log.info("Not admin: {}, error: {}", name, e);
+            return false;
+        }
+
+        for (GrantedAuthority authority : userDetails.getAuthorities()) {
+            if ("ROLE_ADMIN".equals(authority.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ContentStore.AccessType getAccessFromCache(String storeId,
@@ -159,12 +270,13 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
      * This method is abstract to provide entry-point for alternate
      * implementations of ContentStore.
      */
-    abstract protected ContentStore getContentStore(String host,
-                                                    String port,
-                                                    String storeId);
+    private ContentStore getContentStore(String host,
+                                         String port,
+                                         String storeId) {
+        return contentStoreUtil.getContentStore(host, port, storeId);
+    }
 
-
-    private HttpServletRequest getHttpServletRequest(Object resource) {
+    protected HttpServletRequest getHttpServletRequest(Object resource) {
         FilterInvocation invocation = (FilterInvocation) resource;
         HttpServletRequest request = invocation.getHttpRequest();
 
@@ -197,6 +309,5 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
     public boolean supports(Class aClass) {
         return FilterInvocation.class.isAssignableFrom(aClass);
     }
-
 
 }

@@ -17,14 +17,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew Woods
- *         Date: Mar 12, 2010
+ *         Date: 11/18/11
  */
-public class SpaceAccessVoterImpl extends SpaceAccessVoter {
-    private final Logger log = LoggerFactory.getLogger(SpaceAccessVoterImpl.class);
+public class ContentStoreUtil {
 
-    protected ContentStore getContentStore(String host,
-                                           String port,
-                                           String storeId) {
+    private final Logger log = LoggerFactory.getLogger(ContentStoreUtil.class);
+
+    public ContentStore getContentStore(String host,
+                                        String port,
+                                        String storeId) {
         // FIXME: temporary handling of https requests
         if (port != null && port.equals("443")) {
             port = "80";
@@ -46,4 +47,5 @@ public class SpaceAccessVoterImpl extends SpaceAccessVoter {
         }
         return store;
     }
+
 }

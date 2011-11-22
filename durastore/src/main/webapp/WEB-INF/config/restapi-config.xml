@@ -23,6 +23,7 @@
 
   <bean id="spaceRest" class="org.duracloud.durastore.rest.SpaceRest" >
     <constructor-arg ref="spaceResource"/>
+    <constructor-arg ref="securityContextUtil"/>
   </bean>  
 
   <bean id="contentRest" class="org.duracloud.durastore.rest.ContentRest" >
@@ -38,6 +39,8 @@
   <!-- Support beans -->
   <bean id="storageAccountsDocumentBinding"
         class="org.duracloud.storage.xml.StorageAccountsDocumentBinding" />
+
+  <bean id="securityContextUtil" class="org.duracloud.security.context.SecurityContextUtil"/>
 
   <bean id="spaceResource" class="org.duracloud.durastore.rest.SpaceResource" >
     <constructor-arg ref="storageProviderFactory"/>

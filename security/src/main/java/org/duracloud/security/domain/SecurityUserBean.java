@@ -26,7 +26,7 @@ public class SecurityUserBean {
     private List<String> grantedAuthorities;
     private List<String> groups;
 
-    public static final String SCHEMA_VERSION = "0.2";
+    public static final String SCHEMA_VERSION = "1.3";
 
     public SecurityUserBean() {
         this("unknown",

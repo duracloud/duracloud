@@ -28,7 +28,7 @@ public class SpaceRestExceptionsTest {
     @Before
     public void setUp() throws Exception {
         spaceResource = support.createSpaceResource();
-        spaceRest = new SpaceRest(spaceResource);
+        spaceRest = new SpaceRest(spaceResource, null);
     }
 
     @Test

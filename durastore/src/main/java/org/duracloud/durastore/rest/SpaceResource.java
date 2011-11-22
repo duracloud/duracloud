@@ -180,6 +180,7 @@ public class SpaceResource {
      */
     public void addSpace(String spaceID,
                          String spaceAccess,
+                         Map<String, String> userACLs,
                          Map<String, String> userProperties,
                          String storeID)
     throws ResourceException, InvalidIdException {
@@ -191,7 +192,7 @@ public class SpaceResource {
             storage.createSpace(spaceID);
             
             waitForSpaceCreation(storage, spaceID);
-            updateSpaceProperties(spaceID, spaceAccess, userProperties, storeID);
+            updateSpaceProperties(spaceID, spaceAccess, userACLs, userProperties, storeID);
         } catch (StorageException e) {
             throw new ResourceException("add space", spaceID, e);
         }
@@ -235,6 +236,7 @@ public class SpaceResource {
      */
     public void updateSpaceProperties(String spaceID,
                                       String spaceAccess,
+                                      Map<String, String> userACLs,
                                       Map<String, String> userProperties,
                                       String storeID)
     throws ResourceException {
@@ -245,6 +247,11 @@ public class SpaceResource {
             // Update space properties
             if(userProperties != null) {
                 storage.setSpaceProperties(spaceID, userProperties);
+            }
+
+            // Update space ACLs
+            if(userACLs != null) {
+                storage.setSpaceACLs(spaceID, userACLs);
             }
 
             // Set space access if necessary

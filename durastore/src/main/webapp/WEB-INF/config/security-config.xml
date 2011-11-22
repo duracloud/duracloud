@@ -21,6 +21,7 @@
       Set initial access as if all spaces are 'open'.
       'closed' spaces will be handled by the spaceAccessVoter.
      -->
+    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
     <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS"/>
 
     <!-- no one should be adding the 'acl' space, not even ROOT -->
@@ -46,11 +47,23 @@
   </http>
 
   <!-- The decision-voters here contribute to the AuthZ decision -->
+  <beans:bean id="contentStoreUtil" class="org.duracloud.security.vote.ContentStoreUtil"/>
+
+  <beans:bean id="spaceReadAccessVoter" class="org.duracloud.security.vote.SpaceReadAccessVoter">
+    <beans:constructor-arg ref="contentStoreUtil"/>
+    <beans:constructor-arg ref="userDetailsSvc"/>
+  </beans:bean>
+  <beans:bean id="spaceWriteAccessVoter" class="org.duracloud.security.vote.SpaceWriteAccessVoter">
+    <beans:constructor-arg ref="contentStoreUtil"/>
+    <beans:constructor-arg ref="userDetailsSvc"/>
+  </beans:bean>
+
   <beans:bean id="duraAccessDecisionManager" class="org.duracloud.security.vote.AccessDecisionManagerImpl">
     <beans:property name="allowIfAllAbstainDecisions" value="false"/>
     <beans:property name="decisionVoters">
       <beans:list>
-        <beans:bean class="org.duracloud.security.vote.SpaceAccessVoterImpl" />
+        <beans:ref bean="spaceReadAccessVoter"/>
+        <beans:ref bean="spaceWriteAccessVoter"/>
         <beans:bean class="org.duracloud.security.vote.RoleVoterImpl" />
       </beans:list>
     </beans:property>

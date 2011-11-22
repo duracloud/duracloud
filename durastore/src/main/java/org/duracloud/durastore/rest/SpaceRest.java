@@ -7,8 +7,11 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.model.Credential;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
+import org.duracloud.security.context.SecurityContextUtil;
+import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.storage.error.InvalidIdException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +29,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
  * Provides interaction with spaces via REST
@@ -42,9 +47,12 @@ public class SpaceRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(SpaceRest.class);
 
     private SpaceResource spaceResource;
+    private SecurityContextUtil securityContextUtil;
 
-    public SpaceRest(SpaceResource spaceResource) {
+    public SpaceRest(SpaceResource spaceResource,
+                     SecurityContextUtil securityContextUtil) {
         this.spaceResource = spaceResource;
+        this.securityContextUtil = securityContextUtil;
     }
 
     /**
@@ -251,14 +259,29 @@ public class SpaceRest extends BaseRest {
             spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
         }
 
+        Map<String, String> userACLs = getUserACLs();
         Map<String, String> userProperties =
             getUserProperties(SPACE_ACCESS_HEADER);
+
         spaceResource.addSpace(spaceID,
                                spaceAccess,
+                               userACLs,
                                userProperties,
                                storeID);
         URI location = uriInfo.getRequestUri();
         return Response.created(location).build();
+    }
+
+    private Map<String, String> getUserACLs() {
+        Map<String, String> acls = new HashMap<String, String>();
+        try {
+            Credential currentUser = securityContextUtil.getCurrentUser();
+            acls.put(PROPERTIES_SPACE_ACL + currentUser.getUsername(), "w");
+
+        } catch (NoUserLoggedInException e) {
+            log.warn("Adding user acl, error: {}", e);
+        }
+        return acls;
     }
 
     /**
@@ -299,6 +322,7 @@ public class SpaceRest extends BaseRest {
 
         spaceResource.updateSpaceProperties(spaceID,
                                             spaceAccess,
+                                            null,
                                             userProperties,
                                             storeID);
         String responseText = "Space " + spaceID + " updated successfully";
