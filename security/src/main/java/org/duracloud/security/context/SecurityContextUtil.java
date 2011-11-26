@@ -9,12 +9,12 @@ package org.duracloud.security.context;
 
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.error.NoUserLoggedInException;
+import org.duracloud.security.impl.DuracloudUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.userdetails.UserDetails;
 
 /**
  * This class returns the Credential of the user currently logged into the
@@ -28,8 +28,16 @@ public class SecurityContextUtil {
     private final Logger log = LoggerFactory.getLogger(SecurityContextUtil.class);
 
     public Credential getCurrentUser() throws NoUserLoggedInException {
-        Credential credential = null;
+        DuracloudUserDetails userDetails = getCurrentUserDetails();
+        Credential credential = new Credential(userDetails.getUsername(),
+                                               userDetails.getPassword());
 
+        log.debug("user in context: " + credential.toString());
+        return credential;
+    }
+
+    public DuracloudUserDetails getCurrentUserDetails()
+        throws NoUserLoggedInException {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication auth = context.getAuthentication();
         if (null == auth) {
@@ -38,16 +46,13 @@ public class SecurityContextUtil {
         }
 
         Object obj = auth.getPrincipal();
-        if (obj instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) obj;
-            credential = new Credential(userDetails.getUsername(),
-                                        userDetails.getPassword());
+        if (obj instanceof DuracloudUserDetails) {
+            return (DuracloudUserDetails) obj;
+
         } else {
-            log.debug("no user logged in.");
+            log.debug("no user logged in: {}", obj.getClass().getName());
             throw new NoUserLoggedInException();
         }
-
-        log.debug("user in context: " + credential.toString());
-        return credential;
     }
+
 }

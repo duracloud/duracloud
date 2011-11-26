@@ -39,8 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StorageProviderFactoryImpl extends ProviderFactoryBase
     implements StorageProviderFactory {
 
-    protected static final String PRIMARY = "PRIMARY";
-
     private StatelessStorageProvider statelessProvider;
     private Map<String, StorageProvider> storageProviders;
 
@@ -99,7 +97,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     public StorageProvider getStorageProvider(String storageAccountId)
             throws StorageException {
         if(null == storageAccountId) {
-            storageAccountId = PRIMARY;
+            storageAccountId =
+                getAccountManager().getPrimaryStorageAccount().getId();
         }
 
         if(storageProviders.containsKey(storageAccountId)) {
@@ -145,9 +144,10 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new MockVerifyDeleteStorageProvider();
         }
 
+        StorageProvider aclProvider = new ACLStorageProvider(storageProvider);
         StorageProvider brokeredProvider =
             new BrokeredStorageProvider(statelessProvider,
-                                        storageProvider,
+                                        aclProvider,
                                         type,
                                         storageAccountId);
 

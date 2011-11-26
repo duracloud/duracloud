@@ -88,14 +88,13 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
 
-        Map<String, String> acls = getSpaceACLs(httpRequest);
-
-        // Null means space does not exist, GRANT permission to create it.
-        if (null == acls && verb.equals(HttpVerb.PUT)) {
+        // GRANT permission to create spaces.
+        if (isSpaceCreation(httpRequest)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
 
+        Map<String, String> acls = getSpaceACLs(httpRequest);
         if (hasWriteAccess(auth.getName(), acls)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
@@ -110,6 +109,13 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
         return grant;
+    }
+
+    private boolean isSpaceCreation(HttpServletRequest httpRequest) {
+        if (HttpVerb.PUT.equals(getHttpVerb(httpRequest))) {
+            return !hasContentId(httpRequest);
+        }
+        return false;
     }
 
 }

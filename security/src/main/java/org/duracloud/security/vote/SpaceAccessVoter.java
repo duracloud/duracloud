@@ -127,6 +127,15 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return spaceId;
     }
 
+    protected boolean hasContentId(HttpServletRequest httpRequest) {
+        String spaceId = getSpaceId(httpRequest);
+        if (null != spaceId) {
+            String path = httpRequest.getPathInfo();
+            return !path.endsWith(spaceId);
+        }
+        return false;
+    }
+
     /**
      * This method returns the ACLs of the requested space, or an empty-map if
      * there is an error or for certain 'keyword' spaces, or null if the space

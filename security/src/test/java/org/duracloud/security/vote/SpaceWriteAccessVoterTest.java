@@ -89,10 +89,11 @@ public class SpaceWriteAccessVoterTest {
     }
 
     @Test
-    public void testUserReadAccessMethodsPUT() {
+    public void testUserReadAccessMethodsPUTContent() {
         boolean securedSpace = true;
+        String contentId = "/content-id";
         Authentication caller = registeredUser(userRead, "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.PUT);
+        createMockInvocation(HttpVerb.PUT, contentId);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -102,10 +103,23 @@ public class SpaceWriteAccessVoterTest {
     }
 
     @Test
+    public void testUserReadAccessMethodsPUTSpace() {
+        boolean securedSpace = true;
+        Authentication caller = registeredUser(userRead, "none");
+        createMockInvocation(securedSpace, HttpVerb.PUT);
+        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+
+        replayMocks();
+
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(ACCESS_GRANTED, decision);
+    }
+
+    @Test
     public void testUserWriteAccessMethodsPUT() {
         boolean securedSpace = true;
         Authentication caller = registeredUser(userWrite, "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.PUT);
+        createMockInvocation(securedSpace, HttpVerb.PUT);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -118,7 +132,7 @@ public class SpaceWriteAccessVoterTest {
     public void testUserWriteAccessMethodsPUTRoot() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("root", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.PUT);
+        createMockInvocation(securedSpace, HttpVerb.PUT);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -128,10 +142,11 @@ public class SpaceWriteAccessVoterTest {
     }
 
     @Test
-    public void testUserNoAccessMethodsPUT() {
+    public void testUserNoAccessMethodsPUTContent() {
         boolean securedSpace = true;
+        String contentId = "/content-id";
         Authentication caller = registeredUser("joe", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.PUT);
+        createMockInvocation(HttpVerb.PUT, contentId);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -141,10 +156,23 @@ public class SpaceWriteAccessVoterTest {
     }
 
     @Test
+    public void testUserNoAccessMethodsPUTSpace() {
+        boolean securedSpace = true;
+        Authentication caller = registeredUser("joe", "none");
+        createMockInvocation(securedSpace, HttpVerb.PUT);
+        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+
+        replayMocks();
+
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(ACCESS_GRANTED, decision);
+    }
+
+    @Test
     public void testGroupAccessMethodsPUT() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", groupWrite);
-        createMockInvocation(caller, securedSpace, HttpVerb.PUT);
+        createMockInvocation(securedSpace, HttpVerb.PUT);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -157,20 +185,20 @@ public class SpaceWriteAccessVoterTest {
     public void testGroupNoAccessMethodsPUT() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.PUT);
+        createMockInvocation(securedSpace, HttpVerb.PUT);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
-        Assert.assertEquals(ACCESS_DENIED, decision);
+        Assert.assertEquals(ACCESS_GRANTED, decision);
     }
 
     @Test
     public void testMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.GET);
+        createMockInvocation(securedSpace, HttpVerb.GET);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -212,7 +240,7 @@ public class SpaceWriteAccessVoterTest {
     private void verifyVote(Authentication caller,
                             boolean securedSpace,
                             int expected) {
-        resource = createMockInvocation(caller, securedSpace, HttpVerb.PUT);
+        createMockInvocationVerifyVote(caller, securedSpace, HttpVerb.POST);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
         replayMocks();
 
@@ -244,18 +272,37 @@ public class SpaceWriteAccessVoterTest {
         return new AnonymousAuthenticationToken("x", user, authorities);
     }
 
-    private FilterInvocation createMockInvocation(Authentication caller,
-                                                  boolean securedSpace,
+    private FilterInvocation createMockInvocation(boolean securedSpace,
                                                   HttpVerb method) {
         String spaceId = OPEN_SPACE_ID;
         if (securedSpace) {
             spaceId = "some-closed-space";
         }
 
-        EasyMock.expect(request.getMethod()).andReturn(method.name());
+        int times = 1;
+        if (!method.isRead()) {
+            times = 2;
+            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(2);
+        }
 
-        if (!method.isRead() &&
-            !(caller instanceof AnonymousAuthenticationToken)) {
+        EasyMock.expect(request.getMethod()).andReturn(method.name()).times(
+            times);
+
+        EasyMock.expect(resource.getHttpRequest()).andReturn(request);
+        return resource;
+    }
+
+    private FilterInvocation createMockInvocationVerifyVote(Authentication caller,
+                                                            boolean securedSpace,
+                                                            HttpVerb method) {
+        String spaceId = OPEN_SPACE_ID;
+        if (securedSpace) {
+            spaceId = "some-closed-space";
+        }
+
+        int times = 1;
+        if (!(caller instanceof AnonymousAuthenticationToken)) {
+            times = 2;
 
             EasyMock.expect(request.getLocalPort()).andReturn(8080);
             EasyMock.expect(request.getQueryString()).andReturn(
@@ -263,6 +310,22 @@ public class SpaceWriteAccessVoterTest {
             EasyMock.expect(request.getPathInfo()).andReturn(spaceId);
         }
 
+        EasyMock.expect(request.getMethod()).andReturn(method.name()).times(
+            times);
+
+        EasyMock.expect(resource.getHttpRequest()).andReturn(request);
+        return resource;
+    }
+
+    private FilterInvocation createMockInvocation(HttpVerb method,
+                                                  String contentId) {
+        String path = OPEN_SPACE_ID + contentId;
+
+        EasyMock.expect(request.getLocalPort()).andReturn(8080);
+        EasyMock.expect(request.getQueryString()).andReturn(
+            "storeID=5&attachment=true");
+        EasyMock.expect(request.getPathInfo()).andReturn(path).times(3);
+        EasyMock.expect(request.getMethod()).andReturn(method.name()).times(2);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }
