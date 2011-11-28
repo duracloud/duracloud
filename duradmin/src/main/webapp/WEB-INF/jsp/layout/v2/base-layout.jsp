@@ -8,8 +8,8 @@
 		    	<tiles:importAttribute name="mainTab" />
 		        <li id="dashboard-tab" class="${mainTab == 'dashboard' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/dashboard"><span>Dashboard</span></a></li>
 		        <li id="spaces-tab" class="${mainTab == 'spaces' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/spaces"><span>Spaces</span></a></li>
-		        <li id="services-tab" class="${mainTab == 'services' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/services"><span>Services</span></a></li>
                 <sec:authorize ifAnyGranted="ROLE_ADMIN">
+                    <li id="services-tab" class="${mainTab == 'services' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/services"><span>Services</span></a></li>
 		            <li class="${mainTab == 'admin' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/admin"><span>Administration</span></a></li>
                 </sec:authorize>
 		        <!-- 

@@ -1,4 +1,5 @@
 <%@include file="/WEB-INF/jsp/include.jsp"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <tiles:insertDefinition name="app-base">
 	<tiles:putAttribute name="title">
 		<spring:message code="dashboard" />
@@ -412,9 +413,11 @@ a.button {
 				<div id="main-content-panel">
 				<div id="main-content-tabs">
 				<ul>
-					<li><a id="storage-tab-link" href="#tabs-storage"><span>Storage</span></a></li>
-					<li><a id="services-tab-link" href="#tabs-services"><span>Services</span></a></li>
-					<li><a id="tools-tab-link" href="#tabs-tools"><span>Tools</span></a></li>
+                    <sec:authorize ifAnyGranted="ROLE_ADMIN">
+                        <li><a id="storage-tab-link" href="#tabs-storage"><span>Storage</span></a></li>
+					    <li><a id="services-tab-link" href="#tabs-services"><span>Services</span></a></li>
+                    </sec:authorize>
+                    <li><a id="tools-tab-link" href="#tabs-tools"><span>Tools</span></a></li>
 				</ul>
 
                 <div id="tabs-tools" class="ui-corner-all">
