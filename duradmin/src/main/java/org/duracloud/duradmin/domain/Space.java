@@ -20,7 +20,13 @@ public class Space
     private static final long serialVersionUID = 3008516494814826947L;
 
 	private String storeId;
-
+	
+	/*
+	 * The caller's acl based on the granted authorities and group membership of the 
+	 * caller as well as the space acls. 
+	 */
+	private String callerAcl;
+	
     public String getStoreId() {
 		return storeId;
 	}
@@ -102,6 +108,14 @@ public class Space
     public void setExtendedProperties(Map<String, String> extendedProperties) {
         this.extendedProperties =
                 PropertiesUtils.convertExtendedProperties(extendedProperties);
+    }
+
+    public String getCallerAcl() {
+        return callerAcl;
+    }
+
+    public void setCallerAcl(String callerAcl) {
+        this.callerAcl = callerAcl;
     }
 
 }

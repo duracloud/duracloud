@@ -15,12 +15,16 @@ import org.duracloud.duradmin.domain.ContentProperties;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.serviceapi.ServicesManager;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,11 +36,15 @@ public class SpaceUtil {
 
 
     public static Space populateSpace(Space space,
-                                      org.duracloud.domain.Space cloudSpace) {
+                                      org.duracloud.domain.Space cloudSpace, 
+                                      ContentStore contentStore, 
+                                      Authentication authentication) throws ContentStoreException {
         space.setSpaceId(cloudSpace.getId());
         space.setProperties(getSpaceProperties(cloudSpace.getProperties()));
         space.setExtendedProperties(cloudSpace.getProperties());
         space.setContents(cloudSpace.getContentIds());
+        String callerAcl = resolveCallerAcl(contentStore, space.getSpaceId(), authentication);
+        space.setCallerAcl(callerAcl);
         return space;
     }
 
@@ -55,7 +63,8 @@ public class SpaceUtil {
                                            String spaceId,
                                            String contentId,
                                            ContentStore store,
-                                           ServicesManager servicesManager)
+                                           ServicesManager servicesManager, 
+                                           Authentication authentication)
             throws ContentStoreException {
     	contentItem.setSpaceId(spaceId);
     	contentItem.setContentId(contentId);
@@ -66,6 +75,8 @@ public class SpaceUtil {
         contentItem.setProperties(properties);
         contentItem.setExtendedProperties(contentProperties);
         contentItem.setDurastoreURL(formatDurastoreURL(contentItem, store));
+        String callerAcl = resolveCallerAcl(store, spaceId, authentication);
+        contentItem.setCallerAcl(callerAcl);
     }
 
 	private static String formatDurastoreURL(ContentItem contentItem,ContentStore store) {
@@ -109,5 +120,45 @@ public class SpaceUtil {
 		response.flushBuffer();
 		response.getOutputStream().close();
 	}
+	
+    public static String resolveCallerAcl(ContentStore contentStore,
+                                          String spaceId,
+                                          Authentication authentication)
+        throws ContentStoreException {
+        
+        // check authorities
+        GrantedAuthority[] authorities = authentication.getAuthorities();
+        for (GrantedAuthority a : authorities) {
+            if (a.getAuthority().equals("ROLE_ADMIN")) {
+                //no need to make any further calls.
+                return "w";
+            }
+        }
+
+        Map<String, String> acls = contentStore.getSpaceACLs(spaceId);
+        String callerAcl = null;
+
+        DuracloudUserDetails details =
+            (DuracloudUserDetails) authentication.getPrincipal();
+        List<String> userGroups = details.getGroups();
+
+        for (Map.Entry<String, String> e : acls.entrySet()) {
+            String value = e.getValue();
+
+            if (e.getKey().equals(details.getUsername())) {
+                callerAcl = value;
+                if (callerAcl.equals("w")) {
+                    break;
+                }
+            } else if (userGroups.contains(e.getKey())) {
+                callerAcl = value;
+                if (callerAcl.equals("w")) {
+                    break;
+                }
+            }
+        }
+
+        return callerAcl;
+    }
 
 }

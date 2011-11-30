@@ -14,53 +14,54 @@ $.widget("ui.propertiesviewer",
 				if(table.size() == 0){
 					table = $(document.createElement("table"));
 					this.getContent().prepend(table);	
-					var addControlsRow = this._createControlsRow();
-
-					var disableControls = function(){
-						$("input, button", that.element).attr("disabled", "disabled");
-						$(".dc-expando-status", addControlsRow).addClass("dc-busy");
-					};
-						
-					var enableControls = function(){
-						$("input,button", that.element).removeAttr("disabled");
-						$(".dc-expando-status", addControlsRow).removeClass("dc-busy");
-
-					};
-
-					var fSuccess = function(){
-						enableControls();
-						that._addSuccess(that)
-					};
-
 					
-					
-					var triggerAdd = function(){
-						if(that._isValid()){
-    					    disableControls();
-    						that.element
-    						    .trigger(
-    						        "dc-add", 
-    						        { 
-        							  value: that._getValue(), 
-        							  success: fSuccess,
-        							  failure: function(text){
-        								enableControls();
-        								that._addFailure(text);
-        							  },
-    						        }
-    						    );
-                        }
-
-					};
-										  
-					//attach listeners
-					$("input[type=button]", addControlsRow).click(function(evt){
-						triggerAdd();
-					});
-					
-					$("input[type=text]", addControlsRow).bindEnterKey(triggerAdd);
-
-					table.append(addControlsRow);
+					if(!this.options.readOnly){
+    					var addControlsRow = this._createControlsRow();
+    
+    					var disableControls = function(){
+    						$("input, button", that.element).attr("disabled", "disabled");
+    						$(".dc-expando-status", addControlsRow).addClass("dc-busy");
+    					};
+    						
+    					var enableControls = function(){
+    						$("input,button", that.element).removeAttr("disabled");
+    						$(".dc-expando-status", addControlsRow).removeClass("dc-busy");
+    
+    					};
+    
+    					var fSuccess = function(){
+    						enableControls();
+    						that._addSuccess(that)
+    					};
+    					
+    					var triggerAdd = function(){
+    						if(that._isValid()){
+        					    disableControls();
+        						that.element
+        						    .trigger(
+        						        "dc-add", 
+        						        { 
+            							  value: that._getValue(), 
+            							  success: fSuccess,
+            							  failure: function(text){
+            								enableControls();
+            								that._addFailure(text);
+            							  },
+        						        }
+        						    );
+                            }
+    
+    					};
+    										  
+    					//attach listeners
+    					$("input[type=button]", addControlsRow).click(function(evt){
+    						triggerAdd();
+    					});
+    					
+    					$("input[type=text]", addControlsRow).bindEnterKey(triggerAdd);
+    
+    					table.append(addControlsRow);
+					}
 				}
 				
 				this._initializeDataContainer();
@@ -181,17 +182,26 @@ $.widget("ui.propertiesviewer",
 				//add the value value
 				var valueCell = $(document.createElement("td"));
 				child.append(valueCell.addClass("value").html(data.value));
-				//append remove button
-				button = $(document.createElement("span"))
-				            .addClass("dc-mouse-panel float-r")
-				            .makeHidden()
-				            .append("<input type='button' value='x'/>");
-				valueCell.append(button);
+				
+				if(!this.options.readOnly){
+    				//append remove button
+    				button = $(document.createElement("span"))
+    				            .addClass("dc-mouse-panel float-r")
+    				            .makeHidden()
+    				            .append("<input type='button' value='x'/>");
+    				valueCell.append(button);
+                }
+
 				return child;
 			},
 			
 			_appendChild: function (child){
-				this._getDataContainer().children().last().prepend(child);
+			    var children = this._getDataContainer().children();
+			    if(children.size() > 0){
+	                children.last().prepend(child);
+			    }else{
+			        this._getDataContainer().append(child);
+			    }
 				return child;
 			},
 			

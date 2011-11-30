@@ -148,11 +148,11 @@ button[disabled], button[disabled]:hover,
 	background: -webkit-gradient(linear, left top, left bottom, from(#797979), to(#515151)) !important; 	/* For WebKit (Safari, Google Chrome etc) */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF797979, endColorstr=#FF515151) !important; /* For Internet Explorer 5.5 - 7 */
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF797979, endColorstr=#FF515151)" !important;	/* For Internet Explorer 8 */
-	height:25px;
 	margin-right:2px;
 	color: #333 !important;
 	border-color:#333 !important;
-
+	cursor: default;
+	
 }
 
 
@@ -288,6 +288,8 @@ span.off i,
 .outer .help { background-image:url(../images/icon_sm_help_blue.gif); }
 .outer .logoff { background-image:url(../images/icon_sm_logoff_blue.gif); }
 .data-table { background-image:url(../images/icon_sm_table.png); }
+.user { background:url(../images/icon_sm_user.png) no-repeat; }
+.group { background:url(../images/icon_sm_group.png) no-repeat; }
 
 /* BUTTONS IN SPECIFIC AREAS *******************************/
 .dc-item button

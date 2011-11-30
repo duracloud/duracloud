@@ -86,8 +86,17 @@ $.widget("ui.controlpanel",
             form.append(that._header);
             form.append(that._content);
             this.element.append(form);
+            this._header.append($("<div class='dc-expando-status dc-busy'></div>").hide());
         }, 
 
+        _busy: function(){
+            $(".dc-busy",this.element).show();
+        },
+        
+        _idle: function(){
+            $(".dc-busy",this.element).hide();
+        },
+        
         _activate: function(){ 
 
         }, 
@@ -156,10 +165,13 @@ $.widget("ui.savecancelpanel",
                     text: saveButtonText, 
                     disabled: true,
                     click: function(evt){ 
+                        that._busy();
                         if(that._save()){
                             that._fireSaveSuccess();
+                            that._idle();
                             return true;
                         }else{
+                            that._idle();
                             return false;
                         }
                         
@@ -366,21 +378,28 @@ $.widget("ui.acladdpanel",
  */
 $.widget("ui.aclreadonlypanel",
     $.extend({}, $.ui.controlpanel.prototype, {  
+        _editButton: null,
+        _readOnly: false, 
         _init: function(){ 
             $.ui.controlpanel.prototype._init.call(this); //call super init first
-
+            if(this.options.space.callerAcl != "w"){
+                this._readOnly = true;
+            }
+            
             this.addButton(
                     {
                       id:"add", 
                       text:"Add", 
                       iconClass:"plus",
+                      disabled: this._readOnly,
                     });
 
-            this.addButton(
+            this._editButton = this.addButton(
                     {
                       id:"edit", 
                       text:"Edit", 
                       iconClass:"pencil",
+                      disabled: true,
                     });
         },
         
@@ -400,6 +419,7 @@ $.widget("ui.aclreadonlypanel",
         
         _acls: null,
         acls: function(acls, message){
+            
             if(acls == undefined){
                 return this._acls;
             }else{
@@ -407,10 +427,14 @@ $.widget("ui.aclreadonlypanel",
                 this._acls = acls; 
                 if(this._acls && this._acls.length > 0){
                     this.content().append(createPermissionsTable(this._acls,true));
+                    this._editButton.disable(this._readOnly);
                 }else{
                     if(message){
                         this.content().append("<p>"+message+"</p>")
                     }
+
+                    this._editButton.disable(true);
+
                 }
             }
         },
@@ -438,7 +462,7 @@ var toArray = function(acls, readOnly){
             write = acl.write ? "x":"";
         }
         
-        a.push([stripGroupPrefix(acl.name), 
+        a.push([buildAclLabel(acl.name), 
                 read, 
                 write]);
     }
@@ -446,8 +470,19 @@ var toArray = function(acls, readOnly){
     return a;
 };
 
-var stripGroupPrefix = function(name){
-    return name.replace("group-", "");
+var buildAclLabel = function(name){
+    var iconClass = "user";
+
+    var prefix = "group-";
+    if(name.indexOf(prefix) == 0){
+        group = true;
+        iconClass = "group";
+        name = name.replace(prefix, "");
+    }
+    
+    return "<span class='" + iconClass + "'>" + name +"</span>";
+    
+    
 };
 
 var addCheckboxListeners = function (read, write) {

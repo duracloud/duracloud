@@ -37,6 +37,12 @@ public class ContentItem
 
     private ContentProperties properties;
 
+    /*
+     * The caller's acl based on the granted authorities and group membership of the 
+     * caller as well as the space acls. 
+     */
+    private String callerAcl;
+    
     public String getStoreId() {
 		return storeId;
 	}
@@ -110,8 +116,17 @@ public class ContentItem
 		return durastoreURL;
 	}
 
+    public String getCallerAcl() {
+        return callerAcl;
+    }
+
+    public void setCallerAcl(String callerAcl) {
+        this.callerAcl = callerAcl;
+    }
+    
 	public String toString(){
     	return "{storeId: " + storeId + ", spaceId: " + spaceId + ", contentId: " + contentId + 
-    				", properties: " + properties + ", contentMimetype: " + contentMimetype +"}";
+    				", properties: " + properties + ", contentMimetype: " + contentMimetype +
+    				", callerAcl: " + callerAcl + "}";
     }
 }

@@ -60,6 +60,9 @@ $(function(){
 		
 		dc.displayErrorDialog = function(xhr, textStatus, errorThrown){
 			var errorText = xhr.responseText;
+			if(!textStatus){
+			    textStatus = "An unexpected error occurred:";
+			}
 			try{
 				var response = $.parseJSON(errorText);
 				errorText = "cause: " + response['exception.message'];
@@ -70,20 +73,25 @@ $(function(){
 
 			var errorDialog = $.fn.create("div");
 			$(document).append(errorDialog);
-			errorDialog.append("<h1>An unexpected error occurred:</h1><div style='overflow:auto;height:300px'>"+errorText+"</div>");
+			errorDialog.append("<h1>"+textStatus+"</h1><div><button>Show Details</button><div class='error-detail' style='overflow:auto;height:200px;display:none'><pre>"+errorText+"</pre></div>");
+			errorDialog.find("button").click(function(){
+			   errorDialog.find(".error-detail").show(); 
+			});
+			
 			
 			errorDialog.dialog({
 				autoOpen: true,
 				show: 'fade',
 				hide: 'fade',
 				resizable: true,
-				height: 300,
+				height: 350,
 				width:500,
 				closeOnEscape:true,
-				modal: false,
+				modal: true,
 				buttons: {
 					"Close": function(){
 						$(this).dialog("close");
+						errorDialog.empty();
 					},
 				},
 			});

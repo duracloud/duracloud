@@ -8,6 +8,12 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStore.AccessType;
@@ -22,16 +28,13 @@ import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * 
@@ -91,9 +94,9 @@ public class SpaceController extends  AbstractRestController<Space> {
 				prefix = ("".equals(prefix.trim())?null:prefix);
 			}
 			String marker = request.getParameter("marker");
-			org.duracloud.domain.Space cloudSpace = 
-			contentStoreManager.getContentStore(space.getStoreId()).getSpace(space.getSpaceId(), prefix, 200, marker);
-			SpaceUtil.populateSpace(space, cloudSpace);
+			ContentStore contentStore = contentStoreManager.getContentStore(space.getStoreId());
+	         org.duracloud.domain.Space cloudSpace = contentStore.getSpace(space.getSpaceId(), prefix, 200, marker);
+			populateSpace(space, cloudSpace, contentStore);
 			populateSpaceCount(space, request);
 			return createModel(space);
 		}catch(ContentStoreException ex){
@@ -102,6 +105,16 @@ public class SpaceController extends  AbstractRestController<Space> {
 			return createModel(null);
 		}
 	}
+
+    private void populateSpace(Space space,
+                               org.duracloud.domain.Space cloudSpace,
+                               ContentStore contentStore)
+        throws ContentStoreException {
+        SpaceUtil.populateSpace(space,
+                                cloudSpace,
+                                contentStore,
+                                getAuthentication());
+    }
 	
 	
 	private void populateSpaceCount(Space space, HttpServletRequest request) throws Exception{
@@ -131,9 +144,10 @@ public class SpaceController extends  AbstractRestController<Space> {
                 space.setProperties(properties);
             }
 		}else{
-			request.getSession().setAttribute(key, listener = new ItemCounter());
+		    final ItemCounter itemCounterListener = new ItemCounter();
+			request.getSession().setAttribute(key, itemCounterListener);
 			final ContentStore contentStore = contentStoreManager.getContentStore(space.getStoreId());
-			StoreCaller<Iterator<String>> caller = new StoreCaller<Iterator<String>>() {
+			final StoreCaller<Iterator<String>> caller = new StoreCaller<Iterator<String>>() {
 	            protected Iterator<String> doCall() throws ContentStoreException {
 	            	return contentStore.getSpaceContents(space.getSpaceId());
 	            }
@@ -143,7 +157,13 @@ public class SpaceController extends  AbstractRestController<Space> {
 	            }
 	        };
 
-	        new Thread(new ExtendedIteratorCounterThread(caller.call(), listener)).start();
+	        new Thread(new Runnable(){
+	            public void run(){
+	                ExtendedIteratorCounterThread runnable = 
+	                    new ExtendedIteratorCounterThread(caller.call(), itemCounterListener);              
+	                runnable.run();
+	            }
+	        }).start();
 		}
 	}
 
@@ -162,10 +182,11 @@ public class SpaceController extends  AbstractRestController<Space> {
             }
             
             Space newSpace = new Space();
-            SpaceUtil.populateSpace(newSpace, contentStore.getSpace(spaceId,
+            populateSpace(newSpace, contentStore.getSpace(spaceId,
                     null,
                     0,
-                    null));            
+                    null), 
+                    contentStore);            
             
             return createModel(newSpace);
         }else{ 
@@ -174,29 +195,34 @@ public class SpaceController extends  AbstractRestController<Space> {
                 .handle(method, "space [" + spaceId + "]", properties, request);
         	contentStore.setSpaceProperties(spaceId, properties);
             Space newSpace = new Space();
-            SpaceUtil.populateSpace(newSpace, contentStore.getSpace(spaceId,
+            populateSpace(newSpace, contentStore.getSpace(spaceId,
                     null,
                     0,
-                    null));
+                    null), 
+                    contentStore);
     		return createModel(newSpace);
 
         }
        
 	}
 
-	protected ModelAndView post(HttpServletRequest request,
-			HttpServletResponse response, Space space,
-			BindException errors) throws Exception {
-			String spaceId = space.getSpaceId();
-	        ContentStore contentStore = getContentStore(space);
-	        contentStore.createSpace(spaceId, null);
-	        contentStore.setSpaceAccess(spaceId, AccessType.valueOf(space
-	                .getAccess()));
-	        SpaceUtil.populateSpace(space, contentStore.getSpace(spaceId,
-	                                                             null,
-	                                                             0,
-	                                                             null));
-			return createModel(space);
+	private Authentication getAuthentication() {
+	    return (Authentication)SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    protected ModelAndView post(HttpServletRequest request,
+                                HttpServletResponse response,
+                                Space space,
+                                BindException errors) throws Exception {
+        String spaceId = space.getSpaceId();
+        ContentStore contentStore = getContentStore(space);
+        contentStore.createSpace(spaceId, null);
+        contentStore.setSpaceAccess(spaceId,
+                                    AccessType.valueOf(space.getAccess()));
+        populateSpace(space,
+                      contentStore.getSpace(spaceId, null, 0, null),
+                      contentStore);
+        return createModel(space);
 	}
 
 	

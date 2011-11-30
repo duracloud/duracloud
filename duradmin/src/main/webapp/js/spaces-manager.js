@@ -245,8 +245,9 @@ $(function(){
 								callback.success();
 								$("#spaces-list").selectablelist("removeById", that._space.spaceId);
 							},
-							failure: function(message){
-								callback.failure();
+							failure: function(error, xhr){
+                                callback.failure();
+                                dc.displayErrorDialog(xhr,"Unable to delete '" + that._space.spaceId +"'");
 							},
 						});
 					},
@@ -781,28 +782,28 @@ $(function(){
 	// ////////////////////////////////////////
 	// //functions for loading properties, tags and properties
 
-	var createPropertiesPane = function(extendedProperties){
+	var createPropertiesPane = function(extendedProperties, /*bool*/readOnly){
 		var viewerPane = $.fn.create("div")
-						.propertiesviewer({title: "Properties"})
+						.propertiesviewer({title: "Properties", readOnly: readOnly})
 						.propertiesviewer("load",extendedProperties);
 		return viewerPane;
 	};
 
-	var createTagPane = function(tags){
+	var createTagPane = function(tags, /*bool*/readOnly){
 		var viewerPane = $.fn.create("div")
-						.tagsviewer({title: "Tags"})
+						.tagsviewer({title: "Tags", readOnly: readOnly})
 						.tagsviewer("load",tags);
 		return viewerPane;
 	};
 
-	var loadPropertiesPane = function(target, extendedProperties){
-		var viewerPane = createPropertiesPane(extendedProperties);
+	var loadPropertiesPane = function(target, extendedProperties, /*bool*/ readOnly){
+		var viewerPane = createPropertiesPane(extendedProperties, readOnly);
 		$(".center", target).append(viewerPane);
 		return viewerPane;
 	};
 
-	var loadTagPane = function(target, tags){
-		var viewerPane = createTagPane(tags);
+	var loadTagPane = function(target, tags, /*bool*/readOnly){
+		var viewerPane = createTagPane(tags,readOnly);
 		$(".center", target).append(viewerPane);
 		return viewerPane;
 	};
@@ -1901,6 +1902,11 @@ $(function(){
 			},
 		});
 	};
+	
+	var isReadOnly = function(/*space or contentItem obj*/obj){
+	    return obj.callerAcl != "w";
+	};
+	
 	/**
 	 * loads the space data into the detail pane
 	 */
@@ -1910,17 +1916,18 @@ $(function(){
 		setObjectId(detail,space.spaceId);
 		
 		var center = $(".center", detail);
+
+		var readOnly = isReadOnly(space);
 		
 		// attach delete button listener
 		$(".delete-space-button",detail).click(function(evt){
 			deleteSpace(evt,space);
-		});
-		
-		
+		}).disable(readOnly);
 		
 		// create access switch and bind on/off listeners
 		$(".access-switch", detail).accessswitch({
-				initialState: (space.properties.access=="OPEN"?"on":"off")
+				initialState: (space.properties.access=="OPEN"?"on":"off"),
+				readOnly: readOnly,
 			}).bind("turnOn", function(evt, future){
 				toggleSpaceAccess(space, future);
 			}).bind("turnOff", function(evt, future){
@@ -1928,7 +1935,6 @@ $(function(){
 			});
 		
         loadAclPane(detail, space);
-
 
 		loadProperties(detail, extractSpaceProperties(space));
 		
@@ -1959,7 +1965,7 @@ $(function(){
 			setTimeout(pollItemCount, 10000);
 		}
 		
-		var mp = loadPropertiesPane(detail, space.extendedProperties);
+		var mp = loadPropertiesPane(detail, space.extendedProperties, readOnly);
 		
 		$(mp).bind("dc-add", function(evt, future){
 				var value = future.value;
@@ -1968,7 +1974,7 @@ $(function(){
 				removeSpaceProperties(space.spaceId, future.value.name,future);
 			});
 		
-		var tag = loadTagPane(detail, space.properties.tags);
+		var tag = loadTagPane(detail, space.properties.tags, readOnly);
 
 		$(tag).bind("dc-add", function(evt, future){
 			var value = future.value[0];
@@ -1987,6 +1993,8 @@ $(function(){
 	};
 
 	var loadAclPane = function(detail, space){
+	    var readOnly = isReadOnly(space);
+	    
         var viewerPane =  $.fn.create("div")
                               .acleditor({open: false, space: space});
         
@@ -2021,23 +2029,27 @@ $(function(){
 	
 	var loadContentItem = function(/*object*/contentItem){
 		setHash(contentItem);
+		var readOnly = isReadOnly(contentItem);
 		var pane = $("#contentItemDetailPane").clone();
 		setObjectName(pane, contentItem.contentId);
 		setObjectId(pane,contentItem.spaceId+"/"+contentItem.contentId);
         
 		$(".download-content-item-button", pane)
-			.attr("href", dc.store.formatDownloadURL(contentItem));
+			.attr("href", dc.store.formatDownloadURL(contentItem))
+			.disable(readOnly);
 
 		$(".delete-content-item-button",pane)
 			.click(function(evt){
 				deleteContentItem(evt,contentItem);
-		});
+			})
+			.disable(readOnly);
 
         $(".copy-content-item-button",pane)
-        .click(function(evt){
-            copyContentItem(evt,contentItem);
-        });
-		
+            .click(function(evt){
+                copyContentItem(evt,contentItem);
+            })
+            .disable(readOnly);
+    		
 		var mimetype = contentItem.properties.mimetype;
 		
 		if(mimetype.indexOf("image") == 0){
@@ -2071,7 +2083,7 @@ $(function(){
 		$(".mime-type .value", pane).text(mimetype);
 		$(".mime-type-image-holder", pane).addClass(dc.getMimetypeImageClass(mimetype));
 
-		var mp = loadPropertiesPane(pane, contentItem.extendedProperties);
+		var mp = loadPropertiesPane(pane, contentItem.extendedProperties, readOnly);
 		
 		
 		$(mp).bind("dc-add", function(evt, future){
@@ -2081,7 +2093,7 @@ $(function(){
 				removeContentItemProperties(contentItem.spaceId, contentItem.contentId, future.value.name,future);
 			});
 		
-		var tag = loadTagPane(pane, contentItem.properties.tags);
+		var tag = loadTagPane(pane, contentItem.properties.tags, readOnly);
 
 		$(tag).bind("dc-add", function(evt, future){
 			var value = future.value[0];
@@ -2113,7 +2125,7 @@ $(function(){
 						}
 					}, contentItem);
 				}
-			);			
+			).disable(readOnly);			
 		
 		$("#detail-pane").replaceContents(pane,contentItemDetailLayoutOptions);
 
@@ -2241,11 +2253,19 @@ $(function(){
 	};
 
 	var loadContentItems = function(space){
-		var list,listView; 
-		listView = $("content-item-list-view");		
+		var list,listView, readOnly = isReadOnly(space); 
+		var contentListV
+		listView = $("#content-item-list-view");		
 		list = $("#content-item-list");
 		list.selectablelist("clear");
-		$("#content-item-list-view").find("button,input,a").fadeIn();
+		$("#content-item-list-view")
+		    .find("button,input,a")
+		    .fadeIn();
+
+		listView
+		$("button, a, .dc-check-all", listView)
+            .disable(readOnly);
+		
 		$(".bulk-add-content-item")
 		    .attr("href", "spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
 		    .attr("target", "bulk-upload-" + escape(space.spaceId));
@@ -2256,17 +2276,18 @@ $(function(){
 	};
 	
 	var addContentItemsToList = function(space){
+	    var readOnly = isReadOnly(space); 
 		$.each(space.contents,function(i,value){
 			addContentItemToList({
 				contentId:value,
 				spaceId:space.spaceId,
-				storeId:space.storeId
-			});
+				storeId:space.storeId,
+			}, readOnly);
 		});
 	};
 
 	var updateNavigationControls = function(space){
-		var list,listView, listCount,totalCount,statusTxt;
+	    var list,listView, listCount,totalCount,statusTxt;
 		
 		listView = $("#content-item-list-view");		
 		list = $("#content-item-list");
@@ -2353,7 +2374,7 @@ $(function(){
 		
 	};
 	
-	var addContentItemToList = function(contentItem){
+	var addContentItemToList = function(contentItem, readOnly){
 		var node, actions, content, deleteButton, copyButton;
 		
 		deleteButton = 
@@ -2387,7 +2408,10 @@ $(function(){
 			   .append(content)
 			   .append(actions);
 		
-		return $("#content-item-list").selectablelist('addItem',node, contentItem);
+		var item =  $("#content-item-list").selectablelist('addItem',node, contentItem);
+		$("button, input", item).disable(readOnly);
+		return item;
+		
 	};
 
 	var changeSpaceAccess = function(storeId, spaceId, access, callback){
@@ -2651,16 +2675,10 @@ $(function(){
 	
 	var addSpaceToList = function(space){
 		var node =  $.fn.create("div");
-		var actions = $.fn.create("div");
-		actions.append("<button class='delete-space-button featured icon-only'><i class='pre trash'></i></button>");
 		node.attr("id", space.spaceId)
-			   .html(space.spaceId)
-			   .append(actions);
+			   .html(space.spaceId);
 		$("#spaces-list").selectablelist('addItem',node,space);	   
 		
-		$(".delete-space-button", node).click(function(evt){
-			deleteSpace(evt,space);
-		});
 	};
 	
 	var loadSpaces = function(spaces,filter) {

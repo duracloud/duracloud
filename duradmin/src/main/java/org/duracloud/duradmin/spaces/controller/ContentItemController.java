@@ -8,6 +8,13 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
@@ -20,16 +27,12 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
 
 /**
  * 
@@ -107,13 +110,7 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 			BindException errors) throws Exception {
 		ContentItem contentItem = new ContentItem();
 		try{
-            SpaceUtil.populateContentItem(
-            							  getBaseURL(request),
-            							  contentItem,
-                                          ci.getSpaceId(),
-                                          ci.getContentId(),
-                                          getContentStore(ci),
-                                          getServicesManager());
+		    populateContentItem(request, getContentStore(ci), ci, contentItem);
             
             if(!StringUtils.isBlank(contentItem.getContentId())){
                 return createModel(contentItem);
@@ -163,13 +160,7 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
                 contentStore.setContentProperties(spaceId, contentId, properties);
             }
 
-
-	        SpaceUtil.populateContentItem(getBaseURL(request),
-                                          result,
-                                          contentItem.getSpaceId(),
-	                                      contentItem.getContentId(),
-                                          contentStore,
-                                          servicesManager);
+	        populateContentItem(request, contentStore, contentItem, result);
 	        return createModel(result);
 	        
 	    }catch(Exception ex){
@@ -182,9 +173,11 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
         HttpServletRequest request, ContentItem contentItem, String spaceId,
         String contentId, ContentStore contentStore)
         throws ContentStoreException, MalformedURLException {
+        
         String destStoreId = request.getParameter("destStoreId");
         String destSpaceId = request.getParameter("destSpaceId");
         String destContentId = request.getParameter("destContentId");
+       
         if(Boolean.valueOf(request.getParameter("deleteOriginal"))){
             contentStore.moveContent(
                 spaceId,
@@ -200,6 +193,7 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
                 destSpaceId,
                 destContentId);
         }
+        
         ContentItem result = new ContentItem();
         result.setStoreId(destStoreId);
         result.setSpaceId(destSpaceId);
@@ -209,14 +203,29 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
             contentStore = getContentStore(result);
         }
     
-        SpaceUtil.populateContentItem(getBaseURL(request),
-            result,
-            result.getSpaceId(),
-            result.getContentId(),
-            contentStore,
-            servicesManager);
+        populateContentItem(request, contentStore, result, result);
         return createModel(result);
         
+    }
+
+    private void populateContentItem(HttpServletRequest request,
+                                     ContentStore contentStore,
+                                     ContentItem contentItem,
+                                     ContentItem result)
+        throws ContentStoreException,
+            MalformedURLException {
+        
+        Authentication auth =
+            (Authentication) SecurityContextHolder.getContext()
+                                                  .getAuthentication();
+
+        SpaceUtil.populateContentItem(getBaseURL(request),
+                                      result,
+                                      contentItem.getSpaceId(),
+                                      contentItem.getContentId(),
+                                      contentStore,
+                                      servicesManager,
+                                      auth);
     }
 
 
@@ -237,16 +246,4 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 	protected ContentStore getContentStore(ContentItem contentItem) throws ContentStoreException{
 		return contentStoreManager.getContentStore(contentItem.getStoreId());
 	}
-
-
-
-	private ContentItem create(HttpServletRequest request) {
-		ContentItem ci = new ContentItem();
-		ci.setStoreId(request.getParameter("storeId"));	
-		ci.setSpaceId(request.getParameter("spaceId"));
-		ci.setContentId(request.getParameter("contentId"));
-		return ci;
-	}
-
-
 }

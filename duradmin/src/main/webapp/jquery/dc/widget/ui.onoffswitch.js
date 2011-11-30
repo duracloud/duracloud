@@ -18,6 +18,7 @@ $.widget("ui.onoffswitch",{
 		, offIconClass: "lock"
 		, onText: "On"
 		, offText: "Off"
+		, readOnly: false
 	},
 	
 	
@@ -29,17 +30,17 @@ $.widget("ui.onoffswitch",{
 		//clear the element state
 		$(that.element).html("");
 		var o = this.options;
-		var leftButtonOnState = this._createButton(o.onText, o.onStateClass, o.onIconClass, false);
-		var rightButtonOnState = this._createButton(o.offText, o.offStateClass, o.offIconClass, true);
-		var leftButtonOffState = this._createButton(o.onText, o.onStateClass, o.onIconClass, true);
-		var rightButtonOffState = this._createButton(o.offText, o.offStateClass, o.offIconClass, false);
+		var leftButtonOnState = this._createButton(o.onText, o.onStateClass, o.onIconClass, false, o.readOnly);
+		var rightButtonOnState = this._createButton(o.offText, o.offStateClass, o.offIconClass, true, o.readOnly);
+		var leftButtonOffState = this._createButton(o.onText, o.onStateClass, o.onIconClass, true, o.readOnly);
+		var rightButtonOffState = this._createButton(o.offText, o.offStateClass, o.offIconClass, false, o.readOnly);
 		
 		rightButtonOnState.click(function(evt){
 			evt.preventDefault();
 			that._fireOffEvent();
 		});
 		
-		var onState = $(document.createElement("span"))
+		var onState = $.fn.create("span")
 							.addClass("button-holder")
 							.addClass("button-holder-on")
 							.append(leftButtonOnState)
@@ -52,7 +53,7 @@ $.widget("ui.onoffswitch",{
 			evt.preventDefault();
 			that._fireOnEvent(evt);
 		});
-		var offState = $(document.createElement("span"))
+		var offState = $.fn.create("span")
 							.addClass("button-holder")
 							.addClass("button-holder-off")
 							.append(leftButtonOffState)
@@ -104,25 +105,23 @@ $.widget("ui.onoffswitch",{
 		this._fireOnEvent();
 	},
 	
-	_createButton: function(text, stateClass, iconClass, clickable)
+	_createButton: function(text, stateClass, iconClass, clickable, readOnly)
 	{
 		var button;
-		var icon = $(document.createElement("i"))
+		var icon = $.fn.create("i")
 			.addClass("pre")
 			.addClass(iconClass);
-		if (clickable)
-		{
-			button = $(document.createElement("button"));
-		}
-		else
-		{
-			button = $(document.createElement("span"));	
+		if (clickable) {
+			button = $.fn.create("button");
+		} else {
+			button = $.fn.create("span");	
 		}
 		button
 			.addClass("switch")
 			.addClass(stateClass) // need to change to be "left" for on, "right" for off
 			.append(icon)
-			.append(text);
+			.append(text)
+		    .disable(readOnly);
 		return button;
 	}
 });

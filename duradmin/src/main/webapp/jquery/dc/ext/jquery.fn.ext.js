@@ -17,7 +17,15 @@ $(function(){
 		////////////////////////////////////////////////////////////////////
 		//jquery extensions
 		///////////////////////////////////////////////////////////////////
-		/**
+	    $.fn.disable = function(/*boolean*/ val){
+	        if(!val){
+	           return $(this).removeAttr("disabled");
+	        }else{
+	           return $(this).attr("disabled", "disabled");
+	        }
+	    };
+	    
+	    /**
 		 * Similar to hide/show jquery functions but toggles the visibility css 
 		 * attribute instead of the display attribute.
 		 */

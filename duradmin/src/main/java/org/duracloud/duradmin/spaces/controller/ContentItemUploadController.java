@@ -21,6 +21,8 @@ import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -28,120 +30,135 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
+ * 
  * @author Daniel Bernstein
  */
 
-public class ContentItemUploadController implements Controller{
+public class ContentItemUploadController implements Controller {
 
-    protected final Logger log = 
+    protected final Logger log =
         LoggerFactory.getLogger(ContentItemUploadController.class);
 
-	
-	private ServicesManager servicesManager;
-    
-	public ServicesManager getServicesManager() {
-		return servicesManager;
-	}
+    private ServicesManager servicesManager;
 
-	public void setServicesManager(ServicesManager servicesManager) {
-		this.servicesManager = servicesManager;
-	}
+    public ServicesManager getServicesManager() {
+        return servicesManager;
+    }
 
-	public ContentStoreManager getContentStoreManager() {
-		return contentStoreManager;
-	}
+    public void setServicesManager(ServicesManager servicesManager) {
+        this.servicesManager = servicesManager;
+    }
 
-	public void setContentStoreManager(ContentStoreManager contentStoreManager) {
-		this.contentStoreManager = contentStoreManager;
-	}
+    public ContentStoreManager getContentStoreManager() {
+        return contentStoreManager;
+    }
 
-	private ContentStoreManager contentStoreManager;
-	
-    private static class ProgressAdapter implements ProgressListener{
-			long bytesRead = 0;
-			long totalBytes = -1;
-			private ProgressListener listener = null;
-			@Override
-			public void update(long pBytesRead, long pContentLength,
-					int pItems) {
-				if(listener != null){
-					listener.update(pBytesRead, pContentLength, pItems);
-				}else{
-					bytesRead = pBytesRead;
-					totalBytes = pContentLength;
-				}
-			}
-			
-			public void setListener(ProgressListener listener){
-				this.listener = listener;
-				this.listener.update(bytesRead, totalBytes, 1);
-			}		
-		
-	}
-	
-	@Override
-	public ModelAndView handleRequest(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
-		try{
-			log.debug("handling request...");
-			
-			ContentItem ci = new ContentItem();
-			ServletFileUpload upload = new ServletFileUpload();
-			
-			ProgressAdapter progress = new ProgressAdapter();
-			upload.setProgressListener(progress);
-			FileItemIterator iter = upload.getItemIterator(request);
-			FileItemStream fileStream = null;
-			while(iter.hasNext()){
-			    FileItemStream item = iter.next();
-			    if(item.isFormField()){
-			    	String value = Streams.asString(item.openStream(), "UTF-8");
-			    	if(item.getFieldName().equals("contentId")){
-						log.debug("setting contentId: {}", value);
-			    		ci.setContentId(value);
-			    	}else if(item.getFieldName().equals("contentMimetype")){
-						log.debug("setting mimetype: {}", value);
-			    		ci.setContentMimetype(value);
-			    	}else if(item.getFieldName().equals("spaceId")){
-						log.debug("setting spaceId: {}", value);
-			    		ci.setSpaceId(value);
-			    	}else if(item.getFieldName().equals("storeId")){
-						log.debug("setting storeId: {}", value);
-			    		ci.setStoreId(value);
-			    	}
-			    }else{
-					log.debug("setting fileStream: {}", item);
-			    	fileStream = item;
-			    	break;
-			    }
-			}
+    public void setContentStoreManager(ContentStoreManager contentStoreManager) {
+        this.contentStoreManager = contentStoreManager;
+    }
 
-			if(StringUtils.isBlank(ci.getContentId())){
-				log.debug("contentId is blank. using upload filename: {}", fileStream.getName());
-				ci.setContentId(fileStream.getName());
-			}
-			
-			if(StringUtils.isBlank(ci.getContentMimetype())){
-				log.debug("contentMimetype is blank. using content from header: {}", fileStream.getContentType());
-				ci.setContentMimetype(fileStream.getContentType());
-			}
+    private ContentStoreManager contentStoreManager;
 
-			ContentStore contentStore = contentStoreManager.getContentStore(ci.getStoreId());
-			ContentItemUploadTask task = new ContentItemUploadTask(ci, contentStore, fileStream.openStream(), request.getUserPrincipal().getName());
-			progress.setListener(task);
-			ContentUploadHelper.getManager(request).addUploadTask(task);
-			task.execute();
-	        ContentItem result = new ContentItem();
-	        SpaceUtil.populateContentItem(ContentItemController.getBaseURL(request),result, ci.getSpaceId(), ci.getContentId(),contentStore, servicesManager);
-	        return new ModelAndView("javascriptJsonView", "contentItem", ci);
-			
-		}catch(Exception ex){
-			ex.printStackTrace();
-			throw ex;
-		}
+    private static class ProgressAdapter implements ProgressListener {
+        long bytesRead = 0;
+        long totalBytes = -1;
+        private ProgressListener listener = null;
 
-	}
+        @Override
+        public void update(long pBytesRead, long pContentLength, int pItems) {
+            if (listener != null) {
+                listener.update(pBytesRead, pContentLength, pItems);
+            } else {
+                bytesRead = pBytesRead;
+                totalBytes = pContentLength;
+            }
+        }
 
+        public void setListener(ProgressListener listener) {
+            this.listener = listener;
+            this.listener.update(bytesRead, totalBytes, 1);
+        }
+
+    }
+
+    @Override
+    public ModelAndView handleRequest(HttpServletRequest request,
+                                      HttpServletResponse response)
+        throws Exception {
+        try {
+            log.debug("handling request...");
+
+            ContentItem ci = new ContentItem();
+            ServletFileUpload upload = new ServletFileUpload();
+
+            ProgressAdapter progress = new ProgressAdapter();
+            upload.setProgressListener(progress);
+            FileItemIterator iter = upload.getItemIterator(request);
+            FileItemStream fileStream = null;
+            while (iter.hasNext()) {
+                FileItemStream item = iter.next();
+                if (item.isFormField()) {
+                    String value = Streams.asString(item.openStream(), "UTF-8");
+                    if (item.getFieldName().equals("contentId")) {
+                        log.debug("setting contentId: {}", value);
+                        ci.setContentId(value);
+                    } else if (item.getFieldName().equals("contentMimetype")) {
+                        log.debug("setting mimetype: {}", value);
+                        ci.setContentMimetype(value);
+                    } else if (item.getFieldName().equals("spaceId")) {
+                        log.debug("setting spaceId: {}", value);
+                        ci.setSpaceId(value);
+                    } else if (item.getFieldName().equals("storeId")) {
+                        log.debug("setting storeId: {}", value);
+                        ci.setStoreId(value);
+                    }
+                } else {
+                    log.debug("setting fileStream: {}", item);
+                    fileStream = item;
+                    break;
+                }
+            }
+
+            if (StringUtils.isBlank(ci.getContentId())) {
+                log.debug("contentId is blank. using upload filename: {}",
+                          fileStream.getName());
+                ci.setContentId(fileStream.getName());
+            }
+
+            if (StringUtils.isBlank(ci.getContentMimetype())) {
+                log.debug("contentMimetype is blank. using content from header: {}",
+                          fileStream.getContentType());
+                ci.setContentMimetype(fileStream.getContentType());
+            }
+
+            ContentStore contentStore =
+                contentStoreManager.getContentStore(ci.getStoreId());
+            ContentItemUploadTask task =
+                new ContentItemUploadTask(ci,
+                                          contentStore,
+                                          fileStream.openStream(),
+                                          request.getUserPrincipal().getName());
+            progress.setListener(task);
+            ContentUploadHelper.getManager(request).addUploadTask(task);
+            task.execute();
+            ContentItem result = new ContentItem();
+            Authentication auth =
+                (Authentication) SecurityContextHolder.getContext()
+                                                      .getAuthentication();
+            SpaceUtil.populateContentItem(ContentItemController.getBaseURL(request),
+                                          result,
+                                          ci.getSpaceId(),
+                                          ci.getContentId(),
+                                          contentStore,
+                                          servicesManager,
+                                          auth);
+            return new ModelAndView("javascriptJsonView", "contentItem", ci);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw ex;
+        }
+
+    }
 
 }

@@ -47,8 +47,14 @@ $.widget("ui.tagsviewer",
 					//add the name element
 					child.html(data);
 					//append remove button
-					button = $(document.createElement("span")).addClass("dc-mouse-panel float-r").makeHidden().append("<input type='button' value='x'/>");
-					child.append(button);
+					if(!this.options.readOnly){
+    					button = $.fn.create("span")
+    					             .addClass("dc-mouse-panel float-r")
+    					             .makeHidden()
+    					             .append("<input type='button' value='x'/>");
+    					child.append(button);
+                    }
+
 					return child;
 				},
 				

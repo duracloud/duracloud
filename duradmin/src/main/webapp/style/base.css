@@ -933,11 +933,11 @@ span.label,
 .dc-expando-status {
 	height:20px;
 	width:30px;
-	float: right;
 }
 
 .dc-busy {
-	background: #0F0 url('../images/wait.gif') no-repeat center center;
+	background: url('../images/wait.gif') no-repeat center center;
+	display:inline-block; vertical-align:middle;
 }
 
 .dc-removing {
@@ -1193,6 +1193,10 @@ table.dc-acls td:first-child {
 
 table.dc-acls td:last-child {
 	width:25% ;
+}
+
+.user, .group {
+	padding-left:20px;
 }
 
 
