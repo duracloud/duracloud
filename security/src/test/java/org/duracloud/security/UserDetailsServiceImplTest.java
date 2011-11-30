@@ -35,6 +35,10 @@ public class UserDetailsServiceImplTest {
     private final String usernameB = "b-user";
     private final String usernameC = "c-user";
 
+    private final String emailA = "a@email.com";
+    private final String emailB = "b@email.com";
+    private final String emailC = "c@email.com";
+
     private List<String> grantsA;
     private List<String> grantsB;
     private List<String> grantsC;
@@ -77,6 +81,7 @@ public class UserDetailsServiceImplTest {
 
         SecurityUserBean user0 = new SecurityUserBean(usernameA,
                                                       "apw",
+                                                      emailA,
                                                       true,
                                                       true,
                                                       true,
@@ -85,6 +90,7 @@ public class UserDetailsServiceImplTest {
                                                       groupsA);
         SecurityUserBean user1 = new SecurityUserBean(usernameB,
                                                       "apw",
+                                                      emailB,
                                                       true,
                                                       true,
                                                       true,
@@ -93,6 +99,7 @@ public class UserDetailsServiceImplTest {
                                                       groupsB);
         SecurityUserBean user2 = new SecurityUserBean(usernameC,
                                                       "upw",
+                                                      emailC,
                                                       true,
                                                       true,
                                                       true,
@@ -128,6 +135,10 @@ public class UserDetailsServiceImplTest {
         Assert.assertEquals(usernameA, udA.getUsername());
         Assert.assertEquals(usernameB, udB.getUsername());
         Assert.assertEquals(usernameC, udC.getUsername());
+
+        Assert.assertEquals(emailA, udA.getEmail());
+        Assert.assertEquals(emailB, udB.getEmail());
+        Assert.assertEquals(emailC, udC.getEmail());
 
         GrantedAuthority[] gA = udA.getAuthorities();
         GrantedAuthority[] gB = udB.getAuthorities();
@@ -217,6 +228,7 @@ public class UserDetailsServiceImplTest {
     private void verifyFailure(Credential cred) {
         SecurityUserBean user = new SecurityUserBean(cred.getUsername(),
                                                      cred.getPassword(),
+                                                     "email",
                                                      true,
                                                      true,
                                                      true,

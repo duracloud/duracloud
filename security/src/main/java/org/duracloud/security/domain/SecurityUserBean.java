@@ -19,6 +19,7 @@ import java.util.List;
 public class SecurityUserBean {
     private String username;
     private String password;
+    private String email;
     private boolean enabled;
     private boolean accountNonExpired;
     private boolean credentialsNonExpired;
@@ -31,6 +32,7 @@ public class SecurityUserBean {
     public SecurityUserBean() {
         this("unknown",
              "unknown",
+             "",
              false,
              false,
              false,
@@ -44,6 +46,7 @@ public class SecurityUserBean {
                             List<String> grantedAuthorities) {
         this(username,
              password,
+             "",
              true,
              true,
              true,
@@ -54,6 +57,7 @@ public class SecurityUserBean {
 
     public SecurityUserBean(String username,
                             String password,
+                            String email,
                             boolean enabled,
                             boolean accountNonExpired,
                             boolean credentialsNonExpired,
@@ -62,6 +66,7 @@ public class SecurityUserBean {
                             List<String> groups) {
         this.username = username;
         this.password = password;
+        this.email = email;
         this.enabled = enabled;
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
@@ -76,6 +81,10 @@ public class SecurityUserBean {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public boolean isEnabled() {
@@ -107,6 +116,12 @@ public class SecurityUserBean {
     public void setPassword(String password) {
         if (!StringUtils.isBlank(password)) {
             this.password = password;
+        }
+    }
+
+    public void setEmail(String email) {
+        if (!StringUtils.isBlank(email)) {
+            this.email = email;
         }
     }
 

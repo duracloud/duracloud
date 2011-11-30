@@ -62,6 +62,7 @@ public class DuracloudUserDetailsTest {
     private DuracloudUserDetails createDuracloudUserDetails(List<String> groups) {
         return new DuracloudUserDetails("username",
                                         "password",
+                                        "email",
                                         true,
                                         true,
                                         true,

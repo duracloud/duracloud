@@ -113,6 +113,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
 
         DuracloudUserDetails user = new DuracloudUserDetails(u.getUsername(),
                                                              u.getPassword(),
+                                                             u.getEmail(),
                                                              u.isEnabled(),
                                                              u.isAccountNonExpired(),
                                                              u.isCredentialsNonExpired(),
@@ -134,6 +135,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
             List<String> grants = getGrants(user.getAuthorities());
             SecurityUserBean bean = new SecurityUserBean(user.getUsername(),
                                                          user.getPassword(),
+                                                         user.getEmail(),
                                                          user.isEnabled(),
                                                          user.isAccountNonExpired(),
                                                          user.isCredentialsNonExpired(),

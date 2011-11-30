@@ -36,6 +36,7 @@ public class SecurityContextUtilTest {
 
     private String username = "username";
     private String password = "password";
+    private String email = "email";
     private GrantedAuthority[] authorities;
     private List<String> groups;
 
@@ -74,6 +75,7 @@ public class SecurityContextUtilTest {
                                                   Authentication.class);
         DuracloudUserDetails userDetails = new DuracloudUserDetails(username,
                                                                     password,
+                                                                    email,
                                                                     true,
                                                                     true,
                                                                     true,
@@ -120,6 +122,7 @@ public class SecurityContextUtilTest {
 
         Assert.assertEquals(groups, userDetails.getGroups());
         Assert.assertEquals(username, userDetails.getUsername());
+        Assert.assertEquals(email, userDetails.getEmail());
     }
 
     @Test

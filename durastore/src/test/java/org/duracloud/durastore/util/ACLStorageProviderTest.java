@@ -162,6 +162,7 @@ public class ACLStorageProviderTest {
                                                   Authentication.class);
         DuracloudUserDetails userDetails = new DuracloudUserDetails(username,
                                                                     "password",
+                                                                    "email",
                                                                     true,
                                                                     true,
                                                                     true,

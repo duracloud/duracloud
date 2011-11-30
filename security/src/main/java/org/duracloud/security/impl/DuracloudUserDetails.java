@@ -19,10 +19,12 @@ import java.util.List;
  */
 public class DuracloudUserDetails extends User implements UserDetails {
 
+    private String email;
     private List<String> groups;
 
     public DuracloudUserDetails(String username,
                                 String password,
+                                String email,
                                 boolean enabled,
                                 boolean accountNonExpired,
                                 boolean credentialsNonExpired,
@@ -37,7 +39,12 @@ public class DuracloudUserDetails extends User implements UserDetails {
               credentialsNonExpired,
               accountNonLocked,
               authorities);
+        this.email = email;
         this.groups = groups;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public List<String> getGroups() {

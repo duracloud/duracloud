@@ -9,9 +9,6 @@ package org.duracloud.security.vote;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
-
-import static org.easymock.EasyMock.createMock;
-
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.easymock.IAnswer;
@@ -32,15 +29,16 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.easymock.EasyMock.createMock;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
 
 /**
  * @author Andrew Woods
@@ -206,6 +204,7 @@ public class SpaceReadAccessVoterTest {
             new GrantedAuthorityImpl[]{new GrantedAuthorityImpl("ROLE_USER")};
         DuracloudUserDetails user = new DuracloudUserDetails(username,
                                                              "x",
+                                                             "email",
                                                              true,
                                                              true,
                                                              true,

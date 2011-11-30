@@ -30,6 +30,7 @@ public class SecurityUserElementReaderWriterTest {
 
     private final String usernamePrefix = "username-";
     private final String passwordPrefix = "password-";
+    private final String emailPrefix = "email-";
     private final String grantPrefix = "ROLE-";
     private final String groupPrefix = "group.";
 
@@ -82,6 +83,7 @@ public class SecurityUserElementReaderWriterTest {
             if (fullBeans) {
                 user = new SecurityUserBean(usernamePrefix + i,
                                             passwordPrefix + i,
+                                            emailPrefix + i,
                                             flag,
                                             flag,
                                             flag,
@@ -107,6 +109,7 @@ public class SecurityUserElementReaderWriterTest {
 
             String username = user.getUsername();
             String password = user.getPassword();
+            String email = user.getEmail();
             boolean enabled = user.isEnabled();
             boolean credentialNonExpired = user.isCredentialsNonExpired();
             boolean accountNonExpired = user.isAccountNonExpired();
@@ -114,9 +117,11 @@ public class SecurityUserElementReaderWriterTest {
 
             Assert.assertNotNull(username);
             Assert.assertNotNull(password);
+            Assert.assertNotNull(email);
 
             Assert.assertEquals(usernamePrefix + index, username);
             Assert.assertEquals(passwordPrefix + index, password);
+            Assert.assertEquals(emailPrefix + index, email);
 
             if (fullBeans) {
                 Assert.assertEquals(index % 2 == 0, enabled);

@@ -49,6 +49,7 @@ public class SecurityUserElementWriter {
                                          SecurityUserBean user) {
         userType.setUsername(user.getUsername());
         userType.setPassword(user.getPassword());
+        userType.setEmail(user.getEmail());
         userType.setEnabled(user.isEnabled());
         userType.setCredentialsNonExpired(user.isCredentialsNonExpired());
         userType.setAccountNonExpired(user.isAccountNonExpired());

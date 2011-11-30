@@ -15,6 +15,7 @@
     <xs:sequence>      
       <xs:element name="username" type="xs:string"/>
       <xs:element name="password" type="xs:string"/>
+      <xs:element name="email" type="xs:string"/>
       <xs:element name="enabled" type="xs:boolean" minOccurs="0"/>
       <xs:element name="accountNonExpired" type="xs:boolean" minOccurs="0"/>
       <xs:element name="credentialsNonExpired" type="xs:boolean" minOccurs="0"/>
