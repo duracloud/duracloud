@@ -165,33 +165,46 @@ $.widget("ui.savecancelpanel",
                     text: saveButtonText, 
                     disabled: true,
                     click: function(evt){ 
-                        that._busy();
-                        if(that._save()){
-                            that._fireSaveSuccess();
-                            that._idle();
-                            return true;
-                        }else{
-                            that._idle();
-                            return false;
-                        }
-                        
-                       
+                        that._fireSaveStart();
+                        that._save();
+                        return false;
                     }
                 });
                 
-                $(this.element).bind("changed", function(){
-                    saveButton.removeAttr("disabled");
-                });
-
-                $(this.element).bind("unchanged", function(){
-                    saveButton.attr("disabled", "true");
-                });
-                
-                this.addButton({
+                var cancelButton = this.addButton({
                     id:"cancel", 
                     text:"Cancel", 
                     disabled: false,
                 });
+                
+                $(this.element).bind("changed", function(){
+                    saveButton.disable(false);
+                });
+
+                $(this.element).bind("savestart", function(){
+                    that._busy();
+                    saveButton.disable(true);
+                    cancelButton.disable(true);
+                });
+
+                $(this.element).bind("unchanged savesuccess", function(){
+                    saveButton.disable(true);
+                    cancelButton.disable(false);
+                    that._idle();
+                });
+
+                $(this.element).bind("savefailure", function(){
+                    saveButton.disable(false);
+                    cancelButton.disable(false);
+                    that._idle();
+                    alert("save operation failed");
+
+                });
+
+                $(this.element).bind("savefailure", function(){
+                });
+
+                
 
             }, 
 
@@ -203,13 +216,22 @@ $.widget("ui.savecancelpanel",
                 this.element.trigger("unchanged");
             },
 
+            _fireSaveStart: function(){
+                this.element.trigger("savestart");
+            },
+
             _fireSaveSuccess: function(){
                 this._fireUnchanged();
                 this.element.trigger("savesuccess");
             },
 
+            _fireSaveFailure: function(){
+                this._fireUnchanged();
+                this.element.trigger("savefailure");
+            },
+
             _save: function (){
-                return true;
+                this._fireSaveSuccess();
             },
             
             destroy: function(){ 
@@ -298,6 +320,7 @@ $.widget("ui.acleditor",
 $.widget("ui.acleditpanel",
     $.extend({}, $.ui.savecancelpanel.prototype, {  
         _init: function(){ 
+            var that = this;
             $.ui.savecancelpanel.prototype._init.call(this); //call super init first
             $("form", this.element)
             .append($.fn.create("input")
@@ -308,7 +331,6 @@ $.widget("ui.acleditpanel",
                     .attr("type", "hidden")
                     .attr("name", "storeId")
                     .attr("value", this.options.space.storeId));
-            
         },
         
         acls: function(acls, message){
@@ -334,6 +356,11 @@ $.widget("ui.acleditpanel",
                     if(acls){
                         that.acls(acls);
                     }                
+                    that._fireSaveSuccess();
+                },
+
+                failure: function(){
+                    that._fireSaveFailure();
                 },
             });
 
@@ -361,14 +388,20 @@ $.widget("ui.acladdpanel",
         },
         
         _save: function(){
+            var that = this;
             dc.store.UpdateSpaceAcls($("form", this.element).serialize(), true, {
                 success: function(acls){
                     if(acls){
                         that.acls(acls);
-                    }                
+                    }     
+                    
+                    that._fireSaveSuccess();
                 },
+                failure: function(){
+                    that._fireSaveFailure();
+                },
+
             });
-            return true;
         }
     })
 );

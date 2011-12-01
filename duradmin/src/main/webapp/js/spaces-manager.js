@@ -1906,7 +1906,19 @@ $(function(){
 	var isReadOnly = function(/*space or contentItem obj*/obj){
 	    return obj.callerAcl != "w";
 	};
-	
+
+	var isAdmin = function(){
+	    //user is defined globally in spaces-manager.jsp
+	    var i;
+	    for(i in user.authorities){
+	        if(user.authorities[i] == 'ROLE_ADMIN'){
+	            return true;
+	        }
+	    }
+	    
+	    return false;
+    };
+
 	/**
 	 * loads the space data into the detail pane
 	 */
@@ -1934,7 +1946,9 @@ $(function(){
 				toggleSpaceAccess(space, future);
 			});
 		
-        loadAclPane(detail, space);
+		if(isAdmin()){
+	        loadAclPane(detail, space);
+		}
 
 		loadProperties(detail, extractSpaceProperties(space));
 		
@@ -1994,7 +2008,6 @@ $(function(){
 
 	var loadAclPane = function(detail, space){
 	    var readOnly = isReadOnly(space);
-	    
         var viewerPane =  $.fn.create("div")
                               .acleditor({open: false, space: space});
         
@@ -2035,8 +2048,8 @@ $(function(){
 		setObjectId(pane,contentItem.spaceId+"/"+contentItem.contentId);
         
 		$(".download-content-item-button", pane)
-			.attr("href", dc.store.formatDownloadURL(contentItem))
-			.disable(readOnly);
+			.attr("href", dc.store.formatDownloadURL(contentItem));
+			
 
 		$(".delete-content-item-button",pane)
 			.click(function(evt){
@@ -2258,13 +2271,11 @@ $(function(){
 		listView = $("#content-item-list-view");		
 		list = $("#content-item-list");
 		list.selectablelist("clear");
-		$("#content-item-list-view")
-		    .find("button,input,a")
-		    .fadeIn();
 
-		listView
-		$("button, a, .dc-check-all", listView)
-            .disable(readOnly);
+        listView
+            .find("button,input,a")
+            .fadeIn();
+
 		
 		$(".bulk-add-content-item")
 		    .attr("href", "spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
@@ -2272,6 +2283,12 @@ $(function(){
 		    
 		addContentItemsToList(space);
 		updateNavigationControls(space);
+
+        if(readOnly){
+            $("button, .dc-check-all, input[type='checkbox'], .bulk-add-content-item", listView)
+                .hide();
+        }
+
 
 	};
 	

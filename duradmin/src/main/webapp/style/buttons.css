@@ -152,6 +152,7 @@ button[disabled], button[disabled]:hover,
 	color: #333 !important;
 	border-color:#333 !important;
 	cursor: default;
+	pointer-events: none;
 	
 }
 

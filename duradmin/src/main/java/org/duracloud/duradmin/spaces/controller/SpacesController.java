@@ -9,8 +9,10 @@ package org.duracloud.duradmin.spaces.controller;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.security.impl.DuracloudUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -64,6 +66,11 @@ public class SpacesController implements Controller {
 	            	
 	            }
 	            mav.addObject("contentStores", stores);
+                mav.addObject("user",
+                              (DuracloudUserDetails) SecurityContextHolder.getContext()
+                                                                          .getAuthentication()
+                                                                          .getPrincipal());
+
 	            return mav;
 	        }
 	        

@@ -120,8 +120,8 @@ public class SpaceUtil {
 		response.flushBuffer();
 		response.getOutputStream().close();
 	}
-	
-    public static String resolveCallerAcl(ContentStore contentStore,
+
+	public static String resolveCallerAcl(ContentStore contentStore,
                                           String spaceId,
                                           Authentication authentication)
         throws ContentStoreException {
@@ -145,14 +145,10 @@ public class SpaceUtil {
         for (Map.Entry<String, String> e : acls.entrySet()) {
             String value = e.getValue();
 
-            if (e.getKey().equals(details.getUsername())) {
+            if (e.getKey().equals(details.getUsername())
+                || userGroups.contains(e.getKey())) {
                 callerAcl = value;
-                if (callerAcl.equals("w")) {
-                    break;
-                }
-            } else if (userGroups.contains(e.getKey())) {
-                callerAcl = value;
-                if (callerAcl.equals("w")) {
+                if("w".equals(callerAcl)){
                     break;
                 }
             }

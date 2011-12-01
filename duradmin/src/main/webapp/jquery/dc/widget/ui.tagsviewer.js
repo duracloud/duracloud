@@ -5,6 +5,11 @@
 $.widget("ui.tagsviewer", 
 		$.extend({}, $.ui.propertiesviewer.prototype,
 			{  //extended definition 
+		        
+	            options: $.extend({}, $.ui.propertiesviewer.prototype.options, {
+	                emptyViewerMessage: "No tags currently set.",
+	            }),
+	            
 				_init: function(){ 
 					$.ui.propertiesviewer.prototype._init.call(this); //call super init first
 				}, 
@@ -57,6 +62,7 @@ $.widget("ui.tagsviewer",
 
 					return child;
 				},
+				
 				
 				_appendChild: function (child){
 					this._getDataContainer().append(child);

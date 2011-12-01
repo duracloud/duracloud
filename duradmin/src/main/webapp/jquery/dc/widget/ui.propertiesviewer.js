@@ -5,6 +5,7 @@
 $.widget("ui.propertiesviewer",
 	$.extend({}, $.ui.expandopanel.prototype, 
 		{  //extended definition 
+	        
 			_init: function(){ 
 				$.ui.expandopanel.prototype._init.call(this); //call super init first
 				var that = this;
@@ -62,10 +63,20 @@ $.widget("ui.propertiesviewer",
     
     					table.append(addControlsRow);
 					}
+					
+					this.getContent().prepend("<div id='empty-viewer-message'></div>");   
+
 				}
 				
 				this._initializeDataContainer();
 			}, 
+			
+			_setEmptyMessage: function(message){
+			  if(this.options.readOnly){
+			      $("#empty-viewer-message", this.element).html(message);  
+			  }
+			},
+			
 			
 			destroy: function(){ 
 				//tabular destroy here
@@ -73,7 +84,8 @@ $.widget("ui.propertiesviewer",
 			}, 
 
 			options: $.extend({}, $.ui.expandopanel.prototype.options, {
-				data: [
+                emptyViewerMessage: "No properties currently set.",
+			    data: [
 				           {name: "name 1", value: "value1"},
 				           {name: "name 2", value: "value2"}
 							],
@@ -84,6 +96,8 @@ $.widget("ui.propertiesviewer",
 				for(i in data){
 					this._add(data[i]);
 				};
+				
+				this._setEmptyMessage(data.length > 0 ? '' : this.options.emptyViewerMessage);
 			},
 			
 			_initializeDataContainer: function(){

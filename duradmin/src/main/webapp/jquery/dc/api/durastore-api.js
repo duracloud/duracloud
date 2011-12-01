@@ -325,7 +325,7 @@ var dc;
     dc.store.UpdateSpaceAcls = function(/*serialized form data*/formData, /*boolean*/ add, callback){
         dc.ajax({
             url: "/duradmin/spaces/acls?action="+(add ? "add":""), 
-            async: false,
+            async: true,
             data: formData,
             type: "post",
             success: function(data){

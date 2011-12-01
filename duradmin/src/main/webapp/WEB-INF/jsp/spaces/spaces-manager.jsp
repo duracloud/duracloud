@@ -5,7 +5,7 @@
 	</tiles:putAttribute>
 	<tiles:putAttribute name="header-extensions">
 		<script type="text/javascript">
-			  var storeProviders = null;
+			  var user = null, storeProviders = null;
 			  $(document).ready(function(){
 					storeProviders =
 						 [
@@ -17,6 +17,15 @@
 							},
 							</c:forEach>				
 						];
+					
+					user = {
+					        username: '${user.username}',
+					        authorities: [
+							<c:forEach var="ga" items="${user.authorities}">
+								'${ga.authority}',
+							</c:forEach>
+							],
+					};
 			  });
 
               <c:if test="${error != null}">

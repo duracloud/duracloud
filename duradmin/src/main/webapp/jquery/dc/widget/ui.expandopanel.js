@@ -79,6 +79,7 @@ $.widget("ui.expandopanel",{
 
 		if(!options.open){
 			content.css("display", "none");
+            toggler.toggleClass(options.togglerClassClose);
 		}
 
 	},
