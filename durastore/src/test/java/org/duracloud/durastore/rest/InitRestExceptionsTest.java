@@ -8,7 +8,7 @@
 package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.RestUtil;
-import org.duracloud.durastore.util.StorageProviderFactory;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.junit.Before;
 import org.junit.Test;
 

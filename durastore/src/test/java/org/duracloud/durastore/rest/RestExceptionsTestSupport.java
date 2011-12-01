@@ -9,7 +9,7 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.error.ResourceException;
-import org.duracloud.durastore.util.StorageProviderFactory;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.durastore.util.TaskProviderFactory;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.easymock.classextension.EasyMock;

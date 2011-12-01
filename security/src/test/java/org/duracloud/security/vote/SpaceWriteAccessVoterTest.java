@@ -7,10 +7,10 @@
  */
 package org.duracloud.security.vote;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.IAnswer;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -29,16 +29,15 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.easymock.EasyMock.createMock;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
 
 /**
  * @author Andrew Woods
@@ -53,8 +52,9 @@ public class SpaceWriteAccessVoterTest {
     private final String userRead = "username-r";
     private final String userWrite = "username-w";
     private final String groupWrite = "group-curators-w";
+    private final String storeId = "5";
 
-    private ContentStoreUtil contentStoreUtil;
+    private StorageProviderFactory providerFactory;
     private UserDetailsService userDetailsService;
     private FilterInvocation resource;
     private HttpServletRequest request;
@@ -67,14 +67,14 @@ public class SpaceWriteAccessVoterTest {
         acls.put(userWrite, "w");
         acls.put(groupWrite, "w");
 
-        contentStoreUtil = createContentStoreUtilMock();
+        providerFactory = createStorageProviderFactoryMock();
         userDetailsService = createUserDetailsServiceMock();
         resource = EasyMock.createMock("FilterInvocation",
                                        FilterInvocation.class);
         request = EasyMock.createMock("HttpServletRequest",
                                       HttpServletRequest.class);
 
-        voter = new SpaceWriteAccessVoter(contentStoreUtil, userDetailsService);
+        voter = new SpaceWriteAccessVoter(providerFactory, userDetailsService);
     }
 
     @After
@@ -303,9 +303,8 @@ public class SpaceWriteAccessVoterTest {
         if (!(caller instanceof AnonymousAuthenticationToken)) {
             times = 2;
 
-            EasyMock.expect(request.getLocalPort()).andReturn(8080);
             EasyMock.expect(request.getQueryString()).andReturn(
-                "storeID=5&attachment=true");
+                "storeID=" + storeId + "&attachment=true");
             EasyMock.expect(request.getPathInfo()).andReturn(spaceId);
         }
 
@@ -320,9 +319,8 @@ public class SpaceWriteAccessVoterTest {
                                                   String contentId) {
         String path = OPEN_SPACE_ID + contentId;
 
-        EasyMock.expect(request.getLocalPort()).andReturn(8080);
         EasyMock.expect(request.getQueryString()).andReturn(
-            "storeID=5&attachment=true");
+            "storeID=" + storeId + "&attachment=true");
         EasyMock.expect(request.getPathInfo()).andReturn(path).times(3);
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(2);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
@@ -354,25 +352,22 @@ public class SpaceWriteAccessVoterTest {
         return userDetailsService;
     }
 
-    private ContentStoreUtil createContentStoreUtilMock() {
-        contentStoreUtil = EasyMock.createMock("ContentStoreUtil",
-                                               ContentStoreUtil.class);
-        ContentStore store = createMock(ContentStore.class);
-        try {
-            EasyMock.expect(store.getSpaceAccess(EasyMock.isA(String.class)))
-                    .andAnswer(getAccess());
-            EasyMock.expect(store.getSpaceACLs(EasyMock.isA(String.class)))
-                    .andReturn(acls);
-        } catch (ContentStoreException e) {
-            // do nothing
-        }
+    private StorageProviderFactory createStorageProviderFactoryMock() {
+        providerFactory = EasyMock.createMock("StorageProviderFactory",
+                                              StorageProviderFactory.class);
 
-        EasyMock.expect(contentStoreUtil.getContentStore(EasyMock.<String>anyObject(),
-                                                         EasyMock.<String>anyObject(),
-                                                         EasyMock.<String>anyObject()))
-                .andReturn(store);
-        EasyMock.replay(contentStoreUtil, store);
-        return contentStoreUtil;
+        StorageProvider provider = EasyMock.createMock("StorageProvider",
+                                                       StorageProvider.class);
+
+        EasyMock.expect(providerFactory.getStorageProvider(storeId)).andReturn(
+            provider).anyTimes();
+        EasyMock.expect(provider.getSpaceAccess(EasyMock.isA(String.class)))
+                .andAnswer(getAccess());
+        EasyMock.expect(provider.getSpaceACLs(EasyMock.isA(String.class)))
+                .andReturn(acls);
+
+        EasyMock.replay(provider);
+        return providerFactory;
     }
 
     /**
@@ -381,17 +376,17 @@ public class SpaceWriteAccessVoterTest {
      *
      * @return ContentStore.AccessType
      */
-    private IAnswer<? extends ContentStore.AccessType> getAccess() {
-        return new IAnswer<ContentStore.AccessType>() {
-            public ContentStore.AccessType answer() throws Throwable {
+    private IAnswer<? extends StorageProvider.AccessType> getAccess() {
+        return new IAnswer<StorageProvider.AccessType>() {
+            public StorageProvider.AccessType answer() throws Throwable {
                 Object[] args = EasyMock.getCurrentArguments();
                 Assert.assertNotNull(args);
                 Assert.assertEquals(1, args.length);
                 String arg = (String) args[0];
                 if (arg.equals(OPEN_SPACE_ID)) {
-                    return ContentStore.AccessType.OPEN;
+                    return StorageProvider.AccessType.OPEN;
                 }
-                return ContentStore.AccessType.CLOSED;
+                return StorageProvider.AccessType.CLOSED;
             }
         };
     }

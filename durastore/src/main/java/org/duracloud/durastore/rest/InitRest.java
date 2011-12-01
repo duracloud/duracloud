@@ -9,7 +9,7 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
-import org.duracloud.durastore.util.StorageProviderFactory;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

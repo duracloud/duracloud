@@ -7,12 +7,13 @@
  */
 package org.duracloud.security.vote;
 
-import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.RootUserCredential;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.duracloud.error.NotFoundException;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -37,48 +38,45 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
     private final Logger log = LoggerFactory.getLogger(SpaceAccessVoter.class);
 
-    private Map<String, ContentStore.AccessType> spaceCache =
-        new HashMap<String, ContentStore.AccessType>();
-    private ContentStoreUtil contentStoreUtil;
+    private Map<String, StorageProvider.AccessType> spaceCache =
+        new HashMap<String, StorageProvider.AccessType>();
+    private StorageProviderFactory storageProviderFactory;
     private UserDetailsService userDetailsService;
 
-    public SpaceAccessVoter(ContentStoreUtil contentStoreUtil,
+    public SpaceAccessVoter(StorageProviderFactory storageProviderFactory,
                             UserDetailsService userDetailsService) {
-        this.contentStoreUtil = contentStoreUtil;
+        this.storageProviderFactory = storageProviderFactory;
         this.userDetailsService = userDetailsService;
     }
 
-    protected ContentStore.AccessType getSpaceAccess(HttpServletRequest request) {
-        String host = "localhost";
-        String port = Integer.toString(request.getLocalPort());
-
+    protected StorageProvider.AccessType getSpaceAccess(HttpServletRequest request) {
         String storeId = getStoreId(request);
         String spaceId = getSpaceId(request);
         if (null == spaceId) {
-            return ContentStore.AccessType.CLOSED;
+            return StorageProvider.AccessType.CLOSED;
         }
 
         if (spaceId.equals("spaces") ||
             spaceId.equals("stores") ||
             spaceId.equals("acl") ||
             spaceId.equals("init")) {
-            return ContentStore.AccessType.OPEN;
+            return StorageProvider.AccessType.OPEN;
         }
 
-        ContentStore.AccessType access = getAccessFromCache(storeId, spaceId);
+        StorageProvider.AccessType access = getAccessFromCache(storeId, spaceId);
         if (access != null) {
             return access;
         }
 
-        ContentStore store = getContentStore(host, port, storeId);
+        StorageProvider store = getStorageProvider(storeId);
         if (null == store) {
-            return ContentStore.AccessType.CLOSED;
+            return StorageProvider.AccessType.CLOSED;
         }
 
-        access = ContentStore.AccessType.CLOSED;
+        access = StorageProvider.AccessType.CLOSED;
         try {
             access = store.getSpaceAccess(spaceId);
-        } catch (ContentStoreException e) {
+        } catch (StorageException e) {
 
         }
         return access;
@@ -146,10 +144,6 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
      */
     protected Map<String, String> getSpaceACLs(HttpServletRequest request) {
         Map<String, String> emptyACLs = new HashMap<String, String>();
-
-        String host = "localhost";
-        String port = Integer.toString(request.getLocalPort());
-
         String storeId = getStoreId(request);
         String spaceId = getSpaceId(request);
         if (null == spaceId) {
@@ -160,7 +154,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             return emptyACLs;
         }
 
-        ContentStore store = getContentStore(host, port, storeId);
+        StorageProvider store = getStorageProvider(storeId);
         if (null == store) {
             return emptyACLs;
         }
@@ -172,7 +166,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             log.info("Space !exist: {}, exception: {}", spaceId, nfe);
             return null;
 
-        } catch (ContentStoreException e) {
+        } catch (StorageException e) {
             log.warn("Error getting space ACLs: {}, exception: {}", spaceId, e);
             return emptyACLs;
         }
@@ -269,20 +263,18 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return false;
     }
 
-    private ContentStore.AccessType getAccessFromCache(String storeId,
-                                                       String spaceId) {
+    private StorageProvider.AccessType getAccessFromCache(String storeId,
+                                                          String spaceId) {
         // TODO: implement cache
         return null;
     }
 
     /**
-     * This method is abstract to provide entry-point for alternate
-     * implementations of ContentStore.
+     * This method provides entry-point for alternate implementations of
+     * StorageProvider.
      */
-    private ContentStore getContentStore(String host,
-                                         String port,
-                                         String storeId) {
-        return contentStoreUtil.getContentStore(host, port, storeId);
+    private StorageProvider getStorageProvider(String storeId) {
+        return storageProviderFactory.getStorageProvider(storeId);
     }
 
     protected HttpServletRequest getHttpServletRequest(Object resource) {

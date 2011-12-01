@@ -7,7 +7,7 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.durastore.util.StorageProviderFactory;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.junit.Before;
 import org.junit.Test;

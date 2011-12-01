@@ -8,7 +8,7 @@
 package org.duracloud.durastore.storage;
 
 import org.duracloud.common.util.EncryptionUtil;
-import org.duracloud.durastore.util.StorageProviderFactory;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.durastore.util.StorageProviderFactoryImpl;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;

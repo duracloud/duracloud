@@ -7,10 +7,9 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.domain.Content;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
-import org.duracloud.durastore.util.StorageProviderFactory;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;

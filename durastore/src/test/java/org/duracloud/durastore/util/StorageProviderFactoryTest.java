@@ -14,6 +14,7 @@ import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;

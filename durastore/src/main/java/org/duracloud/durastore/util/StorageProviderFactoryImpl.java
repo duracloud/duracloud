@@ -23,6 +23,7 @@ import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;

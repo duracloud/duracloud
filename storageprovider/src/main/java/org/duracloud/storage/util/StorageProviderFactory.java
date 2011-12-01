@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.util;
+package org.duracloud.storage.util;
 
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;

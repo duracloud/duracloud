@@ -47,14 +47,12 @@
   </http>
 
   <!-- The decision-voters here contribute to the AuthZ decision -->
-  <beans:bean id="contentStoreUtil" class="org.duracloud.security.vote.ContentStoreUtil"/>
-
   <beans:bean id="spaceReadAccessVoter" class="org.duracloud.security.vote.SpaceReadAccessVoter">
-    <beans:constructor-arg ref="contentStoreUtil"/>
+    <beans:constructor-arg ref="storageProviderFactory"/>
     <beans:constructor-arg ref="userDetailsSvc"/>
   </beans:bean>
   <beans:bean id="spaceWriteAccessVoter" class="org.duracloud.security.vote.SpaceWriteAccessVoter">
-    <beans:constructor-arg ref="contentStoreUtil"/>
+    <beans:constructor-arg ref="storageProviderFactory"/>
     <beans:constructor-arg ref="userDetailsSvc"/>
   </beans:bean>
 

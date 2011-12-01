@@ -7,9 +7,9 @@
  */
 package org.duracloud.security.vote;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.model.SystemUserCredential;
 import org.duracloud.security.domain.HttpVerb;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -37,9 +37,9 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
     private final Logger log =
         LoggerFactory.getLogger(SpaceReadAccessVoter.class);
 
-    public SpaceReadAccessVoter(ContentStoreUtil contentStoreUtil,
+    public SpaceReadAccessVoter(StorageProviderFactory storageProviderFactory,
                                 UserDetailsService userDetailsService) {
-        super(contentStoreUtil, userDetailsService);
+        super(storageProviderFactory, userDetailsService);
     }
 
     /**
@@ -87,8 +87,8 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
         }
 
         // All READs on OPEN spaces are granted.
-        ContentStore.AccessType access = getSpaceAccess(httpRequest);
-        if (access.equals(ContentStore.AccessType.OPEN)) {
+        StorageProvider.AccessType access = getSpaceAccess(httpRequest);
+        if (access.equals(StorageProvider.AccessType.OPEN)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }

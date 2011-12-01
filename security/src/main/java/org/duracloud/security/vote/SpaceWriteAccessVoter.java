@@ -8,6 +8,7 @@
 package org.duracloud.security.vote;
 
 import org.duracloud.security.domain.HttpVerb;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -34,9 +35,9 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
     private final Logger log =
         LoggerFactory.getLogger(SpaceReadAccessVoter.class);
 
-    public SpaceWriteAccessVoter(ContentStoreUtil contentStoreUtil,
+    public SpaceWriteAccessVoter(StorageProviderFactory storageProviderFactory,
                                  UserDetailsService userDetailsService) {
-        super(contentStoreUtil, userDetailsService);
+        super(storageProviderFactory, userDetailsService);
     }
 
     /**

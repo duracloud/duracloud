@@ -40,7 +40,7 @@
     <!-- internal projects -->
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>storeclient</artifactId>
+      <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
 
