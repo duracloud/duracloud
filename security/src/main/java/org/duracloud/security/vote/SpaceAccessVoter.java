@@ -234,12 +234,14 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             return false;
         }
 
-        if (acls.containsKey(name)) {
+        String aclName = StorageProvider.PROPERTIES_SPACE_ACL + name;
+        if (acls.containsKey(aclName)) {
             if (isRead) {
-                return "r".equals(acls.get(name)) || "w".equals(acls.get(name));
+                return "r".equals(acls.get(aclName)) || "w".equals(acls.get(
+                    aclName));
 
             } else {
-                return "w".equals(acls.get(name));
+                return "w".equals(acls.get(aclName));
             }
         }
         return false;

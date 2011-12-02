@@ -29,6 +29,7 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
 import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
 import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
@@ -62,8 +63,8 @@ public class SpaceReadAccessVoterTest {
     @Before
     public void setUp() {
         acls = new HashMap<String, String>();
-        acls.put(userRead, "r");
-        acls.put(groupWrite, "w");
+        acls.put(PROPERTIES_SPACE_ACL + userRead, "r");
+        acls.put(PROPERTIES_SPACE_ACL + groupWrite, "w");
 
         providerFactory = createStorageProviderFactoryMock();
         userDetailsService = createUserDetailsServiceMock();
