@@ -210,8 +210,9 @@ public class DuracloudContentWriter implements ContentWriter {
             return;
         }
 
-        // If space already exists, will not be recreated
-        createSpace(spaceId);
+        if (!spaceExists(spaceId)) {
+            createSpace(spaceId);
+        }
 
         int tries = 0;
         boolean exists;

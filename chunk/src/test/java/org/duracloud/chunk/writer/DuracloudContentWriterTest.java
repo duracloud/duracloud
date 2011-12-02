@@ -41,7 +41,7 @@ public class DuracloudContentWriterTest {
 
     @Before
     public void setUp() throws ContentStoreException {
-        contentStore = createMockContentStore();
+        contentStore = EasyMock.createMock(ContentStore.class);
         writer = new DuracloudContentWriter(contentStore);
 
         contentStoreThrow = createThrowingMockContentStore();
@@ -49,8 +49,7 @@ public class DuracloudContentWriterTest {
         writerErrorThrow = new DuracloudContentWriter(contentStoreThrow, true);
     }
 
-    private ContentStore createMockContentStore() throws ContentStoreException {
-        ContentStore contentStore = EasyMock.createMock(ContentStore.class);
+    private ContentStore createMockContentStore(boolean exists) throws ContentStoreException {
         EasyMock.expect(contentStore.addContent(EasyMock.isA(String.class),
                                                 EasyMock.isA(String.class),
                                                 isChunkInputStream(),
@@ -61,13 +60,22 @@ public class DuracloudContentWriterTest {
             .andReturn("")
             .anyTimes();
 
-        contentStore.createSpace(EasyMock.isA(String.class),
-                                 (Map) EasyMock.anyObject());
-        EasyMock.expectLastCall();
+        if (!exists) {
+            EasyMock.expect(contentStore.getSpaceAccess(EasyMock.isA(String.class)))
+                    .andThrow(new ContentStoreException("canned-exception"));
+            contentStore.createSpace(EasyMock.isA(String.class),
+                                     (Map) EasyMock.anyObject());
+            EasyMock.expectLastCall();
 
-        EasyMock.expect(contentStore.getSpaceAccess(EasyMock.isA(String.class)))
-            .andReturn(ContentStore.AccessType.OPEN);
-        EasyMock.replay(contentStore);
+            EasyMock.expect(contentStore.getSpaceAccess(EasyMock.isA(String.class)))
+                    .andReturn(ContentStore.AccessType.OPEN);
+
+        } else {
+            EasyMock.expect(contentStore.getSpaceAccess(EasyMock.isA(String.class)))
+                    .andReturn(ContentStore.AccessType.OPEN)
+                    .times(2);
+        }
+
         return contentStore;
     }
 
@@ -91,8 +99,12 @@ public class DuracloudContentWriterTest {
         EasyMock.expect(contentStoreThrow.getSpaceAccess(EasyMock.isA(String.class)))
             .andReturn(ContentStore.AccessType.OPEN)
             .anyTimes();
-        EasyMock.replay(contentStoreThrow);
+        
         return contentStoreThrow;
+    }
+
+    private void replayMocks() {
+        EasyMock.replay(contentStore, contentStoreThrow);
     }
 
     @After
@@ -103,7 +115,29 @@ public class DuracloudContentWriterTest {
     }
 
     @Test
-    public void testWrite() throws NotFoundException {
+    public void testWrite() throws NotFoundException, ContentStoreException {
+        createMockContentStore(true);
+        replayMocks();
+        long contentSize = 4000;
+        InputStream contentStream = createContentStream(contentSize);
+
+        String spaceId = "test-spaceId";
+        String contentId = "test-contentId";
+
+        long maxChunkSize = 1024;
+        ChunkableContent chunkable = new ChunkableContent(contentId,
+                                                          contentStream,
+                                                          contentSize,
+                                                          maxChunkSize);
+        writer.write(spaceId, chunkable);
+
+        EasyMock.verify(contentStore);
+    }
+
+    @Test
+    public void testWriteNotExist() throws Exception {
+        createMockContentStore(false);
+        replayMocks();
         long contentSize = 4000;
         InputStream contentStream = createContentStream(contentSize);
 
@@ -122,6 +156,7 @@ public class DuracloudContentWriterTest {
 
     @Test
     public void testErrorOnWrite() throws NotFoundException {
+        replayMocks();
         long contentSize = 4000;
         InputStream contentStream = createContentStream(contentSize);
 
@@ -173,7 +208,9 @@ public class DuracloudContentWriterTest {
     }
 
     @Test
-    public void testWriteSingle() throws NotFoundException {
+    public void testWriteSingle() throws Exception {
+        createMockContentStore(true);
+        replayMocks();
         long contentSize = 1000;
         InputStream contentStream = createContentStream(contentSize);
 
@@ -189,6 +226,7 @@ public class DuracloudContentWriterTest {
         String md5 = writer.writeSingle(spaceId, null, chunk);
         Assert.assertNotNull(md5);
 
+        EasyMock.verify(contentStore);
     }
 
     /**
