@@ -2846,13 +2846,17 @@ $(function(){
 		
 		var phash = parseHash(window.location.hash);
 		
-
+        if(!isAdmin()) {
+            $(".add-space-button").hide();
+        }
+		
 		if(phash.storeId != null){
 			loadWhatYouCan(phash);
 			return;
 		}
 
 		refreshSpaces(getCurrentProviderStoreId());
+
 	};
 	
 	initSpacesManager();
