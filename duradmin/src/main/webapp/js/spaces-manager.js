@@ -2009,7 +2009,7 @@ $(function(){
 	var loadAclPane = function(detail, space){
 	    var readOnly = isReadOnly(space);
         var viewerPane =  $.fn.create("div")
-                              .acleditor({open: false, space: space});
+                              .acleditor({open: true, space: space});
         
         $(".center", detail).append(viewerPane);
         return viewerPane;	    
@@ -2236,7 +2236,7 @@ $(function(){
 		reloadContents(getCurrentSpaceId(), null, function(space){loadContentItems(space)});
 	});
 	
-	var reloadContents = function(spaceId, marker, handler){
+	var reloadContents = function(spaceId, marker, handler, message){
 		$("#content-item-list").selectablelist("clear");
 		var prefix = getFilterText();
 		dc.store.GetSpace(
@@ -2244,7 +2244,7 @@ $(function(){
 				getCurrentSpaceId(), 
 				{
 					begin: function(){
-						dc.busy("Filtering content items...", {modal:true});
+						dc.busy((message ? message :"Filtering content items..."), {modal:true});
 					},
 					success: function(space){
 						dc.done();
@@ -2281,6 +2281,10 @@ $(function(){
 		    .attr("href", "spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
 		    .attr("target", "bulk-upload-" + escape(space.spaceId));
 		    
+		$(".refresh-space-button")
+		    .click(function(){
+		        reloadContents(space.spaceId, null, loadSpace, "Refreshing...");
+		    });
 		addContentItemsToList(space);
 		updateNavigationControls(space);
 

@@ -93,7 +93,8 @@
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
                 <a class="float-r  button featured bulk-add-content-item"><i class="pre plus"></i>Add Many Items</a>
-				<button class="featured float-r add-content-item-button"><i class="pre plus"></i>Add One Item</button>
+				<button class="float-r add-content-item-button"><i class="pre plus"></i>Add One Item</button>
+                <button class="float-r refresh-space-button"><i class="pre refresh"></i>Refresh</button>
 
 				<h2>Content Items</h2>   
                 </div>

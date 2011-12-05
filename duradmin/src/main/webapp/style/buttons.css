@@ -291,6 +291,7 @@ span.off i,
 .data-table { background-image:url(../images/icon_sm_table.png); }
 .user { background:url(../images/icon_sm_user.png) no-repeat; }
 .group { background:url(../images/icon_sm_group.png) no-repeat; }
+.refresh { background:url(../images/icon_sm_refresh.png) no-repeat; }
 
 /* BUTTONS IN SPECIFIC AREAS *******************************/
 .dc-item button
