@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
@@ -219,8 +220,13 @@ public class SpaceRest extends BaseRest {
                                             String spaceID,
                                             String storeID)
         throws ResourceException {
-        Map<String, String> acls = spaceResource.getSpaceACLs(spaceID, storeID);
-        return addPropertiesToResponse(response, acls);
+        Map<String, String> aclProps = new HashMap<String, String>();
+        Map<String, AclType> acls = spaceResource.getSpaceACLs(spaceID,
+                                                               storeID);
+        for (String key : acls.keySet()) {
+            aclProps.put(key, acls.get(key).name());
+        }
+        return addPropertiesToResponse(response, aclProps);
     }
 
     /**
@@ -259,7 +265,7 @@ public class SpaceRest extends BaseRest {
             spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
         }
 
-        Map<String, String> userACLs = getUserACLs();
+        Map<String, AclType> userACLs = getUserACLs();
         Map<String, String> userProperties =
             getUserProperties(SPACE_ACCESS_HEADER);
 
@@ -272,11 +278,12 @@ public class SpaceRest extends BaseRest {
         return Response.created(location).build();
     }
 
-    private Map<String, String> getUserACLs() {
-        Map<String, String> acls = new HashMap<String, String>();
+    private Map<String, AclType> getUserACLs() {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
         try {
             Credential currentUser = securityContextUtil.getCurrentUser();
-            acls.put(PROPERTIES_SPACE_ACL + currentUser.getUsername(), "w");
+            acls.put(PROPERTIES_SPACE_ACL + currentUser.getUsername(),
+                     AclType.WRITE);
 
         } catch (NoUserLoggedInException e) {
             log.warn("Adding user acl, error: {}", e);
@@ -359,7 +366,7 @@ public class SpaceRest extends BaseRest {
 
     private Response doUpdateSpaceACLs(String spaceID, String storeID)
         throws ResourceException {
-        Map<String, String> spaceACLs = getSpaceACLs();
+        Map<String, AclType> spaceACLs = getSpaceACLs();
         spaceResource.updateSpaceACLs(spaceID, spaceACLs, storeID);
 
         String responseText = "Space " + spaceID + " ACLs updated successfully";

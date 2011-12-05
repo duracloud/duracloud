@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -107,7 +108,7 @@ public class SpaceResource {
      * @param storeID
      * @return Map of space ACLs
      */
-    public Map<String, String> getSpaceACLs(String spaceID, String storeID)
+    public Map<String, AclType> getSpaceACLs(String spaceID, String storeID)
         throws ResourceException {
         try {
             StorageProvider storage = storageProviderFactory.getStorageProvider(
@@ -180,7 +181,7 @@ public class SpaceResource {
      */
     public void addSpace(String spaceID,
                          String spaceAccess,
-                         Map<String, String> userACLs,
+                         Map<String, AclType> userACLs,
                          Map<String, String> userProperties,
                          String storeID)
     throws ResourceException, InvalidIdException {
@@ -236,7 +237,7 @@ public class SpaceResource {
      */
     public void updateSpaceProperties(String spaceID,
                                       String spaceAccess,
-                                      Map<String, String> userACLs,
+                                      Map<String, AclType> userACLs,
                                       Map<String, String> userProperties,
                                       String storeID)
     throws ResourceException {
@@ -294,7 +295,7 @@ public class SpaceResource {
      * @param storeID
      */
     public void updateSpaceACLs(String spaceID,
-                                Map<String, String> spaceACLs,
+                                Map<String, AclType> spaceACLs,
                                 String storeID) throws ResourceException {
         try {
             StorageProvider storage = storageProviderFactory.getStorageProvider(

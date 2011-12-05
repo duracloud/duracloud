@@ -1904,7 +1904,7 @@ $(function(){
 	};
 	
 	var isReadOnly = function(/*space or contentItem obj*/obj){
-	    return obj.callerAcl != "w";
+	    return obj.callerAcl != "WRITE";
 	};
 
 	var isAdmin = function(){

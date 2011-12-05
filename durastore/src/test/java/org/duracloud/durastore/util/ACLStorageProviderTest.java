@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.classextension.EasyMock;
@@ -145,12 +146,12 @@ public class ACLStorageProviderTest {
             EasyMock.expect(mockProvider.getSpaceAccess(space))
                     .andReturn(access);
 
-            Map<String, String> acls = new HashMap<String, String>();
+            Map<String, AclType> acls = new HashMap<String, AclType>();
             if (space.equals(spacePrefix + 2)) {
-                acls.put(PROPERTIES_SPACE_ACL + username, "r");
+                acls.put(PROPERTIES_SPACE_ACL + username, AclType.READ);
 
             } else if (space.equals(spacePrefix + 3)) {
-                acls.put(PROPERTIES_SPACE_ACL + groupA, "w");
+                acls.put(PROPERTIES_SPACE_ACL + groupA, AclType.WRITE);
             }
             EasyMock.expect(mockProvider.getSpaceACLs(space)).andReturn(acls);
         }
@@ -224,7 +225,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testGetSpaceACLs() throws Exception {
         String spaceId = spacePrefix + 1;
-        Map<String, String> origAcls = createSpaceACLs();
+        Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
         EasyMock.expectLastCall();
@@ -232,7 +233,7 @@ public class ACLStorageProviderTest {
 
         // method under test
         provider = new ACLStorageProvider(mockProvider);
-        Map<String, String> acls = provider.getSpaceACLs(spaceId);
+        Map<String, AclType> acls = provider.getSpaceACLs(spaceId);
         Assert.assertNotNull(acls);
         Assert.assertEquals(new HashMap<String, String>(), acls);
 
@@ -246,16 +247,16 @@ public class ACLStorageProviderTest {
         Assert.assertEquals(origAcls, acls);
     }
 
-    private Map<String, String> createSpaceACLs() {
-        Map<String, String> acls = new HashMap<String, String>();
-        acls.put(PROPERTIES_SPACE_ACL + username, "w");
+    private Map<String, AclType> createSpaceACLs() {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
+        acls.put(PROPERTIES_SPACE_ACL + username, AclType.WRITE);
         return acls;
     }
 
     @Test
     public void testSetSpaceACLs() throws Exception {
         String spaceId = spacePrefix + 2;
-        Map<String, String> origAcls = createSpaceACLs();
+        Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
         EasyMock.expectLastCall();
@@ -267,7 +268,7 @@ public class ACLStorageProviderTest {
         provider.setSpaceACLs(spaceId, origAcls);
 
         // getting ACLs should only hit the cache.
-        Map<String, String> acls = provider.getSpaceACLs(spaceId);
+        Map<String, AclType> acls = provider.getSpaceACLs(spaceId);
         Assert.assertNotNull(acls);
         Assert.assertEquals(origAcls, acls);
     }

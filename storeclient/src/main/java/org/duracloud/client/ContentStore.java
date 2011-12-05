@@ -7,6 +7,7 @@
  */
 package org.duracloud.client;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.domain.Content;
 import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
@@ -26,6 +27,7 @@ import java.util.Map;
  */
 public interface ContentStore {
 
+    @Deprecated
     public enum AccessType {OPEN, CLOSED};
 
     /** Basic space properties: Created date */
@@ -189,7 +191,7 @@ public interface ContentStore {
      * @throws NotFoundException     if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public Map<String, String> getSpaceACLs(String spaceId)
+    public Map<String, AclType> getSpaceACLs(String spaceId)
         throws ContentStoreException;
 
     /**
@@ -201,7 +203,7 @@ public interface ContentStore {
      * @throws NotFoundException if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs)
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs)
         throws ContentStoreException;
 
     /**
@@ -214,6 +216,7 @@ public interface ContentStore {
      * @throws NotFoundException if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
+    @Deprecated
     public AccessType getSpaceAccess(String spaceId) throws ContentStoreException;
     
     /**
@@ -224,6 +227,7 @@ public interface ContentStore {
      * @throws NotFoundException if the space does not exist
      * @throws ContentStoreException if an error occurs
      */
+    @Deprecated
     public void setSpaceAccess(String spaceId, AccessType spaceAccess)
             throws ContentStoreException;
     

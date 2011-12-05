@@ -18,6 +18,7 @@ import edu.umiacs.irods.operation.MetaDataMap;
 import edu.umiacs.irods.operation.QueryBuilder;
 import edu.umiacs.irods.operation.QueryResult;
 import edu.umiacs.irods.operation.UnknownSizeOutputStream;
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -277,12 +278,12 @@ public class IrodsStorageProvider implements StorageProvider {
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(String spaceId) {
+    public Map<String, AclType> getSpaceACLs(String spaceId) {
         throw new UnsupportedOperationException("getSpaceACL not implemented.");
     }
 
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         throw new UnsupportedOperationException("setSpaceACL not implemented.");
     }
 

@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider.AccessType;
 
@@ -149,7 +150,7 @@ public class StatelessStorageProviderImpl
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(StorageProvider targetProvider,
+    public Map<String, AclType> getSpaceACLs(StorageProvider targetProvider,
                                             String storeId,
                                             String spaceId)
         throws StorageException {
@@ -202,7 +203,7 @@ public class StatelessStorageProviderImpl
     public void setSpaceACLs(StorageProvider targetProvider,
                              String storeId,
                              String spaceId,
-                             Map<String, String> spaceACLs)
+                             Map<String, AclType> spaceACLs)
         throws StorageException {
         targetProvider.setSpaceACLs(spaceId, spaceACLs);
     }

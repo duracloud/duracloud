@@ -9,6 +9,7 @@ package org.duracloud.client;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper;
@@ -35,6 +36,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
  * Provides access to a content store
@@ -339,14 +342,14 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(String spaceId)
+    public Map<String, AclType> getSpaceACLs(String spaceId)
         throws ContentStoreException {
         String task = "get space ACLs";
         String url = buildAclURL(spaceId);
         try {
             HttpResponse response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
-            return extractPropertiesFromHeaders(response, StorageProvider.PROPERTIES_SPACE_ACL);
+            return doGetSpaceACLs(response);
 
         } catch (NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
@@ -357,14 +360,23 @@ public class ContentStoreImpl implements ContentStore{
         }
     }
 
+    private Map<String, AclType> doGetSpaceACLs(HttpResponse response) {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
+        Map<String, String> aclProps = extractPropertiesFromHeaders(response,
+                                                                    PROPERTIES_SPACE_ACL);
+        for (String key : aclProps.keySet()) {
+            String val = aclProps.get(key);
+            acls.put(key, AclType.valueOf(val));
+        }
+        return acls;
+    }
+
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs)
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs)
         throws ContentStoreException {
         String task = "set space ACLs";
         String url = buildAclURL(spaceId);
-        Map<String, String> headers =
-            convertPropertiesToHeaders(spaceACLs, StorageProvider.PROPERTIES_SPACE_ACL);
-        
+        Map<String, String> headers = convertAclsToHeaders(spaceACLs);
         try {
             HttpResponse response = restHelper.post(url, null, headers);
             checkResponse(response, HttpStatus.SC_OK);
@@ -376,6 +388,18 @@ public class ContentStoreImpl implements ContentStore{
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, e);
         }
+    }
+
+    private Map<String, String> convertAclsToHeaders(Map<String, AclType> acls) {
+        Map<String, String> headers = new HashMap<String, String>();
+        if (acls != null) {
+            for (String key : acls.keySet()) {
+                AclType acl = acls.get(key);
+                headers.put(HEADER_PREFIX + PROPERTIES_SPACE_ACL + key,
+                            acl.name());
+            }
+        }
+        return headers;
     }
 
     /**
@@ -703,14 +727,10 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     private Map<String, String> convertPropertiesToHeaders(Map<String, String> properties) {
-        return convertPropertiesToHeaders(properties, null);
-    }
-    
-    private Map<String, String> convertPropertiesToHeaders(Map<String, String> properties, String keyPrefix) {
         Map<String, String> headers = new HashMap<String, String>();
-        if(properties != null) {
-            for (String metaName : properties.keySet()) {
-                headers.put(HEADER_PREFIX + (keyPrefix != null ? keyPrefix : "") + metaName, properties.get(metaName));
+        if (properties != null) {
+            for (String key : properties.keySet()) {
+                headers.put(HEADER_PREFIX + key, properties.get(key));
             }
         }
         return headers;

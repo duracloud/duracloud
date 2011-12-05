@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.model.AclType;
 import org.duracloud.duradmin.domain.Acl;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
@@ -64,11 +65,11 @@ public class SpaceAclController {
                                       @RequestParam String action)
         throws Exception {
 
-        Map<String, String> acls = buildAclMap(request);
+        Map<String, AclType> acls = buildAclMap(request);
 
         if ("add".equals(action)) {
             //overlay the new acls on top of the old.
-            Map<String, String> currentAcls = getSpaceACLs(storeId,spaceId);
+            Map<String, AclType> currentAcls = getSpaceACLs(storeId,spaceId);
             currentAcls.putAll(acls);
             acls = currentAcls;
         }
@@ -90,30 +91,30 @@ public class SpaceAclController {
                                      @RequestParam String storeId)
         throws Exception {
 
-        Map<String,String> acls = getSpaceACLs(storeId, spaceId);
+        Map<String,AclType> acls = getSpaceACLs(storeId, spaceId);
         List<Acl> list = toAclList(acls);
         return createModel(list);
     }
 
-    private Map<String, String> getSpaceACLs(String storeId, String spaceId) throws Exception{
+    private Map<String, AclType> getSpaceACLs(String storeId, String spaceId) throws Exception{
         return getContentStore(storeId).getSpaceACLs(spaceId);
     }
 
-    private void setSpaceACLs(String storeId, String spaceId, Map<String,String> spaceACLs) throws Exception{
+    private void setSpaceACLs(String storeId, String spaceId, Map<String,AclType> spaceACLs) throws Exception{
         getContentStore(storeId).setSpaceACLs(spaceId, spaceACLs);
     }
 
-    private List<Acl> toAclList(Map<String, String> spaceACLs) {
+    private List<Acl> toAclList(Map<String, AclType> spaceACLs) {
         List<Acl> acls = new LinkedList<Acl>();
 
         if (spaceACLs != null) {
-            for (Map.Entry<String, String> entry : spaceACLs.entrySet()) {
+            for (Map.Entry<String, AclType> entry : spaceACLs.entrySet()) {
                 String key = entry.getKey();
-                String value = entry.getValue();
+                AclType value = entry.getValue();
                 boolean read = false, write = false;
-                if (value.equals("r")) {
+                if (value.equals(AclType.READ)) {
                     read = true;
-                } else if (value.equals("w")) {
+                } else if (value.equals(AclType.WRITE)) {
                     read = true;
                     write = true;
                 }
@@ -128,13 +129,13 @@ public class SpaceAclController {
     
 
     
-    private Map<String, String> buildAclMap(HttpServletRequest request) {
-        Map<String, String> acls = new HashMap<String, String>();
+    private Map<String, AclType> buildAclMap(HttpServletRequest request) {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
         
         String[] read = request.getParameterValues("read");
         if(read != null){
             for(String name : read){
-                acls.put(name, "r");
+                acls.put(name, AclType.READ);
             }
         }
         
@@ -142,7 +143,7 @@ public class SpaceAclController {
 
         if(write != null){
             for(String name : write){
-                acls.put(name, "w");
+                acls.put(name, AclType.WRITE);
             }
         }
 
@@ -163,7 +164,7 @@ public class SpaceAclController {
         getNewUserAcls(@RequestParam String spaceId,
                        @RequestParam String storeId) throws Exception {
         
-        Map<String,String> currentAcls = getSpaceACLs(storeId, spaceId);
+        Map<String,AclType> currentAcls = getSpaceACLs(storeId, spaceId);
         List<Acl> list = new LinkedList<Acl>();
 
         List<SecurityUserBean>  users = getUsers();

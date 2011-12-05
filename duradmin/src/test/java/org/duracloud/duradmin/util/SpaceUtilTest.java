@@ -15,6 +15,7 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.AclType;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -63,8 +64,8 @@ public class SpaceUtilTest {
 
         replay();
         
-        String result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
-        Assert.assertEquals("w", result);
+        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        Assert.assertEquals(AclType.WRITE, result);
         
         
     }
@@ -75,14 +76,14 @@ public class SpaceUtilTest {
         EasyMock.expect(authentication.getAuthorities())
                 .andReturn(new GrantedAuthority[0]);
 
-        Map<String,String> acls = new HashMap<String,String>();
-        acls.put(username, "r");
+        Map<String,AclType> acls = new HashMap<String,AclType>();
+        acls.put(username, AclType.READ);
         EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(acls);
         
         replay();
         
-        String result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
-        Assert.assertEquals("r", result);
+        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        Assert.assertEquals(AclType.READ, result);
     }
 
     private void replay() {
@@ -92,8 +93,8 @@ public class SpaceUtilTest {
     @Test
     public void testReadWriteNonAdmin() throws Exception{
         
-        Map<String,String> acls = new HashMap<String,String>();
-        acls.put(username, "w");
+        Map<String,AclType> acls = new HashMap<String,AclType>();
+        acls.put(username, AclType.WRITE);
         EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(acls);
 
         EasyMock.expect(authentication.getAuthorities())
@@ -101,15 +102,15 @@ public class SpaceUtilTest {
 
         replay();
         
-        String result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
-        Assert.assertEquals("w", result);
+        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        Assert.assertEquals(AclType.WRITE, result);
     }
 
     @Test
     public void testReadWriteGroupNonAdmin() throws Exception{
         
-        Map<String,String> acls = new HashMap<String,String>();
-        acls.put(group, "w");
+        Map<String,AclType> acls = new HashMap<String,AclType>();
+        acls.put(group, AclType.WRITE);
         EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(acls);
 
         EasyMock.expect(authentication.getAuthorities())
@@ -117,8 +118,8 @@ public class SpaceUtilTest {
 
         replay();
         
-        String result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
-        Assert.assertEquals("w", result);
+        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        Assert.assertEquals(AclType.WRITE, result);
     }
 
     
@@ -127,9 +128,9 @@ public class SpaceUtilTest {
         EasyMock.expect(authentication.getAuthorities())
                 .andReturn(new GrantedAuthority[0]);
         
-        EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(new HashMap<String,String>());
+        EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(new HashMap<String,AclType>());
         replay();
-        String result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
         Assert.assertNull(result);
     }
 

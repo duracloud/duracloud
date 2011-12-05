@@ -7,6 +7,7 @@
  */
 package org.duracloud.security.vote;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
@@ -99,7 +100,7 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             return ACCESS_DENIED;
         }
 
-        Map<String, String> acls = getSpaceACLs(httpRequest);
+        Map<String, AclType> acls = getSpaceACLs(httpRequest);
         if (hasReadAccess(auth.getName(), acls)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;

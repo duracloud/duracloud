@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider.mock;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -147,12 +148,12 @@ public class MockStorageProvider
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(String spaceId) {
+    public Map<String, AclType> getSpaceACLs(String spaceId) {
         throw new UnsupportedOperationException("getSpaceACLs not implemented");
     }
 
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         throw new UnsupportedOperationException("setSpaceACLs not implemented");
     }
 

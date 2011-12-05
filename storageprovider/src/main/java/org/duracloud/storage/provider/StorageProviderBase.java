@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.common.model.AclType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +57,13 @@ public abstract class StorageProviderBase implements StorageProvider {
      */
     public void setSpaceProperties(String spaceId,
                                    Map<String, String> spaceProps) {
+        Map<String, String> allProps = new HashMap<String, String>();
+
         // Although allProps contains only ACLs at first, arg props will be added.
-        Map<String, String> allProps = getSpaceACLs(spaceId);
+        Map<String, AclType> acls = getSpaceACLs(spaceId);
+        for (String key : acls.keySet()) {
+            allProps.put(key, acls.get(key).name());
+        }
 
         // ONLY add non ACL properties
         if (null != spaceProps) {
@@ -117,20 +123,27 @@ public abstract class StorageProviderBase implements StorageProvider {
         }
     }
 
-    public Map<String, String> getSpaceACLs(String spaceId) {
-        Map<String, String> acls = new HashMap<String, String>();
+    public Map<String, AclType> getSpaceACLs(String spaceId) {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
         Map<String, String> allProps = getAllSpaceProperties(spaceId);
 
         for (String name : allProps.keySet()) {
             if (name.startsWith(PROPERTIES_SPACE_ACL)) {
-                acls.put(name, allProps.get(name));
+                String val = allProps.get(name);
+                try {
+                    acls.put(name, AclType.valueOf(val));
+                    
+                } catch (IllegalArgumentException e) {
+                    log.error("Invalid ACL: {}, space: {}, error: {}",
+                              new Object[]{val, spaceId, e});
+                }
             }
         }
 
         return acls;
     }
 
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         Map<String, String> newProps = new HashMap<String, String>();
         Map<String, String> spaceProps = getSpaceProperties(spaceId);
 
@@ -141,7 +154,8 @@ public abstract class StorageProviderBase implements StorageProvider {
         if (null != spaceACLs) {
             for (String key : spaceACLs.keySet()) {
                 if (key.startsWith(PROPERTIES_SPACE_ACL)) {
-                    newProps.put(key, spaceACLs.get(key));
+                    AclType acl = spaceACLs.get(key);
+                    newProps.put(key, acl.name());
                 }
             }
         }

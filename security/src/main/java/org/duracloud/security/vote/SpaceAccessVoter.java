@@ -7,6 +7,7 @@
  */
 package org.duracloud.security.vote;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -142,8 +143,8 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
      * @param request containing spaceId and storeId
      * @return ACLs, empty-map, or null
      */
-    protected Map<String, String> getSpaceACLs(HttpServletRequest request) {
-        Map<String, String> emptyACLs = new HashMap<String, String>();
+    protected Map<String, AclType> getSpaceACLs(HttpServletRequest request) {
+        Map<String, AclType> emptyACLs = new HashMap<String, AclType>();
         String storeId = getStoreId(request);
         String spaceId = getSpaceId(request);
         if (null == spaceId) {
@@ -190,17 +191,17 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
     }
 
     protected boolean groupsHaveReadAccess(List<String> userGroups,
-                                           Map<String, String> acls) {
+                                           Map<String, AclType> acls) {
         return groupsHaveAccess(userGroups, acls, true);
     }
 
     protected boolean groupsHaveWriteAccess(List<String> userGroups,
-                                            Map<String, String> acls) {
+                                            Map<String, AclType> acls) {
         return groupsHaveAccess(userGroups, acls, false);
     }
 
     private boolean groupsHaveAccess(List<String> userGroups,
-                                     Map<String, String> acls,
+                                     Map<String, AclType> acls,
                                      boolean isRead) {
         if (null != userGroups) {
             for (String group : userGroups) {
@@ -215,16 +216,16 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return false;
     }
 
-    protected boolean hasReadAccess(String name, Map<String, String> acls) {
+    protected boolean hasReadAccess(String name, Map<String, AclType> acls) {
         return hasAccess(name, acls, true);
     }
 
-    protected boolean hasWriteAccess(String name, Map<String, String> acls) {
+    protected boolean hasWriteAccess(String name, Map<String, AclType> acls) {
         return hasAccess(name, acls, false);
     }
 
     private boolean hasAccess(String name,
-                              Map<String, String> acls,
+                              Map<String, AclType> acls,
                               boolean isRead) {
         if (RootUserCredential.getRootUsername().equals(name)) {
             return true;
@@ -236,12 +237,12 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
         String aclName = StorageProvider.PROPERTIES_SPACE_ACL + name;
         if (acls.containsKey(aclName)) {
+            AclType acl = acls.get(aclName);
             if (isRead) {
-                return "r".equals(acls.get(aclName)) || "w".equals(acls.get(
-                    aclName));
+                return AclType.READ.equals(acl) || AclType.WRITE.equals(acl);
 
             } else {
-                return "w".equals(acls.get(aclName));
+                return AclType.WRITE.equals(acl);
             }
         }
         return false;

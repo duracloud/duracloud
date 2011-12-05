@@ -415,7 +415,7 @@ $.widget("ui.aclreadonlypanel",
         _readOnly: false, 
         _init: function(){ 
             $.ui.controlpanel.prototype._init.call(this); //call super init first
-            if(this.options.space.callerAcl != "w"){
+            if(this.options.space.callerAcl != "WRITE"){
                 this._readOnly = true;
             }
             

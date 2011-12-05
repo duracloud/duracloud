@@ -7,6 +7,7 @@
  */
 package org.duracloud.security.vote;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.provider.StorageProvider;
@@ -48,7 +49,7 @@ public class SpaceWriteAccessVoterTest {
     private SpaceWriteAccessVoter voter;
 
     private final String OPEN_SPACE_ID = "open-space";
-    private Map<String, String> acls;
+    private Map<String, AclType> acls;
     private final String userRead = "username-r";
     private final String userWrite = "username-w";
     private final String groupWrite = "group-curators-w";
@@ -62,10 +63,10 @@ public class SpaceWriteAccessVoterTest {
 
     @Before
     public void setUp() {
-        acls = new HashMap<String, String>();
-        acls.put(userRead, "r");
-        acls.put(userWrite, "w");
-        acls.put(groupWrite, "w");
+        acls = new HashMap<String, AclType>();
+        acls.put(userRead, AclType.READ);
+        acls.put(userWrite, AclType.WRITE);
+        acls.put(groupWrite, AclType.WRITE);
 
         providerFactory = createStorageProviderFactoryMock();
         userDetailsService = createUserDetailsServiceMock();

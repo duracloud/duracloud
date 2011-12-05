@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.storage.provider.StorageProvider;
@@ -39,7 +40,7 @@ public class SpaceRestTest {
     private final static String spaceId = "space-id";
     private final static String storeId = "store-id";
     private static Map<String, String> spaceProps;
-    private static Map<String, String> spaceACLs;
+    private static Map<String, AclType> spaceACLs;
 
     private final static String user0 = "user-0";
     private final static String user1 = "user-1";
@@ -54,15 +55,17 @@ public class SpaceRestTest {
 
     @BeforeClass
     public static void beforeClass() {
-        spaceACLs = new HashMap<String, String>();
-        spaceACLs.put(aclHeader + user0, "r");
-        spaceACLs.put(aclHeader + group0, "r");
-        spaceACLs.put(aclHeader + user1, "w");
+        spaceACLs = new HashMap<String, AclType>();
+        spaceACLs.put(aclHeader + user0, AclType.READ);
+        spaceACLs.put(aclHeader + group0, AclType.READ);
+        spaceACLs.put(aclHeader + user1, AclType.WRITE);
 
         spaceProps = new HashMap<String, String>();
         spaceProps.put("unknown-name", "unknown-value");
         spaceProps.put(mimeHeader, "text/plain");
-        spaceProps.putAll(spaceACLs);
+        for (String key : spaceACLs.keySet()) {
+            spaceProps.put(key, spaceACLs.get(key).name());
+        }
     }
 
     @Before
@@ -156,7 +159,11 @@ public class SpaceRestTest {
         spaceRest.headers = httpHeaders;
 
         EasyMock.expect(httpHeaders.getRequestHeaders()).andReturn(headersMap);
-        doCreateUpdatePropertiesMocks(spaceACLs);
+        Map<String, String> spaceAclProps = new HashMap<String, String>();
+        for (String key : spaceACLs.keySet()) {
+            spaceAclProps.put(key, spaceACLs.get(key).name());
+        }
+        doCreateUpdatePropertiesMocks(spaceAclProps);
 
         // space resource mocks
         spaceResource.updateSpaceACLs(spaceId, spaceACLs, storeId);

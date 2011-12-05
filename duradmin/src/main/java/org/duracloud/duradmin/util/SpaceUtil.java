@@ -8,6 +8,7 @@
 package org.duracloud.duradmin.util;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.ContentItem;
@@ -43,8 +44,13 @@ public class SpaceUtil {
         space.setProperties(getSpaceProperties(cloudSpace.getProperties()));
         space.setExtendedProperties(cloudSpace.getProperties());
         space.setContents(cloudSpace.getContentIds());
-        String callerAcl = resolveCallerAcl(contentStore, space.getSpaceId(), authentication);
-        space.setCallerAcl(callerAcl);
+        AclType callerAcl = resolveCallerAcl(contentStore, space.getSpaceId(), authentication);
+
+        String aclName = null;
+        if (null != callerAcl) {
+            aclName = callerAcl.name();
+        }
+        space.setCallerAcl(aclName);
         return space;
     }
 
@@ -75,11 +81,16 @@ public class SpaceUtil {
         contentItem.setProperties(properties);
         contentItem.setExtendedProperties(contentProperties);
         contentItem.setDurastoreURL(formatDurastoreURL(contentItem, store));
-        String callerAcl = resolveCallerAcl(store, spaceId, authentication);
-        contentItem.setCallerAcl(callerAcl);
+        AclType callerAcl = resolveCallerAcl(store, spaceId, authentication);
+
+        String aclName = null;
+        if (null != callerAcl) {
+            aclName = callerAcl.name();
+        }
+        contentItem.setCallerAcl(aclName);
     }
 
-	private static String formatDurastoreURL(ContentItem contentItem,ContentStore store) {
+    private static String formatDurastoreURL(ContentItem contentItem,ContentStore store) {
        	String pattern =  "{0}/{1}/{2}?storeID={3}";
         return MessageFormat.format(pattern,
                                     // NOTE: The https --> http swap is required by the Djatoka
@@ -121,7 +132,7 @@ public class SpaceUtil {
 		response.getOutputStream().close();
 	}
 
-	public static String resolveCallerAcl(ContentStore contentStore,
+	public static AclType resolveCallerAcl(ContentStore contentStore,
                                           String spaceId,
                                           Authentication authentication)
         throws ContentStoreException {
@@ -131,24 +142,24 @@ public class SpaceUtil {
         for (GrantedAuthority a : authorities) {
             if (a.getAuthority().equals("ROLE_ADMIN")) {
                 //no need to make any further calls.
-                return "w";
+                return AclType.WRITE;
             }
         }
 
-        Map<String, String> acls = contentStore.getSpaceACLs(spaceId);
-        String callerAcl = null;
+        Map<String, AclType> acls = contentStore.getSpaceACLs(spaceId);
+        AclType callerAcl = null;
 
         DuracloudUserDetails details =
             (DuracloudUserDetails) authentication.getPrincipal();
         List<String> userGroups = details.getGroups();
 
-        for (Map.Entry<String, String> e : acls.entrySet()) {
-            String value = e.getValue();
+        for (Map.Entry<String, AclType> e : acls.entrySet()) {
+            AclType value = e.getValue();
 
             if (e.getKey().equals(details.getUsername())
                 || userGroups.contains(e.getKey())) {
                 callerAcl = value;
-                if("w".equals(callerAcl)){
+                if(AclType.WRITE.equals(callerAcl)){
                     break;
                 }
             }

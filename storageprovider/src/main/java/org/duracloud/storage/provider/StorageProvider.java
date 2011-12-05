@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 
@@ -25,6 +26,7 @@ import java.util.Map;
  */
 public interface StorageProvider {
 
+    @Deprecated
     public enum AccessType {OPEN, CLOSED}
 
     /* Space property names */
@@ -149,7 +151,7 @@ public interface StorageProvider {
      * @throws NotFoundException if space with ID spaceId does not exist
      * @throws StorageException  if errors occur
      */
-    public Map<String, String> getSpaceACLs(String spaceId);
+    public Map<String, AclType> getSpaceACLs(String spaceId);
 
     /**
      * Sets the ACLs associated with a space.
@@ -160,7 +162,7 @@ public interface StorageProvider {
      * @throws NotFoundException if space with ID spaceId does not exist
      * @throws StorageException  if errors occur
      */
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs);
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs);
 
     /**
      * Gets the access setting of the space, either OPEN or CLOSED. An OPEN space is
@@ -172,6 +174,7 @@ public interface StorageProvider {
      * @throws NotFoundException if space with ID spaceId does not exist
      * @throws StorageException if errors occur
      */
+    @Deprecated
     public AccessType getSpaceAccess(String spaceId);
 
     /**
@@ -182,6 +185,7 @@ public interface StorageProvider {
      * @throws NotFoundException if space with ID spaceId does not exist
      * @throws StorageException if errors occur
      */
+    @Deprecated
     public void setSpaceAccess(String spaceId,
                                AccessType access);
 

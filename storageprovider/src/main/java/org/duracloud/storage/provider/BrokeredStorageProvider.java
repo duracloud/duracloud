@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 
@@ -170,12 +171,12 @@ public class BrokeredStorageProvider
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(String spaceId) {
+    public Map<String, AclType> getSpaceACLs(String spaceId) {
         return dispatchProvider.getSpaceACLs(targetProvider, storeId, spaceId);
     }
 
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         dispatchProvider.setSpaceACLs(targetProvider,
                                       storeId,
                                       spaceId,

@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.provider.StorageProvider;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,8 +67,14 @@ public abstract class BaseRest {
         return doGetUserProperties(HEADER_PREFIX, exclusions);
     }
 
-    protected Map<String, String> getSpaceACLs() {
-        return doGetUserProperties(SPACE_ACL_HEADER);
+    protected Map<String, AclType> getSpaceACLs() {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
+        Map<String, String> aclProps = doGetUserProperties(SPACE_ACL_HEADER);
+        for (String key : aclProps.keySet()) {
+            String val = aclProps.get(key);
+            acls.put(key, AclType.valueOf(val));
+        }
+        return acls;
     }
 
     private Map<String, String> doGetUserProperties(String prefix,

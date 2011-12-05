@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.test;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -84,13 +85,13 @@ public class MockVerifyCreateStorageProvider implements StorageProvider {
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(String spaceId) {
+    public Map<String, AclType> getSpaceACLs(String spaceId) {
         // Default method body
         return null;
     }
 
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         // Default method body
     }
 

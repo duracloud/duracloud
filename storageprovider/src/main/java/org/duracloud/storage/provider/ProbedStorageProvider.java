@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
 import org.duracloud.common.util.metrics.MetricsProbed;
@@ -214,15 +215,15 @@ public abstract class ProbedStorageProvider
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(String spaceId) {
+    public Map<String, AclType> getSpaceACLs(String spaceId) {
         startMetric("getSpaceACLs");
-        Map<String, String> result = storageProvider.getSpaceACLs(spaceId);
+        Map<String, AclType> result = storageProvider.getSpaceACLs(spaceId);
         stopMetric("getSpaceACLs");
         return result;
     }
 
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         startMetric("setSpaceACLs");
         storageProvider.setSpaceACLs(spaceId, spaceACLs);
         stopMetric("setSpaceACLs");

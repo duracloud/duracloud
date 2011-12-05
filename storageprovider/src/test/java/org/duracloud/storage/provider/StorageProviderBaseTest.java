@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.provider;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.NotFoundException;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -29,7 +30,7 @@ public class StorageProviderBaseTest {
 
     private final static String spaceId = "space-id";
     private static Map<String, String> spaceProps;
-    private static Map<String, String> spaceACLs;
+    private static Map<String, AclType> spaceACLs;
     private static Map<String, String> userProps;
 
     private final static String user0 = "user-0";
@@ -49,18 +50,20 @@ public class StorageProviderBaseTest {
                                            StorageProviderBase.class);
         providerBase = new StorageProviderBaseImpl(providerMock);
 
-        spaceACLs = new HashMap<String, String>();
-        spaceACLs.put(aclPrefix + user0, "r");
-        spaceACLs.put(aclPrefix + group0, "r");
-        spaceACLs.put(aclPrefix + user1, "w");
+        spaceACLs = new HashMap<String, AclType>();
+        spaceACLs.put(aclPrefix + user0, AclType.READ);
+        spaceACLs.put(aclPrefix + group0, AclType.READ);
+        spaceACLs.put(aclPrefix + user1, AclType.WRITE);
 
         userProps = new HashMap<String, String>();
         userProps.put(propName0, "unknown-value");
         userProps.put(mimePrefix, "text/plain");
 
         spaceProps = new HashMap<String, String>();
-        spaceProps.putAll(spaceACLs);
         spaceProps.putAll(userProps);
+        for (String key : spaceACLs.keySet()) {
+            spaceProps.put(key, spaceACLs.get(key).name());
+        }
     }
 
     @After
@@ -117,7 +120,7 @@ public class StorageProviderBaseTest {
     public void testGetSpaceACLs() {
         createGetSpaceACLsMocks();
 
-        Map<String, String> acls = providerBase.getSpaceACLs(spaceId);
+        Map<String, AclType> acls = providerBase.getSpaceACLs(spaceId);
         Assert.assertNotNull(acls);
 
         Assert.assertEquals(spaceACLs.size(), acls.size());
@@ -136,16 +139,16 @@ public class StorageProviderBaseTest {
         EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
             spaceProps);
 
-        Map<String, String> newProps = new HashMap<String, String>();
+        Map<String, AclType> newProps = new HashMap<String, AclType>();
         String name0 = aclPrefix + "name0";
         String name1 = "name1";
         String name2 = aclPrefix + "name2";
         String name3 = mimePrefix + "name3";
 
-        String value0 = "value0";
-        String value1 = "value1";
-        String value2 = "value2";
-        String value3 = "value3";
+        AclType value0 = AclType.READ;
+        AclType value1 = AclType.READ;
+        AclType value2 = AclType.READ;
+        AclType value3 = AclType.READ;
 
         newProps.put(name0, value0);
         newProps.put(name1, value1);
@@ -153,8 +156,8 @@ public class StorageProviderBaseTest {
         newProps.put(name3, value3);
 
         Map<String, String> expectedProps = new HashMap<String, String>();
-        expectedProps.put(name0, value0);
-        expectedProps.put(name2, value2);
+        expectedProps.put(name0, value0.name());
+        expectedProps.put(name2, value2.name());
         expectedProps.put(propName0, spaceProps.get(propName0));
         expectedProps.put(mimePrefix, spaceProps.get(mimePrefix));
 

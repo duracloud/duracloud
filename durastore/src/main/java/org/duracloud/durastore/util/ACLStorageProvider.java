@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -40,7 +41,7 @@ public class ACLStorageProvider implements StorageProvider {
     private SecurityContextUtil securityContextUtil;
 
     private Map<String, AccessType> spaceAccessMap;
-    private Map<String, Map<String, String>> spaceACLMap;
+    private Map<String, Map<String, AclType>> spaceACLMap;
     private boolean loaded;
 
     public ACLStorageProvider(StorageProvider targetProvider) {
@@ -52,7 +53,7 @@ public class ACLStorageProvider implements StorageProvider {
         this.targetProvider = targetProvider;
         this.securityContextUtil = securityContextUtil;
         this.spaceAccessMap = new HashMap<String, AccessType>();
-        this.spaceACLMap = new HashMap<String, Map<String, String>>();
+        this.spaceACLMap = new HashMap<String, Map<String, AclType>>();
         this.loaded = false;
 
         new Thread(new CacheLoader()).start();
@@ -108,7 +109,7 @@ public class ACLStorageProvider implements StorageProvider {
         }
 
         for (String space : spaceACLMap.keySet()) {
-            Map<String, String> acls = spaceACLMap.get(space);
+            Map<String, AclType> acls = spaceACLMap.get(space);
             if (userHasAccess(user, acls) && !spaces.contains(space)) {
                 spaces.add(space);
             }
@@ -143,7 +144,7 @@ public class ACLStorageProvider implements StorageProvider {
     }
 
     private boolean userHasAccess(DuracloudUserDetails user,
-                                  Map<String, String> acls) {
+                                  Map<String, AclType> acls) {
         if (acls.keySet().contains(PROPERTIES_SPACE_ACL + user.getUsername())) {
             return true;
         }
@@ -184,8 +185,9 @@ public class ACLStorageProvider implements StorageProvider {
         // update the cache to contain current user privileges for new space
         DuracloudUserDetails userDetails = getCurrentUserDetails();
         if (null != userDetails) {
-            Map<String, String> acl = new HashMap<String, String>();
-            acl.put(PROPERTIES_SPACE_ACL + userDetails.getUsername(), "w");
+            Map<String, AclType> acl = new HashMap<String, AclType>();
+            acl.put(PROPERTIES_SPACE_ACL + userDetails.getUsername(),
+                    AclType.WRITE);
             spaceACLMap.put(spaceId, acl);
         }
 
@@ -231,7 +233,7 @@ public class ACLStorageProvider implements StorageProvider {
     }
 
     @Override
-    public Map<String, String> getSpaceACLs(String spaceId) {
+    public Map<String, AclType> getSpaceACLs(String spaceId) {
         DuracloudUserDetails user = getCurrentUserDetails();
         if (isAdmin(user) && !loaded) {
             return targetProvider.getSpaceACLs(spaceId);
@@ -243,14 +245,14 @@ public class ACLStorageProvider implements StorageProvider {
             return spaceACLMap.get(spaceId);
 
         } else {
-            Map<String, String> acls = targetProvider.getSpaceACLs(spaceId);
+            Map<String, AclType> acls = targetProvider.getSpaceACLs(spaceId);
             spaceACLMap.put(spaceId, acls);
             return acls;
         }
     }
 
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, String> spaceACLs) {
+    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         waitForCache();
 
         if (null != spaceACLs) {

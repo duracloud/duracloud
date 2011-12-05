@@ -9,6 +9,7 @@ package org.duracloud.client;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -292,7 +293,7 @@ public class ContentStoreImplTest {
     @Test
     public void testSetSpaceACLs() throws Exception {
         String name = "name1";
-        Map<String, String> acls = createACLsForTest(name);
+        Map<String, AclType> acls = createACLsForTest(name);
 
         String spaceId = "space-id";
         Capture<Map<String, String>> capturedHeaders = createSetSpaceACLsMocks(
@@ -315,24 +316,25 @@ public class ContentStoreImplTest {
         Set<String> headerKeys = headers.keySet();
         for (String acl : acls.keySet()) {
             Assert.assertTrue(headerKeys.contains(prefix + acl));
-            Assert.assertEquals(acls.get(acl), headers.get(
-                prefix + acl));
+
+            String aclProp = headers.get(prefix + acl);
+            Assert.assertEquals(acls.get(acl), AclType.valueOf(aclProp));
         }
     }
 
-    private Map<String, String> createACLsForTest(String name) {
+    private Map<String, AclType> createACLsForTest(String name) {
         String prefix = HEADER_PREFIX + ACL_PREFIX;
         String name0 = prefix + "name0";
         String name1 = name;
         String name2 = prefix + "name2";
         String name3 = prefix + "name3";
 
-        String value0 = "value0";
-        String value1 = "value1";
-        String value2 = "value2";
-        String value3 = "value3";
+        AclType value0 = AclType.READ;
+        AclType value1 = AclType.READ;
+        AclType value2 = AclType.WRITE;
+        AclType value3 = AclType.WRITE;
 
-        Map<String, String> acls = new HashMap<String, String>();
+        Map<String, AclType> acls = new HashMap<String, AclType>();
         acls.put(name0, value0);
         acls.put(name1, value1);
         acls.put(name2, value2);
@@ -368,13 +370,13 @@ public class ContentStoreImplTest {
     @Test
     public void testGetSpaceACLs() throws Exception {
         String name = "name1";
-        Map<String, String> acls = createACLsForTest(name);
+        Map<String, AclType> acls = createACLsForTest(name);
 
         String spaceId = "space-id";
         createGetSpaceACLsMocks(acls, spaceId, storeId, 200);
 
         // call being tested
-        Map<String, String> spaceACLs = contentStore.getSpaceACLs(spaceId);
+        Map<String, AclType> spaceACLs = contentStore.getSpaceACLs(spaceId);
         Assert.assertNotNull(spaceACLs);
 
         // header without the proper x-dura-meta- prefix is omitted.
@@ -391,7 +393,7 @@ public class ContentStoreImplTest {
         }
     }
 
-    private void createGetSpaceACLsMocks(Map<String, String> acls,
+    private void createGetSpaceACLsMocks(Map<String, AclType> acls,
                                          String spaceId,
                                          String storeId,
                                          int status) throws Exception {
@@ -399,7 +401,7 @@ public class ContentStoreImplTest {
         Header[] headers = new Header[acls.size()];
         int i = 0;
         for (String acl : acls.keySet()) {
-            headers[i++] = new Header(acl, acls.get(acl));
+            headers[i++] = new Header(acl, acls.get(acl).name());
         }
 
         RestHttpHelper.HttpResponse response = EasyMock.createMock(

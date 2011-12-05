@@ -7,6 +7,7 @@
  */
 package org.duracloud.security.vote;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
@@ -95,7 +96,7 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
 
-        Map<String, String> acls = getSpaceACLs(httpRequest);
+        Map<String, AclType> acls = getSpaceACLs(httpRequest);
         if (hasWriteAccess(auth.getName(), acls)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
