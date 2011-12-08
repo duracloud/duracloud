@@ -57,7 +57,7 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
         repService.setUserConfigModeSets(createDefaultModeSet(repServiceUserConfig));
 
         // System Configs
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("host",
                                              ServiceConfigUtil.STORE_HOST_VAR,

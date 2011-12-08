@@ -24,6 +24,7 @@ public abstract class BaseService implements ComputeService {
     private String startTime;
     private String endTime;
     private String error;
+    private String svcLaunchingUser;
 
     private ServiceStatus serviceStatus = ServiceStatus.INSTALLED;
 
@@ -55,22 +56,26 @@ public abstract class BaseService implements ComputeService {
     public Map<String, String> getServiceProps() {
         Map<String, String> props = new HashMap<String, String>();
         props.put(SYSTEM_PREFIX + "serviceId", getServiceId());
-        props.put(ComputeService.STATUS_KEY, getServiceStatus().name());
+        props.put(STATUS_KEY, getServiceStatus().name());
 
         if (startTime != null) {
-            props.put(ComputeService.STARTTIME_KEY, startTime);
+            props.put(STARTTIME_KEY, startTime);
         }
 
         if (endTime != null) {
-            props.put(ComputeService.STOPTIME_KEY, endTime);
+            props.put(STOPTIME_KEY, endTime);
         }
 
         if (error != null) {
-            props.put(ComputeService.ERROR_KEY, error);
+            props.put(ERROR_KEY, error);
         }
 
         if (reportId != null && serviceStatus.isComplete()) {
-            props.put(ComputeService.REPORT_KEY, reportId);
+            props.put(REPORT_KEY, reportId);
+        }
+
+        if (svcLaunchingUser != null) {
+            props.put(SVC_LAUNCHING_USER, getSvcLaunchingUser());
         }
         
         return props;
@@ -122,4 +127,13 @@ public abstract class BaseService implements ComputeService {
     public void setReportId(String spaceId, String reportId) {
         this.reportId = spaceId + "/" + reportId;
     }
+
+    public String getSvcLaunchingUser() {
+        return svcLaunchingUser;
+    }
+
+    public void setSvcLaunchingUser(String svcLaunchingUser) {
+        this.svcLaunchingUser = svcLaunchingUser;
+    }
+
 }

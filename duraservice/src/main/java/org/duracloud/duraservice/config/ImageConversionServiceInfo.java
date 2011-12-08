@@ -117,7 +117,7 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
         icService.setUserConfigModeSets(createDefaultModeSet(icServiceUserConfig));
 
         // System Configs
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("duraStoreHost",
                                              ServiceConfigUtil.STORE_HOST_VAR,

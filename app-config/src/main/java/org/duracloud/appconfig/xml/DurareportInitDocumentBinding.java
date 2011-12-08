@@ -8,7 +8,9 @@
 package org.duracloud.appconfig.xml;
 
 import org.duracloud.appconfig.domain.DurareportConfig;
+import org.duracloud.appconfig.domain.NotificationConfig;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.EncryptionUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -16,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -25,6 +31,17 @@ public class DurareportInitDocumentBinding {
 
     private static final Logger log = LoggerFactory
         .getLogger(DurareportInitDocumentBinding.class);
+
+    private static EncryptionUtil encryptionUtil;
+
+    static {
+        try {
+            encryptionUtil = new EncryptionUtil();
+        } catch (Exception e) {
+            throw new DuraCloudRuntimeException(e);
+        }
+    }
+
 
     /**
      * This method deserializes the provided xml into a durareport config object.
@@ -47,6 +64,24 @@ public class DurareportInitDocumentBinding {
             config.setDuraservicePort(root.getChildText("duraservicePort"));
             config.setDuraserviceContext(root.getChildText("duraserviceContext"));
 
+            List<Element> notifyElements = root.getChildren("notificationConfig");
+            if(null != notifyElements) {
+                Map<String, NotificationConfig> configMap =
+                    new HashMap<String, NotificationConfig>();
+                for(int i=0; i<notifyElements.size(); i++) {
+                    Element notifyElement = notifyElements.get(i);
+                    NotificationConfig notifyConfig = new NotificationConfig();
+                    notifyConfig.setType(notifyElement.getChildText("type"));
+                    String encUsername = notifyElement.getChildText("username");
+                    notifyConfig.setUsername(decrypt(encUsername));
+                    String encPassword = notifyElement.getChildText("password");
+                    notifyConfig.setPassword(decrypt(encPassword));
+                    notifyConfig.setOriginator(
+                        notifyElement.getChildText("originator"));
+                    configMap.put(String.valueOf(i), notifyConfig);
+                }
+                config.setNotificationConfigs(configMap);
+            }
         } catch (Exception e) {
             String error = "Error encountered attempting to parse " +
                 "Durareport configuration xml: " + e.getMessage();
@@ -87,9 +122,45 @@ public class DurareportInitDocumentBinding {
             xml.append("</duraservicePort>");
             xml.append("  <duraserviceContext>" + duraserviceContext);
             xml.append("</duraserviceContext>");
+
+            Collection<NotificationConfig> notificationConfigs =
+                durareportConfig.getNotificationConfigs();
+            if(null != notificationConfigs) {
+                for(NotificationConfig config : notificationConfigs) {
+                    String encUsername = encrypt(config.getUsername());
+                    String encPassword = encrypt(config.getPassword());
+
+                    xml.append("<notificationConfig>");
+                    xml.append("  <type>" + config.getType() + "</type>");
+                    xml.append("  <username>" + encUsername +
+                                 "</username>");
+                    xml.append("  <password>" + encPassword +
+                                 "</password>");
+                    xml.append("  <originator>" + config.getOriginator() +
+                                 "</originator>");
+                    xml.append("</notificationConfig>");
+                }
+            }
+
             xml.append("</durareportConfig>");
         }
         return xml.toString();
+    }
+
+    private static String encrypt(String text) {
+        try {
+            return encryptionUtil.encrypt(text);
+        } catch (Exception e) {
+            throw new DuraCloudRuntimeException(e);
+        }
+    }
+
+    private static String decrypt(String text) {
+        try {
+            return encryptionUtil.decrypt(text);
+        } catch (Exception e) {
+            throw new DuraCloudRuntimeException(e);
+        }
     }
 
 }

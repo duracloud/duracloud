@@ -20,6 +20,8 @@ public class HelloServiceInfo extends AbstractServiceInfo {
         helloService.setServiceVersion(version);
         helloService.setMaxDeploymentsAllowed(1);
 
+        helloService.setSystemConfigs(getBaseSystemConfigs());
+
         helloService.setDeploymentOptions(getSimpleDeploymentOptions());
 
         return helloService;

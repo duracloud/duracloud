@@ -27,6 +27,8 @@ public class WebappUtilServiceInfo extends AbstractServiceInfo {
 
         webappUtilService.setDeploymentOptions(getSimpleDeploymentOptions());
 
+        webappUtilService.setSystemConfigs(getBaseSystemConfigs());
+
         return webappUtilService;
     }
 }

@@ -10,7 +10,10 @@ package org.duracloud.servicemonitor.impl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.serviceapi.aop.DeployMessage;
 import org.duracloud.serviceapi.aop.ServiceMessage;
+import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.ServiceCompletionHandler;
 import org.duracloud.servicemonitor.ServiceMonitor;
+import org.duracloud.servicemonitor.ServiceMonitorEventHandler;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.slf4j.Logger;
@@ -23,7 +26,8 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: 6/17/11
  */
-public class ServiceMonitorImpl implements ServiceMonitor {
+public class ServiceMonitorImpl implements ServiceMonitor,
+                                           ServiceCompletionHandler {
 
     private static final Logger log =
         LoggerFactory.getLogger(ServiceMonitorImpl.class);
@@ -34,29 +38,34 @@ public class ServiceMonitorImpl implements ServiceMonitor {
 
     private ServiceSummaryDirectory summaryDirectory;
     private ServiceSummarizer summarizer = null;
+    private ServiceMonitorEventHandler eventHandler = null;
 
     private Map<String, ServicePoller> pollers;
 
     public ServiceMonitorImpl() {
-        this(DEFAULT_MILLIS, null, null);
+        this(DEFAULT_MILLIS, null, null, null);
     }
 
     public ServiceMonitorImpl(long pollingInterval,
                               ServiceSummaryDirectory summaryDirectory,
-                              ServiceSummarizer summarizer) {
+                              ServiceSummarizer summarizer,
+                              ServiceMonitorEventHandler eventHandler) {
         log.info("Starting ServiceMonitor");
 
         this.pollingInterval = pollingInterval;
         this.summaryDirectory = summaryDirectory;
         this.summarizer = summarizer;
+        this.eventHandler = eventHandler;
         this.pollers = new HashMap<String, ServicePoller>();
     }
 
     @Override
     public void initialize(ServiceSummaryDirectory summaryDirectory,
-                           ServiceSummarizer summarizer) {
+                           ServiceSummarizer summarizer,
+                           ServiceMonitorEventHandler eventHandler) {
         this.summaryDirectory = summaryDirectory;
         this.summarizer = summarizer;
+        this.eventHandler = eventHandler;
 
         if (!pollers.isEmpty()) {
             dispose();
@@ -78,6 +87,7 @@ public class ServiceMonitorImpl implements ServiceMonitor {
         int deploymentId = message.getDeploymentId();
 
         startServicePoller(serviceId, deploymentId);
+        eventHandler.handleDeployEvent();
     }
 
     private void checkInitialized() {
@@ -98,10 +108,16 @@ public class ServiceMonitorImpl implements ServiceMonitor {
                                                  deploymentId,
                                                  summaryDirectory,
                                                  summarizer,
-                                                 pollingInterval);
+                                                 pollingInterval,
+                                                 this);
         pollers.put(pollerId(serviceId, deploymentId), poller);
 
         new Thread(poller).start();
+    }
+
+    @Override
+    public void handleServiceComplete(ServiceSummary summary) {
+        eventHandler.handleCompletionEvent(summary);
     }
 
     @Override
@@ -119,6 +135,7 @@ public class ServiceMonitorImpl implements ServiceMonitor {
         int deploymentId = message.getDeploymentId();
 
         stopServicePoller(serviceId, deploymentId);
+        eventHandler.handleUndeployEvent();
     }
 
     private void stopServicePoller(int serviceId, int deploymentId) {
@@ -152,6 +169,7 @@ public class ServiceMonitorImpl implements ServiceMonitor {
 
         stopServicePoller(serviceId, deploymentId);
         startServicePoller(serviceId, deploymentId);
+        eventHandler.handleUpdateConfigEvent();
     }
 
     @Override

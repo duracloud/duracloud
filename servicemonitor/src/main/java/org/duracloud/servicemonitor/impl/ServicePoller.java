@@ -8,6 +8,7 @@
 package org.duracloud.servicemonitor.impl;
 
 import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.ServiceCompletionHandler;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.error.ServiceSummaryException;
@@ -34,6 +35,7 @@ public class ServicePoller implements Runnable {
 
     private ServiceSummaryDirectory summaryDirectory;
     private ServiceSummarizer summarizer;
+    private ServiceCompletionHandler completionHandler;
 
     private long pollingInterval;
     private boolean continuePolling;
@@ -42,13 +44,16 @@ public class ServicePoller implements Runnable {
                          int deploymentId,
                          ServiceSummaryDirectory summaryDirectory,
                          ServiceSummarizer summarizer,
-                         long pollingInterval) {
+                         long pollingInterval,
+                         ServiceCompletionHandler completionHandler) {
         this.serviceId = serviceId;
         this.deploymentId = deploymentId;
         this.summaryDirectory = summaryDirectory;
         this.summarizer = summarizer;
         this.pollingInterval = pollingInterval;
+        this.completionHandler = completionHandler;
         this.continuePolling = true;
+
     }
 
     @Override
@@ -62,6 +67,7 @@ public class ServicePoller implements Runnable {
             ServiceSummary summary = getServiceSummary();
             if (null != summary) {
                 summaryDirectory.addServiceSummary(summary);
+                completionHandler.handleServiceComplete(summary);
             }
         }
     }

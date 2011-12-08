@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: Dec 2, 2009
  */
-public class TomcatInstanceTest extends TomcatTestBase {
+public class TestTomcatInstance extends TomcatTestBase {
 
     private final String PROJECT_VERSION_PROP = "PROJECT_VERSION";
     private final int port = 12080;

@@ -44,7 +44,7 @@ public class BulkImageConversionServiceInfo extends AbstractServiceInfo {
         icService.setUserConfigModeSets(getModeSets());
 
         // System Configs
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("duraStoreHost",
                                              ServiceConfigUtil.STORE_HOST_VAR,

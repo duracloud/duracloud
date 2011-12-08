@@ -64,7 +64,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
         msService.setUserConfigModeSets(createDefaultModeSet(msServiceUserConfig));
 
         // System Configs
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("duraStoreHost",
                                              ServiceConfigUtil.STORE_HOST_VAR,

@@ -12,6 +12,7 @@ import org.duracloud.serviceapi.aop.ServiceMessage;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.ServiceMonitorEventHandler;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.error.ServiceSummaryException;
@@ -36,6 +37,7 @@ public class ServiceMonitorImplTest {
     private long pollingInterval = 5; //millis
     private ServiceSummaryDirectory summaryDirectory;
     private ServiceSummarizer summarizer;
+    private ServiceMonitorEventHandler eventHandler;
 
     @Before
     public void setUp() throws Exception {
@@ -43,19 +45,22 @@ public class ServiceMonitorImplTest {
                                                ServiceSummaryDirectory.class);
         summarizer = EasyMock.createMock("ServiceSummarizer",
                                          ServiceSummarizer.class);
+        eventHandler = EasyMock.createMock("ServiceMonitorEventHandler",
+                                           ServiceMonitorEventHandler.class);
 
         monitor = new ServiceMonitorImpl(pollingInterval,
                                          summaryDirectory,
-                                         summarizer);
+                                         summarizer,
+                                         eventHandler);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(summaryDirectory, summarizer);
+        EasyMock.verify(summaryDirectory, summarizer, eventHandler);
     }
 
     private void replayMocks() {
-        EasyMock.replay(summaryDirectory, summarizer);
+        EasyMock.replay(summaryDirectory, summarizer, eventHandler);
     }
 
     @Test
@@ -79,6 +84,10 @@ public class ServiceMonitorImplTest {
         int deploymentId = 9;
 
         createMockExpectations(serviceId, deploymentId);
+
+        eventHandler.handleDeployEvent();
+        EasyMock.expectLastCall().times(1);
+
         replayMocks();
 
         DeployMessage msg = new DeployMessage();
@@ -117,6 +126,10 @@ public class ServiceMonitorImplTest {
     public void testOnUndeploy() throws Exception {
         int serviceId = 6;
         int deploymentId = 10;
+
+        eventHandler.handleUndeployEvent();
+        EasyMock.expectLastCall().times(1);
+
         replayMocks();
 
         ServiceMessage msg = new ServiceMessage();
@@ -132,6 +145,10 @@ public class ServiceMonitorImplTest {
         int deploymentId = 3;
 
         createMockExpectations(serviceId, deploymentId);
+
+        eventHandler.handleUpdateConfigEvent();
+        EasyMock.expectLastCall().times(1);
+
         replayMocks();
 
         ServiceMessage msg = new ServiceMessage();
@@ -141,6 +158,16 @@ public class ServiceMonitorImplTest {
         monitor.onUpdateConfig(msg);
 
         Thread.sleep(500); // let the threads work a moment.
+    }
+
+    @Test
+    public void testHandleServiceCompletion() throws Exception {
+        eventHandler.handleCompletionEvent(null);
+        EasyMock.expectLastCall().times(1);
+
+        replayMocks();
+
+        monitor.handleServiceComplete(null);
     }
 
     @Test

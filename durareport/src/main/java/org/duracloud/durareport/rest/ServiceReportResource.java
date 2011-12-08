@@ -7,6 +7,7 @@
  */
 package org.duracloud.durareport.rest;
 
+import org.duracloud.durareport.service.ServiceNotificationMonitor;
 import org.duracloud.durareport.service.ServiceReportBuilder;
 import org.duracloud.servicemonitor.ServiceMonitor;
 import org.duracloud.servicemonitor.ServiceSummarizer;
@@ -23,14 +24,19 @@ public class ServiceReportResource {
 
     private ServiceReportBuilder reportBuilder;
     private ServiceMonitor serviceMonitor;
+    private ServiceNotificationMonitor notificationMonitor;
 
-    public ServiceReportResource(ServiceMonitor serviceMonitor) {
+    public ServiceReportResource(ServiceMonitor serviceMonitor,
+                                 ServiceNotificationMonitor notificationMonitor) {
         this.serviceMonitor = serviceMonitor;
+        this.notificationMonitor = notificationMonitor;
     }
 
     public void initialize(ServiceSummaryDirectory summaryDirectory,
                            ServiceSummarizer summarizer) {
-        this.serviceMonitor.initialize(summaryDirectory, summarizer);
+        this.serviceMonitor.initialize(summaryDirectory,
+                                       summarizer,
+                                       notificationMonitor);
 
         // Note: ReportBuilder could be an injected Spring-bean initialized here.
         this.reportBuilder = new ServiceReportBuilder(summarizer,

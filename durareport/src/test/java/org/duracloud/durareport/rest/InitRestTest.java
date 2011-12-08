@@ -8,6 +8,7 @@
 package org.duracloud.durareport.rest;
 
 import org.duracloud.common.rest.RestUtil;
+import org.duracloud.durareport.notification.NotificationManager;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -35,7 +36,7 @@ public class InitRestTest {
         serviceResource = EasyMock.createMock(ServiceReportResource.class);
         restUtil = EasyMock.createMock(RestUtil.class);
         initRest = new InitRest(storageResource, serviceResource,
-                                null, null, restUtil, null);
+                                null, null, restUtil, null, null);
     }
 
     private void replayMocks() {

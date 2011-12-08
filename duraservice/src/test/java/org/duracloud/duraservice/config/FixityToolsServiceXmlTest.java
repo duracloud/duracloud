@@ -89,7 +89,7 @@ public class FixityToolsServiceXmlTest {
         Assert.assertNull(deployments);
 
         Assert.assertEquals(3, deploymentOptions.size());
-        Assert.assertEquals(5, systemConfigs.size());
+        Assert.assertEquals(6, systemConfigs.size());
         Assert.assertEquals(1, modeSets.size());
 
 

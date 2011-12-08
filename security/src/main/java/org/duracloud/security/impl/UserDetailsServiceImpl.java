@@ -132,21 +132,36 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     public List<SecurityUserBean> getUsers() {
         List<SecurityUserBean> users = new ArrayList<SecurityUserBean>();
         for (DuracloudUserDetails user : this.usersTable.values()) {
-            List<String> grants = getGrants(user.getAuthorities());
-            SecurityUserBean bean = new SecurityUserBean(user.getUsername(),
-                                                         user.getPassword(),
-                                                         user.getEmail(),
-                                                         user.isEnabled(),
-                                                         user.isAccountNonExpired(),
-                                                         user.isCredentialsNonExpired(),
-                                                         user.isAccountNonLocked(),
-                                                         grants,
-                                                         user.getGroups());
+            SecurityUserBean bean = createUserBean(user);
             if (isCustomUser(bean)) {
                 users.add(bean);
             }
         }
         return users;
+    }
+
+    @Override
+    public SecurityUserBean getUserByUsername(String username) {
+        for (DuracloudUserDetails user : this.usersTable.values()) {
+            SecurityUserBean bean = createUserBean(user);
+            if (isCustomUser(bean) && bean.getUsername().equals(username)) {
+                return bean;
+            }
+        }
+        return null;
+    }
+
+    private SecurityUserBean createUserBean(DuracloudUserDetails user) {
+        List<String> grants = getGrants(user.getAuthorities());
+        return new SecurityUserBean(user.getUsername(),
+                                    user.getPassword(),
+                                    user.getEmail(),
+                                    user.isEnabled(),
+                                    user.isAccountNonExpired(),
+                                    user.isCredentialsNonExpired(),
+                                    user.isAccountNonLocked(),
+                                    grants,
+                                    user.getGroups());
     }
 
     private boolean isCustomUser(SecurityUserBean user) {

@@ -102,6 +102,18 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>notification</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>notification-amazon</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- for Spring -->
         <dependency>
             <groupId>org.springframework</groupId>

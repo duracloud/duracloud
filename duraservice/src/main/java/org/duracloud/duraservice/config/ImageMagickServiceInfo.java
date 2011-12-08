@@ -24,6 +24,8 @@ public class ImageMagickServiceInfo extends AbstractServiceInfo {
 
         imService.setDeploymentOptions(getSimpleDeploymentOptions());
 
+        imService.setSystemConfigs(getBaseSystemConfigs());
+
         return imService;
     }
 }

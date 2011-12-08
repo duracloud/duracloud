@@ -26,9 +26,11 @@ public interface ServiceMonitor {
      *
      * @param summaryDirectory used within this class
      * @param summarizer       used within this class
+     * @param eventHandler     used within this class
      */
     public void initialize(ServiceSummaryDirectory summaryDirectory,
-                           ServiceSummarizer summarizer);
+                           ServiceSummarizer summarizer,
+                           ServiceMonitorEventHandler eventHandler);
 
     /**
      * This method consumes messages on the deployment of any service.

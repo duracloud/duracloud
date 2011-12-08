@@ -81,10 +81,16 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
             this.amaUrl = value;
 
         } else {
-            String msg = "unknown key: " + key + " (" + value + ")";
-            log.error(msg);
-            throw new DuraCloudRuntimeException(msg);
+            if(!subclassLoadProperty(key, value)) {
+                String msg = "unknown key: " + key + " (" + value + ")";
+                log.error(msg);
+                throw new DuraCloudRuntimeException(msg);
+            }
         }
+    }
+
+    protected boolean subclassLoadProperty(String key, String value) {
+        return false;
     }
 
     public String getDurastoreHost() {

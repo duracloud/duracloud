@@ -1,9 +1,5 @@
 package org.duracloud.duraservice.config;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -14,6 +10,10 @@ import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -83,7 +83,7 @@ public class FixityServiceXmlTest {
         Assert.assertNull(deployments);
 
         Assert.assertEquals(3, deploymentOptions.size());
-        Assert.assertEquals(5, systemConfigs.size());
+        Assert.assertEquals(6, systemConfigs.size());
         Assert.assertEquals(1, modeSets.size());
 
 

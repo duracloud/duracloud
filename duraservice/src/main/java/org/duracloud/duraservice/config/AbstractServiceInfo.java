@@ -1,9 +1,10 @@
 package org.duracloud.duraservice.config;
 
+import org.duracloud.duraservice.mgmt.ServiceConfigUtil;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
+import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
-import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 import java.util.ArrayList;
@@ -18,9 +19,9 @@ import java.util.List;
  */
 public abstract class AbstractServiceInfo {
 
-        public abstract ServiceInfo getServiceXml(int index, String version);
+    public abstract ServiceInfo getServiceXml(int index, String version);
 
-        protected List<DeploymentOption> getSimpleDeploymentOptions() {
+    protected List<DeploymentOption> getSimpleDeploymentOptions() {
         // Deployment Options
         DeploymentOption depPrimary = new DeploymentOption();
         depPrimary.setLocation(DeploymentOption.Location.PRIMARY);
@@ -44,6 +45,18 @@ public abstract class AbstractServiceInfo {
 
     protected List<UserConfigModeSet> createDefaultModeSet(List<UserConfig> userConfigs) {
         return Arrays.asList(new UserConfigModeSet(userConfigs));
+    }
+
+    protected List<SystemConfig> getBaseSystemConfigs() {
+        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+
+        SystemConfig serviceLaunchingUser =
+            new SystemConfig("svcLaunchingUser",
+                             ServiceConfigUtil.SVC_LAUNCHING_USER_VAR,
+                             "");
+        systemConfig.add(serviceLaunchingUser);
+
+        return systemConfig;
     }
 
 }

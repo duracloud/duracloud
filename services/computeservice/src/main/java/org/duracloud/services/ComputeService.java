@@ -38,6 +38,7 @@ public interface ComputeService {
     public static final String STARTTIME_KEY = "Start Time";
     public static final String STOPTIME_KEY = "Stop Time";
     public static final String REPORT_KEY = "Report";
+    public static final String SVC_LAUNCHING_USER = "Service Launched By";
 
     public static final char DELIM = '\t';
 

@@ -38,7 +38,8 @@ public class AmazonNotificationFactory implements NotificationFactory {
 
     @Override
     public Emailer getEmailer(String fromAddress) {
-        if (null == fromAddress || !fromAddress.matches("\\w+@\\w+\\.\\w+")) {
+        if (null == fromAddress ||
+            !fromAddress.matches("[a-zA-Z_0-9+]+@\\w+\\.\\w+")) {
             String msg = "fromAddress not valid notification: " + fromAddress;
             log.error(msg);
             throw new IllegalArgumentException(msg);

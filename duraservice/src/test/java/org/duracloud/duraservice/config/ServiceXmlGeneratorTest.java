@@ -158,7 +158,7 @@ public class ServiceXmlGeneratorTest {
     private void verifyDuplication(ServiceInfo serviceInfo) {
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(6, systemConfigs.size());
+        Assert.assertEquals(7, systemConfigs.size());
 
         verifyDurastoreCredential(systemConfigs);
     }
@@ -182,7 +182,7 @@ public class ServiceXmlGeneratorTest {
     private void verifyJ2k(ServiceInfo serviceInfo) {
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(4, systemConfigs.size());
+        Assert.assertEquals(5, systemConfigs.size());
 
         verifyDurastoreCredential(systemConfigs);
 
@@ -196,7 +196,7 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyImageconversion(ServiceInfo serviceInfo) {
         int numUserConfigs = 6;
-        int numSystemConfigs = 6;
+        int numSystemConfigs = 7;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         String ver = getVersion();
@@ -223,13 +223,13 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyMediaStreaming(ServiceInfo serviceInfo) {
         int numUserConfigs = 2;
-        int numSystemConfigs = 6;
+        int numSystemConfigs = 7;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }
 
     private void verifyFixity(ServiceInfo serviceInfo) {
         int numUserConfigs = 0;
-        int numSystemConfigs = 5;
+        int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
@@ -239,7 +239,7 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyFixityTools(ServiceInfo serviceInfo) {
         int numUserConfigs = 0;
-        int numSystemConfigs = 5;
+        int numSystemConfigs = 6;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
@@ -249,7 +249,7 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyBulkImageconversion(ServiceInfo serviceInfo) {
         int numUserConfigs = 0;
-        int numSystemConfigs = 6;
+        int numSystemConfigs = 7;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
@@ -259,7 +259,7 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyAmazonFixity(ServiceInfo serviceInfo) {
         int numUserConfigs = 0;
-        int numSystemConfigs = 6;
+        int numSystemConfigs = 7;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
@@ -269,7 +269,7 @@ public class ServiceXmlGeneratorTest {
 
     private void verifyRepOnDemand(ServiceInfo serviceInfo) {
         int numUserConfigs = 0;
-        int numSystemConfigs = 6;
+        int numSystemConfigs = 7;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
@@ -280,7 +280,7 @@ public class ServiceXmlGeneratorTest {
     private void verifyCloudSync(ServiceInfo serviceInfo) {
         List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
         Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(4, systemConfigs.size());
+        Assert.assertEquals(5, systemConfigs.size());
 
         verifyDurastoreCredential(systemConfigs);
 

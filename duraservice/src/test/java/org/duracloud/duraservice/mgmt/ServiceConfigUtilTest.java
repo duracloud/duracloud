@@ -7,11 +7,6 @@
  */
 package org.duracloud.duraservice.mgmt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
@@ -32,6 +27,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -80,6 +80,7 @@ public class ServiceConfigUtilTest {
     private final String msgBrokerUrlName = "test.msgBrokerUrl.name";
     private final String usernameName = "test.username.name";
     private final String passwordName = "test.password.name";
+    private final String svcLaunchingUserName = "test.svcLaunchingUser.name";
 
     private final String hostVal = ServiceConfigUtil.STORE_HOST_VAR;
     private final String portVal = ServiceConfigUtil.STORE_PORT_VAR;
@@ -87,6 +88,7 @@ public class ServiceConfigUtilTest {
     private final String msgBrokerUrlVal = ServiceConfigUtil.STORE_MSG_BROKER_VAR;
     private final String usernameVal = ServiceConfigUtil.STORE_USER_VAR;
     private final String passwordVal = ServiceConfigUtil.STORE_PWORD_VAR;
+    private final String svcLauncingUserVal = ServiceConfigUtil.SVC_LAUNCHING_USER_VAR;
 
     private final String hostDefault = "test.host.default";
     private final String portDefault = "8888";
@@ -94,6 +96,7 @@ public class ServiceConfigUtilTest {
     private final String msgBrokerUrlDefault = "test.msgBrokerUrl.default";
     private final String usernameDefault = "test.username.default";
     private final String passwordDefault = "test.password.default";
+    private final String svcLaunchingUserDefault = "test.svcLaunchingUser.default";
 
     private final String host = "test.host";
     private final String port = "9999";
@@ -101,7 +104,6 @@ public class ServiceConfigUtilTest {
     private final String msgBrokerUrl = "test.msgBrokerUrl";
     private final String username = "test.username";
     private final String password = "test.password";
-
 
     @Before
     public void setUp() throws Exception {
@@ -139,12 +141,17 @@ public class ServiceConfigUtilTest {
         SystemConfig config5 = new SystemConfig(passwordName,
                                                 passwordVal,
                                                 passwordDefault);
+        SystemConfig config6 = new SystemConfig(svcLaunchingUserName,
+                                                svcLauncingUserVal,
+                                                svcLaunchingUserDefault);
+
         systemConfig.add(config0);
         systemConfig.add(config1);
         systemConfig.add(config2);
         systemConfig.add(config3);
         systemConfig.add(config4);
         systemConfig.add(config5);
+        systemConfig.add(config6);
     }
 
     private Map<String, ContentStore> createContentStores()
@@ -417,6 +424,7 @@ public class ServiceConfigUtilTest {
         boolean foundMsgBrokerUrl = false;
         boolean foundUsername = false;
         boolean foundPassword = false;
+        boolean foundSvcLaunchingUser = false;
 
         Assert.assertEquals(systemConfig.size(), newConfig.size());
         for (SystemConfig config : newConfig) {
@@ -458,6 +466,11 @@ public class ServiceConfigUtilTest {
                 Assert.assertEquals(password, val);
                 Assert.assertEquals(passwordDefault, def);
 
+            } else if (name.equals(svcLaunchingUserName)) {
+                foundSvcLaunchingUser = true;
+                Assert.assertEquals(username, val);
+                Assert.assertEquals(svcLaunchingUserDefault, def);
+
             } else {
                 Assert.fail("Unexpected config.name: " + name);
             }
@@ -469,6 +482,7 @@ public class ServiceConfigUtilTest {
         Assert.assertTrue(foundMsgBrokerUrl);
         Assert.assertTrue(foundUsername);
         Assert.assertTrue(foundPassword);
+        Assert.assertTrue(foundSvcLaunchingUser);
 
     }
 

@@ -54,6 +54,7 @@ public class ServiceConfigUtil {
     public static final String STORE_MSG_BROKER_VAR = "$MESSAGE-BROKER-URL";
     public static final String STORE_USER_VAR = "$DURASTORE-USERNAME";
     public static final String STORE_PWORD_VAR = "$DURASTORE-PASSWORD";
+    public static final String SVC_LAUNCHING_USER_VAR = "$SVC-LAUNCHING-USER";
 
     // Provides access to user storage
     private final ContentStoreManagerUtil contentStoreManagerUtil;
@@ -475,6 +476,8 @@ public class ServiceConfigUtil {
                 newConfig.setValue(user.getUsername());
             } else if (configValue.equals(STORE_PWORD_VAR)) {
                 newConfig.setValue(user.getPassword());
+            } else if (configValue.equals(SVC_LAUNCHING_USER_VAR)) {
+                newConfig.setValue(user.getUsername());
             }
             newConfigList.add(newConfig);
         }

@@ -5,7 +5,6 @@ import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
-import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
@@ -44,7 +43,7 @@ public class ReplicationOnDemandServiceInfo extends AbstractServiceInfo {
         repService.setUserConfigModeSets(getModeSets());
 
         // System Configs
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("duraStoreHost",
                                              ServiceConfigUtil.STORE_HOST_VAR,

@@ -22,6 +22,8 @@ public class HelloWebappWrapperServiceInfo extends AbstractServiceInfo {
 
         hellowebapp.setDeploymentOptions(getSimpleDeploymentOptions());
 
+        hellowebapp.setSystemConfigs(getBaseSystemConfigs());
+
         return hellowebapp;
     }
 }

@@ -4,7 +4,6 @@ import org.duracloud.duraservice.mgmt.ServiceConfigUtil;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class CloudSyncServiceInfo extends AbstractServiceInfo {
         cloudSyncService.setMaxDeploymentsAllowed(1);
 
         // System Configs
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("host",
                                              ServiceConfigUtil.STORE_HOST_VAR,

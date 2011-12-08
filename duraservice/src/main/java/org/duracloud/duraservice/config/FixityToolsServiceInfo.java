@@ -78,7 +78,7 @@ public class FixityToolsServiceInfo extends AbstractServiceInfo {
     }
 
     private List<SystemConfig> getSystemConfigs() {
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("duraStoreHost",
                                              ServiceConfigUtil.STORE_HOST_VAR,

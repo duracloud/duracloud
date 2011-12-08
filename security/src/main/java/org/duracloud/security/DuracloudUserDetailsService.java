@@ -21,4 +21,7 @@ public interface DuracloudUserDetailsService extends UserDetailsService {
     public void setUsers(List<SecurityUserBean> users);
 
     public List<SecurityUserBean> getUsers();
+
+    public SecurityUserBean getUserByUsername(String username);
+
 }

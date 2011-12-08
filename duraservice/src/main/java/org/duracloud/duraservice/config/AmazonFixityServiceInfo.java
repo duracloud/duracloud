@@ -1,8 +1,5 @@
 package org.duracloud.duraservice.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.duracloud.duraservice.mgmt.ServiceConfigUtil;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
@@ -13,7 +10,9 @@ import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.storage.domain.HadoopTypes;
-import org.duracloud.storage.domain.HadoopTypes.INSTANCES;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Andrew Woods
@@ -241,7 +240,7 @@ public class AmazonFixityServiceInfo extends AbstractServiceInfo {
     }
 
     private List<SystemConfig> getSystemConfigs() {
-        List<SystemConfig> systemConfig = new ArrayList<SystemConfig>();
+        List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("duraStoreHost",
                                              ServiceConfigUtil.STORE_HOST_VAR,

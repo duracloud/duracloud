@@ -10,6 +10,7 @@ package org.duracloud.appconfig.domain;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,11 @@ public class DurareportConfigTest {
     private String duraserviceHost = "duraserviceHost";
     private String duraservicePort = "duraservicePort";
     private String duraserviceContext = "duraserviceContext";
+
+    private String notifyType = "EMAIL";
+    private String notifyUsername = "notifyUser";
+    private String notifyPassword = "notifyPass";
+    private String notifyOriginator = "notifyOriginator";
 
     @Test
     public void testLoad() {
@@ -45,6 +51,19 @@ public class DurareportConfigTest {
         props.put(p + DurareportConfig.duraServicePortKey, duraservicePort);
         props.put(p + DurareportConfig.duraServiceContextKey, duraserviceContext);
 
+        props.put(p + DurareportConfig.notificationKey + ".0." +
+                      DurareportConfig.notificationTypeKey,
+                  notifyType);
+        props.put(p + DurareportConfig.notificationKey + ".0." +
+                      DurareportConfig.notificationUsernameKey,
+                  notifyUsername);
+        props.put(p + DurareportConfig.notificationKey + ".0." +
+                      DurareportConfig.notificationPasswordKey,
+                  notifyPassword);
+        props.put(p + DurareportConfig.notificationKey + ".0." +
+                      DurareportConfig.notificationOriginatorKey,
+                  notifyOriginator);
+
         return props;
     }
 
@@ -57,12 +76,22 @@ public class DurareportConfigTest {
         Assert.assertNotNull(config.getDuraservicePort());
         Assert.assertNotNull(config.getDuraserviceContext());
 
+        Collection<NotificationConfig> notifyConfigs = config.getNotificationConfigs();
+        Assert.assertNotNull(notifyConfigs);
+        Assert.assertEquals(1, notifyConfigs.size());
+
         Assert.assertEquals(durastoreHost, config.getDurastoreHost());
         Assert.assertEquals(durastorePort, config.getDurastorePort());
         Assert.assertEquals(durastoreContext, config.getDurastoreContext());
         Assert.assertEquals(duraserviceHost, config.getDuraserviceHost());
         Assert.assertEquals(duraservicePort, config.getDuraservicePort());
         Assert.assertEquals(duraserviceContext, config.getDuraserviceContext());
+
+        NotificationConfig notifyConfig = notifyConfigs.iterator().next();
+        Assert.assertEquals(notifyType, notifyConfig.getType());
+        Assert.assertEquals(notifyUsername, notifyConfig.getUsername());
+        Assert.assertEquals(notifyPassword, notifyConfig.getPassword());
+        Assert.assertEquals(notifyOriginator, notifyConfig.getOriginator());
     }
 
 }

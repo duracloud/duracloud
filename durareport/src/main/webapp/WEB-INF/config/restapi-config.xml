@@ -21,6 +21,7 @@
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg ref="restUtil"/>
     <constructor-arg ref="report-space"/>
+    <constructor-arg ref="notificationManager"/>
   </bean>
 
   <bean id="securityRest" class="org.duracloud.durareport.rest.SecurityRest">
@@ -37,6 +38,7 @@
 
   <bean id="serviceResource" class="org.duracloud.durareport.rest.ServiceReportResource" >
     <constructor-arg ref="serviceMonitor"/>
+    <constructor-arg ref="serviceNotificationMonitor"/>
   </bean>
 
   <bean id="summaryDirectory" class="org.duracloud.servicemonitor.impl.ServiceSummaryDirectoryImpl">

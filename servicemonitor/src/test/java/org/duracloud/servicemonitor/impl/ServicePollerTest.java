@@ -10,6 +10,7 @@ package org.duracloud.servicemonitor.impl;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.ServiceSummary;
+import org.duracloud.servicemonitor.ServiceCompletionHandler;
 import org.duracloud.servicemonitor.ServiceSummarizer;
 import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.duracloud.servicemonitor.error.ServiceSummaryException;
@@ -35,7 +36,7 @@ public class ServicePollerTest {
     private ServiceSummaryDirectory summaryDirectory;
     private ServiceSummarizer summarizer;
     private long sleepMillis = 5;
-    private boolean continuePolling = true;
+    private ServiceCompletionHandler completionHandler;
 
     @Before
     public void setUp() throws Exception {
@@ -43,12 +44,15 @@ public class ServicePollerTest {
                                                ServiceSummaryDirectory.class);
         summarizer = EasyMock.createMock("ServiceSummarizer",
                                          ServiceSummarizer.class);
+        completionHandler = EasyMock.createMock("ServiceCompletionHandler",
+                                                ServiceCompletionHandler.class);
 
         poller = new ServicePoller(serviceId,
                                    deploymentId,
                                    summaryDirectory,
                                    summarizer,
-                                   sleepMillis);
+                                   sleepMillis,
+                                   completionHandler);
     }
 
     @After
@@ -94,6 +98,10 @@ public class ServicePollerTest {
 
         // summaryDirectory
         summaryDirectory.addServiceSummary(summary);
+        EasyMock.expectLastCall();
+
+        // completion handler
+        completionHandler.handleServiceComplete(summary);
         EasyMock.expectLastCall();
     }
 

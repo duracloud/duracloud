@@ -15,6 +15,7 @@ import org.duracloud.client.ServicesManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
+import org.duracloud.durareport.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.serviceapi.ServicesManager;
@@ -47,19 +48,22 @@ public class InitRest extends BaseRest {
     private SecurityContextUtil securityContextUtil;
     private RestUtil restUtil;
     private String reportSpaceId;
+    private NotificationManager notificationManager;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
                     ServiceSummaryDirectory summaryDirectory,
                     SecurityContextUtil securityContextUtil,
                     RestUtil restUtil,
-                    String reportSpaceId) {
+                    String reportSpaceId,
+                    NotificationManager notificationManager) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
         this.summaryDirectory = summaryDirectory;
         this.securityContextUtil = securityContextUtil;
         this.restUtil = restUtil;
         this.reportSpaceId = reportSpaceId;
+        this.notificationManager = notificationManager;
     }
 
     /**
@@ -103,6 +107,8 @@ public class InitRest extends BaseRest {
         servicesMgr.login(credential);
         ServiceSummarizer summarizer = new ServiceSummarizerImpl(servicesMgr);
         serviceResource.initialize(summaryDirectory, summarizer);
+
+        notificationManager.initializeNotifiers(config.getNotificationConfigs());
     }
 
     @GET
