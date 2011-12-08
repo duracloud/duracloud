@@ -11,6 +11,7 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,18 +200,30 @@ public class ACLStorageProvider implements StorageProvider {
     public void deleteSpace(String spaceId) {
         waitForCache();
 
-        targetProvider.deleteSpace(spaceId);
+        StorageException storageException = null;
+        try {
+            targetProvider.deleteSpace(spaceId);
 
-        spaceAccessMap.remove(spaceId);
-        spaceACLMap.remove(spaceId);
+            spaceAccessMap.remove(spaceId);
+            spaceACLMap.remove(spaceId);
+
+        } catch (StorageException e) {
+            storageException = e;
+        }
 
         // clear and reload cache if deleting: "aclstorageprovider-cache"
         if ((getClass().getSimpleName() + "-cache").equalsIgnoreCase(spaceId)) {
+            log.info("cycling cache.");
+            
             this.spaceAccessMap.clear();
             this.spaceACLMap.clear();
             this.loaded = false;
 
             new Thread(new CacheLoader()).start();
+        }
+
+        if (null != storageException) {
+            throw storageException;
         }
     }
 
