@@ -182,7 +182,10 @@ public class ACLStorageProvider implements StorageProvider {
     public void createSpace(String spaceId) {
         waitForCache();
 
-        // update the cache to contain current user privileges for new space
+        targetProvider.createSpace(spaceId);
+
+        // Update the cache to contain current user privileges for new space, if
+        // exception not thrown above.
         DuracloudUserDetails userDetails = getCurrentUserDetails();
         if (null != userDetails) {
             Map<String, AclType> acl = new HashMap<String, AclType>();
@@ -190,18 +193,25 @@ public class ACLStorageProvider implements StorageProvider {
                     AclType.WRITE);
             spaceACLMap.put(spaceId, acl);
         }
-
-        targetProvider.createSpace(spaceId);
     }
 
     @Override
     public void deleteSpace(String spaceId) {
         waitForCache();
 
+        targetProvider.deleteSpace(spaceId);
+
         spaceAccessMap.remove(spaceId);
         spaceACLMap.remove(spaceId);
 
-        targetProvider.deleteSpace(spaceId);
+        // clear and reload cache if deleting: "aclstorageprovider-cache"
+        if ((getClass().getSimpleName() + "-cache").equalsIgnoreCase(spaceId)) {
+            this.spaceAccessMap.clear();
+            this.spaceACLMap.clear();
+            this.loaded = false;
+
+            new Thread(new CacheLoader()).start();
+        }
     }
 
     @Override
@@ -213,6 +223,8 @@ public class ACLStorageProvider implements StorageProvider {
     public void setSpaceProperties(String spaceId,
                                    Map<String, String> spaceProperties) {
         waitForCache();
+
+        targetProvider.setSpaceProperties(spaceId, spaceProperties);
 
         // cache new space properties
         if (null != spaceProperties) {
@@ -228,8 +240,6 @@ public class ACLStorageProvider implements StorageProvider {
                 }
             }
         }
-
-        targetProvider.setSpaceProperties(spaceId, spaceProperties);
     }
 
     @Override
@@ -255,12 +265,12 @@ public class ACLStorageProvider implements StorageProvider {
     public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         waitForCache();
 
+        targetProvider.setSpaceACLs(spaceId, spaceACLs);
+
         if (null != spaceACLs) {
             // update cache
             this.spaceACLMap.put(spaceId, spaceACLs);
         }
-
-        targetProvider.setSpaceACLs(spaceId, spaceACLs);
     }
 
     @Override
@@ -286,12 +296,12 @@ public class ACLStorageProvider implements StorageProvider {
     public void setSpaceAccess(String spaceId, AccessType access) {
         waitForCache();
 
+        targetProvider.setSpaceAccess(spaceId, access);
+
         if (null != access) {
             // update cache
             this.spaceAccessMap.put(spaceId, access);
         }
-
-        targetProvider.setSpaceAccess(spaceId, access);
     }
 
     @Override

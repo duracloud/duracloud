@@ -53,7 +53,6 @@ public class ACLStorageProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        mockProvider = createMockStorageProvider();
         context = EasyMock.createMock("SecurityContext", SecurityContext.class);
 
         authorities = new GrantedAuthority[]{new GrantedAuthorityImpl(
@@ -76,6 +75,7 @@ public class ACLStorageProviderTest {
     public void testCreateSpace() {
         String spaceId = spacePrefix + 16;
 
+        createMockStorageProvider(1);
         createMockSecurityContext(3);
 
         mockProvider.createSpace(spaceId);
@@ -112,6 +112,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testGetSpaces() throws Exception {
         createMockSecurityContext(1);
+        createMockStorageProvider(1);
         replayMocks();
 
         List<String> userSpacesA = new ArrayList<String>();
@@ -132,11 +133,13 @@ public class ACLStorageProviderTest {
         Assert.assertEquals(userSpacesA.size(), i);
     }
 
-    private StorageProvider createMockStorageProvider() {
+    private void createMockStorageProvider(int times) {
         mockProvider = EasyMock.createMock("StorageProvider",
                                            StorageProvider.class);
-        EasyMock.expect(mockProvider.getSpaces())
-                .andReturn(allSpaces().iterator());
+        for (int i = 0; i < times; ++i) {
+            EasyMock.expect(mockProvider.getSpaces())
+                    .andReturn(allSpaces().iterator());
+        }
 
         for (String space : allSpaces()) {
             StorageProvider.AccessType access = CLOSED;
@@ -144,7 +147,7 @@ public class ACLStorageProviderTest {
                 access = OPEN;
             }
             EasyMock.expect(mockProvider.getSpaceAccess(space))
-                    .andReturn(access);
+                    .andReturn(access).times(times);
 
             Map<String, AclType> acls = new HashMap<String, AclType>();
             if (space.equals(spacePrefix + 2)) {
@@ -153,9 +156,10 @@ public class ACLStorageProviderTest {
             } else if (space.equals(spacePrefix + 3)) {
                 acls.put(PROPERTIES_SPACE_ACL + groupA, AclType.WRITE);
             }
-            EasyMock.expect(mockProvider.getSpaceACLs(space)).andReturn(acls);
+            EasyMock.expect(mockProvider.getSpaceACLs(space))
+                    .andReturn(acls)
+                    .times(times);
         }
-        return mockProvider;
     }
 
     private void createMockSecurityContext(int times) {
@@ -192,6 +196,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testSetSpaceProperties() throws Exception {
         String spaceId = spacePrefix + 1;
+        createMockStorageProvider(1);
         Map<String, String> properties = createSpaceProperties();
 
         StorageProvider.AccessType origAccess = OPEN;
@@ -225,6 +230,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testGetSpaceACLs() throws Exception {
         String spaceId = spacePrefix + 1;
+        createMockStorageProvider(1);
         Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
@@ -256,6 +262,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testSetSpaceACLs() throws Exception {
         String spaceId = spacePrefix + 2;
+        createMockStorageProvider(1);
         Map<String, AclType> origAcls = createSpaceACLs();
 
         mockProvider.setSpaceACLs(spaceId, origAcls);
@@ -276,6 +283,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testGetSpaceAccess() throws Exception {
         String spaceId = spacePrefix + 1;
+        createMockStorageProvider(1);
         StorageProvider.AccessType origAccess = OPEN;
         replayMocks();
 
@@ -294,6 +302,7 @@ public class ACLStorageProviderTest {
     @Test
     public void testSetSpaceAccess() throws Exception {
         String spaceId = spacePrefix + 4;
+        createMockStorageProvider(1);
         StorageProvider.AccessType origAccess = OPEN;
 
         mockProvider.setSpaceAccess(spaceId, origAccess);
@@ -309,6 +318,26 @@ public class ACLStorageProviderTest {
         StorageProvider.AccessType access = provider.getSpaceAccess(spaceId);
         Assert.assertNotNull(access);
         Assert.assertEquals(origAccess, access);
+    }
+
+    @Test
+    public void testClearCache() throws InterruptedException {
+        String spaceId = "ACLStorageProvider-cache";
+        createMockStorageProvider(2);
+
+        EasyMock.expect(mockProvider.getSpaceACLs(spaceId))
+                .andReturn(new HashMap<String, AclType>());
+        mockProvider.deleteSpace(spaceId);
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        // method under test
+        provider = new ACLStorageProvider(mockProvider);
+        provider.deleteSpace(spaceId);
+
+        // wait for cache to be cleared and reloaded.
+        provider.getSpaceACLs(spaceId);
     }
 
 }
