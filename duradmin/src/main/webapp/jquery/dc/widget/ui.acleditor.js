@@ -522,7 +522,9 @@ var addCheckboxListeners = function (read, write) {
     var that = this;
     
     write.change(function(evt){
-        setChecked(read, $(this).is(":checked"));
+        if($(this).is(":checked")){
+            setChecked(read, true);
+        }
     });
 
     read.change(function(evt){
