@@ -1941,9 +1941,9 @@ $(function(){
 				initialState: (space.properties.access=="OPEN"?"on":"off"),
 				readOnly: readOnly,
 			}).bind("turnOn", function(evt, future){
-				toggleSpaceAccess(space, future);
+				changeSpaceAccess(space.storeId, space.spaceId, "OPEN", future);
 			}).bind("turnOff", function(evt, future){
-				toggleSpaceAccess(space, future);
+                changeSpaceAccess(space.storeId, space.spaceId, "CLOSED", future);
 			});
 		
 		if(isAdmin()){
@@ -2451,12 +2451,6 @@ $(function(){
 	    		callback.failure(textStatus);
 		    },
 		});		
-	};
-
-	var toggleSpaceAccess = function(space, callback){
-		var access = space.properties.access;
-		var newAccess = (access == "OPEN") ? "CLOSED":"OPEN";
-		changeSpaceAccess(space.storeId, space.spaceId, newAccess,callback);
 	};
 
 	var createSpacePropertiesCall = function(spaceId, data, method,callback){
