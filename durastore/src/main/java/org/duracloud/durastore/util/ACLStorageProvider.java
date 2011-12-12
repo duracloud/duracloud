@@ -68,10 +68,30 @@ public class ACLStorageProvider implements StorageProvider {
             Iterator<String> spaces = targetProvider.getSpaces();
             while (spaces.hasNext()) {
                 String space = spaces.next();
-                spaceAccessMap.put(space, targetProvider.getSpaceAccess(space));
-                spaceACLMap.put(space, targetProvider.getSpaceACLs(space));
+                spaceAccessMap.put(space, getSpaceAccess(space));
+                spaceACLMap.put(space, getSpaceACLs(space));
             }
             loaded = true;
+        }
+
+        private AccessType getSpaceAccess(String space) {
+            try {
+                return targetProvider.getSpaceAccess(space);
+
+            } catch (StorageException e) {
+                log.warn("Error getting space access: {}, err: {}", space, e);
+                return AccessType.CLOSED;
+            }
+        }
+
+        private Map<String, AclType> getSpaceACLs(String space) {
+            try {
+                return targetProvider.getSpaceACLs(space);
+
+            } catch (StorageException e) {
+                log.warn("Error getting space acls: {}, err: {}", space, e);
+                return new HashMap<String, AclType>();
+            }
         }
     }
 
