@@ -455,6 +455,7 @@ a.button {
                     </div>
                 </div>
 
+                <sec:authorize ifAnyGranted="ROLE_ADMIN">
 				<div id="tabs-services" class="ui-corner-all">
 					<div id="toolbar" class="ui-widget-header ui-corner-all">
 						<span id="phase">
@@ -701,6 +702,8 @@ a.button {
 				</div>
 				</div>
                 </div>
+                </sec:authorize>
+
      			</div>
 				</div>
 			</tiles:putAttribute>
