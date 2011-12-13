@@ -719,6 +719,9 @@ public class ContentStoreImpl implements ContentStore{
                 throw new InvalidIdException(errMsg);
             } else if (responseCode == HttpStatus.SC_UNAUTHORIZED) {
                 throw new UnauthorizedException(errMsg);
+            } else if (responseCode == HttpStatus.SC_FORBIDDEN) {
+                throw new UnauthorizedException(
+                    "User is not authorized to perform the requested function");
             } else {
                 throw new ContentStoreException(errMsg);
             }
