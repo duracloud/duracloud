@@ -90,10 +90,22 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
 
-        // GRANT permission to create spaces.
+        // Since not an Admin, DENY permission to create spaces.
         if (isSpaceCreation(httpRequest)) {
-            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
-            return ACCESS_GRANTED;
+            log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
+            return ACCESS_DENIED;
+        }
+
+        // Since not an Admin, DENY permission to delete spaces.
+        if (isSpaceDeletion(httpRequest)) {
+            log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
+            return ACCESS_DENIED;
+        }
+
+        // Since not an Admin, DENY permission to update space ACLs.
+        if (isSpaceAclUpdate(httpRequest)) {
+            log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
+            return ACCESS_DENIED;
         }
 
         Map<String, AclType> acls = getSpaceACLs(httpRequest);
@@ -116,6 +128,21 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
     private boolean isSpaceCreation(HttpServletRequest httpRequest) {
         if (HttpVerb.PUT.equals(getHttpVerb(httpRequest))) {
             return !hasContentId(httpRequest);
+        }
+        return false;
+    }
+
+    private boolean isSpaceDeletion(HttpServletRequest httpRequest) {
+        if (HttpVerb.DELETE.equals(getHttpVerb(httpRequest))) {
+            return !hasContentId(httpRequest);
+        }
+        return false;
+    }
+
+    private boolean isSpaceAclUpdate(HttpServletRequest httpRequest) {
+        if (HttpVerb.POST.equals(getHttpVerb(httpRequest))) {
+            String path = httpRequest.getPathInfo();
+            return path.startsWith("/acl/") || path.startsWith("acl/");
         }
         return false;
     }
