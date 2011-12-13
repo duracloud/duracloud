@@ -45,18 +45,38 @@ public class ResourceException extends DuraCloudCheckedException {
     }
 
     public ResourceException(String task,
-                             String srcStoreId,
                              String srcSpaceId,
                              String srcContentId,
-                             String destStoreId,
                              String destSpaceId,
                              String destContentId,
                              Throwable t) {
         super(buildErrMsg(task,
-                          srcStoreId,
                           srcSpaceId,
                           srcContentId,
-                          destStoreId,
+                          destSpaceId,
+                          destContentId,
+                          t), t, messageKeyContent);
+        setArgs(task,
+                srcSpaceId,
+                srcContentId,
+                destSpaceId,
+                destContentId,
+                t.getMessage());
+    }
+
+    public ResourceException(String task,
+                             String srcStoreName,
+                             String srcSpaceId,
+                             String srcContentId,
+                             String destStoreName,
+                             String destSpaceId,
+                             String destContentId,
+                             Throwable t) {
+        super(buildErrMsg(task,
+                          srcStoreName,
+                          srcSpaceId,
+                          srcContentId,
+                          destStoreName,
                           destSpaceId,
                           destContentId,
                           t), t, messageKeyContent);
@@ -92,6 +112,28 @@ public class ResourceException extends DuraCloudCheckedException {
         errMsg.append(contentId);
         errMsg.append("' in '");
         errMsg.append(spaceId);
+        errMsg.append("' due to: ");
+        errMsg.append(t.getMessage());
+        return errMsg.toString();
+    }
+
+    private static String buildErrMsg(String task,
+                                      String srcSpaceId,
+                                      String srcContentId,
+                                      String destSpaceId,
+                                      String destContentId,
+                                      Throwable t) {
+        StringBuilder errMsg = new StringBuilder();
+        errMsg.append("Error attempting to ");
+        errMsg.append(task);
+        errMsg.append(" '");
+        errMsg.append(srcSpaceId);
+        errMsg.append(" / ");
+        errMsg.append(srcContentId);
+        errMsg.append("' to '");
+        errMsg.append(destSpaceId);
+        errMsg.append(" / ");
+        errMsg.append(destContentId);
         errMsg.append("' due to: ");
         errMsg.append(t.getMessage());
         return errMsg.toString();

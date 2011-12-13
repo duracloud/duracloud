@@ -516,8 +516,7 @@ public class ContentStoreImpl implements ContentStore{
         headers.put(sourceHeader, sourceValue);
 
         String storeHeader = HEADER_PREFIX + StorageProvider.PROPERTIES_COPY_SOURCE_STORE;
-        String storeValue =  destStoreId;
-        headers.put(storeHeader, storeValue);
+        headers.put(storeHeader, storeId);
 
         try {
             HttpResponse response = restHelper.put(url, null, headers);

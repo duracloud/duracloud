@@ -115,8 +115,8 @@ public class ContentRestTest {
         Response response = contentRest.putContent(destSpaceId,
                                                    destContentId,
                                                    storeId,
-                                                   storeId,
-                                                   copySource);
+                                                   copySource,
+                                                   storeId);
         Assert.assertNotNull(response);
         Assert.assertEquals(status, response.getStatus());
     }

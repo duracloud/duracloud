@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
@@ -27,19 +28,19 @@ public class ContentResourceImplTest {
 
     private ContentResource contentResource;
     private StorageProviderFactory storageProviderFactory;
-    private StorageProvider storageProvider;
-    private StorageProvider destStorageProvider;
+    private BrokeredStorageProvider storageProvider;
+    private BrokeredStorageProvider destStorageProvider;
 
     @Before
     public void setUp() throws Exception {
         storageProviderFactory =
             EasyMock.createMock("StorageProviderFactory",
                                 StorageProviderFactory.class);
-        storageProvider =
-            EasyMock.createMock("StorageProvider", StorageProvider.class);
+        storageProvider = EasyMock.createMock("BrokeredStorageProvider",
+                                              BrokeredStorageProvider.class);
 
-        destStorageProvider =
-            EasyMock.createMock("DestStorageProvider", StorageProvider.class);
+        destStorageProvider = EasyMock.createMock("BrokeredDestStorageProvider",
+                                                  BrokeredStorageProvider.class);
 
     }
 
@@ -94,7 +95,7 @@ public class ContentResourceImplTest {
                                              String expectedMd5) {
 
         EasyMock.expect(storageProviderFactory.getStorageProvider(storeId))
-                .andReturn(storageProvider);
+                .andReturn(storageProvider).times(2);
 
         EasyMock.expect(storageProvider.copyContent(srcSpaceId,
                                                     srcContentId,

@@ -9,6 +9,7 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
+import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.NotFoundException;
@@ -183,37 +184,37 @@ public class ContentResourceImpl implements ContentResource {
                               String destStoreID,
                               String destSpaceID,
                               String destContentID) throws ResourceException {
-        if(srcStoreID.equals(destStoreID)){
-            return copyContent(srcSpaceID,
+        BrokeredStorageProvider srcProvider = getStorageProvider(srcStoreID);
+        BrokeredStorageProvider destProvider = getStorageProvider(destStoreID);
+
+        if(srcProvider.equals(destProvider)){
+            return copyContent(srcProvider,
+                               srcSpaceID,
                                srcContentID,
                                destSpaceID,
-                               destContentID,
-                               destStoreID);
+                               destContentID);
         }else{
-            return copyContentBetweenStorageProviders(srcStoreID,
+            return copyContentBetweenStorageProviders(srcProvider,
                                                       srcSpaceID,
                                                       srcContentID,
-                                                      destStoreID,
+                                                      destProvider,
                                                       destSpaceID,
                                                       destContentID);
         }
     }
 
+    private BrokeredStorageProvider getStorageProvider(String storeID) {
+        return (BrokeredStorageProvider) storageProviderFactory.getStorageProvider(
+            storeID);
+    }
 
-    private String copyContentBetweenStorageProviders(String srcStoreID,
+    private String copyContentBetweenStorageProviders(BrokeredStorageProvider srcStorage,
                                                       String srcSpaceID,
                                                       String srcContentID,
-                                                      String destStoreID,
+                                                      BrokeredStorageProvider destStorage,
                                                       String destSpaceID,
                                                       String destContentID) throws ResourceException {
         try {
-
-            StorageProvider srcStorage =
-                storageProviderFactory.getStorageProvider(srcStoreID);
-
-            StorageProvider destStorage =
-                storageProviderFactory.getStorageProvider(destStoreID);
-
             InputStream inputStream =
                 srcStorage.getContent(srcSpaceID, srcContentID);
 
@@ -244,35 +245,32 @@ public class ContentResourceImpl implements ContentResource {
             return md5;
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("copy content",
-                                                srcStoreID,
+                                                srcStorage.getTargetType().name(),
                                                 srcSpaceID,
                                                 srcContentID,
-                                                destStoreID,
+                                                destStorage.getTargetType().name(),
                                                 destSpaceID,
                                                 destContentID,
                                                 e);
         } catch (StorageException e) {
             throw new ResourceException("copy content",
-                                        srcStoreID,
+                                        srcStorage.getTargetType().name(),
                                         srcSpaceID,
                                         srcContentID,
-                                        destStoreID,
+                                        destStorage.getTargetType().name(),
                                         destSpaceID,
                                         destContentID,
                                         e);
         }
     }
 
-    private String copyContent(String srcSpaceID,
+    private String copyContent(StorageProvider storage,
+                               String srcSpaceID,
                                String srcContentID,
                                String destSpaceID,
-                               String destContentID,
-                               String storeID) throws ResourceException {
+                               String destContentID) throws ResourceException {
 
         try {
-            StorageProvider storage = storageProviderFactory.getStorageProvider(
-                storeID);
-
             return storage.copyContent(srcSpaceID,
                                        srcContentID,
                                        destSpaceID,
@@ -280,19 +278,15 @@ public class ContentResourceImpl implements ContentResource {
 
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("copy content",
-                                                storeID,
                                                 srcSpaceID,
                                                 srcContentID,
-                                                storeID,
                                                 destSpaceID,
                                                 destContentID,
                                                 e);
         } catch (StorageException e) {
             throw new ResourceException("copy content",
-                                        storeID,
                                         srcSpaceID,
                                         srcContentID,
-                                        storeID,
                                         destSpaceID,
                                         destContentID,
                                         e);

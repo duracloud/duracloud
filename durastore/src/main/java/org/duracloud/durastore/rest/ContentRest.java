@@ -353,8 +353,8 @@ public class ContentRest extends BaseRest {
     public Response putContent(@PathParam("spaceID") String spaceID,
                                @PathParam("contentID") String contentID,
                                @QueryParam("storeID") String storeID,
-                               @HeaderParam(BaseRest.COPY_SOURCE_HEADER) String sourceStoreID,
-                               @HeaderParam(BaseRest.COPY_SOURCE_STORE_HEADER) String copySource) {
+                               @HeaderParam(BaseRest.COPY_SOURCE_HEADER) String copySource,
+                               @HeaderParam(BaseRest.COPY_SOURCE_STORE_HEADER) String sourceStoreID) {
         if (null != copySource) {
             return copyContent(spaceID, contentID, storeID, sourceStoreID, copySource);
 
@@ -500,12 +500,9 @@ public class ContentRest extends BaseRest {
             throw new InvalidRequestException(msg.toString());
         }
         
-        if(sourceStoreID == null){
-            sourceStoreID = storeID;
-        }
         String srcSpaceID = getSpaceId(copySource);
         String srcContentID = EncodeUtil.urlDecode(getContentId(copySource));
-        if (sourceStoreID == null || null == srcSpaceID || null == srcContentID) {
+        if (null == srcSpaceID || null == srcContentID) {
             msg.append("Malformed ");
             msg.append(COPY_SOURCE_HEADER);
             msg.append(" header: ");
