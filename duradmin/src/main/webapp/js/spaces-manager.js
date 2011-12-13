@@ -1932,9 +1932,13 @@ $(function(){
 		var readOnly = isReadOnly(space);
 		
 		// attach delete button listener
-		$(".delete-space-button",detail).click(function(evt){
+		var deleteSpaceButton = $(".delete-space-button",detail);
+        deleteSpaceButton.click(function(evt){
 			deleteSpace(evt,space);
-		}).disable(readOnly);
+		});
+        if(readOnly) {
+            deleteSpaceButton.hide();
+        }
 		
 		// create access switch and bind on/off listeners
 		$(".access-switch", detail).accessswitch({
@@ -2049,19 +2053,19 @@ $(function(){
         
 		$(".download-content-item-button", pane)
 			.attr("href", dc.store.formatDownloadURL(contentItem));
-			
 
-		$(".delete-content-item-button",pane)
-			.click(function(evt){
+		var deleteContentButton = $(".delete-content-item-button",pane);
+	    deleteContentButton.click(function(evt){
 				deleteContentItem(evt,contentItem);
-			})
-			.disable(readOnly);
+			});
+	    if(readOnly) {
+            deleteContentButton.hide();
+        }
 
         $(".copy-content-item-button",pane)
             .click(function(evt){
                 copyContentItem(evt,contentItem);
-            })
-            .disable(readOnly);
+            });
     		
 		var mimetype = contentItem.properties.mimetype;
 		
@@ -2116,7 +2120,8 @@ $(function(){
 			removeContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
 		});
 
-		$(".edit-content-item-button",pane).click(
+		var editContentItemButton = $(".edit-content-item-button",pane);
+        editContentItemButton.click(
 				function(evt){
 					openContentItemDialog(function(){
 						var form = $("#edit-content-item-form");
@@ -2138,7 +2143,10 @@ $(function(){
 						}
 					}, contentItem);
 				}
-			).disable(readOnly);			
+			);
+        if(readOnly){
+            editContentItemButton.hide();
+        }
 		
 		$("#detail-pane").replaceContents(pane,contentItemDetailLayoutOptions);
 
