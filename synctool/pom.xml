@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctool</artifactId>
   <packaging>jar</packaging>
-  <version>1.3.0</version>
+  <version>1.4.0-SNAPSHOT</version>
   <name>Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.3.0</version>
+    <version>1.4.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
