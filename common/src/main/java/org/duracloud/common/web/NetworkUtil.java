@@ -40,7 +40,7 @@ public class NetworkUtil {
     private void isRunning(String url, boolean state)
         throws DuraCloudCheckedException {
         int tries = 0;
-        int maxTries = 20;
+        int maxTries = 40;
         boolean running = isRunning(url);
         while (running != state && tries++ < maxTries) {
             sleep(1000);

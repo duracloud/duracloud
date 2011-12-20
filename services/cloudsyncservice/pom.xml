@@ -110,7 +110,7 @@
     <dependency>
       <groupId>com.github.cwilper</groupId>
       <artifactId>fcrepo-cloudsync-service</artifactId>
-      <version>1.0.0-beta-2</version>
+      <version>1.0.0</version>
       <type>war</type>
     </dependency>
 
