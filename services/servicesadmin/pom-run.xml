@@ -212,9 +212,9 @@
     </dependency>
     <!-- webapp container artifacts -->
     <dependency>
-      <groupId>org.springframework.osgi</groupId>
+      <groupId>org.duracloud</groupId>
       <artifactId>catalina.osgi</artifactId>
-      <version>5.5.23-SNAPSHOT</version>
+      <version>5.5.23</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -302,7 +302,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>com.springsource.org.apache.commons.codec</artifactId>
-      <version>1.4.0-SNAPSHOT</version>
+      <version>1.3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -386,7 +386,7 @@
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-      <version>1.4.0-SNAPSHOT</version>
+      <version>1.3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

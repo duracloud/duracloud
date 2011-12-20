@@ -292,7 +292,6 @@
       <groupId>org.duracloud</groupId>
       <artifactId>catalina.osgi</artifactId>
       <version>5.5.23</version>
-      <classifier>duracloud</classifier>
       <scope>provided</scope>
     </dependency>  
 
