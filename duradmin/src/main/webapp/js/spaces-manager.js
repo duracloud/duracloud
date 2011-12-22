@@ -107,7 +107,7 @@ $(function(){
 	// detail pane's layout options
 	var spaceDetailLayoutOptions = {
 			north__paneSelector:	".north"
-				,   north__size: 			200
+				,   north__size: 			100
 				,	center__paneSelector:	".center"
 				,   resizable: 				false
 				,   slidable: 				false
@@ -120,7 +120,7 @@ $(function(){
 	// the space detail - copy and supply overrides
 	var contentItemDetailLayoutOptions = $.extend(true,{}, 
 													   spaceDetailLayoutOptions, 
-													   {north__size:200});
+													   {north__size:150});
 	
 	detailPane = $('#detail-pane').layout(spaceDetailLayoutOptions);
 
@@ -952,94 +952,96 @@ $(function(){
 		.attr("controls", "true");
 	};
 
+    var isPubliclyReadable = function(acls){
+       if(!acls){
+           return false;
+       }
+       
+       var p; 
+       for(p in acls){
+           if(acls[p].publicGroup){
+               return true;
+           }
+       }
+       
+       return false;
+   };
 
+	
 	var loadPreview = function(target,contentItem,j2kBaseURL){
-		//run synchronous call to retrieve space.properties.open  property
-		//if closed and j2K service is running, we must display
-		//notify the user that the space must be opened.
-		//the call must be synchronous - otherwise the panels 
-		//are not rendered properly.
+	    //if space is not publicly visible and j2K service is running, we must 
+	    //notify the user that the space must be opened.
 	
-		dc.store.GetSpace(
-			contentItem.storeId,
-			contentItem.spaceId, 
-			{
-				success: function(space){
-					var viewerType = 'iframe';
-					var options = {
-							'transitionIn'	:	'elastic',
-							'transitionOut'	:	'elastic',
-							'speedIn'		:	600, 
-							'speedOut'		:	200, 
-							'overlayShow'	:	false};
-					var open = space.properties.access == 'OPEN';
-					var externalViewer = j2kBaseURL != null && open;
-					var viewerURL,thumbnailURL;
-	
-					if(externalViewer){
-						options['width'] = $(document).width()*0.8;
-						options['height'] = $(document).height()*0.8;
-						options['type'] = 'iframe';
-						viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
-						thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL, open);
-					}else{
-						options['type'] = 'image';
-						viewerURL = dc.store.formatDownloadURL(contentItem,false);
-						thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
-					}
-					
-					var div = $.fn.create("div")
-								  .expandopanel({title: "Preview"});
-					
-					$(".view-content-item-button", target)
-						.css("display","inline-block")
-						.attr("href", viewerURL);
-	
-					var thumbnail = $.fn.create("img")
-										.attr("src", thumbnailURL)
-										.addClass("preview-image");
-	
-					var viewerLink = $.fn.create("a").append(thumbnail)
-										.attr("href", viewerURL)
-										.fancybox(options);
-				
-					var wrapper = $.fn.create("div")
-										.addClass("preview-image-wrapper")
-										.append(viewerLink);
-	
-					if(!open && j2kBaseURL != null){
-						var warning = $.fn.create("div").addClass("warning");
-						$(div).expandopanel("getContent").append(warning);
-				 		var button = $.fn.create("button")
-				 			.addClass("featured")
-				 			.css("margin-left","10px")
-				 			.html("Open Space");
-				 		button.click(function(){
-							changeSpaceAccess(
-								contentItem.storeId, contentItem.spaceId, "OPEN",
-								{
-									success:function(newSpace){
-										loadContentItem(contentItem);
-									},
-									failure:function(){alert("operation failed")},
-								})
-						});
-				 		warning.append("<span>To use the JP2 Viewer you must open this space.</span>")
-				 			   .append(button);
-					}
-					
-					$(div).expandopanel("getContent").append(wrapper);
-					$(".center", target).append(div);	
-				}, 
-				//failure:function(info){
-				//	alert("Get Space failed for: " + contentItem.spaceId);
-				//},
-			},
-			{async: false});
-		
+       var viewerType = 'iframe';
+       var options = {
+                       'transitionIn'  :       'elastic',
+                       'transitionOut' :       'elastic',
+                       'speedIn'               :       600, 
+                       'speedOut'              :       200, 
+                       'overlayShow'   :       false};
+       var open = isPubliclyReadable(contentItem.acls);
+       var externalViewer = j2kBaseURL != null && open;
+       var viewerURL,thumbnailURL;
 
+       if(externalViewer){
+               options['width'] = $(document).width()*0.8;
+               options['height'] = $(document).height()*0.8;
+               options['type'] = 'iframe';
+               viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
+               thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL, open);
+       }else{
+               options['type'] = 'image';
+               viewerURL = dc.store.formatDownloadURL(contentItem,false);
+               thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
+       }
+       
+       var div = $.fn.create("div")
+                                 .expandopanel({title: "Preview"});
+       
+       $(".view-content-item-button", target)
+               .css("display","inline-block")
+               .attr("href", viewerURL);
+
+       var thumbnail = $.fn.create("img")
+                                               .attr("src", thumbnailURL)
+                                               .addClass("preview-image");
+
+       var viewerLink = $.fn.create("a").append(thumbnail)
+                                               .attr("href", viewerURL)
+                                               .fancybox(options);		
+       var wrapper = $.fn.create("div")
+                                               .addClass("preview-image-wrapper")
+                                               .append(viewerLink);
+
+       if(!open && j2kBaseURL != null && isAdmin()){
+               var warning = $.fn.create("div").addClass("warning");
+               $(div).expandopanel("getContent").append(warning);
+               var button = createMakePublicButton(contentItem.storeId, contentItem.spaceId);
+               warning.append("<span>To use the JP2 Viewer you must grant the 'public'" +
+                                   " group read access to this space.</span>")
+                          .append(button);
+       }
+                
+       $(div).expandopanel("getContent").append(wrapper);
+       $(".center", target).append(div); 
 	};
 
+	var createMakePublicButton = function(storeId, spaceId){
+	    var button = $.fn.create("button")
+                        .addClass("featured")
+                        .css("margin-left","10px")
+                        .html("Make space publicly readable");
+            
+	    button.click(function(evt){
+            makeSpacePubliclyReadable(
+                    evt,
+                    storeId, 
+                    spaceId);
+        });	    
+	    
+	    return button;
+	};
+	
 	var options = {
 			'type'			:   'inline',
 			'transitionIn'	:	'elastic',
@@ -1261,10 +1263,13 @@ $(function(){
 			var space = {
 				storeId: getCurrentProviderStoreId(),
 				spaceId: $("#add-space-dialog #spaceId").val(),
-				access:  $("#add-space-dialog #access").val(),
 			};
+
+			var publicFlag = $("#add-space-dialog #publicFlag").is(":checked");
+			 
 			dc.store.AddSpace(
 				space,
+				publicFlag,
 				{
 					begin: function(){
 						dc.busy( "Adding space...",{modal: true});
@@ -1319,8 +1324,6 @@ $(function(){
 		
 		open: function(e){
 			$("#add-space-form").resetForm();
-            $("#add-space-dialog .access-switch").accessswitch("on");
-
 			//wrapping in a setTimeout seems to be necessary 
 			//to get this to run properly:  the dialog must be 
 			//visible before the focus can be set.
@@ -1330,20 +1333,6 @@ $(function(){
 		}
 		
 	});
-
-	//the dialog is built only once - thus the follow is not called
-	//in the open function
-	$("#add-space-dialog .access-switch").accessswitch({})
-	.bind("turnOn", function(evt, future){
-		future.success();
-		evt.stopPropagation();
-		$("#add-space-dialog #access").val("OPEN");
-		
-	}).bind("turnOff", function(evt, future){
-		future.success();
-		evt.stopPropagation();
-		$("#add-space-dialog #access").val("CLOSED");
-	}).accessswitch("on");
 
 	$("#add-space-form").validate({
 		rules: {
@@ -1936,21 +1925,19 @@ $(function(){
         deleteSpaceButton.click(function(evt){
 			deleteSpace(evt,space);
 		});
+        
+        
         if(readOnly) {
             deleteSpaceButton.hide();
         }
-		
-		// create access switch and bind on/off listeners
-		$(".access-switch", detail).accessswitch({
-				initialState: (space.properties.access=="OPEN"?"on":"off"),
-				readOnly: readOnly,
-			}).bind("turnOn", function(evt, future){
-				changeSpaceAccess(space.storeId, space.spaceId, "OPEN", future);
-			}).bind("turnOff", function(evt, future){
-                changeSpaceAccess(space.storeId, space.spaceId, "CLOSED", future);
-			});
-		
+
+        
 		if(isAdmin()){
+		    if(!isPubliclyReadable(space.acls)){
+		        var makePublicButton = createMakePublicButton(space.storeId, space.spaceId);
+		        $(makePublicButton).insertAfter(deleteSpaceButton);
+		    }
+		    
 	        loadAclPane(detail, space);
 		}
 
@@ -2011,8 +1998,8 @@ $(function(){
 	};
 
 	var loadAclPane = function(detail, space){
-	    var readOnly = isReadOnly(space);
         var viewerPane =  $.fn.create("div")
+                              .attr("id", "acl-editor")
                               .acleditor({open: true, space: space});
         
         $(".center", detail).append(viewerPane);
@@ -2443,23 +2430,24 @@ $(function(){
 		
 	};
 
-	var changeSpaceAccess = function(storeId, spaceId, access, callback){
-		dc.busy( "Changing space access...", {modal: true}); 
-		dc.ajax({ url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId),
-			data: "access="+access+"&action=put&method=changeAccess",
-			type: "POST",
-			cache: false,
-			context: document.body, 
-			success: function(data){
-				dc.done();
-				callback.success(data.space);
-			},
-		    failure: function(textStatus){
-				dc.done();
-	    		callback.failure(textStatus);
-		    },
-		});		
+	var makeSpacePubliclyReadable = function(/*event object*/evt, storeId, spaceId){
+            dc.busy("Making space public...");
+	        dc.store.UpdateSpaceAcls("storeId="+storeId+
+                                    "&spaceId="+escape(spaceId) + 
+                                    "&read=group-public", 
+                                    true,
+                                    {
+                                      success:function(acls){
+                                          dc.done();
+                                          setAcls(acls); 
+                                         $(evt.target).hide();
+                                      },
+                                    });
 	};
+       
+    var setAcls = function(acls){
+        $("#detail-pane #acl-editor").acleditor("acls", acls);
+    };
 
 	var createSpacePropertiesCall = function(spaceId, data, method,callback){
 		var newData = data + "&method=" + method;

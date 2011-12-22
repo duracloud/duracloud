@@ -11,6 +11,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.domain.Content;
+import org.duracloud.duradmin.domain.Acl;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.domain.ContentProperties;
 import org.duracloud.duradmin.domain.Space;
@@ -18,6 +19,7 @@ import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.storage.provider.StorageProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 
@@ -25,6 +27,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +49,9 @@ public class SpaceUtil {
         space.setProperties(getSpaceProperties(cloudSpace.getProperties()));
         space.setExtendedProperties(cloudSpace.getProperties());
         space.setContents(cloudSpace.getContentIds());
-        AclType callerAcl = resolveCallerAcl(contentStore, space.getSpaceId(), authentication);
+        Map<String,AclType> spaceAcls = contentStore.getSpaceACLs(cloudSpace.getId());
+        space.setAcls(toAclList(spaceAcls));
+        AclType callerAcl = resolveCallerAcl(spaceAcls,  authentication);
 
         String aclName = null;
         if (null != callerAcl) {
@@ -59,7 +66,6 @@ public class SpaceUtil {
         spaceProperties.setCreated(spaceProps.remove(ContentStore.SPACE_CREATED));
         spaceProperties.setCount(spaceProps.remove(ContentStore.SPACE_COUNT));
         spaceProperties.setSize(spaceProps.remove(ContentStore.SPACE_SIZE));
-        spaceProperties.setAccess(spaceProps.remove(ContentStore.SPACE_ACCESS));
         spaceProperties.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
         return spaceProperties;
     }
@@ -81,7 +87,9 @@ public class SpaceUtil {
         contentItem.setProperties(properties);
         contentItem.setExtendedProperties(contentProperties);
         contentItem.setDurastoreURL(formatDurastoreURL(contentItem, store));
-        AclType callerAcl = resolveCallerAcl(store, spaceId, authentication);
+        Map<String,AclType> acls = store.getSpaceACLs(spaceId);
+        contentItem.setAcls(toAclList(acls));
+        AclType callerAcl = resolveCallerAcl(acls, authentication);
 
         String aclName = null;
         if (null != callerAcl) {
@@ -132,8 +140,8 @@ public class SpaceUtil {
 		response.getOutputStream().close();
 	}
 
-	public static AclType resolveCallerAcl(ContentStore contentStore,
-                                          String spaceId,
+    
+	public static AclType resolveCallerAcl(Map<String,AclType> acls,
                                           Authentication authentication)
         throws ContentStoreException {
         
@@ -146,7 +154,6 @@ public class SpaceUtil {
             }
         }
 
-        Map<String, AclType> acls = contentStore.getSpaceACLs(spaceId);
         AclType callerAcl = null;
 
         DuracloudUserDetails details =
@@ -167,5 +174,68 @@ public class SpaceUtil {
 
         return callerAcl;
     }
+	
+    public static List<Acl> toAclList(Map<String, AclType> spaceACLs) {
+        List<Acl> acls = new LinkedList<Acl>();
+
+        if (spaceACLs != null) {
+            for (Map.Entry<String, AclType> entry : spaceACLs.entrySet()) {
+                String key = entry.getKey();
+                AclType value = entry.getValue();
+                boolean read = false, write = false;
+                if (value.equals(AclType.READ)) {
+                    read = true;
+                } else if (value.equals(AclType.WRITE)) {
+                    read = true;
+                    write = true;
+                }
+
+                acls.add(new Acl(key, formatAclDisplayName(key), read, write));
+            }
+        }
+
+        sortAcls(acls);
+        return acls;
+
+    }
+	
+    private static final Comparator<Acl> ACL_COMPARATOR = new Comparator<Acl>() {
+        private String groupPrefix = "group-";
+        @Override
+        public int compare(Acl o1, Acl o2) {
+            if(o1.name.equals(o2.name)){
+                return 0;
+            }
+            
+            if(o1.isPublicGroup()){
+                return -1;
+            }
+
+            if(o2.isPublicGroup()){
+                return 1;
+            }
+
+            if(o1.name.startsWith(groupPrefix)){
+                return !o2.name.startsWith(groupPrefix) ? -1 : o1.name.compareToIgnoreCase(o2.name);
+            }else{
+                return o2.name.startsWith(groupPrefix) ? 1 : o1.name.compareToIgnoreCase(o2.name);
+            }
+        }
+        
+    };
+    
+    public static void sortAcls(List<Acl> acls) {
+        Collections.sort(acls, ACL_COMPARATOR);
+    }
+
+    public static String formatAclDisplayName(String key) {
+        String prefix = "group-";
+        if (key.startsWith(prefix)) {
+            return key.replaceFirst(prefix, "");
+        }
+
+        return key;
+    }
+
 
 }

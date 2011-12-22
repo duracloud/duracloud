@@ -121,9 +121,6 @@
 					<div class="north header">
 						<h1>Space Detail</h1>
 						<h3 class="object-name">Space Name Here</h3>
-						<div class="toggle-control switch-holder">
-							<div class="r access-switch"></div>
-						</div>
 						<div class="button-bar">
                             <!-- 
                             <button class="featured add-content-item-button"><i class="pre plus"></i>Add One Item</button>
@@ -222,9 +219,10 @@
 				<ul>
 					<li class="row clearfix first-of-type"><label for="spacename">Space ID</label><input
 						type="text" name="spaceId" id="spaceId" class="field" /></li>
-					<li class="row clearfix"><label for="access">Access</label><span
-						name="access" class="access-switch">access control here</span></li>
-					<input type="hidden" name="access" id="access" />
+                    <li class="row clearfix">
+                      <label for="publicFlag">Public Access?</label>
+                      <input type="checkbox" name="publicFlag" class="field" id="publicFlag" value="true"/>
+                    </li>            
 				</ul>
 				</fieldset>
 				</div>

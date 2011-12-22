@@ -249,6 +249,7 @@ $.widget("ui.savecancelpanel",
 $.widget("ui.acleditor",
 	$.extend({}, $.ui.expandopanel.prototype, 
 		{  
+	        _listPanel: null, 
 	        _init: function(){ 
 				$.ui.expandopanel.prototype._init.call(this); //call super init first
 				var that = this;
@@ -275,7 +276,9 @@ $.widget("ui.acleditor",
                 stack = $.fn.create("div").stacklayout();
                 
                 //define list pane
-                listPanel = $.fn.create("div").aclreadonlypanel({space:this.options.space});
+                this._listPanel =  $.fn.create("div").aclreadonlypanel({space:this.options.space});
+                listPanel = this._listPanel;
+
                 addPanel = $.fn.create("div").acladdpanel({space:this.options.space});
                 editPanel = $.fn.create("div").acleditpanel({space:this.options.space});
 
@@ -308,10 +311,14 @@ $.widget("ui.acleditor",
                     stack.stacklayout("activate", listPanel);
                 });
 
-                listPanel.aclreadonlypanel("load");
+                listPanel.aclreadonlypanel("load", this.options.space.acls);
                 
                 return stack;
-			}
+			},
+
+            acls: function(/* optional */acls) {
+                return this._listPanel.aclreadonlypanel("acls", acls);
+            },
 		}
 	)
 ); 
@@ -436,18 +443,25 @@ $.widget("ui.aclreadonlypanel",
                     });
         },
         
-        load: function(){
+        load: function(/*optional map*/ acls){
             //ajax call for acls goes here
             var that = this;
             var space = this.options.space;
-            dc.store.GetSpaceAcls(space.storeId, space.spaceId,{
-                success: function(acls){
-                    if(acls){
-                        that.acls(acls, "There are no permissions assigned to this space.");
-                    }                
-                },
-            });
-
+            var loadFunc = function(acls){
+                if(acls){
+                    that.acls(acls, "There are no permissions assigned to this space.");
+                }                
+            };
+            
+            if(acls != undefined){
+                loadFunc(acls);
+            }else{
+                dc.store.GetSpaceAcls(space.storeId, space.spaceId,{
+                    success: function(acls){
+                        loadFunc(acls);
+                    },
+                });
+            }
         },
         
         _acls: null,
@@ -486,16 +500,20 @@ var toArray = function(acls, readOnly){
         if(!readOnly){
             
             read = createCheckbox("read", acl.name, acl.read);
-            write = createCheckbox("write", acl.name,  acl.write);
-            
-            addCheckboxListeners(read, write);
+            if(!acl.publicGroup){
+                write = createCheckbox("write", acl.name,  acl.write);
+                addCheckboxListeners(read, write);
+            }else{
+                write = "";
+            }
 
         }else{
-            read = acl.read ? "x":"";
-            write = acl.write ? "x":"";
+            var checkImage = createCheckImage();
+            read = acl.read ? checkImage:"";
+            write = acl.write ? checkImage:"";            
         }
         
-        a.push([buildAclLabel(acl.name), 
+        a.push([buildAclLabel(acl), 
                 read, 
                 write]);
     }
@@ -503,13 +521,17 @@ var toArray = function(acls, readOnly){
     return a;
 };
 
-var buildAclLabel = function(name){
+var createCheckImage = function(){
+    return "<i class='on checkbox' style='padding: 0px 8px;'></i>";
+};
+
+var buildAclLabel = function(acl){
     var iconClass = "user";
 
+    var name = acl.name;
     var prefix = "group-";
     if(name.indexOf(prefix) == 0){
-        group = true;
-        iconClass = "group";
+        iconClass = (acl.publicGroup ? "group group-public" : "group");
         name = name.replace(prefix, "");
     }
     

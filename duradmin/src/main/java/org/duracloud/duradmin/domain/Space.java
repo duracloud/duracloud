@@ -7,12 +7,12 @@
  */
 package org.duracloud.duradmin.domain;
 
-import org.duracloud.duradmin.util.NameValuePair;
-import org.duracloud.duradmin.util.PropertiesUtils;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import org.duracloud.duradmin.util.NameValuePair;
+import org.duracloud.duradmin.util.PropertiesUtils;
 
 public class Space
         implements Serializable {
@@ -26,6 +26,8 @@ public class Space
 	 * caller as well as the space acls. 
 	 */
 	private String callerAcl;
+
+	private List<Acl> acls; 
 	
     public String getStoreId() {
 		return storeId;
@@ -116,6 +118,14 @@ public class Space
 
     public void setCallerAcl(String callerAcl) {
         this.callerAcl = callerAcl;
+    }
+
+    public List<Acl>  getAcls() {
+        return acls;
+    }
+
+    public void setAcls(List<Acl> acls) {
+        this.acls = acls;
     }
 
 }

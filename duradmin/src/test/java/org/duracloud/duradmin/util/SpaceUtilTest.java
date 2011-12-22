@@ -10,12 +10,15 @@ package org.duracloud.duradmin.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
+import org.duracloud.duradmin.domain.Acl;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -31,7 +34,6 @@ import org.springframework.security.GrantedAuthorityImpl;
  *
  */
 public class SpaceUtilTest {
-    private String spaceId = "testSpace";
     private String group = "group-testgroup";
     private String username = "user";
     private ContentStore contentStore;
@@ -64,7 +66,7 @@ public class SpaceUtilTest {
 
         replay();
         
-        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        AclType result = SpaceUtil.resolveCallerAcl(new HashMap<String,AclType>(), authentication);
         Assert.assertEquals(AclType.WRITE, result);
         
         
@@ -78,11 +80,10 @@ public class SpaceUtilTest {
 
         Map<String,AclType> acls = new HashMap<String,AclType>();
         acls.put(username, AclType.READ);
-        EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(acls);
         
         replay();
         
-        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        AclType result = SpaceUtil.resolveCallerAcl(acls, authentication);
         Assert.assertEquals(AclType.READ, result);
     }
 
@@ -95,14 +96,13 @@ public class SpaceUtilTest {
         
         Map<String,AclType> acls = new HashMap<String,AclType>();
         acls.put(username, AclType.WRITE);
-        EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(acls);
 
         EasyMock.expect(authentication.getAuthorities())
                 .andReturn(new GrantedAuthority[0]);
 
         replay();
         
-        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        AclType result = SpaceUtil.resolveCallerAcl(acls, authentication);
         Assert.assertEquals(AclType.WRITE, result);
     }
 
@@ -111,14 +111,13 @@ public class SpaceUtilTest {
         
         Map<String,AclType> acls = new HashMap<String,AclType>();
         acls.put(group, AclType.WRITE);
-        EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(acls);
 
         EasyMock.expect(authentication.getAuthorities())
                 .andReturn(new GrantedAuthority[0]);
 
         replay();
         
-        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        AclType result = SpaceUtil.resolveCallerAcl(acls, authentication);
         Assert.assertEquals(AclType.WRITE, result);
     }
 
@@ -128,10 +127,34 @@ public class SpaceUtilTest {
         EasyMock.expect(authentication.getAuthorities())
                 .andReturn(new GrantedAuthority[0]);
         
-        EasyMock.expect(contentStore.getSpaceACLs(spaceId)).andReturn(new HashMap<String,AclType>());
         replay();
-        AclType result = SpaceUtil.resolveCallerAcl(contentStore, spaceId, authentication);
+        AclType result = SpaceUtil.resolveCallerAcl(new HashMap<String,AclType>(), authentication);
         Assert.assertNull(result);
+    }
+    
+    @Test
+    public void testAclSort() {
+        replay(); //necessary since mocks are defined in setup and teardown.
+        List<Acl> acls = new LinkedList<Acl>();
+        acls.add(new Acl("user-z"));
+        acls.add(new Acl("group-a"));
+        acls.add(new Acl("user-a"));
+        acls.add(new Acl("group-public"));
+        acls.add(new Acl("group-z"));
+
+        SpaceUtil.sortAcls(acls);
+        
+        assertPosition(acls, 0, "group-public");
+        assertPosition(acls, 1, "group-a");
+        assertPosition(acls, 2, "group-z");
+        assertPosition(acls, 3, "user-a");
+        assertPosition(acls, 4, "user-z");
+        
+    }
+
+    private void assertPosition(List<Acl> acls, int index, String name) {
+        Assert.assertEquals(name, acls.get(index).getName());
+        
     }
 
 }

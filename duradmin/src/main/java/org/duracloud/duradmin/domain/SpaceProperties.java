@@ -18,8 +18,6 @@ import java.util.Set;
 public class SpaceProperties
         implements Serializable {
 
-    private String access;
-
     private String created;
 
     private String count;
@@ -29,14 +27,6 @@ public class SpaceProperties
     private int queryCount;
 
     private Set<String> tags;
-
-    public String getAccess() {
-        return access;
-    }
-
-    public void setAccess(String access) {
-        this.access = access;
-    }
 
     public String getCreated() {
         return created;

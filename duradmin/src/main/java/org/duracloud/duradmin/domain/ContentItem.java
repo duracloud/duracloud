@@ -43,6 +43,8 @@ public class ContentItem
      */
     private String callerAcl;
     
+    private List<Acl> acls; 
+    
     public String getStoreId() {
 		return storeId;
 	}
@@ -122,6 +124,14 @@ public class ContentItem
 
     public void setCallerAcl(String callerAcl) {
         this.callerAcl = callerAcl;
+    }
+    
+    public List<Acl>  getAcls() {
+        return acls;
+    }
+
+    public void setAcls(List<Acl> acls) {
+        this.acls = acls;
     }
     
 	public String toString(){

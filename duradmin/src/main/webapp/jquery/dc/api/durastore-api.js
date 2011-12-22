@@ -69,14 +69,14 @@ var dc;
 
 	/**
 	 * @param String space  space
-	 * @param String access  access 
+	 * @param bool publicFlag  indicates whether the space should be created with public access enabled. 
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
-	dc.store.AddSpace = function(space, callback){
+	dc.store.AddSpace = function(space, publicFlag, callback){
 		dc.ajax(
 			{
 				url: "/duradmin/spaces/space", 
-				data: "storeId="+space.storeId+"&spaceId="+encodeURIComponent(space.spaceId)+"&access="+space.access,
+				data: "storeId="+space.storeId+"&spaceId="+encodeURIComponent(space.spaceId)+"&publicFlag="+publicFlag,
 				type: "POST",
 				success: function(data){
 					callback.success(data.space)
@@ -318,7 +318,7 @@ var dc;
      *           and one or more of the following non required fields:
      *             read (users/groups to give read access to)
      *             write (users/groups to give write access to)
-     * @param action - optional parameter. If value is set to "add" the acls in the form
+     * @param add - optional parameter. If value is set to true the acls in the form
      *               will be added to the existing space acls rather than replacing them.              
      *             
      */

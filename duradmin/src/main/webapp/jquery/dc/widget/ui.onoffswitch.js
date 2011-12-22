@@ -125,35 +125,3 @@ $.widget("ui.onoffswitch",{
 		return button;
 	}
 });
-
-
-//an open close switch
-$.widget("ui.accessswitch", 
-		$.extend({}, $.ui.onoffswitch.prototype, 
-			{  //extended definition 
-				_init: function(){ 
-					$.ui.onoffswitch.prototype._init.call(this); //call super init first
-				}, 
-				
-				
-				destroy: function(){ 
-					$.ui.onoffswitch.prototype.destroy.call(this); // call the original function 
-				}, 
-				
-				options: $.extend({}, $.ui.onoffswitch.prototype.options, 
-						{
-					  	      initialState: "on"
-							, onStateClass: "on left"
-							, onIconClass: "unlock"
-							, offStateClass: "off right"
-							, offIconClass: "lock"
-							, onText: "Open"
-							, offText: "Closed"
-						}
-				),
-			}
-		)
-	);
-
-
-

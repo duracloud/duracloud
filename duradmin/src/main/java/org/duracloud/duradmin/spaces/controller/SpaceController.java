@@ -8,6 +8,7 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStore.AccessType;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.StoreCaller;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ExtendedIteratorCounterThread;
 import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.domain.Space;
@@ -167,44 +169,29 @@ public class SpaceController extends  AbstractRestController<Space> {
 		}
 	}
 
-	@Override
-	protected ModelAndView put(HttpServletRequest request,
-			HttpServletResponse response, Space space,
-			BindException errors) throws Exception {
-		String spaceId = space.getSpaceId();
-        ContentStore contentStore = getContentStore(space);
-        
-        String method = request.getParameter("method");
-        if("changeAccess".equals(method)){
-            String access = space.getAccess();
-            if(access !=null){
-                contentStore.setSpaceAccess(spaceId, AccessType.valueOf(access));
-            }
-            
-            Space newSpace = new Space();
-            populateSpace(newSpace, contentStore.getSpace(spaceId,
-                    null,
-                    0,
-                    null), 
-                    contentStore);            
-            
-            return createModel(newSpace);
-        }else{ 
-        	Map<String,String> properties  = contentStore.getSpaceProperties(spaceId);
-        	PropertiesUtils
-                .handle(method, "space [" + spaceId + "]", properties, request);
-        	contentStore.setSpaceProperties(spaceId, properties);
-            Space newSpace = new Space();
-            populateSpace(newSpace, contentStore.getSpace(spaceId,
-                    null,
-                    0,
-                    null), 
-                    contentStore);
-    		return createModel(newSpace);
+    @Override
+    protected ModelAndView put(HttpServletRequest request,
+                               HttpServletResponse response,
+                               Space space,
+                               BindException errors) throws Exception {
 
-        }
-       
-	}
+        String spaceId = space.getSpaceId();
+        ContentStore contentStore = getContentStore(space);
+
+        String method = request.getParameter("method");
+        Map<String, String> properties =
+            contentStore.getSpaceProperties(spaceId);
+        PropertiesUtils.handle(method,
+                               "space [" + spaceId + "]",
+                               properties,
+                               request);
+        contentStore.setSpaceProperties(spaceId, properties);
+        Space newSpace = new Space();
+        populateSpace(newSpace,
+                      contentStore.getSpace(spaceId, null, 0, null),
+                      contentStore);
+        return createModel(newSpace);
+    }
 
 	private Authentication getAuthentication() {
 	    return (Authentication)SecurityContextHolder.getContext().getAuthentication();
@@ -217,8 +204,13 @@ public class SpaceController extends  AbstractRestController<Space> {
         String spaceId = space.getSpaceId();
         ContentStore contentStore = getContentStore(space);
         contentStore.createSpace(spaceId, null);
-        contentStore.setSpaceAccess(spaceId,
-                                    AccessType.valueOf(space.getAccess()));
+
+        if ("true".equals(request.getParameter("publicFlag"))) {
+            Map<String, AclType> acls = new HashMap<String, AclType>();
+            acls.put("group-public", AclType.READ);
+            contentStore.setSpaceACLs(spaceId, acls);
+        }
+
         populateSpace(space,
                       contentStore.getSpace(spaceId, null, 0, null),
                       contentStore);
