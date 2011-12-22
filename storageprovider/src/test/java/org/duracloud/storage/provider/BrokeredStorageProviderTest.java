@@ -9,7 +9,6 @@ package org.duracloud.storage.provider;
 
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.storage.provider.mock.MockStorageProvider;
 import org.junit.After;
 import org.junit.Assert;
@@ -44,8 +43,6 @@ public class BrokeredStorageProviderTest {
     private final long contentSize = 12L;
 
     private InputStream content;
-
-    private final AccessType access = AccessType.OPEN;
 
     private final Map<String, String> spaceProperties = new HashMap<String, String>();
 
@@ -153,17 +150,6 @@ public class BrokeredStorageProviderTest {
     }
 
     @Test
-    public void getSpaceAccess() throws StorageException {
-        directProvider.setSpaceAccess(spaceId, access);
-        broker.setSpaceAccess(spaceId, access);
-
-        AccessType access0 = directProvider.getSpaceAccess(spaceId);
-        AccessType access1 = broker.getSpaceAccess(spaceId);
-
-        verify(access0, access1);
-    }
-
-    @Test
     public void getSpaceContents() throws StorageException {
         directProvider.addContent(spaceId,
                                   contentId,
@@ -235,15 +221,6 @@ public class BrokeredStorageProviderTest {
     }
 
     @Test
-    public void setSpaceAccess() throws StorageException {
-        directProvider.setSpaceAccess(spaceId, access);
-        broker.setSpaceAccess(spaceId, access);
-
-        verifySpaceId();
-        verifyAccess();
-    }
-
-    @Test
     public void setSpaceProperties() throws StorageException {
         directProvider.setSpaceProperties(spaceId, spaceProperties);
         broker.setSpaceProperties(spaceId, spaceProperties);
@@ -281,12 +258,6 @@ public class BrokeredStorageProviderTest {
         Assert.assertNotNull(directProvider.getContent());
         Assert.assertEquals(directProvider.getContent(), targetProvider
                 .getContent());
-    }
-
-    private void verifyAccess() {
-        Assert.assertNotNull(directProvider.getAccess());
-        Assert.assertEquals(directProvider.getAccess(), targetProvider
-                .getAccess());
     }
 
     private void verifySpaceProperties() {

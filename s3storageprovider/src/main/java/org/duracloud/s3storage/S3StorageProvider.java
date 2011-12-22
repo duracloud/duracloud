@@ -258,7 +258,6 @@ public class S3StorageProvider extends StorageProviderBase {
         // Add space properties
         Map<String, String> spaceProperties = new HashMap<String, String>();
         spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
-        spaceProperties.put(PROPERTIES_SPACE_ACCESS, AccessType.CLOSED.name());
 
         try {
             setNewSpaceProperties(spaceId, spaceProperties);
@@ -427,15 +426,6 @@ public class S3StorageProvider extends StorageProviderBase {
             }
         }
         spaceProperties.put(PROPERTIES_SPACE_CREATED, creationDate);
-
-        // Ensure that space access is included in the new properties
-        if(!spaceProperties.containsKey(PROPERTIES_SPACE_ACCESS)) {
-            String spaceAccess = originalProperties.get(PROPERTIES_SPACE_ACCESS);
-            if(spaceAccess == null) {
-                spaceAccess = AccessType.CLOSED.name();
-            }
-            spaceProperties.put(PROPERTIES_SPACE_ACCESS, spaceAccess);
-        }
 
         String bucketName = getBucketName(spaceId);
         ByteArrayInputStream is = storeProperties(spaceProperties);

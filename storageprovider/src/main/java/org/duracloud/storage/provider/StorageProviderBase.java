@@ -77,52 +77,6 @@ public abstract class StorageProviderBase implements StorageProvider {
         doSetSpaceProperties(spaceId, allProps);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public AccessType getSpaceAccess(String spaceId) {
-        log.debug("getSpaceAccess(" + spaceId + ")");
-
-        throwIfSpaceNotExist(spaceId);
-
-        Map<String, String> spaceProperties = getAllSpaceProperties(spaceId);
-        String spaceAccess = spaceProperties.get(PROPERTIES_SPACE_ACCESS);
-
-        if(spaceAccess == null) {
-            // No space access set, set to CLOSED
-            setSpaceAccess(spaceId, AccessType.CLOSED);
-            spaceAccess = AccessType.CLOSED.name();
-        }
-
-        return AccessType.valueOf(spaceAccess);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSpaceAccess(String spaceId, AccessType access) {
-        log.debug("setSpaceAccess(" + spaceId + ", " + access.name() + ")");
-
-        throwIfSpaceNotExist(spaceId);
-
-        Map<String, String> allProps = getAllSpaceProperties(spaceId);
-        String spaceAccess = allProps.get(PROPERTIES_SPACE_ACCESS);
-
-        AccessType currentAccess = null;
-        if(spaceAccess != null) {
-            try {
-                currentAccess = AccessType.valueOf(spaceAccess);
-            } catch(IllegalArgumentException e) {
-                currentAccess = null;
-            }
-        }
-
-        if(!access.equals(currentAccess)) {
-            allProps.put(PROPERTIES_SPACE_ACCESS, access.name());
-            doSetSpaceProperties(spaceId, allProps);
-        }
-    }
-
     public Map<String, AclType> getSpaceACLs(String spaceId) {
         Map<String, AclType> acls = new HashMap<String, AclType>();
         Map<String, String> allProps = getAllSpaceProperties(spaceId);

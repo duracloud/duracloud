@@ -11,6 +11,7 @@ import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.DuraCloudUserType;
 import org.duracloud.common.util.ChecksumUtil;
@@ -246,10 +247,10 @@ public class FixityServiceTestBase {
             @Override
             protected Boolean doCall() throws ContentStoreException {
                 int good = 0;
-                ContentStore.AccessType access;
+                Map<String, AclType> acls;
                 for (String spaceId : spaceIds) {
-                    access = store.getSpaceAccess(spaceId);
-                    if (access != null) {
+                    acls = store.getSpaceACLs(spaceId);
+                    if (acls != null) {
                         good++;
                     }
                 }

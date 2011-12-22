@@ -39,9 +39,6 @@ public interface StorageProvidersTestInterface {
     public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
             throws StorageException;
 
-    public void testGetSpaceAccess(StorageProvider provider, String spaceId0)
-            throws StorageException;
-
     public void testAddAndGetContent(StorageProvider provider,
                                      String spaceId0,
                                      String contentId0,

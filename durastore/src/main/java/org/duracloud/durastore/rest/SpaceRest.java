@@ -258,19 +258,10 @@ public class SpaceRest extends BaseRest {
 
     private Response doAddSpace(String spaceID, String storeID)
         throws ResourceException, InvalidIdException {
-        MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
-
-        String spaceAccess = "CLOSED";
-        if(rHeaders.containsKey(SPACE_ACCESS_HEADER)) {
-            spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
-        }
-
         Map<String, AclType> userACLs = getUserACLs();
-        Map<String, String> userProperties =
-            getUserProperties(SPACE_ACCESS_HEADER);
+        Map<String, String> userProperties = getUserProperties();
 
         spaceResource.addSpace(spaceID,
-                               spaceAccess,
                                userACLs,
                                userProperties,
                                storeID);
@@ -320,15 +311,8 @@ public class SpaceRest extends BaseRest {
 
     private Response doUpdateSpaceProperties(String spaceID, String storeID)
         throws ResourceException {
-        MultivaluedMap<String, String> rHeaders = headers.getRequestHeaders();
-
-        String spaceAccess = rHeaders.getFirst(SPACE_ACCESS_HEADER);
-
-        Map<String, String> userProperties =
-            getUserProperties(SPACE_ACCESS_HEADER);
-
+        Map<String, String> userProperties = getUserProperties();
         spaceResource.updateSpaceProperties(spaceID,
-                                            spaceAccess,
                                             null,
                                             userProperties,
                                             storeID);

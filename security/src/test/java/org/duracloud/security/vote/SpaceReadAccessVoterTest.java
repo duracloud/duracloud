@@ -152,6 +152,38 @@ public class SpaceReadAccessVoterTest {
     }
 
     @Test
+    public void testVoteReservedResourcesOpenInit() {
+        doTestVoteReservedResourcesOpen("init");
+    }
+
+    @Test
+    public void testVoteReservedResourcesOpenSpaces() {
+        doTestVoteReservedResourcesOpen("spaces");
+    }
+
+    @Test
+    public void testVoteReservedResourcesOpenStores() {
+        doTestVoteReservedResourcesOpen("stores");
+    }
+
+    @Test
+    public void testVoteReservedResourcesOpenAcl() {
+        doTestVoteReservedResourcesOpen("acl");
+    }
+
+    private void doTestVoteReservedResourcesOpen(String spaceId) {
+        boolean securedSpace = false;
+        Authentication caller = anonymousUser();
+        createMockInvocation(spaceId, HttpVerb.GET);
+        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+
+        replayMocks();
+
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(ACCESS_GRANTED, decision);
+    }
+
+    @Test
     public void testVoteOpenAuthenticated() {
         boolean securedSpace = false;
         verifyVote(registeredUser("joe", "none"), securedSpace, ACCESS_GRANTED);
@@ -227,18 +259,20 @@ public class SpaceReadAccessVoterTest {
 
         EasyMock.expect(request.getMethod()).andReturn(method.name());
 
-        int times = 1;
-        if (securedSpace && !(caller instanceof AnonymousAuthenticationToken)) {
-            times = 2;
-        }
-
         if (method.isRead()) {
             EasyMock.expect(request.getQueryString()).andReturn(
-                "storeID=" + storeId + "&attachment=true").times(times);
-            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(
-                times);
+                "storeID=" + storeId + "&attachment=true");
+            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(2);
         }
 
+        EasyMock.expect(resource.getHttpRequest()).andReturn(request);
+        return resource;
+    }
+
+    private FilterInvocation createMockInvocation(String spaceId,
+                                                  HttpVerb method) {
+        EasyMock.expect(request.getMethod()).andReturn(method.name());
+        EasyMock.expect(request.getPathInfo()).andReturn(spaceId);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }
@@ -277,10 +311,8 @@ public class SpaceReadAccessVoterTest {
 
         EasyMock.expect(providerFactory.getStorageProvider(storeId)).andReturn(
             provider).anyTimes();
-        EasyMock.expect(provider.getSpaceAccess(EasyMock.isA(String.class)))
-                .andAnswer(getAccess());
         EasyMock.expect(provider.getSpaceACLs(EasyMock.isA(String.class)))
-                .andReturn(acls);
+                .andAnswer(getACLs());
 
         EasyMock.replay(provider);
         return providerFactory;
@@ -290,19 +322,20 @@ public class SpaceReadAccessVoterTest {
      * This method returns 'open' or 'closed' base on the argument passed
      * to the getContentStore() call above.
      *
-     * @return ContentStore.AccessType
+     * @return Map of ACLs
      */
-    private IAnswer<? extends StorageProvider.AccessType> getAccess() {
-        return new IAnswer<StorageProvider.AccessType>() {
-            public StorageProvider.AccessType answer() throws Throwable {
+    private IAnswer<? extends Map<String, AclType>> getACLs() {
+        return new IAnswer<Map<String, AclType>>() {
+            public Map<String, AclType> answer() throws Throwable {
                 Object[] args = EasyMock.getCurrentArguments();
                 Assert.assertNotNull(args);
                 Assert.assertEquals(1, args.length);
                 String arg = (String) args[0];
                 if (arg.equals(OPEN_SPACE_ID)) {
-                    return StorageProvider.AccessType.OPEN;
+                    acls.put(StorageProvider.PROPERTIES_SPACE_ACL_PUBLIC,
+                             AclType.READ);
                 }
-                return StorageProvider.AccessType.CLOSED;
+                return acls;
             }
         };
     }

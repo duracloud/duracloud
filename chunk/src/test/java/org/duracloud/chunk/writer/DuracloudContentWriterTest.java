@@ -12,7 +12,9 @@ import org.duracloud.chunk.error.NotFoundException;
 import org.duracloud.chunk.stream.ChunkInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.model.AclType;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.junit.After;
@@ -24,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,19 +63,21 @@ public class DuracloudContentWriterTest {
             .andReturn("")
             .anyTimes();
 
+        Map<String, AclType> acls = new HashMap<String, AclType>();
+        acls.put(StorageProvider.PROPERTIES_SPACE_ACL_PUBLIC, AclType.READ);
         if (!exists) {
-            EasyMock.expect(contentStore.getSpaceAccess(EasyMock.isA(String.class)))
+            EasyMock.expect(contentStore.getSpaceACLs(EasyMock.isA(String.class)))
                     .andThrow(new ContentStoreException("canned-exception"));
             contentStore.createSpace(EasyMock.isA(String.class),
                                      (Map) EasyMock.anyObject());
             EasyMock.expectLastCall();
 
-            EasyMock.expect(contentStore.getSpaceAccess(EasyMock.isA(String.class)))
-                    .andReturn(ContentStore.AccessType.OPEN);
+            EasyMock.expect(contentStore.getSpaceACLs(EasyMock.isA(String.class)))
+                    .andReturn(acls);
 
         } else {
-            EasyMock.expect(contentStore.getSpaceAccess(EasyMock.isA(String.class)))
-                    .andReturn(ContentStore.AccessType.OPEN)
+            EasyMock.expect(contentStore.getSpaceACLs(EasyMock.isA(String.class)))
+                    .andReturn(acls)
                     .times(2);
         }
 
@@ -96,8 +101,8 @@ public class DuracloudContentWriterTest {
                                  (Map) EasyMock.anyObject());
         EasyMock.expectLastCall().anyTimes();
 
-        EasyMock.expect(contentStoreThrow.getSpaceAccess(EasyMock.isA(String.class)))
-            .andReturn(ContentStore.AccessType.OPEN)
+        EasyMock.expect(contentStoreThrow.getSpaceACLs(EasyMock.isA(String.class)))
+            .andReturn(new HashMap<String, AclType>())
             .anyTimes();
         
         return contentStoreThrow;

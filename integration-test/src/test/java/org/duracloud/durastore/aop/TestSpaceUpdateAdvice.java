@@ -153,8 +153,6 @@ public class TestSpaceUpdateAdvice
 
         // Add properties
         Map<String, String> headers = new HashMap<String, String>();
-        String newSpaceAccess = "CLOSED";
-        headers.put(BaseRest.SPACE_ACCESS_HEADER, newSpaceAccess);
         String newSpaceProperties = "Updated Space Properties";
         headers.put(RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
         HttpResponse response = restHelper.post(url, null, headers);

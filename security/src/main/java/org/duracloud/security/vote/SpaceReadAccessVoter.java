@@ -87,9 +87,14 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
 
-        // All READs on OPEN spaces are granted.
-        StorageProvider.AccessType access = getSpaceAccess(httpRequest);
-        if (access.equals(StorageProvider.AccessType.OPEN)) {
+        if (isOpenResource(httpRequest)) {
+            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
+            return ACCESS_GRANTED;
+        }
+
+        Map<String, AclType> acls = getSpaceACLs(httpRequest);
+        // All READs on PUBLIC spaces are granted.
+        if (acls.containsKey(StorageProvider.PROPERTIES_SPACE_ACL_PUBLIC)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
@@ -100,7 +105,6 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             return ACCESS_DENIED;
         }
 
-        Map<String, AclType> acls = getSpaceACLs(httpRequest);
         if (hasReadAccess(auth.getName(), acls)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;

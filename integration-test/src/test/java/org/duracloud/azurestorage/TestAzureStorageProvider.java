@@ -15,7 +15,6 @@ import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.After;
@@ -114,7 +113,7 @@ public class TestAzureStorageProvider {
         // test createSpace()
         log.debug("Test createSpace()");
         azureProvider.createSpace(SPACE_ID);
-        testSpaceProperties(SPACE_ID, AccessType.CLOSED, count);
+        testSpaceProperties(SPACE_ID, count);
 
         // test setSpaceProperties()
         log.debug("Test setSpaceProperties()");
@@ -124,8 +123,7 @@ public class TestAzureStorageProvider {
 
         // test getSpaceProperties()
         log.debug("Test getSpaceProperties()");
-        Map<String, String> sProperties =
-                testSpaceProperties(SPACE_ID, AccessType.CLOSED, count);
+        Map<String, String> sProperties = testSpaceProperties(SPACE_ID, count);
         assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
         assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
@@ -136,34 +134,13 @@ public class TestAzureStorageProvider {
         // This will only work when SPACE_ID fits the Azure container naming conventions
         assertTrue(contains(spaces, SPACE_ID));
 
-        // test setSpaceAccess()
-        log.debug("Test setSpaceAccess(OPEN)");
-        azureProvider.setSpaceAccess(SPACE_ID, AccessType.OPEN);
-
-        // test getSpaceAccess()
-        log.debug("Test getSpaceAccess()");
-        AccessType access = azureProvider.getSpaceAccess(SPACE_ID);
-        assertEquals(AccessType.OPEN, access);
-
-        // test set space access via properties update
-        log.debug("Test setSpaceProperties(Access) ");
-        spaceProperties = new HashMap<String, String>();
-        spaceProperties.put(StorageProvider.PROPERTIES_SPACE_ACCESS,
-                AccessType.CLOSED.name());
-        azureProvider.setSpaceProperties(SPACE_ID, spaceProperties);
-
-        // test getSpaceAccess()
-        log.debug("Test getSpaceAccess()");
-        access = azureProvider.getSpaceAccess(SPACE_ID);
-        assertEquals(access, AccessType.CLOSED);
-
         /* Test Content */
 
         // test addContent()
         log.debug("Test addContent()");
         String CONTENT_ID = getNewContentId();
         addContent(SPACE_ID, CONTENT_ID, CONTENT_MIME_VALUE, false);
-        testSpaceProperties(SPACE_ID, AccessType.CLOSED, ++count);
+        testSpaceProperties(SPACE_ID, ++count);
 
         // test getContentProperties()
         log.debug("Test getContentProperties()");
@@ -178,10 +155,10 @@ public class TestAzureStorageProvider {
         // add additional content for getContents tests
         String testContent2 = "test-content-2";
         addContent(SPACE_ID, testContent2, CONTENT_MIME_VALUE, false);
-        testSpaceProperties(SPACE_ID, AccessType.CLOSED, ++count);
+        testSpaceProperties(SPACE_ID, ++count);
         String testContent3 = "test-content-3";
         addContent(SPACE_ID, testContent3, null, true);
-        testSpaceProperties(SPACE_ID, AccessType.CLOSED, ++count);
+        testSpaceProperties(SPACE_ID, ++count);
 
         // test getSpaceContents()
         log.debug("Test getSpaceContents()");
@@ -278,7 +255,7 @@ public class TestAzureStorageProvider {
         azureProvider.deleteContent(SPACE_ID, CONTENT_ID);
         spaceContents = azureProvider.getSpaceContents(SPACE_ID, null);
         assertFalse(contains(spaceContents, CONTENT_ID));
-        testSpaceProperties(SPACE_ID, AccessType.CLOSED, --count);
+        testSpaceProperties(SPACE_ID, --count);
 
         // test deleteSpace()
         log.debug("Test deleteSpace()");
@@ -346,9 +323,7 @@ public class TestAzureStorageProvider {
         }
     }
 
-    private Map<String, String> testSpaceProperties(String spaceId,
-                                                  AccessType access,
-                                                  int count) {
+    private Map<String, String> testSpaceProperties(String spaceId, int count) {
         Map<String, String> sProperties =
                 azureProvider.getSpaceProperties(spaceId);
 
@@ -361,15 +336,6 @@ public class TestAzureStorageProvider {
         assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_COUNT));
         assertEquals(String.valueOf(count),
                      sProperties.get(StorageProvider.PROPERTIES_SPACE_COUNT));
-        
-        assertTrue(sProperties.containsKey(
-                StorageProvider.PROPERTIES_SPACE_ACCESS));
-        String spaceAccess =
-                sProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
-        assertNotNull(spaceAccess);
-        assertEquals(access.name(), spaceAccess);
-        assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS));
-
 
         return sProperties;
     }
@@ -408,20 +374,6 @@ public class TestAzureStorageProvider {
 
         try {
             azureProvider.getSpaceContentsChunked(spaceId, null, 100, null);
-            fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            azureProvider.getSpaceAccess(spaceId);
-            fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            azureProvider.setSpaceAccess(spaceId, AccessType.CLOSED);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);

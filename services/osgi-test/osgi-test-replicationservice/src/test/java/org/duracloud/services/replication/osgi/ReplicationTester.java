@@ -127,7 +127,7 @@ public class ReplicationTester {
         int tries = 0;
         while (!created && tries < maxTries) {
             try {
-                contentStore.getSpaceAccess(spaceId);
+                contentStore.getSpaceACLs(spaceId);
                 created = true;
             } catch (Exception e) {
                 tries++;

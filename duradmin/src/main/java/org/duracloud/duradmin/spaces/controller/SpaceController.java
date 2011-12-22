@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStore.AccessType;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.StoreCaller;
 import org.duracloud.common.model.AclType;

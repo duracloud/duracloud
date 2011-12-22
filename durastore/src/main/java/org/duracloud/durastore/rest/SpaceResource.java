@@ -15,7 +15,6 @@ import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.storage.util.IdUtil;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -175,12 +174,10 @@ public class SpaceResource {
      * Adds a space.
      *
      * @param spaceID
-     * @param spaceAccess
      * @param userProperties
      * @param storeID
      */
     public void addSpace(String spaceID,
-                         String spaceAccess,
                          Map<String, AclType> userACLs,
                          Map<String, String> userProperties,
                          String storeID)
@@ -193,7 +190,7 @@ public class SpaceResource {
             storage.createSpace(spaceID);
             
             waitForSpaceCreation(storage, spaceID);
-            updateSpaceProperties(spaceID, spaceAccess, userACLs, userProperties, storeID);
+            updateSpaceProperties(spaceID, userACLs, userProperties, storeID);
         } catch (StorageException e) {
             throw new ResourceException("add space", spaceID, e);
         }
@@ -206,7 +203,7 @@ public class SpaceResource {
         while (tries < maxTries) {
             tries++;
             try {
-                storage.getSpaceAccess(spaceID);
+                storage.getSpaceACLs(spaceID);
                 return; // success
             } catch (Exception e) {
                 sleep(millis);
@@ -231,12 +228,10 @@ public class SpaceResource {
      * Updates the properties of a space.
      *
      * @param spaceID
-     * @param spaceAccess
      * @param userProperties
      * @param storeID
      */
     public void updateSpaceProperties(String spaceID,
-                                      String spaceAccess,
                                       Map<String, AclType> userACLs,
                                       Map<String, String> userProperties,
                                       String storeID)
@@ -255,27 +250,6 @@ public class SpaceResource {
                 storage.setSpaceACLs(spaceID, userACLs);
             }
 
-            // Set space access if necessary
-            if(spaceAccess != null) {
-                AccessType access = storage.getSpaceAccess(spaceID);
-                AccessType newAccessType = null;
-                if(spaceAccess.toUpperCase().equals(AccessType.CLOSED.name())) {
-                    newAccessType = AccessType.CLOSED;
-                } else if(spaceAccess.toUpperCase().equals(AccessType.OPEN.name())) {
-                    newAccessType = AccessType.OPEN;
-                }
-
-                if(null == newAccessType) {
-                    String error =
-                        "Space Access must be set to either OPEN or CLOSED. '" +
-                        spaceAccess +"' is not a valid access setting";
-                    throw new ResourceException(error);
-                } else {
-                    if(!access.equals(newAccessType)) {
-                        storage.setSpaceAccess(spaceID, newAccessType);
-                    }
-                }
-            }
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("update space properties for",
                                                 spaceID,

@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.duracloud.storage.provider.StorageProvider.AccessType.CLOSED;
-import static org.duracloud.storage.provider.StorageProvider.AccessType.OPEN;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
@@ -142,14 +140,12 @@ public class ACLStorageProviderTest {
         }
 
         for (String space : allSpaces()) {
-            StorageProvider.AccessType access = CLOSED;
-            if (space.equals(spacePrefix + 1)) {
-                access = OPEN;
-            }
-            EasyMock.expect(mockProvider.getSpaceAccess(space))
-                    .andReturn(access).times(times);
-
             Map<String, AclType> acls = new HashMap<String, AclType>();
+            if (space.equals(spacePrefix + 1)) {
+                acls.put(StorageProvider.PROPERTIES_SPACE_ACL_PUBLIC,
+                         AclType.READ);
+            }
+
             if (space.equals(spacePrefix + 2)) {
                 acls.put(PROPERTIES_SPACE_ACL + username, AclType.READ);
 
@@ -199,25 +195,15 @@ public class ACLStorageProviderTest {
         createMockStorageProvider(1);
         Map<String, String> properties = createSpaceProperties();
 
-        StorageProvider.AccessType origAccess = OPEN;
         mockProvider.setSpaceProperties(spaceId, properties);
         EasyMock.expectLastCall();
         replayMocks();
 
         provider = new ACLStorageProvider(mockProvider);
-        StorageProvider.AccessType access = provider.getSpaceAccess(spaceId);
-        Assert.assertNotNull(access);
-        Assert.assertEquals(origAccess, access);
 
         // method under test
-        properties.put(StorageProvider.PROPERTIES_SPACE_ACCESS, CLOSED.name());
+        properties.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "99");
         provider.setSpaceProperties(spaceId, properties);
-
-        // verify side effects
-        access = provider.getSpaceAccess(spaceId);
-        Assert.assertNotNull(access);
-        Assert.assertEquals(CLOSED, access);
-        Assert.assertNotSame(origAccess, access);
     }
 
     private Map<String, String> createSpaceProperties() {
@@ -229,7 +215,7 @@ public class ACLStorageProviderTest {
 
     @Test
     public void testGetSpaceACLs() throws Exception {
-        String spaceId = spacePrefix + 1;
+        String spaceId = spacePrefix + 4;
         createMockStorageProvider(1);
         Map<String, AclType> origAcls = createSpaceACLs();
 
@@ -278,46 +264,6 @@ public class ACLStorageProviderTest {
         Map<String, AclType> acls = provider.getSpaceACLs(spaceId);
         Assert.assertNotNull(acls);
         Assert.assertEquals(origAcls, acls);
-    }
-
-    @Test
-    public void testGetSpaceAccess() throws Exception {
-        String spaceId = spacePrefix + 1;
-        createMockStorageProvider(1);
-        StorageProvider.AccessType origAccess = OPEN;
-        replayMocks();
-
-        // method under test
-        provider = new ACLStorageProvider(mockProvider);
-        StorageProvider.AccessType access = provider.getSpaceAccess(spaceId);
-        Assert.assertNotNull(access);
-        Assert.assertEquals(origAccess, access);
-
-        // calling a second time should result in hitting the cache.
-        access = provider.getSpaceAccess(spaceId);
-        Assert.assertNotNull(access);
-        Assert.assertEquals(origAccess, access);
-    }
-
-    @Test
-    public void testSetSpaceAccess() throws Exception {
-        String spaceId = spacePrefix + 4;
-        createMockStorageProvider(1);
-        StorageProvider.AccessType origAccess = OPEN;
-
-        mockProvider.setSpaceAccess(spaceId, origAccess);
-        EasyMock.expectLastCall();
-
-        replayMocks();
-
-        // method under test
-        provider = new ACLStorageProvider(mockProvider);
-        provider.setSpaceAccess(spaceId, origAccess);
-
-        // getting access should only hit the cache.
-        StorageProvider.AccessType access = provider.getSpaceAccess(spaceId);
-        Assert.assertNotNull(access);
-        Assert.assertEquals(origAccess, access);
     }
 
     @Test

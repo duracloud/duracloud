@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.duracloud.storage.provider.StorageProvider.AccessType.CLOSED;
-import static org.duracloud.storage.provider.StorageProvider.AccessType.OPEN;
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
@@ -79,9 +77,6 @@ public class ACLStorageProviderErrorTest {
                 .andReturn(allSpaces().iterator());
 
         for (String space : allSpaces()) {
-            EasyMock.expect(mockProvider.getSpaceAccess(space))
-                    .andReturn(CLOSED);
-
             EasyMock.expect(mockProvider.getSpaceACLs(space))
                     .andReturn(aclMap());
         }
@@ -161,9 +156,6 @@ public class ACLStorageProviderErrorTest {
             Assert.assertEquals("acls: " + acls, acls.get(
                 PROPERTIES_SPACE_ACL + group), aclType);
 
-            StorageProvider.AccessType access = provider.getSpaceAccess(space);
-            Assert.assertEquals(CLOSED, access);
-
             numSpaces++;
         }
         Assert.assertEquals(allSpaces.size(), numSpaces);
@@ -203,7 +195,7 @@ public class ACLStorageProviderErrorTest {
 
         String spaceId = spacePrefix + 2;
         Map<String, String> props = new HashMap<String, String>();
-        props.put(StorageProvider.PROPERTIES_SPACE_ACCESS, "OPEN");
+        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "77");
         mockProvider.setSpaceProperties(spaceId, props);
         EasyMock.expectLastCall().andThrow(new StorageException("test"));
 
@@ -255,33 +247,6 @@ public class ACLStorageProviderErrorTest {
         // verify state has not changed
         verifyProviderState(provider);
 
-    }
-
-    @Test
-    public void testSetSpaceAccess() {
-        createMockSecurityContext();
-
-        String spaceId = spacePrefix + 2;
-        mockProvider.setSpaceAccess(spaceId, OPEN);
-        EasyMock.expectLastCall().andThrow(new StorageException("test"));
-
-        replayMocks();
-
-        // verify original state
-        ACLStorageProvider provider = new ACLStorageProvider(mockProvider);
-        verifyProviderState(provider);
-
-        // method under test
-        try {
-            provider.setSpaceAccess(spaceId, OPEN);
-            Assert.fail("exception expected");
-
-        } catch (StorageException e) {
-            Assert.assertNotNull(e.getMessage());
-        }
-
-        // verify state has not changed
-        verifyProviderState(provider);
     }
 
 }

@@ -292,7 +292,6 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         Map<String, String> spaceProperties = new HashMap<String, String>();
         Date created = new Date(System.currentTimeMillis());
         spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
-        spaceProperties.put(PROPERTIES_SPACE_ACCESS, AccessType.CLOSED.name());
         doSetSpaceProperties(spaceId, spaceProperties);
     }
 
@@ -427,12 +426,6 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         Date created = getCreationDate(spaceId, spaceProperties);
         if (created != null) {
             spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
-        }
-
-        // Ensure that space access is included in the new properties
-        if(!spaceProperties.containsKey(PROPERTIES_SPACE_ACCESS)) {
-            String spaceAccess = getSpaceAccess(spaceId).name();
-            spaceProperties.put(PROPERTIES_SPACE_ACCESS, spaceAccess);
         }
 
         String containerName = getContainerName(spaceId);

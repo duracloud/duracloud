@@ -143,13 +143,6 @@ public abstract class ProbedStorageProvider
         return result;
     }
 
-    public AccessType getSpaceAccess(String spaceId) throws StorageException {
-        startMetric("getSpaceAccess");
-        AccessType result = storageProvider.getSpaceAccess(spaceId);
-        stopMetric("getSpaceAccess");
-        return result;
-    }
-
     public Iterator<String> getSpaceContents(String spaceId, String prefix)
             throws StorageException {
         startMetric("getSpaceContents");
@@ -197,13 +190,6 @@ public abstract class ProbedStorageProvider
                                              contentId,
                                              contentProperties);
         stopMetric("setContentProperties");
-    }
-
-    public void setSpaceAccess(String spaceId, AccessType access)
-            throws StorageException {
-        startMetric("setSpaceAccess");
-        storageProvider.setSpaceAccess(spaceId, access);
-        stopMetric("setSpaceAccess");
     }
 
     public void setSpaceProperties(String spaceId,

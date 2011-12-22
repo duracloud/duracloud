@@ -472,34 +472,11 @@ public class SpaceWriteAccessVoterTest {
 
         EasyMock.expect(providerFactory.getStorageProvider(storeId)).andReturn(
             provider).anyTimes();
-        EasyMock.expect(provider.getSpaceAccess(EasyMock.isA(String.class)))
-                .andAnswer(getAccess());
         EasyMock.expect(provider.getSpaceACLs(EasyMock.isA(String.class)))
                 .andReturn(acls);
 
         EasyMock.replay(provider);
         return providerFactory;
-    }
-
-    /**
-     * This method returns 'open' or 'closed' base on the argument passed
-     * to the getContentStore() call above.
-     *
-     * @return ContentStore.AccessType
-     */
-    private IAnswer<? extends StorageProvider.AccessType> getAccess() {
-        return new IAnswer<StorageProvider.AccessType>() {
-            public StorageProvider.AccessType answer() throws Throwable {
-                Object[] args = EasyMock.getCurrentArguments();
-                Assert.assertNotNull(args);
-                Assert.assertEquals(1, args.length);
-                String arg = (String) args[0];
-                if (arg.equals(OPEN_SPACE_ID)) {
-                    return StorageProvider.AccessType.OPEN;
-                }
-                return StorageProvider.AccessType.CLOSED;
-            }
-        };
     }
 
     private enum LOGIN {

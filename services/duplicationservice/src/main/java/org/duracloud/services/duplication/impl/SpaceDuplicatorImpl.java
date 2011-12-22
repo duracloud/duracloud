@@ -96,23 +96,6 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
             log.error(error);
             throw new DuplicationException(error);
         }
-
-        // Set Space access
-        ContentStore.AccessType spaceAccess = getSpaceAccess(spaceId);
-        if (null == spaceAccess) {
-            StringBuilder err = new StringBuilder();
-            err.append("Unable to get space access for :");
-            err.append(spaceId);
-            log.error(err.toString());
-            throw new DuplicationException(err.toString());
-        }
-
-        success = setSpaceAccess(spaceId, spaceAccess);
-        if (!success) {
-            String err = "Unable to set space access for: {}";
-            log.error(err, spaceId);
-            throw new DuplicationException(err.toString());
-        }
     }
 
     @Override
@@ -186,40 +169,6 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
             String err = "Error setting space properties for space: {}, " +
                 "props: {}, due to: {}";
             log.error(err, new Object[]{spaceId, properties, e.getMessage()});
-            return false;
-        }
-    }
-
-    private ContentStore.AccessType getSpaceAccess(final String spaceId) {
-        try {
-            return new StoreCaller<ContentStore.AccessType>(waitMillis) {
-                protected ContentStore.AccessType doCall() throws Exception {
-                    return fromStore.getSpaceAccess(spaceId);
-                }
-            }.call();
-
-        } catch (Exception e) {
-            log.error("Error getting space access for: {}, due to: {}",
-                      spaceId,
-                      e.getMessage());
-            return null;
-        }
-    }
-
-    private boolean setSpaceAccess(final String spaceId,
-                                   final ContentStore.AccessType accessType) {
-        try {
-            return new StoreCaller<Boolean>(waitMillis) {
-                protected Boolean doCall() throws Exception {
-                    toStore.setSpaceAccess(spaceId, accessType);
-                    return true;
-                }
-            }.call();
-
-        } catch (Exception e) {
-            log.error("Error setting space access for: {}, due to: {}",
-                      spaceId,
-                      e.getMessage());
             return false;
         }
     }

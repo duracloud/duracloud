@@ -152,13 +152,6 @@ public class StorageProvidersTestMetricsProxy
         stopMetric(provider);
     }
 
-    public void testGetSpaceAccess(StorageProvider provider, String spaceId0)
-            throws StorageException {
-        startMetric("testGetSpaceAccess", provider);
-        tester.testGetSpaceAccess(provider, spaceId0);
-        stopMetric(provider);
-    }
-
     public void testGetSpaceContents(StorageProvider provider,
                                      String spaceId0,
                                      String contentId0,

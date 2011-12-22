@@ -171,8 +171,6 @@ public class TestStorageProviders {
                 }
                 provider.setSpaceProperties(spaceId,
                                           new HashMap<String, String>());
-                provider.setSpaceAccess(spaceId,
-                                        StorageProvider.AccessType.CLOSED);
             }
         }
     }
@@ -236,15 +234,6 @@ public class TestStorageProviders {
 
         for (StorageProvider provider : storageProviders) {
             tester.testSetSpaceProperties(provider, spaceId0);
-        }
-    }
-
-    @Test
-    public void testGetSpaceAccess() throws StorageException {
-        log.info("testGetSpaceAccess()");
-
-        for (StorageProvider provider : storageProviders) {
-            tester.testGetSpaceAccess(provider, spaceId0);
         }
     }
 

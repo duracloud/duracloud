@@ -15,7 +15,6 @@ import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.AfterClass;
@@ -442,43 +441,6 @@ public class TestEMCStorageProvider {
     }
 
     @Test
-    public void testGetSpaceAccess() throws StorageException {
-        String spaceId0 = getNewSpaceId();
-
-        AccessType access;
-        try {
-            emcProvider.getSpaceAccess(spaceId0);
-            fail("Exception expected.");
-        } catch (Exception e) {
-            // do nothing.
-        }
-
-        // Test default access.
-        emcProvider.createSpace(spaceId0);
-        access = emcProvider.getSpaceAccess(spaceId0);
-        assertEquals(AccessType.CLOSED, access);
-
-        // ...also check Access in user properties.
-        Map<String, String> spaceMd = emcProvider.getSpaceProperties(spaceId0);
-        assertNotNull(spaceMd);
-        String prop = spaceMd.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
-        assertNotNull(prop);
-        assertEquals(AccessType.CLOSED.toString(), prop);
-
-        // Open access, and test again.
-        emcProvider.setSpaceAccess(spaceId0, AccessType.OPEN);
-        access = emcProvider.getSpaceAccess(spaceId0);
-        assertEquals(AccessType.OPEN, access);
-
-        // ...also check Access in user properties.
-        spaceMd = emcProvider.getSpaceProperties(spaceId0);
-        assertNotNull(spaceMd);
-        prop = spaceMd.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
-        assertNotNull(prop);
-        assertEquals(AccessType.OPEN.toString(), prop);
-    }
-
-    @Test
     public void testAddAndGetContent() throws Exception {
         String spaceId0 = getNewSpaceId();
 
@@ -781,20 +743,6 @@ public class TestEMCStorageProvider {
     }
 
     @Test
-    public void testSpaceAccess() throws Exception {
-        String spaceId1 = getNewSpaceId();
-        emcProvider.createSpace(spaceId1);
-        emcProvider.setSpaceAccess(spaceId1, AccessType.OPEN);
-
-        AccessType access = emcProvider.getSpaceAccess(spaceId1);
-        assertEquals(AccessType.OPEN, access);
-
-        emcProvider.setSpaceAccess(spaceId1, AccessType.CLOSED);
-        access = emcProvider.getSpaceAccess(spaceId1);
-        assertEquals(AccessType.CLOSED, access);
-    }
-
-    @Test
     public void testNotFound() {
         String spaceId = "NonExistantSpace";
         String contentId = "NonExistantContent";
@@ -828,20 +776,6 @@ public class TestEMCStorageProvider {
 
         try {
             emcProvider.getSpaceContentsChunked(spaceId, null, 100, null);
-            Assert.fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            emcProvider.getSpaceAccess(spaceId);
-            Assert.fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            emcProvider.setSpaceAccess(spaceId, AccessType.CLOSED);
             Assert.fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);

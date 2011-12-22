@@ -353,14 +353,6 @@ public class StorageProviderBaseTest {
             mock.doSetSpaceProperties(spaceId, spaceProps);
         }
 
-        public AccessType getSpaceAccess(String spaceId) {
-            return mock.getSpaceAccess(spaceId);
-        }
-
-        public void setSpaceAccess(String spaceId, AccessType access) {
-            mock.setSpaceAccess(spaceId, access);
-        }
-
         public String addContent(String spaceId,
                                  String contentId,
                                  String contentMimeType,

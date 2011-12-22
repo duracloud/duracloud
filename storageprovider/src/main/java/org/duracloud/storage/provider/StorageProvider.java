@@ -26,15 +26,12 @@ import java.util.Map;
  */
 public interface StorageProvider {
 
-    @Deprecated
-    public enum AccessType {OPEN, CLOSED}
-
     /* Space property names */
     public static final String PROPERTIES_SPACE_CREATED = "space-created";
     public static final String PROPERTIES_SPACE_COUNT = "space-count";
     public static final String PROPERTIES_SPACE_SIZE = "space-total-size";
-    public static final String PROPERTIES_SPACE_ACCESS = "space-access";
     public static final String PROPERTIES_SPACE_ACL = "acl-";
+    public static final String PROPERTIES_SPACE_ACL_PUBLIC = "acl-group-public";
 
     /* Content property names */
     public static final String PROPERTIES_CONTENT_MIMETYPE = "content-mimetype";
@@ -163,31 +160,6 @@ public interface StorageProvider {
      * @throws StorageException  if errors occur
      */
     public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs);
-
-    /**
-     * Gets the access setting of the space, either OPEN or CLOSED. An OPEN space is
-     * available for public viewing. A CLOSED space requires authentication prior to
-     * viewing any of the contents.
-     *
-     * @param spaceId - ID of the space
-     * @return the access type of the space, OPEN or CLOSED
-     * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
-     */
-    @Deprecated
-    public AccessType getSpaceAccess(String spaceId);
-
-    /**
-     * Sets the accessibility of a space to either OPEN or CLOSED.
-     *
-     * @param spaceId - ID of the space
-     * @param access - New space access value
-     * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
-     */
-    @Deprecated
-    public void setSpaceAccess(String spaceId,
-                               AccessType access);
 
     /**
      * Adds content to a space. Computes the checksum of the

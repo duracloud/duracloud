@@ -319,17 +319,6 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
         spaceProperties.put(PROPERTIES_SPACE_COUNT, String.valueOf(count));
 
-        ContainerAccessControl enumAccess = blobContainer.getAccessControl();
-        if (enumAccess != null) {
-            if (enumAccess.isPublic()) {
-                spaceProperties.put(PROPERTIES_SPACE_ACCESS,
-                                    AccessType.OPEN.name());
-            } else {
-                spaceProperties.put(PROPERTIES_SPACE_ACCESS,
-                                    AccessType.CLOSED.name());
-            }
-        }
-
         return spaceProperties;
     }
 
@@ -375,16 +364,6 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         IBlobContainer blobContainer = blobStorage.getBlobContainer(
             containerName);
-
-        String spaceAccess = spaceProperties.remove(PROPERTIES_SPACE_ACCESS);
-        if (spaceAccess != null) {
-            ContainerAccessControl enumAccess = ContainerAccessControl.Private;
-            if (spaceAccess.equalsIgnoreCase(AccessType.OPEN.name())) {
-                enumAccess = ContainerAccessControl.Public;
-            }
-
-            blobContainer.setAccessControl(enumAccess);
-        }
 
         NameValueCollection objPropertiesPut = new NameValueCollection();
         objPropertiesPut.putAll(spaceProperties);

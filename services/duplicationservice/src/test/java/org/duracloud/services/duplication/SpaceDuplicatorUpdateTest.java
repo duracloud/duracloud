@@ -108,20 +108,8 @@ public class SpaceDuplicatorUpdateTest {
     }
 
     @Test
-    public void testGetAccessExceptionUpdateSpace() throws Exception {
-        init(Mode.GET_ACCESS_EXCEPTION);
-        try {
-            replicator.updateSpace(spaceId);
-            Assert.fail("exception expected");
-
-        } catch (DuplicationException e) {
-            Assert.assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testSetAccessExceptionUpdateSpace() throws Exception {
-        init(Mode.SET_ACCESS_EXCEPTION);
+    public void testGetPropertiesExceptionUpdateSpace() throws Exception {
+        init(Mode.GET_PROPERTIES_EXCEPTION);
         try {
             replicator.updateSpace(spaceId);
             Assert.fail("exception expected");
@@ -138,7 +126,6 @@ public class SpaceDuplicatorUpdateTest {
         EasyMock.expect(store.getStorageProviderType()).andReturn("f-type");
 
         mockGetSpacePropertiesExpectation(cmd, store);
-        mockGetSpaceAccessExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
@@ -149,30 +136,14 @@ public class SpaceDuplicatorUpdateTest {
         switch (cmd) {
             case NULL_INPUT:
                 break;
+            case GET_PROPERTIES_EXCEPTION:
+                EasyMock.expect(store.getSpaceProperties(spaceId))
+                        .andThrow(new ContentStoreException("canned-exception"))
+                        .times(4);
+                break;
             default:
                 EasyMock.expect(store.getSpaceProperties(spaceId)).andReturn(
                     createSpaceProperties(cmd));
-                break;
-        }
-    }
-
-    private void mockGetSpaceAccessExpectation(Mode cmd, ContentStore store)
-        throws ContentStoreException {
-        switch (cmd) {
-            case NOT_FOUND_CREATE_EXCEPTION:
-            case NOT_FOUND:
-            case CREATE_EXCEPTION:
-                break;
-            case SET_PROPERTIES_EXCEPTION:
-            case OK:
-                EasyMock.expect(store.getSpaceAccess(spaceId)).andReturn(
-                    createSpaceAccess(cmd));
-                break;
-            case SET_ACCESS_EXCEPTION:
-            case GET_ACCESS_EXCEPTION:
-                store.getSpaceAccess(spaceId);
-                EasyMock.expectLastCall().andThrow(new ContentStoreException(
-                    "test-exception")).times(4);
                 break;
         }
     }
@@ -184,17 +155,12 @@ public class SpaceDuplicatorUpdateTest {
         return properties;
     }
 
-    private ContentStore.AccessType createSpaceAccess(Mode cmd) {
-        return ContentStore.AccessType.OPEN;
-    }
-
     private ContentStore createMockToStore(Mode cmd)
         throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ToStore", ContentStore.class);
         EasyMock.expect(store.getStorageProviderType()).andReturn("t-type");
 
         mockSetSpacePropertiesExpectation(cmd, store);
-        mockSetSpaceAccessExpectation(cmd, store);
 
         EasyMock.replay(store);
         return store;
@@ -203,8 +169,6 @@ public class SpaceDuplicatorUpdateTest {
     private void mockSetSpacePropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
-            case SET_ACCESS_EXCEPTION:
-            case GET_ACCESS_EXCEPTION:
             case OK:
                 store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall();              
@@ -226,25 +190,9 @@ public class SpaceDuplicatorUpdateTest {
         }
     }
 
-    private void mockSetSpaceAccessExpectation(Mode cmd, ContentStore store)
-        throws ContentStoreException {
-        switch (cmd) {
-            case NOT_FOUND_CREATE_EXCEPTION:
-            case NOT_FOUND:
-            case CREATE_EXCEPTION:
-            case SET_ACCESS_EXCEPTION:
-                break;
-            case SET_PROPERTIES_EXCEPTION:
-            case OK:
-                store.setSpaceAccess(spaceId, createSpaceAccess(cmd));
-                EasyMock.expectLastCall();
-                break;
-        }
-    }
-
     private enum Mode {
         OK, NULL_INPUT, SET_PROPERTIES_EXCEPTION,
         NOT_FOUND, NOT_FOUND_CREATE_EXCEPTION, CREATE_EXCEPTION,
-        GET_ACCESS_EXCEPTION, SET_ACCESS_EXCEPTION;
+        GET_PROPERTIES_EXCEPTION;//, SET_PROPS_EXCEPTION;
     }
 }

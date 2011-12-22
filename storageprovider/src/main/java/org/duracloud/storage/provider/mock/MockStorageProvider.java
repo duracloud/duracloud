@@ -36,8 +36,6 @@ public class MockStorageProvider
 
     private Map<String, String> contentProperties;
 
-    private AccessType access;
-
     private List<String> spaceContents;
 
     private Map<String, String> spaceProperties;
@@ -99,10 +97,6 @@ public class MockStorageProvider
         return contentProperties;
     }
 
-    public AccessType getSpaceAccess(String spaceId) throws StorageException {
-        return access;
-    }
-
     public Iterator<String> getSpaceContents(String spaceId, String prefix)
             throws StorageException {
         return spaceContents.iterator();
@@ -132,12 +126,6 @@ public class MockStorageProvider
         this.spaceId = spaceId;
         this.contentId = contentId;
         this.contentProperties = contentProperties;
-    }
-
-    public void setSpaceAccess(String spaceId, AccessType access)
-            throws StorageException {
-        this.spaceId = spaceId;
-        this.access = access;
     }
 
     public void setSpaceProperties(String spaceId,
@@ -203,14 +191,6 @@ public class MockStorageProvider
 
     public void setContentProperties(Map<String, String> contentProperties) {
         this.contentProperties = contentProperties;
-    }
-
-    public AccessType getAccess() {
-        return access;
-    }
-
-    public void setAccess(AccessType access) {
-        this.access = access;
     }
 
     public Map<String, String> getSpaceProperties() {

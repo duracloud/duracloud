@@ -107,12 +107,6 @@ public class BrokeredStorageProvider
                                                      contentId);
     }
 
-    public AccessType getSpaceAccess(String spaceId) throws StorageException {
-        return dispatchProvider.getSpaceAccess(targetProvider,
-                                               storeId,
-                                               spaceId);
-    }
-
     public Iterator<String> getSpaceContents(String spaceId, String prefix)
             throws StorageException {
         return dispatchProvider.getSpaceContents(targetProvider,
@@ -154,11 +148,6 @@ public class BrokeredStorageProvider
                                               spaceId,
                                               contentId,
                                               contentProperties);
-    }
-
-    public void setSpaceAccess(String spaceId, AccessType access)
-            throws StorageException {
-        dispatchProvider.setSpaceAccess(targetProvider, storeId, spaceId, access);
     }
 
     public void setSpaceProperties(String spaceId,

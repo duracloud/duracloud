@@ -45,8 +45,6 @@ public abstract class BaseRest {
     public static final String DEFAULT_MIME = MediaType.APPLICATION_OCTET_STREAM;
 
     public static final String HEADER_PREFIX = "x-dura-meta-";
-    public static final String SPACE_ACCESS_HEADER =
-        HEADER_PREFIX + StorageProvider.PROPERTIES_SPACE_ACCESS;
     public static final String SPACE_ACL_HEADER =
         HEADER_PREFIX + StorageProvider.PROPERTIES_SPACE_ACL;
     public static final String CONTENT_MIMETYPE_HEADER =
@@ -65,6 +63,10 @@ public abstract class BaseRest {
      */
     protected Map<String, String> getUserProperties(String... exclusions) {
         return doGetUserProperties(HEADER_PREFIX, exclusions);
+    }
+
+    protected Map<String, String> getUserProperties() {
+        return doGetUserProperties(HEADER_PREFIX);
     }
 
     protected Map<String, AclType> getSpaceACLs() {

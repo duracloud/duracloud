@@ -238,7 +238,7 @@ public class DuracloudContentWriter implements ContentWriter {
 
     private boolean spaceExists(String spaceId) {
         try {
-            return null != contentStore.getSpaceAccess(spaceId);
+            return null != contentStore.getSpaceACLs(spaceId);
         } catch (ContentStoreException e) {
             return false;
         }

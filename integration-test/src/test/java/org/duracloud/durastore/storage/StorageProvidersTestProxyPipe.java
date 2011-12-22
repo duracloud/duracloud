@@ -94,11 +94,6 @@ public class StorageProvidersTestProxyPipe
         proxy.testGetContentProperties(provider, spaceId0, contentId0);
     }
 
-    public void testGetSpaceAccess(StorageProvider provider, String spaceId0)
-            throws StorageException {
-        proxy.testGetSpaceAccess(provider, spaceId0);
-    }
-
     public void testGetSpaceContents(StorageProvider provider,
                                      String spaceId0,
                                      String contentId0,

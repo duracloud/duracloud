@@ -92,8 +92,6 @@ public class TestContentStore {
         if(!spaceExists(spaceId)) {
             // Create space
             Map<String, String> spaceProperties = new HashMap<String, String>();
-            spaceProperties.put(ContentStore.SPACE_ACCESS,
-                              ContentStore.AccessType.OPEN.name());
             createSpace(spaceId, spaceProperties);
         }
     }
@@ -246,7 +244,7 @@ public class TestContentStore {
 
     private static boolean spaceExists(String spaceId) throws Exception {
         try {
-            store.getSpaceAccess(spaceId);
+            store.getSpaceACLs(spaceId);
             return true;
         } catch (NotFoundException e) {
             return false;
@@ -269,34 +267,19 @@ public class TestContentStore {
 
         // Check space properties
         assertNotNull(responseProperties);
-        assertEquals(ContentStore.AccessType.OPEN.name(),
-                     responseProperties.get(ContentStore.SPACE_ACCESS));
-        assertNotNull(responseProperties.get(ContentStore.SPACE_COUNT));
-        assertNotNull(responseProperties.get(ContentStore.SPACE_CREATED));
-        assertEquals(ContentStore.AccessType.OPEN, store.getSpaceAccess(spaceId));
 
         // Set space properties
         metaValue = "Testing Properties Value";
         Map<String, String> spaceProperties = new HashMap<String, String>();
-        spaceProperties.put(ContentStore.SPACE_ACCESS,
-                          ContentStore.AccessType.CLOSED.name());
         spaceProperties.put(metaName, metaValue);
         store.setSpaceProperties(spaceId, spaceProperties);
 
         // Check space properties
         responseProperties = store.getSpaceProperties(spaceId);
         assertNotNull(responseProperties);
-        assertEquals(ContentStore.AccessType.CLOSED.name(),
-                     responseProperties.get(ContentStore.SPACE_ACCESS));
         assertNotNull(responseProperties.get(ContentStore.SPACE_COUNT));
         assertNotNull(responseProperties.get(ContentStore.SPACE_CREATED));
         assertEquals(metaValue, responseProperties.get(metaName));
-        assertEquals(ContentStore.AccessType.CLOSED,
-                     store.getSpaceAccess(spaceId));
-
-        // Set space access
-        store.setSpaceAccess(spaceId, ContentStore.AccessType.OPEN);
-        assertEquals(ContentStore.AccessType.OPEN, store.getSpaceAccess(spaceId));
     }
 
     @Test
@@ -319,18 +302,6 @@ public class TestContentStore {
         try {
             store.getSpaceProperties(invalidSpaceId);
             fail("Exception expected on getSpace(invalidSpaceId)");
-        } catch(NotFoundException expected) {
-        }
-
-        try {
-            store.getSpaceAccess(invalidSpaceId);
-            fail("Exception expected on getSpaceAccess(invalidSpaceId)");
-        } catch(NotFoundException expected) {
-        }
-
-        try {
-            store.setSpaceAccess(invalidSpaceId, ContentStore.AccessType.OPEN);
-            fail("Exception expected on setSpaceAccess(invalidSpaceId)");
         } catch(NotFoundException expected) {
         }
 

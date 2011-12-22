@@ -95,15 +95,6 @@ public class MockVerifyDeleteStorageProvider implements StorageProvider {
         // Default method body
     }
 
-    public AccessType getSpaceAccess(String spaceId) {
-        // Default method body
-        return AccessType.OPEN;
-    }
-
-    public void setSpaceAccess(String spaceId, AccessType access) {
-        // Default method body
-    }
-
     public String addContent(String spaceId, String contentId,
                              String contentMimeType,
                              Map<String, String> userProperties,

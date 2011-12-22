@@ -87,8 +87,6 @@ public class ClientTestBase {
             protected RestHttpHelper.HttpResponse call() throws Exception {
                 String content = null;
                 Map<String, String> headers = new HashMap<String, String>();
-                headers.put("x-dura-meta-" + ContentStore.SPACE_ACCESS,
-                            ContentStore.AccessType.OPEN.name());
                 return restHelper.put(url, content, headers);
             }
         };

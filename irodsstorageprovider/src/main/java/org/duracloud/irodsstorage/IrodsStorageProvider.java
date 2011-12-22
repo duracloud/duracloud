@@ -288,28 +288,6 @@ public class IrodsStorageProvider implements StorageProvider {
     }
 
     /**
-     * Always return 'open'
-     * 
-     * @param spaceId
-     * @return
-     */
-    @Override
-    public AccessType getSpaceAccess(String spaceId) {
-        return AccessType.OPEN;
-    }
-
-    /**
-     * Does nothing
-     *
-     * @param spaceId
-     * @param access
-     */
-    @Override
-    public void setSpaceAccess(String spaceId, AccessType access) {
-        //NoOp
-    }
-
-    /**
      *  Add new content to irods, content path is baseDirectory /spaceId/contentId
      * 
      * @param spaceId

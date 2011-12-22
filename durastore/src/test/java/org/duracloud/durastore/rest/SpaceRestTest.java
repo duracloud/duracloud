@@ -202,15 +202,12 @@ public class SpaceRestTest {
         spaceRest.headers = httpHeaders;
 
         EasyMock.expect(httpHeaders.getRequestHeaders())
-                .andReturn(headersMap)
-                .times(2);
-        EasyMock.expect(headersMap.getFirst(BaseRest.SPACE_ACCESS_HEADER))
-                .andReturn(null);
+                .andReturn(headersMap);
 
         doCreateUpdatePropertiesMocks(spaceProps);
 
         // space resource mocks
-        spaceResource.updateSpaceProperties(spaceId, null, null, spaceProps, storeId);
+        spaceResource.updateSpaceProperties(spaceId, null, spaceProps, storeId);
         EasyMock.expectLastCall();
 
         replayMocks();

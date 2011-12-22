@@ -405,40 +405,6 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public AccessType getSpaceAccess(String spaceId) throws ContentStoreException {
-        Map<String, String> spaceProperties = getSpaceProperties(spaceId);
-        if(spaceProperties.containsKey(StorageProvider.PROPERTIES_SPACE_ACCESS)) {
-            String spaceAccess =
-                spaceProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
-            if(spaceAccess.equals(AccessType.OPEN.name())) {
-                return AccessType.OPEN;
-            } else if(spaceAccess.equals(AccessType.CLOSED.name())) {
-                return AccessType.CLOSED;
-            } else {
-                String errMsg = "Could not determine access type for space " +
-                    spaceId + ". Value of access properties is " + spaceAccess;
-                throw new ContentStoreException(errMsg);
-            }
-        } else {
-            String errMsg = "Could not determine access type for space " +
-                            spaceId + ". No access type properties is available.";
-            throw new ContentStoreException(errMsg);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSpaceAccess(String spaceId, AccessType spaceAccess)
-            throws ContentStoreException {
-        Map<String, String> properties = getSpaceProperties(spaceId);
-        properties.put(StorageProvider.PROPERTIES_SPACE_ACCESS, spaceAccess.name());
-        setSpaceProperties(spaceId, properties);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public String addContent(String spaceId,
                              String contentId,
                              InputStream content,

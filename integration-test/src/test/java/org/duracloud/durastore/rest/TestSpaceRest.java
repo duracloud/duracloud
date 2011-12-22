@@ -116,9 +116,6 @@ public class TestSpaceRest extends BaseRestTester {
         checkResponse(response, HttpStatus.SC_OK);
 
         testProperties(response,
-                       BaseRest.SPACE_ACCESS_HEADER,
-                       RestTestHelper.SPACE_ACCESS);
-        testProperties(response,
                        RestTestHelper.PROPERTIES_NAME,
                        RestTestHelper.PROPERTIES_VALUE);
     }
@@ -196,8 +193,6 @@ public class TestSpaceRest extends BaseRestTester {
 
         // Add properties
         Map<String, String> headers = new HashMap<String, String>();
-        String newSpaceAccess = "CLOSED";
-        headers.put(BaseRest.SPACE_ACCESS_HEADER, newSpaceAccess);
         String newSpaceProperties = "Updated Space Properties";
         headers.put(RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
         HttpResponse response = BaseRestTester.restHelper.post(url, null, headers);
@@ -211,7 +206,6 @@ public class TestSpaceRest extends BaseRestTester {
         response = BaseRestTester.restHelper.head(url);
         checkResponse(response, HttpStatus.SC_OK);
 
-        testProperties(response, BaseRest.SPACE_ACCESS_HEADER, newSpaceAccess);
         testProperties(response, RestTestHelper.PROPERTIES_NAME, newSpaceProperties);
 
         // Remove properties

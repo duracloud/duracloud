@@ -12,7 +12,6 @@ import org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.storage.util.StorageProviderUtil;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -167,7 +166,7 @@ public class StorageProvidersTestCore
     private boolean spaceExists(StorageProvider provider, String spaceId) {
         boolean exists;
         try {
-            provider.getSpaceAccess(spaceId);
+            provider.getSpaceACLs(spaceId);
             exists = true;
         } catch (NotFoundException e) {
             exists = false;
@@ -218,11 +217,9 @@ public class StorageProvidersTestCore
 
         assertTrue(spaceMd.containsKey(StorageProvider.PROPERTIES_SPACE_CREATED));
         assertTrue(spaceMd.containsKey(StorageProvider.PROPERTIES_SPACE_COUNT));
-        assertTrue(spaceMd.containsKey(StorageProvider.PROPERTIES_SPACE_ACCESS));
 
         assertNotNull(spaceMd.get(StorageProvider.PROPERTIES_SPACE_CREATED));
         assertNotNull(spaceMd.get(StorageProvider.PROPERTIES_SPACE_COUNT));
-        assertNotNull(spaceMd.get(StorageProvider.PROPERTIES_SPACE_ACCESS));
     }
 
     public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
@@ -274,48 +271,6 @@ public class StorageProvidersTestCore
         assertEquals(val1, spaceMd.get(key1));
         assertEquals(val2, spaceMd.get(key2));
 
-    }
-
-    public void testGetSpaceAccess(final StorageProvider provider, final String spaceId0)
-            throws StorageException {
-        AccessType access = null;
-
-        // Test default access.
-        access = provider.getSpaceAccess(spaceId0);
-        Assert.assertEquals(AccessType.CLOSED, access);
-
-        // ...also check Access in user properties.
-        Map<String, String> spaceMd = provider.getSpaceProperties(spaceId0);
-        assertNotNull(spaceMd);
-        String prop = spaceMd.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
-        assertNotNull(prop);
-        assertEquals(AccessType.CLOSED.toString(), prop);
-
-        // Open access, and test again.
-        provider.setSpaceAccess(spaceId0, AccessType.OPEN);
-
-        StoreCaller<AccessType> caller = new StoreCaller<AccessType>() {
-            protected AccessType doCall() throws Exception {
-                return provider.getSpaceAccess(spaceId0);
-            }
-        };
-        caller.call(AccessType.OPEN);
-
-        // ...also check Access in user properties.
-        StoreCaller propertiesCaller = new StoreCaller<String>() {
-            protected String doCall() throws Exception {
-                Map<String, String> md = provider.getSpaceProperties(spaceId0);
-                return md.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
-            }
-        };
-        propertiesCaller.call(AccessType.OPEN.toString());
-
-        // Set to Closed via properties, test again
-        spaceMd.put(StorageProvider.PROPERTIES_SPACE_ACCESS,
-                    AccessType.CLOSED.toString());
-        provider.setSpaceProperties(spaceId0, spaceMd);
-
-        caller.call(AccessType.CLOSED);
     }
 
     public void testAddAndGetContent(StorageProvider provider,

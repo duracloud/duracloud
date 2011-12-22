@@ -27,9 +27,6 @@ import java.util.Map;
  */
 public interface ContentStore {
 
-    @Deprecated
-    public enum AccessType {OPEN, CLOSED};
-
     /** Basic space properties: Created date */
     public static final String SPACE_CREATED =
             StorageProvider.PROPERTIES_SPACE_CREATED;
@@ -41,10 +38,6 @@ public interface ContentStore {
     /** Basic space properties: Size of space */
     public static final String SPACE_SIZE =
             StorageProvider.PROPERTIES_SPACE_SIZE;
-
-    /** Basic space properties: Space access (OPEN or CLOSED) */
-    public static final String SPACE_ACCESS =
-            StorageProvider.PROPERTIES_SPACE_ACCESS;
 
     /** Basic content properties: MIME type */
     public static final String CONTENT_MIMETYPE =
@@ -206,31 +199,6 @@ public interface ContentStore {
     public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs)
         throws ContentStoreException;
 
-    /**
-     * Gets the access setting of the space, either OPEN or CLOSED. An OPEN
-     * space is available for public viewing. A CLOSED space requires
-     * authentication prior to viewing any of the contents.
-     *
-     * @param spaceId the identifier of the DuraCloud Space
-     * @return AccessType - OPEN or CLOSED
-     * @throws NotFoundException if the space does not exist
-     * @throws ContentStoreException if an error occurs
-     */
-    @Deprecated
-    public AccessType getSpaceAccess(String spaceId) throws ContentStoreException;
-    
-    /**
-     * Sets the accessibility of a space to either OPEN or CLOSED.
-     *
-     * @param spaceId the identifier of the DuraCloud Space
-     * @param spaceAccess the access setting for this space - OPEN or CLOSED
-     * @throws NotFoundException if the space does not exist
-     * @throws ContentStoreException if an error occurs
-     */
-    @Deprecated
-    public void setSpaceAccess(String spaceId, AccessType spaceAccess)
-            throws ContentStoreException;
-    
     /**
      * Adds content to a space. The contentId of the new content item can
      * include "/" symbols to indicate a folder heirarchy.

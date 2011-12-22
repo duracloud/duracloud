@@ -9,7 +9,6 @@ package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider.AccessType;
 
 import java.io.InputStream;
 import java.util.Iterator;
@@ -65,11 +64,6 @@ public interface StatelessStorageProvider {
                                                              String contentId)
             throws StorageException;
 
-    public abstract AccessType getSpaceAccess(StorageProvider targetProvider,
-                                              String storeId,
-                                              String spaceId)
-            throws StorageException;
-
     public abstract Iterator<String> getSpaceContents(StorageProvider targetProvider,
                                                       String storeId,
                                                       String spaceId,
@@ -103,12 +97,6 @@ public interface StatelessStorageProvider {
                                               String spaceId,
                                               String contentId,
                                               Map<String, String> contentProperties)
-            throws StorageException;
-
-    public abstract void setSpaceAccess(StorageProvider targetProvider,
-                                        String storeId,
-                                        String spaceId,
-                                        AccessType access)
             throws StorageException;
 
     public abstract void setSpaceProperties(StorageProvider targetProvider,

@@ -15,7 +15,6 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProvider.AccessType;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.After;
@@ -131,7 +130,7 @@ public class TestRackspaceStorageProvider {
         // test createSpace()
         log.debug("Test createSpace()");
         rackspaceProvider.createSpace(SPACE_ID);
-        testSpaceProperties(SPACE_ID, AccessType.CLOSED);
+        testSpaceProperties(SPACE_ID);
 
         // test setSpaceProperties()
         log.debug("Test setSpaceProperties()");
@@ -141,8 +140,7 @@ public class TestRackspaceStorageProvider {
 
         // test getSpaceProperties()
         log.debug("Test getSpaceProperties()");
-        Map<String, String> sProperties =
-            testSpaceProperties(SPACE_ID, AccessType.CLOSED);
+        Map<String, String> sProperties = testSpaceProperties(SPACE_ID);
         assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
         assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
@@ -153,30 +151,9 @@ public class TestRackspaceStorageProvider {
         // This will only work when SPACE_ID fits the Rackspace container naming conventions
         assertTrue(contains(spaces, SPACE_ID));
 
-        // test setSpaceAccess()
-        log.debug("Test setSpaceAccess(OPEN)");
-        rackspaceProvider.setSpaceAccess(SPACE_ID, AccessType.OPEN);
-
-        // test getSpaceAccess()
-        log.debug("Test getSpaceAccess()");
-        AccessType access = rackspaceProvider.getSpaceAccess(SPACE_ID);
-        assertEquals(access, AccessType.OPEN);
-
         // Check Rackspace CDN access - should be off (as always)
         log.debug("Check space access");
         assertFalse(filesClient.isCDNEnabled(SPACE_ID));
-
-        // test set space access via properties update
-        log.debug("Test setSpaceProperties(Access) ");
-        spaceProperties = new HashMap<String, String>();
-        spaceProperties.put(StorageProvider.PROPERTIES_SPACE_ACCESS,
-                          AccessType.CLOSED.name());
-        rackspaceProvider.setSpaceProperties(SPACE_ID, spaceProperties);
-
-        // test getSpaceAccess()
-        log.debug("Test getSpaceAccess()");
-        access = rackspaceProvider.getSpaceAccess(SPACE_ID);
-        assertEquals(access, AccessType.CLOSED);
 
         /* Test Content */
 
@@ -368,8 +345,7 @@ public class TestRackspaceStorageProvider {
         }
     }
 
-    private Map<String, String> testSpaceProperties(String spaceId,
-                                                    AccessType access) {
+    private Map<String, String> testSpaceProperties(String spaceId) {
         Map<String, String> sProperties =
             rackspaceProvider.getSpaceProperties(spaceId);
 
@@ -377,16 +353,8 @@ public class TestRackspaceStorageProvider {
             StorageProvider.PROPERTIES_SPACE_CREATED));
         assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 
-        assertTrue(sProperties.containsKey(
-            StorageProvider.PROPERTIES_SPACE_COUNT));
+        assertTrue(sProperties.containsKey(StorageProvider.PROPERTIES_SPACE_COUNT));
         assertNotNull(sProperties.get(StorageProvider.PROPERTIES_SPACE_COUNT));
-
-        assertTrue(sProperties.containsKey(
-            StorageProvider.PROPERTIES_SPACE_ACCESS));
-        String spaceAccess =
-            sProperties.get(StorageProvider.PROPERTIES_SPACE_ACCESS);
-        assertNotNull(spaceAccess);
-        assertEquals(access.name(), spaceAccess);
 
         return sProperties;
     }
@@ -425,20 +393,6 @@ public class TestRackspaceStorageProvider {
 
         try {
             rackspaceProvider.getSpaceContentsChunked(spaceId, null, 100, null);
-            fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            rackspaceProvider.getSpaceAccess(spaceId);
-            fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            rackspaceProvider.setSpaceAccess(spaceId, AccessType.CLOSED);
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);

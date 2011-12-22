@@ -41,7 +41,6 @@ public class ACLStorageProvider implements StorageProvider {
     private final StorageProvider targetProvider;
     private SecurityContextUtil securityContextUtil;
 
-    private Map<String, AccessType> spaceAccessMap;
     private Map<String, Map<String, AclType>> spaceACLMap;
     private boolean loaded;
 
@@ -53,7 +52,6 @@ public class ACLStorageProvider implements StorageProvider {
                               SecurityContextUtil securityContextUtil) {
         this.targetProvider = targetProvider;
         this.securityContextUtil = securityContextUtil;
-        this.spaceAccessMap = new HashMap<String, AccessType>();
         this.spaceACLMap = new HashMap<String, Map<String, AclType>>();
         this.loaded = false;
 
@@ -68,20 +66,9 @@ public class ACLStorageProvider implements StorageProvider {
             Iterator<String> spaces = targetProvider.getSpaces();
             while (spaces.hasNext()) {
                 String space = spaces.next();
-                spaceAccessMap.put(space, getSpaceAccess(space));
                 spaceACLMap.put(space, getSpaceACLs(space));
             }
             loaded = true;
-        }
-
-        private AccessType getSpaceAccess(String space) {
-            try {
-                return targetProvider.getSpaceAccess(space);
-
-            } catch (StorageException e) {
-                log.warn("Error getting space access: {}, err: {}", space, e);
-                return AccessType.CLOSED;
-            }
         }
 
         private Map<String, AclType> getSpaceACLs(String space) {
@@ -121,14 +108,8 @@ public class ACLStorageProvider implements StorageProvider {
         }
 
         waitForCache();
+
         List<String> spaces = new ArrayList<String>();
-
-        for (String space : spaceAccessMap.keySet()) {
-            if (AccessType.OPEN.equals(spaceAccessMap.get(space))) {
-                spaces.add(space);
-            }
-        }
-
         for (String space : spaceACLMap.keySet()) {
             Map<String, AclType> acls = spaceACLMap.get(space);
             if (userHasAccess(user, acls) && !spaces.contains(space)) {
@@ -166,6 +147,14 @@ public class ACLStorageProvider implements StorageProvider {
 
     private boolean userHasAccess(DuracloudUserDetails user,
                                   Map<String, AclType> acls) {
+        if (acls.keySet().contains(PROPERTIES_SPACE_ACL_PUBLIC)) {
+            return true;
+        }
+
+        if (null == user) {
+            return false;
+        }
+
         if (acls.keySet().contains(PROPERTIES_SPACE_ACL + user.getUsername())) {
             return true;
         }
@@ -223,8 +212,6 @@ public class ACLStorageProvider implements StorageProvider {
         StorageException storageException = null;
         try {
             targetProvider.deleteSpace(spaceId);
-
-            spaceAccessMap.remove(spaceId);
             spaceACLMap.remove(spaceId);
 
         } catch (StorageException e) {
@@ -234,8 +221,7 @@ public class ACLStorageProvider implements StorageProvider {
         // clear and reload cache if deleting: "aclstorageprovider-cache"
         if ((getClass().getSimpleName() + "-cache").equalsIgnoreCase(spaceId)) {
             log.info("cycling cache.");
-            
-            this.spaceAccessMap.clear();
+
             this.spaceACLMap.clear();
             this.loaded = false;
 
@@ -256,23 +242,7 @@ public class ACLStorageProvider implements StorageProvider {
     public void setSpaceProperties(String spaceId,
                                    Map<String, String> spaceProperties) {
         waitForCache();
-
         targetProvider.setSpaceProperties(spaceId, spaceProperties);
-
-        // cache new space properties
-        if (null != spaceProperties) {
-            // update cache
-            String access = spaceProperties.get(PROPERTIES_SPACE_ACCESS);
-            if (null != access) {
-                try {
-                    AccessType accessType = AccessType.valueOf(access);
-                    spaceAccessMap.put(spaceId, accessType);
-
-                } catch (RuntimeException e) {
-                    // do nothing
-                }
-            }
-        }
     }
 
     @Override
@@ -303,37 +273,6 @@ public class ACLStorageProvider implements StorageProvider {
         if (null != spaceACLs) {
             // update cache
             this.spaceACLMap.put(spaceId, spaceACLs);
-        }
-    }
-
-    @Override
-    public AccessType getSpaceAccess(String spaceId) {
-        DuracloudUserDetails user = getCurrentUserDetails();
-        if (isAdmin(user) && !loaded) {
-            return targetProvider.getSpaceAccess(spaceId);
-        }
-
-        waitForCache();
-
-        if (spaceAccessMap.containsKey(spaceId)) {
-            return spaceAccessMap.get(spaceId);
-
-        } else {
-            AccessType access = targetProvider.getSpaceAccess(spaceId);
-            spaceAccessMap.put(spaceId, access);
-            return access;
-        }
-    }
-
-    @Override
-    public void setSpaceAccess(String spaceId, AccessType access) {
-        waitForCache();
-
-        targetProvider.setSpaceAccess(spaceId, access);
-
-        if (null != access) {
-            // update cache
-            this.spaceAccessMap.put(spaceId, access);
         }
     }
 

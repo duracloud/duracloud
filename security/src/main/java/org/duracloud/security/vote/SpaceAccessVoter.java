@@ -39,8 +39,6 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
     private final Logger log = LoggerFactory.getLogger(SpaceAccessVoter.class);
 
-    private Map<String, StorageProvider.AccessType> spaceCache =
-        new HashMap<String, StorageProvider.AccessType>();
     private StorageProviderFactory storageProviderFactory;
     private UserDetailsService userDetailsService;
 
@@ -50,37 +48,16 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         this.userDetailsService = userDetailsService;
     }
 
-    protected StorageProvider.AccessType getSpaceAccess(HttpServletRequest request) {
-        String storeId = getStoreId(request);
-        String spaceId = getSpaceId(request);
+    protected boolean isOpenResource(HttpServletRequest httpRequest) {
+        String spaceId = getSpaceId(httpRequest);
         if (null == spaceId) {
-            return StorageProvider.AccessType.CLOSED;
+            return false;
         }
 
-        if (spaceId.equals("spaces") ||
-            spaceId.equals("stores") ||
-            spaceId.equals("acl") ||
-            spaceId.equals("init")) {
-            return StorageProvider.AccessType.OPEN;
-        }
-
-        StorageProvider.AccessType access = getAccessFromCache(storeId, spaceId);
-        if (access != null) {
-            return access;
-        }
-
-        StorageProvider store = getStorageProvider(storeId);
-        if (null == store) {
-            return StorageProvider.AccessType.CLOSED;
-        }
-
-        access = StorageProvider.AccessType.CLOSED;
-        try {
-            access = store.getSpaceAccess(spaceId);
-        } catch (StorageException e) {
-
-        }
-        return access;
+        return spaceId.equals("spaces")
+            || spaceId.equals("stores")
+            || spaceId.equals("acl")
+            || spaceId.equals("init");
     }
 
     private String getStoreId(HttpServletRequest httpRequest) {
@@ -264,12 +241,6 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             }
         }
         return false;
-    }
-
-    private StorageProvider.AccessType getAccessFromCache(String storeId,
-                                                          String spaceId) {
-        // TODO: implement cache
-        return null;
     }
 
     /**

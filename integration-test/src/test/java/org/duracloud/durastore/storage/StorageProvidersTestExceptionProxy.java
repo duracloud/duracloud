@@ -128,15 +128,6 @@ public class StorageProvidersTestExceptionProxy
         }
     }
 
-    public void testGetSpaceAccess(StorageProvider provider, String spaceId0)
-            throws StorageException {
-        try {
-            tester.testGetSpaceAccess(provider, spaceId0);
-        } catch (AssertionError e) {
-            throwRuntime(provider, e);
-        }
-    }
-
     public void testGetSpaceContents(StorageProvider provider,
                                      String spaceId0,
                                      String contentId0,
