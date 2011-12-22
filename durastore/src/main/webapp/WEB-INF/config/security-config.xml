@@ -22,7 +22,7 @@
       'closed' spaces will be handled by the spaceAccessVoter.
      -->
     <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
-    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS"/>
+    <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS, ROLE_USER"/>
 
     <!-- no one should be adding the 'acl' space, not even ROOT -->
     <intercept-url pattern="/acl" method="PUT" access="ROLE_ROOT"/>
