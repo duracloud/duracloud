@@ -87,7 +87,7 @@ public class ServiceMonitorImplTest {
 
         eventHandler.handleDeployEvent();
         EasyMock.expectLastCall().times(1);
-
+        EasyMock.makeThreadSafe(eventHandler, true);
         replayMocks();
 
         DeployMessage msg = new DeployMessage();
