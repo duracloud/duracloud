@@ -920,10 +920,6 @@ $(function() {
 		
 		month = new Number(month);
 		
-		if(month == 1){
-			year--;
-		}
-				
 		var date = new Date(Date.UTC(year, month-1,1));
 		return date;
 	};
