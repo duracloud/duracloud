@@ -33,14 +33,6 @@
               </c:if>      
 			</script>
 			
-		<link rel="stylesheet"
-			href="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.css"
-			type="text/css" media="screen" />
-		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.fancybox-1.3.1.js"></script>
-		<script type="text/javascript"
-			src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.pack.js"></script>
-		
         <script type='text/javascript' src='${pageContext.request.contextPath}/jwplayer/swfobject.js'></script>
 
 		<script type="text/javascript"

@@ -106,11 +106,11 @@ $(function(){
 						success: function(data, status, xhr){
 							dc.checkSession(data);
 							if(innerCallback.success != undefined){
-								innerCallback.success(data);
+								innerCallback.success(data, status, xhr);
 							}else{
 								if(outerCallback != undefined 
 										&& outerCallback.success != undefined){
-									outerCallback.success(data);
+									outerCallback.success(data, status, xhr);
 								}
 							}
 						},
@@ -378,6 +378,26 @@ $(function(){
 			return true;
 		};
 		
+		
+	    dc.extractSpaceId = function(path){
+	        var index = path.indexOf("/");
+	        return path.substring(0, index);
+	    };
+
+	    dc.extractContentId = function(path){
+	        var index = path.indexOf("/");
+	        return path.substring(index+1);
+	    };
+	    
+	    dc.reportOverlayOnClick = function(link, reportId){
+	        var url = "/duradmin/servicesreport/htmltable?contentId=" + 
+	        escape(dc.extractContentId(reportId)) + 
+	        "&spaceId=" + escape(dc.extractSpaceId(reportId));
+        	link.attr("href", url)
+            	.attr("title","View Service Report")
+            	.fancybox({type: 'iframe'});
+	    };
+
 
 		/**
 		 * checks the progress of a remote task and notifies caller of results.

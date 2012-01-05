@@ -123,9 +123,17 @@ $(function() {
 			success: function(response){
 				var properties = response.properties;
 				var data = new Array();
+				var i;
 				if(properties != undefined){
 					for(i = 0; i < properties.length; i++){
-						data[i] = [properties[i].name, properties[i].value];
+					    var name = properties[i].name;
+					    var val = properties[i].value;
+					    
+					    if(name == 'Report' || name == 'Error Report'){
+					        val = "<a class='report-link' href='"+val+"'>"+val+"</a>";
+					    }
+					    
+						data[i] = [name, val];
 					}			
 				}
 				
@@ -138,6 +146,12 @@ $(function() {
 			                }
 						)
 					);
+				
+				
+				$(".report-link", centerPane).each(function(i,item){
+				    var link = $(item);
+				    dc.reportOverlayOnClick(link, link.attr("href"));
+				});
 
 				fireDeploymentPropertiesUpdatedEvent(service,deployment,properties);
 			},

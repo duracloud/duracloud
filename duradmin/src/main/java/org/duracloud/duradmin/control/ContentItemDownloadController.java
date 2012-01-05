@@ -38,6 +38,13 @@ public class ContentItemDownloadController
     	    storeId = request.getParameter("storeId");;
     	}
     	
+    	if(storeId == null){
+            storeId =
+                controllerSupport.getContentStoreManager()
+                                 .getPrimaryContentStore()
+                                 .getStoreId();
+    	}
+    	
     	
     	String spaceId = request.getParameter("spaceId");
     	String contentId = request.getParameter("contentId");

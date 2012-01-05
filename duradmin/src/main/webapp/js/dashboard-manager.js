@@ -447,7 +447,6 @@
 				},
 	
 				_reloadImpl: function(){
-					var spm;
 					var spm  =  this._getSpaceMetrics();
 					
 					if(!spm){
@@ -1547,18 +1546,23 @@ $(function() {
 		//filter the view based on the current filter state
 		filterServices(servicesPanel);		
 	};
-
+	
 	/**
 	 * Create a new dom node from a prototype node and serviceSummary object.
 	 */
 	var createCompletedServiceSummaryNode = function(/*dom node*/ template, /*service summary*/ ss){
-        var node, props,duration,stopTime,startTime, reportId, reportNode;
+        var node, 
+            props,
+            duration,
+            stopTime,
+            startTime;
+        
         node = template.clone();
         node.addClass(getServiceStatusClass(ss));
         $(".service-name", node).html(ss.name);
         stopTime = getStopTime(ss);
         startTime = getStartTime(ss);
-        var duration = "--";
+        duration = "--";
         if(stopTime){
             duration = calculateDuration(startTime, stopTime);
         }
@@ -1567,29 +1571,23 @@ $(function() {
         $(".service-stop-time", node).html(!stopTime ? "--" : stopTime.toString('MMM-dd-yyyy'));
         $(".service-duration", node).html(duration);
         $(".service-status", node).html(getServiceStatusPretty(ss));
-        
-        reportId = ss.properties['Report'];
-        reportNode = $(".service-report a", node);
-        if(reportId){
-            reportNode
-                .attr("href","/durastore/" + reportId)
-                .attr("title","Download Service Report");
-        }else{
-            reportNode.remove();
-        }
-
-        $(".service-report a", node).attr("title","Download Service Report");
         $(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
         
-        var props = $.extend({}, ss.properties);
-        delete props['Service Status'];
-        delete props['Report'];
-
+        props = $.extend({}, ss.properties);
+        configureReportLink(ss.properties, node);
+        postProcessProperties(props);
+        delete props[SERVICE_STATUS_KEY];
+        delete props[REPORT_KEY];
         $(".service-properties", node).append(dc.createTable(toArray(props)));
+        addReportOverlayClickListener(node);
         node.show();
         return node;
 	};
 	
+    var REPORT_KEY = "Report";
+    var ERROR_REPORT_KEY = "Error Report";
+    var SERVICE_STATUS_KEY = "Service Status";
+
 	/**
 	 * loads a list of summaries into the installed services viewer
 	 */
@@ -1615,11 +1613,41 @@ $(function() {
 			$(".service-configuration", node).append(dc.createTable(toArray(ss.configs)));
 			
 			var props = $.extend({}, ss.properties);
-			delete props['Service Status'];
-
+	        configureReportLink(props, node);
+			postProcessProperties(props);
+			delete props[SERVICE_STATUS_KEY];
 			$(".service-properties", node).append(dc.createTable(toArray(props)));
+			addReportOverlayClickListener(node);
 			node.show();
 		});
+	};
+
+	
+    var configureReportLink = function(props, node){
+        var reportId = props[REPORT_KEY];
+        var reportLink = $(".service-report a", node);
+
+        reportLink.addClass("report-link")
+                  .attr("href",reportId);
+        if(!reportId){
+            reportLink.remove();
+        }
+    };
+
+	
+	var addReportOverlayClickListener = function(node){
+        $(".report-link",node).each(function(i,item){
+            var link = $(item);
+            dc.reportOverlayOnClick(link, link.attr("href"));
+        });
+	};
+	
+	var postProcessProperties = function(props){
+        for(i in props){
+            if (i == REPORT_KEY || i == ERROR_REPORT_KEY){
+                props[i] = "<a class='report-link' href='"+props[i]+"'>"+props[i]+"</a>";
+            }
+        }
 	};
 	
 	/**

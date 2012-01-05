@@ -40,7 +40,11 @@
  	<definition name="admin-manager" template="/WEB-INF/jsp/admin/admin-manager.jsp">
  	</definition>
 
-  <definition name="upload-tool" template="/WEB-INF/jsp/spaces/upload-tool.jsp">
-  </definition>
+    <definition name="upload-tool" template="/WEB-INF/jsp/spaces/upload-tool.jsp">
+    </definition>
+
+    <definition name="simple-report" template="/WEB-INF/jsp/services/simple-report.jsp" >
+    </definition>
+
 
 </tiles-definitions>
