@@ -87,15 +87,17 @@ var dc;
 
 	/**
 	 * Returns a list of spaces
-	 * @param Number | String storeProviderId The id of the store provider
+	 * @param String storeProviderId The id of the store provider
+	 * @param boolean writeableOnly Indicates that only spaces writeable 
+	 *                              for the current caller should be returned
 	 * @param Object callback
 	 * @option Function success(spaces) a handler for an array of spaces
 	 * @option Function failure(info) a handler that returns failure info 
 	 */
-	dc.store.GetSpaces = function(storeProviderId, callback){
+	dc.store.GetSpaces = function(storeProviderId, writeableOnly, callback){
 		dc.ajax({ 
 				url: "/duradmin/spaces", 
-				data: "storeId="+storeProviderId+"&f=json",
+				data: "storeId="+storeProviderId+"&writeableOnly="+writeableOnly + "&f=json",
 				cache: false,
 				success: function(data){
 					callback.success(data.spaces)

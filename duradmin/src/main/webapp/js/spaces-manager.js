@@ -1774,35 +1774,38 @@ $(function(){
 	        open: function(){
 	            var that = this;
                 var destStoreIdField = $("#destStoreId", that);
+                var contentIdField = $("#contentId", that);
+                var spaceSelect = $("#spaceId", that);
                 
+                loadWriteableSpaces = function(storeId, spaceId){
+                    dc.store.GetSpaces(
+                        storeId,
+                        true,
+                        {
+                         success:function(spaces){
+                            var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
+                            spaceSelect.children().remove();
+                            $.each(spaces, function(index,space){
+                                spaceSelect.append("<option>"+space+"</option>");
+                            });
+                            
+                            spaceSelect.val(selectedSpaceId);
+                         }
+                       }
+                     );
+                };
+                
+
                 //attach listener if destStoreId is a select box (ie multiple stores available)
                 //load list of spaces
-                $("select#destStoreId").change(
+                destStoreIdField.change(
                   function(evt){
                       var that = this;
-                      var storeId = $(that).val();
-                      
-                      dc.store.GetSpaces(
-                         storeId, 
-                         {
-                          success:function(spaces){
-                             var selectedSpaceId = spaceSelect.val();
-                             spaceSelect.children().remove();
-                             $.each(spaces, function(index,space){
-                                 spaceSelect.append("<option>"+space+"</option>");
-                             });
-                             
-                             spaceSelect.val(selectedSpaceId);
-                          }
-                        }
-                      );
+                      loadWriteableSpaces($(that).val());
                   }
                 );
                 
-	            var contentIdField = $("#contentId", that);
-                var spaceSelect = $("#spaceId", that);
-                spaceSelect.children().remove();
-
+                
 	            $.validator
 	            .addMethod("contentIdAlreadyInSpace", function(value, element) { 
 	                return !(destStoreIdField.val() == contentItem.storeId && spaceSelect.val() == contentItem.spaceId
@@ -1831,14 +1834,7 @@ $(function(){
 	            destStoreIdField.val(contentItem.storeId);
 	            contentIdField.val(contentItem.contentId);
                 
-	            $.each(spacesArray, function(i,item){
-	                var option  = $.fn.create("option"),
-	                    spaceId = item.spaceId;
-	                option.attr("value", spaceId);
-	                option.html(spaceId);
-	                if(contentItem.spaceId == spaceId) option.attr("selected", "selected");
-	                spaceSelect.append(option);
-	            });
+	            loadWriteableSpaces(contentItem.storeId, contentItem.spaceId);
 	            
                 setTimeout(function(){
                     contentIdField.get(0).select();
@@ -2713,7 +2709,7 @@ $(function(){
 	var refreshSpaces = function(providerId, /*optional*/successFunc){
 		clearContents();
 		clearSpaces();
-		dc.store.GetSpaces(providerId,{
+		dc.store.GetSpaces(providerId, false, {
 			begin: function(){
 				dc.busy("Loading spaces...", {modal: true});
 				$("#space-list-status").html("Loading...").fadeIn("slow");

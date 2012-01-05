@@ -143,13 +143,9 @@ public class SpaceUtil {
         throws ContentStoreException {
         
         // check authorities
-        GrantedAuthority[] authorities = authentication.getAuthorities();
-        for (GrantedAuthority a : authorities) {
-            if (a.getAuthority().equals("ROLE_ADMIN")) {
-                //no need to make any further calls.
-                return AclType.WRITE;
-            }
-        }
+	    if(isAdmin(authentication)){
+	        return AclType.WRITE;
+	    }
 
         AclType callerAcl = null;
 
@@ -172,6 +168,16 @@ public class SpaceUtil {
         return callerAcl;
     }
 	
+    public static boolean isAdmin(Authentication authentication) {
+        GrantedAuthority[] authorities = authentication.getAuthorities();
+        for (GrantedAuthority a : authorities) {
+            if (a.getAuthority().equals("ROLE_ADMIN")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static List<Acl> toAclList(Map<String, AclType> spaceACLs) {
         List<Acl> acls = new LinkedList<Acl>();
 

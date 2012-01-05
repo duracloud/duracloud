@@ -7,19 +7,23 @@
  */
 package org.duracloud.duradmin.spaces.controller;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.security.impl.DuracloudUserDetails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.LinkedList;
-import java.util.List;
+
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.model.AclType;
+import org.duracloud.duradmin.util.SpaceUtil;
+import org.duracloud.security.impl.DuracloudUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
 
 /**
  * 
@@ -48,10 +52,26 @@ public class SpacesController implements Controller {
 	    try { 
 	        
 	        if("json".equals(request.getParameter("f"))){
+	            String writeableOnlyStr = request.getParameter("writeableOnly");
+	            boolean writeableOnly = Boolean.valueOf(writeableOnlyStr);
 	            String storeId = request.getParameter("storeId");   
 	            ContentStore c = contentStoreManager.getContentStore(storeId);
 	            ModelAndView mav = new ModelAndView("jsonView");
-	            mav.addObject("spaces",c.getSpaces());
+	            List<String> spaces = c.getSpaces();
+                Authentication a =
+                    SecurityContextHolder.getContext().getAuthentication();
+
+                //remove all caller non writeable spaces from the spaces list
+                if(writeableOnly && !SpaceUtil.isAdmin(a)){
+                    for(int i = spaces.size()-1; i > -1; i--){
+                        String spaceId = spaces.get(i);
+	                    AclType acl = SpaceUtil.resolveCallerAcl(c.getSpaceACLs(spaceId), a);
+	                    if(acl != AclType.WRITE){
+	                        spaces.remove(i);
+	                    }
+	                }
+	            }
+	            mav.addObject("spaces",spaces);
 	            return mav;
 	        }else{
 	            ModelAndView mav = new ModelAndView("spaces-manager");
