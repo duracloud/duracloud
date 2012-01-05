@@ -78,7 +78,9 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
             String postName = ".tsv";
 
             String newContentId = preName + date + postName;
+            String errorContentId =  preName + date + ".errors" + postName;
             super.setReportId(getDestSpaceId(), newContentId);
+            super.setErrorReportId(getDestSpaceId(), errorContentId);
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
                 getJobWorker(),
                 getContentStore(),
@@ -92,12 +94,13 @@ public class BulkImageConversionService extends BaseAmazonMapReduceService imple
                                                getContentStore(),
                                                getDestSpaceId());
 
-            AmazonMapReduceJobWorker passFailWorker = new SimplePassFailPostJobWorker(
-                mimeWorker2,
-                getContentStore(),
-                getServiceWorkDir(),
-                getDestSpaceId(),
-                newContentId);
+            AmazonMapReduceJobWorker passFailWorker =
+                new SimplePassFailPostJobWorker(mimeWorker2,
+                                                getContentStore(),
+                                                getServiceWorkDir(),
+                                                getDestSpaceId(),
+                                                newContentId,
+                                                errorContentId);
 
             AmazonMapReduceJobWorker[] postWorkers =
                 new AmazonMapReduceJobWorker[]{headerWorker,

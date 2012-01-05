@@ -21,7 +21,7 @@ public class SimplePassFailPostJobWorkerTest {
 
     @Before
     public void setUp() throws Exception {
-        worker = new SimplePassFailPostJobWorker(null, null, null, null, null);
+        worker = new SimplePassFailPostJobWorker(null, null, null, null, null,null);
     }
 
     @Test

@@ -25,8 +25,9 @@ public class SimplePassFailPostJobWorker extends PassFailPostJobWorker {
                                        ContentStore contentStore,
                                        String serviceWorkDir,
                                        String spaceId,
-                                       String contentId) {
-        super(predecessor, contentStore, serviceWorkDir, spaceId, contentId);
+                                       String contentId,
+                                       String errorReportContentId) {
+        super(predecessor, contentStore, serviceWorkDir, spaceId, contentId, errorReportContentId);
     }
 
     @Override

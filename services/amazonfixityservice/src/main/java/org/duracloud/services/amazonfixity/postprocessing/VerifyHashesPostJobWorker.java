@@ -9,8 +9,6 @@ package org.duracloud.services.amazonfixity.postprocessing;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
 import org.duracloud.services.fixity.FixityService;
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static org.duracloud.services.fixity.domain.FixityServiceOptions.HashApproach;
 
 /**
  * @author Andrew Woods
@@ -139,9 +136,6 @@ public class VerifyHashesPostJobWorker extends BaseAmazonMapReducePostJobWorker 
 
         ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
             status);
-        if (null == msg) {
-            return true;
-        }
 
         String phase = msg.getPhase();
         if (null == phase || !phase.equals(FixityService.PHASE_COMPARE)) {

@@ -24,7 +24,7 @@ public class FixityPassFailPostJobWorkerTest {
 
     @Before
     public void setUp() throws Exception {
-        worker = new FixityPassFailPostJobWorker(null, null, null, null, null);
+        worker = new FixityPassFailPostJobWorker(null, null, null, null, null, null);
     }
 
     @Test

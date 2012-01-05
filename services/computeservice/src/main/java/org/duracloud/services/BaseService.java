@@ -7,10 +7,12 @@
  */
 package org.duracloud.services;
 
-import org.duracloud.common.util.DateUtil;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.duracloud.common.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author: Bill Branan
@@ -18,9 +20,11 @@ import java.util.Map;
  */
 public abstract class BaseService implements ComputeService {
 
+    private final Logger log = LoggerFactory.getLogger(BaseService.class);
     private String serviceId;
     private String serviceWorkDir;
     private String reportId;
+    private String errorReportId;
     private String startTime;
     private String endTime;
     private String error;
@@ -33,13 +37,14 @@ public abstract class BaseService implements ComputeService {
         this.startTime = getCurrentTime();
         this.endTime = null;
         this.error = null;
+        this.errorReportId = null;
     }
 
     public void stop() throws Exception {
         setServiceStatus(ServiceStatus.STOPPED);
     }
 
-    protected void doneWorking() {
+    public void doneWorking() {
         this.endTime = getCurrentTime();
 
         if (null != error) {
@@ -77,7 +82,7 @@ public abstract class BaseService implements ComputeService {
         if (svcLaunchingUser != null) {
             props.put(SVC_LAUNCHING_USER, getSvcLaunchingUser());
         }
-        
+
         return props;
     }
 
@@ -127,6 +132,10 @@ public abstract class BaseService implements ComputeService {
     public void setReportId(String spaceId, String reportId) {
         this.reportId = spaceId + "/" + reportId;
     }
+    
+    public void setErrorReportId(String spaceId, String errorReportId) {
+        this.errorReportId = spaceId + "/" + errorReportId;
+    } 
 
     public String getSvcLaunchingUser() {
         return svcLaunchingUser;
@@ -135,5 +144,23 @@ public abstract class BaseService implements ComputeService {
     public void setSvcLaunchingUser(String svcLaunchingUser) {
         this.svcLaunchingUser = svcLaunchingUser;
     }
+    
+    protected String getErrorReportId(){
+        return this.errorReportId;
+    }
 
+    protected void addErrorReport(Map<String, String> properties) {
+        if(properties.containsKey(FAILURE_COUNT_KEY)){
+            String failureCount = properties.get(FAILURE_COUNT_KEY);
+            if(failureCount != null){
+                try{
+                    if(Long.parseLong(failureCount) > 0){
+                        properties.put(ERROR_REPORT_KEY, getErrorReportId());
+                    }
+                }catch(NumberFormatException ex){
+                    log.error("failure count is not parseable: " + failureCount, ex);
+                }
+            }
+        }
+    }
 }

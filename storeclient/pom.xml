@@ -108,6 +108,13 @@
       <artifactId>commons-httpclient</artifactId>
     </dependency>
     
+    <!--  other -->
+   <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>com.springsource.org.apache.commons.io</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    
     <!-- test -->
     <dependency>
       <groupId>org.duracloud</groupId>

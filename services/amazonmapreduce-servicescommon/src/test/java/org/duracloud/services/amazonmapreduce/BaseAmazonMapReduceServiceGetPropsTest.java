@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.amazonmapreduce;
 
+import org.duracloud.services.BaseService;
 import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker.JobStatus;
 import org.easymock.classextension.EasyMock;
@@ -23,7 +24,7 @@ import java.util.Map;
  */
 public class BaseAmazonMapReduceServiceGetPropsTest {
 
-    private BaseAmazonMapReduceService service;
+    private BaseService service;
 
     private AmazonMapReduceJobWorker worker;
     private AmazonMapReduceJobWorker postWorker;

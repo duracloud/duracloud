@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.services.amazonmapreduce.util;
+package org.duracloud.client.util;
 
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.client.ContentStore;
@@ -82,14 +82,15 @@ public class ContentStoreUtil {
 
     public void storeContentStream(File file,
                                    String spaceId,
-                                   String contentId) {
+                                   String contentId,
+                                   String contentMimetype) {
         log.debug("storing content to storage-provider: " + file.getPath());
         try {
             contentStore.addContent(spaceId,
                                     contentId,
                                     new FileInputStream(file),
                                     file.length(),
-                                    null,
+                                    contentMimetype,
                                     null,
                                     null);
 
@@ -109,6 +110,12 @@ public class ContentStoreUtil {
             sb.append(file.getPath());
             log.error(sb.toString());
             throw new DuraCloudRuntimeException(sb.toString(), e);
-        }
+        }        
+    }
+    
+    public void storeContentStream(File file,
+                                   String spaceId,
+                                   String contentId) {
+        storeContentStream(file, spaceId, contentId, null);
     }
 }

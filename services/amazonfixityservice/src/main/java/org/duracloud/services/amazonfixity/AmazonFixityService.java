@@ -130,6 +130,10 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
 
             String reportContentId = PREFIX + "report-" + date + ".tsv";
             super.setReportId(getDestSpaceId(), reportContentId);
+
+            String errorReportContentId = PREFIX + "report-" + date + "-errors.tsv";
+            super.setErrorReportId(getDestSpaceId(), errorReportContentId);
+
             VerifyHashesPostJobWorker verifyWorker = new VerifyHashesPostJobWorker(
                 previousWorker,
                 getContentStore(),
@@ -163,7 +167,8 @@ public class AmazonFixityService extends BaseAmazonMapReduceService implements M
                 getContentStore(),
                 getServiceWorkDir(),
                 getDestSpaceId(),
-                reportContentId);
+                reportContentId,
+                errorReportContentId);
 
             AmazonMapReduceJobWorker[] postWorkers;
             if (null != wrapperWorker && null != headerWorker2) {

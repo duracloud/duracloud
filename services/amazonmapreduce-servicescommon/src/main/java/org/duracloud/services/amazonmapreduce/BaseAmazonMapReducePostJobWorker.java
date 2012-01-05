@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: Oct 1, 2010
  */
-public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduceJobWorker {
+public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReducePostJobWorker {
 
     private final Logger log = LoggerFactory.getLogger(
         BaseAmazonMapReducePostJobWorker.class);
@@ -106,6 +106,11 @@ public abstract class BaseAmazonMapReducePostJobWorker implements AmazonMapReduc
     public void shutdown() {
         log.info("shutting down: {}", this.getClass().getName());
         status = JobStatus.COMPLETE;
+    }
+    
+    @Override
+    public Map<String, String> getBubbleableProperties() {
+        return new HashMap<String,String>();
     }
 
     protected static void sleep(long millis) {

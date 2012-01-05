@@ -7,14 +7,6 @@
  */
 package org.duracloud.services.amazonmapreduce.postprocessing;
 
-import org.apache.commons.io.IOUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
-import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
-import org.duracloud.services.amazonmapreduce.util.ContentStoreUtil;
-import org.duracloud.services.amazonmapreduce.util.ContentStreamUtil;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,6 +14,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.util.ContentStoreUtil;
+import org.duracloud.client.util.DuracloudFileWriter;
+import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.services.ComputeService;
+import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
+import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
+import org.duracloud.services.amazonmapreduce.util.ContentStreamUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This PostJobWorker examines the final report of a given service run and
@@ -33,21 +38,29 @@ import java.io.OutputStream;
  *         Date: 6/8/11
  */
 public abstract class PassFailPostJobWorker extends BaseAmazonMapReducePostJobWorker {
-
+    private static final String PASS_COUNT = ComputeService.PASS_COUNT_KEY;
+    private static final String FAILURE_COUNT = ComputeService.FAILURE_COUNT_KEY;
+    private static final String ITEMS_PROCESSED_COUNT = ComputeService.ITEMS_PROCESS_COUNT;
+    private static Logger log = LoggerFactory.getLogger(PassFailPostJobWorker.class);
     private ContentStoreUtil storeUtil;
+    private ContentStore contentStore;
     private ContentStreamUtil streamUtil;
     private String serviceWorkDir;
     private String spaceId;
-    private String contentId;
-
+    private String contentId; //contentId of service output (ie report)
+    private String errorReportContentId;
+    private long totalItemsProcessedCount = -1;
+    private long failedItemsCount = -1;
+    
     public PassFailPostJobWorker(AmazonMapReduceJobWorker predecessor,
                                  ContentStore contentStore,
                                  String serviceWorkDir,
                                  String spaceId,
-                                 String contentId) {
+                                 String contentId, 
+                                 String errorReportContentId) {
         super(predecessor);
         ContentStreamUtil util = new ContentStreamUtil();
-        init(contentStore, util, serviceWorkDir, spaceId, contentId);
+        init(contentStore, util, serviceWorkDir, spaceId, contentId, errorReportContentId);
     }
 
     public PassFailPostJobWorker(AmazonMapReduceJobWorker predecessor,
@@ -56,44 +69,72 @@ public abstract class PassFailPostJobWorker extends BaseAmazonMapReducePostJobWo
                                  String serviceWorkDir,
                                  String spaceId,
                                  String contentId,
+                                 String errorReportContentId,
                                  long sleepMillis) {
         super(predecessor, sleepMillis);
-        init(contentStore, streamUtil, serviceWorkDir, spaceId, contentId);
+        init(contentStore, streamUtil, serviceWorkDir, spaceId, contentId, errorReportContentId);
     }
 
     private void init(ContentStore contentStore,
                       ContentStreamUtil streamUtil,
                       String serviceWorkDir,
                       String spaceId,
-                      String contentId) {
+                      String contentId,
+                      String errorReportContentId) {
+        
+        this.contentStore = contentStore;
         this.storeUtil = new ContentStoreUtil(contentStore);
         this.streamUtil = streamUtil;
 
         this.serviceWorkDir = serviceWorkDir;
         this.spaceId = spaceId;
         this.contentId = contentId;
+        this.errorReportContentId = errorReportContentId;
     }
 
     @Override
     protected void doWork() {
-        int errorCount = 0;
+
+
+        this.failedItemsCount = 0;
 
         BufferedReader reader = getFileReader(getCachedContent());
 
         // skip header line
-        readLine(reader);
+        String header = readLine(reader);
 
+        DuracloudFileWriter errorReportWriter =  null;
         String line = null;
+        long count = 0;
+        
         while ((line = readLine(reader)) != null) {
             if (isError(line)) {
-                errorCount++;
+                try {
+                    if(errorReportWriter == null){
+                        errorReportWriter = new DuracloudFileWriter(spaceId, errorReportContentId, "text/tab-separated-values", contentStore);
+                        errorReportWriter.writeLine(header);
+                    }
+                    
+                    errorReportWriter.writeLine(line);
+                } catch (IOException e) {
+                    log.error("failed to write to error report [" + errorReportContentId + "]", e);
+                    e.printStackTrace();
+                }
+                
+                failedItemsCount++;
             }
+            
+            count++;
         }
 
         IOUtils.closeQuietly(reader);
 
-        if (errorCount > 0) {
-            super.setError(errorCount + " errors");
+        this.totalItemsProcessedCount = count;
+
+        if (this.failedItemsCount > 0) {
+            if(errorReportWriter != null){
+                IOUtils.closeQuietly(errorReportWriter);
+            }
         }
     }
 
@@ -108,6 +149,7 @@ public abstract class PassFailPostJobWorker extends BaseAmazonMapReducePostJobWo
         }
         return reader;
     }
+
 
     private File getCachedContent() {
         InputStream input = storeUtil.getContentStream(spaceId, contentId);
@@ -129,4 +171,18 @@ public abstract class PassFailPostJobWorker extends BaseAmazonMapReducePostJobWo
             throw new DuraCloudRuntimeException("Error reading line", e);
         }
     }
+    
+    @Override
+    public Map<String, String> getBubbleableProperties() {
+        Map<String,String> props =  super.getBubbleableProperties();
+        if(this.totalItemsProcessedCount > -1){
+            props.put(ITEMS_PROCESSED_COUNT,String.valueOf(this.totalItemsProcessedCount));
+            props.put(PASS_COUNT,String.valueOf(this.totalItemsProcessedCount-this.failedItemsCount));
+            props.put(FAILURE_COUNT,String.valueOf(this.failedItemsCount));
+        }
+
+        return props;
+
+    }
+    
 }

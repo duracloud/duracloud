@@ -39,7 +39,7 @@ import static org.duracloud.storage.domain.HadoopTypes.TASK_PARAMS;
  */
 public abstract class BaseAmazonMapReduceService extends BaseService implements ComputeService, ManagedService {
 
-    private final Logger log = LoggerFactory.getLogger(
+    public final Logger log = LoggerFactory.getLogger(
         BaseAmazonMapReduceService.class);
 
     private static final String DEFAULT_DURASTORE_HOST = "localhost";
@@ -223,6 +223,9 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
 
         Map<String,String> serviceProps = super.getServiceProps();
         serviceProps.putAll(props);
+        
+        addErrorReport(serviceProps);
+
         return serviceProps;
     }
 
@@ -238,10 +241,15 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         props.put(SYSTEM_PREFIX + "Worker Status",
                   worker.getJobStatus().name());
 
+
+        if(worker instanceof AmazonMapReducePostJobWorker){
+            AmazonMapReducePostJobWorker pjw = (AmazonMapReducePostJobWorker)worker;
+           props.putAll(pjw.getBubbleableProperties());
+        }
+        
         String jobId = worker.getJobId();
         if (jobId != null) {
             props.put(SYSTEM_PREFIX + "Job ID", jobId);
-
             Map<String, String> jobDetailsMap = worker.getJobDetailsMap();
             for (String key : jobDetailsMap.keySet()) {
                 String value = jobDetailsMap.get(key);

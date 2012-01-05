@@ -69,7 +69,11 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
             String postName = ".tsv";
 
             String newContentId = preName + date + postName;
+            String errorReportId = preName + date + ".errors" + postName;
+
             super.setReportId(getDestSpaceId(), newContentId);
+            super.setErrorReportId(getDestSpaceId(), errorReportId);
+
             AmazonMapReduceJobWorker headerWorker = new HeaderPostJobWorker(
                 getJobWorker(),
                 getContentStore(),
@@ -88,7 +92,8 @@ public class ReplicationOnDemandService extends BaseAmazonMapReduceService imple
                 getContentStore(),
                 getServiceWorkDir(),
                 getDestSpaceId(),
-                newContentId);
+                newContentId, 
+                errorReportId);
 
             AmazonMapReduceJobWorker[] postWorkers =
                 new AmazonMapReduceJobWorker[]{headerWorker,

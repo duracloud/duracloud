@@ -10,6 +10,7 @@ package org.duracloud.services.amazonmapreduce.postprocessing;
 import org.duracloud.client.ContentStore;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.util.ContentStreamUtil;
 import org.easymock.classextension.EasyMock;
@@ -20,6 +21,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -36,6 +38,8 @@ public class PassFailPostJobWorkerTest {
     private String serviceWorkDir = System.getProperty("java.io.tmpdir");
     private String spaceId = "space-id";
     private String contentId = "content-id";
+    private String errorReportContentId = "error-report-content-id";
+
     private long sleepMillis = 100;
 
     private InputStream stream;
@@ -73,19 +77,49 @@ public class PassFailPostJobWorkerTest {
 
     private void doTest(boolean hasError) throws ContentStoreException {
         contentStore = setContentStoreExpectations();
+        if (hasError) {
+            EasyMock.expect(contentStore.getStoreId()).andReturn("0");
+            EasyMock.expect(contentStore.addContent((String)EasyMock.anyObject(),
+                                                    (String)EasyMock.anyObject(),
+                                                    (InputStream)EasyMock.anyObject(),
+                                                    EasyMock.anyLong(),
+                                                    (String)EasyMock.anyObject(),
+                                                    (String)EasyMock.anyObject(),
+                                                    (Map<String, String>) EasyMock.anyObject()))
+                    .andReturn(errorReportContentId);
+        }
+        
         replayMocks();
 
         worker = createWorker(hasError);
 
         worker.doWork();
 
-        String errorMsg = worker.getError();
+        Assert.assertNull(worker.getError());
+
+        Map<String,String> bp = worker.getBubbleableProperties();
+        
+        long itemCount = NUM_LINES - 1;
+
+        long total =
+            Long.valueOf(bp.get(ComputeService.ITEMS_PROCESS_COUNT)).longValue();
+        
+        long failureCount =
+            Long.valueOf(bp.get(ComputeService.FAILURE_COUNT_KEY)).longValue();
+        long passCount =
+            Long.valueOf(bp.get(ComputeService.PASS_COUNT_KEY)).longValue();
+
+        Assert.assertEquals(itemCount, total);
+
         if (hasError) {
-            Assert.assertNotNull(errorMsg);
             // skip first line (header)
-            Assert.assertEquals(NUM_LINES - 1 + " errors", errorMsg);
+            Assert.assertEquals(itemCount, failureCount);
+            Assert.assertEquals(0, passCount);
+
         } else {
-            Assert.assertNull(errorMsg);
+            Assert.assertEquals(0, failureCount);
+            Assert.assertEquals(itemCount, passCount);
+            
         }
     }
 
@@ -121,6 +155,7 @@ public class PassFailPostJobWorkerTest {
                                              serviceWorkDir,
                                              spaceId,
                                              contentId,
+                                             errorReportContentId,
                                              sleepMillis,
                                              error);
     }
@@ -136,6 +171,7 @@ public class PassFailPostJobWorkerTest {
                                          String serviceWorkDir,
                                          String spaceId,
                                          String contentId,
+                                         String errorReportContentId,
                                          long sleepMillis,
                                          boolean error) {
             super(predecessor,
@@ -144,6 +180,7 @@ public class PassFailPostJobWorkerTest {
                   serviceWorkDir,
                   spaceId,
                   contentId,
+                  errorReportContentId,
                   sleepMillis);
             this.error = error;
         }

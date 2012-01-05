@@ -22,8 +22,15 @@ public interface ComputeService {
         FINALIZING,
         STOPPING,
         STOPPED,
+        /* means the service successfully ran to completion - does not necessarily mean that 
+        *  all results of the service were also successful - for result status see 
+        *  ServiceResultStatus enum
+        */
         SUCCESS,
-        FAILED;
+        /* means the service failed due to some kind of unrecoverable exception, OOM, failed
+         * hadoop startup, etc.
+         */
+        FAILED; 
 
         public boolean isComplete() {
             return this.equals(STARTED) || this.equals(SUCCESS) || this.equals(
@@ -38,9 +45,16 @@ public interface ComputeService {
     public static final String STARTTIME_KEY = "Start Time";
     public static final String STOPTIME_KEY = "Stop Time";
     public static final String REPORT_KEY = "Report";
+    public static final String ERROR_REPORT_KEY = "Error Report";
+    public static final String PASS_COUNT_KEY = "Passed Item Count";
+    public static final String FAILURE_COUNT_KEY = "Failed Item Count";
+    public static final String ITEMS_PROCESS_COUNT = "Total Item Count";
+
     public static final String SVC_LAUNCHING_USER = "Service Launched By";
 
     public static final char DELIM = '\t';
+
+
 
     public void start() throws Exception;
 
@@ -57,4 +71,5 @@ public interface ComputeService {
     public String getServiceWorkDir();
 
     public void setServiceWorkDir(String serviceWorkDir);
+
 }

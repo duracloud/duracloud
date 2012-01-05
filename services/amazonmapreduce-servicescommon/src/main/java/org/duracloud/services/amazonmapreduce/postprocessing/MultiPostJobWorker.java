@@ -8,6 +8,7 @@
 package org.duracloud.services.amazonmapreduce.postprocessing;
 
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
+import org.duracloud.services.amazonmapreduce.AmazonMapReducePostJobWorker;
 import org.duracloud.services.amazonmapreduce.BaseAmazonMapReducePostJobWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,5 +110,17 @@ public class MultiPostJobWorker extends BaseAmazonMapReducePostJobWorker {
         }
         return null;
     }
-
+    
+    @Override
+    public Map<String, String> getBubbleableProperties() {
+        Map<String,String> props =  super.getBubbleableProperties();
+        for(AmazonMapReduceJobWorker worker : workers){
+            if(worker instanceof AmazonMapReducePostJobWorker){
+                AmazonMapReducePostJobWorker pjw = (AmazonMapReducePostJobWorker)worker;
+                props.putAll(pjw.getBubbleableProperties());
+            }
+        }
+        
+        return props;
+    }
 }

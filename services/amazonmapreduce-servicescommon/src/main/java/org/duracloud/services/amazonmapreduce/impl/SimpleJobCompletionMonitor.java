@@ -7,8 +7,8 @@
  */
 package org.duracloud.services.amazonmapreduce.impl;
 
+import org.duracloud.services.BaseService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
-import org.duracloud.services.amazonmapreduce.BaseAmazonMapReduceService;
 import org.duracloud.services.amazonmapreduce.JobCompletionMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,16 +22,16 @@ public class SimpleJobCompletionMonitor extends JobCompletionMonitor {
     private final Logger log = LoggerFactory.getLogger(
         SimpleJobCompletionMonitor.class);
 
-    private BaseAmazonMapReduceService service;
+    private BaseService service;
 
     public SimpleJobCompletionMonitor(AmazonMapReduceJobWorker worker,
-                                      BaseAmazonMapReduceService service) {
+                                      BaseService service) {
         super(worker);
         this.service = service;
     }
 
     public SimpleJobCompletionMonitor(AmazonMapReduceJobWorker worker,
-                                      BaseAmazonMapReduceService service,
+                                      BaseService service,
                                       long sleepMillis) {
         super(worker, sleepMillis);
         this.service = service;
