@@ -54,9 +54,7 @@ $(function() {
 	
 	var loadDeploymentDetail = function(service,deployment){
 		if(!service){
-			$(detailPaneId).fadeOut("slow", function(){
-				$(this).html('');
-			});
+		    $(detailPaneId).html('');
 			return;
 		};
 
@@ -167,7 +165,6 @@ $(function() {
 		);
 		
 		$(detailPaneId).replaceContents(serviceDetailPane, detailLayoutOptions);
-
 	};
 	
 	var fireDeploymentPropertiesUpdatedEvent = function(service,deployment,properties){
@@ -250,14 +247,6 @@ $(function() {
 		return service.id + "-" + deployment.id;
 	};
 
-	var extractServiceId = function(id){
-		return id.split("-")[0];
-	};
-
-	var extractDeploymentId = function(id){
-		return id.split("-")[1];
-	};
-
 	var insertDeployedService = function(service, deployment, select){
 	    var serviceList = getServicesList();
 	    var id = deriveDeploymentId(service,deployment);
@@ -332,12 +321,14 @@ $(function() {
 			var service = services[i];
 			for(d in service.deployments){
 				var deployment = service.deployments[d];
-				insertDeployedService(service, deployment, (i == 0 && d == 0));
+				insertDeployedService(service, deployment, false);
 			}
 		}
 
 		table.show();
+		
 		//bind for current item change listener
+		servicesList.unbind("currentItemChanged");
 		servicesList.bind("currentItemChanged", function(evt,state){
 			var currentItem = state.currentItem;
 			var service, deployment;
@@ -367,13 +358,13 @@ $(function() {
 			},
 			success: function(data){
 				dc.done();
+                var id = $(detailPaneId + " #deployment-id").val();
 				loadDeployedServiceList(data.services);
-				var id = $(detailPaneId + " #deployment-id").val();
-				if(id != null && id != undefined){
-					getServicesList().selectablelist("setCurrentItemById", id, true);
-				}else{
-					getServicesList().selectablelist("setFirstItemAsCurrent");
-				}
+                if(id){
+                    getServicesList().selectablelist("setCurrentItemById", id, true);
+                }else{
+                    getServicesList().selectablelist("setFirstItemAsCurrent");
+                }
 			},
 			failure: function(text){
 				dc.done();
@@ -611,8 +602,6 @@ $(function() {
 		},
 	});
 	
-	setTimeout(function(){
-		refreshDeployedServices();
-	}, 1000);
+	refreshDeployedServices();
 
 });
