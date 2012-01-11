@@ -106,7 +106,7 @@
 					failures: 0,
 					success: function(task){
 						this.successes++;
-						callback.changed(job)
+						callback.changed(job);
 						that._processNextTask(this);
 						this._decrementActiveWorkers(callback);
 					},
@@ -124,12 +124,13 @@
 					
 					failure: function(task){
 						this.failures++;
-						callback.changed(job)
+						callback.changed(job);
 						that._processNextTask(this);
 						this._decrementActiveWorkers(callback);
 					},
 				};
 				
+				var i;
 				for(i = 0; i < workerCount; i++){
 					that._processNextTask(reducer);
 				}

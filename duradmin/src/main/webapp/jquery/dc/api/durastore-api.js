@@ -100,7 +100,7 @@ var dc;
 				data: "storeId="+storeProviderId+"&writeableOnly="+writeableOnly + "&f=json",
 				cache: false,
 				success: function(data){
-					callback.success(data.spaces)
+					callback.success(data.spaces);
 				},
 				failure:callback.failure,
 		},callback);

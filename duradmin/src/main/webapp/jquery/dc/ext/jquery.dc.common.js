@@ -334,7 +334,10 @@ $(function(){
 			d.dialog(dOptions);
 			
 		   $("#busy-dialog-title").html(message);
-		   d.dialog("open");
+		   
+		   if(!d.dialog("isOpen")){
+		       d.dialog("open");
+		   }
 		};
 		
 		dc.done = function(message){
