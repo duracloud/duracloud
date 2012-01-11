@@ -224,7 +224,8 @@ $(function(){
         
 		clearContents();
 		// attach delete button listener
-		$(".delete-space-button",detail).click(function(evt){
+		var deleteButton = $(".delete-space-button",detail);
+		deleteButton.click(function(evt){
             var confirmText = "Are you sure you want to delete multiple spaces?";
             var busyText = "Deleting spaces";
             var spaces = $("#spaces-list").selectablelist("getSelectedData");
@@ -277,6 +278,9 @@ $(function(){
 			});
 		});
 
+		if(!isAdmin()){
+		    deleteButton.hide();
+		}
 		
 		$(".add-remove-properties-button",detail).click(function(evt){
 			preparePropertiesDialog("space");
