@@ -215,8 +215,13 @@ $(function(){
 		var detail = $("#spaceMultiSelectPane").clone();
 		//loadPropertiesPane(multiSpace);
 		//loadTagPane(multiSpace);
-		$("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
 
+        var title = "{count} space(s) selected.";
+        updateTitle(detail, getSelectedSpaces().length, title);
+        $("#spaces-list").bind("selectionChanged", function(evt,state){
+            updateTitle($("#detail-pane"), getSelectedSpaces().length, title);
+        });
+        
 		clearContents();
 		// attach delete button listener
 		$(".delete-space-button",detail).click(function(evt){
@@ -257,7 +262,7 @@ $(function(){
 			job.execute(
 				{ 
 					changed: function(job){
-						dc.log("changed:" + job)
+						dc.log("changed:" + job);
 						var p = job.getProgress();
 						dc.busy("Deleting spaces: " + p.successes, {modal: true});
 					},
@@ -276,7 +281,8 @@ $(function(){
 		$(".add-remove-properties-button",detail).click(function(evt){
 			preparePropertiesDialog("space");
 		});
-
+		
+	    $("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
 	};
 
 	var getSelectedContentItems = function(){
@@ -312,133 +318,164 @@ $(function(){
 		return spaces;
 	};
 
-	var showMultiContentItemDetail = function(){
+    var isMultiContentItemDetailVisible = function(){
+	    return $(".multiContentItemSelectPaneTitle").is(":visible");
+    };
+
+    var updateTitle = function(pane, count, pattern){
+        var title = pattern.replace("{count}", count);
+        setObjectName(pane, title);
+    };
+	
+	var showMultiContentItemDetail = function(/*bool*/readOnly){
 		var detail = $("#contentItemMultiSelectPane").clone();
-		// attach delete button listener
-		$(".delete-content-item-button",detail).click(function(evt){
-            var contentItems = getSelectedContentItems();
-
-            var confirmMessage = "Are you sure you want to delete multiple content items?";
-            var busyMessage = "Deleting content items...";
-
-            if(contentItems.length < 2)
-            {
-                confirmMessage = "Are you sure you want to delete the content item?";
-                busyMessage = "Deleting content item...";
-            }
-
-			if(!dc.confirm(confirmMessage)){
-				return;
-			}
-			dc.busy(busyMessage, {modal: true});
-			var job = dc.util.createJob("delete-content-items");
-			var i;
-			for(i = 0; i < contentItems.length; i++){
-				job.addTask({
-					_contentItem: contentItems[i],
-					execute: function(callback){
-						var that = this;
-						dc.store.DeleteContentItem(this._contentItem, {
-							success:function(){
-								callback.success();
-								$("#content-item-list").selectablelist("removeById", that._contentItem.contentId);
-							},
-							failure: function(message){
-								callback.failure();
-							},
-						});
-					},
-				});
-			}
-
-			job.execute(
-				{ 
-					changed: function(job){
-						dc.log("changed:" + job)
-						var p = job.getProgress();
-						dc.busy("Deleting content items: " + p.successes, {modal: true});
-					},
-
-					cancelled: function(job){
-						dc.log("cancelled:" + job);
-						dc.done();
-					}, 
-					done: function(job){
-						dc.log("done:" + job);
-						dc.done();
-				}, 
-			});
-		});
 		
+		//set title
+        var title = "{count} content item(s) selected.";
+        updateTitle(detail, getSelectedContentItems().length, title);
+		$("#content-item-list").bind("selectionChanged", function(evt,state){
+	        updateTitle($("#detail-pane"), getSelectedContentItems().length, title);
+	    });
+
+		// attach delete button listener
+		var deleteButton = $(".delete-content-item-button",detail);
+		if(readOnly){
+		    deleteButton.hide();
+		}else{
+		    deleteButton.click(function(evt){
+	            var contentItems = getSelectedContentItems();
+
+	            var confirmMessage = "Are you sure you want to delete multiple content items?";
+	            var busyMessage = "Deleting content items...";
+
+	            if(contentItems.length < 2)
+	            {
+	                confirmMessage = "Are you sure you want to delete the content item?";
+	                busyMessage = "Deleting content item...";
+	            }
+
+	            if(!dc.confirm(confirmMessage)){
+	                return;
+	            }
+	            dc.busy(busyMessage, {modal: true});
+	            var job = dc.util.createJob("delete-content-items");
+	            var i;
+	            for(i = 0; i < contentItems.length; i++){
+	                job.addTask({
+	                    _contentItem: contentItems[i],
+	                    execute: function(callback){
+	                        var that = this;
+	                        dc.store.DeleteContentItem(this._contentItem, {
+	                            success:function(){
+	                                callback.success();
+	                                $("#content-item-list").selectablelist("removeById", that._contentItem.contentId);
+	                            },
+	                            failure: function(message){
+	                                callback.failure();
+	                            },
+	                        });
+	                    },
+	                });
+	            }
+
+	            job.execute(
+	                { 
+	                    changed: function(job){
+	                        dc.log("changed:" + job);
+	                        var p = job.getProgress();
+	                        dc.busy("Deleting content items: " + p.successes, {modal: true});
+	                    },
+
+	                    cancelled: function(job){
+	                        dc.log("cancelled:" + job);
+	                        dc.done();
+	                    }, 
+	                    done: function(job){
+	                        dc.log("done:" + job);
+	                        dc.done();
+	                }, 
+	            });
+	        });
+		}
 
 		//attach mimetype edit listener
-				
-		$(".edit-selected-content-items-button",detail).click(function(evt){
-			openContentItemDialog(function(){
-				var form = $("#edit-content-item-form");
+		var editButton = $(".edit-selected-content-items-button",detail);
+		if(readOnly){
+		    editButton.hide();
+		}else{
+	        editButton.click(function(evt){
+	            openContentItemDialog(function(){
+	                var form = $("#edit-content-item-form");
 
-				if(form.valid()){
-					dc.busy("Preparing to update content items...", {modal: true});
+	                if(form.valid()){
+	                    dc.busy("Preparing to update content items...", {modal: true});
 
-					$('#edit-content-item-dialog').dialog("close");
+	                    $('#edit-content-item-dialog').dialog("close");
 
-					var contentItems = getSelectedContentItems();
-					var job = dc.util.createJob("update-content-items");	
-	
-					var contentItem,i;
-					for(i = 0; i < contentItems.length; i++){
-						contentItem = contentItems[i];
-						contentItem.contentMimetype = $("input[name=contentMimetype]", form).val();
+	                    var contentItems = getSelectedContentItems();
+	                    var job = dc.util.createJob("update-content-items");    
+	    
+	                    var contentItem,i;
+	                    for(i = 0; i < contentItems.length; i++){
+	                        contentItem = contentItems[i];
+	                        contentItem.contentMimetype = $("input[name=contentMimetype]", form).val();
 
-						job.addTask({
-							_contentItem: contentItem,
-							execute: function(callback){
-								var that = this;
-								var citem = that._contentItem;
-								var data = serialize(citem);
-								dc.store.UpdateContentItemMimetype(data, {
-									success:function(){
-										callback.success();
-									},
-									failure: function(message){
-										callback.failure();
-									},
-								});
-							},
-						});
-					}
-	
-					job.execute(
-						{ 
-							changed: function(job){
-								dc.log("changed:" + job)
-								var p = job.getProgress();
-								dc.busy("Updating content items: " + p.successes, {modal: true});
-							},
-	
-							cancelled: function(job){
-								dc.log("cancelled:" + job);
-								dc.done();
-							}, 
-							done: function(job){
-								dc.log("done:" + job);
-								dc.done();
-						}, 
-					});
-				}
-			});
-		});
+	                        job.addTask({
+	                            _contentItem: contentItem,
+	                            execute: function(callback){
+	                                var that = this;
+	                                var citem = that._contentItem;
+	                                var data = serialize(citem);
+	                                dc.store.UpdateContentItemMimetype(data, {
+	                                    success:function(){
+	                                        callback.success();
+	                                    },
+	                                    failure: function(message){
+	                                        callback.failure();
+	                                    },
+	                                });
+	                            },
+	                        });
+	                    }
+	    
+	                    job.execute(
+	                        { 
+	                            changed: function(job){
+	                                dc.log("changed:" + job);
+	                                var p = job.getProgress();
+	                                dc.busy("Updating content items: " + p.successes, {modal: true});
+	                            },
+	    
+	                            cancelled: function(job){
+	                                dc.log("cancelled:" + job);
+	                                dc.done();
+	                            }, 
+	                            done: function(job){
+	                                dc.log("done:" + job);
+	                                dc.done();
+	                        }, 
+	                    });
+	                }
+	            });
+	        });
+		}
 
+		var addRemoveProperties = $(".add-remove-properties-button",detail);
+        if(readOnly){
+            addRemoveProperties.hide();
+        }else{
+            addRemoveProperties.click(function(evt){
+                preparePropertiesDialog("contentItem");
+            });
+        }
 		
-		$(".add-remove-properties-button",detail).click(function(evt){
-			preparePropertiesDialog("contentItem");
-		});
-
+        $(".copy-content-item-button",detail)
+            .click(function(evt){
+            copyContentItems(evt,
+                    getSelectedContentItems());
+        });		
 		
-
 		$("#detail-pane").replaceContents(detail, contentItemDetailLayoutOptions);
-
-	
 	};
 	
 	var preparePropertiesDialog = function(targetListDataType){
@@ -1418,7 +1455,9 @@ $(function(){
                   { 
                       success: function(exists){
                           if(exists){
-                              if(!confirm("A content ID with this name already exists. Overwrite?")){
+                              if(!confirm("A contentId named '" + contentItem.contentId + 
+                                          "' already exists in '" + contentItem.spaceId +
+                                          "' already exists. Overwrite?")){
                                   if(callback.onCancel) callback.onCancel();
                                   return;
                               }
@@ -1693,9 +1732,10 @@ $(function(){
 
 	};
 	
-
-	var copyContentItem = function(evt, contentItem){
+	var copyContentItems = function(evt, contentItems){
 	    var d = $("#copy-content-item-dialog");
+
+        //initialize the dialog proper
 	    d.dialog({
 	        autoOpen: true,
             show: 'blind',
@@ -1707,139 +1747,215 @@ $(function(){
             width:650,
             buttons: {
 	           "OK": function(){
-                   var form = $("form", d),
-                       destStoreId     = $("#destStoreId").val(),
-                       storeId         = $("#storeId", d).val(),
-                       destSpaceId     = $("#spaceId", d).val(),
-                       destContentId   = $("#contentId", d).val(),
-                       navigateToCopy  = $("#navigateToCopy", d).is(":checked"),
-                       deleteAfterCopy = $("#deleteAfterCopy", d).is(":checked"),
-                       callback,
-                       nci;
-                   
-                   if(form.valid()){
-                       d.dialog("disable");
-                       dc.busy("Performing copy...", {modal: true});
-
-                       nci = {
-                         storeId:destStoreId,
-                         spaceId:destSpaceId,
-                         contentId:destContentId,
-                       };
-                       
-                       checkIfContentItemExists(
-                           nci,
-                           {
-                               onCancel: function(){
-                                   d.dialog("enable");
-                                   dc.done();
-                               },
-                               onProceed: function(){
-                                   d.dialog("enable");
-                                   d.dialog("close");
-                                   dc.store.copyContentItem(
-                                           storeId, contentItem.spaceId, contentItem.contentId, 
-                                           destStoreId, destSpaceId, destContentId, deleteAfterCopy, 
-                                           {
-                                              success: function(copiedContentItem){
-                                                  dc.done();
-                                                  if(deleteAfterCopy){
-                                                      $("#content-item-list").selectablelist("removeById", contentItem.contentId);
-                                                  }
-    
-                                                  if(storeId == copiedContentItem.storeId && contentItem.spaceId == copiedContentItem.spaceId){
-                                                      addContentItemToList(copiedContentItem);
-                                                      if(navigateToCopy){
-                                                          loadContentItem(copiedContentItem);
-                                                      }
-                                                  }else{
-                                                      if(navigateToCopy){
-                                                          setHash(copiedContentItem);
-                                                          loadWhatYouCan(copiedContentItem);
-                                                      }
-                                                  }
-                                              }
-                                          }
-                                       );                               
+	               var form = $("form", d),
+	               destStoreId       = $("#destStoreId", d).val(),
+	               destSpaceId       = $("#spaceId", d).val(),
+	               contentId         = $("#contentId", d).val();
+	               navigateToCopy    = $("#navigateToCopy", d).is(":checked"),
+	               deleteAfterCopy   = $("#deleteAfterCopy", d).is(":checked"),
+	               overwriteExisting = $("#overwriteExisting", d).is(":checked");
+	               
+	               if(form.valid() || contentItems.length > 1){
+	                   d.dialog("close");
+	                   dc.busy("Performing copy...", {modal: true});
+	       
+	                   var job = dc.util.createJob("copy-items");   
+	                   
+	                   for(i in contentItems){
+	                       job.addTask({
+	                           _contentItem: contentItems[i],
+	                           execute: function(callback){
+	                               var that = this;
+                                   
+                                   var destContentId = contentId;
+                                   if(!destContentId || destContentId.length == 0){
+                                       destContentId = that._contentItem.contentId;
                                    }
-                               }
-                           );
-                   }
+
+                                   
+	                               //define copy function
+	                               var doCopy = function(){
+	                                  
+                                      dc.store.copyContentItem(
+                                           that._contentItem.storeId, 
+                                           that._contentItem.spaceId, 
+                                           that._contentItem.contentId, 
+                                           destStoreId, 
+                                           destSpaceId, 
+                                           destContentId, 
+                                           deleteAfterCopy, 
+                                           {
+                                               success: function(copiedContentItem){
+                                                   if(deleteAfterCopy){
+                                                       $("#content-item-list")
+                                                           .selectablelist(
+                                                                   "removeById", 
+                                                                   that._contentItem.contentId);
+                                                   }
+                                                   
+                                                   if(getCurrentProviderStoreId() == copiedContentItem.storeId && 
+                                                           getCurrentSpaceId() == copiedContentItem.spaceId){
+                                                       addContentItemToList(copiedContentItem);
+                                                   }
+                                                   
+                                                   callback.success();
+                                               }
+                                           }
+                                       ); 	                                   
+	                               };//end copy function definition
+	                               
+	                               if(overwriteExisting){
+	                                   doCopy();
+	                               }else{
+	                                   checkIfContentItemExists(
+	                                       {
+                                               storeId:destStoreId,
+                                               spaceId:destSpaceId,
+                                               contentId:destContentId,
+	                                       },
+                                           {
+                                               onCancel: function(){
+                                                   callback.success();
+                                               },
+                                               onProceed: function(){
+                                                   doCopy();
+                                               }
+                                           }
+                                       );
+	                               }
+	                           },
+	                       });
+	                   }
+
+	                   job.execute(
+	                       { 
+	                           changed: function(job){
+	                               var total = contentItems.length;
+	                               if(total > 1){
+	                                   dc.log("changed:" + job);
+	                                   var p = job.getProgress();
+	                                   dc.busy("Processed " + p.successes + "/" + total, {modal: true});
+	                               }
+	                           },
+	                           cancelled: function(job){
+	                               dc.log("cancelled:" + job);
+	                               dc.done();
+	                           }, 
+	                           done: function(job){
+	                               dc.log("done:" + job);
+	                               dc.done();
+	                               
+	                               if(contentItems.length == 1 && job.getProgress().successes > 0){
+	                                  var copiedContentItem =  {
+                                           storeId:destStoreId,
+                                           spaceId:destSpaceId,
+                                           contentId:contentId,
+                                       };
+	                                   
+	                                   if(navigateToCopy){
+	                                       if(getCurrentProviderStoreId() == copiedContentItem.storeId && 
+	                                           getCurrentSpaceId() == copiedContentItem.spaceId){
+	                                           loadContentItem(copiedContentItem);
+	                                       }else{
+                                               setHash(copiedContentItem);
+                                               loadWhatYouCan(copiedContentItem);
+	                                       }
+	                                   }                                  
+	                               }
+	                               
+	                           },
+	                       }
+	                   );
+	               }
 	           },
-               "Cancel": function(){
-                   $(this).dialog('close');
-                },
+	           "Cancel": function(){
+                 $(this).dialog('close');
+               },
 	        },
 	        
 	        open: function(){
 	            var that = this;
-                var destStoreIdField = $("#destStoreId", that);
-                var contentIdField = $("#contentId", that);
-                var spaceSelect = $("#spaceId", that);
-                
-                loadWriteableSpaces = function(storeId, spaceId){
-                    dc.store.GetSpaces(
-                        storeId,
-                        true,
-                        {
-                         success:function(spaces){
-                            var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
-                            spaceSelect.children().remove();
-                            $.each(spaces, function(index,space){
-                                spaceSelect.append("<option>"+space+"</option>");
-                            });
-                            
-                            spaceSelect.val(selectedSpaceId);
-                         }
-                       }
-                     );
-                };
-                
-
-                //attach listener if destStoreId is a select box (ie multiple stores available)
-                //load list of spaces
-                destStoreIdField.change(
-                  function(evt){
-                      var that = this;
-                      loadWriteableSpaces($(that).val());
-                  }
-                );
-                
-                
-	            $.validator
-	            .addMethod("contentIdAlreadyInSpace", function(value, element) { 
-	                return !(destStoreIdField.val() == contentItem.storeId && spaceSelect.val() == contentItem.spaceId
-	                        && contentItem.contentId == value);
-	            }, "New content id equals current id. Change it or copy to another space.");
+	            var destStoreIdField = $("#destStoreId", that);
+	            var contentIdField = $("#contentId", that);
+	            var spaceSelect = $("#spaceId", that);
+	            var loadWriteableSpaces = function(storeId, spaceId){
+	                dc.store.GetSpaces(
+	                    storeId,
+	                    true,
+	                    {
+	                     success:function(spaces){
+	                        var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
+	                        spaceSelect.children().remove();
+	                        $.each(spaces, function(index,space){
+	                            spaceSelect.append("<option>"+space+"</option>");
+	                        });
+	                       spaceSelect.val(selectedSpaceId);
+	                    }
+	                  }
+	                );
+	            };
 	            
-	            var validator = $("form",this).validate({
-                    rules: {
+	            //attach listener if destStoreId is a select box (ie multiple stores available)
+	            //load list of spaces
+	            destStoreIdField.change(
+	              function(evt){
+	                  var that = this;
+	                  loadWriteableSpaces($(that).val());
+	              }
+	            );
+	            
+	            $.validator
+    	            .addMethod(
+    	                "contentIdAlreadyInSpace", 
+	                    function(value, element) { 
+	                        return !(destStoreIdField.val() == contentItems[0].storeId && 
+	                                 spaceSelect.val() == contentItems[0].spaceId &&
+	                                 contentItems[0].contentId == value);
+	                    },
+	                    "New content id equals current id. Change it or copy to another space.");
+	            
+	        
+	            var validator = $("form",that).validate({
+	                rules: {
                         contentId: {
                             required: true,
                             minlength: 1,
                             illegalchars: true,
                             contentIdAlreadyInSpace: true,
                         },
-                    },
+                    }
                 });
 	            
 	            //on change event above doesn't seem to work for select boxes
-	            $("select", this).change(function(){
+	            $("select", that).change(function(){
 	                validator.form(); //validates the form.
 	            });
 	            
 	            validator.resetForm();
-
-	            $("#storeId", this).val(contentItem.storeId);
-	            destStoreIdField.val(contentItem.storeId);
-	            contentIdField.val(contentItem.contentId);
+	            var first = contentItems[0];
+	            var sourceStoreId = first.storeId;
                 
-	            loadWriteableSpaces(contentItem.storeId, contentItem.spaceId);
+
+	            $("#storeId", that).val(sourceStoreId);
+	            destStoreIdField.val(sourceStoreId);
+	            var navigateToCopy = $("#navigateToCopy", that);
+	            var multiple = contentItems.length > 1;
+	            if(multiple){
+	                contentIdField.closest("li").hide();
+	                navigateToCopy.closest("li").hide();
+	            }else{
+                    contentIdField.closest("li").show();
+                    contentIdField.val(first.contentId);
+                    navigateToCopy.closest("li").show();
+
+	            }
 	            
-                setTimeout(function(){
-                    contentIdField.get(0).select();
-                },100);
-	        }
+	            loadWriteableSpaces(sourceStoreId, first.spaceId);
+	            
+	            setTimeout(function(){
+	                contentIdField.get(0).select();
+	            },100);
+	        },
 	    });
 	    
 	};
@@ -2021,10 +2137,6 @@ $(function(){
 		       ];
 	};
 
-	var isPdf = function(mimetype){
-		return(mimetype.toLowerCase().indexOf("pdf") > -1);
-	};
-	
 	var j2kViewerBaseURL = "";
 	
 	var loadContentItem = function(/*object*/contentItem){
@@ -2047,7 +2159,8 @@ $(function(){
 
         $(".copy-content-item-button",pane)
             .click(function(evt){
-                copyContentItem(evt,contentItem);
+                copyContentItems(
+                        evt,[contentItem]);
             });
     		
 		var mimetype = contentItem.properties.mimetype;
@@ -2122,7 +2235,7 @@ $(function(){
 							};
 							$('#edit-content-item-dialog').dialog("close");
 							dc.busy("Updating mime type", {modal: true});
-							dc.store.UpdateContentItemMimetype(data, callback)
+							dc.store.UpdateContentItemMimetype(data, callback);
 						}
 					}, contentItem);
 				}
@@ -2258,7 +2371,6 @@ $(function(){
 
 	var loadContentItems = function(space){
 		var list,listView, readOnly = isReadOnly(space); 
-		var contentListV
 		listView = $("#content-item-list-view");		
 		list = $("#content-item-list");
 		list.selectablelist("clear");
@@ -2280,7 +2392,7 @@ $(function(){
 		updateNavigationControls(space);
 
         if(readOnly){
-            $("button, .dc-check-all, input[type='checkbox'], .bulk-add-content-item", listView)
+            $(".add-content-item-button, .bulk-add-content-item", listView)
                 .hide();
         }
 
@@ -2388,27 +2500,29 @@ $(function(){
 	
 	var addContentItemToList = function(contentItem, readOnly){
 		var node, actions, content, deleteButton, copyButton;
-		
-		deleteButton = 
-		        $("<button title='delete content item' class='delete-space-button icon-only'>" +
-		        		"<i class='pre trash'></i>" +
-		        		"</button>")
+	    actions = $.fn.create("div");
+        copyButton = 
+             $("<button title='copy content item' class='copy-button icon-only'>" +
+                     "<i class='pre copy'></i>" +
+                     "</button>")
+             .click(function(evt){
+                 evt.stopPropagation();
+                 copyContentItems(evt,[contentItem]);
+             });
+
+	    actions.append(copyButton);
+        
+        if(!readOnly){
+            deleteButton = 
+                $("<button title='delete content item' class='delete-space-button icon-only'>" +
+                        "<i class='pre trash'></i>" +
+                        "</button>")
                 .click(function(evt){
                     deleteContentItem(evt,contentItem);
-		        });
+                });
 
-		copyButton = 
-              $("<button title='copy content item' class='copy-button icon-only'>" +
-                      "<i class='pre copy'></i>" +
-                      "</button>")
-              .click(function(evt){
-                  evt.stopPropagation();
-                  copyContentItem(evt,contentItem);
-              });
-
-	    actions = $.fn.create("div");
-        actions.append(copyButton);
-        actions.append(deleteButton);
+            actions.append(deleteButton);
+        }
 
         content = $.fn.create("span");
 		content.attr("class", "dc-item-content")
@@ -2421,7 +2535,7 @@ $(function(){
 			   .append(actions);
 		
 		var item =  $("#content-item-list").selectablelist('addItem',node, contentItem);
-		$("button, input", item).disable(readOnly);
+		//$("button, input", item).disable(readOnly);
 		return item;
 		
 	};
@@ -2636,7 +2750,24 @@ $(function(){
 					//do nothing
 				}
 			}else{
-				showMultiContentItemDetail();
+			    
+			    if(!isMultiContentItemDetailVisible()){
+	                dc.store.GetSpace(getCurrentProviderStoreId(),getCurrentSpaceId(),{
+	                    begin: function(){
+	                        dc.busy("Loading...", {modal: true});
+	                    },
+	                    
+	                    failure: function(text, xhr){
+	                        dc.done();
+	                        dc.displayErrorDialog(xhr, text, text);
+	                    },
+
+	                    success: function(space){
+	                        dc.done();
+	                        showMultiContentItemDetail(isReadOnly(space));
+	                    }
+	                });             
+			    }
 			}
 		}catch(err){
 			dc.error(err);

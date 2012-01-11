@@ -148,12 +148,13 @@
 
 				<div id="contentItemMultiSelectPane" style="display: none">
 				<div class="north header">
-				<h1>Content Items</h1>
-				<h2 class="object-name">Content item(s) selected</h2>
+				<h1 class="multiContentItemSelectPaneTitle">Content Items</h1>
+				<h2 class="object-name">{count} content item(s) selected</h2>
 				<div class="button-bar">
 					<button class="featured delete-content-item-button dc-delete-button"><i class="pre trash"></i>Delete</button>
 					<button class="edit-selected-content-items-button"><i class="pre pencil"></i>Edit</button>
 					<button class="add-remove-properties-button"><i class="pre pencil"></i>Edit Properties</button>
+                    <button class="copy-content-item-button"><i class="pre copy"></i>Copy</button>
 	
 				</div>
 
@@ -310,6 +311,11 @@
 										<label for="navigateToCopy">Navigate to new item after copy?</label>
 										<input type="checkbox" id="navigateToCopy" checked="checked" name="navigateToCopy"/>
 									</li>
+                                    <li class="row clearfix">
+                                      <label for=overwriteExisting>Overwrite existing items w/o prompt?</label>
+                                      <input type="checkbox" id="overwriteExisting" name="overwriteExisting"/>
+                                    </li>
+
 								</ul>
 							</fieldset>
 						</div>
