@@ -162,10 +162,11 @@ $.widget("ui.selectablelist",{
 		
 	},
 	
-	addItem: function(item, data, selected){
+	addItem: function(item, data, selected, /*optional boolean*/disabled){
 		this.setFooter('');
 		this._footer.before(item);
-		this._initItem(item,data);
+		this._initItem(item,data, disabled);
+		
 		if(selected && this.options.selectable){
 			$("input[type=checkbox]",item).attr("checked", true);
 		}
@@ -175,7 +176,7 @@ $.widget("ui.selectablelist",{
 	
 	select: function(select){
 		var that = this;
-		$("input[type=checkbox]",this.element).attr("checked",select);
+		$("input[type=checkbox]",this.element).not("[disabled]").attr("checked",select);
 		that._fireSelectionChanged();
 	},
 	
@@ -259,15 +260,21 @@ $.widget("ui.selectablelist",{
 		$(this._footer).append(footerContent);
 	},
 
-	_initItem: function(item,data){
+	_initItem: function(item,data, selectionDisabled){
 		var that = this;
-		var options = this.options;
-		var itemClass = options.itemClass;
-		var actionClass = options.itemActionClass;
+		var o = this.options;
+		var itemClass = o.itemClass;
+		var actionClass = o.itemActionClass;
 		$(item).addClass(itemClass);
 
-		if(options.selectable){
-			$(item).prepend("<input type='checkbox'/>");
+		
+		
+		if(this.options.selectable){
+		    var checkbox = $("<input type='checkbox'/>");
+			$(item).prepend(checkbox);
+			if(selectionDisabled != undefined){
+			    checkbox.disable(selectionDisabled);
+			}
 			$(item).children().first().change(function(evt){
 				 that._itemSelectionStateChanged(evt.target);
 				 evt.stopPropagation();

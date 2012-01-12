@@ -210,7 +210,6 @@ $(function(){
 				.selectablelist("select", checked);
 	});
 
-	
 	var showMultiSpaceDetail = function(){
 		var detail = $("#spaceMultiSelectPane").clone();
 		//loadPropertiesPane(multiSpace);
@@ -1411,14 +1410,20 @@ $(function(){
 			}
 		);
 
+   var getCurrentSpace = function(){
+        var currentItem = $("#spaces-list").selectablelist("currentItem");
+        if(currentItem != null && currentItem.data != null){
+            return currentItem.data;
+        }else{
+            return null;
+        }
+    };
+
 	var getCurrentSpaceId = function(){
-		var currentItem = $("#spaces-list").selectablelist("currentItem");
-		if(currentItem != null && currentItem.data != null){
-			var spaceId = currentItem.data.spaceId;
-			return spaceId;
-		}else{
-			return null;
-		}
+	    var space = getCurrentSpace();
+	    if(space){
+	        return space.spaceId;
+	    }
 	};
 
 	/**
@@ -1891,7 +1896,7 @@ $(function(){
 	                        var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
 	                        spaceSelect.children().remove();
 	                        $.each(spaces, function(index,space){
-	                            spaceSelect.append("<option>"+space+"</option>");
+	                            spaceSelect.append("<option>"+space.spaceId+"</option>");
 	                        });
 	                       spaceSelect.val(selectedSpaceId);
 	                    }
@@ -2713,7 +2718,7 @@ $(function(){
 					//do nothing;
 				}
 			}else{
-				showMultiSpaceDetail();
+                showMultiSpaceDetail();
 			}
 		}catch(err){
 			dc.error(err);
@@ -2756,21 +2761,8 @@ $(function(){
 			}else{
 			    
 			    if(!isMultiContentItemDetailVisible()){
-	                dc.store.GetSpace(getCurrentProviderStoreId(),getCurrentSpaceId(),{
-	                    begin: function(){
-	                        dc.busy("Loading...", {modal: true});
-	                    },
-	                    
-	                    failure: function(text, xhr){
-	                        dc.done();
-	                        dc.displayErrorDialog(xhr, text, text);
-	                    },
-
-	                    success: function(space){
-	                        dc.done();
-	                        showMultiContentItemDetail(isReadOnly(space));
-	                    }
-	                });             
+			        var space = getCurrentSpace();
+                    showMultiContentItemDetail(isReadOnly(space));
 			    }
 			}
 		}catch(err){
@@ -2816,10 +2808,12 @@ $(function(){
 
 	
 	var addSpaceToList = function(space){
+	    var disabled = isReadOnly(space);
 		var node =  $.fn.create("div");
 		node.attr("id", space.spaceId)
 			   .html(space.spaceId);
-		$("#spaces-list").selectablelist('addItem',node,space);	   
+		$("#spaces-list").selectablelist(
+		        'addItem',node,space, false, disabled);	   
 		
 	};
 	
@@ -2851,11 +2845,7 @@ $(function(){
 			},
 			success: function(spaces){
 				dc.done();
-				spacesArray = new Array();
-				for(s in spaces){
-					spacesArray[s] = {spaceId: spaces[s], storeId: providerId};
-				}
-				// clear content filters
+				spacesArray = spaces;
 				$("#content-item-filter").val('');
 				loadSpaces(spacesArray, $("#space-filter").val());
 				$("#space-list-status").fadeOut("fast");

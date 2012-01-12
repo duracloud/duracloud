@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.AclType;
+import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.slf4j.Logger;
@@ -51,22 +52,34 @@ public class SpacesController implements Controller {
 			HttpServletResponse response) throws Exception {
 	    try { 
 	        
-	        if("json".equals(request.getParameter("f"))){
-	            String writeableOnlyStr = request.getParameter("writeableOnly");
-	            boolean writeableOnly = Boolean.valueOf(writeableOnlyStr);
-	            String storeId = request.getParameter("storeId");   
-	            ContentStore c = contentStoreManager.getContentStore(storeId);
-	            ModelAndView mav = new ModelAndView("jsonView");
-	            List<String> spaces = c.getSpaces();
+            if ("json".equals(request.getParameter("f"))) {
+                String writeableOnlyStr = request.getParameter("writeableOnly");
+                boolean writeableOnly = Boolean.valueOf(writeableOnlyStr);
+                String storeId = request.getParameter("storeId");
+                ContentStore c = contentStoreManager.getContentStore(storeId);
+                ModelAndView mav = new ModelAndView("jsonView");
+                List<String> spaceIds = c.getSpaces();
+                List<Space> spaces = new LinkedList<Space>();
+
                 Authentication a =
                     SecurityContextHolder.getContext().getAuthentication();
 
+                for (String spaceId : spaceIds) {
+                    AclType acl =
+                        SpaceUtil.resolveCallerAcl(c.getSpaceACLs(spaceId), a);
+                    Space space = new Space();
+                    space.setCallerAcl(acl != null ? acl.name() : null);
+                    space.setSpaceId(spaceId);
+                    space.setStoreId(storeId);
+                    spaces.add(space);
+                }
+                
                 //remove all caller non writeable spaces from the spaces list
                 if(writeableOnly && !SpaceUtil.isAdmin(a)){
                     for(int i = spaces.size()-1; i > -1; i--){
-                        String spaceId = spaces.get(i);
-	                    AclType acl = SpaceUtil.resolveCallerAcl(c.getSpaceACLs(spaceId), a);
-	                    if(acl != AclType.WRITE){
+                        Space space = spaces.get(i);
+	                    String acl = space.getCallerAcl();
+	                    if(!AclType.WRITE.name().equals(acl)){
 	                        spaces.remove(i);
 	                    }
 	                }
