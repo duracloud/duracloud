@@ -80,7 +80,7 @@
           <provision>
             <param>mvn:org.springframework.osgi/spring-osgi-web-extender/1.2.0@6</param>
             <param>--executor=${pax.provision.executor}</param>
-            <param>--vmOptions=-Xms512M -Xmx768M -DBUNDLE_HOME=$BUNDLE_HOME -Dlogback.configurationFile=$BUNDLE_HOME/logback.xml -Dfelix.fileinstall.dir=$BUNDLE_HOME/container -DWITH_APACHE=$WITH_APACHE</param>
+            <param>--vmOptions=-Xms512M -Xmx768M -DBUNDLE_HOME=$BUNDLE_HOME $JAVA_OPTS -Dlogback.configurationFile=$BUNDLE_HOME/logback.xml -Dfelix.fileinstall.dir=$BUNDLE_HOME/container -DWITH_APACHE=$WITH_APACHE</param>
           </provision>
         </configuration>
       </plugin>
