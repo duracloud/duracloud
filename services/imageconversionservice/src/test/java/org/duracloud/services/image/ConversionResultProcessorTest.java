@@ -50,13 +50,14 @@ public class ConversionResultProcessorTest {
 
     private void doTestProcessConversionResult(String errMessage)
         throws ContentStoreException {
-        contentStore = createMockStore();
+        contentStore = createMockStore(errMessage != null ? 1 : 0);
         statusListener = createMockListener(errMessage);
 
         ConversionResult result = newConversionResult(errMessage);
 
         processor = new ConversionResultProcessor(contentStore,
                                                   statusListener,
+                                                  null,
                                                   null,
                                                   null,
                                                   null);
@@ -66,7 +67,7 @@ public class ConversionResultProcessorTest {
     }
 
 
-    private ContentStore createMockStore() throws ContentStoreException {
+    private ContentStore createMockStore(int errors) throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
 
@@ -77,7 +78,7 @@ public class ConversionResultProcessorTest {
                                          EasyMock.<String>anyObject(),
                                          EasyMock.<String>isNull(),
                                          EasyMock.<Map<String, String>>isNull()))
-            .andReturn(null);
+            .andReturn(null).times(1 + errors);
 
         EasyMock.replay(store);
         return store;
@@ -86,11 +87,6 @@ public class ConversionResultProcessorTest {
     private StatusListener createMockListener(String errMessage) {
         StatusListener listener = EasyMock.createMock("StatusListener",
                                                       StatusListener.class);
-
-        if (null != errMessage) {
-            listener.setError(errMessage);
-            EasyMock.expectLastCall();
-        }
 
         EasyMock.replay(listener);
         return listener;

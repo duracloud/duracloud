@@ -78,6 +78,11 @@ public class ImageConversionService extends BaseService implements ComputeServic
         String resultsId = "image-transformer/image-transformer-results-" +
             DateUtil.nowMid() + ".tsv";
         super.setReportId(outputSpaceId, resultsId);
+
+        String errorsId = "image-transformer/image-transformer-results-" +
+            DateUtil.nowMid() + ".errors.tsv";
+        super.setErrorReportId(outputSpaceId, errorsId);
+
         conversionThread = new ConversionThread(contentStore,
                                                 this,
                                                 workDir,
@@ -87,6 +92,7 @@ public class ImageConversionService extends BaseService implements ComputeServic
                                                 destSpaceId,
                                                 outputSpaceId,
                                                 resultsId,
+                                                errorsId,
                                                 namePrefix,
                                                 nameSuffix,
                                                 threads);
@@ -116,6 +122,12 @@ public class ImageConversionService extends BaseService implements ComputeServic
         if(conversionThread != null) {
             props.put("conversionStatus",
                       conversionThread.getConversionStatus());
+            props.putAll(conversionThread.getBubbleableProperties());
+            
+            String failures = props.get(ComputeService.FAILURE_COUNT_KEY);
+            if(failures != null && Long.parseLong(failures) >0){
+                props.put(ComputeService.ERROR_REPORT_KEY, getErrorReportId());
+            }
         }
         return props;
     }

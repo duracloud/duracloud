@@ -11,6 +11,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.services.image.status.StatusListener;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * Thread in which the conversion manager does its work.
@@ -31,6 +32,7 @@ public class ConversionThread extends Thread {
                             String destSpaceId,
                             String outputSpaceId,
                             String resultsId,
+                            String errorsId,
                             String namePrefix,
                             String nameSuffix,
                             int threads) {
@@ -43,6 +45,7 @@ public class ConversionThread extends Thread {
                                                   destSpaceId,
                                                   outputSpaceId,
                                                   resultsId,
+                                                  errorsId,
                                                   namePrefix,
                                                   nameSuffix,
                                                   threads);
@@ -58,5 +61,9 @@ public class ConversionThread extends Thread {
 
     public void stopConversion() {
         conversionManager.stopConversion();
+    }
+
+    public Map<String,String> getBubbleableProperties() {
+        return conversionManager.getBubbleableProperties();
     }
 }

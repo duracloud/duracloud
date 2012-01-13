@@ -67,6 +67,7 @@ public class ConversionManager {
                              String destSpaceId,
                              String outputSpaceId,
                              String resultsId,
+                             String errorsId,
                              String namePrefix,
                              String nameSuffix,
                              int threads) {
@@ -88,6 +89,7 @@ public class ConversionManager {
                                                         statusListener,
                                                         outputSpaceId,
                                                         resultsId,
+                                                        errorsId,
                                                         workDir);
 
         workerPool =
@@ -307,5 +309,9 @@ public class ConversionManager {
         continueConversion = false;
         statusListener.doneWorking();;
         workerPool.shutdown();
+    }
+
+    public Map<String, String> getBubbleableProperties() {
+        return this.resultProcessor.getBubbleableProperties();
     }
 }

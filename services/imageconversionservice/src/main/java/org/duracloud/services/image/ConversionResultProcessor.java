@@ -10,6 +10,7 @@ package org.duracloud.services.image;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.ComputeService;
 import org.duracloud.services.image.status.StatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.duracloud.services.ComputeService.DELIM;
 
@@ -43,39 +46,53 @@ public class ConversionResultProcessor implements ConversionResultListener {
     private SimpleDateFormat dateFormat;
     private String resultsId;
     private File resultsFile;
+    private String errorsId;
+    private File errorsFile;
 
     public ConversionResultProcessor(ContentStore contentStore,
                                      StatusListener statusListener,
                                      String destSpaceId,
                                      String resultsId,
+                                     String errorsId,
                                      File workDir) {
         this.contentStore = contentStore;
         this.statusListener = statusListener;
         this.destSpaceId = destSpaceId;
         this.resultsId = resultsId;
+        this.errorsId = errorsId;
         successfulConversions = 0;
         unsuccessfulConversions = 0;
 
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-        String resultsHeader =
-            "conversion-date" + DELIM + "source-space-id" + DELIM +
-                "content-id" + DELIM + "dest-space-id" + DELIM + "success" +
-                DELIM + "error-message" + DELIM + "conversion-time" + DELIM +
-                "total-time" + DELIM + "file size";
+        String resultsHeader = getResultHeader();
 
-        resultsFile = new File(workDir, "conversion-results.csv");
-        writeToResultsFile(resultsHeader + newline, false);
+        resultsFile = new File(workDir, "conversion-results.tsv");
+        errorsFile = new File(workDir, "conversion-results.errors.tsv");
+        writeToResultsFile(resultsFile, resultsHeader + newline, false);
     }
 
-    private void writeToResultsFile(String text, boolean append) {
+    private String getResultHeader() {
+        return  
+            "conversion-date" + DELIM + 
+            "source-space-id" + DELIM +
+            "content-id" + DELIM + 
+            "dest-space-id" + DELIM + 
+            "success" + DELIM + 
+            "error-message" + DELIM + 
+            "conversion-time" + DELIM +
+            "total-time" + DELIM + 
+            "file size";
+    }
+
+    private void writeToResultsFile(File file, String text, boolean append) {
         try {
-            FileWriter writer = new FileWriter(resultsFile, append);
+            FileWriter writer = new FileWriter(file, append);
             writer.append(text);
             writer.close();
         } catch(IOException e) {
-            log("Unable to write result (" + text +
-                ") to results file: " + e.getMessage());
+            log("Unable to write  (" + text +
+                ") to " + file.getAbsolutePath()+": " + e.getMessage());
         }
     }
 
@@ -85,22 +102,29 @@ public class ConversionResultProcessor implements ConversionResultListener {
 
         } else {
             unsuccessfulConversions++;
-
-            String error = result.getErrMessage();
-            if (error == null) {
-                error = result.getDestSpaceId() + ":" + result.getContentId();
-            }
-            statusListener.setError(error);
         }
 
-        writeToResultsFile(convertConversionResult(result), true);
+        String line = convertConversionResult(result);
+        writeToResultsFile(resultsFile,line, true);
+        store(destSpaceId, resultsId, resultsFile);
+        
+        if(!result.isSuccess()){
+            if(!errorsFile.exists()){
+                writeToResultsFile(errorsFile,getResultHeader()+newline, true);
+            }
+            writeToResultsFile(errorsFile,line, true);
+            store(destSpaceId, errorsId, errorsFile);
+        }
+    }
 
-        InputStream resultsStream = getResultsStream();
+    private void
+        store(String spaceId, String contentId, File file) {
+        InputStream stream = getResultsStream(file);
         try {
-            contentStore.addContent(destSpaceId,
-                                    resultsId,
-                                    resultsStream,
-                                    resultsFile.length(),
+            contentStore.addContent(spaceId,
+                                    contentId,
+                                    stream,
+                                    file.length(),
                                     "text/tab-separated-values",
                                     null,
                                     null);
@@ -108,16 +132,17 @@ public class ConversionResultProcessor implements ConversionResultListener {
             log("Error attempting to store conversion results: " +
                 e.getMessage());
         } finally {
-            IOUtils.closeQuietly(resultsStream);
+            IOUtils.closeQuietly(stream);
         }
+        
     }
 
-    private InputStream getResultsStream() {
+    private InputStream getResultsStream(File file) {
         try {
-            return new FileInputStream(resultsFile);
+            return new FileInputStream(file);
         } catch(FileNotFoundException e) {
-            throw new RuntimeException("Could not create results stream: " +
-                                       e.getMessage(), e);
+            throw new RuntimeException("Could not create stream for "
+                + file.getAbsolutePath() + ": " + e.getMessage(), e);
         }
     }
 
@@ -149,5 +174,17 @@ public class ConversionResultProcessor implements ConversionResultListener {
 
     private void log(String logMsg) {
         log.error(logMsg);
+    }
+
+    public Map<String, String> getBubbleableProperties() {
+        Map<String,String> props = new HashMap<String,String>();
+        props.put(ComputeService.PASS_COUNT_KEY,
+                  String.valueOf(this.successfulConversions));
+        props.put(ComputeService.FAILURE_COUNT_KEY,
+                  String.valueOf(this.unsuccessfulConversions));
+        props.put(ComputeService.ITEMS_PROCESS_COUNT,
+                  String.valueOf(this.unsuccessfulConversions
+                      + this.successfulConversions));
+        return props;
     }
 }
