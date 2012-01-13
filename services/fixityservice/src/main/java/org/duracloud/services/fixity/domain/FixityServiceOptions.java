@@ -30,6 +30,9 @@ public class FixityServiceOptions {
     private final static String defaultReportContentId =
         defaultPrefix + "/fixity-report-" + timestamp + ".tsv";
 
+    private final static String defaultErrorContentId =
+        defaultPrefix + "/fixity-report-" + timestamp + ".errors.tsv";
+
     public final static String defaultGenContentId =
         defaultPrefix + "/fingerprints-gen-" + timestamp + ".tsv";
 
@@ -46,6 +49,7 @@ public class FixityServiceOptions {
     private String outputSpaceId;
     private String outputContentId;
     private String reportContentId;
+    private String errorContentId;
 
 
     public enum Mode {
@@ -104,7 +108,8 @@ public class FixityServiceOptions {
                                 String targetSpaceId,
                                 String outputSpaceId,
                                 String outputContentId,
-                                String reportContentId) {
+                                String reportContentId,
+                                String errorContentId) {
         this.mode = mode;
         this.hashApproach = hashApproach;
         this.salt = salt;
@@ -118,6 +123,7 @@ public class FixityServiceOptions {
         this.outputSpaceId = outputSpaceId;
         this.outputContentId = outputContentId;
         this.reportContentId = reportContentId;
+        this.errorContentId = errorContentId;
 
         if (null == this.hashApproach || this.hashApproach.equals("")) {
             this.hashApproach = defaultHashApproach;
@@ -125,9 +131,15 @@ public class FixityServiceOptions {
         if (null == this.outputContentId || this.outputContentId.equals("")) {
             this.outputContentId = filterTimestamp(defaultOutputContentId);
         }
+
+        if (null == this.errorContentId || this.errorContentId.equals("")) {
+            this.errorContentId = filterTimestamp(defaultErrorContentId);
+        }
+
         if (null == this.reportContentId || this.reportContentId.equals("")) {
             this.reportContentId = filterTimestamp(defaultReportContentId);
         }
+
         if (null == this.providedListingSpaceIdA || this.providedListingSpaceIdA.equals("")) {
             // auto-generated listings are placed in the output space.
             this.providedListingSpaceIdA = this.outputSpaceId;
@@ -315,6 +327,11 @@ public class FixityServiceOptions {
     public String getReportContentId() {
         return filterTimestamp(reportContentId);
     }
+    
+    public String getErrorContentId() {
+        return filterTimestamp(this.errorContentId);
+    }
+
 
     private String filterTimestamp(String contentId) {
         if (!contentId.contains(timestamp)) {

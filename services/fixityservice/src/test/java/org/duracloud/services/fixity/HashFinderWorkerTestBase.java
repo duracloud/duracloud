@@ -48,6 +48,7 @@ public abstract class HashFinderWorkerTestBase {
     protected final static String outputSpaceId = "outputSpaceId";
     protected final static String outputContentId = "outputContentId";
     protected final static String reportContentId = "reportContentId";
+    protected final static String errorReportContentId = "errorReportContentId";
 
     protected void initialize(Mode mode, HashApproach hashApproach)
         throws ContentStoreException {
@@ -71,7 +72,8 @@ public abstract class HashFinderWorkerTestBase {
                                         targetSpaceId,
                                         outputSpaceId,
                                         outputContentId,
-                                        reportContentId);
+                                        reportContentId,
+                                        errorReportContentId);
     }
 
     private ContentLocation createWorkItemLocation() {

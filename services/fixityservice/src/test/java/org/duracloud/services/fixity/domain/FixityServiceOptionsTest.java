@@ -38,6 +38,7 @@ public class FixityServiceOptionsTest {
     private String outputSpaceIdKey = "outputSpaceIdKey";
     private String outputContentIdKey = "outputContentIdKey";
     private String reportContentIdKey = "reportContentIdKey";
+    private String errorContentIdKey = "errorContentIdKey";
 
     private String mode = FixityServiceOptions.Mode.GENERATE_LIST.getKey();
     private String hashApproach = FixityServiceOptions.HashApproach
@@ -54,6 +55,7 @@ public class FixityServiceOptionsTest {
     private String outputSpaceId = "outputSpaceId";
     private String outputContentId = "outputContentId";
     private String reportContentId = "reportContentId";
+    private String errorContentId = "errorContentId";
 
     @Before
     public void setUp() throws Exception {
@@ -71,6 +73,7 @@ public class FixityServiceOptionsTest {
         params.put(outputSpaceIdKey, outputSpaceId);
         params.put(outputContentIdKey, outputContentId);
         params.put(reportContentIdKey, reportContentId);
+        params.put(errorContentIdKey, errorContentId);
 
         createServiceOptions();
     }
@@ -88,7 +91,8 @@ public class FixityServiceOptionsTest {
                                         params.get(targetSpaceIdKey),
                                         params.get(outputSpaceIdKey),
                                         params.get(outputContentIdKey),
-                                        params.get(reportContentIdKey));
+                                        params.get(reportContentIdKey),
+                                        params.get(errorContentIdKey));
     }
 
     @After
@@ -113,6 +117,7 @@ public class FixityServiceOptionsTest {
         String outputSpaceIdX = serviceOptions.getOutputSpaceId();
         String outputContentIdX = serviceOptions.getOutputContentId();
         String reportContentIdX = serviceOptions.getReportContentId();
+        String errorContentIdX = serviceOptions.getErrorContentId();
 
         Assert.assertNotNull(modeX);
         Assert.assertNotNull(hashApproachX);
@@ -127,6 +132,7 @@ public class FixityServiceOptionsTest {
         Assert.assertNotNull(outputSpaceIdX);
         Assert.assertNotNull(outputContentIdX);
         Assert.assertNotNull(reportContentIdX);
+        Assert.assertNotNull(errorContentIdX);
 
         Assert.assertEquals(mode, modeX.getKey());
         Assert.assertEquals(hashApproach, hashApproachX.name());
@@ -143,6 +149,7 @@ public class FixityServiceOptionsTest {
         Assert.assertEquals(outputSpaceId, outputSpaceIdX);
         Assert.assertEquals(outputContentId, outputContentIdX);
         Assert.assertEquals(reportContentId, reportContentIdX);
+        Assert.assertEquals(errorContentId, errorContentIdX);
 
     }
 
@@ -191,6 +198,7 @@ public class FixityServiceOptionsTest {
         params.put(outputSpaceIdKey, outputSpaceId);
         params.put(outputContentIdKey, outputContentId);
         params.put(reportContentIdKey, reportContentId);
+        params.put(errorContentIdKey, errorContentId);
 
         serviceOptions = createServiceOptions();
         serviceOptions.verify();
@@ -211,6 +219,7 @@ public class FixityServiceOptionsTest {
         params.put(outputSpaceIdKey, outputSpaceId);
         params.put(outputContentIdKey, outputContentId);
         params.put(reportContentIdKey, reportContentId);
+        params.put(errorContentIdKey, errorContentId);
 
         serviceOptions = createServiceOptions();
         serviceOptions.verify();
@@ -229,6 +238,7 @@ public class FixityServiceOptionsTest {
         params.put(outputSpaceIdKey, outputSpaceId);
         params.put(outputContentIdKey, outputContentId);
         params.put(reportContentIdKey, reportContentId);
+        params.put(errorContentIdKey, errorContentId);
 
         serviceOptions = createServiceOptions();
         serviceOptions.verify();
@@ -245,6 +255,7 @@ public class FixityServiceOptionsTest {
         params.put(outputSpaceIdKey, outputSpaceId);
         params.put(outputContentIdKey, outputContentId);
         params.put(reportContentIdKey, reportContentId);
+        params.put(errorContentIdKey, errorContentId);
 
         serviceOptions = createServiceOptions();
         serviceOptions.verify();
@@ -262,6 +273,7 @@ public class FixityServiceOptionsTest {
         params.put(providedListingContentIdBKey, providedListingContentIdB);
         params.put(outputSpaceIdKey, outputSpaceId);
         params.put(reportContentIdKey, reportContentId);
+        params.put(errorContentIdKey, errorContentId);
 
         serviceOptions = createServiceOptions();
         serviceOptions.verify();
@@ -319,6 +331,7 @@ public class FixityServiceOptionsTest {
         // output content id
         params.put(outputContentIdKey, null);
         params.put(reportContentIdKey, null);
+        params.put(errorContentIdKey, null);
 
         String now = DateUtil.nowMid();
         String qualifier;
@@ -358,6 +371,9 @@ public class FixityServiceOptionsTest {
                             serviceOptions.getOutputContentId());
         Assert.assertEquals("bit-integrity/fixity-report-" + qualifier + ".tsv",
                             serviceOptions.getReportContentId());
+        Assert.assertEquals("bit-integrity/fixity-report-" + qualifier + ".errors.tsv",
+                            serviceOptions.getErrorContentId());
+
     }
 
 }

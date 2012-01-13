@@ -36,6 +36,8 @@ public class ServiceResultProcessorTest {
 
     private String outputSpaceId = "output-space-id";
     private String outputContentId = "output-content-id";
+    private String errorContentId = "error-content-id";
+
     private String mime = "text/tab-separated-values";
 
     private final String SPACE_PREFIX = "test-space-id-";
@@ -71,7 +73,7 @@ public class ServiceResultProcessorTest {
         statusListener = null;
         processor = createProcessor(statusListener);
 
-        String status = processor.getProcessingStatus();
+        String status = processor.getProcessingStatus().toString();
         Assert.assertNotNull(status);
 
         ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
@@ -80,7 +82,7 @@ public class ServiceResultProcessorTest {
                             msg.getState());
 
         processor.setProcessingState(ServiceResultListener.State.COMPLETE);
-        status = processor.getProcessingStatus();
+        status = processor.getProcessingStatus().toString();
         Assert.assertNotNull(status);
 
         msg = new ServiceResultListener.StatusMsg(status);
@@ -90,7 +92,7 @@ public class ServiceResultProcessorTest {
 
     @Test
     public void testProcessServiceResult() throws Exception {
-        statusListener = createMockListener(2);
+        statusListener = createMockListener(0);
         processor = createProcessor(statusListener);
 
         ServiceResultListener.State inProgress = ServiceResultListener.State.IN_PROGRESS;
@@ -120,6 +122,7 @@ public class ServiceResultProcessorTest {
         verifyStatus(inProgress.name(), "5", "2", "5");
 
         verifyLocalOutputFile();
+        verifyLocalErrorFile(2);
     }
 
     @Test
@@ -162,6 +165,7 @@ public class ServiceResultProcessorTest {
         ContentStore contentStore = createContentStore();
         return new ServiceResultProcessor(contentStore, listener, outputSpaceId,
                                           outputContentId,
+                                          errorContentId,
                                           "test-hashing",
                                           "previous status blah",
                                           workDir);
@@ -180,7 +184,7 @@ public class ServiceResultProcessorTest {
                               String numProcessed,
                               String numFailure,
                               String totalWorkItems) {
-        String text = processor.getProcessingStatus();
+        String text = processor.getProcessingStatus().toString();
         Assert.assertNotNull(text);
         System.out.println("s: '" + text + "'");
         ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
@@ -227,7 +231,23 @@ public class ServiceResultProcessorTest {
         }
         Assert.assertEquals(5, i);
     }
+    
+    private void verifyLocalErrorFile(int errorCount) throws IOException {
+        File file = new File(workDir, errorContentId);
+        Assert.assertTrue(file.exists());
+        BufferedReader r = new BufferedReader(new FileReader(file));
 
+        long count = 0;
+        String line;
+        while ((line = r.readLine()) != null) {
+            count++;
+        }
+
+        Assert.assertEquals(errorCount+1, count);
+        
+        
+    }
+    
     private ContentStore createContentStore() throws ContentStoreException {
         ContentStore store = EasyMock.createMock("ContentStore",
                                                  ContentStore.class);
@@ -241,6 +261,17 @@ public class ServiceResultProcessorTest {
                                          EasyMock.<Map<String, String>>anyObject()))
             .andReturn("checksum")
             .anyTimes();
+
+        EasyMock.expect(store.addContent(EasyMock.eq(outputSpaceId),
+                                         EasyMock.eq(errorContentId),
+                                         EasyMock.<InputStream>anyObject(),
+                                         EasyMock.anyLong(),
+                                         EasyMock.eq(mime),
+                                         EasyMock.<String>anyObject(),
+                                         EasyMock.<Map<String, String>>anyObject()))
+            .andReturn("checksum")
+            .anyTimes();
+
         EasyMock.replay(store);
 
         return store;

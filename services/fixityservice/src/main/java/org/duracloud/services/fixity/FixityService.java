@@ -7,6 +7,11 @@
  */
 package org.duracloud.services.fixity;
 
+import java.io.File;
+import java.util.Dictionary;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -17,6 +22,8 @@ import org.duracloud.services.ComputeService;
 import org.duracloud.services.common.error.ServiceException;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
+import org.duracloud.services.fixity.results.ServiceResultListener.State;
+import org.duracloud.services.fixity.results.ServiceResultListener.StatusMsg;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.duracloud.services.fixity.status.StatusListener;
 import org.duracloud.services.fixity.worker.ServiceWorkManager;
@@ -26,11 +33,6 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Dictionary;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * This class is the entry point for performing on-demand bit-integrity
@@ -75,8 +77,9 @@ public class FixityService extends BaseService implements ComputeService, Manage
     private String outputSpaceId;
     private String outputContentId;
     private String reportContentId;
+    private String errorReportContentId;
 
-    private String processingStatusMsg;
+    private StatusMsg processingStatusMsg;
     private boolean keepWorking;
 
     private int threads = 3;
@@ -187,7 +190,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         }
 
         cleanup(serviceOptions, doneHashing, doneComparing);
-        setReportId(serviceOptions);
+        setReportIds(serviceOptions);
 
         doneWorking();
     }
@@ -220,6 +223,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             this,
             serviceOptions.getOutputSpaceId(),
             serviceOptions.getOutputContentId(),
+            null,
             PHASE_FIND,
             workDir);
 
@@ -247,7 +251,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         throws ServiceException {
         waitForLatch(doneHashing);
 
-        String previousPhaseStatus = null;
+        StatusMsg previousPhaseStatus = null;
         if (workManager != null) {
             previousPhaseStatus = workManager.getProcessingStatus();
         }
@@ -257,10 +261,15 @@ public class FixityService extends BaseService implements ComputeService, Manage
             this,
             serviceOptions.getOutputSpaceId(),
             serviceOptions.getReportContentId(),
+            serviceOptions.getErrorContentId(),
             PHASE_COMPARE,
-            previousPhaseStatus,
+            (previousPhaseStatus == null) ? null : previousPhaseStatus.toString(),
             workDir);
 
+        if(previousPhaseStatus != null){
+            resultListener.setTotalWorkItems(previousPhaseStatus.getTotal());
+        }
+        
         ServiceWorkerFactory workerFactory = new HashVerifierWorkerFactory(
             contentStore,
             workDir,
@@ -315,7 +324,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
         }
     }
 
-     private void setReportId(FixityServiceOptions serviceOptions) {
+     private void setReportIds(FixityServiceOptions serviceOptions) {
         String spaceId = serviceOptions.getOutputSpaceId();
         String reportId = serviceOptions.getReportContentId();
 
@@ -324,6 +333,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
             reportId = serviceOptions.getOutputContentId();
         }
         super.setReportId(spaceId, reportId);
+        super.setErrorReportId(spaceId, serviceOptions.getErrorContentId());
     }
 
     @Override
@@ -351,7 +361,13 @@ public class FixityService extends BaseService implements ComputeService, Manage
         if (processingStatusMsg != null) {
             log.debug("getServiceProps() " + processingStatusMsg);
             updateProcessingStatus();
-            props.put(ServiceResultProcessor.STATUS_KEY, processingStatusMsg);
+            props.put(ServiceResultProcessor.STATUS_KEY, processingStatusMsg.toString());
+            props.put(ComputeService.ITEMS_PROCESS_COUNT, String.valueOf(processingStatusMsg.getTotal()));
+            props.put(ComputeService.FAILURE_COUNT_KEY, String.valueOf(processingStatusMsg.getFailed()));
+            props.put(ComputeService.PASS_COUNT_KEY, String.valueOf(processingStatusMsg.getPassed()));
+            if(processingStatusMsg.getFailed() > 0){
+                props.put(ComputeService.ERROR_REPORT_KEY, getErrorReportId());
+            }
         }
         return props;
     }
@@ -392,7 +408,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                                              targetSpaceId,
                                                              outputSpaceId,
                                                              outputContentId,
-                                                             reportContentId);
+                                                             reportContentId, 
+                                                             errorReportContentId);
 
         opts.verify();
         log.debug(opts.toString());
@@ -420,7 +437,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                                              targetSpaceId,
                                                              outputSpaceId,
                                                              outContentId,
-                                                             reportContentId);
+                                                             reportContentId,
+                                                             errorReportContentId);
 
         opts.verify();
         log.debug(opts.toString());
@@ -535,6 +553,11 @@ public class FixityService extends BaseService implements ComputeService, Manage
     public void setReportContentId(String reportContentId) {
         log.info("set reportContentId(" + reportContentId + ")");
         this.reportContentId = reportContentId;
+    }
+
+    public void setErrorReportContentId(String errorReportContentId) {
+        log.info("set errorReportContentId(" + errorReportContentId + ")");
+        this.errorReportContentId = errorReportContentId;
     }
 
     public void setThreads(int threads) {

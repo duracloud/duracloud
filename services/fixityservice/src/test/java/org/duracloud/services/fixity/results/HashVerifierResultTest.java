@@ -34,7 +34,8 @@ public class HashVerifierResultTest {
         result = new HashVerifierResult(success,
                                         contentLocationA,
                                         contentLocationB,
-                                        text);
+                                        text, 
+                                        null);
     }
 
     @Test

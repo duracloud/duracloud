@@ -7,6 +7,8 @@
  */
 package org.duracloud.services.fixity.results;
 
+import java.util.Collection;
+
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +25,25 @@ public class HashVerifierResult implements ServiceResult {
     private ContentLocation contentLocationA;
     private ContentLocation contentLocationB;
     private String text;
+    private Collection<ServiceResultItem> items;
 
     public HashVerifierResult(boolean success,
                               ContentLocation contentLocationA,
                               ContentLocation contentLocationB,
-                              String text) {
+                              String text, 
+                              Collection<ServiceResultItem> items) {
         this.success = success;
         this.contentLocationA = contentLocationA;
         this.contentLocationB = contentLocationB;
         this.text = text;
+        this.items = items;
     }
 
+    @Override 
+    public Collection<ServiceResultItem> getItems(){
+        return this.items;
+    }
+    
     @Override
     public String getEntry() {
         return text;

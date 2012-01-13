@@ -9,6 +9,7 @@ package org.duracloud.services.fixity.worker;
 
 import org.duracloud.common.util.CountListener;
 import org.duracloud.services.fixity.results.ServiceResultListener;
+import org.duracloud.services.fixity.results.ServiceResultListener.StatusMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,12 +117,15 @@ public class ServiceWorkManager extends Thread implements CountListener {
     }
 
     private void printEndMessage() {
-        log.info(getProcessingStatus());
+        log.info(getProcessingStatus().toString());
     }
 
-    public String getProcessingStatus() {
+    public StatusMsg getProcessingStatus() {
         return resultListener.getProcessingStatus();
     }
+    
+
+
 
     /**
      * Indicate that service should stop after the items currently being
@@ -137,4 +141,5 @@ public class ServiceWorkManager extends Thread implements CountListener {
     public void setCount(long count) {
         resultListener.setTotalWorkItems(count);
     }
+
 }

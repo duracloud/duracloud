@@ -34,6 +34,7 @@ public abstract class HashWorkloadTestBase {
     protected final static String outputSpaceId = "outputSpaceId";
     protected final static String outputContentId = "outputContentId";
     protected final static String reportContentId = "reportContentId";
+    protected final static String errorReportContentId = "errorReportContentId";
 
     protected void initialize(Mode mode, HashApproach hashApproach)
         throws ContentStoreException {
@@ -56,7 +57,8 @@ public abstract class HashWorkloadTestBase {
                                         targetSpaceId,
                                         outputSpaceId,
                                         outputContentId,
-                                        reportContentId);
+                                        reportContentId,
+                                        errorReportContentId);
     }
 
     protected abstract ContentStore createContentStore()

@@ -7,6 +7,14 @@
  */
 package org.duracloud.services.fixity.results;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
@@ -14,13 +22,6 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.status.StatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @author: Andrew Woods
@@ -32,12 +33,12 @@ public class ServiceResultProcessor implements ServiceResultListener {
 
     public static final String STATUS_KEY = "processing-status";
     private static final String newline = System.getProperty("line.separator");
-
     private ContentStore contentStore;
     private StatusListener statusListener;
     private String outputSpaceId;
     private String outputContentId;
-
+    private String errorContentId;
+    
     private String phase;
     private String previousPhaseStatus;
 
@@ -48,17 +49,21 @@ public class ServiceResultProcessor implements ServiceResultListener {
     private State state;
 
     private File resultsFile;
+    private File errorsFile;
+    
 
     public ServiceResultProcessor(ContentStore contentStore,
                                   StatusListener statusListener,
                                   String outputSpaceId,
                                   String outputContentId,
+                                  String errorContentId,
                                   String phase,
                                   File workDir) {
         this(contentStore,
              statusListener,
              outputSpaceId,
              outputContentId,
+             errorContentId,
              phase,
              null,
              workDir);
@@ -68,6 +73,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
                                   StatusListener statusListener,
                                   String outputSpaceId,
                                   String outputContentId,
+                                  String errorContentId,
                                   String phase,
                                   String previousPhaseStatus,
                                   File workDir) {
@@ -75,56 +81,97 @@ public class ServiceResultProcessor implements ServiceResultListener {
         this.statusListener = statusListener;
         this.outputSpaceId = outputSpaceId;
         this.outputContentId = outputContentId;
+        this.errorContentId = errorContentId;
         this.phase = phase;
         this.previousPhaseStatus = previousPhaseStatus;
 
         this.state = State.IN_PROGRESS;
-        this.resultsFile = new File(workDir, outputContentId);
-        if (resultsFile.exists()) {
-            resultsFile.delete();
+
+        this.resultsFile = createFile(workDir, outputContentId);
+        if(errorContentId != null){
+            this.errorsFile = createFile(workDir, errorContentId);
         }
     }
 
-    public synchronized void processServiceResult(ServiceResult result) {
-        writeToLocalResultsFile(result);
+    private File createFile(File workDir, String contentId) {
+        File file = new File(workDir, contentId);
+        if (file.exists()) {
+            file.delete();
+        }
+        
+        return file;
+    }
 
-        InputStream resultsStream = getLocalResultsFileStream();
+    public synchronized void processServiceResult(ServiceResult result) {
+        writeToLocalFile(resultsFile, result);
+        storeFile(resultsFile, outputSpaceId, outputContentId);
+
+        Collection<ServiceResultItem> items = result.getItems();
+        if (items != null && items.size() > 0) {
+            for (ServiceResultItem sr : items) {
+                countSuccessesAndLogFailures(sr.isSuccess(),
+                                             result.getHeader(),
+                                             sr.getEntry());
+            }
+        } else {
+            countSuccessesAndLogFailures(result.isSuccess(),
+                                         result.getHeader(),
+                                         result.getEntry());
+        }
+
+        if (errorsFile != null && !result.isSuccess()) {
+            storeFile(errorsFile, outputSpaceId, errorContentId);
+        }
+
+    }
+
+    private void countSuccessesAndLogFailures(boolean success, String header, String entry) {
+        if (success) {
+            successfulResults++;
+        } else {
+            unsuccessfulResults++;
+            if(errorsFile != null){
+                writeToLocalFile(errorsFile, header, entry);
+            }
+        }
+    }
+
+    private void storeFile(File file, String spaceId, String contentId) {
+        InputStream stream = getLocalFileStream(file);
         try {
-            contentStore.addContent(outputSpaceId,
-                                    outputContentId,
-                                    resultsStream,
-                                    resultsFile.length(),
+            contentStore.addContent(spaceId,
+                                    contentId,
+                                    stream,
+                                    file.length(),
                                     "text/tab-separated-values",
                                     null,
                                     null);
         } catch (ContentStoreException e) {
             log.error(
-                "Error attempting to store service results: " + e.getMessage());
+                "Error attempting to store service result file: [" + 
+                    file.getAbsolutePath()+"] " + e.getMessage());
         } finally {
-            IOUtils.closeQuietly(resultsStream);
-        }
-
-        if (result.isSuccess()) {
-            successfulResults++;
-        } else {
-            unsuccessfulResults++;
-            statusListener.setError("Error during " + phase + " phase.");
+            IOUtils.closeQuietly(stream);
         }
     }
 
-    private void writeToLocalResultsFile(ServiceResult result) {
-        if (!resultsFile.exists()) {
-            mkdir(resultsFile);
-            write(result.getHeader());
+    private void writeToLocalFile(File file, ServiceResult result) {
+        writeToLocalFile(file, result.getHeader(), result.getEntry());
+    }
+    
+    private void writeToLocalFile(File file, String header, String entry) {
+        if (!file.exists()) {
+            mkdir(file);
+            write(file, header);
         }
-        write(result.getEntry());
+        write(file, entry);
     }
 
-    private void write(String text) {
+    private void write(File file, String text) {
         boolean append = true;
         FileWriter writer = null;
         try {
-            writer = new FileWriter(resultsFile, append);
+            writer = new FileWriter(file, append);
             writer.append(text);
             writer.append(newline);
             writer.close();
@@ -132,8 +179,8 @@ public class ServiceResultProcessor implements ServiceResultListener {
         } catch (IOException e) {
             StringBuilder sb = new StringBuilder("Error writing result: '");
             sb.append(text);
-            sb.append("' to results file: ");
-            sb.append(resultsFile.getAbsolutePath());
+            sb.append("' to file: ");
+            sb.append(file.getAbsolutePath());
             sb.append(", exception: ");
             sb.append(e.getMessage());
             log.error(sb.toString());
@@ -160,23 +207,23 @@ public class ServiceResultProcessor implements ServiceResultListener {
     public void setProcessingState(State state) {
         this.state = state;
     }
-
-    private InputStream getLocalResultsFileStream() {
+    
+    private InputStream getLocalFileStream(File file) {
         try {
-            return new FileInputStream(resultsFile);
+            return new FileInputStream(file);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(
-                "Could not create results stream: " + e.getMessage(), e);
+                "Could not create stream: " + e.getMessage(), e);
         }
     }
 
-    public synchronized String getProcessingStatus() {
+    public synchronized StatusMsg getProcessingStatus() {
         return new StatusMsg(successfulResults,
                              unsuccessfulResults,
                              totalWorkItems,
                              state,
                              phase,
-                             previousPhaseStatus).toString();
+                             previousPhaseStatus);
     }
 
 }

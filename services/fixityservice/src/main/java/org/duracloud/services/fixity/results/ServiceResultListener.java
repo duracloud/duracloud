@@ -8,6 +8,7 @@
 package org.duracloud.services.fixity.results;
 
 
+
 /**
  * @author: Andrew Woods
  * Date: Aug 4, 2010
@@ -20,7 +21,7 @@ public interface ServiceResultListener {
 
     public void processServiceResult(ServiceResult result);
 
-    public String getProcessingStatus();
+    public StatusMsg getProcessingStatus();
 
     public void setTotalWorkItems(long total);
 
@@ -133,5 +134,7 @@ public interface ServiceResultListener {
             return previousPhaseStatus;
         }
     }
+
+
 
 }

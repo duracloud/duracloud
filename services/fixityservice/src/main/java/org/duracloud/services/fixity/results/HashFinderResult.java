@@ -7,6 +7,8 @@
  */
 package org.duracloud.services.fixity.results;
 
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,5 +74,10 @@ public class HashFinderResult implements ServiceResult {
         sb.append(success);
         sb.append("]");
         return sb.toString();
+    }
+
+    @Override
+    public Collection<ServiceResultItem> getItems() {
+        return null;
     }
 }

@@ -7,24 +7,15 @@
  */
 package org.duracloud.services.fixity.results;
 
-import java.util.Collection;
 
 /**
- * This interface is for result objects in the ServiceResultProcessing
+ * This interface is for describing fine grained details of service results.
  * framework.
  *
- * @author Andrew Woods
- *         Date: Aug 4, 2010
+ * @author Daniel Bernstein
+ *         Date: Jan 12, 2012
  */
-public interface ServiceResult {
-
-    public static final char DELIM = '\t';
-
+public interface ServiceResultItem {
     public String getEntry();
-
-    public String getHeader();
-
     public boolean isSuccess();
-    
-    public Collection<ServiceResultItem> getItems();
 }

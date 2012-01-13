@@ -7,13 +7,13 @@
  */
 package org.duracloud.services.fixity.worker;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.duracloud.services.fixity.results.ServiceResultListener;
+import org.duracloud.services.fixity.results.ServiceResultListener.StatusMsg;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -49,7 +49,7 @@ public class ServiceWorkManagerTest extends ServiceWorkManagerMockSupport {
         Assert.assertEquals(1, doneWorking.getCount());
 
         manager.start();
-        String status = null;
+        StatusMsg status = null;
         while (callsMade < 50) {
             status = manager.getProcessingStatus();
         }

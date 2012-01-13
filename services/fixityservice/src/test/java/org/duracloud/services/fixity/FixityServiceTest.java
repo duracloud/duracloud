@@ -190,7 +190,7 @@ public class FixityServiceTest {
         verifyOutputHashFile();
         verifyOutputReportFile(!isValid);
 
-        Assert.assertEquals(ComputeService.ServiceStatus.FAILED,
+        Assert.assertEquals(ComputeService.ServiceStatus.SUCCESS,
                             fixity.getServiceStatus());
     }
 
@@ -339,6 +339,9 @@ public class FixityServiceTest {
         Assert.assertNotNull(props);
         String statusMsg = props.get(ServiceResultProcessor.STATUS_KEY);
         Assert.assertNotNull(statusMsg);
+        Assert.assertNotNull(props.get(ComputeService.ITEMS_PROCESS_COUNT));
+        Assert.assertNotNull(props.get(ComputeService.PASS_COUNT_KEY));
+        Assert.assertNotNull(props.get(ComputeService.FAILURE_COUNT_KEY));
 
         ServiceResultListener.StatusMsg msg = new ServiceResultListener.StatusMsg(
             statusMsg);
