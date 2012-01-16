@@ -101,7 +101,10 @@ public class SpaceUtil {
     private static String formatDurastoreURL(ContentItem contentItem,ContentStore store) {
        	String pattern =  "{0}/{1}/{2}?storeID={3}";
         return MessageFormat.format(pattern,
-                                    store.getBaseURL(),
+                                    // NOTE: The https --> http swap is required by the Djatoka
+                                    //       SimpleListResolver, see: http://sourceforge.net/apps/mediawiki/djatoka/index.php?title=Installation#Configure_a_Referent_Resolver
+                                    //       https is not supported.
+                                    store.getBaseURL().replace("https", "http"),
                                     contentItem.getSpaceId(),
                                     EncodeUtil.urlEncode(contentItem.getContentId()),
                                     store.getStoreId());
