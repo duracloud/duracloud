@@ -28,8 +28,11 @@
 	};
 
 
-	dc.util.createJob = function(jobId){
-		var workerCount = 10;
+	dc.util.createJob = function(jobId, /*optional boolean*/serialize){
+		var workerCount = 2;
+		if(serialize){
+		    workerCount = 1;
+		}
 		var taskQueue = new Array();
 		var reducer = null;
 		var activeWorkers = 0;

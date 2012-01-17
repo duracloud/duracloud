@@ -1768,7 +1768,7 @@ $(function(){
 	                   d.dialog("close");
 	                   dc.busy("Performing copy...", {modal: true});
 	       
-	                   var job = dc.util.createJob("copy-items");   
+	                   var job = dc.util.createJob("copy-items",true);   
 	                   
 	                   for(i in contentItems){
 	                       job.addTask({
