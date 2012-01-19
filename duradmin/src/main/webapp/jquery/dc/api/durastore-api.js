@@ -94,11 +94,12 @@ var dc;
 	 * @option Function success(spaces) a handler for an array of spaces
 	 * @option Function failure(info) a handler that returns failure info 
 	 */
-	dc.store.GetSpaces = function(storeProviderId, writeableOnly, callback){
+	dc.store.GetSpaces = function(storeProviderId, writeableOnly, callback, async){
 		dc.ajax({ 
 				url: "/duradmin/spaces", 
 				data: "storeId="+storeProviderId+"&writeableOnly="+writeableOnly + "&f=json",
 				cache: false,
+				async: (async != undefined ? async : true),
 				success: function(data){
 					callback.success(data.spaces);
 				},
@@ -140,7 +141,7 @@ var dc;
 
 	dc.store._appendNVPair = function(name, value){
 	    return "&"+name+"="+encodeURIComponent(value);
-	}
+	};
 
 	/**
      * @param Object contentItem

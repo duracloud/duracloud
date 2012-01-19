@@ -1923,9 +1923,10 @@ $(function(){
 	                        $.each(spaces, function(index,space){
 	                            spaceSelect.append("<option>"+space.spaceId+"</option>");
 	                        });
-	                       spaceSelect.val(selectedSpaceId);
-	                    }
-	                  }
+	                        spaceSelect.val(selectedSpaceId);
+	                     },
+	                    },
+	                    false //make it a synchronous call 
 	                );
 	            };
 	            
