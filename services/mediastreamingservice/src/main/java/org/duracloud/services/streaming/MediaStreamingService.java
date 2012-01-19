@@ -151,6 +151,7 @@ public class MediaStreamingService extends BaseListenerService
 
         // Set data from workers
         boolean complete = true;
+        boolean error = false;
         for(EnableStreamingWorker worker : streamingWorkers) {
             if(worker != null) {
                 String spaceId = worker.getMediaSourceSpaceId();
@@ -172,15 +173,20 @@ public class MediaStreamingService extends BaseListenerService
                     complete = false;
                 }
 
-                String error = worker.getError();
-                if(error != null) {
-                    props.put(ComputeService.ERROR_KEY, error);
+                String errorMsg = worker.getError();
+                if(errorMsg != null) {
+                    error = true;
+                    props.put(ComputeService.ERROR_KEY, errorMsg);
                 }
             }
         }
 
         if(complete) {
-            this.setServiceStatus(ServiceStatus.STARTED);
+            if(error) {
+                this.setServiceStatus(ServiceStatus.FAILED);
+            } else {
+                this.setServiceStatus(ServiceStatus.STARTED);
+            }
             props.put(ComputeService.STATUS_KEY, getServiceStatus().name());
         }
 

@@ -304,7 +304,6 @@ $.widget("ui.acleditor",
                 $(addPanel).add(editPanel).bind("savesuccess", function(){
                     listPanel.aclreadonlypanel("load");
                     stack.stacklayout("activate", listPanel);
-
                 });
 
                 $(addPanel).add(editPanel).bind("cancel", function(){
@@ -484,6 +483,9 @@ $.widget("ui.aclreadonlypanel",
 
                 }
             }
+            
+            $(this.element).trigger("acls-updated", [acls]);
+
         },
     })
 );

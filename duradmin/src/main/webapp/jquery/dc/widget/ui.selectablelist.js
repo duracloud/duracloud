@@ -273,8 +273,11 @@ $.widget("ui.selectablelist",{
 		    var checkbox = $("<input type='checkbox'/>");
 			$(item).prepend(checkbox);
 			if(selectionDisabled != undefined){
-			    checkbox.disable(selectionDisabled);
-			}
+                checkbox.disable(selectionDisabled);
+                if(selectionDisabled){
+                    checkbox.makeHidden();
+                }
+            }
 			$(item).children().first().change(function(evt){
 				 that._itemSelectionStateChanged(evt.target);
 				 evt.stopPropagation();

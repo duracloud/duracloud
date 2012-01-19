@@ -94,7 +94,9 @@ public class ServiceReportController {
         ModelAndView mav = new ModelAndView("simple-report");
         mav.addObject("title", "Report: " + spaceId + "/" + contentId);
         mav.addObject("data", iterator);
-        mav.addObject("reportLink", "/durastore/"+ spaceId + "/" + contentId);
+        mav.addObject("reportLink", "/duradmin/download/contentItem?"+
+                                    "spaceId=" + spaceId + 
+                                    "&contentId=" + contentId);
         
         return mav;
     }

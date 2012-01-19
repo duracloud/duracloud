@@ -1019,6 +1019,7 @@ $(function(){
                        'speedIn'               :       600, 
                        'speedOut'              :       200, 
                        'overlayShow'   :       false};
+
        var open = isPubliclyReadable(contentItem.acls);
        var externalViewer = j2kBaseURL != null && open;
        var viewerURL,thumbnailURL;
@@ -1054,9 +1055,20 @@ $(function(){
                                                .append(viewerLink);
 
        if(!open && j2kBaseURL != null && isAdmin()){
-               var warning = $.fn.create("div").addClass("warning");
+               var warning = $.fn.create("div").addClass("warning").attr("id", "make-public-warning");
                $(div).expandopanel("getContent").append(warning);
-               var button = createMakePublicButton(contentItem.storeId, contentItem.spaceId);
+               var button = createMakePublicButton(
+                               contentItem.storeId, 
+                               contentItem.spaceId, 
+                               function(){
+                                   getContentItem(
+                                           contentItem.storeId,
+                                           contentItem.spaceId,
+                                           contentItem.contentId,
+                                           true);
+                                                                     
+                               });
+
                warning.append("<span>To use the JP2 Viewer you must grant the 'public'" +
                                    " group read access to this space.</span>")
                           .append(button);
@@ -1066,7 +1078,7 @@ $(function(){
        $(".center", target).append(div); 
 	};
 
-	var createMakePublicButton = function(storeId, spaceId){
+	var createMakePublicButton = function(storeId, spaceId, successFunc){
 	    var button = $.fn.create("button")
                         .addClass("featured")
                         .css("margin-left","10px")
@@ -1076,8 +1088,21 @@ $(function(){
             makeSpacePubliclyReadable(
                     evt,
                     storeId, 
-                    spaceId);
+                    spaceId,
+                    successFunc);
+            
         });	    
+	    
+	    $(document).unbind("acls-updated");
+        $(document).bind("acls-updated",function(evt, acls){
+            if(!isPubliclyReadable(acls)){
+                button.show();
+            }else{
+                button.hide();
+                $("#make-public-warning").hide();
+                
+            }
+        });
 	    
 	    return button;
 	};
@@ -2054,9 +2079,13 @@ $(function(){
 
         
 		if(isAdmin()){
+            var makePublicButton = createMakePublicButton(
+                    space.storeId, 
+                    space.spaceId);
+            $(makePublicButton).insertAfter(deleteSpaceButton);
+
 		    if(!isPubliclyReadable(space.acls)){
-		        var makePublicButton = createMakePublicButton(space.storeId, space.spaceId);
-		        $(makePublicButton).insertAfter(deleteSpaceButton);
+		        makePublicButton.hide();
 		    }
 		    
 	        loadAclPane(detail, space);
@@ -2318,8 +2347,9 @@ $(function(){
 		);
 	};
 	
-	var getContentItem = function(storeId, spaceId, contentId){
-		if(isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
+	var getContentItem = function(storeId, spaceId, contentId, forceRefresh){
+	    
+		if(!forceRefresh && isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
 			return;
 		}
 
@@ -2549,7 +2579,7 @@ $(function(){
 		
 	};
 
-	var makeSpacePubliclyReadable = function(/*event object*/evt, storeId, spaceId){
+	var makeSpacePubliclyReadable = function(/*event object*/evt, storeId, spaceId, successFunc){
             dc.busy("Making space public...");
 	        dc.store.UpdateSpaceAcls("storeId="+storeId+
                                     "&spaceId="+escape(spaceId) + 
@@ -2559,15 +2589,23 @@ $(function(){
                                       success:function(acls){
                                           dc.done();
                                           setAcls(acls); 
-                                         $(evt.target).hide();
+                                          if(successFunc){
+                                              successFunc();
+                                          }
+
                                       },
                                     });
 	};
        
     var setAcls = function(acls){
-        $("#detail-pane #acl-editor").acleditor("acls", acls);
+        var aclEditor = $("#detail-pane #acl-editor");
+        aclEditor.acleditor("acls", acls);
+        if(!aclEditor.length){
+            $(document).trigger("acls-updated", [acls]);
+        }
     };
 
+    
 	var createSpacePropertiesCall = function(spaceId, data, method,callback){
 		var newData = data + "&method=" + method;
 		var storeId = getCurrentProviderStoreId();

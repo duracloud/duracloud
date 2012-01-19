@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import java.util.Dictionary;
+import java.util.Map;
 
 public class DuplicationService extends BaseListenerService implements ComputeService, ManagedService {
 
@@ -55,6 +56,7 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
 
     private ContentDuplicator contentDuplicator;
 
+    private DuplicationResultListener resultListener;
     @Override
     public void start() throws Exception {
         log.info("Starting Duplication Service");
@@ -101,13 +103,17 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
         String reportId = getReportContentId(fromStore, toStore);
         super.setReportId(outputSpaceId, reportId);
 
-        ResultListener listener = new DuplicationResultListener(primaryStore,
+        String errorReportId = getErrorReportContentId(fromStore, toStore);
+        super.setErrorReportId(outputSpaceId, errorReportId);
+
+        this.resultListener = new DuplicationResultListener(primaryStore,
                                                                 outputSpaceId,
                                                                 reportId,
+                                                                errorReportId,
                                                                 super.getServiceWorkDir());
 
-        spaceDuplicator = getSpaceDuplicator(fromStore, toStore, listener);
-        contentDuplicator = getContentDuplicator(fromStore, toStore, listener);
+        spaceDuplicator = getSpaceDuplicator(fromStore, toStore, this.resultListener);
+        contentDuplicator = getContentDuplicator(fromStore, toStore, this.resultListener);
 
         log.info("reportId: " + reportId);
         log.info("Listener container started: " + jmsContainer.isRunning());
@@ -119,16 +125,52 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
 
     private String getReportContentId(ContentStore fromStore,
                                       ContentStore toStore) {
+        return getReportContentId(fromStore, toStore, false);
+    }
+
+    private String getErrorReportContentId(ContentStore fromStore,
+                                      ContentStore toStore) {
+        return getReportContentId(fromStore, toStore, true);
+    }
+
+    private String getReportContentId(ContentStore fromStore,
+                                      ContentStore toStore, boolean errorReport) {
         StringBuilder reportId = new StringBuilder("duplication-on-change/");
         reportId.append(fromStore.getStorageProviderType());
         reportId.append("-to-");
         reportId.append(toStore.getStorageProviderType());
         reportId.append("-report-");
         reportId.append(DateUtil.nowMid());
+        if(errorReport){
+            reportId.append(".errors");
+        }
         reportId.append(".tsv");
         return reportId.toString();
     }
 
+    @Override
+    public Map<String,String> getServiceProps(){
+        Map<String,String> props = super.getServiceProps();
+        DuplicationResultListener rl = this.resultListener;
+        if(rl !=null) {
+            long passCount = rl.getPassCount();
+            long failedCount = rl.getFailedCount();
+            long totalCount = passCount+failedCount;
+            
+            if(failedCount > 0){
+                props.put(ComputeService.FAILURE_COUNT_KEY, String.valueOf(failedCount));
+                props.put(ComputeService.ERROR_REPORT_KEY, getErrorReportId());
+            }
+            
+            if(totalCount == 0){
+                props.remove(ComputeService.REPORT_KEY);
+            }
+            
+            props.put(ComputeService.PASS_COUNT_KEY, String.valueOf(passCount));
+            props.put(ComputeService.ITEMS_PROCESS_COUNT, String.valueOf(totalCount));
+        }
+        return props;
+    }
     @Override
     public void stop() throws Exception {
         log.info("Stopping Duplication Service");

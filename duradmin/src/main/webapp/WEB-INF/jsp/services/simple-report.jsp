@@ -5,10 +5,16 @@
 	</tiles:putAttribute>
 
 	<tiles:putAttribute name="header-extensions">
+    <style>
+      body {
+        margin-right: 0px !important;
+        overflow: auto !important;
+    }
+    </style>
 	</tiles:putAttribute>
 	<tiles:putAttribute name="body">
         <h2>${title}</h2>
-        <a href="${reportLink}">Download Raw Report</a>
+        <a class="button" href="${reportLink}">Download Raw Report</a>
         <table class="tablesorter">
           <thead>
           <c:forEach items="${data}" var="row" varStatus="status" end="0">

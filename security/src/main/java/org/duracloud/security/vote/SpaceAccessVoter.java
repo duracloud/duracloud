@@ -142,7 +142,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
         } catch (NotFoundException nfe) {
             log.info("Space !exist: {}, exception: {}", spaceId, nfe);
-            return null;
+            return emptyACLs;
 
         } catch (StorageException e) {
             log.warn("Error getting space ACLs: {}, exception: {}", spaceId, e);

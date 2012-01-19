@@ -38,21 +38,32 @@ public class DuplicationResultListener implements ResultListener {
     private ContentStore contentStore;
     private String spaceId;
     private String reportId;
+    private String errorReportId;
     private File resultsFile;
+    private File errorsFile;
+    private long passCount = 0;
+    private long failedCount = 0;
 
     public DuplicationResultListener(ContentStore contentStore,
                                      String spaceId,
                                      String reportId,
+                                     String errorReportId,
                                      String workDir) {
         this.contentStore = contentStore;
         this.spaceId = spaceId;
         this.reportId = reportId;
-
-        this.resultsFile = new File(workDir, this.reportId);
-        if (resultsFile.exists()) {
-            resultsFile.delete();
-        }
+        this.errorReportId = errorReportId;
+        this.resultsFile = createFile(workDir, this.reportId);
+        this.errorsFile  = createFile(workDir, this.errorReportId);
     }
+
+    private File createFile(String workDir, String filename) {
+        File file = new File(workDir, filename);
+        if (file.exists()) {
+            file.delete();
+        }
+        return file;
+     }
 
     @Override
     public void processResult(DuplicationEvent event) {
@@ -63,25 +74,7 @@ public class DuplicationResultListener implements ResultListener {
             return;
         }
 
-        writeToLocalResultsFile(event);
-        InputStream resultsStream = getLocalResultsFileStream();
-        try {
-            contentStore.addContent(spaceId,
-                                    reportId,
-                                    resultsStream,
-                                    resultsFile.length(),
-                                    "text/tab-separated-values",
-                                    null,
-                                    null);
-
-        } catch (ContentStoreException e) {
-            String err = "Error attempting to store duplication service " +
-                "results to {}/{}, due to: {}";
-            log.error(err, new Object[]{spaceId, reportId, e.getMessage()});
-
-        } finally {
-            IOUtils.closeQuietly(resultsStream);
-        }
+        writeResults(event);
     }
 
     private boolean isRecursiveUpdate(DuplicationEvent event) {
@@ -89,19 +82,58 @@ public class DuplicationResultListener implements ResultListener {
             reportId.equals(event.getContentId());
     }
 
-    private void writeToLocalResultsFile(DuplicationEvent event) {
-        if (!resultsFile.exists()) {
-            mkdir(resultsFile);
-            write(event.getHeader());
+    private void writeResults(DuplicationEvent event) {
+        writeResult(event, resultsFile, spaceId, reportId);
+        if(!event.isSuccess()){
+            writeResult(event, errorsFile, spaceId, errorReportId);
+            failedCount++;
+        }else{
+            passCount++;
         }
-        write(event.getEntry());
+    }
+    
+    private void writeResult(DuplicationEvent event,
+                             File file,
+                             String spaceId,
+                             String contentId) {
+        writeToFile(event, file);
+        persistToCloud(file, spaceId, contentId);
     }
 
-    private void write(String text) {
+    private void persistToCloud(File file, String spaceId, String contentId){
+        InputStream stream = getLocalResultsFileStream(file);
+        try {
+            contentStore.addContent(spaceId,
+                                    contentId,
+                                    stream,
+                                    file.length(),
+                                    "text/tab-separated-values",
+                                    null,
+                                    null);
+
+        } catch (ContentStoreException e) {
+            String err = "Error attempting to store duplication service " +
+                "results to {}/{}, due to: {}";
+            log.error(err, new Object[]{spaceId, contentId, e.getMessage()});
+
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
+    }
+
+    private void writeToFile(DuplicationEvent event, File file) {
+        if (!file.exists()) {
+            mkdir(file);
+            write(file, event.getHeader());
+        }
+        write(file, event.getEntry());
+    }
+
+    private void write(File file, String text) {
         boolean append = true;
         FileWriter writer;
         try {
-            writer = new FileWriter(resultsFile, append);
+            writer = new FileWriter(file, append);
             writer.append(text);
             writer.append(newline);
             writer.close();
@@ -109,8 +141,8 @@ public class DuplicationResultListener implements ResultListener {
         } catch (IOException e) {
             StringBuilder sb = new StringBuilder("Error writing event: '");
             sb.append(text);
-            sb.append("' to results file: ");
-            sb.append(resultsFile.getAbsolutePath());
+            sb.append("' to file: ");
+            sb.append(file.getAbsolutePath());
             sb.append(", exception: ");
             sb.append(e.getMessage());
             log.error(sb.toString());
@@ -125,13 +157,21 @@ public class DuplicationResultListener implements ResultListener {
         }
     }
 
-    private InputStream getLocalResultsFileStream() {
+    private InputStream getLocalResultsFileStream(File file) {
         try {
-            return new FileInputStream(resultsFile);
+            return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(
-                "Could not create results stream: " + e.getMessage(), e);
+            throw new RuntimeException("Could not create file stream: "
+                + file.getAbsolutePath() + ": " + e.getMessage(), e);
         }
+    }
+
+    public long getPassCount() {
+        return this.passCount;
+    }
+
+    public long getFailedCount() {
+        return this.failedCount;
     }
 
 }

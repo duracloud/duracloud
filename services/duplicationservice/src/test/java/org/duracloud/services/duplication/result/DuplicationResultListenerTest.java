@@ -10,6 +10,7 @@ package org.duracloud.services.duplication.result;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.easymock.EasyMock;
+import org.easymock.IExpectationSetters;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,8 +37,8 @@ public class DuplicationResultListenerTest {
     private ContentStore contentStore;
     private final String spaceId = "space-id";
     private final String reportId = "report-content-id";
+    private final String errorReportId = "error-report-content-id";
     private String workDir;
-
     private final String mime = "text/tab-separated-values";
 
     @Before
@@ -65,83 +66,106 @@ public class DuplicationResultListenerTest {
     }
 
     @Test
-    public void testProcessResult() throws Exception {
-        createProcessResultMocks(VALID);
+    public void testProcessResultSuccess() throws Exception {
+        testProcessResult(true);
+    }
+
+    @Test
+    public void testProcessResultFail() throws Exception {
+        testProcessResult(false);
+    }
+    
+    public void testProcessResult(boolean successfulEvent) throws Exception {
+        createProcessResultMocks(VALID, successfulEvent);
         replayMocks();
 
         listener = new DuplicationResultListener(contentStore,
                                                  spaceId,
                                                  reportId,
+                                                 errorReportId,
                                                  workDir);
 
         DuplicationEvent event = new DuplicationEvent(spaceId, SPACE_CREATE);
+        if(!successfulEvent){
+            event.fail("fail");
+        }
         listener.processResult(event);
     }
 
     @Test
     public void testProcessResultReportId() throws Exception {
-        createProcessResultMocks(VALID_REPORT);
+        createProcessResultMocks(VALID_REPORT, true);
         replayMocks();
 
         listener = new DuplicationResultListener(contentStore,
                                                  spaceId,
                                                  reportId,
+                                                 errorReportId,
                                                  workDir);
 
         DuplicationEvent event = new DuplicationEvent(spaceId,
                                                       reportId,
                                                       CONTENT_CREATE);
+        event.fail("failed");
         listener.processResult(event);
     }
 
     @Test
     public void testProcessResultError() throws Exception {
-        createProcessResultMocks(INVALID);
+        createProcessResultMocks(INVALID, true);
         replayMocks();
 
         listener = new DuplicationResultListener(contentStore,
                                                  spaceId,
                                                  reportId,
+                                                 errorReportId,
                                                  workDir);
 
         DuplicationEvent event = new DuplicationEvent(spaceId, SPACE_CREATE);
-
         // catches exception and writes a log.
         listener.processResult(event);
     }
 
-    private void createProcessResultMocks(MODE mode)
+    private void createProcessResultMocks(MODE mode, boolean successfulEvent)
         throws ContentStoreException {
         switch (mode) {
             case VALID:
-                EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
-                                                        EasyMock.eq(reportId),
-                                                        EasyMock.<InputStream>anyObject(),
-                                                        EasyMock.anyInt(),
-                                                        EasyMock.eq(mime),
-                                                        EasyMock.<String>isNull(),
-                                                        EasyMock.<Map<String, String>>isNull()))
-                    .andReturn("md5");
+                expectContentStoreCall(true, reportId);
+                if(!successfulEvent) {
+                    expectContentStoreCall(true, errorReportId);
+                }
                 break;
 
             case VALID_REPORT:
                 break;
 
             case INVALID:
-                EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
-                                                        EasyMock.eq(reportId),
-                                                        EasyMock.<InputStream>anyObject(),
-                                                        EasyMock.anyInt(),
-                                                        EasyMock.eq(mime),
-                                                        EasyMock.<String>isNull(),
-                                                        EasyMock.<Map<String, String>>isNull()))
-                    .andThrow(new ContentStoreException("canned-exception"));
+                expectContentStoreCall(false, reportId);
+                if(!successfulEvent){
+                    expectContentStoreCall(false, errorReportId);
+                }
                 break;
 
             default:
                 Assert.fail("unexpected mode: " + mode);
         }
 
+    }
+
+    private void expectContentStoreCall(boolean valid, String contentId) throws ContentStoreException {
+        IExpectationSetters<String> setters = EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
+                                                EasyMock.eq(contentId),
+                                                EasyMock.<InputStream>anyObject(),
+                                                EasyMock.anyInt(),
+                                                EasyMock.eq(mime),
+                                                EasyMock.<String>isNull(),
+                                                EasyMock.<Map<String, String>>isNull()));
+        
+        if(valid){
+            setters.andReturn("md5");
+        }else{
+            setters.andThrow(new ContentStoreException("canned-exception"));            
+        }
     }
 
     protected enum MODE {

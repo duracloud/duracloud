@@ -398,7 +398,11 @@ $(function(){
 	        "&spaceId=" + escape(dc.extractSpaceId(reportId));
         	link.attr("href", url)
             	.attr("title","View Service Report")
-            	.fancybox({type: 'iframe'});
+            	.fancybox({type: 'iframe',
+            	           width: 800,
+            	           scrolling: 'auto',
+            	           titleShow: false,
+            	        });
 	    };
 
 
