@@ -14,8 +14,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.sojo.interchange.csv.CsvParser;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.report.ServiceReportManager;
@@ -23,7 +21,6 @@ import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.common.util.LineParsingIterator;
-import org.duracloud.common.util.LineParsingIterator.Parseable;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.serviceconfig.ServiceSummary;
@@ -96,7 +93,8 @@ public class ServiceReportController {
         mav.addObject("data", iterator);
         mav.addObject("reportLink", "/duradmin/download/contentItem?"+
                                     "spaceId=" + spaceId + 
-                                    "&contentId=" + contentId);
+                                    "&contentId=" + contentId + 
+                                    "&attachment=true");
         
         return mav;
     }
