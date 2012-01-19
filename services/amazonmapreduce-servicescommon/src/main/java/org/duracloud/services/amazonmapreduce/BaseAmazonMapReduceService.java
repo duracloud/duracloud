@@ -179,12 +179,17 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
             getPostJobWorker().shutdown();
         }
 
-        super.doneWorking();
+        doneWorking();
         this.setServiceStatus(ServiceStatus.STOPPED);
     }
 
     @Override
     public void doneWorking() {
+        AmazonMapReduceJobWorker postWorker = getPostJobWorker();
+        if (postWorker != null) {
+            collectWorkerProps(postWorker);
+        }
+
         super.doneWorking();
     }
 
@@ -245,6 +250,9 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
         if(worker instanceof AmazonMapReducePostJobWorker){
             AmazonMapReducePostJobWorker pjw = (AmazonMapReducePostJobWorker)worker;
            props.putAll(pjw.getBubbleableProperties());
+           if(pjw.getError() != null){
+               super.setError(pjw.getError());
+           }
         }
         
         String jobId = worker.getJobId();

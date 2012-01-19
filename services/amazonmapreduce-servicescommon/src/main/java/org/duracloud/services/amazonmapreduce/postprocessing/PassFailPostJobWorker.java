@@ -106,8 +106,17 @@ public abstract class PassFailPostJobWorker extends BaseAmazonMapReducePostJobWo
         DuracloudFileWriter errorReportWriter =  null;
         String line = null;
         long count = 0;
+        boolean completeFailure = false;
         
         while ((line = readLine(reader)) != null) {
+            if(line.trim().length() == 0){
+                continue;
+            }
+            if(count == 0 && isCompleteFailure(line)){
+                completeFailure = true;
+                setError(line);
+                break;
+            }
             if (isError(line)) {
                 try {
                     if(errorReportWriter == null){
@@ -129,13 +138,19 @@ public abstract class PassFailPostJobWorker extends BaseAmazonMapReducePostJobWo
 
         IOUtils.closeQuietly(reader);
 
-        this.totalItemsProcessedCount = count;
+        if(!completeFailure){
+            this.totalItemsProcessedCount = count;
+        }
 
         if (this.failedItemsCount > 0) {
             if(errorReportWriter != null){
                 IOUtils.closeQuietly(errorReportWriter);
             }
         }
+    }
+
+    protected boolean isCompleteFailure(String line) {
+        return false;
     }
 
     protected abstract boolean isError(String line);

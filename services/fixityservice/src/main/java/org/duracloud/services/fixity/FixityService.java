@@ -7,11 +7,6 @@
  */
 package org.duracloud.services.fixity;
 
-import java.io.File;
-import java.util.Dictionary;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -22,7 +17,6 @@ import org.duracloud.services.ComputeService;
 import org.duracloud.services.common.error.ServiceException;
 import org.duracloud.services.fixity.domain.FixityServiceOptions;
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.duracloud.services.fixity.results.ServiceResultListener.State;
 import org.duracloud.services.fixity.results.ServiceResultListener.StatusMsg;
 import org.duracloud.services.fixity.results.ServiceResultProcessor;
 import org.duracloud.services.fixity.status.StatusListener;
@@ -33,6 +27,11 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Dictionary;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This class is the entry point for performing on-demand bit-integrity
@@ -362,11 +361,21 @@ public class FixityService extends BaseService implements ComputeService, Manage
             log.debug("getServiceProps() " + processingStatusMsg);
             updateProcessingStatus();
             props.put(ServiceResultProcessor.STATUS_KEY, processingStatusMsg.toString());
-            props.put(ComputeService.ITEMS_PROCESS_COUNT, String.valueOf(processingStatusMsg.getTotal()));
-            props.put(ComputeService.FAILURE_COUNT_KEY, String.valueOf(processingStatusMsg.getFailed()));
-            props.put(ComputeService.PASS_COUNT_KEY, String.valueOf(processingStatusMsg.getPassed()));
-            if(processingStatusMsg.getFailed() > 0){
-                props.put(ComputeService.ERROR_REPORT_KEY, getErrorReportId());
+
+            if(getServiceStatus() != ServiceStatus.FAILED){
+                long failed = processingStatusMsg.getFailed();
+                long passed = processingStatusMsg.getPassed();
+                long total  = processingStatusMsg.getTotal();
+                if(total < 0){
+                    total = passed+failed;
+                }
+
+                props.put(ComputeService.ITEMS_PROCESS_COUNT, String.valueOf(total));
+                props.put(ComputeService.FAILURE_COUNT_KEY, String.valueOf(failed));
+                props.put(ComputeService.PASS_COUNT_KEY, String.valueOf(passed));
+                if(processingStatusMsg.getFailed() > 0){
+                    addErrorReport(props);
+                }
             }
         }
         return props;

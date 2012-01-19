@@ -9,6 +9,7 @@ package org.duracloud.services.amazonfixity.postprocessing;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.bulk.ManifestVerifier;
+import org.duracloud.services.ComputeService;
 import org.duracloud.services.amazonmapreduce.AmazonMapReduceJobWorker;
 import org.duracloud.services.amazonmapreduce.postprocessing.PassFailPostJobWorker;
 import org.slf4j.Logger;
@@ -34,6 +35,12 @@ public class FixityPassFailPostJobWorker extends PassFailPostJobWorker {
         super(predecessor, contentStore, serviceWorkDir, spaceId, contentId, errorReportContentId);
     }
 
+    @Override
+    protected boolean isCompleteFailure(String line) {
+        return(line.toLowerCase().startsWith("error") &&
+                !line.contains(ComputeService.DELIM +""));
+    }
+    
     @Override
     protected boolean isError(String line) {
         // null is ok

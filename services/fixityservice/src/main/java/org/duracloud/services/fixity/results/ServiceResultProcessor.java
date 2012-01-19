@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.ComputeService;
 import org.duracloud.services.fixity.status.StatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,7 +106,13 @@ public class ServiceResultProcessor implements ServiceResultListener {
     public synchronized void processServiceResult(ServiceResult result) {
         writeToLocalFile(resultsFile, result);
         storeFile(resultsFile, outputSpaceId, outputContentId);
-
+        long processedCount = successfulResults + unsuccessfulResults;
+        
+        if(processedCount == 0 &&  isCompleteFailure(result)){
+            statusListener.setError(result.getEntry());
+            return;
+        }
+        
         Collection<ServiceResultItem> items = result.getItems();
         if (items != null && items.size() > 0) {
             for (ServiceResultItem sr : items) {
@@ -123,6 +130,16 @@ public class ServiceResultProcessor implements ServiceResultListener {
             storeFile(errorsFile, outputSpaceId, errorContentId);
         }
 
+    }
+
+    private boolean isCompleteFailure(ServiceResult result) {
+        if(!result.isSuccess()){
+            String line = result.getEntry();
+            return(line.toLowerCase().startsWith("error") &&
+                !line.contains(ComputeService.DELIM +""));
+        }
+        
+        return false;
     }
 
     private void countSuccessesAndLogFailures(boolean success, String header, String entry) {
