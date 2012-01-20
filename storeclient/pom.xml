@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>storeclient</artifactId>
   <packaging>bundle</packaging>
-  <version>1.3.1</version>
+  <version>1.4.0-SNAPSHOT</version>
   <name>StoreClient</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>1.3.1</version>
+    <version>1.4.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
