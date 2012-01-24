@@ -84,7 +84,7 @@
 				<div id="content-item-list-view" class="dc-list-item-viewer">
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
-                <a class="float-r  button featured bulk-add-content-item"><i class="pre plus"></i>Add Many Items</a>
+                <a class="float-r  button featured bulk-add-content-item"><i class="pre plus"></i>Add Items</a>
                 <%
                 /*
                 //TODO Remove all support for adding single content item upload 
