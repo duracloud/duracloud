@@ -1140,6 +1140,9 @@ $(function(){
 		return 'no provider found with id = ' + storeId;
 	};
 	
+	/*
+	 //TODO Remove the commented block below when the team is comfortable jettisoning
+	 //the single content item upload
 	var createTaskPanel = function(task) {
 		var props = task.properties;
 		var percentComplete = parseInt(parseInt(props.bytesRead)/parseInt(props.totalBytes)*100);
@@ -1316,7 +1319,8 @@ $(function(){
 	};
 	
 	poller(60*1000);
-
+	//end single content item upload code.
+	*/
 	$.fx.speeds._default = 10;
 
 	///////////////////////////////////////////

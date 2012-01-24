@@ -85,7 +85,12 @@
 				<div class="north header list-header clearfix">
 				<div id="header-content-list" class="header-section clearfix">
                 <a class="float-r  button featured bulk-add-content-item"><i class="pre plus"></i>Add Many Items</a>
-				<button class="float-r add-content-item-button"><i class="pre plus"></i>Add One Item</button>
+                <!-- 
+                //TODO Remove all support for adding single content item upload 
+                //     once we're sure we're comfortable relying on the upload tool.
+                <button class="float-r add-content-item-button"><i class="pre plus"></i>Add One Item</button>
+                 -->
+        
                 <button class="float-r refresh-space-button"><i class="pre refresh"></i>Refresh</button>
 
 				<h2>Content Items</h2>   
@@ -333,16 +338,24 @@
 			</tiles:putAttribute>
 
 			<tiles:putAttribute name="main-footer">
-				<div id="status-holder">
-					<a id="view-uploads">
+                
+                <div id="status-holder">
+				<!-- 
+                //TODO Remove me when we are satisfied 
+                //     that we really don't want the single file upload capability
+                
+                  	<a id="view-uploads">
 						<span id="upload-status-label">Upload Status:</span> 
 					</a>
+                -->
 				</div>
+                <!-- //TODO Remove me as above
 				<div id="upload-viewer" style="display:none">
 					<h1>Uploads</h1>
 					<div id="upload-list-wrapper"></div>
 				</div>
-
+                 -->
+        
 			</tiles:putAttribute>
 		</tiles:insertDefinition>
 	</tiles:putAttribute>
