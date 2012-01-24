@@ -12,4 +12,5 @@ Duracloud Administrator Release v${project.version} ${prefix.revision}${prefix.s
 <c:if test="${!empty duradminConfig.amaUrl && duradminConfig.amaUrl != 'null'}">
     <a target="_blank" href="${duradminConfig.amaUrl}">Management Console</a>  <span class="sep">|</span>
 </c:if>
+<a target="_blank" href="http://duracloud.kayako.com">Help Desk</a> <span class="sep">|</span>
 <a target="_blank" href="mailto:info@duracloud.org">Contact Us</a>
