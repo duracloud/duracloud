@@ -70,7 +70,7 @@
 #form-fields #button-login span
 {
 	background-image:url(../images/btn_login.gif);
-	color:#fff;
+	color:#fff !important;
 	height:28px;
 	line-height:25px;	
 }
