@@ -486,7 +486,7 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> services = getServicesFromXml(xmlFile);
         Assert.assertNotNull(services);
 
-        int count = 7;
+        int count = 8;
         Assert.assertEquals(xmlFile.getName(), count, services.size());
 
         verifyService(services.get(0), "fixityservice-", 0);
@@ -497,6 +497,7 @@ public class ServiceXmlGeneratorTest {
         verifyService(services.get(4), "mediastreamingservice-", 8);
         verifyService(services.get(5), "imagemagickservice-", 9);
         verifyService(services.get(6), "webapputilservice-", 10);
+        verifyService(services.get(7), "cloudsyncservice-", 11);
     }
 
     private void verifyService(ServiceInfo service, String prefix, int id) {

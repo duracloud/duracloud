@@ -192,6 +192,7 @@ public class ServiceXmlGenerator {
         results.add(services.get(8));
         results.add(services.get(9));
         results.add(services.get(10));
+        results.add(services.get(11));
 
         return results;
     }
