@@ -2170,16 +2170,35 @@ $(function(){
 			   ];
 	};
 
-	var extractContentItemProperties = function(contentItem){
-		var m = contentItem.properties;
-		return [
-			        ["Space", contentItem.spaceId],
-			        ["Size", m.size],
-			        ["Modified", m.modified],
-			        ["Checksum", m.checksum],
-		       ];
-	};
+    var extractContentItemProperties = function(contentItem){
+        var m = contentItem.properties;
+        return [
+                    ["Space", contentItem.spaceId],
+                    ["Size", formatBytes(m.size)],
+                    ["Modified", m.modified],
+                    ["Checksum", m.checksum],
+               ];
+    };
 
+    var formatBytes = function(bytes){
+        var val = null;
+        bytes = new Number(bytes);
+        var bytesValue = bytes + " Bytes";
+        
+        if(bytes < 1024){
+            return bytesValue;
+        }else if(bytes < 1024*1000){
+           val = (bytes/1000).toFixed(1) + " KBs";
+        }else if(bytes < 1024*1000*1000){
+            val = (bytes/(1000*1000)).toFixed(1) + " MBs";
+        }else{
+            val = (bytes/(1000*1000*1000)).toFixed(1) + " GBs";
+        }
+        
+        return val + " (" + bytesValue + ")";
+        
+    };
+    
 	var j2kViewerBaseURL = "";
 	
 	var loadContentItem = function(/*object*/contentItem){
