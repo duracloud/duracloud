@@ -73,30 +73,51 @@ public class SyncTool {
         this.version = props.getProperty("version");
     }
 
-    private SyncToolConfig processCommandLineArgs(String[] args) {
+    /**
+     * Sets the configuration of the sync tool.
+     * @param syncConfig to use for running the Sync Tool
+     */
+    protected void setSyncConfig(SyncToolConfig syncConfig) {
+        this.syncConfig = syncConfig;
+    }
+
+    private void processCommandLineArgs(String[] args) {
         SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
-        syncConfig = syncConfigParser.processCommandLine(args);
+        SyncToolConfig syncConfig = syncConfigParser.processCommandLine(args);
         syncConfig.setVersion(version);
-        return syncConfig;
+        setSyncConfig(syncConfig);
     }
 
     /**
-     * Determines if the configuration has been changed since the
-     * previous run. If it has, a restart cannot occur.
-     * @return true if config has not been changed, false otherwise
+     * Determines if this run of the sync tool will perform a restart.
+     * @return true if restart should occur, false otherwise
      */
-    private boolean restartPossible() {
-        SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
-        SyncToolConfig prevConfig =
-            syncConfigParser.retrievePrevConfig(syncConfig.getWorkDir());
+    protected boolean restartPossible() {
+        boolean restart = false;
+        if(!syncConfig.isCleanStart()) {
+            // Determines if the configuration has been changed since the
+            // previous run. If it has, a restart cannot occur.
+            SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
+            SyncToolConfig prevConfig =
+                syncConfigParser.retrievePrevConfig(syncConfig.getWorkDir());
 
-        if(prevConfig != null) {
-            return configEquals(syncConfig, prevConfig);
-        } else {
-            return false;
+            if(prevConfig != null) {
+                restart = configEquals(syncConfig, prevConfig);
+            }
         }
+        return restart;
     }
 
+    /**
+     * Determines if two sets of configuration are "equal enough" to indicate
+     * that the content to be reviewed for sync operations has not changed on
+     * either the local or remote end, suggesting that a re-start would be
+     * permissable.
+     *
+     * @param currConfig the current sync configuration
+     * @param prevConfig the sync configuration of the previous run
+     * @return true if the configs are "equal enough", false otherwise
+     */
     protected boolean configEquals(SyncToolConfig currConfig,
                                    SyncToolConfig prevConfig) {
         if (currConfig.getHost().equals(prevConfig.getHost())) {
@@ -262,8 +283,8 @@ public class SyncTool {
         }
     }
 
-    public void runSyncTool(SyncToolConfig syncConfig) {
-        this.syncConfig = syncConfig;
+    public void runSyncTool(String[] args) {
+        processCommandLineArgs(args);
         setupLogging();
         logger.info("Starting Sync Tool version " + version);
         System.out.print("\nStarting up the Sync Tool ...");
@@ -330,7 +351,6 @@ public class SyncTool {
 
     public static void main(String[] args) throws Exception {
         SyncTool syncTool = new SyncTool();
-        SyncToolConfig syncConfig = syncTool.processCommandLineArgs(args);
-        syncTool.runSyncTool(syncConfig);
+        syncTool.runSyncTool(args);
     }
 }

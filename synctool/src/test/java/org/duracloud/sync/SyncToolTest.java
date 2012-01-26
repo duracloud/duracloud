@@ -7,7 +7,10 @@
  */
 package org.duracloud.sync;
 
+import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.config.SyncToolConfig;
+import org.duracloud.sync.config.SyncToolConfigParser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,24 +25,77 @@ import static org.junit.Assert.assertTrue;
  * @author: Bill Branan
  * Date: 11/2/11
  */
-public class SyncToolTest {
+public class SyncToolTest extends SyncTestBase {
 
     private SyncTool syncTool;
+    private static final String prevHost = "prevHost";
+    private static final String prevSpaceId = "prevSpaceId";
+    private static final String prevStoreId = "prevStoreId";
+    private static final boolean prevSyncDel = false;
+    private static final String fileName1 = "/a/b/c.txt";
+    private static final String fileName2 = "/a/b/d.txt";
 
     @Before
-    public void setup() {
+    @Override
+    public void setUp() {
         syncTool = new SyncTool();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void testRestartPossible() throws Exception {
+        // clean start = no restart
+        SyncToolConfig config = new SyncToolConfig();
+        config.setCleanStart(true);
+        syncTool.setSyncConfig(config);
+
+        assertFalse(syncTool.restartPossible());
+
+        // no previous config = no restart
+        File workDir = createTempDir("testwork");
+        config.setCleanStart(false);
+        config.setWorkDir(workDir);
+
+        assertFalse(syncTool.restartPossible());
+
+        // equal prev config = restart
+        File contentDir = createTempDir("testcontent");
+        String[] args = {"-h", prevHost,
+                         "-s", prevSpaceId,
+                         "-i", prevStoreId,
+                         "-c", contentDir.getPath(),
+                         "-u", "user",
+                         "-p", "pass",
+                         "-w", workDir.getAbsolutePath()};
+        ConfigStorage storage = new ConfigStorage();
+        storage.backupConfig(workDir, args);
+        storage.backupConfig(workDir, args); // twice to push to prev config
+        List<File> contentDirs = new ArrayList<File>();
+        contentDirs.add(contentDir);
+        config = getConfig(prevHost, prevSpaceId, prevStoreId,
+                           prevSyncDel, contentDirs);
+        config.setWorkDir(workDir);
+        syncTool.setSyncConfig(config);
+
+        assertTrue(syncTool.restartPossible());
+
+        FileUtils.deleteQuietly(workDir);
+        FileUtils.deleteQuietly(contentDir);
+    }
+
+    private class ConfigStorage extends SyncToolConfigParser {
+        public void backupConfig(File backupDir, String[] args) {
+            super.backupConfig(backupDir, args);
+        }
     }
 
     @Test
     public void testConfigEquals() {
-        String prevHost = "prevHost";
-        String prevSpaceId = "prevSpaceId";
-        String prevStoreId = "prevStoreId";
-        boolean prevSyncDel = false;
-        List<File> prevDirs = new ArrayList<File>();
-        String fileName1 = "/a/b/c.txt";
-        String fileName2 = "/a/b/d.txt";
+        List<File> prevDirs;
+        prevDirs = new ArrayList<File>();
         prevDirs.add(new File(fileName1));
         prevDirs.add(new File(fileName2));
 

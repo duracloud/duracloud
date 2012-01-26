@@ -146,6 +146,16 @@ public class SyncToolConfigParser {
         syncDeletes.setRequired(false);
         cmdOptions.addOption(syncDeletes);
 
+       Option cleanStart =
+           new Option("l", "clean-start", false,
+                      "indicates that the sync tool should perform a clean " +
+                      "start, ensuring that all files in all content " +
+                      "directories are checked against DuraCloud, even if " +
+                      "those files have not changed locally since the last " +
+                      "run of the sync tool. (optional, not set by default)");
+        cleanStart.setRequired(false);
+        cmdOptions.addOption(cleanStart);
+
        Option exitOnCompletion =
            new Option("x", "exit-on-completion", false,
                       "indicates that the sync tool should exit once it has " +
@@ -309,6 +319,12 @@ public class SyncToolConfigParser {
             config.setSyncDeletes(true);
         } else {
             config.setSyncDeletes(false);
+        }
+
+        if(cmd.hasOption("l")) {
+            config.setCleanStart(true);
+        } else {
+            config.setCleanStart(false);
         }
 
         if(cmd.hasOption("x")) {

@@ -32,6 +32,7 @@ public class SyncToolConfig implements Serializable {
     private int numThreads;
     private long maxFileSize;
     private boolean syncDeletes;
+    private boolean cleanStart;
     private boolean exitOnCompletion;
     private String version;
 
@@ -72,6 +73,8 @@ public class SyncToolConfig implements Serializable {
         config.append(getMaxFileSize()).append(" bytes\n");
         config.append("SyncTool Syncing Deletes: ");
         config.append(syncDeletes()).append("\n");
+        config.append("Clean Start Mode: ");
+        config.append(isCleanStart()).append("\n");
         config.append("SyncTool Exit on Completion: ");
         config.append(exitOnCompletion()).append("\n");
         config.append("--------------------------------------\n");
@@ -181,6 +184,14 @@ public class SyncToolConfig implements Serializable {
 
     public void setSyncDeletes(boolean syncDeletes) {
         this.syncDeletes = syncDeletes;
+    }
+
+    public boolean isCleanStart() {
+        return cleanStart;
+    }
+
+    public void setCleanStart(boolean cleanStart) {
+        this.cleanStart = cleanStart;
     }
 
     public boolean exitOnCompletion() {

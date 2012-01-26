@@ -68,6 +68,7 @@ public class SyncToolConfigParserTest {
         argsMap.remove("-t");
         argsMap.remove("-m");
         argsMap.remove("-d");
+        argsMap.remove("-l");
         argsMap.remove("-x");
 
         // Process configs, make sure optional params are set to defaults
@@ -83,6 +84,7 @@ public class SyncToolConfigParserTest {
                      SyncToolConfigParser.GIGABYTE,
                      syncConfig.getMaxFileSize());
         assertEquals(false, syncConfig.syncDeletes());
+        assertEquals(false, syncConfig.isCleanStart());
         assertEquals(false, syncConfig.exitOnCompletion());
 
         // Make sure error is thrown on missing required params
@@ -120,6 +122,7 @@ public class SyncToolConfigParserTest {
         argsMap.put("-s", "mySpace");
         argsMap.put("-m", "2");
         argsMap.put("-d", "");
+        argsMap.put("-l", "");
         argsMap.put("-x", "");
         return argsMap;
     }
@@ -145,6 +148,8 @@ public class SyncToolConfigParserTest {
                      String.valueOf(syncConfig.getMaxFileSize() /
                                     SyncToolConfigParser.GIGABYTE));
         assertEquals(true, syncConfig.syncDeletes());
+        assertEquals(true, syncConfig.isCleanStart());
+        assertEquals(true, syncConfig.exitOnCompletion());
     }
 
     private String[] mapToArray(HashMap<String, String> map) {
