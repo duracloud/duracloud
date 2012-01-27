@@ -44,7 +44,6 @@ public class UploadToolApplet extends JApplet {
                 JSObject win =
                     (JSObject) JSObject.getWindow(UploadToolApplet.this);
                 win.eval("self.close();");
-                super.exit();
             }
         };
         
