@@ -879,8 +879,6 @@ $(function(){
 		$(div).expandopanel("getContent").css("text-align", "center").append(viewer);
 		$(".center", target).append(div);
 
-		var streamHost = "s3i8j0alxo57q2.cloudfront.net";
-		
 		dc.service.GetDeployedServices({
 			success: function(data){
 				var services = data.services;
