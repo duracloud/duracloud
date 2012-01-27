@@ -2447,8 +2447,9 @@ $(function(){
 		    .attr("href", "spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
 		    .attr("target", "bulk-upload-" + escape(space.spaceId));
 		    
-		$(".refresh-space-button")
-		    .click(function(){
+		var refreshButton = $(".refresh-space-button"); 
+		refreshButton.unbind("click");
+		refreshButton.click(function(){
 		        reloadContents(space.spaceId, null, loadSpace, "Refreshing...");
 		    });
 		addContentItemsToList(space);

@@ -137,7 +137,10 @@ public class SpaceController extends  AbstractRestController<Space> {
                 request.getSession().removeAttribute(key);
             } else {
                 SpaceProperties properties = space.getProperties();
-                long interCount = listener.getIntermediaryCount();
+                Long interCount = listener.getIntermediaryCount();
+                if(interCount == null){
+                    interCount = 0l;
+                }
                 if(interCount % 1000 != 0) {
                     interCount += 1;
                 }
