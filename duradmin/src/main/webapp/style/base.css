@@ -817,13 +817,14 @@ span.label,
 
 .preview-image-wrapper
 {
-	border:1px solid #000;
-	border-bottom-color:#999;
 	display:block;
 	margin:0 auto;
-	overflow:auto;
-	width:300px;
-	height:300px;
+	overflow:hidden;
+	text-align:center;
+	padding-top:10px;
+	padding-bottom:10px;
+	min-width:300px;
+	min-height:200px;
 }
 
 

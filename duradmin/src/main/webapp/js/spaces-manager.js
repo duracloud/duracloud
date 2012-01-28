@@ -1027,7 +1027,7 @@ $(function(){
                options['height'] = $(document).height()*0.8;
                options['type'] = 'iframe';
                viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
-               thumbnailURL = dc.store.formatThumbnail(contentItem, 1,j2kBaseURL, open);
+               thumbnailURL = dc.store.formatThumbnail(contentItem, 2,j2kBaseURL, open);
        }else{
                options['type'] = 'image';
                viewerURL = dc.store.formatDownloadURL(contentItem,false);
@@ -1044,14 +1044,24 @@ $(function(){
        var thumbnail = $.fn.create("img")
                                                .attr("src", thumbnailURL)
                                                .addClass("preview-image");
-
+       
        var viewerLink = $.fn.create("a").append(thumbnail)
                                                .attr("href", viewerURL)
                                                .fancybox(options);		
+
        var wrapper = $.fn.create("div")
                                                .addClass("preview-image-wrapper")
                                                .append(viewerLink);
 
+       var parent = $(viewerLink.parent());
+       var loadingMessage = $("<div><h2><img src='/duradmin/images/wait.gif'/>Loading image...</h2>");
+       parent.append(loadingMessage);
+       thumbnail.hide();
+       thumbnail.load(function(){
+           loadingMessage.remove();
+           thumbnail.show();
+       });
+       
        if(!open && j2kBaseURL != null && isAdmin()){
                var warning = $.fn.create("div").addClass("warning").attr("id", "make-public-warning");
                $(div).expandopanel("getContent").append(warning);
