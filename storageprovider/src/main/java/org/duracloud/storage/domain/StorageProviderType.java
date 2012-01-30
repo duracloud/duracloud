@@ -13,6 +13,7 @@ public enum StorageProviderType {
     EMC("emc"),
     RACKSPACE("rackspace"),
     SDSC("sdsc"),
+    HP("hp"),
     IRODS("irods"),
     UNKNOWN("unknown"),
     TEST_RETRY("test-retry"),

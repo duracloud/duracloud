@@ -73,6 +73,7 @@
         <module>s3storageprovider</module>
         <module>sdscstorageprovider</module>
         <module>rackspacestorageprovider</module>
+        <module>hpstorageprovider</module>
         <module>emcstorageprovider</module>
         <module>azurestorageprovider</module>
         <module>irodsstorageprovider</module>
