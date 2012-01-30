@@ -2188,16 +2188,16 @@ $(function(){
     var formatBytes = function(bytes){
         var val = null;
         bytes = new Number(bytes);
-        var bytesValue = bytes + " Bytes";
+        var bytesValue = bytes + " bytes";
         
         if(bytes < 1024){
             return bytesValue;
         }else if(bytes < 1024*1000){
-           val = (bytes/1000).toFixed(1) + " KBs";
+           val = (bytes/1000).toFixed(1) + " KB";
         }else if(bytes < 1024*1000*1000){
-            val = (bytes/(1000*1000)).toFixed(1) + " MBs";
+            val = (bytes/(1000*1000)).toFixed(1) + " MB";
         }else{
-            val = (bytes/(1000*1000*1000)).toFixed(1) + " GBs";
+            val = (bytes/(1000*1000*1000)).toFixed(1) + " GB";
         }
         
         return val + " (" + bytesValue + ")";
