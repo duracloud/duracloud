@@ -129,12 +129,28 @@ public abstract class BaseService implements ComputeService {
         this.error = error;
     }
 
-    public void setReportId(String spaceId, String reportId) {
-        this.reportId = spaceId + "/" + reportId;
+    public void setReportId(String spaceId, String contentId) {
+        setReportId(spaceId, contentId, null);
     }
-    
+
+    public void setReportId(String spaceId, String contentId, String storeId) {
+        String id = spaceId + "/" + contentId;
+        if(storeId != null){
+            id+="?storeId="+storeId;
+        }
+        this.reportId = id;
+    }
+
     public void setErrorReportId(String spaceId, String errorReportId) {
-        this.errorReportId = spaceId + "/" + errorReportId;
+        setErrorReportId(spaceId, errorReportId, null);
+    }
+
+    public void setErrorReportId(String spaceId, String contentId, String storeId) {
+        String id = spaceId + "/" + contentId;
+        if(storeId != null){
+            id+="?storeId="+storeId;
+        }
+        this.errorReportId = id;
     } 
 
     public String getSvcLaunchingUser() {

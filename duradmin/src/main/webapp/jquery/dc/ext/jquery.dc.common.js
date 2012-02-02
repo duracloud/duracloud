@@ -381,6 +381,15 @@ $(function(){
 			return true;
 		};
 		
+
+        dc.extractStoreId = function(path){
+            var index = path.indexOf("?storeId=");
+            if(index > 0){
+                return path.substring(index+9);
+            }else{
+                return null;
+            }
+        };
 		
 	    dc.extractSpaceId = function(path){
 	        var index = path.indexOf("/");
@@ -389,13 +398,20 @@ $(function(){
 
 	    dc.extractContentId = function(path){
 	        var index = path.indexOf("/");
-	        return path.substring(index+1);
+	        var qsIndex = path.indexOf("?");
+	        return path.substring(index+1, (qsIndex > 0 ? qsIndex : path.length));
 	    };
 	    
 	    dc.reportOverlayOnClick = function(link, reportId){
 	        var url = "/duradmin/servicesreport/htmltable?contentId=" + 
 	        escape(dc.extractContentId(reportId)) + 
 	        "&spaceId=" + escape(dc.extractSpaceId(reportId));
+	        
+	        var storeId = dc.extractStoreId(reportId);
+	        if(storeId){
+	            url+="&storeId="+storeId;
+	        }
+	        
         	link.attr("href", url)
             	.attr("title","View Service Report")
             	.fancybox({type: 'iframe',

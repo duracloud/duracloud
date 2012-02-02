@@ -326,13 +326,14 @@ public class FixityService extends BaseService implements ComputeService, Manage
      private void setReportIds(FixityServiceOptions serviceOptions) {
         String spaceId = serviceOptions.getOutputSpaceId();
         String reportId = serviceOptions.getReportContentId();
+        String storeId = serviceOptions.getStoreId();
 
         // are we only creating hashes? with no actual report?
         if (serviceOptions.needsToHash() && !serviceOptions.needsToCompare()) {
             reportId = serviceOptions.getOutputContentId();
         }
-        super.setReportId(spaceId, reportId);
-        super.setErrorReportId(spaceId, serviceOptions.getErrorContentId());
+        super.setReportId(spaceId, reportId, serviceOptions.getStoreId());
+        super.setErrorReportId(spaceId, serviceOptions.getErrorContentId(),storeId);
     }
 
     @Override

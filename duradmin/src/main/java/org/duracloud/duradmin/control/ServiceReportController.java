@@ -76,11 +76,17 @@ public class ServiceReportController {
     
     @RequestMapping(value="/servicesreport/htmltable")
     public ModelAndView getReportAsHtmlTable(HttpServletResponse response,
+            @RequestParam(required=false, value="storeId" ) String storeId,            
             @RequestParam(required=true, value="spaceId" ) String spaceId,
             @RequestParam(required=true, value="contentId" ) String contentId)
 
                 throws ReportException,NotFoundException, ContentStoreException, IOException {
+       
         ContentStore store = contentStoreManager.getPrimaryContentStore();
+        
+        if(storeId != null){
+            store = contentStoreManager.getContentStore(storeId);
+        }
         
         Content content = store.getContent(spaceId, contentId);
         
@@ -94,6 +100,7 @@ public class ServiceReportController {
         mav.addObject("reportLink", "/duradmin/download/contentItem?"+
                                     "spaceId=" + spaceId + 
                                     "&contentId=" + contentId + 
+                                    (storeId != null ? "&storeId="+storeId : "") +
                                     "&attachment=true");
         
         return mav;
