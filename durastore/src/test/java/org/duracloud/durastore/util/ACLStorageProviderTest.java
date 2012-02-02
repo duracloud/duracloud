@@ -155,6 +155,10 @@ public class ACLStorageProviderTest {
             EasyMock.expect(mockProvider.getSpaceACLs(space))
                     .andReturn(acls)
                     .times(times);
+            EasyMock.expect(mockProvider.getSpaceProperties(space))
+            .andReturn(new HashMap<String,String>())
+            .times(times);
+
         }
     }
 

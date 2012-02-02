@@ -7,6 +7,13 @@
  */
 package org.duracloud.durastore.util;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.duracloud.azurestorage.AzureStorageProvider;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
@@ -25,13 +32,8 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides access to StorageProvider implementations
@@ -41,21 +43,43 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StorageProviderFactoryImpl extends ProviderFactoryBase
     implements StorageProviderFactory {
 
+    private Logger log = LoggerFactory.getLogger(StorageProviderFactoryImpl.class);
+
     private StatelessStorageProvider statelessProvider;
     private Map<String, StorageProvider> storageProviders;
+    private boolean cacheStorageProvidersOnInit = false;
 
     public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
                                       StatelessStorageProvider statelessStorageProvider) {
+        this(storageAccountManager, statelessStorageProvider, false);
+    }
+
+    public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
+                                      StatelessStorageProvider statelessStorageProvider,
+                                      boolean cacheStorageProvidersOnInit) {
+
         super(storageAccountManager);
         this.statelessProvider = statelessStorageProvider;
-        storageProviders = new ConcurrentHashMap<String, StorageProvider>();
+        this.storageProviders = new ConcurrentHashMap<String, StorageProvider>();
+        this.cacheStorageProvidersOnInit = cacheStorageProvidersOnInit;
     }
 
     @Override
     public void initialize(InputStream accountXml)
             throws StorageException {
         super.initialize(accountXml);
-        storageProviders = new ConcurrentHashMap<String, StorageProvider>();        
+        initializeStorageProviders();
+    }
+
+    private void initializeStorageProviders() {
+        this.storageProviders = new ConcurrentHashMap<String, StorageProvider>();
+        if(this.cacheStorageProvidersOnInit){
+            log.info("Caching storage providers on init is enabled: building storage provider cache...");
+            Iterator<String> ids = getAccountManager().getStorageAccountIds();
+            while(ids.hasNext()){
+                getStorageProvider(ids.next());
+            }
+        }
     }
 
     /**

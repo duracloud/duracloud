@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -168,6 +169,28 @@ public class StorageProviderFactoryTest {
         getProvider();
     }
 
+    @Test
+    public void testInitilizeWithCachingEnabled() {
+        //reinitialize
+        mockSAM.initialize(EasyMock.isA(InputStream.class));
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(mockSAM.getStorageAccountIds())
+        .andReturn(Arrays.asList(new String[]{acctId1}).iterator());
+
+        EasyMock.expect(mockSAM.getStorageAccount(EasyMock.isA(String.class)))
+            .andReturn(acct1);
+
+        EasyMock.replay(mockSAM, mockSSP);
+
+        factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, true);
+        InputStream inputStream = EasyMock.createMock("InputSream",
+                            InputStream.class);
+        EasyMock.replay(inputStream);
+        
+        factory.initialize(inputStream);
+    }
+    
     private StorageAccountManager getProvider() {
         StorageAccountManager sam = EasyMock.createMock(StorageAccountManager.class);
 

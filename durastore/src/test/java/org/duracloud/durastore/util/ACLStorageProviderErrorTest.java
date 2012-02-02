@@ -79,7 +79,10 @@ public class ACLStorageProviderErrorTest {
         for (String space : allSpaces()) {
             EasyMock.expect(mockProvider.getSpaceACLs(space))
                     .andReturn(aclMap());
+            EasyMock.expect(mockProvider.getSpaceProperties(space))
+            .andReturn(new HashMap<String,String>());
         }
+        
         return mockProvider;
     }
 
