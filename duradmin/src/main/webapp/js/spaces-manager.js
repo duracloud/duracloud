@@ -1929,6 +1929,7 @@ $(function(){
 	                     success:function(spaces){
 	                        var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
 	                        spaceSelect.children().remove();
+	                        spaceSelect.append("<option value=''>Choose</option>");
 	                        $.each(spaces, function(index,space){
 	                            spaceSelect.append("<option>"+space.spaceId+"</option>");
 	                        });
@@ -1948,17 +1949,37 @@ $(function(){
 	              }
 	            );
 	            
+	            
 	            $.validator
-    	            .addMethod(
+	                .addMethod(
     	                "contentIdAlreadyInSpace", 
 	                    function(value, element) { 
 	                        return !(destStoreIdField.val() == contentItems[0].storeId && 
 	                                 spaceSelect.val() == contentItems[0].spaceId &&
 	                                 contentItems[0].contentId == value);
 	                    },
-	                    "New content id equals current id. Change it or copy to another space.");
+	                    "New content id equals current id. " +
+	                    "Change it or copy to another space."
+	                );
 	            
-	        
+                $.validator.addMethod(
+                        "spaceIdNotEmpty", 
+                        function(value, element) { 
+                           return !(value == null || value.trim().length == 0);
+                        },
+                        "Select a space"
+                    );
+
+                $.validator.addMethod(
+                        "availableSpaces", 
+                        function(value, element) { 
+                            return $(element).children().length > 1;
+                        },
+                        "There are no writable spaces " +
+                        " in this content provider.<br/>" +
+                        " Please contact your DuraCloud admin for help."
+                    );                
+	            
 	            var validator = $("form",that).validate({
 	                rules: {
                         contentId: {
@@ -1967,6 +1988,11 @@ $(function(){
                             illegalchars: true,
                             contentIdAlreadyInSpace: true,
                         },
+                        spaceId: {
+                            availableSpaces: true,
+                            spaceIdNotEmpty: true,
+                        },
+                        
                     }
                 });
 	            
