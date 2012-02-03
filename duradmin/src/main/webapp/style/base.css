@@ -541,7 +541,7 @@ ul.dc-user-config > li:last-child {
 
 input.dc-check-all
 {
-	margin-left:0 !important;
+	margin-left:3px !important;
 }
 
 .dc-checked-selected-list-item {
@@ -573,6 +573,10 @@ input.dc-check-all
 
 .dc-item-content {
     padding-right: 30px;
+}
+
+.dc-item .cb-holder{
+	padding:8px 8px 8px 5px;
 }
 
 .dc-item:hover,

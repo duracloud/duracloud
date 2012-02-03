@@ -267,22 +267,38 @@ $.widget("ui.selectablelist",{
 		var actionClass = o.itemActionClass;
 		$(item).addClass(itemClass);
 
-		
-		
 		if(this.options.selectable){
 		    var checkbox = $("<input type='checkbox'/>");
-			$(item).prepend(checkbox);
-			if(selectionDisabled != undefined){
+		    //checkbox holder serves to create a clickable
+		    //buffer zone around the checkbox in order to
+		    //make it easier for the user to check.
+		    var checkboxHolder = $("<span class='cb-holder'></span>");
+            checkboxHolder.append(checkbox);
+            $(item).prepend(checkboxHolder);
+            if(selectionDisabled != undefined){
                 checkbox.disable(selectionDisabled);
                 if(selectionDisabled){
                     checkbox.makeHidden();
+                }else{
+                    checkboxHolder.click(function(evt){
+                        if(evt.target == this){
+                            if(checkbox.is(":checked")){
+                                checkbox.removeAttr("checked");
+                            }else{
+                                checkbox.attr("checked", "checked");
+                            }
+                            that._itemSelectionStateChanged(checkbox);
+                        }
+                        evt.stopPropagation();
+                    });
                 }
             }
-			$(item).children().first().change(function(evt){
-				 that._itemSelectionStateChanged(evt.target);
-				 evt.stopPropagation();
-			});
-		}
+            
+            $(item).children().first().change(function(evt){
+                 that._itemSelectionStateChanged(evt.target);
+                 evt.stopPropagation();
+            });
+        }
 
 		$(item).children("div")
 		.last()
