@@ -42,7 +42,6 @@ public class ACLStorageProvider implements StorageProvider {
     private SecurityContextUtil securityContextUtil;
 
     private Map<String, Map<String, AclType>> spaceACLMap;
-    private Map<String, Map<String,String>> spacePropertiesMap;
     private boolean loaded;
 
     public ACLStorageProvider(StorageProvider targetProvider) {
@@ -54,7 +53,6 @@ public class ACLStorageProvider implements StorageProvider {
         this.targetProvider = targetProvider;
         this.securityContextUtil = securityContextUtil;
         this.spaceACLMap = new HashMap<String, Map<String, AclType>>();
-        this.spacePropertiesMap = new HashMap<String, Map<String,String>>();
         this.loaded = false;
 
         new Thread(new CacheLoader()).start();
@@ -69,7 +67,6 @@ public class ACLStorageProvider implements StorageProvider {
             while (spaces.hasNext()) {
                 String space = spaces.next();
                 spaceACLMap.put(space, getSpaceACLs(space));
-                spacePropertiesMap.put(space, getSpaceProperties(space));
             }
             loaded = true;
         }
@@ -83,16 +80,6 @@ public class ACLStorageProvider implements StorageProvider {
                 return new HashMap<String, AclType>();
             }
         }
-
-        private Map<String, String> getSpaceProperties(String space) {
-            try {
-                return targetProvider.getSpaceProperties(space);
-            } catch (StorageException e) {
-                log.warn("Error getting space properties: {}, err: {}", space, e);
-                return new HashMap<String, String>();
-            }
-        }
-
     }
 
     private void waitForCache() {
@@ -226,7 +213,6 @@ public class ACLStorageProvider implements StorageProvider {
         try {
             targetProvider.deleteSpace(spaceId);
             spaceACLMap.remove(spaceId);
-            spacePropertiesMap.remove(spaceId);
 
         } catch (StorageException e) {
             storageException = e;
@@ -249,21 +235,7 @@ public class ACLStorageProvider implements StorageProvider {
 
     @Override
     public Map<String, String> getSpaceProperties(String spaceId) {
-        DuracloudUserDetails user = getCurrentUserDetails();
-        if (isAdmin(user) && !loaded) {
-            return targetProvider.getSpaceProperties(spaceId);
-        }
-
-        waitForCache();
-
-        if (spacePropertiesMap.containsKey(spaceId)) {
-            return spacePropertiesMap.get(spaceId);
-
-        } else {
-            Map<String, String> properties = targetProvider.getSpaceProperties(spaceId);
-            spacePropertiesMap.put(spaceId, properties);
-            return properties;
-        }
+        return targetProvider.getSpaceProperties(spaceId);
     }
 
     @Override
@@ -271,12 +243,6 @@ public class ACLStorageProvider implements StorageProvider {
                                    Map<String, String> spaceProperties) {
         waitForCache();
         targetProvider.setSpaceProperties(spaceId, spaceProperties);
-        //flush the cache 
-        //In the case of properties, it is possible that what goes in is not what
-        //comes out. In the case that incoming properties contain new  acls, then 
-        //those new acls will not be added (according to the current implementation of 
-        //storageProviderBase). 
-        this.spacePropertiesMap.remove(spaceId);
     }
 
     @Override
