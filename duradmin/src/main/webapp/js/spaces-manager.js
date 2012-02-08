@@ -1434,6 +1434,7 @@ $(function(){
       if(evt.which == 13){
          evt.stopPropagation();
          addSpaceButtonHandler();
+         return false;
        }
     });
 
