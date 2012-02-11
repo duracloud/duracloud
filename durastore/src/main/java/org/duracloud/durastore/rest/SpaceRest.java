@@ -9,6 +9,7 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.util.ExceptionUtil;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.security.context.SecurityContextUtil;
@@ -400,13 +401,8 @@ public class SpaceRest extends BaseRest {
                                  Exception e,
                                  Response.Status status) {
         String text = e.getMessage() == null ? "null" : e.getMessage();
-        return responseBad(msg, text, status);
-    }
-
-    private Response responseBad(String msg,
-                                 String text,
-                                 Response.Status status) {
         log.error("Error while " + msg + ": " + text);
+        log.info("Error details: {}", ExceptionUtil.getStackTraceAsString(e));
         return Response.status(status).entity(text).build();
     }
 
