@@ -8,12 +8,16 @@
 package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
 /**
  * @author: Bill Branan
@@ -23,7 +27,7 @@ public abstract class StorageProviderBase implements StorageProvider {
 
     protected final Logger log = LoggerFactory.getLogger(StorageProviderBase.class);
 
-    protected abstract void throwIfSpaceNotExist(String spaceId);
+    protected abstract boolean spaceExists(String spaceId);
     protected abstract void removeSpace(String spaceId);
     protected abstract Map<String, String> getAllSpaceProperties(String spaceId);
     protected abstract void doSetSpaceProperties(String spaceId,
@@ -77,6 +81,26 @@ public abstract class StorageProviderBase implements StorageProvider {
         doSetSpaceProperties(spaceId, allProps);
     }
 
+    protected void setNewSpaceProperties(String spaceId,
+                                         Map<String, String> spaceProperties) {
+        boolean success = false;
+        int maxLoops = 6;
+        for (int loops = 0; !success && loops < maxLoops; loops++) {
+            try {
+                doSetSpaceProperties(spaceId, spaceProperties);
+                success = true;
+            } catch (NotFoundException e) {
+                success = false;
+            }
+        }
+
+        if (!success) {
+            throw new StorageException(
+                "Properties for space " + spaceId + " could not be created. " +
+                    "The space cannot be found.");
+        }
+    }
+
     public Map<String, AclType> getSpaceACLs(String spaceId) {
         Map<String, AclType> acls = new HashMap<String, AclType>();
         Map<String, String> allProps = getAllSpaceProperties(spaceId);
@@ -116,6 +140,46 @@ public abstract class StorageProviderBase implements StorageProvider {
 
         // save
         doSetSpaceProperties(spaceId, newProps);
+    }
+
+    protected void throwIfSpaceExists(String spaceId) {
+        if (spaceExists(spaceId)) {
+            String msg = "Error: Space already exists: " + spaceId;
+            throw new StorageException(msg, NO_RETRY);
+        }
+    }
+
+    protected void throwIfSpaceNotExist(String spaceId) {
+        throwIfSpaceNotExist(spaceId, true);
+    }
+
+    protected void throwIfSpaceNotExist(String spaceId, boolean wait) {
+        if (!spaceExists(spaceId)) {
+            String msg = "Error: Space does not exist: " + spaceId;
+            if (wait) {
+                waitForSpaceAvailable(spaceId);
+                if (!spaceExists(spaceId)) {
+                    throw new NotFoundException(msg);
+                }
+            } else {
+                throw new NotFoundException(msg);
+            }
+        }
+    }
+
+    private void waitForSpaceAvailable(String spaceId) {
+        int maxLoops = 6;
+        for (
+            int loops = 0; !spaceExists(spaceId) && loops < maxLoops; loops++) {
+            try {
+                log.debug(
+                    "Waiting for space " + spaceId + " to be available, loop " +
+                        loops);
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                log.warn(e.getMessage(), e);
+            }
+        }
     }
 
     /**

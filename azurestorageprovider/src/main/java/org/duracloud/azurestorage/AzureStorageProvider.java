@@ -197,13 +197,6 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
     }
 
-    private void throwIfSpaceExists(String spaceId) {
-        if (spaceExists(spaceId)) {
-            String msg = "Error: Space already exists: " + spaceId;
-            throw new StorageException(msg, NO_RETRY);
-        }
-    }
-
     protected void throwIfSpaceNotExist(String spaceId) {
         if (!spaceExists(spaceId)) {
             String msg = "Error: Space does not exist: " + spaceId;
@@ -224,7 +217,7 @@ public class AzureStorageProvider extends StorageProviderBase {
         }
     }
 
-    private boolean spaceExists(String spaceId) {
+    protected boolean spaceExists(String spaceId) {
         String containerName = getContainerName(spaceId);
         try {
             return blobStorage.isContainerExist(containerName);

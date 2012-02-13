@@ -247,26 +247,12 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         return objectList;
     }
 
-    private void throwIfSpaceExists(String spaceId) {
-        if (spaceExists(spaceId)) {
-            String msg = "Error: Space already exists: " + spaceId;
-            throw new StorageException(msg, NO_RETRY);
-        }
-    }
-
-    protected void throwIfSpaceNotExist(String spaceId) {
-        if (!spaceExists(spaceId)) {
-            String msg = "Error: Space does not exist: " + spaceId;
-            throw new NotFoundException(msg);
-        }
-    }
-
     private void throwIfContentNotExist(String spaceId, String contentId) {
         // Attempt to get content properties, which throws if content does not exist
         getObjectProperties(spaceId, contentId);
     }
 
-    private boolean spaceExists(String spaceId) {
+    protected boolean spaceExists(String spaceId) {
         String containerName = getContainerName(spaceId);
         try {
             return filesClient.containerExists(containerName);
@@ -292,7 +278,38 @@ public class RackspaceStorageProvider extends StorageProviderBase {
         Map<String, String> spaceProperties = new HashMap<String, String>();
         Date created = new Date(System.currentTimeMillis());
         spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
-        doSetSpaceProperties(spaceId, spaceProperties);
+
+        try {
+            setNewSpaceProperties(spaceId, spaceProperties);
+
+        } catch (StorageException e) {
+            removeSpace(spaceId);
+            String err = "Unable to create space due to: " + e.getMessage();
+            throw new StorageException(err, e, RETRY);
+        }
+    }
+
+    protected void doSetSpaceProperties(String spaceId,
+                                        Map<String, String> spaceProperties) {
+        log.debug("doSetSpaceProperties(" + spaceId + ")");
+
+        throwIfSpaceNotExist(spaceId);
+
+        // Ensure that space created date is included in the new properties
+        Date created = getCreationDate(spaceId, spaceProperties);
+        if (created != null) {
+            spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
+        }
+
+        String containerName = getContainerName(spaceId);
+        ByteArrayInputStream is = storeProperties(spaceProperties);
+        addContent(spaceId,
+                   containerName + SPACE_PROPERTIES_SUFFIX,
+                   "text/xml",
+                   null,
+                   is.available(),
+                   null,
+                   is);
     }
 
     private String formattedDate(Date created) {
@@ -411,32 +428,6 @@ public class RackspaceStorageProvider extends StorageProviderBase {
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected void doSetSpaceProperties(String spaceId,
-                                        Map<String, String> spaceProperties) {
-        log.debug("doSetSpaceProperties(" + spaceId + ")");
-
-        throwIfSpaceNotExist(spaceId);
-
-        // Ensure that space created date is included in the new properties
-        Date created = getCreationDate(spaceId, spaceProperties);
-        if (created != null) {
-            spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
-        }
-
-        String containerName = getContainerName(spaceId);
-        ByteArrayInputStream is = storeProperties(spaceProperties);
-        addContent(spaceId,
-                   containerName + SPACE_PROPERTIES_SUFFIX,
-                   "text/xml",
-                   null,
-                   is.available(),
-                   null,
-                   is);
     }
 
     private Date getCreationDate(String spaceId,

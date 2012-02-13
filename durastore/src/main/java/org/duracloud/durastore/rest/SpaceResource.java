@@ -206,6 +206,8 @@ public class SpaceResource {
                 storage.getSpaceACLs(spaceID);
                 return; // success
             } catch (Exception e) {
+                // do nothing
+            } finally {
                 sleep(millis);
             }
         }

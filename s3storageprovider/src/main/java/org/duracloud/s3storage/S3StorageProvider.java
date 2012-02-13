@@ -196,49 +196,9 @@ public class S3StorageProvider extends StorageProviderBase {
         }
     }
 
-    private void throwIfSpaceExists(String spaceId) {
-        if (spaceExists(spaceId)) {
-            String msg = "Error: Space already exists: " + spaceId;
-            throw new StorageException(msg, NO_RETRY);
-        }
-    }
-
-    protected void throwIfSpaceNotExist(String spaceId) {
-        throwIfSpaceNotExist(spaceId, true);
-    }
-
-    private void throwIfSpaceNotExist(String spaceId, boolean wait) {
-        if (!spaceExists(spaceId)) {
-            String msg = "Error: Space does not exist: " + spaceId;
-            if(wait) {
-                waitForSpaceAvailable(spaceId);
-                if (!spaceExists(spaceId)) {
-                    throw new NotFoundException(msg);
-                }
-            } else {
-                throw new NotFoundException(msg);
-            }
-        }
-    }
-
-    private boolean spaceExists(String spaceId) {
+    protected boolean spaceExists(String spaceId) {
         String bucketName = getBucketName(spaceId);
         return s3Client.doesBucketExist(bucketName);
-    }
-
-    private void waitForSpaceAvailable(String spaceId) {
-        int maxLoops = 6;
-        for (int loops = 0;
-             !spaceExists(spaceId) && loops < maxLoops;
-             loops++) {
-            try {
-                log.debug("Waiting for space " + spaceId +
-                          " to be available, loop " + loops);
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                log.warn(e.getMessage(), e);
-            }
-        }
     }
 
     /**
@@ -265,26 +225,6 @@ public class S3StorageProvider extends StorageProviderBase {
             removeSpace(spaceId);
             String err = "Unable to create space due to: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
-        }
-    }
-
-    private void setNewSpaceProperties(String spaceId,
-                                       Map<String, String> spaceProperties) {
-        boolean success = false;
-        int maxLoops = 6;
-        for (int loops = 0; !success && loops < maxLoops; loops++) {
-            try {
-                doSetSpaceProperties(spaceId, spaceProperties);
-                success = true;
-            } catch (NotFoundException e) {
-                success = false;
-            }
-        }
-
-        if(!success) {
-            throw new StorageException("Properties for space " +
-                                       spaceId + " could not be created. " +
-                                       "The space cannot be found.");
         }
     }
 

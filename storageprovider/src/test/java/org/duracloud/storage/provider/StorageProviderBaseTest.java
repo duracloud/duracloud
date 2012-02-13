@@ -308,6 +308,10 @@ public class StorageProviderBaseTest {
             this.mock = mock;
         }
 
+        protected boolean spaceExists(String spaceId) {
+            return mock.spaceExists(spaceId);
+        }
+
         protected void removeSpace(String spaceId) {
             mock.removeSpace(spaceId);
         }
