@@ -22,7 +22,8 @@ public class HPStorageProvider extends RackspaceStorageProvider {
     private final Logger log =
         LoggerFactory.getLogger(HPStorageProvider.class);
 
-    private static String authUrl = "https://region-a.geo-1.objects.hpcloudsvc.com/auth/v1.0/";
+    private static String authUrl =
+        "https://region-a.geo-1.identity.hpcloudsvc.com:35357/auth/v1.0/";
 
     public HPStorageProvider(String username, String apiAccessKey) {
         super(username, apiAccessKey, authUrl);
