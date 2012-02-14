@@ -199,7 +199,7 @@ public class SpaceResource {
     private void waitForSpaceCreation(StorageProvider storage, String spaceID) {
         int maxTries = 10;
         int tries = 0;
-        long millis = 500;
+        long millis = 1500;
         while (tries < maxTries) {
             tries++;
             try {
