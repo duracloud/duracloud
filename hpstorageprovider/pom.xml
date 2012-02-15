@@ -17,7 +17,7 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>rackspacestorageprovider</artifactId>
+      <artifactId>openstackstorageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
   

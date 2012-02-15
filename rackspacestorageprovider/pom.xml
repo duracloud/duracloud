@@ -19,6 +19,12 @@
       <groupId>org.duracloud</groupId>
       <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>openstackstorageprovider</artifactId>
+      <version>${project.version}</version>
     </dependency>  
   
     <dependency>

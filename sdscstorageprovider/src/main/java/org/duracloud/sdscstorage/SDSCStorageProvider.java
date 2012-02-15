@@ -7,7 +7,7 @@
  */
 package org.duracloud.sdscstorage;
 
-import org.duracloud.rackspacestorage.RackspaceStorageProvider;
+import org.duracloud.openstackstorage.OpenStackStorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author Andrew Woods
  *         Oct 04, 2011
  */
-public class SDSCStorageProvider extends RackspaceStorageProvider {
+public class SDSCStorageProvider extends OpenStackStorageProvider {
 
     private final Logger log =
         LoggerFactory.getLogger(SDSCStorageProvider.class);
@@ -27,6 +27,16 @@ public class SDSCStorageProvider extends RackspaceStorageProvider {
     public SDSCStorageProvider(String username, String apiAccessKey) {
         super(username, apiAccessKey, authUrl);
         log.debug("constructed SDSCStorageProvider: {}, {}", username, authUrl);
+    }
+
+    @Override
+    public String getAuthUrl() {
+        return authUrl;
+    }
+
+    @Override
+    public String getProviderName() {
+        return "SDSC";
     }
 
 }

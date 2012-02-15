@@ -7,7 +7,7 @@
  */
 package org.duracloud.hpstorage;
 
-import org.duracloud.rackspacestorage.RackspaceStorageProvider;
+import org.duracloud.openstackstorage.OpenStackStorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author Bill Branan
  *         Jan 30, 2012
  */
-public class HPStorageProvider extends RackspaceStorageProvider {
+public class HPStorageProvider extends OpenStackStorageProvider {
 
     private final Logger log =
         LoggerFactory.getLogger(HPStorageProvider.class);
@@ -28,6 +28,16 @@ public class HPStorageProvider extends RackspaceStorageProvider {
     public HPStorageProvider(String username, String apiAccessKey) {
         super(username, apiAccessKey, authUrl);
         log.debug("constructed HPStorageProvider: {}, {}", username, authUrl);
+    }
+
+    @Override
+    public String getAuthUrl() {
+        return authUrl;
+    }
+
+    @Override
+    public String getProviderName() {
+        return "HP";
     }
 
 }

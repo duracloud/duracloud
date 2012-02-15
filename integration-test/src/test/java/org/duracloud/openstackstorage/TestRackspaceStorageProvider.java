@@ -5,13 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.rackspacestorage;
+package org.duracloud.openstackstorage;
 
 import com.rackspacecloud.client.cloudfiles.FilesClient;
 import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -57,7 +58,7 @@ public class TestRackspaceStorageProvider {
     protected static final Logger log =
             LoggerFactory.getLogger(TestRackspaceStorageProvider.class);
 
-    RackspaceStorageProvider rackspaceProvider;
+    OpenStackStorageProvider rackspaceProvider;
     private final List<String> spaceIds = new ArrayList<String>();
 
     FilesClient filesClient;

@@ -9,6 +9,7 @@ package org.duracloud.rackspacestorage;
 
 import junit.framework.Assert;
 import org.duracloud.common.model.Credential;
+import org.duracloud.openstackstorage.OpenStackStorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.unittestdb.UnitTestDatabaseUtil;
 import org.duracloud.unittestdb.domain.ResourceType;
@@ -23,7 +24,7 @@ import org.junit.Test;
  */
 public class RackspaceStorageProviderGetTestNotRun {
 
-    private RackspaceStorageProvider rackspaceProvider = null;
+    private OpenStackStorageProvider rackspaceProvider = null;
     private int attempts = 10;
 
     @Before
