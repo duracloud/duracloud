@@ -18,10 +18,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
@@ -35,21 +32,18 @@ import static junit.framework.Assert.assertNull;
 public class EnableStreamingWorkerTest {
 
     private ContentStore contentStore;
-    private PlaylistCreator playlistCreator;
     private File workDir;
-
-    private static final String playlistXml = "xml";
 
     @Before
     public void setUp() throws Exception {
         contentStore = createMockContentStore();
-        playlistCreator = createMockPlaylistCreator();
         workDir = createWorkDir();
     }
 
     private ContentStore createMockContentStore()
         throws ContentStoreException {
-        ContentStore contentStore = EasyMock.createMock(ContentStore.class);
+        ContentStore contentStore = EasyMock.createMock("ContentStore",
+                                                        ContentStore.class);
 
         Map<String, String> taskReturnMap = new HashMap<String, String>();
         taskReturnMap.put("domain-name", "domainName");
@@ -62,43 +56,8 @@ public class EnableStreamingWorkerTest {
             .andReturn(taskReturn)
             .times(1);
 
-        List<String> files = new ArrayList<String>();
-        files.add("video1");
-
-        EasyMock
-            .expect(contentStore.getSpaceContents(EasyMock.isA(String.class)))
-            .andReturn(files.iterator())
-            .times(1);
-
-        EasyMock
-            .expect(contentStore.addContent(EasyMock.isA(String.class),
-                                            EasyMock.isA(String.class),
-                                            EasyMock.isA(InputStream.class),
-                                            EasyMock.anyLong(),
-                                            EasyMock.isA(String.class),
-                                            EasyMock.<String>isNull(),
-                                            EasyMock.<Map<String, String>>isNull()))
-            .andReturn(null)
-            .times(3);
-
         EasyMock.replay(contentStore);
         return contentStore;
-    }
-
-    private PlaylistCreator createMockPlaylistCreator()
-        throws ContentStoreException {
-        PlaylistCreator playlistCreator =
-            EasyMock.createMock(PlaylistCreator.class);
-
-        EasyMock
-            .expect(playlistCreator.createPlaylist(
-                EasyMock.isA(ContentStore.class),
-                EasyMock.isA(String.class)))
-            .andReturn(playlistXml)
-            .times(1);
-
-        EasyMock.replay(playlistCreator);
-        return playlistCreator;
     }
 
     private File createWorkDir() throws IOException {
@@ -116,7 +75,6 @@ public class EnableStreamingWorkerTest {
         return workDir;
     }
 
-
     @After
     public void tearDown() throws Exception {
         EasyMock.verify(contentStore);
@@ -128,12 +86,8 @@ public class EnableStreamingWorkerTest {
     @Test
     public void testEnableStreamingWorker() throws Exception {
 
-        EnableStreamingWorker worker =
-            new EnableStreamingWorker(contentStore,
-                                      "viewerSpaceId",
-                                      "sourceSpaceId",
-                                      playlistCreator,
-                                      workDir);
+        EnableStreamingWorker worker = new EnableStreamingWorker(contentStore,
+                                                                 "sourceSpaceId");
 
         worker.run();
 

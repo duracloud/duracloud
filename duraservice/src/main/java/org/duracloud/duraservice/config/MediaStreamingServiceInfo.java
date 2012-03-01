@@ -27,10 +27,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
             "be within a space on an Amazon provider. Media to be streamed " +
             "by this service can be in multiple spaces. More information " +
             "about which file formats can be streamed can be found in the " +
-            "Cloudfront documentation. After the service has started, the " +
-            "space chosen as the viewer space will include a playlist for " +
-            "each media space (which will include all items in a space) as " +
-            "well as example html files which can be used to display a viewer.";
+            "Cloudfront documentation.";
         msService.setDescription(desc);
         msService.setDisplayName("Media Streamer");
         msService.setUserConfigVersion("1.0");
@@ -52,14 +49,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
             "Source Media Space (select multiple spaces by holding ctrl or cmd)",
             spaceOptions);
 
-        SingleSelectUserConfig mediaViewerSpace = new SingleSelectUserConfig(
-            "mediaViewerSpaceId",
-            "Viewer Space",
-            spaceOptions);
-
-
         msServiceUserConfig.add(mediaSourceSpace);
-        msServiceUserConfig.add(mediaViewerSpace);
 
         msService.setUserConfigModeSets(createDefaultModeSet(msServiceUserConfig));
 

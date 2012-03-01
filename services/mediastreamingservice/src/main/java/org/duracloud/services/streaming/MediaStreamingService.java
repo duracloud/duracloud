@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Iterator;
@@ -45,14 +44,12 @@ public class MediaStreamingService extends BaseListenerService
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
     private static final String DEFAULT_MEDIA_SOURCE_SPACE_ID = "media-source";
-    private static final String DEFAULT_MEDIA_VIEWER_SPACE_ID = "media-viewer";
 
     private String duraStoreHost;
     private String duraStorePort;
     private String duraStoreContext;
     private String username;
-    private String password;    
-    private String mediaViewerSpaceId;
+    private String password;
     private String mediaSourceSpaceId;
 
     private ContentStore contentStore;
@@ -64,7 +61,7 @@ public class MediaStreamingService extends BaseListenerService
 
     @Override
     public void start() throws Exception {
-        log("Starting Media Streaming Service as " + username);
+        log.info("Starting Media Streaming Service as " + username);
         this.setServiceStatus(ServiceStatus.STARTING);
         
         ContentStoreManager storeManager =
@@ -73,24 +70,16 @@ public class MediaStreamingService extends BaseListenerService
                                         duraStoreContext);
         storeManager.login(new Credential(username, password));
         contentStore = storeManager.getPrimaryContentStore();
-
-        PlaylistCreator playlistCreator = new PlaylistCreator();
-
-        File workDir = new File(getServiceWorkDir());
-        workDir.setWritable(true);
-
+        
         mediaSourceSpaceIds = mediaSourceSpaceId.split(",");
 
         // Start enable streaming worker threads
         streamingWorkers = new LinkedList<EnableStreamingWorker>();
         streamingExecutor = Executors.newSingleThreadExecutor();
-        for(String spaceId : mediaSourceSpaceIds) {
-            EnableStreamingWorker worker =
-                new EnableStreamingWorker(contentStore,
-                                          mediaViewerSpaceId,
-                                          spaceId,
-                                          playlistCreator,
-                                          workDir);
+        for (String spaceId : mediaSourceSpaceIds) {
+            EnableStreamingWorker worker = new EnableStreamingWorker(
+                contentStore,
+                spaceId);
             streamingWorkers.add(worker);
             streamingExecutor.execute(worker);
         }
@@ -121,7 +110,7 @@ public class MediaStreamingService extends BaseListenerService
 
     @Override
     public void stop() throws Exception {
-        log("Stopping Media Streaming Service");
+        log.info("Stopping Media Streaming Service");
         this.setServiceStatus(ServiceStatus.STOPPING);
 
         // Stop listening for new additions to the space
@@ -264,21 +253,6 @@ public class MediaStreamingService extends BaseListenerService
         this.password = password;
     }
 
-    public String getMediaViewerSpaceId() {
-        return mediaViewerSpaceId;
-    }
-
-    public void setMediaViewerSpaceId(String mediaViewerSpaceId) {
-        if(mediaViewerSpaceId != null && !mediaViewerSpaceId.equals("")) {
-            this.mediaViewerSpaceId = mediaViewerSpaceId;
-        } else {
-            log("Attempt made to set mediaViewerSpaceId to null or empty, " +
-                ", which is not valid. Setting value to default: " +
-                DEFAULT_MEDIA_VIEWER_SPACE_ID);
-            this.mediaViewerSpaceId = DEFAULT_MEDIA_VIEWER_SPACE_ID;
-        }
-    } 
-    
     public String getMediaSourceSpaceId() {
         return mediaSourceSpaceId;
     }
@@ -302,7 +276,7 @@ public class MediaStreamingService extends BaseListenerService
 
             if(getContentCreateTopic().equals(topic) ||
                getContentCopyTopic().equals(topic)) {
-                log.warn("Content item {} added to media space {}, " +
+                log.info("Content item {} added to media space {}, " +
                          "setting permissions for streaming", contentId,
                          spaceId);
 

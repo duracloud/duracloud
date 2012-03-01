@@ -222,7 +222,7 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyMediaStreaming(ServiceInfo serviceInfo) {
-        int numUserConfigs = 2;
+        int numUserConfigs = 1;
         int numSystemConfigs = 7;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
     }

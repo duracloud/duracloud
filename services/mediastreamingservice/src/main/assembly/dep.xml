@@ -4,16 +4,6 @@
     <format>zip</format>
   </formats>
 
-  <fileSets>
-    <fileSet>
-      <directory>resources</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>*</include>
-      </includes>
-    </fileSet>
-  </fileSets>  
-  
   <dependencySets>
     <dependencySet>
       <scope>provided</scope>
