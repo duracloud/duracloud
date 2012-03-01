@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Allows for communication with DuraReport
+ * Allows for communication with Duraboss reporting
  *
  * @author: Bill Branan
  * Date: 6/2/11
@@ -40,7 +40,7 @@ public class StorageReportManagerImpl extends BaseReportManager implements Stora
     }
 
     private String buildURL(String relativeURL) {
-        String storageReport = "storagereport";
+        String storageReport = "report/storage";
         if (null == relativeURL) {
             return getBaseURL() + "/" + storageReport;
         }

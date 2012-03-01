@@ -35,7 +35,7 @@ public class ServiceReportManagerImpl extends BaseReportManager implements Servi
     }
 
     private String buildURL(String relativeURL) {
-        String storageReport = "servicereport";
+        String storageReport = "report/service";
         if (null == relativeURL) {
             return getBaseURL() + "/" + storageReport;
         }

@@ -47,7 +47,7 @@ public class ServiceReportManagerImplTest extends ReportManagerTestBase {
     }
 
     private String getBaseUrl() {
-        return baseUrl + "/servicereport";
+        return baseUrl + "/report/service";
     }
 
     @Test

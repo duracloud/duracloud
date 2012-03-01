@@ -4,11 +4,11 @@
 
 DuraCloud provides reporting over both storage and service functions
 which occur within the DuraCloud framework. The building of these
-reports is managed by the DuraReport web application. DuraReport
+reports is managed by the DuraBoss web application. DuraBoss
 is installed and running on your DuraCloud instance and can be
 accessed via a REST interface. In order to aid Java developers in
-communicating with DuraReport, a Java client, called ReportClient
-was written.
+communicating with DuraBoss report features, a Java client, called
+ReportClient was written.
 
 2. Using ReportClient
 

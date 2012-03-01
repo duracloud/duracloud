@@ -18,9 +18,9 @@ import org.duracloud.duradmin.config.DuradminConfig;
 public class DuradminServiceReportManagerImpl extends ServiceReportManagerImpl{
     
     public DuradminServiceReportManagerImpl(){
-        super(DuradminConfig.getDuraReportHost(),
-              DuradminConfig.getDuraReportPort(),
-              DuradminConfig.getDuraReportContext());
+        super(DuradminConfig.getDuraBossHost(),
+              DuradminConfig.getDuraBossPort(),
+              DuradminConfig.getDuraBossContext());
     }
     
 }

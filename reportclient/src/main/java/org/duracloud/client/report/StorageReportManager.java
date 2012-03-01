@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Allows for communication with DuraReport
+ * Allows for communication with DuraBoss reporting
  *
  * @author: Bill Branan
  * Date: 6/2/11
@@ -66,7 +66,7 @@ public interface StorageReportManager extends Securable {
         throws ReportException;
 
     /**
-     * Tells DuraReport to start running a new storage report generation
+     * Tells DuraBoss reporting to start running a new storage report generation
      * process. If a report generation process is already underway, this
      * call is ignored.
      *

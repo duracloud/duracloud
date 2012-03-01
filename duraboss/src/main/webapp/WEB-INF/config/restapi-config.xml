@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+  <!-- REST API resources -->
+  <bean id="storageReportRest" class="org.duracloud.duraboss.rest.StorageReportRest" >
+    <constructor-arg ref="storageResource"/>
+  </bean>  
+
+  <bean id="serviceReportRest" class="org.duracloud.duraboss.rest.ServiceReportRest" >
+    <constructor-arg ref="serviceResource"/>
+  </bean>
+
+  <bean id="initRest" class="org.duracloud.duraboss.rest.InitRest" >
+    <constructor-arg ref="storageResource"/>
+    <constructor-arg ref="serviceResource"/>
+    <constructor-arg ref="summaryDirectory"/>
+    <constructor-arg ref="securityContextUtil"/>
+    <constructor-arg ref="restUtil"/>
+    <constructor-arg ref="report-space"/>
+    <constructor-arg ref="notificationManager"/>
+  </bean>
+
+  <bean id="securityRest" class="org.duracloud.duraboss.rest.SecurityRest">
+    <constructor-arg ref="userDetailsSvc" />
+    <constructor-arg ref="restUtil"/>
+  </bean>
+
+  <!-- Support beans -->
+  <bean id="storageResource" class="org.duracloud.duraboss.rest.StorageReportResource"
+        destroy-method="dispose">
+    <constructor-arg value="report/storage-report-"/>
+    <constructor-arg value="report/error-log-storage-report.txt"/>
+  </bean>
+
+  <bean id="serviceResource" class="org.duracloud.duraboss.rest.ServiceReportResource" >
+    <constructor-arg ref="serviceMonitor"/>
+    <constructor-arg ref="serviceNotificationMonitor"/>
+  </bean>
+
+  <bean id="summaryDirectory" class="org.duracloud.servicemonitor.impl.ServiceSummaryDirectoryImpl">
+    <constructor-arg ref="report-space"/>
+    <constructor-arg value="report/service-summaries-$DATE.xml"/>
+  </bean>
+
+  <bean id="report-space" class="java.lang.String">
+    <constructor-arg value="x-duracloud-admin"/>
+  </bean>
+
+  <bean id="serviceMonitor" class="org.duracloud.servicemonitor.impl.ServiceMonitorImpl"
+    destroy-method="dispose"/>
+
+  <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
+
+  <bean id="securityContextUtil" class="org.duracloud.security.context.SecurityContextUtil"/>
+
+</beans>

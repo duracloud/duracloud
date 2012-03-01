@@ -35,7 +35,7 @@ public class DuradminConfig
 
     private static String duraserviceContextKey = "duraserviceContext";
 
-    private static String durareportContextKey = "durareportContext";
+    private static String durabossContextKey = "durabossContext";
 
     private static boolean initialized = false;
 
@@ -128,25 +128,25 @@ public class DuradminConfig
         config.setDuraServiceHost(getPropsHost());
         config.setDuraServicePort(getPropsPort());
         config.setDuraServiceContext(getPropsDuraServiceContext());
-        config.setDuraReportContext(getPropsDuraReportContext());
+        config.setDuraBossContext(getPropsDuraBossContext());
 
         config.setAmaUrl(null); // default is null.
     }
 
-    private static String getPropsDuraReportContext() {
-        return getProps().getProperty(durareportContextKey, "durareport");
+    private static String getPropsDuraBossContext() {
+        return getProps().getProperty(durabossContextKey, "duraboss");
     }
 
-    public static String getDuraReportHost() {
+    public static String getDuraBossHost() {
         return getPropsHost();
     }
 
-    public static String getDuraReportPort() {
+    public static String getDuraBossPort() {
         return getPropsPort();
     }
 
-    public static String getDuraReportContext() {
-        return getPropsDuraReportContext();
+    public static String getDuraBossContext() {
+        return getPropsDuraBossContext();
     }
 
 }

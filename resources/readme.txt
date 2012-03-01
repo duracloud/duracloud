@@ -6,7 +6,7 @@ This package should include the following:
 a. war files
 -- durastore.war
 -- duraservice.war
--- durareport.war
+-- duraboss.war
 -- duradmin.war
 
 b. services

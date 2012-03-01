@@ -85,7 +85,8 @@
         <module>servicemonitor</module>
         <module>duraservice</module>
         <module>reportdata</module>
-        <module>durareport</module>
+        <module>reporter</module>
+        <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>
         <module>serviceclient</module>

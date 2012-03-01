@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Example code which connects to the DuraCloud DuraReport REST API by using
- * the ReportClient.
+ * Example code which connects to the DuraCloud DuraBoss reporting REST API
+ * by using the ReportClient.
  *
  * @author Bill Branan
  * Date: 6/2/11
@@ -36,7 +36,7 @@ public class ExampleReportClient {
     private static final String PASSWORD = "upw";   // replace as necessary
     private static final String HOST = "localhost"; // replace as necessary
     private static final String PORT = "8080";      // replace as necessary
-    private static final String CONTEXT = "durareport";
+    private static final String CONTEXT = "duraboss";
 
     private StorageReportManager storageReportManager;
     private ServiceReportManager serviceReportManager;

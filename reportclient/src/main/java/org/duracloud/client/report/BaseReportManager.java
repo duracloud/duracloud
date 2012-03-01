@@ -25,7 +25,7 @@ public abstract class BaseReportManager implements Securable {
 
     protected RestHttpHelper restHelper;
 
-    private static final String DEFAULT_CONTEXT = "durareport";
+    private static final String DEFAULT_CONTEXT = "duraboss";
     private String baseURL = null;
 
     public BaseReportManager(String host, String port) {

@@ -46,7 +46,7 @@ public class StorageReportManagerImplTest extends ReportManagerTestBase {
     }
 
     private String getBaseUrl() {
-        return baseUrl + "/storagereport";
+        return baseUrl + "/report/storage";
     }
 
     @Test

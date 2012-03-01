@@ -11,7 +11,7 @@ import org.duracloud.appconfig.domain.AppConfig;
 import org.duracloud.appconfig.domain.Application;
 import org.duracloud.appconfig.domain.BaseConfig;
 import org.duracloud.appconfig.domain.DuradminConfig;
-import org.duracloud.appconfig.domain.DurareportConfig;
+import org.duracloud.appconfig.domain.DurabossConfig;
 import org.duracloud.appconfig.domain.DuraserviceConfig;
 import org.duracloud.appconfig.domain.DurastoreConfig;
 import org.duracloud.appconfig.domain.SecurityConfig;
@@ -46,7 +46,7 @@ public class ApplicationInitializer extends BaseConfig {
     private static final String duradminKey = "duradmin";
     private static final String duraserviceKey = "duraservice";
     private static final String durastoreKey = "durastore";
-    private static final String durareportKey = "durareport";
+    private static final String durabossKey = "duraboss";
 
     protected static final String hostKey = "host";
     protected static final String portKey = "port";
@@ -62,9 +62,9 @@ public class ApplicationInitializer extends BaseConfig {
     private String durastoreHost;
     private String durastorePort;
     private String durastoreContext;
-    private String durareportHost;
-    private String durareportPort;
-    private String durareportContext;
+    private String durabossHost;
+    private String durabossPort;
+    private String durabossContext;
 
     private SecurityConfig securityConfig = new SecurityConfig();
     private Map<String, ApplicationWithConfig> appsWithConfigs =
@@ -88,7 +88,7 @@ public class ApplicationInitializer extends BaseConfig {
 
     /**
      * This method sets the configuration of duradmin, durastore, duraservice,
-     * durareport, and application security from the provided props.
+     * duraboss, and application security from the provided props.
      * Note: this method is called by the constructor, so generally is should
      * not be needed publicly.
      *
@@ -145,17 +145,17 @@ public class ApplicationInitializer extends BaseConfig {
             log.warn("durastore endpoint !loaded");
         }
 
-        if (durareportEndpointLoad()) {
-            app = new Application(durareportHost,
-                                  durareportPort,
-                                  durareportContext);
+        if (durabossEndpointLoad()) {
+            app = new Application(durabossHost,
+                                  durabossPort,
+                                  durabossContext);
 
-            appWithConfig = new ApplicationWithConfig(durareportKey);
+            appWithConfig = new ApplicationWithConfig(durabossKey);
             appWithConfig.setApplication(app);
-            appWithConfig.setConfig(new DurareportConfig());
+            appWithConfig.setConfig(new DurabossConfig());
             appsWithConfigs.put(appWithConfig.getName(), appWithConfig);
         } else {
-            log.warn("durareport endpoint not !loaded");
+            log.warn("duraboss endpoint not !loaded");
         }
     }
 
@@ -174,9 +174,9 @@ public class ApplicationInitializer extends BaseConfig {
             null != durastoreContext;
     }
 
-    private boolean durareportEndpointLoad() {
-        return null != durareportHost && null != durareportPort &&
-            null != durareportContext;
+    private boolean durabossEndpointLoad() {
+        return null != durabossHost && null != durabossPort &&
+            null != durabossContext;
     }
 
     protected String getQualifier() {
@@ -196,14 +196,14 @@ public class ApplicationInitializer extends BaseConfig {
         } else if (prefix.equalsIgnoreCase(DuraserviceConfig.QUALIFIER)) {
             loadDuraservice(suffix, value);
 
-        } else if (prefix.equalsIgnoreCase(DurareportConfig.QUALIFIER)) {
-            loadDurareport(suffix, value);
+        } else if (prefix.equalsIgnoreCase(DurabossConfig.QUALIFIER)) {
+            loadDuraboss(suffix, value);
 
         } else if (prefix.equalsIgnoreCase(wildcardKey)) {
             loadDuradmin(suffix, value);
             loadDurastore(suffix, value);
             loadDuraservice(suffix, value);
-            loadDurareport(suffix, value);
+            loadDuraboss(suffix, value);
 
         } else {
             String msg = "unknown key: " + key + " (" + value + ")";
@@ -266,16 +266,16 @@ public class ApplicationInitializer extends BaseConfig {
         }
     }
 
-    private void loadDurareport(String key, String value) {
+    private void loadDuraboss(String key, String value) {
         String prefix = getPrefix(key);
         if (prefix.equalsIgnoreCase(hostKey)) {
-            this.durareportHost = value;
+            this.durabossHost = value;
 
         } else if (prefix.equalsIgnoreCase(portKey)) {
-            this.durareportPort = value;
+            this.durabossPort = value;
 
         } else if (prefix.equalsIgnoreCase(contextKey)) {
-            this.durareportContext = value;
+            this.durabossContext = value;
 
         } else {
             String msg = "unknown key: " + key + " (" + value + ")";
@@ -296,8 +296,8 @@ public class ApplicationInitializer extends BaseConfig {
         response = initApp(appsWithConfigs.get(durastoreKey));
         response = initApp(appsWithConfigs.get(duraserviceKey));
         response = initApp(appsWithConfigs.get(duradminKey));
-        if (durareportEndpointLoad()) {
-            response = initApp(appsWithConfigs.get(durareportKey));
+        if (durabossEndpointLoad()) {
+            response = initApp(appsWithConfigs.get(durabossKey));
         }
 
         return response;
@@ -389,7 +389,7 @@ public class ApplicationInitializer extends BaseConfig {
         return appsWithConfigs.get(duraserviceKey).getApplication();
     }
 
-    public Application getDurareport() {
-        return appsWithConfigs.get(durareportKey).getApplication();
+    public Application getDuraboss() {
+        return appsWithConfigs.get(durabossKey).getApplication();
     }
 }

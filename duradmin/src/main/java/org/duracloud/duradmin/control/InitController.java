@@ -7,18 +7,6 @@
  */
 package org.duracloud.duradmin.control;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
-import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.duracloud.common.util.InitUtil;
 import org.duracloud.duradmin.config.DuradminConfig;
 import org.duracloud.duradmin.domain.AdminInit;
@@ -26,6 +14,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
+import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
 
 /**
  * This class initializes the application based on the xml body of the
@@ -87,7 +87,7 @@ public class InitController extends BaseCommandController {
         init.setDuraStorePort(config.getDurastorePort());
         init.setDuraStoreContext(config.getDurastoreContext());
         init.setAmaUrl(config.getAmaUrl());
-        init.setDuraReportContext(config.getDurareportContext());
+        init.setDuraBossContext(config.getDurabossContext());
 
         DuradminConfig.setConfig(init);
 

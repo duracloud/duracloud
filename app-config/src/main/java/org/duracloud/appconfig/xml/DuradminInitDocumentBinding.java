@@ -47,7 +47,7 @@ public class DuradminInitDocumentBinding {
             config.setDuraserviceHost(root.getChildText("duraserviceHost"));
             config.setDuraservicePort(root.getChildText("duraservicePort"));
             config.setDuraserviceContext(root.getChildText("duraserviceContext"));
-            config.setDurareportContext(root.getChildText("durareportContext"));
+            config.setDurabossContext(root.getChildText("durabossContext"));
             config.setAmaUrl(root.getChildText("amaUrl"));
 
         } catch (Exception e) {
