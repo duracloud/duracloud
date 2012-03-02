@@ -67,7 +67,9 @@ public abstract class BaseListenerService extends BaseService
     }
 
     protected void terminateMessaging() {
-        jmsContainer.stop();
+        if (null != jmsContainer) {
+            jmsContainer.stop();
+        }
     }
 
     public void onMessage(Message message) {

@@ -784,10 +784,12 @@ public class ServiceManager implements LocalServicesManager {
                             valueBuilder.append(option.getValue());
                         }
                     }
+
+                    String value = "";
                     if (valueBuilder.length() > 0) {
-                        serviceConfig.put(multiConfig.getName(),
-                                          valueBuilder.toString());
+                        value = valueBuilder.toString();
                     }
+                    serviceConfig.put(multiConfig.getName(), value);
                 }
             }
         }

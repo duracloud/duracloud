@@ -69,8 +69,12 @@ public class ServiceInfoUtil {
     public static boolean applyValues(MultiSelectUserConfig userConfig,
                                       Map<String,String[]> parameters,
                                       String namespace){
-        String[] newValues = parameters.get(namespace+"."+userConfig.getName());
         String oldValue = getValuesAsString(userConfig);
+        String[] newValues = parameters.get(namespace+"."+userConfig.getName());
+        if (null == newValues) {
+            newValues = new String[0];
+        }
+        
         userConfig.deselectAll();
 
         for(String newValue : newValues) {

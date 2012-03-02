@@ -43,7 +43,6 @@ public class MediaStreamingService extends BaseListenerService
     private static final String DEFAULT_DURASTORE_HOST = "localhost";
     private static final String DEFAULT_DURASTORE_PORT = "8080";
     private static final String DEFAULT_DURASTORE_CONTEXT = "durastore";
-    private static final String DEFAULT_MEDIA_SOURCE_SPACE_ID = "media-source";
 
     private String duraStoreHost;
     private String duraStorePort;
@@ -70,8 +69,12 @@ public class MediaStreamingService extends BaseListenerService
                                         duraStoreContext);
         storeManager.login(new Credential(username, password));
         contentStore = storeManager.getPrimaryContentStore();
-        
-        mediaSourceSpaceIds = mediaSourceSpaceId.split(",");
+
+        if (null == mediaSourceSpaceId || 0 == mediaSourceSpaceId.length()) {
+            mediaSourceSpaceIds = new String[0];
+        } else {
+            mediaSourceSpaceIds = mediaSourceSpaceId.split(",");
+        }
 
         // Start enable streaming worker threads
         streamingWorkers = new LinkedList<EnableStreamingWorker>();
@@ -88,7 +91,9 @@ public class MediaStreamingService extends BaseListenerService
         updateExecutor = Executors.newCachedThreadPool();
 
         // Set message selector
-        initializeMessaging(createMessageSelector(mediaSourceSpaceIds));
+        if (mediaSourceSpaceIds.length > 0) {
+            initializeMessaging(createMessageSelector(mediaSourceSpaceIds));
+        }
 
         super.start();
         setServiceStatus(ServiceStatus.PROCESSING);
@@ -129,6 +134,14 @@ public class MediaStreamingService extends BaseListenerService
         // Indicate that streaming executor should shut down after
         // all tasks have completed.
         streamingExecutor.shutdown();
+        
+        // Clear exising source space-id property
+        mediaSourceSpaceId = null;
+        mediaSourceSpaceIds = new String[0];
+
+        // Clear existing stream-enabling workers
+        log.debug("clearing streaming workers: {}", streamingWorkers.size());
+        streamingWorkers.clear();
 
         this.setServiceStatus(ServiceStatus.STOPPED);
     }
@@ -144,6 +157,7 @@ public class MediaStreamingService extends BaseListenerService
         for(EnableStreamingWorker worker : streamingWorkers) {
             if(worker != null) {
                 String spaceId = worker.getMediaSourceSpaceId();
+                log.debug("Getting props from worker on space: {}", spaceId);
                 if(worker.isComplete()) {
                     String streamHost = worker.getStreamHost();
                     if(streamHost != null) {
@@ -258,14 +272,7 @@ public class MediaStreamingService extends BaseListenerService
     }
 
     public void setMediaSourceSpaceId(String mediaSourceSpaceId) {
-        if(mediaSourceSpaceId != null && !mediaSourceSpaceId.equals("")) {
-            this.mediaSourceSpaceId = mediaSourceSpaceId;
-        } else {
-            log("Attempt made to set mediaSourceSpaceId to to null or empty, " +
-                ", which is not valid. Setting value to default: " +
-                DEFAULT_MEDIA_SOURCE_SPACE_ID);
-            this.mediaSourceSpaceId = DEFAULT_MEDIA_SOURCE_SPACE_ID;
-        }
+        this.mediaSourceSpaceId = mediaSourceSpaceId;
     }
 
     @Override
