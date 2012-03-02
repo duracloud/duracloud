@@ -5,8 +5,9 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duraboss.rest;
+package org.duracloud.duraboss.rest.report;
 
+import org.duracloud.duraboss.rest.BaseRest;
 import org.duracloud.servicemonitor.error.ServiceSummaryNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

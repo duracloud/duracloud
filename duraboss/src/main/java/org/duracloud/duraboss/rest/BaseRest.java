@@ -22,13 +22,13 @@ import java.io.InputStream;
 public class BaseRest {
 
     @Context
-    HttpServletRequest request;
+    protected HttpServletRequest request;
 
     @Context
-    HttpHeaders headers;
+    protected HttpHeaders headers;
 
     @Context
-    UriInfo uriInfo;
+    protected UriInfo uriInfo;
 
     public static final String XML = MediaType.APPLICATION_XML;
     public static final MediaType APPLICATION_XML =
@@ -36,6 +36,10 @@ public class BaseRest {
     public static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN_TYPE;
 
     public static final String APP_NAME = "DuraBoss";
+
+    protected Response responseOk() {
+        return Response.ok().build();
+    }
 
     protected Response responseOk(String text) {
         return Response.ok(text, TEXT_PLAIN).build();

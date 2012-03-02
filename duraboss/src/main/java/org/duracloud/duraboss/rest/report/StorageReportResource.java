@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duraboss.rest;
+package org.duracloud.duraboss.rest.report;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.reporter.error.InvalidScheduleException;
