@@ -103,20 +103,32 @@ public class InitRest extends BaseRest {
                                         config.getDurastorePort(),
                                         config.getDurastoreContext());
         storeMgr.login(credential);
-        storageResource.initialize(storeMgr, reportSpaceId);
-        summaryDirectory.initialize(storeMgr);
 
         ServicesManager servicesMgr =
             new ServicesManagerImpl(config.getDuraserviceHost(),
                                     config.getDuraservicePort(),
                                     config.getDuraserviceContext());
         servicesMgr.login(credential);
-        ServiceSummarizer summarizer = new ServiceSummarizerImpl(servicesMgr);
-        serviceResource.initialize(summaryDirectory, summarizer);
 
-        notificationManager.initializeNotifiers(config.getNotificationConfigs());
+        // Only initialize the Reporter if it is enabled
+        if(config.isReporterEnabled()) {
+            // Initialize Storage Reporter
+            storageResource.initialize(storeMgr, reportSpaceId);
+            summaryDirectory.initialize(storeMgr);
 
-        executor.initialize(storeMgr, servicesMgr);
+            // Initialize Service Reporter
+            ServiceSummarizer summarizer =
+                new ServiceSummarizerImpl(servicesMgr);
+            serviceResource.initialize(summaryDirectory, summarizer);
+
+            notificationManager.initializeNotifiers(
+                config.getNotificationConfigs());
+        }
+
+        // Only initialize the Executor if it is enabled
+        if(config.isExecutorEnabled()) {
+            executor.initialize(storeMgr, servicesMgr);
+        }
     }
 
     @GET

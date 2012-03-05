@@ -57,6 +57,11 @@ public class DurabossInitDocumentBinding {
             Document doc = builder.build(xml);
             Element root = doc.getRootElement();
 
+            config.setReporterEnabled(
+                Boolean.valueOf(root.getChildText("reporterEnabled")));
+            config.setExecutorEnabled(
+                Boolean.valueOf(root.getChildText("executorEnabled")));
+
             config.setDurastoreHost(root.getChildText("durastoreHost"));
             config.setDurastorePort(root.getChildText("durastorePort"));
             config.setDurastoreContext(root.getChildText("durastoreContext"));
@@ -108,8 +113,14 @@ public class DurabossInitDocumentBinding {
             String duraserviceHost = durabossConfig.getDuraserviceHost();
             String duraservicePort = durabossConfig.getDuraservicePort();
             String duraserviceContext = durabossConfig.getDuraserviceContext();
+            boolean reporterEnabled = durabossConfig.isReporterEnabled();
+            boolean executorEnabled = durabossConfig.isExecutorEnabled();
 
             xml.append("<durabossConfig>");
+            xml.append("  <reporterEnabled>" + reporterEnabled);
+            xml.append("</reporterEnabled>");
+            xml.append("  <executorEnabled>" + executorEnabled);
+            xml.append("</executorEnabled>");
             xml.append("  <durastoreHost>" + durastoreHost);
             xml.append("</durastoreHost>");
             xml.append("  <durastorePort>" + durastorePort);

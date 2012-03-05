@@ -26,15 +26,29 @@ public class DurabossConfig extends DuradminConfig {
     public static final String notificationPasswordKey = "password";
     public static final String notificationOriginatorKey = "originator";
 
+    public static final String reporterKey = "reporter";
+    public static final String executorKey = "executor";
+    public static final String enabledKey = "enabled";
+
+    private boolean reporterEnabled = true;
+    private boolean executorEnabled = true;
+
     private Map<String, NotificationConfig> notificationConfigs =
         new HashMap<String, NotificationConfig>();
 
     @Override
     protected boolean subclassLoadProperty(String key, String value) {
         String prefix = getPrefix(key);
+        String suffix = getSuffix(key);
+
         if (prefix.equalsIgnoreCase(notificationKey)) {
-            String suffix = getSuffix(key);
             loadNotification(suffix, value);
+            return true;
+        } else if (prefix.equalsIgnoreCase(reporterKey)) {
+            loadReporter(suffix, value);
+            return true;
+        } else if (prefix.equalsIgnoreCase(executorKey)) {
+            loadExecutor(suffix, value);
             return true;
         } else {
             return false;
@@ -61,6 +75,20 @@ public class DurabossConfig extends DuradminConfig {
         }
 
         notificationConfigs.put(id, config);
+    }
+
+    private void loadReporter(String key, String value) {
+        String prefix = getPrefix(key);
+        if(prefix.equalsIgnoreCase(enabledKey)) {
+            reporterEnabled = Boolean.valueOf(value);
+        }
+    }
+
+    private void loadExecutor(String key, String value) {
+        String prefix = getPrefix(key);
+        if(prefix.equalsIgnoreCase(enabledKey)) {
+            executorEnabled = Boolean.valueOf(value);
+        }
     }
 
     @Override
@@ -99,4 +127,19 @@ public class DurabossConfig extends DuradminConfig {
         return notificationConfigs.values();
     }
 
+    public boolean isReporterEnabled() {
+        return reporterEnabled;
+    }
+
+    public void setReporterEnabled(boolean reporterEnabled) {
+        this.reporterEnabled = reporterEnabled;
+    }
+
+    public boolean isExecutorEnabled() {
+        return executorEnabled;
+    }
+
+    public void setExecutorEnabled(boolean executorEnabled) {
+        this.executorEnabled = executorEnabled;
+    }
 }

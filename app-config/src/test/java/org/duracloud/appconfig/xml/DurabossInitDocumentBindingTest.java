@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -42,6 +43,8 @@ public class DurabossInitDocumentBindingTest {
     public void testXmlRoundTrip() throws Exception {
         // Create config
         DurabossConfig config = new DurabossConfig();
+        config.setReporterEnabled(false);
+        config.setExecutorEnabled(false);
         config.setDurastoreHost(durastoreHost);
         config.setDurastorePort(durastorePort);
         config.setDurastoreContext(durastoreContext);
@@ -68,6 +71,8 @@ public class DurabossInitDocumentBindingTest {
             DurabossInitDocumentBinding.createDurabossConfigFrom(xmlStream);
 
         // Verify results
+        assertFalse(config.isReporterEnabled());
+        assertFalse(config.isExecutorEnabled());
         assertEquals(config.getDurastoreHost(),
                      trippedConfig.getDurastoreHost());
         assertEquals(config.getDurastorePort(),
