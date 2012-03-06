@@ -40,4 +40,8 @@ public enum StorageProviderType {
     public String toString() {
         return text;
     }
+    
+    public String getName(){
+        return name();
+    }
 }
