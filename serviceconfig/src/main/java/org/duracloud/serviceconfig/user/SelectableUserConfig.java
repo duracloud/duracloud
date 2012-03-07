@@ -40,6 +40,10 @@ public abstract class SelectableUserConfig extends UserConfig implements Cloneab
         return options;
     }
 
+    public void setOptions(List<Option> options) {
+        init(options);
+    }
+
     public void deselectAll() {
         for (Option o : options) {
             o.setSelected(false);
