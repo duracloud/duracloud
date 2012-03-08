@@ -9,6 +9,9 @@ package org.duracloud.exec.handler;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.common.util.SerializationUtil;
+import org.duracloud.domain.Content;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
@@ -18,13 +21,17 @@ import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
+import org.easymock.Capture;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -49,7 +56,7 @@ public class MediaStreamingHandlerTest {
     private String spaceId = "space-id";
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         handler = new MediaStreamingHandler();
 
         storeMgr = EasyMock.createMock("ContentStoreManager",
@@ -58,11 +65,19 @@ public class MediaStreamingHandlerTest {
                                            ServicesManager.class);
         contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
 
-        handler.initialize(storeMgr, servicesMar);
+        EasyMock.expect(storeMgr.getPrimaryContentStore())
+                .andReturn(contentStore)
+                .anyTimes();
+
+        EasyMock.expect(contentStore.getSpaceProperties(
+            MediaStreamingHandler.HANDLER_STATE_SPACE))
+                .andReturn(null);
     }
 
     private void replayMocks() {
         EasyMock.replay(storeMgr, servicesMar, contentStore);
+
+        handler.initialize(storeMgr, servicesMar);
     }
 
     @After
@@ -80,7 +95,16 @@ public class MediaStreamingHandlerTest {
     }
 
     @Test
-    public void testStart() throws Exception {
+    public void testStartInitial() throws Exception {
+        testStart(false);
+    }
+
+    @Test
+    public void testStartState() throws Exception {
+        testStart(true);
+    }
+
+    private void testStart(boolean state) throws Exception {
         List<UserConfigModeSet> userConfig = createConfig(createOption(false));
         List<ServiceInfo> services =
             createServiceList(createService(userConfig));
@@ -91,12 +115,50 @@ public class MediaStreamingHandlerTest {
                 .deployService(serviceId, hostname, configVersion, userConfig))
                 .andReturn(depId);
 
+        setUpGetState(state);
         replayMocks();
 
         handler.start();
         String status = handler.getStatus();
         assertNotNull(status);
-        assertEquals(status, "Media Streamer: Started. Spaces Streamed: 0");
+        if(state) {
+            assertEquals(status, "Media Streamer: Started. Spaces Streamed: 1");
+        } else {
+            assertEquals(status, "Media Streamer: Started. Spaces Streamed: 0");
+        }
+    }
+
+    private void setUpGetState(boolean state) throws Exception {
+        Content content = createContent(state);
+        EasyMock.expect(contentStore.getContent(
+            MediaStreamingHandler.HANDLER_STATE_SPACE,
+            MediaStreamingHandler.HANDLER_STATE_FILE))
+                .andReturn(content);
+    }
+
+    private Content createContent(boolean state) throws Exception {
+        Map<String, String> contentMap = new HashMap<String, String>();
+        if(state) {
+            contentMap.put(spaceId, Boolean.TRUE.toString());
+        }
+        String contentXml = SerializationUtil.serializeMap(contentMap);
+        Content content = new Content();
+        content.setStream(IOUtil.writeStringToStream(contentXml));
+        return content;
+    }
+
+    private Capture<InputStream> setUpStoreState() throws Exception {
+        Capture<InputStream> streamCapture = new Capture<InputStream>();
+        EasyMock.expect(contentStore.addContent(
+            EasyMock.eq(MediaStreamingHandler.HANDLER_STATE_SPACE),
+            EasyMock.eq(MediaStreamingHandler.HANDLER_STATE_FILE),
+            EasyMock.capture(streamCapture),
+            EasyMock.anyLong(),
+            EasyMock.eq("text/xml"),
+            EasyMock.isA(String.class),
+            EasyMock.<Map<String, String>>isNull()))
+                .andReturn(null);
+        return streamCapture;
     }
 
     private List<ServiceInfo> createServiceList(ServiceInfo service) {
@@ -186,6 +248,8 @@ public class MediaStreamingHandlerTest {
     @Test
     public void testPerformActionStart() throws Exception {
         Option spaceOption = createOption(false);
+        setUpGetState(false);
+        Capture<InputStream> streamCapture = setUpStoreState();
         setUpPerformAction(spaceOption);
         replayMocks();
 
@@ -195,6 +259,8 @@ public class MediaStreamingHandlerTest {
         assertNotNull(status);
         assertEquals(status, "Media Streamer: Started. Spaces Streamed: 1");
         assertTrue(spaceOption.isSelected());
+
+        verifyStreamAdd(streamCapture, spaceId);
     }
 
     /**
@@ -206,11 +272,12 @@ public class MediaStreamingHandlerTest {
     public void testPerformActionStartMissingOption() throws Exception {
         String newSpaceId = "new-space-id";
 
+        setUpGetState(false);
+        Capture<InputStream> streamCapture = setUpStoreState();
+
         Option spaceOption = createOption(false);
         setUpPerformAction(spaceOption);
 
-        EasyMock.expect(storeMgr.getPrimaryContentStore())
-                .andReturn(contentStore);
         EasyMock.expect(contentStore.getSpaceProperties(newSpaceId))
                 .andReturn(null);
 
@@ -222,11 +289,17 @@ public class MediaStreamingHandlerTest {
         assertNotNull(status);
         assertEquals(status, "Media Streamer: Started. Spaces Streamed: 1");
         assertFalse(spaceOption.isSelected());
+
+        verifyStreamAdd(streamCapture, newSpaceId);
     }
 
     @Test
     public void testPerformActionStop() throws Exception {
         Option spaceOption = createOption(true);
+
+        setUpGetState(true);
+        Capture<InputStream> streamCapture = setUpStoreState();
+
         setUpPerformAction(spaceOption);
         replayMocks();
 
@@ -236,6 +309,8 @@ public class MediaStreamingHandlerTest {
         assertNotNull(status);
         assertEquals(status, "Media Streamer: Started. Spaces Streamed: -1");
         assertFalse(spaceOption.isSelected());
+
+        verifyStreamRemove(streamCapture);
     }
 
     private void setUpPerformAction(Option spaceOption) throws Exception {
@@ -251,6 +326,26 @@ public class MediaStreamingHandlerTest {
                                         configVersion,
                                         userConfig);
         EasyMock.expectLastCall();
+    }
+
+    private void verifyStreamAdd(Capture<InputStream> streamCapture, String key)
+        throws Exception {
+        InputStream stream = streamCapture.getValue();
+        Map<String, String> state = SerializationUtil.deserializeMap(
+            IOUtil.readStringFromStream(stream));
+        assertNotNull(state);
+        assertEquals(1, state.size());
+        assertTrue(state.containsKey(key));
+    }
+
+    private void verifyStreamRemove(Capture<InputStream> streamCapture)
+        throws Exception {
+        InputStream stream = streamCapture.getValue();
+        Map<String, String> state = SerializationUtil.deserializeMap(
+            IOUtil.readStringFromStream(stream));
+        assertNotNull(state);
+        assertEquals(0, state.size());
+        assertFalse(state.containsKey(spaceId));
     }
 
 }

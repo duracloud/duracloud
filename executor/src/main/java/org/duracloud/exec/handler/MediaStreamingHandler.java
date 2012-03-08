@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manages the running of the Media Streaming service in DuraCloud.
@@ -41,6 +42,10 @@ public class MediaStreamingHandler extends BaseServiceHandler {
 
     protected static final String MEDIA_STREAMER_NAME = "Media Streamer";
     protected static final String SOURCE_SPACE_ID = "mediaSourceSpaceId";
+
+
+    protected static final String HANDLER_STATE_FILE =
+        "media-streaming-handler-state.xml";
 
     private int spacesStreamed;
 
@@ -68,6 +73,10 @@ public class MediaStreamingHandler extends BaseServiceHandler {
             if(null != service) {
                 List<UserConfigModeSet> userConfig =
                     service.getUserConfigModeSets();
+
+                Map<String, String> state = getState(HANDLER_STATE_FILE);
+                incorporateState(userConfig, state);
+
                 servicesMgr.deployService(service.getId(),
                                           getDeploymentHost(service),
                                           service.getUserConfigVersion(),
@@ -81,6 +90,24 @@ public class MediaStreamingHandler extends BaseServiceHandler {
         } catch(ServicesException e) {
             setError("Unable to start the Media Streaming service due " +
                      "to a ServicesException: " + e.getMessage());
+        }
+    }
+
+    private void incorporateState(List<UserConfigModeSet> userConfig,
+                                  Map<String, String> state) {
+        UserConfig config = userConfig.get(0).getModes().get(0)
+                                      .getUserConfigs().get(0);
+        if(SOURCE_SPACE_ID.equals(config.getName()) &&
+            config instanceof MultiSelectUserConfig) {
+            List<Option> spaceOptions =
+                ((MultiSelectUserConfig)config).getOptions();
+
+            for(Option option : spaceOptions) {
+                if(state.containsKey(option.getValue())) {
+                    option.setSelected(true);
+                    ++spacesStreamed;
+                }
+            }
         }
     }
 
@@ -111,10 +138,19 @@ public class MediaStreamingHandler extends BaseServiceHandler {
         log.info("Executor: Performing action: " + actionName +
                  ", with parameters: " + actionParameters);
 
+        String spaceId = actionParameters;
         if(START_STREAMING.equals(actionName)) {
-            setStreaming(actionParameters, true);
+            Map<String, String> state = getState(HANDLER_STATE_FILE);
+            state.put(spaceId, Boolean.TRUE.toString());
+            storeState(HANDLER_STATE_FILE, state);
+
+            setStreaming(spaceId, true);
         } else if(STOP_STREAMING.equals(actionName)) {
-            setStreaming(actionParameters, false);
+            Map<String, String> state = getState(HANDLER_STATE_FILE);
+            state.remove(spaceId);
+            storeState(HANDLER_STATE_FILE, state);
+
+            setStreaming(spaceId, false);
         } else {
             throw new UnsupportedActionException(actionName);
         }
