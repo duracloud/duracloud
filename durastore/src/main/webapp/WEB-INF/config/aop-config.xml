@@ -7,9 +7,10 @@
   
   <!-- AOP Advice - Ingest -->
   <bean id="ingestAdvice" class="org.duracloud.durastore.aop.IngestAdvice" >
-    <property name="ingestJmsTemplate" ref="ingestJmsTemplate" />
+    <property name="jmsTemplate" ref="ingestJmsTemplate" />
     <property name="destination" ref="ingestDestination" />
     <property name="order" value="3" />
+    <property name="securityContextUtil" ref="securityContextUtil"/>
   </bean>
   
   <bean id="ingestAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">

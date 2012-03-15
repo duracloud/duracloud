@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.common.model.Credential;
+import org.duracloud.security.context.SecurityContextUtil;
 import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +56,7 @@ public class IngestAdviceTest {
         msg.setSpaceId(null);
         msg.setContentId(null);
         msg.setContentMimeType(null);
+        msg.setUsername(null);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -63,14 +66,21 @@ public class IngestAdviceTest {
                                    IngestMessageEquals.eqIngestMessage(msg));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username","password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        ingestAdvice.setIngestJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        ingestAdvice.setJmsTemplate(jmsTemplate);
         ingestAdvice.setDestination(destination);
+        ingestAdvice.setSecurityContextUtil(securityContextUtil);
         ingestAdvice.afterReturning(null, null,
                                          new Object[]{null,null,null,null,null}, null);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 
     @Test
@@ -82,6 +92,7 @@ public class IngestAdviceTest {
         msg.setSpaceId(id);
         msg.setContentId(id);
         msg.setContentMimeType(id);
+        msg.setUsername(id);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -92,13 +103,20 @@ public class IngestAdviceTest {
                                    IngestMessageEquals.eqIngestMessage(msg));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username", "password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        ingestAdvice.setIngestJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        ingestAdvice.setJmsTemplate(jmsTemplate);
         ingestAdvice.setDestination(destination);
+        ingestAdvice.setSecurityContextUtil(securityContextUtil);
         ingestAdvice.afterReturning(null, null,
                                          new Object[]{null,id,id,id,id}, null);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 }

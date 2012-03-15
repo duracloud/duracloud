@@ -12,41 +12,21 @@ package org.duracloud.durastore.aop;
  *
  * @author Andrew Woods
  */
-public class IngestMessage {
-
-    private String storeId;
-
-    private String spaceId;
+public class IngestMessage extends ContentStoreMessage {
 
     private String contentId;
-
     private String contentMimeType;
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("IngestMessage[");
-        sb.append("storeId:'" + storeId + "'");
-        sb.append("|spaceId:'" + spaceId + "'");
+        sb.append("storeId:'" + getStoreId() + "'");
+        sb.append("|spaceId:'" + getSpaceId() + "'");
         sb.append("|contentId:'" + contentId + "'");
         sb.append("|mime:'" + contentMimeType + "'");
+        sb.append("|username:'" + getUsername() + "'");
         sb.append("]\n");
         return sb.toString();
-    }
-
-    public String getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
-    }
-
-    public String getSpaceId() {
-        return spaceId;
-    }
-
-    public void setSpaceId(String spaceId) {
-        this.spaceId = spaceId;
     }
 
     public String getContentId() {

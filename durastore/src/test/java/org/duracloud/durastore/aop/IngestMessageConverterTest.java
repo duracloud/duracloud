@@ -60,6 +60,7 @@ public class IngestMessageConverterTest {
         String spaceId = "spaceId";
         String contentId = "contentId";
         String mimeType = "mimeType";
+        String username = "username";
 
         MapMessage msg = EasyMock.createMock("MapMessage",
                                              MapMessage.class);
@@ -76,6 +77,9 @@ public class IngestMessageConverterTest {
         msg.getString(IngestMessageConverter.MIMETYPE);
         EasyMock.expectLastCall().andReturn(mimeType);
 
+        msg.getString(IngestMessageConverter.USERNAME);
+        EasyMock.expectLastCall().andReturn(username);
+
         EasyMock.replay(msg);
         Object obj = ingestMessageConverter.fromMessage(msg);
         EasyMock.verify(msg);
@@ -88,6 +92,7 @@ public class IngestMessageConverterTest {
         assertEquals(spaceId, ingestMessage.getSpaceId());
         assertEquals(contentId, ingestMessage.getContentId());
         assertEquals(mimeType, ingestMessage.getContentMimeType());
+        assertEquals(username, ingestMessage.getUsername());
     }
 
     @Test
@@ -96,6 +101,7 @@ public class IngestMessageConverterTest {
         String spaceId = "spaceId";
         String contentId = "contentId";
         String mimeType = "mimeType";
+        String username = "username";
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
                                                 MapMessage.class);
@@ -120,11 +126,15 @@ public class IngestMessageConverterTest {
         mapMsg.setString(IngestMessageConverter.MIMETYPE, mimeType);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setString(IngestMessageConverter.USERNAME, username);
+        EasyMock.expectLastCall().once();
+
         IngestMessage ingestMessage = new IngestMessage();
         ingestMessage.setStoreId(storeId);
         ingestMessage.setSpaceId(spaceId);
         ingestMessage.setContentId(contentId);
         ingestMessage.setContentMimeType(mimeType);
+        ingestMessage.setUsername(username);
 
         EasyMock.replay(mapMsg);
         EasyMock.replay(session);

@@ -30,6 +30,8 @@ public class IngestMessageConverter
 
     protected static final String SPACE_ID = "spaceId";
 
+    protected static final String USERNAME = "username";
+
     public Object fromMessage(Message msg) throws JMSException,
             MessageConversionException {
         if (!(msg instanceof MapMessage)) {
@@ -44,6 +46,7 @@ public class IngestMessageConverter
         ingestMsg.setContentId(mapMsg.getString(CONTENT_ID));
         ingestMsg.setContentMimeType(mapMsg.getString(MIMETYPE));
         ingestMsg.setSpaceId(mapMsg.getString(SPACE_ID));
+        ingestMsg.setUsername(mapMsg.getString(USERNAME));
         return ingestMsg;
     }
 
@@ -62,6 +65,7 @@ public class IngestMessageConverter
         msg.setString(CONTENT_ID, ingestMsg.getContentId());
         msg.setString(MIMETYPE, ingestMsg.getContentMimeType());
         msg.setString(SPACE_ID, ingestMsg.getSpaceId());
+        msg.setString(USERNAME, ingestMsg.getUsername());
         return msg;
     }
 
