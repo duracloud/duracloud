@@ -33,7 +33,7 @@ public class SpaceMessageConverterTest {
     public void testFromConversionException() throws JMSException {
         try{
             Message msg = EasyMock.createMock("Message",
-                                              Message.class);;
+                                              Message.class);
 
             spaceMessageConverter.fromMessage(msg);
             assertTrue(false);

@@ -307,7 +307,7 @@ public class ConversionManager {
      */
     public void stopConversion() {
         continueConversion = false;
-        statusListener.doneWorking();;
+        statusListener.doneWorking();
         workerPool.shutdown();
     }
 

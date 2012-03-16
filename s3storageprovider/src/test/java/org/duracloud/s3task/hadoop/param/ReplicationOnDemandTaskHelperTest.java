@@ -45,7 +45,7 @@ public class ReplicationOnDemandTaskHelperTest {
         String repStoreId = "rep-store-id";
         taskParams.put(TASK_PARAMS.REP_STORE_ID.name(), repStoreId);
         String repSpaceId = "rep-space-id";
-        taskParams.put(TASK_PARAMS.REP_SPACE_ID.name(), repSpaceId);;
+        taskParams.put(TASK_PARAMS.REP_SPACE_ID.name(), repSpaceId);
 
         jarParams =
             helper.completeJarParams(taskParams, new ArrayList<String>());

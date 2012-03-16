@@ -33,7 +33,7 @@ public class ContentMessageConverterTest {
     public void testFromConversionException() throws JMSException {
         try{
             Message msg = EasyMock.createMock("Message",
-                                              Message.class);;
+                                              Message.class);
 
             contentMessageConverter.fromMessage(msg);
             assertTrue(false);

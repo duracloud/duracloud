@@ -40,7 +40,7 @@ public class ContentCopyMessageConverterTest {
     public void testFromConversionException() throws JMSException {
         try{
             Message msg = EasyMock.createMock("Message",
-                                              Message.class);;
+                                              Message.class);
 
             contentCopyMessageConverter.fromMessage(msg);
             assertTrue(false);

@@ -26,7 +26,7 @@ public class ReplicationOnDemandTaskHelper implements HadoopTaskHelper {
                                           List<String> jarParams) {
         String sourceSpaceId = taskParams.get(TASK_PARAMS.SOURCE_SPACE_ID.name());
         String repStoreId = taskParams.get(TASK_PARAMS.REP_STORE_ID.name());
-        String repSpaceId = taskParams.get(TASK_PARAMS.REP_SPACE_ID.name());;
+        String repSpaceId = taskParams.get(TASK_PARAMS.REP_SPACE_ID.name());
 
         if (sourceSpaceId == null || repStoreId == null || repSpaceId == null) {
             throw new RuntimeException("All required parameters not provided");
