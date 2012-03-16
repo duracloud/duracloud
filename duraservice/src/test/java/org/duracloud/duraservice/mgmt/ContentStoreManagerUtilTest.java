@@ -14,7 +14,7 @@ import org.duracloud.duraservice.domain.Store;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

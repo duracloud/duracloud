@@ -7,34 +7,27 @@
  */
 package org.duracloud.ec2typicacomputeprovider.mgmt;
 
-import java.io.FileInputStream;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.xerox.amazonws.ec2.Jec2;
 import com.xerox.amazonws.ec2.LaunchConfiguration;
 import com.xerox.amazonws.ec2.ReservationDescription;
 import com.xerox.amazonws.ec2.ReservationDescription.Instance;
-
 import org.apache.commons.io.input.AutoCloseInputStream;
-
+import org.duracloud.common.model.Credential;
+import org.duracloud.computeprovider.mgmt.InstanceDescription;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.duracloud.common.model.Credential;
-import org.duracloud.computeprovider.mgmt.InstanceDescription;
-import org.duracloud.ec2typicacomputeprovider.mgmt.EC2ComputeProvider;
-import org.duracloud.ec2typicacomputeprovider.mgmt.EC2ComputeProviderProperties;
-import org.easymock.classextension.EasyMock;
-
-import static org.easymock.EasyMock.expect;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 
 public class EC2ComputeProviderTest {
 

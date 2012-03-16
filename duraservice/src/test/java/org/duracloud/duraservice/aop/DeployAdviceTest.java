@@ -8,7 +8,7 @@
 package org.duracloud.duraservice.aop;
 
 import org.duracloud.serviceapi.aop.DeployMessage;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jms.core.JmsTemplate;

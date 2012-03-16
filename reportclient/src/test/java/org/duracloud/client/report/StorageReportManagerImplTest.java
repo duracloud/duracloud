@@ -14,7 +14,7 @@ import org.duracloud.reportdata.storage.StorageReportList;
 import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 

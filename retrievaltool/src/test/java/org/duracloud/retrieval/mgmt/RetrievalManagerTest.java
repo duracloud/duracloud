@@ -12,7 +12,7 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.retrieval.RetrievalTestBase;
 import org.duracloud.retrieval.source.ContentStream;
 import org.duracloud.retrieval.source.RetrievalSource;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

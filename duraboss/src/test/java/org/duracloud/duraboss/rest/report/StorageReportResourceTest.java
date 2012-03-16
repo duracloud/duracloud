@@ -13,7 +13,7 @@ import org.duracloud.reporter.storage.StorageReportBuilder;
 import org.duracloud.reporter.storage.StorageReportHandler;
 import org.duracloud.reporter.storage.StorageReportScheduler;
 import org.duracloud.reportdata.storage.StorageReportList;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

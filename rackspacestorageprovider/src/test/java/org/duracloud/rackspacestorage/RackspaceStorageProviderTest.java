@@ -10,7 +10,7 @@ package org.duracloud.rackspacestorage;
 import com.rackspacecloud.client.cloudfiles.FilesClient;
 import com.rackspacecloud.client.cloudfiles.FilesObjectMetaData;
 import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

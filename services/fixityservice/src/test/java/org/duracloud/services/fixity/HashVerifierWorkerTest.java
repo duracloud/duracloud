@@ -16,7 +16,7 @@ import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.ContentLocationPair;
 import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.ServiceResultListener;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

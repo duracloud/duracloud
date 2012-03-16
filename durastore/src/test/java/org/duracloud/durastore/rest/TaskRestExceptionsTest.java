@@ -9,7 +9,7 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.util.TaskProviderFactory;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

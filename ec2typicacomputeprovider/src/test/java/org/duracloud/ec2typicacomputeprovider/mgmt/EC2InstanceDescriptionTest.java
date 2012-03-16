@@ -7,37 +7,28 @@
  */
 package org.duracloud.ec2typicacomputeprovider.mgmt;
 
+import com.xerox.amazonws.ec2.ReservationDescription;
+import com.xerox.amazonws.ec2.ReservationDescription.Instance;
+import com.xerox.amazonws.typica.jaxb.InstanceStateType;
+import org.apache.commons.io.input.AutoCloseInputStream;
+import org.duracloud.computeprovider.mgmt.InstanceState;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.FileInputStream;
-
 import java.net.URL;
-
 import java.text.ParseException;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.xerox.amazonws.ec2.ReservationDescription;
-import com.xerox.amazonws.ec2.ReservationDescription.Instance;
-import com.xerox.amazonws.typica.jaxb.InstanceStateType;
-
-import org.apache.commons.io.input.AutoCloseInputStream;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import org.duracloud.computeprovider.mgmt.InstanceState;
-import org.duracloud.ec2typicacomputeprovider.mgmt.EC2ComputeProviderProperties;
-import org.duracloud.ec2typicacomputeprovider.mgmt.EC2InstanceDescription;
-
-import static org.easymock.EasyMock.expect;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
-
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 
 public class EC2InstanceDescriptionTest {
 

@@ -16,7 +16,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.domain.HadoopTypes;
 import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

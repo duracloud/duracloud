@@ -8,7 +8,7 @@
 package org.duracloud.services.amazonmapreduce;
 
 import org.duracloud.services.amazonmapreduce.impl.SimpleJobCompletionMonitor;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

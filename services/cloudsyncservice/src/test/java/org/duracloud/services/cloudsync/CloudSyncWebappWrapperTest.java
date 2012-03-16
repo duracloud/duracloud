@@ -11,7 +11,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.duracloud.common.web.NetworkUtil;
 import org.duracloud.services.webapputil.WebAppUtil;
 import org.duracloud.services.webapputil.tomcat.TomcatUtil;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

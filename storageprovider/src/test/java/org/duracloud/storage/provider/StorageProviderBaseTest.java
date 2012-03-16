@@ -9,7 +9,7 @@ package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.NotFoundException;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

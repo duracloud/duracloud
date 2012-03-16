@@ -10,7 +10,7 @@ package org.duracloud.servicesadmin.control;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.servicesadmin.util.HttpRequestHelper;
 import org.duracloud.servicesutil.util.ServiceUninstaller;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

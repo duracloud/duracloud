@@ -26,7 +26,7 @@ import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.domain.AdminInit;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

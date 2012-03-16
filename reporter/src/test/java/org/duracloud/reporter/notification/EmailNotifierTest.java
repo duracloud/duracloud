@@ -8,7 +8,7 @@
 package org.duracloud.reporter.notification;
 
 import org.duracloud.notification.Emailer;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

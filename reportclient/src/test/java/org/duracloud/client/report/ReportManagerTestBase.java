@@ -8,7 +8,7 @@
 package org.duracloud.client.report;
 
 import org.duracloud.common.web.RestHttpHelper;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 

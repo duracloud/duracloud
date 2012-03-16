@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

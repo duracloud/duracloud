@@ -16,7 +16,7 @@ import org.duracloud.reporter.storage.metrics.StorageProviderMetricsCollector;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.easymock.Capture;
 import org.easymock.IAnswer;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Test;
 
 import java.util.ArrayList;

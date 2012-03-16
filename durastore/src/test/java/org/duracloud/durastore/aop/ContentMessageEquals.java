@@ -8,7 +8,7 @@
 package org.duracloud.durastore.aop;
 
 import org.easymock.IArgumentMatcher;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 
 public class ContentMessageEquals implements IArgumentMatcher {
     private ContentMessage contentMessage;

@@ -27,7 +27,7 @@ import org.duracloud.duraservice.domain.ServiceComputeInstance;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.servicesadminclient.ServicesAdminClient;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Assert;
 

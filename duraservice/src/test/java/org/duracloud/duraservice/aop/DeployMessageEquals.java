@@ -9,7 +9,7 @@ package org.duracloud.duraservice.aop;
 
 import org.duracloud.serviceapi.aop.DeployMessage;
 import org.easymock.IArgumentMatcher;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 
 public class DeployMessageEquals implements IArgumentMatcher {
     private DeployMessage deployMessage;

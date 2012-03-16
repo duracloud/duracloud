@@ -12,7 +12,7 @@ import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.durastore.util.TaskProviderFactory;
 import org.duracloud.security.DuracloudUserDetailsService;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 
 import javax.ws.rs.core.Response;

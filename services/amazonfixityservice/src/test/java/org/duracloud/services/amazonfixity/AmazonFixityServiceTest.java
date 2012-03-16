@@ -14,7 +14,7 @@ import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.ComputeService;
 import org.duracloud.storage.domain.HadoopTypes;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

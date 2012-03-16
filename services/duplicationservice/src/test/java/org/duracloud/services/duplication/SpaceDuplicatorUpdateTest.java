@@ -12,7 +12,7 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.services.duplication.error.DuplicationException;
 import org.duracloud.services.duplication.impl.SpaceDuplicatorImpl;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

@@ -10,7 +10,7 @@ package org.duracloud.durastore.aop;
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.easymock.Capture;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jms.core.JmsTemplate;

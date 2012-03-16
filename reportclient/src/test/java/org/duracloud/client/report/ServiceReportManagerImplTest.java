@@ -11,7 +11,7 @@ import org.duracloud.serviceconfig.ServiceReportList;
 import org.duracloud.serviceconfig.ServiceSummariesDocument;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.serviceconfig.serialize.ServiceReportListSerializer;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -8,7 +8,7 @@
 package org.duracloud.reporter.notification;
 
 import org.duracloud.appconfig.domain.NotificationConfig;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -508,8 +508,8 @@
 
             <dependency>
                 <groupId>org.easymock</groupId>
-                <artifactId>easymockclassextension</artifactId>
-                <version>2.4</version>
+                <artifactId>easymock</artifactId>
+                <version>3.1</version>
             </dependency>
 
             <dependency>
@@ -1042,7 +1042,7 @@
 
         <dependency>
             <groupId>org.easymock</groupId>
-            <artifactId>easymockclassextension</artifactId>
+            <artifactId>easymock</artifactId>
             <scope>test</scope>
         </dependency>
 

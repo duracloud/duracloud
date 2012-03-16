@@ -13,7 +13,7 @@ import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.results.ServiceResultListener.State;
 import org.duracloud.services.fixity.results.ServiceResultListener.StatusMsg;
 import org.easymock.IAnswer;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 
 /**
  * @author Andrew Woods

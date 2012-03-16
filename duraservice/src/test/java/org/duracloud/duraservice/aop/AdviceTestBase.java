@@ -8,7 +8,7 @@
 package org.duracloud.duraservice.aop;
 
 import org.duracloud.serviceapi.aop.ServiceMessage;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

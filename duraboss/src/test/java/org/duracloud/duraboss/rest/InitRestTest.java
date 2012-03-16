@@ -10,7 +10,7 @@ package org.duracloud.duraboss.rest;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

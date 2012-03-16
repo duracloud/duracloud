@@ -18,7 +18,7 @@ import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.services.ComputeService;
 import org.easymock.Capture;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,20 +114,16 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
                 .andReturn(configVersion).times(4);
 
         // Space 1 - generated checksum
-        FixedCapture<List<UserConfigModeSet>> configCapture1 =
-            setUpDeploy(depId1);
+        Capture<List<UserConfigModeSet>> configCapture1 = setUpDeploy(depId1);
 
         // Space 2 - generated checksum
-        FixedCapture<List<UserConfigModeSet>> configCapture2 =
-            setUpDeploy(depId2);
+        Capture<List<UserConfigModeSet>> configCapture2 = setUpDeploy(depId2);
 
         // Space 1 - files checksum
-        FixedCapture<List<UserConfigModeSet>> configCapture3 =
-            setUpDeploy(depId3);
+        Capture<List<UserConfigModeSet>> configCapture3 = setUpDeploy(depId3);
 
         // Space 2 - files checksum
-        FixedCapture<List<UserConfigModeSet>> configCapture4 =
-            setUpDeploy(depId4);
+        Capture<List<UserConfigModeSet>> configCapture4 = setUpDeploy(depId4);
 
         replayMocks();
 
@@ -147,7 +143,7 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
                       space2);
     }
 
-    private void verifyCapture(FixedCapture<List<UserConfigModeSet>> capture,
+    private void verifyCapture(Capture<List<UserConfigModeSet>> capture,
                                String expHashApproach,
                                String expSpaceId)
         throws Exception {
@@ -180,9 +176,9 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         }
     }
 
-    private FixedCapture<List<UserConfigModeSet>> setUpDeploy(int depId) throws Exception {
-        FixedCapture<List<UserConfigModeSet>> configCapture =
-            new FixedCapture<List<UserConfigModeSet>>();
+    private Capture<List<UserConfigModeSet>> setUpDeploy(int depId) throws Exception {
+        Capture<List<UserConfigModeSet>> configCapture =
+            new Capture<List<UserConfigModeSet>>();
         EasyMock.expect(
             servicesMgr.deployService(EasyMock.eq(serviceId),
                                       EasyMock.eq(host),
@@ -254,19 +250,6 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         userConfig.add(modeSet);
 
         return userConfig;
-    }
-
-    /*
-     * Fixes a bug in EasyMock which is seen when using multiple Captures.
-     * http://sourceforge.net/tracker/?func=detail&atid=567837&aid=2617107&group_id=82958
-     */
-    private class FixedCapture<T> extends Capture<T> {
-        @Override
-        public void setValue(T value) {
-            if (!hasCaptured()) {
-                super.setValue(value);
-            }
-        }
     }
 
 }

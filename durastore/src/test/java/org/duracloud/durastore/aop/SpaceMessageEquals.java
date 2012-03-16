@@ -8,7 +8,7 @@
 package org.duracloud.durastore.aop;
 
 import org.easymock.IArgumentMatcher;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 
 public class SpaceMessageEquals implements IArgumentMatcher {
     private SpaceMessage spaceMessage;

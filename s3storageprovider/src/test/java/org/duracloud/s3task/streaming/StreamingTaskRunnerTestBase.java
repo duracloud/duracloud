@@ -10,7 +10,7 @@ package org.duracloud.s3task.streaming;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
 import org.jets3t.service.model.cloudfront.S3Origin;

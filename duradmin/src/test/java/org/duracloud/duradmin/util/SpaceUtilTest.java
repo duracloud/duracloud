@@ -20,7 +20,7 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.duradmin.domain.Acl;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

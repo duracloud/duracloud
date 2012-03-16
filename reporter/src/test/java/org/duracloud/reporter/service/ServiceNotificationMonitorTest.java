@@ -13,7 +13,7 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.serviceconfig.ServiceSummary;
 import org.duracloud.services.ComputeService;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Test;
 

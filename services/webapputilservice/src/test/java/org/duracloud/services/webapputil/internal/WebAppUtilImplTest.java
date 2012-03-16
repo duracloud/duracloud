@@ -10,7 +10,7 @@ package org.duracloud.services.webapputil.internal;
 import org.duracloud.services.common.error.ServiceRuntimeException;
 import org.duracloud.services.webapputil.tomcat.TomcatInstance;
 import org.duracloud.services.webapputil.tomcat.TomcatUtil;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

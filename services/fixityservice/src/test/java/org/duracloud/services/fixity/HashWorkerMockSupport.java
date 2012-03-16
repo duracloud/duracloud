@@ -10,7 +10,7 @@ package org.duracloud.services.fixity;
 import org.duracloud.services.fixity.results.HashVerifierResult;
 import org.duracloud.services.fixity.results.ServiceResult;
 import org.easymock.IArgumentMatcher;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.Assert;
 
 import java.io.BufferedReader;

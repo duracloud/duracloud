@@ -11,7 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.s3.S3Credentials;
 import org.duracloud.common.util.ChecksumUtil;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.jets3t.service.S3Service;
 import org.jets3t.service.S3ServiceException;
 import org.jets3t.service.model.S3Bucket;

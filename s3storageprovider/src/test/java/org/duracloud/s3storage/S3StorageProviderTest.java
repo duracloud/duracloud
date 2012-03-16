@@ -19,7 +19,7 @@ import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
