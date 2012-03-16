@@ -47,7 +47,7 @@
               <type>zip</type>
               <targetPath>${jquery.target.path}</targetPath>
               <includes>
-                <include>jquery.js</include>
+                <include>jquery.min.js</include>
               </includes>
             </overlay>
             <overlay>
@@ -409,7 +409,7 @@
       <groupId>org.duracloud</groupId>
       <artifactId>jquery</artifactId>
       <type>zip</type>
-      <version>1.4.2</version>
+      <version>1.7.1</version>
     </dependency>
     <dependency>
       <groupId>org.duracloud</groupId>

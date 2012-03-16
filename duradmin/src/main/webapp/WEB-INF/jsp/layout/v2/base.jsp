@@ -22,7 +22,7 @@
 
 
 	<!-- jquery core, ui and css -->
-	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.js"></script>
+	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.min.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-ui.js"></script>
 	<!-- 3rd party jquery plugins start-->
 	<script type="text/javascript"
