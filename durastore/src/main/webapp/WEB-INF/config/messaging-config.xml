@@ -9,7 +9,7 @@
            http://activemq.apache.org/schema/core/activemq-core.xsd">
            
   <!--  Embedded ActiveMQ Broker -->
-  <amq:broker useJmx="false" persistent="false">
+  <amq:broker useJmx="true" persistent="false">
     <amq:transportConnectors>
       <amq:transportConnector uri="tcp://localhost:61617" />
     </amq:transportConnectors>

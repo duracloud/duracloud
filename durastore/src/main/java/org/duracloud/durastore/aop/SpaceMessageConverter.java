@@ -23,8 +23,8 @@ public class SpaceMessageConverter
     protected final Logger log = LoggerFactory.getLogger(SpaceMessageConverter.class);
 
     protected static final String STORE_ID = "storeId";
-
     protected static final String SPACE_ID = "spaceId";
+    protected static final String USERNAME = "username";
 
     public Object fromMessage(Message msg) throws JMSException,
             MessageConversionException {
@@ -38,6 +38,7 @@ public class SpaceMessageConverter
         SpaceMessage spaceMsg = new SpaceMessage();
         spaceMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
         spaceMsg.setSpaceId(mapMsg.getString(SPACE_ID));
+        spaceMsg.setUsername(mapMsg.getString(USERNAME));
         return spaceMsg;
     }
 
@@ -53,6 +54,7 @@ public class SpaceMessageConverter
         MapMessage msg = session.createMapMessage();
         msg.setStringProperty(STORE_ID, spaceMsg.getStoreId());
         msg.setString(SPACE_ID, spaceMsg.getSpaceId());
+        msg.setString(USERNAME, spaceMsg.getUsername());
         return msg;
     }
 

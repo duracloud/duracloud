@@ -28,6 +28,7 @@ public class ContentCopyMessageConverter
     protected static final String SRC_CONTENT_ID = "srcContentId";
     protected static final String DEST_SPACE_ID = "spaceId";
     protected static final String DEST_CONTENT_ID = "contentId";
+    protected static final String USERNAME = "username";
 
     public Object fromMessage(Message msg) throws JMSException,
             MessageConversionException {
@@ -44,6 +45,7 @@ public class ContentCopyMessageConverter
         contentCopyMsg.setSourceContentId(mapMsg.getString(SRC_CONTENT_ID));
         contentCopyMsg.setDestSpaceId(mapMsg.getString(DEST_SPACE_ID));
         contentCopyMsg.setDestContentId(mapMsg.getString(DEST_CONTENT_ID));
+        contentCopyMsg.setUsername(mapMsg.getString(USERNAME));
         return contentCopyMsg;
     }
 
@@ -63,6 +65,7 @@ public class ContentCopyMessageConverter
         msg.setString(SRC_CONTENT_ID, contentMsg.getSourceContentId());
         msg.setString(DEST_SPACE_ID, contentMsg.getDestSpaceId());
         msg.setString(DEST_CONTENT_ID, contentMsg.getDestContentId());
+        msg.setString(USERNAME, contentMsg.getUsername());
         return msg;
     }
 

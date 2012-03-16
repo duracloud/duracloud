@@ -7,9 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
-public class ContentCopyMessage {
+public class ContentCopyMessage extends ContentStoreMessage {
 
-    private String storeId;
     private String sourceSpaceId;
     private String sourceContentId;
     private String destSpaceId;
@@ -18,21 +17,14 @@ public class ContentCopyMessage {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("ContentCopyMessage[");
-        sb.append("storeId:'" + storeId + "'");
+        sb.append("storeId:'" + getStoreId() + "'");
         sb.append("|sourceSpaceId:'" + sourceSpaceId + "'");
         sb.append("|sourceContentId:'" + sourceContentId + "'");
         sb.append("|destSpaceId:'" + destSpaceId + "'");
         sb.append("|destContentId:'" + destContentId + "'");
+        sb.append("|username:'" + getUsername() + "'");
         sb.append("]\n");
         return sb.toString();
-    }
-
-    public String getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
     }
 
     public String getSourceSpaceId() {
@@ -97,10 +89,6 @@ public class ContentCopyMessage {
             that.sourceSpaceId != null) {
             return false;
         }
-        if (storeId != null ? !storeId.equals(that.storeId) :
-            that.storeId != null) {
-            return false;
-        }
 
         return true;
     }
@@ -110,9 +98,7 @@ public class ContentCopyMessage {
      */
     @Override
     public int hashCode() {
-        int result = storeId != null ? storeId.hashCode() : 0;
-        result = 31 * result +
-            (sourceSpaceId != null ? sourceSpaceId.hashCode() : 0);
+        int result = sourceSpaceId != null ? sourceSpaceId.hashCode() : 0;
         result = 31 * result +
             (sourceContentId != null ? sourceContentId.hashCode() : 0);
         result =

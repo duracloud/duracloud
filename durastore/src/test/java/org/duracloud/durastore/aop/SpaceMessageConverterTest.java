@@ -58,6 +58,7 @@ public class SpaceMessageConverterTest {
     public void testFromMessage() throws JMSException {
         String storeId = "storeId";
         String spaceId = "spaceId";
+        String username = "username";
         
         MapMessage msg = EasyMock.createMock("MapMessage",
                                              MapMessage.class);
@@ -67,6 +68,9 @@ public class SpaceMessageConverterTest {
 
         msg.getString(SpaceMessageConverter.SPACE_ID);
         EasyMock.expectLastCall().andReturn(spaceId);
+
+        msg.getString(SpaceMessageConverter.USERNAME);
+        EasyMock.expectLastCall().andReturn(username);
 
         EasyMock.replay(msg);
         Object obj = spaceMessageConverter.fromMessage(msg);
@@ -78,12 +82,14 @@ public class SpaceMessageConverterTest {
         SpaceMessage spaceMessage = (SpaceMessage) obj;
         assertEquals(storeId, spaceMessage.getStoreId());
         assertEquals(spaceId, spaceMessage.getSpaceId());
+        assertEquals(username, spaceMessage.getUsername());
     }
 
     @Test
     public void testToMessage() throws JMSException {
         String storeId = "storeId";
         String spaceId = "spaceId";
+        String username = "username";
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
                                                 MapMessage.class);
@@ -99,9 +105,13 @@ public class SpaceMessageConverterTest {
         mapMsg.setString(SpaceMessageConverter.SPACE_ID, spaceId);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setString(SpaceMessageConverter.USERNAME, username);
+        EasyMock.expectLastCall().once();
+
         SpaceMessage spaceMessage = new SpaceMessage();
         spaceMessage.setStoreId(storeId);
         spaceMessage.setSpaceId(spaceId);
+        spaceMessage.setUsername(username);
 
         EasyMock.replay(mapMsg);
         EasyMock.replay(session);

@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.common.model.Credential;
+import org.duracloud.security.context.SecurityContextUtil;
 import org.easymock.Capture;
 import org.easymock.classextension.EasyMock;
 import org.junit.Before;
@@ -56,6 +58,7 @@ public class ContentCopyAdviceTest {
         msg.setSourceContentId(null);
         msg.setDestSpaceId(null);
         msg.setDestContentId(null);
+        msg.setUsername(null);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -67,16 +70,23 @@ public class ContentCopyAdviceTest {
                                    EasyMock.capture(messageCapture));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username","password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        contentCopyAdvice.setContentJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        contentCopyAdvice.setJmsTemplate(jmsTemplate);
         contentCopyAdvice.setDestination(destination);
+        contentCopyAdvice.setSecurityContextUtil(securityContextUtil);
         Object[] emptyObj = new Object[]{null, null, null, null, null, null};
         contentCopyAdvice.afterReturning(null, null, emptyObj, null);
         ContentCopyMessage capturedMessage = messageCapture.getValue();
         assertEquals(msg, capturedMessage);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 
     @Test
@@ -89,6 +99,7 @@ public class ContentCopyAdviceTest {
         msg.setSourceContentId(id);
         msg.setDestSpaceId(id);
         msg.setDestContentId(id);
+        msg.setUsername(id);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -101,15 +112,22 @@ public class ContentCopyAdviceTest {
                                    EasyMock.capture(messageCapture));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username", "password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        contentCopyAdvice.setContentJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        contentCopyAdvice.setJmsTemplate(jmsTemplate);
         contentCopyAdvice.setDestination(destination);
+        contentCopyAdvice.setSecurityContextUtil(securityContextUtil);
         Object[] idObj = new Object[]{null, id, id, id, id, id};
         contentCopyAdvice.afterReturning(null, null, idObj, null);
         ContentCopyMessage capturedMessage = messageCapture.getValue();
         assertEquals(msg, capturedMessage);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 }

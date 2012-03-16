@@ -7,38 +7,19 @@
  */
 package org.duracloud.durastore.aop;
 
-public class ContentMessage {
-
-    private String storeId;
-
-    private String spaceId;
+public class ContentMessage extends ContentStoreMessage {
 
     private String contentId;
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("ContentMessage[");
-        sb.append("storeId:'" + storeId + "'");
-        sb.append("|spaceId:'" + spaceId + "'");
+        sb.append("storeId:'" + getStoreId() + "'");
+        sb.append("|spaceId:'" + getSpaceId() + "'");
         sb.append("|contentId:'" + contentId + "'");
+        sb.append("|username:'" + getUsername() + "'");
         sb.append("]\n");
         return sb.toString();
-    }
-
-    public String getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
-    }
-
-    public String getSpaceId() {
-        return spaceId;
-    }
-
-    public void setSpaceId(String spaceId) {
-        this.spaceId = spaceId;
     }
 
     public String getContentId() {

@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.common.model.Credential;
+import org.duracloud.security.context.SecurityContextUtil;
 import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +55,7 @@ public class ContentDeleteAdviceTest {
         msg.setStoreId(null);
         msg.setSpaceId(null);
         msg.setContentId(null);
+        msg.setUsername(null);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -62,14 +65,21 @@ public class ContentDeleteAdviceTest {
                                    ContentMessageEquals.eqContentMessage(msg));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username","password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        contentDeleteAdvice.setContentJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        contentDeleteAdvice.setJmsTemplate(jmsTemplate);
         contentDeleteAdvice.setDestination(destination);
+        contentDeleteAdvice.setSecurityContextUtil(securityContextUtil);
         contentDeleteAdvice.afterReturning(null, null,
                                          new Object[]{null,null,null,null}, null);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 
     @Test
@@ -80,6 +90,7 @@ public class ContentDeleteAdviceTest {
         msg.setStoreId(id);
         msg.setSpaceId(id);
         msg.setContentId(id);
+        msg.setUsername(id);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -90,13 +101,20 @@ public class ContentDeleteAdviceTest {
                                    ContentMessageEquals.eqContentMessage(msg));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username","password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        contentDeleteAdvice.setContentJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        contentDeleteAdvice.setJmsTemplate(jmsTemplate);
         contentDeleteAdvice.setDestination(destination);
+        contentDeleteAdvice.setSecurityContextUtil(securityContextUtil);
         contentDeleteAdvice.afterReturning(null, null,
                                          new Object[]{null,id,id,id}, null);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 }

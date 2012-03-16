@@ -23,10 +23,9 @@ public class ContentMessageConverter
     protected final Logger log = LoggerFactory.getLogger(ContentMessageConverter.class);
 
     protected static final String STORE_ID = "storeId";
-
     protected static final String CONTENT_ID = "contentId";
-
     protected static final String SPACE_ID = "spaceId";
+    protected static final String USERNAME = "username";
 
     public Object fromMessage(Message msg) throws JMSException,
             MessageConversionException {
@@ -41,6 +40,7 @@ public class ContentMessageConverter
         contentMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
         contentMsg.setContentId(mapMsg.getString(CONTENT_ID));
         contentMsg.setSpaceId(mapMsg.getString(SPACE_ID));
+        contentMsg.setUsername(mapMsg.getString(USERNAME));
         return contentMsg;
     }
 
@@ -57,6 +57,7 @@ public class ContentMessageConverter
         msg.setStringProperty(STORE_ID, contentMsg.getStoreId());
         msg.setString(CONTENT_ID, contentMsg.getContentId());
         msg.setString(SPACE_ID, contentMsg.getSpaceId());
+        msg.setString(USERNAME, contentMsg.getUsername());
         return msg;
     }
 

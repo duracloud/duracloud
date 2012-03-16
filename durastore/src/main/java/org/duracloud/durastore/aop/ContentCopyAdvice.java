@@ -9,56 +9,30 @@ package org.duracloud.durastore.aop;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.AfterReturningAdvice;
-import org.springframework.core.Ordered;
-import org.springframework.jms.core.JmsTemplate;
 
-import javax.jms.Destination;
-import java.lang.reflect.Method;
-
-public class ContentCopyAdvice implements AfterReturningAdvice, Ordered {
+public class ContentCopyAdvice extends BaseContentStoreAdvice {
 
     private final Logger log = LoggerFactory.getLogger(ContentCopyAdvice.class);
 
     protected static final int STORE_ID_INDEX = 1;
-
     protected static final int SOURCE_SPACE_ID_INDEX = 2;
-
     protected static final int SOURCE_CONTENT_ID_INDEX = 3;
-
     protected static final int DEST_SPACE_ID_INDEX = 4;
-
     protected static final int DEST_CONTENT_ID_INDEX = 5;
 
-    private JmsTemplate contentJmsTemplate;
-
-    private Destination destination;
-
-    private int order;
+    @Override
+    protected Logger log() {
+        return log;
+    }
 
     @Override
-    public void afterReturning(Object returnObj,
-                               Method method,
-                               Object[] methodArgs,
-                               Object targetObj) throws Throwable {
-
-        if (log.isDebugEnabled()) {
-            doLogging(returnObj, method, methodArgs, targetObj);
-        }
-
-        publishUpdateEvent(createUpdateMessage(methodArgs));
-    }
-
-    private void publishUpdateEvent(ContentCopyMessage updateEvent) {
-        getContentJmsTemplate().convertAndSend(getDestination(), updateEvent);
-    }
-
-    private ContentCopyMessage createUpdateMessage(Object[] methodArgs) {
+    protected ContentStoreMessage createMessage(Object[] methodArgs) {
         String storeId = getStoreId(methodArgs);
         String sourceSpaceId = getSourceSpaceId(methodArgs);
         String sourceContentId = getSourceContentId(methodArgs);
         String destSpaceId = getDestSpaceId(methodArgs);
         String destContentId = getDestContentId(methodArgs);
+        String username = getCurrentUsername();
 
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(storeId);
@@ -66,6 +40,7 @@ public class ContentCopyAdvice implements AfterReturningAdvice, Ordered {
         msg.setSourceContentId(sourceContentId);
         msg.setDestSpaceId(destSpaceId);
         msg.setDestContentId(destContentId);
+        msg.setUsername(username);
 
         return msg;
     }
@@ -97,58 +72,6 @@ public class ContentCopyAdvice implements AfterReturningAdvice, Ordered {
         log.debug("Returning destination 'contentId' at index: " +
                   DEST_CONTENT_ID_INDEX);
         return (String) methodArgs[DEST_CONTENT_ID_INDEX];
-    }
-
-    private void doLogging(Object returnObj,
-                           Method method,
-                           Object[] methodArgs,
-                           Object targetObj) {
-        String pre0 = "--------------------------";
-        String pre1 = pre0 + "--";
-        String pre2 = pre1 + "--";
-
-        log.debug(pre0 + "advice: publish to content copy topic");
-        if (targetObj != null && targetObj.getClass() != null) {
-            log.debug(pre1 + "object: " + targetObj.getClass().getName());
-        }
-        if (method != null) {
-            log.debug(pre1 + "method: " + method.getName());
-        }
-        if (methodArgs != null) {
-            for (Object obj : methodArgs) {
-                String argValue;
-                if(obj == null) {
-                    argValue = "null";
-                } else {
-                    argValue = obj.toString();
-                }
-                log.debug(pre2 + "method-arg: " + argValue);
-            }
-        }
-    }
-
-    public JmsTemplate getContentJmsTemplate() {
-        return contentJmsTemplate;
-    }
-
-    public void setContentJmsTemplate(JmsTemplate contentJmsTemplate) {
-        this.contentJmsTemplate = contentJmsTemplate;
-    }
-
-    public Destination getDestination() {
-        return destination;
-    }
-
-    public void setDestination(Destination destination) {
-        this.destination = destination;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
     }
 
 }

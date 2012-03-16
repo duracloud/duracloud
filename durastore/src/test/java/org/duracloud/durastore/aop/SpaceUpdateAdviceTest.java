@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.common.model.Credential;
+import org.duracloud.security.context.SecurityContextUtil;
 import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +54,7 @@ public class SpaceUpdateAdviceTest {
         SpaceMessage msg = new SpaceMessage();
         msg.setStoreId(null);
         msg.setSpaceId(null);
+        msg.setUsername(null);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -61,14 +64,21 @@ public class SpaceUpdateAdviceTest {
                                    SpaceMessageEquals.eqSpaceMessage(msg));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username","password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        spaceUpdateAdvice.setSpaceJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        spaceUpdateAdvice.setJmsTemplate(jmsTemplate);
         spaceUpdateAdvice.setDestination(destination);
+        spaceUpdateAdvice.setSecurityContextUtil(securityContextUtil);
         spaceUpdateAdvice.afterReturning(null, null,
                                          new Object[]{null,null,null}, null);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 
     @Test
@@ -78,6 +88,7 @@ public class SpaceUpdateAdviceTest {
         SpaceMessage msg = new SpaceMessage();
         msg.setStoreId(id);
         msg.setSpaceId(id);
+        msg.setUsername(id);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -88,13 +99,20 @@ public class SpaceUpdateAdviceTest {
                                    SpaceMessageEquals.eqSpaceMessage(msg));
         EasyMock.expectLastCall().once();
 
-        EasyMock.replay(jmsTemplate);
+        SecurityContextUtil securityContextUtil = EasyMock.createMock(
+            "SecurityContextUtil",
+            SecurityContextUtil.class);
+        Credential user = new Credential("username","password");
+        EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
-        spaceUpdateAdvice.setSpaceJmsTemplate(jmsTemplate);
+        EasyMock.replay(jmsTemplate, securityContextUtil);
+
+        spaceUpdateAdvice.setJmsTemplate(jmsTemplate);
         spaceUpdateAdvice.setDestination(destination);
+        spaceUpdateAdvice.setSecurityContextUtil(securityContextUtil);
         spaceUpdateAdvice.afterReturning(null, null,
                                          new Object[]{null,id,id}, null);
 
-        EasyMock.verify(jmsTemplate);
+        EasyMock.verify(jmsTemplate, securityContextUtil);
     }
 }

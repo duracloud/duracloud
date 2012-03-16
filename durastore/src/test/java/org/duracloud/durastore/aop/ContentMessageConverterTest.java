@@ -59,6 +59,7 @@ public class ContentMessageConverterTest {
         String storeId = "storeId";
         String spaceId = "spaceId";
         String contentId = "contentId";
+        String username = "username";
 
         MapMessage msg = EasyMock.createMock("MapMessage",
                                              MapMessage.class);
@@ -72,6 +73,9 @@ public class ContentMessageConverterTest {
         msg.getString(ContentMessageConverter.CONTENT_ID);
         EasyMock.expectLastCall().andReturn(contentId);
 
+        msg.getString(ContentMessageConverter.USERNAME);
+        EasyMock.expectLastCall().andReturn(username);
+
         EasyMock.replay(msg);
         Object obj = contentMessageConverter.fromMessage(msg);
         EasyMock.verify(msg);
@@ -83,6 +87,7 @@ public class ContentMessageConverterTest {
         assertEquals(storeId, contentMessage.getStoreId());
         assertEquals(spaceId, contentMessage.getSpaceId());
         assertEquals(contentId, contentMessage.getContentId());
+        assertEquals(username, contentMessage.getUsername());
     }
 
     @Test
@@ -90,6 +95,7 @@ public class ContentMessageConverterTest {
         String storeId = "storeId";
         String spaceId = "spaceId";
         String contentId = "contentId";
+        String username = "username";
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
                                                 MapMessage.class);
@@ -108,10 +114,14 @@ public class ContentMessageConverterTest {
         mapMsg.setString(ContentMessageConverter.CONTENT_ID, contentId);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setString(ContentMessageConverter.USERNAME, username);
+        EasyMock.expectLastCall().once();
+
         ContentMessage contentMessage = new ContentMessage();
         contentMessage.setStoreId(storeId);
         contentMessage.setSpaceId(spaceId);
         contentMessage.setContentId(contentId);
+        contentMessage.setUsername(username);
 
         EasyMock.replay(mapMsg);
         EasyMock.replay(session);

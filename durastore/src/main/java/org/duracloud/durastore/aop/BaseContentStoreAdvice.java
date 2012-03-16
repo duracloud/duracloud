@@ -59,8 +59,8 @@ public abstract class BaseContentStoreAdvice implements AfterReturningAdvice, Or
      */
     protected abstract ContentStoreMessage createMessage(Object[] methodArgs);
 
-    private void publishEvent(ContentStoreMessage ingestEvent) {
-        getJmsTemplate().convertAndSend(getDestination(), ingestEvent);
+    private void publishEvent(ContentStoreMessage event) {
+        getJmsTemplate().convertAndSend(getDestination(), event);
     }
 
     private void doLogging(Object returnObj,
