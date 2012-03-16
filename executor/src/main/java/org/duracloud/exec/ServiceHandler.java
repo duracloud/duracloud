@@ -8,6 +8,7 @@
 package org.duracloud.exec;
 
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
 
 import java.util.Set;
@@ -68,7 +69,10 @@ public interface ServiceHandler {
      *
      * @param actionName name of the action to perform
      * @param actionParameters information needed to perform the action
+     * @throws InvalidActionRequestException if either the action or parameters
+     *                                       are not acceptable values
      */
-    public void performAction(String actionName, String actionParameters);
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException;
 
 }

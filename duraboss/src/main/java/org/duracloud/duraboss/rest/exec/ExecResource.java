@@ -9,6 +9,7 @@ package org.duracloud.duraboss.rest.exec;
 
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.exec.Executor;
+import org.duracloud.exec.error.InvalidActionRequestException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,8 @@ public class ExecResource {
      * @param actionName the action to perform
      * @param actionParameters information needed to perform the action
      */
-    public void performAction(String actionName, String actionParameters){
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException {
         exec.performAction(actionName, actionParameters);
     }
 

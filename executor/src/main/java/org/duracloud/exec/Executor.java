@@ -8,6 +8,7 @@
 package org.duracloud.exec;
 
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
 
 import java.util.Map;
@@ -51,7 +52,8 @@ public interface Executor {
      * @param actionName the action to execute
      * @param actionParameters the information needed to execute
      */
-    public void performAction(String actionName, String actionParameters);
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException;
 
     /**
      * Retrieves the status of the Executor, which is the collected status of

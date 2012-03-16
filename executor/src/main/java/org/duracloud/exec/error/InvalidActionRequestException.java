@@ -7,16 +7,16 @@
  */
 package org.duracloud.exec.error;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.error.DuraCloudCheckedException;
 
 /**
  * @author: Bill Branan
  * Date: 3/1/12
  */
-public class UnsupportedActionException extends DuraCloudRuntimeException {
+public class InvalidActionRequestException extends DuraCloudCheckedException {
 
-    public UnsupportedActionException(String action) {
-        super(action + " is not a supported action");
+    public InvalidActionRequestException(String action) {
+        super(action);
     }
 
 }

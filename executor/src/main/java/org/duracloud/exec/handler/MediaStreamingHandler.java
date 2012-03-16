@@ -9,7 +9,7 @@ package org.duracloud.exec.handler;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.exec.error.UnsupportedActionException;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.Deployment;
@@ -86,10 +86,10 @@ public class MediaStreamingHandler extends BaseServiceHandler {
             }
         } catch(NotFoundException e) {
             setError("Unable to start the Media Streaming service due " +
-                     "to a NotFoundException: " + e.getMessage());
+                     "to a NotFoundException: " + e.getMessage(), e);
         } catch(ServicesException e) {
             setError("Unable to start the Media Streaming service due " +
-                     "to a ServicesException: " + e.getMessage());
+                     "to a ServicesException: " + e.getMessage(), e);
         }
     }
 
@@ -126,19 +126,29 @@ public class MediaStreamingHandler extends BaseServiceHandler {
             }
         } catch(NotFoundException e) {
             setError("Unable to stop the Media Streaming service due " +
-                     "to a NotFoundException: " + e.getMessage());
+                     "to a NotFoundException: " + e.getMessage(), e);
         } catch(ServicesException e) {
             setError("Unable to stop the Media Streaming service due " +
-                     "to a ServicesException: " + e.getMessage());
+                     "to a ServicesException: " + e.getMessage(), e);
         }
     }
 
+    /**
+     * @param actionName supported actions: start-streaming, stop-streaming
+     * @param actionParameters spaceId to start or stop streaming
+     */
     @Override
-    public void performAction(String actionName, String actionParameters) {
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException {
         log.info("Executor: Performing action: " + actionName +
                  ", with parameters: " + actionParameters);
 
         String spaceId = actionParameters;
+        if(spaceId.isEmpty()) {
+            String err = "Parameters expected: 'spaceId'";
+            throw new InvalidActionRequestException(err);
+        }
+
         if(START_STREAMING.equals(actionName)) {
             Map<String, String> state = getState(HANDLER_STATE_FILE);
             state.put(spaceId, Boolean.TRUE.toString());
@@ -152,7 +162,8 @@ public class MediaStreamingHandler extends BaseServiceHandler {
 
             setStreaming(spaceId, false);
         } else {
-            throw new UnsupportedActionException(actionName);
+            String err = actionName + " is not a valid action";
+            throw new InvalidActionRequestException(err);
         }
     }
 
@@ -222,10 +233,10 @@ public class MediaStreamingHandler extends BaseServiceHandler {
             }
         } catch(NotFoundException e) {
             setError("Unable to update streaming for space " + spaceId +
-                     " due to a NotFoundException: " + e.getMessage());
+                     " due to a NotFoundException: " + e.getMessage(), e);
         } catch(ServicesException e) {
             setError("Unable to update streaming for space " + spaceId +
-                     " due to a ServicesException: " + e.getMessage());
+                     " due to a ServicesException: " + e.getMessage(), e);
         }
     }
 
@@ -238,10 +249,10 @@ public class MediaStreamingHandler extends BaseServiceHandler {
         }
     }
 
-    private void setError(String error) {
-        log.error(error);
-        status = error;
-        throw new DuraCloudRuntimeException(error);
+    private void setError(String error, Exception e) {
+        log.error(error, e);
+        status = ERROR_PREFIX + error;
+        throw new DuraCloudRuntimeException(error, e);
     }
 
 }

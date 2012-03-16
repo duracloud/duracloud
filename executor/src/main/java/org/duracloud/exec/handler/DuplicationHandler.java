@@ -7,7 +7,7 @@
  */
 package org.duracloud.exec.handler;
 
-import org.duracloud.exec.error.UnsupportedActionException;
+import org.duracloud.exec.error.InvalidActionRequestException;
 
 /**
  * Manages the running of the Duplication on Change service in DuraCloud.
@@ -52,7 +52,8 @@ public class DuplicationHandler extends BaseServiceHandler {
     }
 
     @Override
-    public void performAction(String actionName, String actionParameters) {
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException {
         if(START_DUPLICATION.equals(actionName)) {
             // TODO: implement
         } else if(ADD_TO_DUPLICATION.equals(actionName)) {
@@ -60,7 +61,8 @@ public class DuplicationHandler extends BaseServiceHandler {
         } else if(REMOVE_FROM_DUPLICATION.equals(actionName)) {
             // TODO: implement
         } else {
-            throw new UnsupportedActionException(actionName);
+            String err = actionName + " is not a valid action";
+            throw new InvalidActionRequestException(err);
         }
     }
 

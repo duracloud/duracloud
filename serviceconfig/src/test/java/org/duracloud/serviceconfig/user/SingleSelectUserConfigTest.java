@@ -30,7 +30,10 @@ public class SingleSelectUserConfigTest {
     }
 
     private List<Option> createOptions() {
-        return new ArrayList<Option>();
+        List<Option> options = new ArrayList<Option>();
+        options.add(new Option("option1", "option1", true));
+        options.add(new Option("option2", "option2", false));
+        return options;
     }
 
     @Test
@@ -39,6 +42,7 @@ public class SingleSelectUserConfigTest {
 
         SingleSelectUserConfig clone = config.clone();
         verify(config, clone, true);
+        verifyCloned(config, clone);
     }
 
     private void verify(SingleSelectUserConfig source,
@@ -67,6 +71,13 @@ public class SingleSelectUserConfigTest {
         Assert.assertEquals("expected validity [" + valid + "]",
                             valid,
                             isValid);
+    }
+
+    private void verifyCloned(SingleSelectUserConfig source,
+                              SingleSelectUserConfig clone) {
+        Assert.assertFalse(source.getOptions() == clone.getOptions());
+        Assert.assertFalse(
+            source.getSelectedOption() == clone.getSelectedOption());
     }
 
 }

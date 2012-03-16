@@ -11,7 +11,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.exec.Executor;
 import org.duracloud.exec.ServiceHandler;
-import org.duracloud.exec.error.UnsupportedActionException;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.easymock.classextension.EasyMock;
 import org.junit.After;
@@ -62,7 +62,7 @@ public class ExecutorImplTest {
     }
 
     @Test
-    public void testInitialize() {
+    public void testInitialize() throws Exception {
         setUpInitMocks();
 
         replayMocks();
@@ -142,7 +142,7 @@ public class ExecutorImplTest {
     }
 
     @Test
-    public void testPerformAction() {
+    public void testPerformAction() throws Exception {
         setUpInitMocks();
 
         String invalidAct = "invalid-action";
@@ -159,7 +159,7 @@ public class ExecutorImplTest {
         try {
             exec.performAction(invalidAct, actParams);
             fail("Exception expected performing invalid action");
-        } catch (UnsupportedActionException e) {
+        } catch (InvalidActionRequestException e) {
             assertNotNull(e);
         }
 

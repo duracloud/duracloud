@@ -16,6 +16,7 @@ import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.exec.ServiceHandler;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
@@ -42,6 +43,7 @@ public abstract class BaseServiceHandler implements ServiceHandler {
         LoggerFactory.getLogger(BaseServiceHandler.class);
 
     protected static final String HANDLER_STATE_SPACE = "x-duracloud-admin";
+    public static final String ERROR_PREFIX = "Error: ";
 
     protected ContentStoreManager storeMgr;
     protected ServicesManager servicesMgr;
@@ -82,6 +84,7 @@ public abstract class BaseServiceHandler implements ServiceHandler {
         }
     }
 
+    @Override
     public abstract String getName();
 
     @Override
@@ -89,8 +92,10 @@ public abstract class BaseServiceHandler implements ServiceHandler {
         return status;
     }
 
+    @Override
     public abstract void start();
 
+    @Override
     public abstract void stop();
 
     @Override
@@ -98,8 +103,10 @@ public abstract class BaseServiceHandler implements ServiceHandler {
         return supportedActions;
     }
 
+    @Override
     public abstract void performAction(String actionName,
-                                       String actionParameters);
+                                       String actionParameters)
+        throws InvalidActionRequestException;
 
 
     /**
@@ -159,7 +166,7 @@ public abstract class BaseServiceHandler implements ServiceHandler {
      * @param service which will be deployed
      * @return deployment host
      */
-    protected String getDeploymentHost(ServiceInfo service) {
+    public String getDeploymentHost(ServiceInfo service) {
         // Assume a single deployment option
         DeploymentOption depOption = service.getDeploymentOptions().get(0);
         return depOption.getHostname();
@@ -172,7 +179,7 @@ public abstract class BaseServiceHandler implements ServiceHandler {
      * @param stateFileName the name of the file where state may exist
      * @return map of state, may be an empty map if no state exists
      */
-    protected Map<String, String> getState(String stateFileName) {
+    public Map<String, String> getState(String stateFileName) {
         Map<String, String> state;
         try {
             Content contentItem = storeMgr.getPrimaryContentStore()
@@ -201,7 +208,7 @@ public abstract class BaseServiceHandler implements ServiceHandler {
      * @param stateFileName the name of the file in which to store state
      * @param state information to store
      */
-    protected void storeState(String stateFileName, Map<String, String> state) {
+    public void storeState(String stateFileName, Map<String, String> state) {
         String xml = SerializationUtil.serializeMap(state);
         InputStream stream;
         try {

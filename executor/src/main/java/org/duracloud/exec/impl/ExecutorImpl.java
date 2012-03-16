@@ -11,7 +11,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.exec.Executor;
 import org.duracloud.exec.ServiceHandler;
-import org.duracloud.exec.error.UnsupportedActionException;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,12 +93,14 @@ public class ExecutorImpl implements Executor {
     }
 
     @Override
-    public void performAction(String actionName, String actionParameters) {
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException {
         log.info("performAction(" + actionName + ", " + actionParameters + ")");
         checkInitialized();
 
         if(!supportedActions.contains(actionName)){
-            throw new UnsupportedActionException(actionName);
+            String err = actionName + " is not a valid action";
+            throw new InvalidActionRequestException(err);
         }
 
         for(ServiceHandler handler : serviceHandlers) {

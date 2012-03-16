@@ -7,7 +7,7 @@
  */
 package org.duracloud.exec.handler;
 
-import org.duracloud.exec.error.UnsupportedActionException;
+import org.duracloud.exec.error.InvalidActionRequestException;
 
 /**
  * Manages the running of the Image Server service in DuraCloud.
@@ -45,8 +45,10 @@ public class ImageServerHandler  extends BaseServiceHandler {
     }
 
     @Override
-    public void performAction(String actionName, String actionParameters) {
-        throw new UnsupportedActionException(actionName);
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException {
+        String err = actionName + " is not a valid action";
+        throw new InvalidActionRequestException(err);
     }
 
 }

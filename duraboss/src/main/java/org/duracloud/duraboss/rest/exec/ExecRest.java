@@ -10,6 +10,7 @@ package org.duracloud.duraboss.rest.exec;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.duraboss.rest.BaseRest;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,8 @@ public class ExecRest extends BaseRest {
             String actionParams = getActionParameters();
             execResource.performAction(actionName, actionParams);
             return responseOk();
+        } catch (InvalidActionRequestException e) {
+            return responseBadRequest(e);
         } catch (Exception e) {
             return responseBad(e);
         }

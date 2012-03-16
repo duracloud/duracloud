@@ -7,6 +7,7 @@
  */
 package org.duracloud.serviceconfig.user;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -136,6 +137,20 @@ public abstract class SelectableUserConfig extends UserConfig implements Cloneab
 
     public SelectableUserConfig clone() throws CloneNotSupportedException {
         SelectableUserConfig clone = (SelectableUserConfig)super.clone();
+        clone.options = cloneOptions();
         return clone;
     }
+
+    private List<Option> cloneOptions()
+        throws CloneNotSupportedException {
+        List<Option> clones = null;
+        if (null != this.options) {
+            clones = new ArrayList<Option>();
+            for (Option option : this.options) {
+                clones.add(option.clone());
+            }
+        }
+        return clones;
+    }
+
 }

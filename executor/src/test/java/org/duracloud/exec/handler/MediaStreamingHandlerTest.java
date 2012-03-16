@@ -7,12 +7,9 @@
  */
 package org.duracloud.exec.handler;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.domain.Content;
-import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
@@ -23,7 +20,6 @@ import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.easymock.Capture;
 import org.easymock.classextension.EasyMock;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,12 +38,9 @@ import static org.junit.Assert.assertTrue;
  * @author: Bill Branan
  * Date: 3/7/12
  */
-public class MediaStreamingHandlerTest {
+public class MediaStreamingHandlerTest extends HandlerTestBase {
 
     private MediaStreamingHandler handler;
-    private ContentStoreManager storeMgr;
-    private ServicesManager servicesMar;
-    private ContentStore contentStore;
 
     private int serviceId = 5;
     private String configVersion = "config-version";
@@ -56,33 +49,17 @@ public class MediaStreamingHandlerTest {
     private String spaceId = "space-id";
 
     @Before
+    @Override
     public void setup() throws Exception {
+        super.setup();
         handler = new MediaStreamingHandler();
-
-        storeMgr = EasyMock.createMock("ContentStoreManager",
-                                       ContentStoreManager.class);
-        servicesMar = EasyMock.createMock("ServicesManager",
-                                           ServicesManager.class);
-        contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
-
-        EasyMock.expect(storeMgr.getPrimaryContentStore())
-                .andReturn(contentStore)
-                .anyTimes();
-
-        EasyMock.expect(contentStore.getSpaceProperties(
-            MediaStreamingHandler.HANDLER_STATE_SPACE))
-                .andReturn(null);
     }
 
-    private void replayMocks() {
-        EasyMock.replay(storeMgr, servicesMar, contentStore);
+    @Override
+    protected void replayMocks() {
+        super.replayMocks();
 
-        handler.initialize(storeMgr, servicesMar);
-    }
-
-    @After
-    public void teardown() {
-        EasyMock.verify(storeMgr, servicesMar, contentStore);
+        handler.initialize(storeMgr, servicesMgr);
     }
 
     @Test
@@ -109,9 +86,9 @@ public class MediaStreamingHandlerTest {
         List<ServiceInfo> services =
             createServiceList(createService(userConfig));
 
-        EasyMock.expect(servicesMar.getAvailableServices())
+        EasyMock.expect(servicesMgr.getAvailableServices())
                 .andReturn(services);
-        EasyMock.expect(servicesMar
+        EasyMock.expect(servicesMgr
                 .deployService(serviceId, hostname, configVersion, userConfig))
                 .andReturn(depId);
 
@@ -213,9 +190,9 @@ public class MediaStreamingHandlerTest {
         service.setDeployments(createDeployments(userConfig));
         List<ServiceInfo> services = createServiceList(service);
 
-        EasyMock.expect(servicesMar.getDeployedServices())
+        EasyMock.expect(servicesMgr.getDeployedServices())
                 .andReturn(services);
-        servicesMar.undeployService(serviceId, depId);
+        servicesMgr.undeployService(serviceId, depId);
         EasyMock.expectLastCall();
 
         replayMocks();
@@ -319,9 +296,9 @@ public class MediaStreamingHandlerTest {
         service.setDeployments(createDeployments(userConfig));
         List<ServiceInfo> services = createServiceList(service);
 
-        EasyMock.expect(servicesMar.getDeployedServices())
+        EasyMock.expect(servicesMgr.getDeployedServices())
                 .andReturn(services);
-        servicesMar.updateServiceConfig(serviceId,
+        servicesMgr.updateServiceConfig(serviceId,
                                         depId,
                                         configVersion,
                                         userConfig);
