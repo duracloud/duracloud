@@ -30,6 +30,7 @@ public class ContentCopyMessageConverterTest {
     private String destSpaceId = "destSpaceId";
     private String destContentId = "destContentId";
     private String username = "username";
+    private String contentMd5 = "contentMd5";
 
     @Before
     public void setUp() throws Exception {
@@ -84,6 +85,9 @@ public class ContentCopyMessageConverterTest {
         msg.getString(ContentCopyMessageConverter.USERNAME);
         EasyMock.expectLastCall().andReturn(username);
 
+        msg.getString(ContentCopyMessageConverter.CONTENT_MD5);
+        EasyMock.expectLastCall().andReturn(contentMd5);
+
         EasyMock.replay(msg);
 
         Object obj = contentCopyMessageConverter.fromMessage(msg);
@@ -97,6 +101,7 @@ public class ContentCopyMessageConverterTest {
         assertEquals(destSpaceId, contentCopyMessage.getDestSpaceId());
         assertEquals(destContentId, contentCopyMessage.getDestContentId());
         assertEquals(username, contentCopyMessage.getUsername());
+        assertEquals(contentMd5, contentCopyMessage.getContentMd5());
 
         EasyMock.verify(msg);
     }
@@ -138,6 +143,9 @@ public class ContentCopyMessageConverterTest {
         mapMsg.setString(ContentCopyMessageConverter.USERNAME, username);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setString(ContentCopyMessageConverter.CONTENT_MD5, contentMd5);
+        EasyMock.expectLastCall().once();
+
         ContentCopyMessage contentCopyMessage = new ContentCopyMessage();
         contentCopyMessage.setStoreId(storeId);
         contentCopyMessage.setSourceSpaceId(srcSpaceId);
@@ -145,6 +153,7 @@ public class ContentCopyMessageConverterTest {
         contentCopyMessage.setDestSpaceId(destSpaceId);
         contentCopyMessage.setDestContentId(destContentId);
         contentCopyMessage.setUsername(username);
+        contentCopyMessage.setContentMd5(contentMd5);
 
         EasyMock.replay(mapMsg, session);
 

@@ -61,6 +61,8 @@ public class IngestMessageConverterTest {
         String contentId = "contentId";
         String mimeType = "mimeType";
         String username = "username";
+        long contentSize = 1234;
+        String contentMd5 = "contentMd5";
 
         MapMessage msg = EasyMock.createMock("MapMessage",
                                              MapMessage.class);
@@ -80,6 +82,12 @@ public class IngestMessageConverterTest {
         msg.getString(IngestMessageConverter.USERNAME);
         EasyMock.expectLastCall().andReturn(username);
 
+        msg.getString(IngestMessageConverter.CONTENT_MD5);
+        EasyMock.expectLastCall().andReturn(contentMd5);
+
+        msg.getLong(IngestMessageConverter.CONTENT_SIZE);
+        EasyMock.expectLastCall().andReturn(contentSize);
+
         EasyMock.replay(msg);
         Object obj = ingestMessageConverter.fromMessage(msg);
         EasyMock.verify(msg);
@@ -93,6 +101,8 @@ public class IngestMessageConverterTest {
         assertEquals(contentId, ingestMessage.getContentId());
         assertEquals(mimeType, ingestMessage.getContentMimeType());
         assertEquals(username, ingestMessage.getUsername());
+        assertEquals(contentMd5, ingestMessage.getContentMd5());
+        assertEquals(contentSize, ingestMessage.getContentSize());
     }
 
     @Test
@@ -102,6 +112,8 @@ public class IngestMessageConverterTest {
         String contentId = "contentId";
         String mimeType = "mimeType";
         String username = "username";
+        long contentSize = 1234;
+        String contentMd5 = "contentMd5";
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
                                                 MapMessage.class);
@@ -129,12 +141,20 @@ public class IngestMessageConverterTest {
         mapMsg.setString(IngestMessageConverter.USERNAME, username);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setString(IngestMessageConverter.CONTENT_MD5, contentMd5);
+        EasyMock.expectLastCall().once();
+
+        mapMsg.setLong(IngestMessageConverter.CONTENT_SIZE, contentSize);
+        EasyMock.expectLastCall().once();
+
         IngestMessage ingestMessage = new IngestMessage();
         ingestMessage.setStoreId(storeId);
         ingestMessage.setSpaceId(spaceId);
         ingestMessage.setContentId(contentId);
         ingestMessage.setContentMimeType(mimeType);
         ingestMessage.setUsername(username);
+        ingestMessage.setContentSize(contentSize);
+        ingestMessage.setContentMd5(contentMd5);
 
         EasyMock.replay(mapMsg);
         EasyMock.replay(session);

@@ -59,6 +59,7 @@ public class ContentCopyAdviceTest {
         msg.setDestSpaceId(null);
         msg.setDestContentId(null);
         msg.setUsername(null);
+        msg.setContentMd5(null);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -100,6 +101,7 @@ public class ContentCopyAdviceTest {
         msg.setDestSpaceId(id);
         msg.setDestContentId(id);
         msg.setUsername(id);
+        msg.setContentMd5(id);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -124,7 +126,7 @@ public class ContentCopyAdviceTest {
         contentCopyAdvice.setDestination(destination);
         contentCopyAdvice.setSecurityContextUtil(securityContextUtil);
         Object[] idObj = new Object[]{null, id, id, id, id, id};
-        contentCopyAdvice.afterReturning(null, null, idObj, null);
+        contentCopyAdvice.afterReturning(id, null, idObj, null);
         ContentCopyMessage capturedMessage = messageCapture.getValue();
         assertEquals(msg, capturedMessage);
 

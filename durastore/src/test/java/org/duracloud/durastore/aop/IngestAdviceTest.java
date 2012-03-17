@@ -52,11 +52,14 @@ public class IngestAdviceTest {
     @Test
     public void testNullDestination() throws Throwable {
         IngestMessage msg = new IngestMessage();
+        long size = -1;
         msg.setStoreId(null);
         msg.setSpaceId(null);
         msg.setContentId(null);
         msg.setContentMimeType(null);
         msg.setUsername(null);
+        msg.setContentMd5(null);
+        msg.setContentSize(size);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -77,8 +80,18 @@ public class IngestAdviceTest {
         ingestAdvice.setJmsTemplate(jmsTemplate);
         ingestAdvice.setDestination(destination);
         ingestAdvice.setSecurityContextUtil(securityContextUtil);
-        ingestAdvice.afterReturning(null, null,
-                                         new Object[]{null,null,null,null,null}, null);
+        ingestAdvice.afterReturning(null,
+                                    null,
+                                    new Object[]{null,
+                                                 null,
+                                                 null,
+                                                 null,
+                                                 null,
+                                                 null,
+                                                 size,
+                                                 null,
+                                                 null},
+                                    null);
 
         EasyMock.verify(jmsTemplate, securityContextUtil);
     }
@@ -88,11 +101,14 @@ public class IngestAdviceTest {
         String id = "1";
 
         IngestMessage msg = new IngestMessage();
+        long size = 1234;
         msg.setStoreId(id);
         msg.setSpaceId(id);
         msg.setContentId(id);
         msg.setContentMimeType(id);
         msg.setUsername(id);
+        msg.setContentMd5(id);
+        msg.setContentSize(size);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -114,8 +130,18 @@ public class IngestAdviceTest {
         ingestAdvice.setJmsTemplate(jmsTemplate);
         ingestAdvice.setDestination(destination);
         ingestAdvice.setSecurityContextUtil(securityContextUtil);
-        ingestAdvice.afterReturning(null, null,
-                                         new Object[]{null,id,id,id,id}, null);
+        ingestAdvice.afterReturning(id,
+                                    null,
+                                    new Object[]{null,
+                                                 id,
+                                                 id,
+                                                 id,
+                                                 id,
+                                                 id,
+                                                 size,
+                                                 id,
+                                                 id},
+                                    null);
 
         EasyMock.verify(jmsTemplate, securityContextUtil);
     }

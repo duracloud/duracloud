@@ -32,6 +32,10 @@ public class IngestMessageConverter
 
     protected static final String USERNAME = "username";
 
+    protected static final String CONTENT_SIZE = "contentSize";
+
+    protected static final String CONTENT_MD5= "contentMd5";
+
     public Object fromMessage(Message msg) throws JMSException,
             MessageConversionException {
         if (!(msg instanceof MapMessage)) {
@@ -47,6 +51,8 @@ public class IngestMessageConverter
         ingestMsg.setContentMimeType(mapMsg.getString(MIMETYPE));
         ingestMsg.setSpaceId(mapMsg.getString(SPACE_ID));
         ingestMsg.setUsername(mapMsg.getString(USERNAME));
+        ingestMsg.setContentSize(mapMsg.getLong(CONTENT_SIZE));
+        ingestMsg.setContentMd5(mapMsg.getString(CONTENT_MD5));
         return ingestMsg;
     }
 
@@ -66,6 +72,8 @@ public class IngestMessageConverter
         msg.setString(MIMETYPE, ingestMsg.getContentMimeType());
         msg.setString(SPACE_ID, ingestMsg.getSpaceId());
         msg.setString(USERNAME, ingestMsg.getUsername());
+        msg.setLong(CONTENT_SIZE, ingestMsg.getContentSize());
+        msg.setString(CONTENT_MD5, ingestMsg.getContentMd5());
         return msg;
     }
 

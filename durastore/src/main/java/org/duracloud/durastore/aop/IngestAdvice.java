@@ -15,12 +15,11 @@ public class IngestAdvice extends BaseContentStoreAdvice {
     private final Logger log = LoggerFactory.getLogger(IngestAdvice.class);
 
     protected static final int STORE_ID_INDEX = 1;
-
     protected static final int SPACE_ID_INDEX = 2;
-
     protected static final int CONTENT_ID_INDEX = 3;
-
     protected static final int MIMETYPE_INDEX = 4;
+    protected static final int CONTENT_SIZE_INDEX = 6;    
+    protected static final int CONTENT_MD5_INDEX = 9;
 
     @Override
     protected Logger log() {
@@ -34,6 +33,8 @@ public class IngestAdvice extends BaseContentStoreAdvice {
         String contentMimeType = getMimeType(methodArgs);
         String spaceId = getSpaceId(methodArgs);
         String username = getCurrentUsername();
+        String contentMd5 = getContentMd5(methodArgs);
+        Long contentSize = getContentSize(methodArgs);
 
         IngestMessage msg = new IngestMessage();
         msg.setStoreId(storeId);
@@ -41,6 +42,8 @@ public class IngestAdvice extends BaseContentStoreAdvice {
         msg.setContentMimeType(contentMimeType);
         msg.setSpaceId(spaceId);
         msg.setUsername(username);
+        msg.setContentSize(contentSize);
+        msg.setContentMd5(contentMd5);
 
         return msg;
     }
@@ -63,6 +66,16 @@ public class IngestAdvice extends BaseContentStoreAdvice {
     private String getSpaceId(Object[] methodArgs) {
         log.debug("Returning 'spaceId' at index: " + SPACE_ID_INDEX);
         return (String) methodArgs[SPACE_ID_INDEX];
+    }
+
+    private long getContentSize(Object[] methodArgs) {
+        log.debug("Returning 'contentSize' at index: " + CONTENT_SIZE_INDEX);
+        return (Long) methodArgs[CONTENT_SIZE_INDEX];
+    }
+
+    private String getContentMd5(Object[] methodArgs) {
+        log.debug("Returning 'contentMd5' at index: " + CONTENT_MD5_INDEX);
+        return (String) methodArgs[CONTENT_MD5_INDEX];
     }
 
 }

@@ -19,6 +19,7 @@ public class ContentCopyAdvice extends BaseContentStoreAdvice {
     protected static final int SOURCE_CONTENT_ID_INDEX = 3;
     protected static final int DEST_SPACE_ID_INDEX = 4;
     protected static final int DEST_CONTENT_ID_INDEX = 5;
+    protected static final int CONTENT_MD5_INDEX = 6;
 
     @Override
     protected Logger log() {
@@ -33,6 +34,7 @@ public class ContentCopyAdvice extends BaseContentStoreAdvice {
         String destSpaceId = getDestSpaceId(methodArgs);
         String destContentId = getDestContentId(methodArgs);
         String username = getCurrentUsername();
+        String contentMd5 = getContentMd5(methodArgs);
 
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(storeId);
@@ -41,6 +43,7 @@ public class ContentCopyAdvice extends BaseContentStoreAdvice {
         msg.setDestSpaceId(destSpaceId);
         msg.setDestContentId(destContentId);
         msg.setUsername(username);
+        msg.setContentMd5(contentMd5);
 
         return msg;
     }
@@ -72,6 +75,11 @@ public class ContentCopyAdvice extends BaseContentStoreAdvice {
         log.debug("Returning destination 'contentId' at index: " +
                   DEST_CONTENT_ID_INDEX);
         return (String) methodArgs[DEST_CONTENT_ID_INDEX];
+    }
+
+    private String getContentMd5(Object[] methodArgs) {
+        log.debug("Returning 'contentMd5' at index: " + CONTENT_MD5_INDEX);
+        return (String) methodArgs[CONTENT_MD5_INDEX];
     }
 
 }

@@ -16,6 +16,8 @@ public class IngestMessage extends ContentStoreMessage {
 
     private String contentId;
     private String contentMimeType;
+    private String contentMd5;
+    private long contentSize;
 
     @Override
     public String toString() {
@@ -25,6 +27,8 @@ public class IngestMessage extends ContentStoreMessage {
         sb.append("|contentId:'" + contentId + "'");
         sb.append("|mime:'" + contentMimeType + "'");
         sb.append("|username:'" + getUsername() + "'");
+        sb.append("|contentMd5:'" + contentMd5 + "'");
+        sb.append("|contentSize:'" + contentSize + "'");
         sb.append("]\n");
         return sb.toString();
     }
@@ -45,4 +49,19 @@ public class IngestMessage extends ContentStoreMessage {
         this.contentMimeType = contentMimeType;
     }
 
+    public String getContentMd5() {
+        return contentMd5;
+    }
+
+    public void setContentMd5(String contentMd5) {
+        this.contentMd5 = contentMd5;
+    }
+
+    public long getContentSize() {
+        return contentSize;
+    }
+
+    public void setContentSize(long contentSize) {
+        this.contentSize = contentSize;
+    }
 }

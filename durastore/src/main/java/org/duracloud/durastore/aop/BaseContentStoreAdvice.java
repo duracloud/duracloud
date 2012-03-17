@@ -17,6 +17,7 @@ import org.springframework.jms.core.JmsTemplate;
 
 import javax.jms.Destination;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * This class provides common capabilities for all ContentStore AOP advice.
@@ -41,7 +42,10 @@ public abstract class BaseContentStoreAdvice implements AfterReturningAdvice, Or
             doLogging(returnObj, method, methodArgs, targetObj);
         }
 
-        publishEvent(createMessage(methodArgs));
+        Object[] argsPlus = Arrays.copyOf(methodArgs, methodArgs.length + 1);
+        argsPlus[argsPlus.length - 1] = returnObj;
+        
+        publishEvent(createMessage(argsPlus));
     }
 
     /**
@@ -71,7 +75,7 @@ public abstract class BaseContentStoreAdvice implements AfterReturningAdvice, Or
         String pre1 = pre0 + "--";
         String pre2 = pre1 + "--";
 
-        log().debug(pre0 + "advice: publish to ingest topic");
+        log().debug(pre0 + "advice: publish to content store topic");
         if (targetObj != null && targetObj.getClass() != null) {
             log().debug(pre1 + "object: " + targetObj.getClass().getName());
         }

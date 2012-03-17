@@ -25,34 +25,60 @@ public class IngestMessageEquals implements IArgumentMatcher {
 
         boolean matches = true;
 
-        if(ingestMessage.getSpaceId() != null)
+        if (ingestMessage.getSpaceId() != null) {
             matches = ingestMessage.getSpaceId().equals(message.getSpaceId());
-        else if(message.getSpaceId() != null)
+        } else if (message.getSpaceId() != null) {
             return false;
+        }
 
-        if(!matches)
+        if (!matches) {
             return false;
+        }
 
-        if(ingestMessage.getStoreId() != null)
+        if (ingestMessage.getStoreId() != null) {
             matches = ingestMessage.getStoreId().equals(message.getStoreId());
-        else if(message.getStoreId() != null)
+        } else if (message.getStoreId() != null) {
             return false;
+        }
 
-        if(!matches)
+        if (!matches) {
             return false;
+        }
 
-        if(ingestMessage.getContentId() != null)
-            matches = ingestMessage.getContentId().equals(message.getContentId());
-        else if(message.getContentId() != null)
+        if (ingestMessage.getContentId() != null) {
+            matches =
+                ingestMessage.getContentId().equals(message.getContentId());
+        } else if (message.getContentId() != null) {
             return false;
+        }
 
-        if(!matches)
+        if (!matches) {
             return false;
+        }
 
-        if(ingestMessage.getContentMimeType() != null)
-            matches = ingestMessage.getContentMimeType().equals(message.getContentMimeType());
-        else if(message.getContentMimeType() != null)
+        if (ingestMessage.getContentMimeType() != null) {
+            matches = ingestMessage.getContentMimeType()
+                                   .equals(message.getContentMimeType());
+        } else if (message.getContentMimeType() != null) {
             return false;
+        }
+
+        if (!matches) {
+            return false;
+        }
+
+        if (ingestMessage.getContentMd5() != null) {
+            matches =
+                ingestMessage.getContentMd5().equals(message.getContentMd5());
+        } else if (message.getContentMd5() != null) {
+            return false;
+        }
+
+        if (!matches) {
+            return false;
+        }
+
+        matches = ingestMessage.getContentSize() == message.getContentSize();
 
         return matches;
     }
@@ -68,6 +94,10 @@ public class IngestMessageEquals implements IArgumentMatcher {
         buffer.append(ingestMessage.getContentId());
         buffer.append("\" and with mime type \"");
         buffer.append(ingestMessage.getContentMimeType());
+        buffer.append("\" and with content size\"");
+        buffer.append(ingestMessage.getContentSize());
+        buffer.append("\" and with content MD5 \"");
+        buffer.append(ingestMessage.getContentMd5());
         buffer.append("\")");
     }
 
