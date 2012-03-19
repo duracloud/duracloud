@@ -19,6 +19,10 @@
     <constructor-arg ref="restUtil"/>
   </bean>
 
+  <bean id="auditRest" class="org.duracloud.duraboss.rest.audit.AuditRest" >
+    <constructor-arg ref="auditResource"/>
+  </bean>
+
   <bean id="initRest" class="org.duracloud.duraboss.rest.InitRest" >
     <constructor-arg ref="storageResource"/>
     <constructor-arg ref="serviceResource"/>
@@ -28,6 +32,7 @@
     <constructor-arg ref="report-space"/>
     <constructor-arg ref="notificationManager"/>
     <constructor-arg ref="executor"/>
+    <constructor-arg ref="auditor"/>
   </bean>
 
   <bean id="securityRest" class="org.duracloud.duraboss.rest.SecurityRest">
@@ -60,6 +65,15 @@
         <bean class="org.duracloud.exec.handler.MediaStreamingHandler"/>
       </list>
     </constructor-arg>
+  </bean>
+
+  <bean id="auditResource" class="org.duracloud.duraboss.rest.audit.AuditResource">
+    <constructor-arg ref="auditor"/>
+  </bean>
+
+  <bean id="auditor" class="org.duracloud.audit.impl.AuditorImpl">
+    <constructor-arg value="x-duracloud-admin"/>
+    <constructor-arg value="audit/storage-audit-log-"/>
   </bean>
 
   <bean id="summaryDirectory" class="org.duracloud.servicemonitor.impl.ServiceSummaryDirectoryImpl">

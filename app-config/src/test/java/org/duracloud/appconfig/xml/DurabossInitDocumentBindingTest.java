@@ -45,6 +45,7 @@ public class DurabossInitDocumentBindingTest {
         DurabossConfig config = new DurabossConfig();
         config.setReporterEnabled(false);
         config.setExecutorEnabled(false);
+        config.setAuditorEnabled(false);
         config.setDurastoreHost(durastoreHost);
         config.setDurastorePort(durastorePort);
         config.setDurastoreContext(durastoreContext);
@@ -73,6 +74,7 @@ public class DurabossInitDocumentBindingTest {
         // Verify results
         assertFalse(config.isReporterEnabled());
         assertFalse(config.isExecutorEnabled());
+        assertFalse(config.isAuditorEnabled());
         assertEquals(config.getDurastoreHost(),
                      trippedConfig.getDurastoreHost());
         assertEquals(config.getDurastorePort(),

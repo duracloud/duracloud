@@ -87,6 +87,7 @@
         <module>reportdata</module>
         <module>reporter</module>
         <module>executor</module>
+        <module>auditor</module>
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>

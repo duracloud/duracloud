@@ -57,6 +57,10 @@ public class BaseRest {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    protected Response responseNotFound(String msg) {
+        return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
+    }
+
     protected Response responseBadRequest(Exception e) {
         return responseBad(e, Response.Status.BAD_REQUEST);
     }

@@ -37,7 +37,7 @@ public class InitRestTest {
         serviceResource = EasyMock.createMock(ServiceReportResource.class);
         restUtil = EasyMock.createMock(RestUtil.class);
         initRest = new InitRest(storageResource, serviceResource,
-                                null, null, restUtil, null, null, null);
+                                null, null, restUtil, null, null, null, null);
     }
 
     private void replayMocks() {

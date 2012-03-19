@@ -9,6 +9,7 @@ package org.duracloud.duraboss.rest;
 
 import org.duracloud.appconfig.domain.DurabossConfig;
 import org.duracloud.appconfig.xml.DurabossInitDocumentBinding;
+import org.duracloud.audit.Auditor;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.client.ServicesManagerImpl;
@@ -53,6 +54,7 @@ public class InitRest extends BaseRest {
     private String reportSpaceId;
     private NotificationManager notificationManager;
     private Executor executor;
+    private Auditor auditor;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
@@ -61,7 +63,8 @@ public class InitRest extends BaseRest {
                     RestUtil restUtil,
                     String reportSpaceId,
                     NotificationManager notificationManager,
-                    Executor executor) {
+                    Executor executor,
+                    Auditor auditor) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
         this.summaryDirectory = summaryDirectory;
@@ -70,6 +73,7 @@ public class InitRest extends BaseRest {
         this.reportSpaceId = reportSpaceId;
         this.notificationManager = notificationManager;
         this.executor = executor;
+        this.auditor = auditor;
     }
 
     /**
@@ -129,6 +133,11 @@ public class InitRest extends BaseRest {
         if(config.isExecutorEnabled()) {
             executor.initialize(storeMgr, servicesMgr);
         }
+
+        // Only initialize the Auditor if it is enabled
+        if (config.isAuditorEnabled()) {
+            auditor.initialize(storeMgr);
+        } 
     }
 
     @GET

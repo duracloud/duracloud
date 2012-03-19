@@ -32,6 +32,10 @@ public class DurabossConfigTest {
     private String notifyPassword = "notifyPass";
     private String notifyOriginator = "notifyOriginator";
 
+    private Boolean reporterEnabled = Boolean.FALSE;
+    private Boolean executorEnabled = Boolean.FALSE;
+    private Boolean auditorEnabled = Boolean.FALSE;
+
     @Test
     public void testLoad() {
         DurabossConfig config = new DurabossConfig();
@@ -64,6 +68,16 @@ public class DurabossConfigTest {
                       DurabossConfig.notificationOriginatorKey,
                   notifyOriginator);
 
+        props.put(p + DurabossConfig.reporterKey + "." +
+                      DurabossConfig.enabledKey,
+                  reporterEnabled.toString());
+        props.put(p + DurabossConfig.executorKey + "." +
+                      DurabossConfig.enabledKey,
+                  executorEnabled.toString());
+        props.put(p + DurabossConfig.auditorKey + "." +
+                      DurabossConfig.enabledKey,
+                  auditorEnabled.toString());
+
         return props;
     }
 
@@ -92,6 +106,10 @@ public class DurabossConfigTest {
         Assert.assertEquals(notifyUsername, notifyConfig.getUsername());
         Assert.assertEquals(notifyPassword, notifyConfig.getPassword());
         Assert.assertEquals(notifyOriginator, notifyConfig.getOriginator());
+
+        Assert.assertEquals(reporterEnabled, config.isReporterEnabled());
+        Assert.assertEquals(executorEnabled, config.isExecutorEnabled());
+        Assert.assertEquals(auditorEnabled, config.isAuditorEnabled());
     }
 
 }
