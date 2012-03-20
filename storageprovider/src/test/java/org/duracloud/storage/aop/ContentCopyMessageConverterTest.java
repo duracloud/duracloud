@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.aop;
+package org.duracloud.storage.aop;
 
 import org.easymock.EasyMock;
 import org.junit.Before;

@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.storage.aop.SpaceMessage;
 import org.easymock.IArgumentMatcher;
 import org.easymock.EasyMock;
 

@@ -5,12 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.aop;
+package org.duracloud.storage.aop;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
+import org.duracloud.durastore.aop.MessagingTestSupport;
 import org.duracloud.durastore.rest.RestTestHelper;
+import org.duracloud.storage.aop.ContentMessageConverter;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;

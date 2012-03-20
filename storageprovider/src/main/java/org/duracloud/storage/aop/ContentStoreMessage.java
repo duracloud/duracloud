@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.aop;
+package org.duracloud.storage.aop;
 
 /**
  * This bean holds to common elements for all ContentStore AOP messages.

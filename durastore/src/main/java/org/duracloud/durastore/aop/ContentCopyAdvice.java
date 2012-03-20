@@ -7,6 +7,8 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.storage.aop.ContentCopyMessage;
+import org.duracloud.storage.aop.ContentStoreMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -5,44 +5,43 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.aop;
+package org.duracloud.storage.aop;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
-import org.duracloud.durastore.rest.BaseRest;
+import org.duracloud.durastore.aop.MessagingTestSupport;
 import org.duracloud.durastore.rest.RestTestHelper;
+import org.duracloud.storage.aop.IngestMessageConverter;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.Session;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * <pre>
  *
- * This test exercises three elements of the update flow:
- * 1. actual content update
- * 2. aop publishing update event to topic
+ * This test exercises three elements of the ingest flow:
+ * 1. actual content ingest
+ * 2. aop publishing ingest event to topic
  * 3. topic consumer asynchronously receiving the event
  *
  * </pre>
+ *
+ * @author Andrew Woods
  */
-public class TestContentUpdateAdvice
+public class TestIngestAdvice
         extends MessagingTestSupport
         implements MessageListener {
 
@@ -64,7 +63,7 @@ public class TestContentUpdateAdvice
 
     static {
         String random = String.valueOf(new Random().nextInt(99999));
-        spaceId = "update-advice-test-space-" + random;
+        spaceId = "ingest-advice-test-space-" + random;
     }
 
     @BeforeClass
@@ -85,9 +84,9 @@ public class TestContentUpdateAdvice
     public void setUp() throws Exception {
         conn = createConnection();
         session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        destination = createDestination(contentUpdateTopicName);
+        destination = createDestination(ingestTopicName);
         received = false;
-    }
+    }    
 
     @After
     public void tearDown() throws Exception {
@@ -113,24 +112,42 @@ public class TestContentUpdateAdvice
     }
 
     @Test
-    public void testUpdateEventSelectorFail() throws Exception {
+    public void testIngestEventFail() throws Exception {
         boolean successful = false;
-        String selector = SpaceMessageConverter.STORE_ID + " = 'invalidStoreId'";
-        doTestUpdateSelectorEvent(selector, successful);
+        doTestIngestEvent(successful);
     }
 
     @Test
-    public void testUpdateEventSelectorPass() throws Exception {
+    public void testIngestEventPass() throws Exception {
         boolean successful = true;
-        // Store ID 1 is the ID for the default storage provider (Amazon S3)
-        String selector = SpaceMessageConverter.STORE_ID + " = '1'";
-        doTestUpdateSelectorEvent(selector, successful);
+        doTestIngestEvent(successful);
     }
 
-    private void doTestUpdateSelectorEvent(String selector,
+    private void doTestIngestEvent(boolean successful) throws Exception {
+        createEventListener(null);
+        publishIngestEvent(successful);
+        verifyEventHeard(successful);
+    }
+
+    @Test
+    public void testIngestEventSelectorFail() throws Exception {
+        boolean successful = false;
+        String selector = IngestMessageConverter.STORE_ID + " = 'invalidStoreId'";
+        doTestIngestSelectorEvent(selector, successful);
+    }
+
+    @Test
+    public void testIngestEventSelectorPass() throws Exception {
+        boolean successful = true;
+        // Store ID 1 is the ID for the default storage provider (Amazon S3)
+        String selector = IngestMessageConverter.STORE_ID + " = '1'";
+        doTestIngestSelectorEvent(selector, successful);
+    }
+
+    private void doTestIngestSelectorEvent(String selector,
                                            boolean successful) throws Exception {
         createEventListener(selector);
-        publishUpdateEvent(true);
+        publishIngestEvent(true);
         verifyEventHeard(successful);
     }
 
@@ -148,32 +165,14 @@ public class TestContentUpdateAdvice
         conn.start();
     }
 
-    private void publishUpdateEvent(boolean successful) throws Exception {
-        // Add content
+    private void publishIngestEvent(boolean successful) throws Exception {
         String suffix = "/" + spaceId + "/contentGOOD";
-        String url = RestTestHelper.getBaseUrl() + suffix;
-        HttpResponse response = restHelper.put(url, CONTENT, null);
-        int statusCode = response.getStatusCode();
-        String responseText = response.getResponseBody();
-        Assert.assertEquals(responseText, HttpStatus.SC_CREATED, statusCode);
-
         if (!successful) {
             suffix = "/" + spaceId + "-invalid-space-id/contentBAD";
-            url = RestTestHelper.getBaseUrl() + suffix;
         }
 
-        // Update properties
-        Map<String, String> headers = new HashMap<String, String>();
-        String newContentMime = "text/plain";
-        headers.put(HttpHeaders.CONTENT_TYPE, newContentMime);
-        String newMetaName = BaseRest.HEADER_PREFIX + "new-properties";
-        String newMetaValue = "New Properties Value";
-        headers.put(newMetaName, newMetaValue);
-        
-        response = restHelper.post(url, null, headers);
-        statusCode = response.getStatusCode();
-        responseText = response.getResponseBody();
-        Assert.assertEquals(responseText, HttpStatus.SC_OK, statusCode);
+        String url = RestTestHelper.getBaseUrl() + suffix;
+        restHelper.put(url, CONTENT, null);
     }
 
     private void verifyEventHeard(boolean successful) throws Exception {

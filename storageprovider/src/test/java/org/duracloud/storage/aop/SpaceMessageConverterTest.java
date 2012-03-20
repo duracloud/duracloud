@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.aop;
+package org.duracloud.storage.aop;
 
 import org.easymock.EasyMock;
 import org.junit.Before;
@@ -21,12 +21,12 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
-public class ContentMessageConverterTest {
-    private ContentMessageConverter contentMessageConverter;
+public class SpaceMessageConverterTest {
+    private SpaceMessageConverter spaceMessageConverter;
 
     @Before
     public void setUp() throws Exception {
-        contentMessageConverter = new ContentMessageConverter();
+        spaceMessageConverter = new SpaceMessageConverter();
     }
 
     @Test
@@ -35,7 +35,7 @@ public class ContentMessageConverterTest {
             Message msg = EasyMock.createMock("Message",
                                               Message.class);
 
-            contentMessageConverter.fromMessage(msg);
+            spaceMessageConverter.fromMessage(msg);
             assertTrue(false);
 
         } catch(MessageConversionException mce) {
@@ -46,7 +46,7 @@ public class ContentMessageConverterTest {
     @Test
     public void testToConversionException() throws JMSException {
         try{
-            contentMessageConverter.toMessage((Object) "", null);
+            spaceMessageConverter.toMessage((Object) "", null);
             assertTrue(false);
 
         } catch(MessageConversionException mce) {
@@ -58,43 +58,37 @@ public class ContentMessageConverterTest {
     public void testFromMessage() throws JMSException {
         String storeId = "storeId";
         String spaceId = "spaceId";
-        String contentId = "contentId";
         String username = "username";
-
+        
         MapMessage msg = EasyMock.createMock("MapMessage",
                                              MapMessage.class);
 
-        msg.getStringProperty(ContentMessageConverter.STORE_ID);
+        msg.getStringProperty(SpaceMessageConverter.STORE_ID);
         EasyMock.expectLastCall().andReturn(storeId);
 
-        msg.getString(ContentMessageConverter.SPACE_ID);
+        msg.getString(SpaceMessageConverter.SPACE_ID);
         EasyMock.expectLastCall().andReturn(spaceId);
 
-        msg.getString(ContentMessageConverter.CONTENT_ID);
-        EasyMock.expectLastCall().andReturn(contentId);
-
-        msg.getString(ContentMessageConverter.USERNAME);
+        msg.getString(SpaceMessageConverter.USERNAME);
         EasyMock.expectLastCall().andReturn(username);
 
         EasyMock.replay(msg);
-        Object obj = contentMessageConverter.fromMessage(msg);
+        Object obj = spaceMessageConverter.fromMessage(msg);
         EasyMock.verify(msg);
 
         assertNotNull(obj);
-        assertTrue(obj instanceof ContentMessage);
+        assertTrue(obj instanceof SpaceMessage);
 
-        ContentMessage contentMessage = (ContentMessage) obj;
-        assertEquals(storeId, contentMessage.getStoreId());
-        assertEquals(spaceId, contentMessage.getSpaceId());
-        assertEquals(contentId, contentMessage.getContentId());
-        assertEquals(username, contentMessage.getUsername());
+        SpaceMessage spaceMessage = (SpaceMessage) obj;
+        assertEquals(storeId, spaceMessage.getStoreId());
+        assertEquals(spaceId, spaceMessage.getSpaceId());
+        assertEquals(username, spaceMessage.getUsername());
     }
 
     @Test
     public void testToMessage() throws JMSException {
         String storeId = "storeId";
         String spaceId = "spaceId";
-        String contentId = "contentId";
         String username = "username";
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
@@ -105,29 +99,25 @@ public class ContentMessageConverterTest {
         session.createMapMessage();
         EasyMock.expectLastCall().andReturn(mapMsg);
 
-        mapMsg.setStringProperty(ContentMessageConverter.STORE_ID, storeId);
+        mapMsg.setStringProperty(SpaceMessageConverter.STORE_ID, storeId);
         EasyMock.expectLastCall().once();
 
-        mapMsg.setString(ContentMessageConverter.SPACE_ID, spaceId);
+        mapMsg.setString(SpaceMessageConverter.SPACE_ID, spaceId);
         EasyMock.expectLastCall().once();
 
-        mapMsg.setString(ContentMessageConverter.CONTENT_ID, contentId);
+        mapMsg.setString(SpaceMessageConverter.USERNAME, username);
         EasyMock.expectLastCall().once();
 
-        mapMsg.setString(ContentMessageConverter.USERNAME, username);
-        EasyMock.expectLastCall().once();
-
-        ContentMessage contentMessage = new ContentMessage();
-        contentMessage.setStoreId(storeId);
-        contentMessage.setSpaceId(spaceId);
-        contentMessage.setContentId(contentId);
-        contentMessage.setUsername(username);
+        SpaceMessage spaceMessage = new SpaceMessage();
+        spaceMessage.setStoreId(storeId);
+        spaceMessage.setSpaceId(spaceId);
+        spaceMessage.setUsername(username);
 
         EasyMock.replay(mapMsg);
         EasyMock.replay(session);
-        Message msg = contentMessageConverter.toMessage((Object)contentMessage,
+        Message msg = spaceMessageConverter.toMessage((Object)spaceMessage,
                                                       session);
-        EasyMock.verify(mapMsg);
+        EasyMock.verify(mapMsg);        
         EasyMock.verify(session);
 
         assertNotNull(msg);

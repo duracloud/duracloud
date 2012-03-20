@@ -9,6 +9,7 @@ package org.duracloud.durastore.aop;
 
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.context.SecurityContextUtil;
+import org.duracloud.storage.aop.ContentMessage;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;

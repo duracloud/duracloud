@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.durastore.aop;
+package org.duracloud.storage.aop;
 
 import junit.framework.TestCase;
 import org.duracloud.common.web.RestHttpHelper;

@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.storage.aop.IngestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
