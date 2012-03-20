@@ -189,7 +189,7 @@ public abstract class BaseServiceHandler implements ServiceHandler {
                 IOUtil.readStringFromStream(contentItem.getStream());
             state = SerializationUtil.deserializeMap(serializedMap);
         } catch(ContentStoreException e) {
-            log.warn("Could not get handler state from file " + stateFileName +
+            log.info("Could not get handler state from file " + stateFileName +
                      " due to ContentStoreException: " + e.getMessage());
             state = new HashMap<String, String>();
         } catch(IOException e) {
@@ -231,6 +231,16 @@ public abstract class BaseServiceHandler implements ServiceHandler {
                            " due to ContentStoreException: " + e.getMessage();
             throw new DuraCloudRuntimeException(error);
         }
+    }
+
+    /**
+     * Clears state information for a handler.
+     *
+     * @param stateFileName the name of the file to clear
+     */
+    public void clearState(String stateFileName) {
+        Map<String, String> state = new HashMap<String, String>();
+        storeState(stateFileName, state);
     }
 
 }

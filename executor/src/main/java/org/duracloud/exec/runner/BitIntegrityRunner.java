@@ -25,9 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author: Bill Branan
@@ -41,6 +45,8 @@ public class BitIntegrityRunner implements Runnable {
 
     protected static final String HANDLER_STATE_FILE =
         "bit-integrity-handler-state.xml";
+    protected static final String STATE_STORE_ID = "store-id";
+    protected static final String STATE_SPACE_ID = "space-id";
 
     private final Logger log =
         LoggerFactory.getLogger(BitIntegrityRunner.class);
@@ -79,16 +85,34 @@ public class BitIntegrityRunner implements Runnable {
     @Override
     public void run() {
         running = true;
+
+        Map<String, String> state = handler.getState(HANDLER_STATE_FILE);
+        String stateStoreId = state.get(STATE_STORE_ID);
+        String stateSpaceId = state.get(STATE_SPACE_ID);
+
         try {
             Map<String, ContentStore> contentStores =
                 storeMgr.getContentStores();
-            ContentStore primary = storeMgr.getPrimaryContentStore();
-            for(ContentStore store : contentStores.values()) {
-                if(running) {
-                    if(store.getStoreId().equals(primary.getStoreId())) {
-                        runPrimaryBitIntegrityCheck(store);
-                    } else {
-                        runSecondaryBitIntegrityCheck(store);
+
+            if(!contentStores.isEmpty()) {
+                // Sort the stores (for consistency), and find the state store
+                Set<String> keySet = contentStores.keySet();
+                String[] keys = keySet.toArray(new String[keySet.size()]);
+                Arrays.sort(keys);
+                int startIndex = 0;
+                if(null != stateStoreId && keySet.contains(stateStoreId)) {
+                    startIndex = Arrays.binarySearch(keys, stateStoreId);
+                }
+
+                ContentStore primary = storeMgr.getPrimaryContentStore();
+                for(int i=startIndex; i<keys.length; i++) {
+                    if(running) {
+                        ContentStore store = contentStores.get(keys[i]);
+                        if(store.getStoreId().equals(primary.getStoreId())) {
+                            runPrimaryBitIntegrityCheck(store, stateSpaceId);
+                        } else {
+                            runSecondaryBitIntegrityCheck(store, stateSpaceId);
+                        }
                     }
                 }
             }
@@ -103,17 +127,19 @@ public class BitIntegrityRunner implements Runnable {
      * Verifies the bit integrity of all files in each space using both bit
      * integrity check methods.
      */
-    private void runPrimaryBitIntegrityCheck(ContentStore store) {
-        runBitIntegrityCheck(store, true);
-        runBitIntegrityCheck(store, false);
+    private void runPrimaryBitIntegrityCheck(ContentStore store,
+                                             String stateSpaceId) {
+        runBitIntegrityCheck(store, stateSpaceId, true);
+        runBitIntegrityCheck(store, stateSpaceId, false);
     }
 
     /*
      * Verifies the bit integrity of all files in each space using only the
      * checksum available from the storage provider.
      */
-    private void runSecondaryBitIntegrityCheck(ContentStore store) {
-        runBitIntegrityCheck(store, false);
+    private void runSecondaryBitIntegrityCheck(ContentStore store,
+                                               String stateSpaceId) {
+        runBitIntegrityCheck(store, stateSpaceId, false);
     }
 
     /*
@@ -124,24 +150,37 @@ public class BitIntegrityRunner implements Runnable {
       *    each file, then compare to checksums in the space manifest
       *
       * @param store storage provider in which to check content
+      * @param stateSpaceId Id of the space on which to start the run
       * @param download true if content should be downloaded to recompute
       *                 checksums, false if provider checksums should be used
      */
-    private void runBitIntegrityCheck(ContentStore store, boolean download) {
+    private void runBitIntegrityCheck(ContentStore store,
+                                      String stateSpaceId,
+                                      boolean download) {
         List<String> spaceIds = getSpaces(store);
         Collections.sort(spaceIds);
         int totalSpaces = spaceIds.size();
 
         List<String> failureList =
-            runBitIntegrityOnSpaces(store, download, spaceIds, totalSpaces, 0);
+            runBitIntegrityOnSpaces(store, download, spaceIds, stateSpaceId,
+                                    totalSpaces, 0, true);
 
-        // Retry any service runs which failed to complete
-        for(int i=0; i<3; i++) {
-            if(!failureList.isEmpty()) {
-                int checkedSpaces = totalSpaces - failureList.size();
-                failureList =
-                    runBitIntegrityOnSpaces(store, download, failureList,
-                                            totalSpaces, checkedSpaces);
+        if(running) {
+            // Clear state (unless run was interrupted)
+            handler.clearState(HANDLER_STATE_FILE);
+
+            // Retry any service runs which failed to complete
+            for(int i=0; i<3; i++) {
+                if(!failureList.isEmpty()) {
+                    int checkedSpaces = totalSpaces - failureList.size();
+                    failureList = runBitIntegrityOnSpaces(store,
+                                                          download,
+                                                          failureList,
+                                                          null,
+                                                          totalSpaces,
+                                                          checkedSpaces,
+                                                          false);
+                }
             }
         }
 
@@ -162,18 +201,41 @@ public class BitIntegrityRunner implements Runnable {
     private List<String> runBitIntegrityOnSpaces(ContentStore store,
                                                  boolean download,
                                                  List<String> spaceIds,
+                                                 String stateSpaceId,
                                                  int totalSpaces,
-                                                 int checkedSpaces) {
+                                                 int checkedSpaces,
+                                                 boolean storeState) {
         int spacesChecked = checkedSpaces;
         String method = download?"downloaded files":"provider";
 
         List<String> failureList = new ArrayList<String>();
-        for(String spaceId : spaceIds) {
+
+        // Determine the correct position in the list to start
+        Iterator<String> spaceIdsIt;
+        if(null != stateSpaceId && spaceIds.contains(stateSpaceId)) {
+            int spaceIndex = spaceIds.indexOf(stateSpaceId);
+            spaceIdsIt = spaceIds.listIterator(spaceIndex);
+            if(spacesChecked == 0) {
+                spacesChecked = spaceIndex;
+            }
+        } else {
+            spaceIdsIt = spaceIds.iterator();
+        }
+
+        String spType = store.getStorageProviderType();
+        status = "Bit Integrity: Beginning check of " + totalSpaces +
+                 " in store " + spType + " using checksums from the " + method;
+
+        // Check bit integrity of each space
+        while(spaceIdsIt.hasNext()) {
+            String spaceId = spaceIdsIt.next();
             if(running) {
-                status = "Bit Integrity: " + spacesChecked + " spaces out of " +
-                         totalSpaces + " have been checked for store " +
-                         store.getStorageProviderType() + " using checksums " +
-                         "from the " + method;
+                if(storeState) {
+                    Map<String, String> state = new HashMap<String, String>();
+                    state.put(STATE_STORE_ID, store.getStoreId());
+                    state.put(STATE_SPACE_ID, spaceId);
+                    handler.storeState(HANDLER_STATE_FILE, state);
+                }
 
                 try {
                     runBitIntegrityOnSpace(store, download, spaceId);
@@ -189,6 +251,10 @@ public class BitIntegrityRunner implements Runnable {
                              "ServicesException: " + e.getMessage(), e);
                     failureList.add(spaceId);
                 }
+
+                status = "Bit Integrity: " + spacesChecked + " spaces out of " +
+                         totalSpaces + " have been checked for store " +
+                         spType + " using checksums from the " + method;
             }
         }
         return failureList;
@@ -273,12 +339,29 @@ public class BitIntegrityRunner implements Runnable {
                         SingleSelectUserConfig spaceConfigs =
                             (SingleSelectUserConfig)storeMode
                                 .getUserConfigs().get(0);
-                        for(Option spaceOption : spaceConfigs.getOptions()) {
+
+                        boolean optionFound = false;
+                        List<Option> spaceOptions = spaceConfigs.getOptions();
+                        for(Option spaceOption : spaceOptions) {
                             if(spaceId.equals(spaceOption.getValue())) {
+                                optionFound = true;
                                 spaceOption.setSelected(true);
                                 break;
                             }
                         }
+                        if(!optionFound) { // Space not found as an option
+                            // Space must have been created after the service
+                            // was deployed. Add the space as a new option.
+                            Option newOption =
+                                new Option(spaceId, spaceId, true);
+                            List<Option> updatedOptions =
+                                new ArrayList<Option>();
+                            updatedOptions.addAll(spaceOptions);
+                            updatedOptions.add(newOption);
+                            spaceConfigs.setOptions(updatedOptions);
+                        }
+                    } else {
+                        storeMode.setSelected(false);
                     }
                 }
             }

@@ -84,6 +84,12 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
      */
     @Test
     public void testRun() throws Exception {
+        Map<String, String> state = new HashMap<String, String>();
+        state.put(BitIntegrityRunner.STATE_STORE_ID, storeId);
+        state.put(BitIntegrityRunner.STATE_SPACE_ID, space1);
+        EasyMock.expect(handler.getState(BitIntegrityRunner.HANDLER_STATE_FILE))
+                .andReturn(state);
+
         Map<String, ContentStore> stores = new HashMap<String, ContentStore>();
         stores.put("", contentStore);
         EasyMock.expect(storeMgr.getContentStores())
@@ -99,7 +105,11 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
                 .andReturn(spaces).times(2);
 
         EasyMock.expect(contentStore.getStorageProviderType())
-                .andReturn("provider-type").times(4);
+                .andReturn("provider-type").times(2);
+
+        handler.storeState(EasyMock.eq(BitIntegrityRunner.HANDLER_STATE_FILE),
+                           EasyMock.isA(Map.class));
+        EasyMock.expectLastCall().times(4);
 
         EasyMock.expect(service.getUserConfigModeSets())
                 .andReturn(createConfig()).times(4);
@@ -124,6 +134,9 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
 
         // Space 2 - files checksum
         Capture<List<UserConfigModeSet>> configCapture4 = setUpDeploy(depId4);
+
+        handler.clearState(BitIntegrityRunner.HANDLER_STATE_FILE);
+        EasyMock.expectLastCall().times(2);
 
         replayMocks();
 
