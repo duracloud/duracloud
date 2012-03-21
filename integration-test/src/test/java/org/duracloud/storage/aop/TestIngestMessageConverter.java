@@ -8,8 +8,6 @@
 package org.duracloud.storage.aop;
 
 import org.duracloud.durastore.aop.MessagingTestSupport;
-import org.duracloud.storage.aop.IngestMessage;
-import org.duracloud.storage.aop.IngestMessageConverter;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -92,7 +90,8 @@ public class TestIngestMessageConverter
     public void testToMessage() throws Exception {
         MapMessage msg = (MapMessage) converter.toMessage(ingestMsg, session);
         assertNotNull(msg);
-        Assert.assertEquals(STORE_ID, msg.getStringProperty(IngestMessageConverter.STORE_ID));
+        Assert.assertEquals(STORE_ID, msg.getStringProperty(
+            IngestMessageConverter.STORE_ID));
         Assert.assertEquals(CONTENT_ID, msg.getString(IngestMessageConverter.CONTENT_ID));
         Assert.assertEquals(MIMETYPE, msg.getString(IngestMessageConverter.MIMETYPE));
         Assert.assertEquals(SPACE_ID, msg.getString(IngestMessageConverter.SPACE_ID));

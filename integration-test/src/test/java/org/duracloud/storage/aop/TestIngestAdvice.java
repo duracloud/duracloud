@@ -12,7 +12,6 @@ import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.durastore.aop.MessagingTestSupport;
 import org.duracloud.durastore.rest.RestTestHelper;
-import org.duracloud.storage.aop.IngestMessageConverter;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;

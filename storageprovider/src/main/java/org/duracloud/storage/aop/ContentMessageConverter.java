@@ -17,15 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageConverter;
 
-public class ContentMessageConverter
+public class ContentMessageConverter extends BaseContentMessageConverter
         implements MessageConverter {
 
     protected final Logger log = LoggerFactory.getLogger(ContentMessageConverter.class);
-
-    protected static final String STORE_ID = "storeId";
-    protected static final String CONTENT_ID = "contentId";
-    protected static final String SPACE_ID = "spaceId";
-    protected static final String USERNAME = "username";
 
     public Object fromMessage(Message msg) throws JMSException,
             MessageConversionException {
@@ -35,13 +30,8 @@ public class ContentMessageConverter
             throw new MessageConversionException(err);
         }
 
-        MapMessage mapMsg = (MapMessage)msg;
-        ContentMessage contentMsg = new ContentMessage();
-        contentMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
-        contentMsg.setContentId(mapMsg.getString(CONTENT_ID));
-        contentMsg.setSpaceId(mapMsg.getString(SPACE_ID));
-        contentMsg.setUsername(mapMsg.getString(USERNAME));
-        return contentMsg;
+        MapMessage mapMsg = (MapMessage) msg;
+        return super.fromMessage(new ContentMessage(), mapMsg);
     }
 
     public Message toMessage(Object obj, Session session) throws JMSException,
@@ -51,14 +41,9 @@ public class ContentMessageConverter
             log.error(err + obj);
             throw new MessageConversionException(err);
         }
-        ContentMessage contentMsg = (ContentMessage) obj;
 
-        MapMessage msg = session.createMapMessage();
-        msg.setStringProperty(STORE_ID, contentMsg.getStoreId());
-        msg.setString(CONTENT_ID, contentMsg.getContentId());
-        msg.setString(SPACE_ID, contentMsg.getSpaceId());
-        msg.setString(USERNAME, contentMsg.getUsername());
-        return msg;
+        ContentMessage contentMsg = (ContentMessage) obj;
+        return super.toMessage(contentMsg, session);
     }
 
 }

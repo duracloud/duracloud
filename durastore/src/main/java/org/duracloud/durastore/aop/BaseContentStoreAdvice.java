@@ -10,7 +10,7 @@ package org.duracloud.durastore.aop;
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
-import org.duracloud.storage.aop.ContentStoreMessage;
+import org.duracloud.storage.aop.ContentMessage;
 import org.slf4j.Logger;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.core.Ordered;
@@ -60,11 +60,11 @@ public abstract class BaseContentStoreAdvice implements AfterReturningAdvice, Or
      * This method creates an AOP message appropriate to the implementing class.
      *
      * @param methodArgs intercepted from call
-     * @return {@link org.duracloud.storage.aop.ContentStoreMessage}
+     * @return {@link org.duracloud.storage.aop.ContentMessage}
      */
-    protected abstract ContentStoreMessage createMessage(Object[] methodArgs);
+    protected abstract ContentMessage createMessage(Object[] methodArgs);
 
-    private void publishEvent(ContentStoreMessage event) {
+    private void publishEvent(ContentMessage event) {
         getJmsTemplate().convertAndSend(getDestination(), event);
     }
 

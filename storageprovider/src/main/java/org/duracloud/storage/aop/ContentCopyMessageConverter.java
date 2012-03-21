@@ -17,18 +17,14 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.Session;
 
-public class ContentCopyMessageConverter
+public class ContentCopyMessageConverter extends BaseContentMessageConverter
         implements MessageConverter {
 
     protected final Logger log =
         LoggerFactory.getLogger(ContentCopyMessageConverter.class);
 
-    protected static final String STORE_ID = "storeId";
-    protected static final String SRC_SPACE_ID = "srcSpaceId";
-    protected static final String SRC_CONTENT_ID = "srcContentId";
-    protected static final String DEST_SPACE_ID = "spaceId";
-    protected static final String DEST_CONTENT_ID = "contentId";
-    protected static final String USERNAME = "username";
+    protected static final String DEST_SPACE_ID = "destSpaceId";
+    protected static final String DEST_CONTENT_ID = "destContentId";
     protected static final String CONTENT_MD5= "contentMd5";
 
     public Object fromMessage(Message msg) throws JMSException,
@@ -39,14 +35,11 @@ public class ContentCopyMessageConverter
             throw new MessageConversionException(err);
         }
 
-        MapMessage mapMsg = (MapMessage)msg;
-        ContentCopyMessage contentCopyMsg = new ContentCopyMessage();
-        contentCopyMsg.setStoreId(mapMsg.getStringProperty(STORE_ID));
-        contentCopyMsg.setSourceSpaceId(mapMsg.getString(SRC_SPACE_ID));
-        contentCopyMsg.setSourceContentId(mapMsg.getString(SRC_CONTENT_ID));
+        MapMessage mapMsg = (MapMessage) msg;
+        ContentCopyMessage contentCopyMsg =
+            (ContentCopyMessage) super.fromMessage(new ContentCopyMessage(), mapMsg);
         contentCopyMsg.setDestSpaceId(mapMsg.getString(DEST_SPACE_ID));
         contentCopyMsg.setDestContentId(mapMsg.getString(DEST_CONTENT_ID));
-        contentCopyMsg.setUsername(mapMsg.getString(USERNAME));
         contentCopyMsg.setContentMd5(mapMsg.getString(CONTENT_MD5));
         return contentCopyMsg;
     }
@@ -59,15 +52,10 @@ public class ContentCopyMessageConverter
             throw new MessageConversionException(err);
         }
         ContentCopyMessage contentMsg = (ContentCopyMessage) obj;
+        MapMessage msg = super.toMessage(contentMsg, session);
 
-        MapMessage msg = session.createMapMessage();
-        msg.setStringProperty(STORE_ID, contentMsg.getStoreId());
-        msg.setStringProperty(DEST_SPACE_ID, contentMsg.getDestSpaceId());
-        msg.setString(SRC_SPACE_ID, contentMsg.getSourceSpaceId());
-        msg.setString(SRC_CONTENT_ID, contentMsg.getSourceContentId());
         msg.setString(DEST_SPACE_ID, contentMsg.getDestSpaceId());
         msg.setString(DEST_CONTENT_ID, contentMsg.getDestContentId());
-        msg.setString(USERNAME, contentMsg.getUsername());
         msg.setString(CONTENT_MD5, contentMsg.getContentMd5());
         return msg;
     }

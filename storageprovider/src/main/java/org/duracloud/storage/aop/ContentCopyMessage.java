@@ -7,10 +7,8 @@
  */
 package org.duracloud.storage.aop;
 
-public class ContentCopyMessage extends ContentStoreMessage {
+public class ContentCopyMessage extends ContentMessage {
 
-    private String sourceSpaceId;
-    private String sourceContentId;
     private String destSpaceId;
     private String destContentId;
     private String contentMd5;
@@ -19,30 +17,14 @@ public class ContentCopyMessage extends ContentStoreMessage {
     public String toString() {
         StringBuilder sb = new StringBuilder("ContentCopyMessage[");
         sb.append("storeId:'" + getStoreId() + "'");
-        sb.append("|sourceSpaceId:'" + sourceSpaceId + "'");
-        sb.append("|sourceContentId:'" + sourceContentId + "'");
+        sb.append("|sourceSpaceId:'" + getSpaceId() + "'");
+        sb.append("|sourceContentId:'" + getContentId() + "'");
         sb.append("|destSpaceId:'" + destSpaceId + "'");
         sb.append("|destContentId:'" + destContentId + "'");
         sb.append("|username:'" + getUsername() + "'");
         sb.append("|contentMd5:'" + contentMd5 + "'");
         sb.append("]\n");
         return sb.toString();
-    }
-
-    public String getSourceSpaceId() {
-        return sourceSpaceId;
-    }
-
-    public void setSourceSpaceId(String sourceSpaceId) {
-        this.sourceSpaceId = sourceSpaceId;
-    }
-
-    public String getSourceContentId() {
-        return sourceContentId;
-    }
-
-    public void setSourceContentId(String sourceContentId) {
-        this.sourceContentId = sourceContentId;
     }
 
     public String getDestSpaceId() {
@@ -95,15 +77,6 @@ public class ContentCopyMessage extends ContentStoreMessage {
             that.destSpaceId != null) {
             return false;
         }
-        if (sourceContentId !=
-            null ? !sourceContentId.equals(that.sourceContentId) :
-            that.sourceContentId != null) {
-            return false;
-        }
-        if (sourceSpaceId != null ? !sourceSpaceId.equals(that.sourceSpaceId) :
-            that.sourceSpaceId != null) {
-            return false;
-        }
 
         return true;
     }
@@ -113,11 +86,7 @@ public class ContentCopyMessage extends ContentStoreMessage {
      */
     @Override
     public int hashCode() {
-        int result = sourceSpaceId != null ? sourceSpaceId.hashCode() : 0;
-        result = 31 * result +
-            (sourceContentId != null ? sourceContentId.hashCode() : 0);
-        result =
-            31 * result + (destSpaceId != null ? destSpaceId.hashCode() : 0);
+        int result = destSpaceId != null ? destSpaceId.hashCode() : 0;
         result = 31 * result +
             (destContentId != null ? destContentId.hashCode() : 0);
         result = 31 * result + (contentMd5 != null ? contentMd5.hashCode() : 0);

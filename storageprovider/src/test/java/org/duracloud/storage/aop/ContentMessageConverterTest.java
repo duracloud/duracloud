@@ -60,6 +60,7 @@ public class ContentMessageConverterTest {
         String spaceId = "spaceId";
         String contentId = "contentId";
         String username = "username";
+        String action = ContentMessage.ACTION.DELETE.name();
 
         MapMessage msg = EasyMock.createMock("MapMessage",
                                              MapMessage.class);
@@ -76,6 +77,9 @@ public class ContentMessageConverterTest {
         msg.getString(ContentMessageConverter.USERNAME);
         EasyMock.expectLastCall().andReturn(username);
 
+        msg.getString(ContentMessageConverter.ACTION);
+        EasyMock.expectLastCall().andReturn(action);
+
         EasyMock.replay(msg);
         Object obj = contentMessageConverter.fromMessage(msg);
         EasyMock.verify(msg);
@@ -88,6 +92,7 @@ public class ContentMessageConverterTest {
         assertEquals(spaceId, contentMessage.getSpaceId());
         assertEquals(contentId, contentMessage.getContentId());
         assertEquals(username, contentMessage.getUsername());
+        assertEquals(action, contentMessage.getAction());
     }
 
     @Test
@@ -96,6 +101,7 @@ public class ContentMessageConverterTest {
         String spaceId = "spaceId";
         String contentId = "contentId";
         String username = "username";
+        String action = ContentMessage.ACTION.DELETE.name();
 
         MapMessage mapMsg = EasyMock.createMock("MapMessage",
                                                 MapMessage.class);
@@ -117,11 +123,15 @@ public class ContentMessageConverterTest {
         mapMsg.setString(ContentMessageConverter.USERNAME, username);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setString(ContentMessageConverter.ACTION, action);
+        EasyMock.expectLastCall().once();
+
         ContentMessage contentMessage = new ContentMessage();
         contentMessage.setStoreId(storeId);
         contentMessage.setSpaceId(spaceId);
         contentMessage.setContentId(contentId);
         contentMessage.setUsername(username);
+        contentMessage.setAction(action);
 
         EasyMock.replay(mapMsg);
         EasyMock.replay(session);

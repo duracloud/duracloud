@@ -8,7 +8,6 @@
 package org.duracloud.storage.aop;
 
 import org.duracloud.durastore.aop.MessagingTestSupport;
-import org.duracloud.storage.aop.ContentMessage;
 import org.duracloud.storage.aop.ContentMessageConverter;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;

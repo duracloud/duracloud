@@ -8,7 +8,6 @@
 package org.duracloud.durastore.aop;
 
 import org.duracloud.storage.aop.ContentMessage;
-import org.duracloud.storage.aop.ContentStoreMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public class ContentUpdateAdvice extends BaseContentStoreAdvice {
     }
 
     @Override
-    protected ContentStoreMessage createMessage(Object[] methodArgs) {
+    protected ContentMessage createMessage(Object[] methodArgs) {
         String storeId = getStoreId(methodArgs);
         String contentId = getContentId(methodArgs);
         String spaceId = getSpaceId(methodArgs);
@@ -36,6 +35,7 @@ public class ContentUpdateAdvice extends BaseContentStoreAdvice {
         msg.setContentId(contentId);
         msg.setSpaceId(spaceId);
         msg.setUsername(getCurrentUsername());
+        msg.setAction(ContentMessage.ACTION.UPDATE.name());
 
         return msg;
     }

@@ -31,6 +31,11 @@ public class ContentMessageEquals implements IArgumentMatcher {
         else if(message.getSpaceId() != null)
             return false;
 
+        if(contentMessage.getAction() != null)
+            matches = contentMessage.getAction().equals(message.getAction());
+        else if(message.getAction() != null)
+            return false;
+
         if(!matches)
             return false;
 
@@ -47,6 +52,11 @@ public class ContentMessageEquals implements IArgumentMatcher {
         else if(message.getContentId() != null)
             return false;
 
+        if(contentMessage.getUsername() != null)
+            matches = contentMessage.getUsername().equals(message.getUsername());
+        else if(message.getUsername() != null)
+            return false;
+
         return matches;
     }
 
@@ -56,9 +66,13 @@ public class ContentMessageEquals implements IArgumentMatcher {
         buffer.append(" with store id \"");
         buffer.append(contentMessage.getStoreId());
         buffer.append("\" and with space id \"");
-        buffer.append(contentMessage.getStoreId());
+        buffer.append(contentMessage.getSpaceId());
         buffer.append("\" and with content id \"");
         buffer.append(contentMessage.getContentId());
+        buffer.append("\" and with username \"");
+        buffer.append(contentMessage.getUsername());
+        buffer.append("\" and with action \"");
+        buffer.append(contentMessage.getAction());
         buffer.append("\")");
     }
 

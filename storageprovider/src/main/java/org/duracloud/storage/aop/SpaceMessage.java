@@ -7,7 +7,7 @@
  */
 package org.duracloud.storage.aop;
 
-public class SpaceMessage extends ContentStoreMessage {
+public class SpaceMessage extends ContentMessage {
 
     @Override
     public String toString() {

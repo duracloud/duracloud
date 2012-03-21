@@ -9,6 +9,7 @@ package org.duracloud.durastore.aop;
 
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.context.SecurityContextUtil;
+import org.duracloud.storage.aop.ContentMessage;
 import org.duracloud.storage.aop.IngestMessage;
 import org.easymock.EasyMock;
 import org.junit.Before;
@@ -61,6 +62,7 @@ public class IngestAdviceTest {
         msg.setUsername(null);
         msg.setContentMd5(null);
         msg.setContentSize(size);
+        msg.setAction(ContentMessage.ACTION.INGEST.name());
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -110,6 +112,7 @@ public class IngestAdviceTest {
         msg.setUsername(id);
         msg.setContentMd5(id);
         msg.setContentSize(size);
+        msg.setAction(ContentMessage.ACTION.INGEST.name());
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);

@@ -12,9 +12,8 @@ package org.duracloud.storage.aop;
  *
  * @author Andrew Woods
  */
-public class IngestMessage extends ContentStoreMessage {
+public class IngestMessage extends ContentMessage {
 
-    private String contentId;
     private String contentMimeType;
     private String contentMd5;
     private long contentSize;
@@ -24,21 +23,13 @@ public class IngestMessage extends ContentStoreMessage {
         StringBuilder sb = new StringBuilder("IngestMessage[");
         sb.append("storeId:'" + getStoreId() + "'");
         sb.append("|spaceId:'" + getSpaceId() + "'");
-        sb.append("|contentId:'" + contentId + "'");
+        sb.append("|contentId:'" + getContentId() + "'");
         sb.append("|mime:'" + contentMimeType + "'");
         sb.append("|username:'" + getUsername() + "'");
         sb.append("|contentMd5:'" + contentMd5 + "'");
         sb.append("|contentSize:'" + contentSize + "'");
         sb.append("]\n");
         return sb.toString();
-    }
-
-    public String getContentId() {
-        return contentId;
-    }
-
-    public void setContentId(String contentId) {
-        this.contentId = contentId;
     }
 
     public String getContentMimeType() {

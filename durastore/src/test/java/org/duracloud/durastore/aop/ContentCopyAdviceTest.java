@@ -10,6 +10,7 @@ package org.duracloud.durastore.aop;
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.storage.aop.ContentCopyMessage;
+import org.duracloud.storage.aop.ContentMessage;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.Before;
@@ -55,12 +56,13 @@ public class ContentCopyAdviceTest {
     public void testNullDestination() throws Throwable {
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(null);
-        msg.setSourceSpaceId(null);
-        msg.setSourceContentId(null);
+        msg.setSpaceId(null);
+        msg.setContentId(null);
         msg.setDestSpaceId(null);
         msg.setDestContentId(null);
         msg.setUsername(null);
         msg.setContentMd5(null);
+        msg.setAction(null);
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -97,12 +99,13 @@ public class ContentCopyAdviceTest {
 
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(id);
-        msg.setSourceSpaceId(id);
-        msg.setSourceContentId(id);
+        msg.setSpaceId(id);
+        msg.setContentId(id);
         msg.setDestSpaceId(id);
         msg.setDestContentId(id);
         msg.setUsername(id);
         msg.setContentMd5(id);
+        msg.setAction(ContentMessage.ACTION.INGEST.name());
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);

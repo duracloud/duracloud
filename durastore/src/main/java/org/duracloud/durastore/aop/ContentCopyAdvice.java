@@ -8,7 +8,7 @@
 package org.duracloud.durastore.aop;
 
 import org.duracloud.storage.aop.ContentCopyMessage;
-import org.duracloud.storage.aop.ContentStoreMessage;
+import org.duracloud.storage.aop.ContentMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ public class ContentCopyAdvice extends BaseContentStoreAdvice {
     }
 
     @Override
-    protected ContentStoreMessage createMessage(Object[] methodArgs) {
+    protected ContentMessage createMessage(Object[] methodArgs) {
         String storeId = getStoreId(methodArgs);
         String sourceSpaceId = getSourceSpaceId(methodArgs);
         String sourceContentId = getSourceContentId(methodArgs);
@@ -40,12 +40,13 @@ public class ContentCopyAdvice extends BaseContentStoreAdvice {
 
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(storeId);
-        msg.setSourceSpaceId(sourceSpaceId);
-        msg.setSourceContentId(sourceContentId);
+        msg.setSpaceId(sourceSpaceId);
+        msg.setContentId(sourceContentId);
         msg.setDestSpaceId(destSpaceId);
         msg.setDestContentId(destContentId);
         msg.setUsername(username);
         msg.setContentMd5(contentMd5);
+        msg.setAction(ContentMessage.ACTION.COPY.name());
 
         return msg;
     }

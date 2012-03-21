@@ -52,11 +52,13 @@ public class ContentUpdateAdviceTest {
 
     @Test
     public void testNullDestination() throws Throwable {
+        String username = "username";
         ContentMessage msg = new ContentMessage();
         msg.setStoreId(null);
         msg.setSpaceId(null);
         msg.setContentId(null);
-        msg.setUsername(null);
+        msg.setUsername(username);
+        msg.setAction(ContentMessage.ACTION.UPDATE.name());
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -69,7 +71,7 @@ public class ContentUpdateAdviceTest {
         SecurityContextUtil securityContextUtil = EasyMock.createMock(
             "SecurityContextUtil",
             SecurityContextUtil.class);
-        Credential user = new Credential("username","password");
+        Credential user = new Credential(username,"password");
         EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
         EasyMock.replay(jmsTemplate, securityContextUtil);
@@ -86,12 +88,14 @@ public class ContentUpdateAdviceTest {
     @Test
     public void testMessage() throws Throwable {
         String id = "1";
+        String username = "username";
 
         ContentMessage msg = new ContentMessage();
         msg.setStoreId(id);
         msg.setSpaceId(id);
         msg.setContentId(id);
-        msg.setUsername(id);
+        msg.setUsername(username);
+        msg.setAction(ContentMessage.ACTION.UPDATE.name());
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -105,7 +109,7 @@ public class ContentUpdateAdviceTest {
         SecurityContextUtil securityContextUtil = EasyMock.createMock(
             "SecurityContextUtil",
             SecurityContextUtil.class);
-        Credential user = new Credential("username","password");
+        Credential user = new Credential(username,"password");
         EasyMock.expect(securityContextUtil.getCurrentUser()).andReturn(user);
 
         EasyMock.replay(jmsTemplate, securityContextUtil);

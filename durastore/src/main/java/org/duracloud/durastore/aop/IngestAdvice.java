@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.storage.aop.ContentMessage;
 import org.duracloud.storage.aop.IngestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ public class IngestAdvice extends BaseContentStoreAdvice {
         msg.setUsername(username);
         msg.setContentSize(contentSize);
         msg.setContentMd5(contentMd5);
+        msg.setAction(ContentMessage.ACTION.INGEST.name());
 
         return msg;
     }
