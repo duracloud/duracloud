@@ -231,7 +231,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             userDetails = userDetailsService.loadUserByUsername(name);
             
         } catch (UsernameNotFoundException e) {
-            log.info("Not admin: {}, error: {}", name, e);
+            log.debug("Not admin: {}, error: {}", name, e);
             return false;
         }
 
