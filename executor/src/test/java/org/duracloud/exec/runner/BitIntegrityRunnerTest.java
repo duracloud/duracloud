@@ -209,7 +209,7 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         assertEquals(reportId, result.getReportContentId());
         long now = new Date().getTime();
         long resultTime = result.getCompletionDate().getTime();
-        assertTrue(now > resultTime);
+        assertTrue(now >= resultTime);
         assertTrue(resultTime > now - 5000);
         assertTrue(result.isDisplay());
     }

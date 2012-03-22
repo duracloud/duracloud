@@ -10,6 +10,7 @@ package org.duracloud.exec.runner;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.exec.handler.BitIntegrityHandler;
 import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
@@ -122,6 +123,7 @@ public class BitIntegrityRunner implements Runnable {
             setError("Unable to complete bit integrity check due to: " +
                       e.getMessage(), e);
         }
+        status = "Bit Integrity: Check Completed on: " + DateUtil.now();
         running = false;
     }
 
