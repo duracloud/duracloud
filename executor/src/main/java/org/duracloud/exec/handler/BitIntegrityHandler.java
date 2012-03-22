@@ -7,13 +7,22 @@
  */
 package org.duracloud.exec.handler;
 
+import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.domain.Content;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.exec.runner.BitIntegrityRunner;
+import org.duracloud.execdata.bitintegrity.BitIntegrityResults;
+import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
+import org.duracloud.execdata.bitintegrity.serialize.BitIntegrityResultsSerializer;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,15 +44,19 @@ public class BitIntegrityHandler extends BaseServiceHandler {
 
     protected static final String BIT_INTEGRITY_NAME =
         "Bit Integrity Checker - Tools";
+    protected static final String RESULTS_MIME_TYPE = "application/json";
 
     private Timer timer;
     private BitIntegrityRunner runner;
+    private String resultsFileName;
+    private BitIntegrityResults results;
 
-    public BitIntegrityHandler() {
+    public BitIntegrityHandler(String resultsFileName) {
         super();
         supportedActions.add(START_BIT_INTEGRITY);
         supportedActions.add(CANCEL_BIT_INTEGRITY);
         this.timer = new Timer();
+        this.resultsFileName = resultsFileName;
     }
 
     @Override
@@ -147,6 +160,80 @@ public class BitIntegrityHandler extends BaseServiceHandler {
             if(!runner.isRunning()) {
                 new Thread(runner).start();
             }
+        }
+    }
+
+    public void storeResults(String storeId,
+                             String spaceId,
+                             SpaceBitIntegrityResult result) {
+        retrieveResults();
+        results.addSpaceResult(storeId, spaceId, result);
+        storeResults(results);
+    }
+
+    protected BitIntegrityResults retrieveResults() {
+        int attempts = 0;
+        while(null == results && attempts < 3) {
+            try {
+                ContentStore store = storeMgr.getPrimaryContentStore();
+                Content resultFile =
+                    store.getContent(HANDLER_STATE_SPACE, resultsFileName);
+
+                String resultValue =
+                    IOUtil.readStringFromStream(resultFile.getStream());
+                BitIntegrityResultsSerializer serializer =
+                    new BitIntegrityResultsSerializer();
+                results = serializer.deserialize(resultValue);
+            } catch(ContentStoreException e) {
+                log.warn("Not able to retrieve Bit Integrity results file " +
+                         "due to ContentStoreException: " + e.getMessage());
+            } catch(IOException e) {
+                log.warn("Not able to retrieve Bit Integrity results file " +
+                         "due to IOException: " + e.getMessage(), e);
+            }
+            ++attempts;
+        }
+
+        if(null == results) {
+            results = new BitIntegrityResults();
+        }
+        return results;
+    }
+
+    protected void storeResults(BitIntegrityResults results) {
+        try {
+            BitIntegrityResultsSerializer serializer =
+                new BitIntegrityResultsSerializer();
+            String resultValue = serializer.serialize(results);
+            InputStream resultStream = IOUtil.writeStringToStream(resultValue);
+
+            ContentStore store = storeMgr.getPrimaryContentStore();
+            boolean success = false;
+            int attempts = 0;
+            while(!success && attempts < 3) {
+                try {
+                    store.addContent(HANDLER_STATE_SPACE,
+                                     resultsFileName,
+                                     resultStream,
+                                     resultValue.length(),
+                                     RESULTS_MIME_TYPE,
+                                     null,
+                                     null);
+                    success = true;
+                } catch(ContentStoreException e) {
+                    log.warn("Failed to store results file due to: " +
+                             e.getMessage());
+                }
+                ++attempts;
+            }
+            if(!success) {
+                String err = "Exceeded allowable attempts to store results file";
+                throw new DuraCloudRuntimeException(err);
+            }
+        } catch(Exception e) {
+            log.error("Not able to store Bit Integrity results file " +
+                      "due to " + e.getClass().getName() + ": " +
+                      e.getMessage(), e);
         }
     }
 

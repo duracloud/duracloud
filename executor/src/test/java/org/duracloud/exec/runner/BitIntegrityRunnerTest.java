@@ -10,6 +10,7 @@ package org.duracloud.exec.runner;
 import org.duracloud.client.ContentStore;
 import org.duracloud.exec.handler.BitIntegrityHandler;
 import org.duracloud.exec.handler.HandlerTestBase;
+import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
@@ -24,12 +25,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -52,6 +55,7 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
     private int depId2 = 12;
     private int depId3 = 13;
     private int depId4 = 14;
+    private String reportId = "report-id";
 
     @Before
     @Override
@@ -125,15 +129,19 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
 
         // Space 1 - generated checksum
         Capture<List<UserConfigModeSet>> configCapture1 = setUpDeploy(depId1);
+        Capture<SpaceBitIntegrityResult> resultCapture1 = setUpResult(space1);
 
         // Space 2 - generated checksum
         Capture<List<UserConfigModeSet>> configCapture2 = setUpDeploy(depId2);
+        Capture<SpaceBitIntegrityResult> resultCapture2 = setUpResult(space2);
 
         // Space 1 - files checksum
         Capture<List<UserConfigModeSet>> configCapture3 = setUpDeploy(depId3);
+        Capture<SpaceBitIntegrityResult> resultCapture3 = setUpResult(space1);
 
         // Space 2 - files checksum
         Capture<List<UserConfigModeSet>> configCapture4 = setUpDeploy(depId4);
+        Capture<SpaceBitIntegrityResult> resultCapture4 = setUpResult(space2);
 
         handler.clearState(BitIntegrityRunner.HANDLER_STATE_FILE);
         EasyMock.expectLastCall().times(2);
@@ -142,23 +150,28 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
 
         runner.run();
 
-        verifyCapture(configCapture1,
-                      BitIntegrityRunner.HASH_APPROACH_FILES,
-                      space1);
-        verifyCapture(configCapture2,
-                      BitIntegrityRunner.HASH_APPROACH_FILES,
-                      space2);
-        verifyCapture(configCapture3,
-                      BitIntegrityRunner.HASH_APPROACH_PROVIDER,
-                      space1);
-        verifyCapture(configCapture4,
-                      BitIntegrityRunner.HASH_APPROACH_PROVIDER,
-                      space2);
+        verifyConfigCapture(configCapture1,
+                            BitIntegrityRunner.HASH_APPROACH_FILES,
+                            space1);
+        verifyConfigCapture(configCapture2,
+                            BitIntegrityRunner.HASH_APPROACH_FILES,
+                            space2);
+        verifyConfigCapture(configCapture3,
+                            BitIntegrityRunner.HASH_APPROACH_PROVIDER,
+                            space1);
+        verifyConfigCapture(configCapture4,
+                            BitIntegrityRunner.HASH_APPROACH_PROVIDER,
+                            space2);
+
+        verifyResultCapture(resultCapture1);
+        verifyResultCapture(resultCapture2);
+        verifyResultCapture(resultCapture3);
+        verifyResultCapture(resultCapture4);
     }
 
-    private void verifyCapture(Capture<List<UserConfigModeSet>> capture,
-                               String expHashApproach,
-                               String expSpaceId)
+    private void verifyConfigCapture(Capture<List<UserConfigModeSet>> capture,
+                                     String expHashApproach,
+                                     String expSpaceId)
         throws Exception {
         List<UserConfigModeSet> modeSets = capture.getValue();
         UserConfigMode capMode = modeSets.get(0).getModes().get(0);
@@ -189,6 +202,18 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         }
     }
 
+    private void verifyResultCapture(Capture<SpaceBitIntegrityResult> capture) {
+        SpaceBitIntegrityResult result = capture.getValue();
+        assertNotNull(result);
+        assertEquals("success", result.getResult());
+        assertEquals(reportId, result.getReportContentId());
+        long now = new Date().getTime();
+        long resultTime = result.getCompletionDate().getTime();
+        assertTrue(now > resultTime);
+        assertTrue(resultTime > now - 5000);
+        assertTrue(result.isDisplay());
+    }
+
     private Capture<List<UserConfigModeSet>> setUpDeploy(int depId) throws Exception {
         Capture<List<UserConfigModeSet>> configCapture =
             new Capture<List<UserConfigModeSet>>();
@@ -202,7 +227,8 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         Map<String, String> depProps = new HashMap<String, String>();
         depProps.put(ComputeService.STATUS_KEY,
                      ComputeService.ServiceStatus.SUCCESS.name());
-        depProps.put(ComputeService.REPORT_KEY, "report");
+        depProps.put(ComputeService.REPORT_KEY, reportId);
+        depProps.put(ComputeService.FAILURE_COUNT_KEY, "0");
         EasyMock.expect(servicesMgr.getDeployedServiceProps(serviceId, depId))
                 .andReturn(depProps).times(2);
 
@@ -210,6 +236,16 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         EasyMock.expectLastCall();
 
         return configCapture;
+    }
+
+    private Capture<SpaceBitIntegrityResult> setUpResult(String spaceId) {
+        Capture<SpaceBitIntegrityResult> resultCapture =
+            new Capture<SpaceBitIntegrityResult>();
+        handler.storeResults(EasyMock.eq(storeId),
+                             EasyMock.eq(spaceId),
+                             EasyMock.capture(resultCapture));
+        EasyMock.expectLastCall();
+        return resultCapture;
     }
 
     private List<UserConfigModeSet> createConfig() {

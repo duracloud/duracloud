@@ -22,13 +22,14 @@ public interface ComputeService {
         FINALIZING,
         STOPPING,
         STOPPED,
-        /* means the service successfully ran to completion - does not necessarily mean that 
-        *  all results of the service were also successful - for result status see 
-        *  ServiceResultStatus enum
-        */
+        /* Means the service successfully ran to completion; does not
+         * necessarily mean that all results of the service were also
+         * successful. Check the value associated with FAILURE_COUNT_KEY
+         * below to determine if all results were successful.
+         */
         SUCCESS,
-        /* means the service failed due to some kind of unrecoverable exception, OOM, failed
-         * hadoop startup, etc.
+        /* Means the service failed due to some kind of unrecoverable
+         * exception, OOM, failed hadoop startup, etc.
          */
         FAILED; 
 

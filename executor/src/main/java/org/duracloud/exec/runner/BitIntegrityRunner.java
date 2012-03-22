@@ -12,6 +12,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.exec.handler.BitIntegrityHandler;
+import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -265,8 +267,8 @@ public class BitIntegrityRunner implements Runnable {
                                         String spaceId)
         throws ServicesException, NotFoundException {
         // Deploy bit integrity check service
-        int deploymentId =
-            runIntegrityCheck(store.getStoreId(), spaceId, download);
+        String storeId = store.getStoreId();
+        int deploymentId = runIntegrityCheck(storeId, spaceId, download);
 
         // Wait for bit integrity completion
         while(!serviceComplete(deploymentId)) {
@@ -274,13 +276,24 @@ public class BitIntegrityRunner implements Runnable {
         }
 
         // Get the bit integrity report
-        String report = getReportId(deploymentId);
+        Map<String, String> props = getServiceProps(deploymentId);
+        String reportId = getReportId(props);
 
         // TODO: Compare result file to space manifest
-        log.error("Should be comparing report file " + report +
+        log.error("Should be comparing report file " + reportId +
                   " to space manifest.");
         // TODO: Notify on comparison mismatch
-        // TODO: Write to results file (for display)
+
+        // TODO: Use result of manifest comparison here
+        boolean serviceSuccess = isServiceSuccessful(props);
+
+        // Write to results file (for display)
+        SpaceBitIntegrityResult result =
+            new SpaceBitIntegrityResult(new Date(),
+                                        serviceSuccess ? "success" : "failure",
+                                        reportId,
+                                        serviceSuccess ? true : false);
+        handler.storeResults(storeId, spaceId, result);
 
         // Undeploy bit integrity service
         servicesMgr.undeployService(service.getId(), deploymentId);
@@ -395,15 +408,30 @@ public class BitIntegrityRunner implements Runnable {
         return false;
     }
 
-    private String getReportId(int deploymentId)
+    private Map<String, String> getServiceProps(int deploymentId)
         throws ServicesException, NotFoundException {
-        Map<String, String> props =
-            servicesMgr.getDeployedServiceProps(service.getId(), deploymentId);
+        return servicesMgr.getDeployedServiceProps(service.getId(),
+                                                   deploymentId);
+    }
+
+    private String getReportId(Map<String, String> props) {
         String report = props.get(ComputeService.REPORT_KEY);
         if(null == report) {
             report = "";
         }
         return report;
+    }
+
+    private boolean isServiceSuccessful(Map<String, String> props) {
+        boolean success = false;
+        String status = props.get(ComputeService.STATUS_KEY);
+        if(ComputeService.ServiceStatus.SUCCESS.name().equals(status)) {
+            String failedItems = props.get(ComputeService.FAILURE_COUNT_KEY);
+            if("0".equals(failedItems)) {
+                success = true;
+            }
+        }
+        return success;
     }
 
     private void sleep(long millis) {

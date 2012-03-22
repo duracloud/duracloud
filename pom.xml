@@ -86,6 +86,7 @@
         <module>duraservice</module>
         <module>reportdata</module>
         <module>reporter</module>
+        <module>executordata</module>
         <module>executor</module>
         <module>auditor</module>
         <module>duraboss</module>

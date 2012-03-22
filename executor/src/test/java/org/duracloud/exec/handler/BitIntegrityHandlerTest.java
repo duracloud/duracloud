@@ -7,8 +7,13 @@
  */
 package org.duracloud.exec.handler;
 
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.domain.Content;
 import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.exec.runner.BitIntegrityRunner;
+import org.duracloud.execdata.bitintegrity.BitIntegrityResults;
+import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
+import org.duracloud.execdata.bitintegrity.serialize.BitIntegrityResultsSerializer;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.easymock.EasyMock;
@@ -16,10 +21,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -34,12 +43,13 @@ public class BitIntegrityHandlerTest extends HandlerTestBase {
 
     private int serviceId = 6;
     private String configVersion = "config-version";
+    private String resultFileName = "result-file";
 
     @Before
     @Override
     public void setup() throws Exception {
         super.setup();
-        handler = new BitIntegrityHandler();
+        handler = new BitIntegrityHandler(resultFileName);
         runner = EasyMock.createMock("BitIntegrityRunner",
                                      BitIntegrityRunner.class);
         EasyMock.makeThreadSafe(runner, true);
@@ -152,6 +162,62 @@ public class BitIntegrityHandlerTest extends HandlerTestBase {
         replayMocks();
 
         handler.performAction(BitIntegrityHandler.CANCEL_BIT_INTEGRITY, "");
+    }
+
+    @Test
+    public void testRetrieveResults() throws Exception {
+        BitIntegrityResults storedResults = new BitIntegrityResults();
+        String spaceResultStoreId = "store-id";
+        String spaceResultSpaceId = "space-id";
+        String spaceResultValue = "success";
+        String spaceResultContentId = "content-id";
+        SpaceBitIntegrityResult storedSpaceResult =
+            new SpaceBitIntegrityResult(new Date(), spaceResultValue,
+                                        spaceResultContentId, true);
+        storedResults.addSpaceResult(spaceResultStoreId,
+                                     spaceResultSpaceId,
+                                     storedSpaceResult);
+
+        BitIntegrityResultsSerializer serializer =
+                    new BitIntegrityResultsSerializer();
+        String json = serializer.serialize(storedResults);
+        InputStream jsonStream = IOUtil.writeStringToStream(json);
+
+        Content resultContent = new Content();
+        resultContent.setStream(jsonStream);
+
+        EasyMock.expect(contentStore.getContent(
+            BitIntegrityHandler.HANDLER_STATE_SPACE,
+            resultFileName))
+                .andReturn(resultContent);
+
+        replayMocks();
+
+        BitIntegrityResults results = handler.retrieveResults();
+        assertNotNull(results);
+        SpaceBitIntegrityResult spaceResult =
+            results.getStores().get(spaceResultStoreId)
+                   .getSpaceResults(spaceResultSpaceId).get(0);
+        assertEquals(spaceResultValue, spaceResult.getResult());
+        assertEquals(spaceResultContentId, spaceResult.getReportContentId());
+        assertTrue(spaceResult.isDisplay());
+    }
+
+
+    @Test
+    public void testStoreResults() throws Exception {
+        EasyMock.expect(contentStore.addContent(
+            EasyMock.eq(BitIntegrityHandler.HANDLER_STATE_SPACE),
+            EasyMock.eq(resultFileName),
+            EasyMock.isA(InputStream.class),
+            EasyMock.anyInt(),
+            EasyMock.eq(BitIntegrityHandler.RESULTS_MIME_TYPE),
+            EasyMock.<String>isNull(),
+            EasyMock.<Map<String,String>>isNull())).andReturn("");
+
+        replayMocks();
+
+        handler.storeResults(new BitIntegrityResults());
     }
 
 }

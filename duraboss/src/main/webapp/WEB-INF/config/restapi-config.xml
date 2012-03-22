@@ -59,7 +59,9 @@
   <bean id="executor" class="org.duracloud.exec.impl.ExecutorImpl">
     <constructor-arg>
       <list>
-        <bean class="org.duracloud.exec.handler.BitIntegrityHandler"/>
+        <bean class="org.duracloud.exec.handler.BitIntegrityHandler">
+          <constructor-arg value="bit-integrity-results.json"/>
+        </bean>
         <bean class="org.duracloud.exec.handler.DuplicationHandler"/>
         <bean class="org.duracloud.exec.handler.ImageServerHandler"/>
         <bean class="org.duracloud.exec.handler.MediaStreamingHandler"/>
