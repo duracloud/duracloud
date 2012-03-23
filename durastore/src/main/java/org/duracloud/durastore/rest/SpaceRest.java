@@ -402,7 +402,7 @@ public class SpaceRest extends BaseRest {
                                  Response.Status status) {
         String text = e.getMessage() == null ? "null" : e.getMessage();
         log.error("Error while " + msg + ": " + text);
-        log.info("Error details: {}", ExceptionUtil.getStackTraceAsString(e));
+        log.debug("Error details: {}", ExceptionUtil.getStackTraceAsString(e));
         return Response.status(status).entity(text).build();
     }
 

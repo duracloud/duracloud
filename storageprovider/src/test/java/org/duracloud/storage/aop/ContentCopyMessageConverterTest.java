@@ -72,16 +72,16 @@ public class ContentCopyMessageConverterTest {
         EasyMock.expectLastCall().andReturn(storeId);
 
         msg.getString(ContentCopyMessageConverter.SPACE_ID);
-        EasyMock.expectLastCall().andReturn(srcSpaceId);
-
-        msg.getString(ContentCopyMessageConverter.CONTENT_ID);
-        EasyMock.expectLastCall().andReturn(srcContentId);
-
-        msg.getString(ContentCopyMessageConverter.DEST_SPACE_ID);
         EasyMock.expectLastCall().andReturn(destSpaceId);
 
-        msg.getString(ContentCopyMessageConverter.DEST_CONTENT_ID);
+        msg.getString(ContentCopyMessageConverter.CONTENT_ID);
         EasyMock.expectLastCall().andReturn(destContentId);
+
+        msg.getString(ContentCopyMessageConverter.SRC_SPACE_ID);
+        EasyMock.expectLastCall().andReturn(srcSpaceId);
+
+        msg.getString(ContentCopyMessageConverter.SRC_CONTENT_ID);
+        EasyMock.expectLastCall().andReturn(srcContentId);
 
         msg.getString(ContentCopyMessageConverter.USERNAME);
         EasyMock.expectLastCall().andReturn(username);
@@ -100,10 +100,10 @@ public class ContentCopyMessageConverterTest {
 
         ContentCopyMessage contentCopyMessage = (ContentCopyMessage) obj;
         assertEquals(storeId, contentCopyMessage.getStoreId());
-        assertEquals(srcSpaceId, contentCopyMessage.getSpaceId());
-        assertEquals(srcContentId, contentCopyMessage.getContentId());
-        assertEquals(destSpaceId, contentCopyMessage.getDestSpaceId());
-        assertEquals(destContentId, contentCopyMessage.getDestContentId());
+        assertEquals(srcSpaceId, contentCopyMessage.getSrcSpaceId());
+        assertEquals(srcContentId, contentCopyMessage.getSrcContentId());
+        assertEquals(destSpaceId, contentCopyMessage.getSpaceId());
+        assertEquals(destContentId, contentCopyMessage.getContentId());
         assertEquals(username, contentCopyMessage.getUsername());
         assertEquals(contentMd5, contentCopyMessage.getContentMd5());
         assertEquals(action, contentCopyMessage.getAction());
@@ -126,19 +126,19 @@ public class ContentCopyMessageConverterTest {
         EasyMock.expectLastCall().once();
 
         mapMsg.setString(ContentCopyMessageConverter.SPACE_ID,
-                         srcSpaceId);
-        EasyMock.expectLastCall().once();
-
-        mapMsg.setString(ContentCopyMessageConverter.CONTENT_ID,
-                         srcContentId);
-        EasyMock.expectLastCall().once();
-
-        mapMsg.setString(ContentCopyMessageConverter.DEST_SPACE_ID,
                          destSpaceId);
         EasyMock.expectLastCall().once();
 
-        mapMsg.setString(ContentCopyMessageConverter.DEST_CONTENT_ID,
+        mapMsg.setString(ContentCopyMessageConverter.CONTENT_ID,
                          destContentId);
+        EasyMock.expectLastCall().once();
+
+        mapMsg.setString(ContentCopyMessageConverter.SRC_SPACE_ID,
+                         srcSpaceId);
+        EasyMock.expectLastCall().once();
+
+        mapMsg.setString(ContentCopyMessageConverter.SRC_CONTENT_ID,
+                         srcContentId);
         EasyMock.expectLastCall().once();
 
         mapMsg.setString(ContentCopyMessageConverter.USERNAME, username);
@@ -152,10 +152,10 @@ public class ContentCopyMessageConverterTest {
 
         ContentCopyMessage contentCopyMessage = new ContentCopyMessage();
         contentCopyMessage.setStoreId(storeId);
-        contentCopyMessage.setSpaceId(srcSpaceId);
-        contentCopyMessage.setContentId(srcContentId);
-        contentCopyMessage.setDestSpaceId(destSpaceId);
-        contentCopyMessage.setDestContentId(destContentId);
+        contentCopyMessage.setSrcSpaceId(srcSpaceId);
+        contentCopyMessage.setSrcContentId(srcContentId);
+        contentCopyMessage.setSpaceId(destSpaceId);
+        contentCopyMessage.setContentId(destContentId);
         contentCopyMessage.setUsername(username);
         contentCopyMessage.setContentMd5(contentMd5);
         contentCopyMessage.setAction(action);

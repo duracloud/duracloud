@@ -23,8 +23,8 @@ public class ContentCopyMessageConverter extends BaseContentMessageConverter
     protected final Logger log =
         LoggerFactory.getLogger(ContentCopyMessageConverter.class);
 
-    protected static final String DEST_SPACE_ID = "destSpaceId";
-    protected static final String DEST_CONTENT_ID = "destContentId";
+    protected static final String SRC_SPACE_ID = "srcSpaceId";
+    protected static final String SRC_CONTENT_ID = "srcContentId";
     protected static final String CONTENT_MD5= "contentMd5";
 
     public Object fromMessage(Message msg) throws JMSException,
@@ -38,8 +38,8 @@ public class ContentCopyMessageConverter extends BaseContentMessageConverter
         MapMessage mapMsg = (MapMessage) msg;
         ContentCopyMessage contentCopyMsg =
             (ContentCopyMessage) super.fromMessage(new ContentCopyMessage(), mapMsg);
-        contentCopyMsg.setDestSpaceId(mapMsg.getString(DEST_SPACE_ID));
-        contentCopyMsg.setDestContentId(mapMsg.getString(DEST_CONTENT_ID));
+        contentCopyMsg.setSrcSpaceId(mapMsg.getString(SRC_SPACE_ID));
+        contentCopyMsg.setSrcContentId(mapMsg.getString(SRC_CONTENT_ID));
         contentCopyMsg.setContentMd5(mapMsg.getString(CONTENT_MD5));
         return contentCopyMsg;
     }
@@ -54,8 +54,8 @@ public class ContentCopyMessageConverter extends BaseContentMessageConverter
         ContentCopyMessage contentMsg = (ContentCopyMessage) obj;
         MapMessage msg = super.toMessage(contentMsg, session);
 
-        msg.setString(DEST_SPACE_ID, contentMsg.getDestSpaceId());
-        msg.setString(DEST_CONTENT_ID, contentMsg.getDestContentId());
+        msg.setString(SRC_SPACE_ID, contentMsg.getSrcSpaceId());
+        msg.setString(SRC_CONTENT_ID, contentMsg.getSrcContentId());
         msg.setString(CONTENT_MD5, contentMsg.getContentMd5());
         return msg;
     }

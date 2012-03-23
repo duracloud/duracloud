@@ -74,8 +74,19 @@
   </bean>
 
   <bean id="auditor" class="org.duracloud.audit.impl.AuditorImpl">
+    <constructor-arg ref="auditListener"/>
+    <constructor-arg ref="auditLogStore"/>
+  </bean>
+
+  <bean id="auditLogStore" class="org.duracloud.audit.impl.AuditLogStoreImpl">
     <constructor-arg value="x-duracloud-admin"/>
     <constructor-arg value="audit/storage-audit-log-"/>
+    <constructor-arg value="10000000"/> <!-- 10-MB -->
+  </bean>
+
+  <bean id="auditListener" class="org.duracloud.audit.impl.AuditListenerImpl">
+    <constructor-arg ref="auditLogStore"/>
+    <constructor-arg value="60000"/> <!-- 1 minute delay -->
   </bean>
 
   <bean id="summaryDirectory" class="org.duracloud.servicemonitor.impl.ServiceSummaryDirectoryImpl">

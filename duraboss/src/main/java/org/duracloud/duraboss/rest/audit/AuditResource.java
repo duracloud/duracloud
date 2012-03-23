@@ -12,8 +12,6 @@ import org.duracloud.audit.error.AuditLogNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-
 /**
  * @author Andrew Woods
  *         Date: 3/17/12
@@ -34,7 +32,7 @@ public class AuditResource {
      * @return URL of newly created audit log
      */
     public void createInitialAuditLogs() {
-        auditor.createInitialAuditLogs();
+        auditor.createInitialAuditLogs(true); // true=async
     }
 
     /**
@@ -52,6 +50,11 @@ public class AuditResource {
      */
     public String getAuditLogs(String spaceId)
         throws AuditLogNotFoundException {
-        return auditor.getAuditLogs(spaceId);
+        StringBuilder logs = new StringBuilder();
+        for (String log : auditor.getAuditLogs(spaceId)) {
+            logs.append(log);
+            logs.append("\n");
+        }
+        return logs.toString();
     }
 }

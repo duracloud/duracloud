@@ -10,6 +10,9 @@ package org.duracloud.audit;
 import org.duracloud.audit.error.AuditLogNotFoundException;
 import org.duracloud.client.ContentStoreManager;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * The Auditor is responsible for collecting audit logs over all spaces for
  * content-related events.
@@ -18,6 +21,14 @@ import org.duracloud.client.ContentStoreManager;
  *         Date: 3/17/12
  */
 public interface Auditor {
+
+    /**
+     * This structure defines the system managed spaces.
+     */
+    public static final List<String> systemSpaces = Arrays.asList(
+        "x-duracloud-admin",
+        "x-service-out",
+        "x-service-work");
 
     /**
      * This method initializes the Auditor by providing a handle to the content
@@ -30,16 +41,19 @@ public interface Auditor {
     /**
      * This method creates an initial audit log, and removes any existing audit
      * log for each space.
+     *
+     * @param async true if executing asynchronously
      */
-    public void createInitialAuditLogs();
+    public void createInitialAuditLogs(boolean async);
 
     /**
      * This method returns the list of audit logs for the arg space.
      *
      * @param spaceId of the space over which auditing is requested
-     * @return list of audit logs for the arg space
+     * @return set of audit logs for the arg space
      */
-    public String getAuditLogs(String spaceId) throws AuditLogNotFoundException;
+    public List<String> getAuditLogs(String spaceId)
+        throws AuditLogNotFoundException;
 
     /**
      * This method stops the work of the Auditor.

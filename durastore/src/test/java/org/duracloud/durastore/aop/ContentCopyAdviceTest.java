@@ -54,15 +54,17 @@ public class ContentCopyAdviceTest {
 
     @Test
     public void testNullDestination() throws Throwable {
+        String username = "username";
+        
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(null);
+        msg.setSrcSpaceId(null);
+        msg.setSrcContentId(null);
         msg.setSpaceId(null);
         msg.setContentId(null);
-        msg.setDestSpaceId(null);
-        msg.setDestContentId(null);
-        msg.setUsername(null);
+        msg.setUsername(username);
         msg.setContentMd5(null);
-        msg.setAction(null);
+        msg.setAction(ContentMessage.ACTION.COPY.name());
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);
@@ -96,16 +98,17 @@ public class ContentCopyAdviceTest {
     @Test
     public void testMessage() throws Throwable {
         String id = "1";
+        String username = "username";
 
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(id);
+        msg.setSrcSpaceId(id);
+        msg.setSrcContentId(id);
         msg.setSpaceId(id);
         msg.setContentId(id);
-        msg.setDestSpaceId(id);
-        msg.setDestContentId(id);
-        msg.setUsername(id);
+        msg.setUsername(username);
         msg.setContentMd5(id);
-        msg.setAction(ContentMessage.ACTION.INGEST.name());
+        msg.setAction(ContentMessage.ACTION.COPY.name());
 
         JmsTemplate jmsTemplate = EasyMock.createMock("JmsTemplate",
                                                       JmsTemplate.class);

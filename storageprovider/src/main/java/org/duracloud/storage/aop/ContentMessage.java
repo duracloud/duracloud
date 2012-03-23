@@ -7,6 +7,9 @@
  */
 package org.duracloud.storage.aop;
 
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.common.util.bulk.ManifestVerifier;
+
 /**
  * This bean holds to common elements for all ContentStore AOP messages.
  *
@@ -20,6 +23,9 @@ public class ContentMessage {
     private String contentId;
     private String username;
     private String action;
+    private String datetime = DateUtil.now();
+
+    protected static final char DELIM = ManifestVerifier.DELIM;
 
     @Override
     public String toString() {
@@ -29,12 +35,57 @@ public class ContentMessage {
         sb.append("|contentId:'" + contentId + "'");
         sb.append("|username:'" + username + "'");
         sb.append("|action:'" + action + "'");
+        sb.append("|datetime:'" + datetime + "'");
         sb.append("]\n");
         return sb.toString();
     }
 
+    public String asTSV() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(storeId);
+        sb.append(DELIM);
+        sb.append(spaceId);
+        sb.append(DELIM);
+        sb.append(contentId);
+        sb.append(DELIM);
+        sb.append(username);
+        sb.append(DELIM);
+        sb.append(action);
+        sb.append(DELIM);
+        sb.append(datetime);
+        return sb.toString();
+    }
+
+    public static String tsvHeader() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("store id");
+        sb.append(DELIM);
+        sb.append("space id");
+        sb.append(DELIM);
+        sb.append("content id");
+        sb.append(DELIM);
+        sb.append("user id");
+        sb.append(DELIM);
+        sb.append("action");
+        sb.append(DELIM);
+        sb.append("datetime");
+        // below come from ContentCopyMessage and IngestMessage
+        sb.append(DELIM);
+        sb.append("content MD5");
+        sb.append(DELIM);
+        sb.append("content size");
+        sb.append(DELIM);
+        sb.append("mimetype");
+        sb.append(DELIM);
+        sb.append("src space id");
+        sb.append(DELIM);
+        sb.append("src content id");
+
+        return sb.toString();
+    }
+
     public static enum ACTION {
-        INGEST, COPY, UPDATE, DELETE;
+        INGEST, COPY, UPDATE, DELETE, ERROR;
     }
 
     public String getStoreId() {
@@ -77,6 +128,14 @@ public class ContentMessage {
         this.action = action;
     }
 
+    public String getDatetime() {
+        return datetime;
+    }
+
+    public void setDatetime(String datetime) {
+        this.datetime = datetime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -94,6 +153,10 @@ public class ContentMessage {
         }
         if (contentId != null ? !contentId.equals(that.contentId) :
             that.contentId != null) {
+            return false;
+        }
+        if (datetime != null ? !datetime.equals(that.datetime) :
+            that.datetime != null) {
             return false;
         }
         if (spaceId != null ? !spaceId.equals(that.spaceId) :
@@ -119,6 +182,7 @@ public class ContentMessage {
         result = 31 * result + (contentId != null ? contentId.hashCode() : 0);
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (action != null ? action.hashCode() : 0);
+        result = 31 * result + (datetime != null ? datetime.hashCode() : 0);
         return result;
     }
 }

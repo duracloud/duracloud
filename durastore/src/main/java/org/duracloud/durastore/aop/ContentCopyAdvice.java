@@ -40,10 +40,10 @@ public class ContentCopyAdvice extends BaseContentStoreAdvice {
 
         ContentCopyMessage msg = new ContentCopyMessage();
         msg.setStoreId(storeId);
-        msg.setSpaceId(sourceSpaceId);
-        msg.setContentId(sourceContentId);
-        msg.setDestSpaceId(destSpaceId);
-        msg.setDestContentId(destContentId);
+        msg.setSrcSpaceId(sourceSpaceId);
+        msg.setSrcContentId(sourceContentId);
+        msg.setSpaceId(destSpaceId);
+        msg.setContentId(destContentId);
         msg.setUsername(username);
         msg.setContentMd5(contentMd5);
         msg.setAction(ContentMessage.ACTION.COPY.name());

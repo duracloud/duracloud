@@ -28,7 +28,21 @@ public class IngestMessage extends ContentMessage {
         sb.append("|username:'" + getUsername() + "'");
         sb.append("|contentMd5:'" + contentMd5 + "'");
         sb.append("|contentSize:'" + contentSize + "'");
+        sb.append("|action:'" + getAction() + "'");
+        sb.append("|datetime:'" + getDatetime() + "'");
         sb.append("]\n");
+        return sb.toString();
+    }
+
+    @Override
+    public String asTSV() {
+        StringBuilder sb = new StringBuilder(super.asTSV());
+        sb.append(DELIM);
+        sb.append(contentMd5);
+        sb.append(DELIM);
+        sb.append(contentSize);
+        sb.append(DELIM);
+        sb.append(contentMimeType);
         return sb.toString();
     }
 

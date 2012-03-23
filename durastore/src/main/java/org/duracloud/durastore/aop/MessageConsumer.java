@@ -25,7 +25,7 @@ public class MessageConsumer {
     private JmsTemplate jmsTemplate;
 
     public void onIngest(IngestMessage ingestMsg) {
-        log.info("message consumed from topic: " + ingestMsg);
+        log.debug("message consumed from topic: " + ingestMsg);
     }
 
     public JmsTemplate getJmsTemplate() {
