@@ -9,6 +9,7 @@ package org.duracloud.storage.aop;
 
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.bulk.ManifestVerifier;
+import org.duracloud.storage.error.InvalidEventTSVException;
 
 /**
  * This bean holds to common elements for all ContentStore AOP messages.
@@ -21,11 +22,34 @@ public class ContentMessage {
     private String storeId;
     private String spaceId;
     private String contentId;
+    private String contentMd5; // sometimes null
     private String username;
     private String action;
-    private String datetime = DateUtil.now();
+    private String datetime = DateUtil.nowVerbose();
 
     protected static final char DELIM = ManifestVerifier.DELIM;
+
+    public ContentMessage() {
+        // default constructor
+    }
+
+    public ContentMessage(String tsv) throws InvalidEventTSVException {
+        String[] parts = tsv.split(Character.toString(DELIM));
+        if (parts.length < 6) {
+            throw new InvalidEventTSVException(tsv);
+        }
+
+        setStoreId(parts[0]);
+        setSpaceId(parts[1]);
+        setContentId(parts[2]);
+        setUsername(parts[3]);
+        setAction(parts[4]);
+        setDatetime(parts[5]);
+
+        if (parts.length > 6) {
+            setContentMd5(parts[6]);
+        }
+    }
 
     @Override
     public String toString() {
@@ -53,6 +77,11 @@ public class ContentMessage {
         sb.append(action);
         sb.append(DELIM);
         sb.append(datetime);
+
+        if (null != contentMd5) {
+            sb.append(DELIM);
+            sb.append(contentMd5);
+        }
         return sb.toString();
     }
 
@@ -110,6 +139,14 @@ public class ContentMessage {
 
     public void setContentId(String contentId) {
         this.contentId = contentId;
+    }
+
+    public String getContentMd5() {
+        return contentMd5;
+    }
+
+    public void setContentMd5(String contentMd5) {
+        this.contentMd5 = contentMd5;
     }
 
     public String getUsername() {

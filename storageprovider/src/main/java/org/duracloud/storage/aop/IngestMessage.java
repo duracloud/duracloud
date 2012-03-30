@@ -7,6 +7,8 @@
  */
 package org.duracloud.storage.aop;
 
+import org.duracloud.storage.error.InvalidEventTSVException;
+
 /**
  * This class is the bean that is published-to/consumed-from the ingest topic.
  *
@@ -15,8 +17,23 @@ package org.duracloud.storage.aop;
 public class IngestMessage extends ContentMessage {
 
     private String contentMimeType;
-    private String contentMd5;
     private long contentSize;
+
+    public IngestMessage() {
+        // default constructor
+    }
+
+    public IngestMessage(String tsv) throws InvalidEventTSVException {
+        super(tsv);
+
+        String[] parts = tsv.split(Character.toString(DELIM));
+        if (parts.length < 9) {
+            throw new InvalidEventTSVException(tsv);
+        }
+
+        setContentSize(Long.parseLong(parts[7]));
+        setContentMimeType(parts[8]);
+    }
 
     @Override
     public String toString() {
@@ -26,7 +43,7 @@ public class IngestMessage extends ContentMessage {
         sb.append("|contentId:'" + getContentId() + "'");
         sb.append("|mime:'" + contentMimeType + "'");
         sb.append("|username:'" + getUsername() + "'");
-        sb.append("|contentMd5:'" + contentMd5 + "'");
+        sb.append("|contentMd5:'" + getContentMd5() + "'");
         sb.append("|contentSize:'" + contentSize + "'");
         sb.append("|action:'" + getAction() + "'");
         sb.append("|datetime:'" + getDatetime() + "'");
@@ -37,8 +54,6 @@ public class IngestMessage extends ContentMessage {
     @Override
     public String asTSV() {
         StringBuilder sb = new StringBuilder(super.asTSV());
-        sb.append(DELIM);
-        sb.append(contentMd5);
         sb.append(DELIM);
         sb.append(contentSize);
         sb.append(DELIM);
@@ -52,14 +67,6 @@ public class IngestMessage extends ContentMessage {
 
     public void setContentMimeType(String contentMimeType) {
         this.contentMimeType = contentMimeType;
-    }
-
-    public String getContentMd5() {
-        return contentMd5;
-    }
-
-    public void setContentMd5(String contentMd5) {
-        this.contentMd5 = contentMd5;
     }
 
     public long getContentSize() {

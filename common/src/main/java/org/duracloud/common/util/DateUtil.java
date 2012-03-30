@@ -18,7 +18,8 @@ public class DateUtil {
         DEFAULT_FORMAT ("yyyy-MM-dd'T'HH:mm:ss"),
         MID_FORMAT ("yyyy-MM-dd'T'HH:mm"),
         SHORT_FORMAT ("yyyy-MM-dd"),
-        YEAR_MONTH_FORMAT ("yyyy-MM");
+        YEAR_MONTH_FORMAT ("yyyy-MM"),
+        VERBOSE_FORMAT("EEE, d MMM yyyy HH:mm:ss z");
 
         private final SimpleDateFormat format;
 
@@ -58,6 +59,11 @@ public class DateUtil {
     public static String nowShort() {
         long now = System.currentTimeMillis();
         return convertToString(now, DateFormat.SHORT_FORMAT);
+    }
+
+    public static String nowVerbose() {
+        long now = System.currentTimeMillis();
+        return convertToString(now, DateFormat.VERBOSE_FORMAT);
     }
 
     public static String convertToString(long millis, DateFormat format) {

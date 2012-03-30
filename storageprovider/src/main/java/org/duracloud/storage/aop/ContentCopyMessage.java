@@ -7,11 +7,28 @@
  */
 package org.duracloud.storage.aop;
 
+import org.duracloud.storage.error.InvalidEventTSVException;
+
 public class ContentCopyMessage extends ContentMessage {
 
     private String srcSpaceId;
     private String srcContentId;
-    private String contentMd5;
+
+    public ContentCopyMessage() {
+        // default constructor
+    }
+
+    public ContentCopyMessage(String tsv) throws InvalidEventTSVException {
+        super(tsv);
+
+        String[] parts = tsv.split(Character.toString(DELIM));
+        if (parts.length < 11) {
+            throw new InvalidEventTSVException(tsv);
+        }
+
+        setSrcSpaceId(parts[9]);
+        setSrcContentId(parts[10]);
+    }
 
     @Override
     public String toString() {
@@ -22,7 +39,7 @@ public class ContentCopyMessage extends ContentMessage {
         sb.append("|destSpaceId:'" + getSpaceId() + "'");
         sb.append("|destContentId:'" + getContentId() + "'");
         sb.append("|username:'" + getUsername() + "'");
-        sb.append("|contentMd5:'" + contentMd5 + "'");
+        sb.append("|contentMd5:'" + getContentMd5() + "'");
         sb.append("|action:'" + getAction() + "'");
         sb.append("|datetime:'" + getDatetime() + "'");
         sb.append("]\n");
@@ -33,11 +50,9 @@ public class ContentCopyMessage extends ContentMessage {
     public String asTSV() {
         StringBuilder sb = new StringBuilder(super.asTSV());
         sb.append(DELIM);
-        sb.append(contentMd5);
+        sb.append("tbd"); // content size
         sb.append(DELIM);
-        sb.append("tbd");
-        sb.append(DELIM);
-        sb.append("tbd");
+        sb.append("tbd"); // content mimetype
         sb.append(DELIM);
         sb.append(srcSpaceId);
         sb.append(DELIM);
@@ -61,14 +76,6 @@ public class ContentCopyMessage extends ContentMessage {
         this.srcContentId = srcContentId;
     }
 
-    public String getContentMd5() {
-        return contentMd5;
-    }
-
-    public void setContentMd5(String contentMd5) {
-        this.contentMd5 = contentMd5;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -83,10 +90,6 @@ public class ContentCopyMessage extends ContentMessage {
 
         ContentCopyMessage that = (ContentCopyMessage) o;
 
-        if (contentMd5 != null ? !contentMd5.equals(that.contentMd5) :
-            that.contentMd5 != null) {
-            return false;
-        }
         if (srcContentId != null ? !srcContentId.equals(that.srcContentId) :
             that.srcContentId != null) {
             return false;
@@ -105,7 +108,6 @@ public class ContentCopyMessage extends ContentMessage {
         result = 31 * result + (srcSpaceId != null ? srcSpaceId.hashCode() : 0);
         result =
             31 * result + (srcContentId != null ? srcContentId.hashCode() : 0);
-        result = 31 * result + (contentMd5 != null ? contentMd5.hashCode() : 0);
         return result;
     }
 }

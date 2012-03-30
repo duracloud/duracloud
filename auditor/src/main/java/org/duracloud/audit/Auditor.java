@@ -47,7 +47,8 @@ public interface Auditor {
     public void createInitialAuditLogs(boolean async);
 
     /**
-     * This method returns the list of audit logs for the arg space.
+     * This method returns the chronologically sorted list of audit logs for the
+     * arg space.
      *
      * @param spaceId of the space over which auditing is requested
      * @return set of audit logs for the arg space

@@ -89,6 +89,7 @@
         <module>executordata</module>
         <module>executor</module>
         <module>auditor</module>
+        <module>manifest</module>
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>

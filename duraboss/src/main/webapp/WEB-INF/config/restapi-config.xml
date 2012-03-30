@@ -79,9 +79,13 @@
   </bean>
 
   <bean id="auditLogStore" class="org.duracloud.audit.impl.AuditLogStoreImpl">
-    <constructor-arg value="x-duracloud-admin"/>
+    <constructor-arg ref="auditLogSpace"/>
     <constructor-arg value="audit/storage-audit-log-"/>
     <constructor-arg value="10000000"/> <!-- 10-MB -->
+  </bean>
+
+  <bean id="auditLogSpace" class="java.lang.String">
+    <constructor-arg value="x-duracloud-admin"/>
   </bean>
 
   <bean id="auditListener" class="org.duracloud.audit.impl.AuditListenerImpl">

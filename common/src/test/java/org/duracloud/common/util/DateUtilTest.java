@@ -7,10 +7,12 @@
  */
 package org.duracloud.common.util;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Date;
 
+import static org.duracloud.common.util.DateUtil.DateFormat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -60,5 +62,19 @@ public class DateUtilTest {
         Date dateToCheck =
             DateUtil.convertToDate(DateUtil.convertToString(roundedTime));
         assertEquals(roundedTime, dateToCheck.getTime());
+    }
+
+    @Test
+    public void testConvertToDate() throws Exception {
+        String text = "2012-03-29T12:00:00";
+        Date date = DateUtil.convertToDate(text);
+        Assert.assertNotNull(date);
+    }
+
+    @Test
+    public void testConvertToDateVerbose() throws Exception {
+        String text = "Wed, 21 Mar 2012 02:06:21 UTC";
+        Date date = DateUtil.convertToDate(text, DateFormat.VERBOSE_FORMAT);
+        Assert.assertNotNull(date);
     }
 }
