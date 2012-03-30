@@ -19,6 +19,7 @@ import org.duracloud.common.util.InitUtil;
 import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
 import org.duracloud.exec.Executor;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.reporter.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
@@ -55,6 +56,7 @@ public class InitRest extends BaseRest {
     private NotificationManager notificationManager;
     private Executor executor;
     private Auditor auditor;
+    private ManifestGenerator manifestGenerator;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
@@ -64,7 +66,8 @@ public class InitRest extends BaseRest {
                     String reportSpaceId,
                     NotificationManager notificationManager,
                     Executor executor,
-                    Auditor auditor) {
+                    Auditor auditor,
+                    ManifestGenerator manifestGenerator) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
         this.summaryDirectory = summaryDirectory;
@@ -74,6 +77,7 @@ public class InitRest extends BaseRest {
         this.notificationManager = notificationManager;
         this.executor = executor;
         this.auditor = auditor;
+        this.manifestGenerator = manifestGenerator;
     }
 
     /**
@@ -137,7 +141,10 @@ public class InitRest extends BaseRest {
         // Only initialize the Auditor if it is enabled
         if (config.isAuditorEnabled()) {
             auditor.initialize(storeMgr);
-        } 
+        }
+
+        // Always initialize the Manifest Generator.
+        manifestGenerator.initialize(storeMgr);
     }
 
     @GET

@@ -7,12 +7,12 @@
  */
 package org.duracloud.manifest;
 
-import org.duracloud.audit.Auditor;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestEmptyException;
 
 import java.io.InputStream;
+import java.util.Date;
 
 /**
  * The Manifest Generator is responsible for creating content manifests from
@@ -35,13 +35,9 @@ public interface ManifestGenerator {
      * This method initializes the Manifest Generator by providing a handle to
      * the content store.
      *
-     * @param storeMgr      storage manager
-     * @param auditor       that will provide existing audit logs
-     * @param auditLogSpace of existing audit logs
+     * @param storeMgr storage manager
      */
-    public void initialize(ContentStoreManager storeMgr,
-                           Auditor auditor,
-                           String auditLogSpace);
+    public void initialize(ContentStoreManager storeMgr);
 
     /**
      * This method generates the manifest for the given args.
@@ -58,7 +54,7 @@ public interface ManifestGenerator {
      */
     public InputStream getManifest(String storeId,
                                    String spaceId,
-                                   String format,
-                                   String asOfDate)
+                                   FORMAT format,
+                                   Date asOfDate)
         throws ManifestArgumentException, ManifestEmptyException;
 }

@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.audit.Auditor;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.storage.aop.ContentMessage;
 import org.easymock.EasyMock;
@@ -26,9 +27,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.duracloud.common.util.DateUtil.convertToStringVerbose;
 import static org.duracloud.manifest.ManifestGenerator.FORMAT;
 import static org.duracloud.storage.aop.ContentMessage.ACTION.COPY;
 import static org.duracloud.storage.aop.ContentMessage.ACTION.DELETE;
@@ -50,7 +54,7 @@ public class ManifestGeneratorImplTest {
 
     private final String storeId = "store-id";
     private final String spaceId = "space-id";
-    private final String format = FORMAT.BAGIT.name();
+    private final FORMAT format = FORMAT.BAGIT;
     private final String asOfDate = "$WEEKDAY$, $DAY$ Mar 2012 02:06:21 UTC";
 
     private static final int NUM_LOGS = 2;
@@ -66,8 +70,10 @@ public class ManifestGeneratorImplTest {
         primaryStore = EasyMock.createMock("PrimaryStore",
                                            ContentStore.class);
 
-        generator = new ManifestGeneratorImpl(new FileCleaningTracker());
-        generator.initialize(storeManager, auditor, auditLogSpace);
+        generator = new ManifestGeneratorImpl(auditor,
+                                              auditLogSpace,
+                                              new FileCleaningTracker());
+        generator.initialize(storeManager);
     }
 
     @After
@@ -183,7 +189,7 @@ public class ManifestGeneratorImplTest {
 
         switch (mode) {
             case MODE_INGEST:
-                int day = 21;
+                int day = 0;
                 if (0 == i) {
                     events.add(createEvent(INGEST, 0, day));
                     events.add(createEvent(INGEST, 1, day));
@@ -204,7 +210,7 @@ public class ManifestGeneratorImplTest {
                 break;
 
             case MODE_DELETE:
-                day = 21;
+                day = 0;
                 if (0 == i) {
                     events.add(createEvent(INGEST, 0, day));
                     events.add(createEvent(COPY, 1, day));
@@ -225,9 +231,9 @@ public class ManifestGeneratorImplTest {
                 break;
 
             case MODE_DATE:
-                int dayBefore = 20;
-                day = 21;
-                int dayAfter = 22;
+                int dayBefore = -1;
+                day = 0;
+                int dayAfter = 1;
                 if (0 == i) {
                     events.add(createEvent(INGEST, 0, dayBefore));
                     events.add(createEvent(INGEST, 1, day));
@@ -288,31 +294,19 @@ public class ManifestGeneratorImplTest {
         event.setSpaceId(spaceId);
         event.setContentId(contentId);
         event.setContentMd5(getContentMd5(contentId));
-        event.setDatetime(getDate(day));
+        event.setDatetime(convertToStringVerbose(getDate(day).getTime()));
 
         return event;
     }
 
-    private String getDate() {
-        return getDate(21);
+    private Date getDate() {
+        return getDate(0);
     }
 
-    private String getDate(int day) {
-        String date = asOfDate.replace("$DAY$", Integer.toString(day));
-        switch (day) {
-            case 19:
-                return date.replace("$WEEKDAY$", "Mon");
-            case 20:
-                return date.replace("$WEEKDAY$", "Tue");
-            case 21:
-                return date.replace("$WEEKDAY$", "Wed");
-            case 22:
-                return date.replace("$WEEKDAY$", "Thu");
-            case 23:
-                return date.replace("$WEEKDAY$", "Fri");
-        }
-        Assert.fail("Unexpected day: " + day);
-        return "never";
+    private Date getDate(int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.roll(Calendar.DAY_OF_MONTH, day);
+        return calendar.getTime();
     }
 
     private String getContentMd5(String contentId) {

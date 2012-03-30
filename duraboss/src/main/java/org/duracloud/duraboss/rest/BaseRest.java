@@ -45,6 +45,10 @@ public class BaseRest {
         return Response.ok(text, TEXT_PLAIN).build();
     }
 
+    protected Response responseOkStream(InputStream text) {
+        return Response.ok(text, TEXT_PLAIN).build();
+    }
+
     protected Response responseOkXml(String xml) {
         return Response.ok(xml, APPLICATION_XML).build();
     }

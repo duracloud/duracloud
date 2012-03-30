@@ -26,6 +26,10 @@ public class DateUtil {
         DateFormat(String pattern) {
             this.format = new SimpleDateFormat(pattern);
         }
+
+        public String getPattern() {
+            return format.toPattern();
+        }
     }
 
     public static Date convertToDate(String text, DateFormat format)
@@ -85,6 +89,10 @@ public class DateUtil {
 
     public static String convertToStringShort(long millis) {
         return convertToString(millis, DateFormat.SHORT_FORMAT);
+    }
+
+    public static String convertToStringVerbose(long millis) {
+        return convertToString(millis, DateFormat.VERBOSE_FORMAT);
     }
 
     public static String convertToStringYearMonth(long millis) {

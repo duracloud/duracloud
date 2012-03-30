@@ -59,50 +59,53 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
 
     private Map<String, ContentMessage> events; // contentId -> event
 
-    public ManifestGeneratorImpl(FileCleaningTracker fileCleaningTracker) {
+    public ManifestGeneratorImpl(Auditor auditor,
+                                 String auditLogSpace,
+                                 FileCleaningTracker fileCleaningTracker) {
+        this.auditor = auditor;
+        this.auditLogSpace = auditLogSpace;
         this.fileCleaningTracker = fileCleaningTracker;
         this.events = new HashMap<String, ContentMessage>();
     }
 
     @Override
-    public void initialize(ContentStoreManager storeManager,
-                           Auditor auditor,
-                           String auditLogSpace) {
+    public void initialize(ContentStoreManager storeManager) {
         this.storeManager = storeManager;
-        this.auditor = auditor;
-        this.auditLogSpace = auditLogSpace;
         this.events = new HashMap<String, ContentMessage>();
     }
 
     @Override
     public InputStream getManifest(String storeId,
                                    String spaceId,
-                                   String format,
-                                   String asOfDate)
+                                   FORMAT format,
+                                   Date asOfDate)
         throws ManifestArgumentException, ManifestEmptyException {
-        FORMAT fmt = getFormat(format);
-
         List<String> logs = getAuditLogs(storeId, spaceId);
         for (String log : logs) {
             scanLog(log, storeId, asOfDate);
         }
 
         // Create the manifest and get a handle to its input stream.
-        File manifest = buildManifest(fmt);
+        File manifest = buildManifest(format);
         InputStream stream = stream(manifest);
 
         // Register the temp file to be removed when the stream is out of scope.
-        removeFileWhenDone(manifest, stream);
+        cleanup(manifest, stream);
 
         return stream;
     }
 
-    private void removeFileWhenDone(File file, Object marker) {
+    private void cleanup(File file, Object marker) {
+        // remove temp manifest either on jvm exit or
+        //  when marker goes out of scope.
         file.deleteOnExit();
         fileCleaningTracker.track(file, marker);
+
+        // clear existing events.
+        events.clear();
     }
 
-    private void scanLog(String logContentId, String storeId, String asOfDate) {
+    private void scanLog(String logContentId, String storeId, Date asOfDate) {
         Iterator<String> lines = getLogIterator(logContentId);
         while (lines.hasNext()) {
             ContentMessage event = getEvent(lines.next());
@@ -156,14 +159,9 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
         return storeId.equals(event.getStoreId());
     }
 
-    private boolean preceedsDate(ContentMessage event, String asOfDate) {
+    private boolean preceedsDate(ContentMessage event, Date asOfDate) {
         if (null == asOfDate) {
             return true;
-        }
-
-        Date endDate = getDate(asOfDate);
-        if (null == endDate) {
-            return false;
         }
 
         Date date = getDate(event.getDatetime());
@@ -171,17 +169,21 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
             return false;
         }
 
-        return !date.after(endDate);
+        return !date.after(asOfDate);
     }
 
     private Date getDate(String text) {
-        try {
-            return DateUtil.convertToDate(text, VERBOSE_FORMAT);
-
-        } catch (ParseException e) {
-            log.error(e.getMessage());
-            return null;
+        Exception exception = null;
+        for (DateUtil.DateFormat dateFormat : DateUtil.DateFormat.values()) {
+            try {
+                return DateUtil.convertToDate(text, dateFormat);
+            } catch (ParseException e) {
+                exception = e;
+            }
         }
+
+        log.error(exception.getMessage());
+        return null;
     }
 
     private File buildManifest(FORMAT format) throws ManifestArgumentException {
@@ -246,28 +248,14 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
             return auditor.getAuditLogs(spaceId);
 
         } catch (AuditLogNotFoundException e) {
-            StringBuilder err = new StringBuilder("Manifest empty, ");
+            StringBuilder err = new StringBuilder("Audit log not found, ");
             err.append(storeId);
             err.append(":");
             err.append(spaceId);
-            log.warn(err.toString());
-            throw new ManifestEmptyException(err.toString(), e);
-        }
-    }
-
-    private FORMAT getFormat(String format) throws ManifestArgumentException {
-        try {
-            return FORMAT.valueOf(format);
-
-        } catch (RuntimeException e) {
-            StringBuilder err = new StringBuilder();
-            err.append("Error with provided format: ");
-            err.append(format);
             err.append(", message: ");
             err.append(e.getMessage());
-
-            log.error(err.toString());
-            throw new ManifestArgumentException(err.toString(), e);
+            log.warn(err.toString());
+            throw new ManifestEmptyException(err.toString(), e);
         }
     }
 
