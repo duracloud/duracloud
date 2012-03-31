@@ -39,6 +39,10 @@ $(function(){
 			}
 		};
 
+	    dc.logXhr = function(xhr, message){
+           dc.error("status="+xhr.status + "; statusText="+xhr.statusText);
+	    };
+	    
 		dc.error = function(message){
 			if(window.console){
 				if(window.opera){
@@ -137,8 +141,8 @@ $(function(){
 				callback.begin();
 			}
 			
-			$.ajax(callback);			
-		}
+			return $.ajax(callback);			
+		};
 		/**
 		 * Create a cookie with the given name and value and other optional parameters.
 		 *
@@ -511,10 +515,33 @@ $(function(){
                     }
                 },
                 error : function(jqXHR, text, errorThrown) {
-                    dc.displayErrorDialog(xhr, text, errorThrown);
+                    dc.displayErrorDialog(jqXHR, text, errorThrown);
                 },
             });
-        };		
+        };
+        
+        
+        dc.formatBytes = function(bytes, showBytes){
+            var val = null;
+            bytes = new Number(bytes);
+            var bytesValue = bytes + " bytes";
+            
+            if(bytes < 1024){
+                return bytesValue;
+            }else if(bytes < 1024*1000){
+               val = (bytes/1000).toFixed(1) + " KB";
+            }else if(bytes < 1024*1000*1000){
+                val = (bytes/(1000*1000)).toFixed(1) + " MB";
+            }else{
+                val = (bytes/(1000*1000*1000)).toFixed(1) + " GB";
+            }
+            
+            if(showBytes){
+                val += " (" + bytesValue + ")";
+            }
+            return val;
+        };
+
 	})();
 });
 

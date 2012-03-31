@@ -84,13 +84,13 @@ $(function(){
 		$.fn.replaceContents = function(/*the pane whose contents will be swapped in*/ newContents,  
 										/*the layout for the target*/ layoutOptions){
 			var target = this;
-			$(target).fadeOut("fast", function(){
+			//$(target).fadeOut("fast", function(){
 				$(target).empty().prepend($(newContents).children());
-				$(target).fadeIn("fast");
+				//$(target).fadeIn("fast");
 				if(layoutOptions != null && layoutOptions != undefined){
 					$(target).layout(layoutOptions);
 				}
-			});
+			//});
 			return $(target);
 		};	
 

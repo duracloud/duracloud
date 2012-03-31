@@ -41,12 +41,23 @@
 			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.tagsviewer.js"></script>
     <script type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.acleditor.js"></script>
+    <script type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.historypanel.js"></script>
 
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.flyoutselect.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/dc/api/dc.util.paralleltasks.js"></script>
 
+        <script type="text/javascript"
+            src="${pageContext.request.contextPath}/jquery/dc/ext/jquery.dc.chart.js"></script>
+
+    <script type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.js"></script>
+    <script type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/plugins/jquery.flot/jquery.flot.pie.js"></script>
+    <script type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/plugins/jquery.tablesorter/jquery.tablesorter.min.js"></script>        
 			
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/js/spaces-manager.js"></script>
@@ -136,6 +147,13 @@
 				<div class="north header"></div>
 				<div class="center"></div>
 				</div>
+        
+                <div id="spacesDetailPane" style="display: none">
+                  <div class="north header">
+                    <h1>Spaces</h1>
+                  </div>
+                  <div class="center"></div>
+                </div>
 
 				<div id="spaceMultiSelectPane" style="display: none">
 				<div class="north header">

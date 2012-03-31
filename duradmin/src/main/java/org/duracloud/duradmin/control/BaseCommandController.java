@@ -16,6 +16,7 @@ import org.duracloud.duradmin.util.NavigationUtils;
 import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.binding.message.Message;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
@@ -28,6 +29,7 @@ public abstract class BaseCommandController
 
     protected final Logger log = LoggerFactory.getLogger(BaseCommandController.class);
 
+    @Autowired
     protected ControllerSupport controllerSupport;
 
     @Override

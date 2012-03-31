@@ -12,7 +12,7 @@
  * @author Daniel Bernstein
  */
 
-var centerLayout, listBrowserLayout, spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
+var spacesListPane, contentItemListPane,detailPane, spacesManagerToolbar;
 
 $(function(){
     /**
@@ -59,3015 +59,3002 @@ $(function(){
         }, "A Space ID cannot be a reserved name");
         //end validator definitions        
     })();
-    
-    
-	//perform layout first
-	centerLayout = $('#page-content').layout({
-	// minWidth: 300 // ALL panes
-		north__size: 			50	
-	,	north__paneSelector:     ".center-north"
-	,   north__resizable:   false
-	,   north__slidable:    false
-	,   north__spacing_open:			0			
-	,	north__togglerLength_open:		0			
-	,	north__togglerLength_closed:	0			
 
-	,   west__size:				800
-	,	west__minSize:			600
-	,   west__paneSelector:     "#list-browser"
-	,   west__onresize:         "listBrowserLayout.resizeAll"
-	,	center__paneSelector:	"#detail-pane"
-	,   center__onresize:       "detailPane.resizeAll"
-	});
-
-
-	listBrowserLayout = $('#list-browser').layout({
-	    	west__size:				300
-	    ,	west__minSize:			260
-		,   west__paneSelector:     "#spaces-list-view"
-	// , west__onresize: "spacesListPane.resizeAll"
-		,	center__paneSelector:	"#content-item-list-view"
-		,   center__onresize:       "contentItemListPane.resizeAll"
-	});
-	
-
-	var spacesAndContentLayoutOptions = {
-			north__paneSelector:	".north"
-		,   north__size: 			60
-		,	center__paneSelector:	".center"
-		,   resizable: 				false
-		,   slidable: 				false
-		,   spacing_open:			0			
-		,	togglerLength_open:		0	
-	};
-			
-	spacesListPane = $('#spaces-list-view').layout(spacesAndContentLayoutOptions);
-	contentItemListPane = $("#content-item-list-view").layout(spacesAndContentLayoutOptions);
-
-	// detail pane's layout options
-	var spaceDetailLayoutOptions = {
-			north__paneSelector:	".north"
-				,   north__size: 			100
-				,	center__paneSelector:	".center"
-				,   resizable: 				false
-				,   slidable: 				false
-				,   spacing_open:			0
-				,	togglerLength_open:		0
-				
-	};
-	
-	// content item detail layout is slightly different from
-	// the space detail - copy and supply overrides
-	var contentItemDetailLayoutOptions = $.extend(true,{}, 
-													   spaceDetailLayoutOptions, 
-													   {north__size:150});
-	
-	detailPane = $('#detail-pane').layout(spaceDetailLayoutOptions);
-
-	////////////////////////////////////////////
-	//  provider selection defs start
-	////////////////////////////////////////////
-
-	var PROVIDER_SELECT_ID = "provider-select-box";
-
-	var initProviderStoreSelectbox = function(){
-		var PROVIDER_COOKIE_ID = "providerId";
-		var options = {
-			data: storeProviders, // this variable is defined in a script in
-									// the head of spaces-manager.jsp
-			selectedIndex: 0
-		};
-
-		var currentProviderId = options.data[options.selectedIndex].id;
-		var cookie = dc.cookie(PROVIDER_COOKIE_ID);
-		
-		if(cookie != undefined){
-			for(i in options.data)
-			{
-				var pid = options.data[i].id;
-				if(pid == cookie){
-					options.selectedIndex = i;
-					currentProviderId = pid; 
-					break;
-				}
-			}
-		}
-		
-		$("#"+PROVIDER_SELECT_ID).flyoutselect(options).bind("changed",function(evt,state){
-			dc.cookie(PROVIDER_COOKIE_ID, state.value.id);
-			//dc.debug("value changed: new value=" + state.value.label);
-			setHash({storeId:state.value.id});
-			refreshSpaces(state.value.id);
-		});		 	
-	};
-	
-	var changeProviderStore = function(storeId){
-		$("#"+PROVIDER_SELECT_ID).flyoutselect("setValueById", storeId, false);
-	};
-	
-	var getCurrentProviderStoreId = function(){
-		var provider = $("#"+PROVIDER_SELECT_ID).flyoutselect("value");
-		return provider.id;
-	};
-
-	initProviderStoreSelectbox();		
-
-
-	
-	// //////////////////////////////////////////
-	// sets contents of object-name class
-	// /
-	var setObjectName = function(pane, name){
-		$(".object-name", pane).empty().prepend(name);	
-	};
-
-	/*
-	 * sets value of hidden object id class
+    $.fx.speeds._default = 10;
+	/**
+	 * This singleton class listens to changes in the history and delegates the event's data to a list of 
+	 * handler functions.  The handlers are called sequentially in the order they were added. 
+	 * Once a handler returns true, the rest of the handlers are ignored.
 	 */
-	var setObjectId = function(pane, objectId){
-		$(".object-id", pane).html(getCurrentProviderStoreId()+"/"+objectId);	
-	};
-
-	var getCurrentObjectId = function(){
-		return $("#detail-pane .object-id").html()
-	};
-	/*
-	 * tests if the specified id matches the id of the object loaded in 
-	 * the current detail view.
-	 */
-	var isObjectAlreadyDisplayedInDetail = function(objectId){
-        return(getCurrentProviderStoreId() + "/" + objectId == getCurrentObjectId());
-	};
-
-	// /////////////////////////////////////////
-	// /check/uncheck all spaces
-	$(".dc-check-all").click(
-		function(evt){
-			var checked = $(evt.target).attr("checked");
-			$(evt.target)
-				.closest(".dc-list-item-viewer")
-				.find(".dc-item-list")
-				.selectablelist("select", checked);
-	});
-
-	var showMultiSpaceDetail = function(){
-		var detail = $("#spaceMultiSelectPane").clone();
-		//loadPropertiesPane(multiSpace);
-		//loadTagPane(multiSpace);
-
-        var title = "{count} space(s) selected.";
-        updateTitle(detail, getSelectedSpaces().length, title);
-        $("#spaces-list").bind("selectionChanged", function(evt,state){
-            updateTitle($("#detail-pane"), getSelectedSpaces().length, title);
-        });
+	HistoryManager = (function(){
+	    var handlers = []; //an internal list of handlers
+	    var contextPath = "/duradmin/spaces/sm/";
+        var _buildUrl = function(obj) {
+            var relative = obj.storeId;
+            var spaceId = obj.spaceId;
+            if(spaceId != null && spaceId != undefined){
+                relative += "/" + spaceId;
+            }
+            
+            var contentId = obj.contentId;
+            if(contentId != null && contentId != undefined){
+                relative += "/" + contentId;
+            }
+            return contextPath+relative;
+        };
         
-		clearContents();
-		// attach delete button listener
-		var deleteButton = $(".delete-space-button",detail);
-		deleteButton.click(function(evt){
-            var confirmText = "Are you sure you want to delete multiple spaces?";
-            var busyText = "Deleting spaces";
-            var spaces = $("#spaces-list").selectablelist("getSelectedData");
-            if(spaces.length < 2){
-                confirmText = "Are you sure you want to delete this space?";
-                busyText = "Deleting space";
+        var buildStateFromUrl = function(location) {
+            var state = {};            
+            var pathname = location.pathname;
+            //var queryString = location.search;
+
+            if(pathname){
+                var index = location.pathname.indexOf(contextPath);
+                if(index == -1){
+                    return state;
+                }
+                
+                var subpathname = pathname.substring(index+contextPath.length);
+
+                var first = subpathname.indexOf("/");
+                if(first > 0){
+                    state.storeId = subpathname.slice(0, first);
+                    var second = first + subpathname.substring(first+1).indexOf("/");
+                    if(second > first){
+                        state.spaceId = subpathname.slice(first+1, second+1);
+                        if(subpathname.length > second){
+                            state.contentId = decodeURIComponent(subpathname.substring(second+2));
+                        }
+                    }else{
+                        state.spaceId = subpathname.substring(second+2);
+                    }
+                }else{
+                    if(subpathname.length > 0){
+                        state.storeId = subpathname;
+                    }
+                }
             }
+            
+            return state;
+        };
+        
+	    var instance = {
+            pushState: function(data){
+                var url = _buildUrl(data);
+                var title = "DuraCloud";
+                window.history.pushState(data, title, url);
+                this.change(data);
+            },               
+                
+            /**
+             * Returns true if the change was handled.
+             * @param state
+             * @returns {Boolean}
+             */    
+            change: function(/*string*/state) {
+                var params = state, handled = false;
 
-            if(!dc.confirm(confirmText)){
-                return;
-            }
-            dc.busy(busyText, {modal: true});
-
-			var job = dc.util.createJob("delete-spaces");	
-
-			for(i in spaces){
-				job.addTask({
-					_space: spaces[i],
-					execute: function(callback){
-						var that = this;
-						dc.store.DeleteSpace(this._space, {
-							success:function(){
-								callback.success();
-								$("#spaces-list").selectablelist("removeById", that._space.spaceId);
-							},
-							failure: function(error, xhr){
-                                callback.failure();
-                                dc.displayErrorDialog(xhr,"Unable to delete '" + that._space.spaceId +"'");
-							},
-						});
-					},
-				});
-			}
-
-			job.execute(
-				{ 
-					changed: function(job){
-						dc.log("changed:" + job);
-						var p = job.getProgress();
-						dc.busy("Deleting spaces: " + p.successes, {modal: true});
-					},
-					cancelled: function(job){
-						dc.log("cancelled:" + job);
-						dc.done();
-					}, 
-					done: function(job){
-						dc.log("done:" + job);
-						dc.done();
-				}, 
-			});
-		});
-
-		if(!isAdmin()){
-		    deleteButton.hide();
-		}
-		
-		$(".add-remove-properties-button",detail).click(function(evt){
-			preparePropertiesDialog("space");
-		});
-		
-	    $("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
-	};
-
-	var getSelectedContentItems = function(){
-		var contentItems =  $("#content-item-list").selectablelist("getSelectedData");
-		var spaceId = getCurrentSpaceId();
-		var storeId = getCurrentProviderStoreId();
-		for(i in contentItems){
-			var ci = contentItems[i];
-			if(ci.spaceId == undefined){
-				ci.spaceId = spaceId;
-			}
-			
-			if(ci.storeId == undefined){
-				ci.storeId = storeId;
-			}
-		};
-		
-		return contentItems;
-	};
-
-	
-	var getSelectedSpaces = function(){
-		var spaces =  $("#spaces-list").selectablelist("getSelectedData");
-		var storeId = getCurrentProviderStoreId();
-		var i;
-		for(i = 0; i < spaces.length; i++){
-			var s = spaces[i];
-			
-			if(s.storeId == undefined){
-				s.storeId = storeId;
-			}
-		};
-		return spaces;
-	};
-
-    var isMultiContentItemDetailVisible = function(){
-	    return $(".multiContentItemSelectPaneTitle").is(":visible");
-    };
-
-    var updateTitle = function(pane, count, pattern){
-        var title = pattern.replace("{count}", count);
-        setObjectName(pane, title);
-    };
-	
-	var showMultiContentItemDetail = function(/*bool*/readOnly){
-		var detail = $("#contentItemMultiSelectPane").clone();
-		
-		//set title
-        var title = "{count} content item(s) selected.";
-        updateTitle(detail, getSelectedContentItems().length, title);
-		$("#content-item-list").bind("selectionChanged", function(evt,state){
-	        updateTitle($("#detail-pane"), getSelectedContentItems().length, title);
-	    });
-
-		// attach delete button listener
-		var deleteButton = $(".delete-content-item-button",detail);
-		if(readOnly){
-		    deleteButton.hide();
-		}else{
-		    deleteButton.click(function(evt){
-	            var contentItems = getSelectedContentItems();
-
-	            var confirmMessage = "Are you sure you want to delete multiple content items?";
-	            var busyMessage = "Deleting content items...";
-
-	            if(contentItems.length < 2)
-	            {
-	                confirmMessage = "Are you sure you want to delete the content item?";
-	                busyMessage = "Deleting content item...";
-	            }
-
-	            if(!dc.confirm(confirmMessage)){
-	                return;
-	            }
-	            dc.busy(busyMessage, {modal: true});
-	            var job = dc.util.createJob("delete-content-items");
-	            var i;
-	            for(i = 0; i < contentItems.length; i++){
-	                job.addTask({
-	                    _contentItem: contentItems[i],
-	                    execute: function(callback){
-	                        var that = this;
-	                        dc.store.DeleteContentItem(this._contentItem, {
-	                            success:function(){
-	                                callback.success();
-	                                $("#content-item-list").selectablelist("removeById", that._contentItem.contentId);
-	                            },
-	                            failure: function(message){
-	                                callback.failure();
-	                            },
-	                        });
-	                    },
-	                });
-	            }
-
-	            job.execute(
-	                { 
-	                    changed: function(job){
-	                        dc.log("changed:" + job);
-	                        var p = job.getProgress();
-	                        dc.busy("Deleting content items: " + p.successes, {modal: true});
-	                    },
-
-	                    cancelled: function(job){
-	                        dc.log("cancelled:" + job);
-	                        dc.done();
-	                    }, 
-	                    done: function(job){
-	                        dc.log("done:" + job);
-	                        dc.done();
-	                }, 
-	            });
-	        });
-		}
-
-		//attach mimetype edit listener
-		var editButton = $(".edit-selected-content-items-button",detail);
-		if(readOnly){
-		    editButton.hide();
-		}else{
-	        editButton.click(function(evt){
-	            openContentItemDialog(function(){
-	                var form = $("#edit-content-item-form");
-
-	                if(form.valid()){
-	                    dc.busy("Preparing to update content items...", {modal: true});
-
-	                    $('#edit-content-item-dialog').dialog("close");
-
-	                    var contentItems = getSelectedContentItems();
-	                    var job = dc.util.createJob("update-content-items");    
-	    
-	                    var contentItem,i;
-	                    for(i = 0; i < contentItems.length; i++){
-	                        contentItem = contentItems[i];
-	                        contentItem.contentMimetype = $("input[name=contentMimetype]", form).val();
-
-	                        job.addTask({
-	                            _contentItem: contentItem,
-	                            execute: function(callback){
-	                                var that = this;
-	                                var citem = that._contentItem;
-	                                var data = serialize(citem);
-	                                dc.store.UpdateContentItemMimetype(data, {
-	                                    success:function(){
-	                                        callback.success();
-	                                    },
-	                                    failure: function(message){
-	                                        callback.failure();
-	                                    },
-	                                });
-	                            },
-	                        });
-	                    }
-	    
-	                    job.execute(
-	                        { 
-	                            changed: function(job){
-	                                dc.log("changed:" + job);
-	                                var p = job.getProgress();
-	                                dc.busy("Updating content items: " + p.successes, {modal: true});
-	                            },
-	    
-	                            cancelled: function(job){
-	                                dc.log("cancelled:" + job);
-	                                dc.done();
-	                            }, 
-	                            done: function(job){
-	                                dc.log("done:" + job);
-	                                dc.done();
-	                        }, 
-	                    });
+	            $.each(handlers, function(i, handler){
+	                handled = handler(params);
+	                if(handled){
+                        return false;
 	                }
 	            });
-	        });
-		}
-
-		var addRemoveProperties = $(".add-remove-properties-button",detail);
-        if(readOnly){
-            addRemoveProperties.hide();
-        }else{
-            addRemoveProperties.click(function(evt){
-                preparePropertiesDialog("contentItem");
-            });
-        }
-		
-        $(".copy-content-item-button",detail)
-            .click(function(evt){
-            copyContentItems(evt,
-                    getSelectedContentItems());
-        });		
-		
-		$("#detail-pane").replaceContents(detail, contentItemDetailLayoutOptions);
-	};
-	
-	var preparePropertiesDialog = function(targetListDataType){
-		var items, getFunction;
-		if(targetListDataType == "contentItem"){
-			items = getSelectedContentItems();
-			getFunction = function(ci,callback){
-				dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, callback);
-			};
-		}else{
-			items = getSelectedSpaces();
-			getFunction = function(space,callback){
-				dc.store.GetSpace(space.storeId, space.spaceId, callback);
-			};
-		}
-
-		aggregatePropertiesFromSelection(items,getFunction,{
-			success: function(data){
-				loadPropertiesDialog(data,targetListDataType);
-			},
-			failure: function(text){
-				alert("unable to load selection:" + text);
-			},
-		});
-
-	};
-
-	var appendToListIfNew = function(newItems, itemList, equalsFunc) {
-		var toAppend = [];
-		var i,j,ni,item,append;
-		for(i = 0; i < newItems.length; i++){
-			ni = newItems[i];
-			if(itemList.length == 0){
-				toAppend.push(ni);
-			}else{
-				append = true;
-				for(j = 0; j <  itemList.length; j++){
-					item = itemList[j];
-					if(equalsFunc != undefined){
-						if(equalsFunc(ni,item)){
-							append = false;
-							break;
-						}
-					}else{
-						if(ni == item){
-							append = false;
-							break;
-						}
-					}
-				}
-				
-				if(append){
-					toAppend.push(ni);
-				}
-			}
-		}
-
-		for(i = 0; i < toAppend.length; i++){
-			itemList.push(toAppend[i]);
-		}
-	};
-
-
-	var aggregatePropertiesFromSelection = function(items, getFunction, fcallback){
-		dc.busy("Loading selection...", {modal: true});
-		var propertiesLists = [];
-		var tagLists = [];
-		var job = dc.util.createJob("load-content-items");	
-		for(i in items){
-			job.addTask({
-				_item: items[i],
-				execute: function(callback){
-					getFunction(
-							this._item,
-							{
-								success:function(obj){
-									propertiesLists.push(obj.extendedProperties);
-									tagLists.push(obj.properties.tags);
-									callback.success();
-								},
-								failure: function(message){
-									callback.failure();
-								},
-							}					
-					);
-				},
-			});
-		}
-
-		job.execute({ 
-			changed: function(job){
-				dc.debug("changed:" + job)
-				var p = job.getProgress();
-				dc.busy(p.successes  + " content items loaded...", {modal: true});
-			},
-			cancelled: function(job){
-				dc.debug("cancelled:" + job);
-				dc.done();
-			}, 
-			done: function(job){
-				dc.log("done:" + job);
-				dc.done();
-				var properties = [];
-				var tags = [];
-				var i;
-				for(i = 0; i < propertiesLists.length; i++){
-					appendToListIfNew(propertiesLists[i],properties, function(a,b){ return a.name == b.name && a.value == b.value;});
-				}
-				
-				for(i = 0; i < tagLists.length; i++){
-					appendToListIfNew(tagLists[i],tags);
-				}
-				
-				fcallback.success({
-					properties: properties,
-					tags: tags,
-				});
-			}, 
-		});
-
-		
-	};
-	
-	var loadPropertiesDialog = function(data, targetListType){
-		var propertiesToBeAdded = [];
-		var propertiesToBeRemoved = [];
-		var tagsToBeAdded = [];
-		var tagsToBeRemoved = [];
-
-		var mp = createPropertiesPane(data.properties);
-		
-		var equals = function(a,b){
-			return (a.name == b.name && a.value == b.value);
-		};
-
-		var removeValueFromList = function(value, list, equals){
-			var i,el;
-			for(i in list){
-				el = list[i];
-				if(equals != undefined ? equals(value, el) : value == el){
-					list.splice(i,1);
-					return el;
-				}
-			}
-			return null;
-		};
-		
-		
-		$(mp).bind("dc-add", function(evt, future){
-			evt.stopPropagation();
-			var value = future.value;
-			future.success();
-			//if in the removed list, remove from remove list
-			removeValueFromList(value,propertiesToBeRemoved, equals);
-			removeValueFromList(value,propertiesToBeAdded, equals);
-			propertiesToBeAdded.push(value);
-		}).bind("dc-remove", function(evt, future){
-			evt.stopPropagation();
-			future.success();
-			var value = future.value;
-			if(removeValueFromList(value, propertiesToBeAdded, equals) == null){
-				removeValueFromList(value, propertiesToBeRemoved, equals);
-				propertiesToBeRemoved.push(value);
-			}
-		});
-
-		var tag = createTagPane(data.tags);
-
-		$(tag).bind("dc-add", function(evt, future){
-			evt.stopPropagation();
-			var value = future.value[0];
-			future.success();
-			removeValueFromList(value,tagsToBeRemoved);
-			removeValueFromList(value,tagsToBeAdded);
-			tagsToBeAdded.push(value);
-		}).bind("dc-remove", function(evt, future){
-			evt.stopPropagation();
-			var value = future.value;
-			future.success();
-			if(removeValueFromList(value, tagsToBeAdded) == null){
-				removeValueFromList(value, tagsToBeRemoved);
-				tagsToBeRemoved.push(value);
-			}
-		});
-
-		
-		var saveFunction = function(){
-			var msg = "Applying the following changes: \n";
-			for(i in propertiesToBeRemoved){
-				var m = propertiesToBeRemoved[i];
-				msg +="\tremoving: " + m.name + "=" + m.value + "\n";
-			}
-
-			for(i in tagsToBeRemoved){
-				msg +="\tremoving: " + tagsToBeRemoved[i] + "\n";
-			}
-
-			for(i in propertiesToBeAdded){
-				var m = propertiesToBeAdded[i];
-				msg +="\tadding: " + m.name + "=" + m.value + "\n";
-			}
-
-			for(i in tagsToBeAdded){
-				msg +="\tadding: " + tagsToBeAdded[i] + "\n";
-			}
-			
-			if(confirm(msg)){
-				var params = {
-					propertiesToRemove: propertiesToBeRemoved,
-					propertiesToAdd:    propertiesToBeAdded,
-					tagsToRemove:     tagsToBeRemoved, 
-					tagsToAdd:        tagsToBeAdded,
-				};
-				
-				if(targetListType == "contentItem"){
-					params.contentItems = getSelectedContentItems();
-					bulkUpdateContentProperties(params);
-				}else{
-					params.spaces = getSelectedSpaces();
-					bulkUpdateSpaceProperties(params);
-				}
-
-				d.dialog("close");
-				dc.busy("Preparing to perform update...", {modal: true});
-				
-			}
-		};
-		
-		
-		var d = initializePropertiesDialog(saveFunction);
-
-
-		var pane = $(".center", d);
-		pane.append(mp);
-		pane.append(tag);
-
-		dc.done();
-		d.dialog("open");
-		
-	};
-	
-	var serialize = function(obj){
-		var str = "";
-		for(p in obj){
-			str += "&" + p + "=" + encodeURIComponent(obj[p]);
-		}
-		return str;
-	};
-	
-	var bulkUpdateContentProperties = function(params){
-		var job = dc.util.createJob("bulk-update-content-properties");
-		var contentItems = params.contentItems;
-		var i;
-		for(i = 0; i < contentItems.length; i++){
-			var contentItem = contentItems[i];
-			job.addTask({
-				_contentItem: contentItem,
-				execute: function(callback){
-					var that = this;
-					var citem = that._contentItem;
-					addRemoveContentItemProperties(citem.spaceId, citem.contentId, params,callback);
-				},
-			});
-		}
-		job.execute(createGenericJobCallback("Updating content items: "));
-	};
-
-	var bulkUpdateSpaceProperties = function(params){
-		var job = dc.util.createJob("bulk-update-space-properties");
-		var spaces = params.spaces;
-		var i;
-		for(i = 0; i < spaces.length; i++){
-			var space = spaces[i];
-			job.addTask({
-				_space: space,
-				execute: function(callback){
-					addRemoveSpaceProperties(this._space.spaceId, params,callback);
-				},
-			});
-		}
-		job.execute(createGenericJobCallback("Updating spaces: "));
-	};
-
-	var createGenericJobCallback = function(updateText){
-		return { 
-			changed: function(job){
-				dc.log("changed:" + job);
-				var p = job.getProgress();
-				dc.busy(updateText + p.successes, {modal: true});
-			},
-			cancelled: function(job){
-				dc.log("cancelled:" + job);
-				dc.done();
-			}, 
-			done: function(job){
-				var p = job.getProgress();
-				dc.log("done:" + job);
-				var message = "Successfully updated " + p.successes + " item(s).";
-				if(p.failures > 0){
-					message +=" However there were some errors: " + p.failures + " were not updated successfully.";
-				}
-				dc.done(message);
-				
-			},
-		};
-	};
-	
-	var initializePropertiesDialog = function(saveFunction){
-		var d = $("#add-remove-properties-dialog");
-		d.dialog({
-			autoOpen: false,
-			show: 'blind',
-			hide: 'blind',
-			height: 600,
-			resizable: false,
-			closeOnEscape:true,
-			modal: true,
-			width:500,
-			buttons: {
-				'Save': saveFunction,
-				Cancel: function() {
-					$(this).dialog('close');
-				}
-			},
-			close: function() {
-
-			},
-			open: function(e){
-				
-			}
-		});
-		var pane = $(".center", d);
-		pane.empty();
-		return d;
-	};
-
-	var showGenericDetailPane = function(){
-		$("#detail-pane").replaceContents($("#genericDetailPane").clone(), spaceDetailLayoutOptions);
-	};
-
-	// ////////////////////////////////////////
-	// //functions for loading properties, tags and properties
-
-	var createPropertiesPane = function(extendedProperties, /*bool*/readOnly){
-		var viewerPane = $.fn.create("div")
-						.propertiesviewer({title: "Properties", readOnly: readOnly})
-						.propertiesviewer("load",extendedProperties);
-		return viewerPane;
-	};
-
-	var createTagPane = function(tags, /*bool*/readOnly){
-		var viewerPane = $.fn.create("div")
-						.tagsviewer({title: "Tags", readOnly: readOnly})
-						.tagsviewer("load",tags);
-		return viewerPane;
-	};
-
-	var loadPropertiesPane = function(target, extendedProperties, /*bool*/ readOnly){
-		var viewerPane = createPropertiesPane(extendedProperties, readOnly);
-		$(".center", target).append(viewerPane);
-		return viewerPane;
-	};
-
-	var loadTagPane = function(target, tags, /*bool*/readOnly){
-		var viewerPane = createTagPane(tags,readOnly);
-		$(".center", target).append(viewerPane);
-		return viewerPane;
-	};
-
-	var loadProperties = function(target, /* array */ properties){
-		var propertiesDiv = $(".detail-properties", target).first();
-		
-		if(propertiesDiv.size() == 0){
-			propertiesDiv = $.fn.create("div").addClass("detail-properties");
-			$(".center", target).append(propertiesDiv.tabularexpandopanel(
-								{title: "Details", data: properties}));
-		}else{
-			$(propertiesDiv).tabularexpandopanel("setData", properties);
-		}
-	};
-
-	var loadVideo = function(target, contentItem){		
-		loadMedia(target,contentItem, "Watch","video");
-	}	
-
-	var loadAudio = function(target, contentItem){		
-		loadMedia(target,contentItem, "Listen","audio");
-	}	
-
-	var loadMedia = function(target, contentItem, title,/*audio or video*/type){		
-		
-		
-		var viewer = $.fn.create("div").attr("id", "mediaspace");
-		
-		var div = $.fn.create("div")
-		.expandopanel({title: title});
-		
-		$(div).expandopanel("getContent").css("text-align", "center").append(viewer);
-		$(".center", target).append(div);
-
-		dc.service.GetDeployedServices({
-			success: function(data){
-				var services = data.services;
-				var streamingService = null;
-				var i;
-				for(i in services){
-					var service = services[i];
-					if(service.contentId.indexOf('mediastreamingservice') > -1){
-						streamingService = service;
-						var deployments = streamingService.deployments;
-						var sourceMediaSpace = false;
-						
-						var j;
-						for(j in deployments){
-							var deployment = deployments[j];
-
-                            var modeSets = deployment.userConfigModeSets;
-                            for(k in modeSets){
-
-                                var modes = modeSets[k].modes;
-                                for(p in modes){
-                                    var mode = modes[p];
-
-                                    var userConfigs = mode.userConfigs;
-                                    var m;
-                                    for(m in userConfigs){
-                                        var uc = userConfigs[m];
-                                        if(uc.name == "mediaSourceSpaceId" && uc.displayValue.indexOf(contentItem.spaceId) != -1){
-                                            sourceMediaSpace = true;
-                                            break;
-                                        }
-                                    }
-                                }
-							}
-
-							if(sourceMediaSpace){
-								dc.service.GetServiceDeploymentConfig(streamingService, deployment,{
-									success: function(data) {
-										var streamingHost = null;
-										var k;
-										for(k in data.properties){
-											var prop = data.properties[k];
- 											if(prop.name == 'Streaming Host for ' + contentItem.spaceId){
-												streamingHost = prop.value;
-												setTimeout(function(){
-													//async necessary to let the DOM update itself so that the mediaspace dom element is present.
-													var so = new SWFObject('/duradmin/jwplayer/player.swf','ply','350','216','9','#ffffff');
-												    so.addParam('allowfullscreen','true');
-												    so.addParam('allowscriptaccess','always');
-												    so.addParam('wmode','opaque');
-												    so.addVariable('skin','/duradmin/jwplayer/stylish.swf');
-												    so.addVariable('file', contentItem.contentId);
-												    so.addVariable('streamer', 'rtmp://' +streamingHost+ '/cfx/st');
-												    so.write('mediaspace');
-												},1000);
-											}
-										}
-									},
-									
-									failure: function(text){
-										alert("failed to get deployment config for " + streamingService.serviceId + " deployed on " + deployment.hostname + ": " + text);
-									},
-									
-								});
-							}
-						}
-						
-						if(!sourceMediaSpace){
-							viewer.html("<p>No streaming service is running against this space." + 
-							"Please reconfigure the streaming service to use this space as the source.</p>");
-							//viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
-							//viewer.append(createHTML5MediaTag(contentItem,type));
-						}
-					}
-				}
-				
-				if(streamingService == null){
-					viewer.html("<p>The media stream services must be running to stream audio/video files for this space.</p");
-					//viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
-					//viewer.append(createHTML5MediaTag(contentItem, type));
-				}
-			},
-			failure: function(text){
-				alert("failed to get deployed services: " + text);
-			},
-		});
-
-	};
-
-	var createHTML5MediaTag = function(contentItem,type){
-		return type == 'audio' ? createHTML5AudioTag(contentItem) : createHTML5VideoTag(contentItem);
-	}
-
-	var createHTML5AudioTag = function(contentItem){
-		return $.fn.create("audio")
-		.attr("src", contentItem.viewerURL)
-		.attr("loop", "false")
-		.attr("preload", "false")
-		.attr("controls", "true");
-	};
-
-	var createHTML5VideoTag = function(contentItem){
-		return $.fn.create("video")
-		.attr("src", contentItem.viewerURL)
-		.attr("loop", "false")
-		.attr("preload", "false")
-		.attr("width", "350")
-		.attr("height", "216")
-		.attr("controls", "true");
-	};
-
-    var isPubliclyReadable = function(acls){
-       if(!acls){
-           return false;
-       }
-       
-       var p; 
-       for(p in acls){
-           if(acls[p].publicGroup){
-               return true;
-           }
-       }
-       
-       return false;
-   };
-
-	
-	var loadPreview = function(target,contentItem,j2kBaseURL){
-	    //if space is not publicly visible and j2K service is running, we must 
-	    //notify the user that the space must be opened.
-	
-       var viewerType = 'iframe';
-       var options = {
-                       'transitionIn'  :       'elastic',
-                       'transitionOut' :       'elastic',
-                       'speedIn'               :       600, 
-                       'speedOut'              :       200, 
-                       'overlayShow'   :       false};
-
-       var open = isPubliclyReadable(contentItem.acls);
-       var externalViewer = j2kBaseURL != null && open;
-       var viewerURL,thumbnailURL;
-
-       if(externalViewer){
-               options['width'] = $(document).width()*0.8;
-               options['height'] = $(document).height()*0.8;
-               options['type'] = 'iframe';
-               viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
-               thumbnailURL = dc.store.formatThumbnail(contentItem, 2,j2kBaseURL, open);
-       }else{
-               options['type'] = 'image';
-               viewerURL = dc.store.formatDownloadURL(contentItem,false);
-               thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
-       }
-       
-       var div = $.fn.create("div")
-                                 .expandopanel({title: "Preview"});
-       
-       $(".view-content-item-button", target)
-               .css("display","inline-block")
-               .attr("href", viewerURL);
-
-       var thumbnail = $.fn.create("img")
-                                               .attr("src", thumbnailURL)
-                                               .addClass("preview-image");
-       
-       var viewerLink = $.fn.create("a").append(thumbnail)
-                                               .attr("href", viewerURL)
-                                               .fancybox(options);		
-
-       var wrapper = $.fn.create("div")
-                                               .addClass("preview-image-wrapper")
-                                               .append(viewerLink);
-
-       var parent = $(viewerLink.parent());
-       var loadingMessage = $("<div><h2><img src='/duradmin/images/wait.gif'/>Loading image...</h2>");
-       parent.append(loadingMessage);
-       thumbnail.hide();
-       thumbnail.load(function(){
-           loadingMessage.remove();
-           thumbnail.show();
-       });
-       
-       if(!open && j2kBaseURL != null && isAdmin()){
-               var warning = $.fn.create("div").addClass("warning").attr("id", "make-public-warning");
-               $(div).expandopanel("getContent").append(warning);
-               var button = createMakePublicButton(
-                               contentItem.storeId, 
-                               contentItem.spaceId, 
-                               function(){
-                                   getContentItem(
-                                           contentItem.storeId,
-                                           contentItem.spaceId,
-                                           contentItem.contentId,
-                                           true);
-                                                                     
-                               });
-
-               warning.append("<span>To use the JP2 Viewer you must grant the 'public'" +
-                                   " group read access to this space.</span>")
-                          .append(button);
-       }
-                
-       $(div).expandopanel("getContent").append(wrapper);
-       $(".center", target).append(div); 
-	};
-
-	var createMakePublicButton = function(storeId, spaceId, successFunc){
-	    var button = $.fn.create("button")
-                        .addClass("featured")
-                        .css("margin-left","10px")
-                        .html("Make space publicly readable");
-            
-	    button.click(function(evt){
-            makeSpacePubliclyReadable(
-                    evt,
-                    storeId, 
-                    spaceId,
-                    successFunc);
-            
-        });	    
-	    
-	    $(document).unbind("acls-updated");
-        $(document).bind("acls-updated",function(evt, acls){
-            if(!isPubliclyReadable(acls)){
-                button.show();
-            }else{
-                button.hide();
-                $("#make-public-warning").hide();
-                
-            }
-        });
-	    
-	    return button;
-	};
-	
-	var options = {
-			'type'			:   'inline',
-			'transitionIn'	:	'elastic',
-			'transitionOut'	:	'elastic',
-			'speedIn'		:	600, 
-			'speedOut'		:	200, 
-			'overlayShow'	:	false,
-			'content'			:   "Test Content"	
-			
-	};	
-	
-	var getStoreName = function(storeId) {
-		for(i in storeProviders){
-			var store = storeProviders[i];
-			if(storeId == store.id){
-				return store.label;
-			}
-		}
-		
-		return 'no provider found with id = ' + storeId;
-	};
-
-	var getStoreType = function(storeId) {
-		for(i in storeProviders){
-			var store = storeProviders[i];
-			if(storeId == store.id){
-				return store.type;
-			}
-		}
-
-		return 'no provider found with id = ' + storeId;
-	};
-	
-	/*
-	 //TODO Remove the commented block below when the team is comfortable jettisoning
-	 //the single content item upload
-	var createTaskPanel = function(task) {
-		var props = task.properties;
-		var percentComplete = parseInt(parseInt(props.bytesRead)/parseInt(props.totalBytes)*100);
-		var state = props.state;
-		var modifierClass = null;
-		if(state == "cancelled"){
-			modifierClass = "dc-cancelled";
-		}else if(state == "failure"){
-			modifierClass = "dc-failure";
-		}else{
-			modifierClass = "";
-		}
-		
-		var item = 	$.fn.create("div")
-						.addClass("upload-item clearfix")
-						.append(
-							$.fn.create("span").addClass("upload-item-id").html(props.contentId)
-						).append(
-								$.fn.create("span").addClass("upload-item-store-space").html("Store: " + getStoreName(parseInt(props.storeId)) + " | Space: " + props.spaceId)
-						).append(
-								$.fn.create("div").addClass("dc-progressbar-wrapper")
-									.append(
-											$.fn.create("div").addClass("dc-progressbar " + modifierClass)
-												.append(
-														$.fn.create("div").addClass("dc-progressbar-value " + modifierClass)))
-						).append(
-							$.fn.create("div").addClass("dc-controls")
-						);
-
-		// configure progress bar
-		item.find(".dc-progressbar-value")
-			.css("width", percentComplete+"%")
-			.html(parseInt(parseInt(props.bytesRead)/1024) + 
-					" of " + 
-						parseInt(parseInt(props.totalBytes)/1024) + 
-							" KB / " + 
-								percentComplete + "%");			
-		
-		var actionCell = item.find(".dc-controls");	
-		actionCell.append(
-				$.fn.create("span")
-					.addClass("dc-progress-state").html(state));
-		
-		if(state == 'success'){
-			item.click(function(){
-				$("#upload-viewer").dialog("close");
-				loadWhatYouCan(props);
-			}).css("cursor", "pointer");
-			
-		}
-		
-		if(state == 'running'){
-			actionCell.append(
-					$.fn.create("button")
-					.html("Cancel")
-					.click(function(evt){ 
-						var that = this;
-						evt.stopPropagation();
-						dc.ajax({
-							url: "/duradmin/spaces/upload",
-							data: "action=cancel&taskId="+task.id,
-							type:"POST",
-							success: function(){
-								$(that).closest(".upload-item").fadeOut("slow");
-							},
-							
-						    failure: function(textStatus){
-								alert("failed to remove task");
-							},
-						});	
-					}));
-		}else{
-			actionCell.append($.fn.create("button").html("Remove").click(function(evt){
-				var that = this;
-				evt.stopPropagation();
-				dc.ajax({
-					url: "/duradmin/spaces/upload",
-					data: "action=remove&taskId="+task.id,
-					type:"POST",
-					success: function(){
-						$(that).closest(".upload-item").fadeOut("slow");
-					},
-					
-				    failure: function(textStatus){
-						alert("failed to remove task");
-					},
-				});	
-			}));
-		}
-		
-		return item;
-		
-	};
-	
-	
-	$("#view-uploads").click(function(){
-		$("#upload-viewer").dialog("open");
-	});
-
-	var runPoller = false;
-	
-    $("#upload-viewer").dialog({
-		autoOpen: false,
-		show: 'blind',
-		hide: 'blind',
-		resizable: false,
-		height: 400,
-		closeOnEscape:true,
-		modal: false,
-		width:500,
-		closable: false,
-		buttons: {
-			"Close": function(){
-				$(this).dialog("close");
-				runPoller = false;
-			}
-		},
-		beforeclose: function(event, ui){
-		},
-		open: function(event,ui){
-			runPoller = true;
-			var poll = function(){
-				if(runPoller){
-					poller();
-					setTimeout(function(){
-						poll();
-					},2000);
-				}
-			};
-			poll();
-		},
-	});
-
-	var poller = function(pollInterval){
-		dc.ajax({
-			cache:false,
-			url: "/duradmin/spaces/upload",
-			success: function(data){
-				
-				var link = $("#view-uploads");
-				$("#progress-bar", link).remove();
-				$("#uploads-status-text", link).remove();
-				
-				if(data != null && data.taskList != null && data.taskList.length > 0){
-					var inprogress = false;
-					var error = false;
-					for(i in data.taskList){
-						var props = data.taskList[i].properties;
-						if(props.state =='running'){
-							inprogress = true;
-						}
-					}
-
-					if(inprogress){
-						link.append($.fn.create("span").attr("id", "progress-bar"));
-					}else{
-						link.append($.fn.create("span").attr("id", "uploads-status-text").html("Done"));
-					}
-				}else{
-					link.append($.fn.create("span").attr("id", "uploads-status-text").html(" ---- "));
-				}
-				
-				var upload = $("#upload-list-wrapper");
-				upload.empty();
-				for(i in data.taskList){
-					var t = data.taskList[i];
-					upload.prepend(createTaskPanel(t));
-				}							
-				if(pollInterval != undefined && pollInterval > 0){
-					setTimeout(poller, pollInterval);
-				}
-			}
-		});
-	};
-	
-	poller(60*1000);
-	//end single content item upload code.
-	*/
-	$.fx.speeds._default = 10;
-
-	///////////////////////////////////////////
-	///Add Space Dialog Definition Start
-	
-	
-	var addSpaceButtonHandler = function(){
-		if($("#add-space-form").valid()){
-			var space = {
-				storeId: getCurrentProviderStoreId(),
-				spaceId: $("#add-space-dialog #spaceId").val(),
-			};
-
-			var publicFlag = $("#add-space-dialog #publicFlag").is(":checked");
-			 
-			dc.store.AddSpace(
-				space,
-				publicFlag,
-				{
-					begin: function(){
-						dc.busy( "Adding space...",{modal: true});
-					},
-					success: function(space){
-						dc.done();
-						if(space == undefined){
-							alert("error: space is undefined");
-						}else{
-							addSpaceToList(space);
-							spacesArray.push(space);
-							spacesArray.sort(function(a,b){
-							   return a.spaceId > b.spaceId;
-							});
-						
-							$("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
-							scrollToCurrentSpace();
-						}
-						
-					},
-				}
-			);
-			$("#add-space-dialog").dialog("close");
-		}
-	};
-	
-	$('#add-space-dialog').dialog({
-		autoOpen: false,
-		show: 'blind',
-		hide: 'blind',
-		resizable: false,
-		height: 425,
-		closeOnEscape:true,
-		modal: true,
-		width:500,
-		buttons: {
-			'Add': function(evt) {
-				//the handler is defined externally 
-				//to the dialog definition because it 
-				//is referenced in two different execution
-				//paths.
-				addSpaceButtonHandler();
-			},
-			Cancel: function(evt) {
-				$(this).dialog('close');
-			}
-		},
-		
-		close: function() {
-
-		},
-		
-		open: function(e){
-			$("#add-space-form").resetForm();
-			//wrapping in a setTimeout seems to be necessary 
-			//to get this to run properly:  the dialog must be 
-			//visible before the focus can be set.
-			setTimeout(function(){
-				$("#add-space-form #spaceId").focus();
-			});
-		}
-		
-	});
-
-	$("#add-space-form").validate({
-		rules: {
-			spaceId: {
-				rangelength: [3,42],
-				startswith: true,
-				endswith: true,
-				spacelower: true,
-				notip: true,
-                dotnum: true,
-				misc: true,
-                reserved: true,
-			},
-		},
-		messages: {
-				
-		}
-	});
-
-	//implements enter key behavior
-    $("#add-space-form #spaceId").keypress(function(evt) {
-      if(evt.which == 13){
-         evt.stopPropagation();
-         addSpaceButtonHandler();
-         return false;
-       }
-    });
-
-	///////////////////////////////////////////
-	///Add Space Dialog Definition End ^
-	///////////////////////////////////////////
-
-	$('.add-space-button').live("click",
-			function(evt){
-				$("#add-space-dialog").dialog("open");
-			}
-		);
-
-   var getCurrentSpace = function(){
-        var currentItem = $("#spaces-list").selectablelist("currentItem");
-        if(currentItem != null && currentItem.data != null){
-            return currentItem.data;
-        }else{
-            return null;
-        }
-    };
-
-	var getCurrentSpaceId = function(){
-	    var space = getCurrentSpace();
-	    if(space){
-	        return space.spaceId;
-	    }
-	};
-
-	/**
-	 * This was added to fix this problem: 
-	 * https://jira.duraspace.org/browse/DURACLOUD-432
-	 * It's apparently an html5 issue.
-	 * 
-	 * http://dev.w3.org/html5/spec/number-state.html
-	 * 4.10.7.1.18 File Upload state
-	 */
-	var extractFilename = function (path) {
-	    if(!path){
-	        return null;
-	    }
-
-	    if (path.substr(0, 12) == "C:\\fakepath\\")
-	      return path.substr(12); // modern browser
-	    var x;
-	    x = path.lastIndexOf('/');
-	    if (x >= 0) // Unix-based path
-	      return path.substr(x+1);
-	    x = path.lastIndexOf('\\');
-	    if (x >= 0) // Windows-based path
-	      return path.substr(x+1);
-	    return path; // just the filename
-	  };
-	  
-	  
-	  /**
-	   * @param contentItem
-	   * @param callback - an object with an onProceed() function
-	   *                 that is called if the content item exists and the user has said
-	   *                 continue with the operation or the content item doesn't exist.
-	   */
-	  var checkIfContentItemExists = function(contentItem, callback){
-          dc.store.CheckIfContentItemExists(
-                  contentItem, 
-                  { 
-                      success: function(exists){
-                          if(exists){
-                              if(!confirm("A contentId named '" + contentItem.contentId + 
-                                          "' already exists in '" + contentItem.spaceId +
-                                          "' already exists. Overwrite?")){
-                                  if(callback.onCancel) callback.onCancel();
-                                  return;
-                              }
-                          }
-
-                          if(callback.onProceed) callback.onProceed();
-
-                      },
-                      
-                      failure: function(message){
-                          alert("check for existing content item failed: " + message);
-                      }
-                  }
-              );	      
-	  }
-	  
-	///////////////////////////////////////////
-	///Add Content Item Dialog Definition Start
-	///////////////////////////////////////////
-
-	$('#add-content-item-dialog').dialog({
-		autoOpen: false,
-		show: 'blind',
-		hide: 'blind',
-		height: 300,
-		resizable: false,
-		closeOnEscape:true,
-		modal: true,
-		width:500,
-		buttons: {
-			'Add': function() {
-				var that = this;
-				if($("#add-content-item-form").valid()){
-					var form = $("#add-content-item-form");
-					var contentItem = {
-							 storeId: getCurrentProviderStoreId(), 
-							 spaceId: getCurrentSpaceId(), 
-							 contentId: $("#contentId", form).val()};
-
-					var filename = extractFilename($("#file", form).val());
-					
-					
-					if(contentItem.contentId == null || contentItem.contentId.trim() == ''){
-						contentItem.contentId = filename;
-					}
-					$("#spaceId", form).val(contentItem.spaceId);
-					$("#storeId", form).val(contentItem.storeId);
-					var dialog = $("#add-content-item-dialog").find(".ui-dialog");
-					dialog.hide();
-
-					checkIfContentItemExists(
-					    contentItem, 
-					    {
-					        onCancel:function(){
-					            dialog.show();
-					        },
-    					    onProceed:function(){
-                                $(that).dialog("enable");
-                                $(that).dialog("close");
-    
-                                var updateFunc =  function(data){
-                                    poller();
-                                    var ci = data.contentItem;
-                                    var storeId = getCurrentProviderStoreId();
-                                    var spaceId = getCurrentSpaceId();
-                                    ci.contentId = decodeURIComponent(ci.encodedContentId);
-                                    if( ci.storeId == storeId && ci.spaceId == spaceId && $("#content-item-list [id='"+ci.contentId+"']").size() == 0){
-                                        addContentItemToList(ci);
-                                    }
-                                };
-                                    
-                                var key = encodeURIComponent(contentItem.storeId) + "/" +
-                                          encodeURIComponent(contentItem.spaceId) + "/" +
-                                          encodeURIComponent(contentItem.contentId);
-                                var callback = {
-                                    key: key,
-                                    begin: function(){
-                                        $("#upload-viewer").dialog("open");
-                                    },
-                                    failure: function(){
-                                        alert("upload failed for " + key);
-                                    },
-                                    success: updateFunc,
-                                };
-    
-                                dc.store.AddContentItem(form, callback);
-    					    }
-					    }
-					);
-				}
-			},
-			Cancel: function() {
-				$(this).dialog('close');
-			}
-		},
-		close: function() {
-
-		},
-		  open: function(e){
-			var overwrite = false;
-			var that = this;
-			$("#add-content-item-form").validate({
-				rules: {
-					contentId: {
-						minlength: 1,
-						illegalchars: true,
-					},
-					contentMimetype: {
-						mimetype: true,
-					},
-					file: {
-						required:true,
-					}
-					
-				},
-				messages: {
-						
-				}
-			});
-			
-			
-			$("#add-content-item-form").resetForm();
-		}
-	});
-
-	///////////////////////////////////////////
-	///Add Content Item Dialog Definition End
-	///////////////////////////////////////////
-
-	$('#add-space-help-content').expandopanel({
-		
-	});
-	
-
-	var openContentItemDialog = function(saveFunction, contentItem){
-		var d = $('#edit-content-item-dialog');
-
-		// prepare edit dialog
-		d.find("input[name=storeId]").val(contentItem ? contentItem.storeId : "");
-		d.find("input[name=spaceId]").val(contentItem ? contentItem.spaceId : "");
-		d.find("input[name=contentId]").val(contentItem ? contentItem.contentId : "");
-		d.find("input[name=contentMimetype]").val(contentItem ? contentItem.properties.mimetype : "");
-		
-		d.dialog({
-			autoOpen: false,
-			show: 'blind',
-			hide: 'blind',
-			height: 250,
-			resizable: false,
-			closeOnEscape:true,
-			modal: true,
-			width:500,
-			buttons: {
-				'Save': saveFunction,
-				Cancel: function() {
-					$(this).dialog('close');
-				}
-			},
-			close: function() {
-
-			},
-			open: function(e){
-				var form = $("#edit-content-item-form",this);
-				form.validate({
-					rules: {
-						contentMimetype: {
-						    required:true,
-							minlength: 3,
-							mimetype: true,
-						},
-					},
-					messages: {
-							
-					}
-				});
-
-
-				
-				$("input",this).bindEnterKey(saveFunction);
-				
-			}
-		});
-		
-		d.dialog("open");
-		
-	};
-
-	
-	
-	$('.add-content-item-button').live("click",
-	    function(evt){
-		    $("#add-content-item-dialog").dialog("open");
-	    }
-	);
-	
-	
-	//open bulk upload tool window only if it is not already open
-	//otherwise simply activate it.
-	(function(){
-	    var uploadWindows = {};
-	    $('.bulk-add-content-item').live("click",
-            function(evt){
-                var link = $(evt.target),
-                    windowName = link.attr("href"),
-                    currentWindow = uploadWindows[windowName];
-                
-                if( currentWindow && !currentWindow.closed ){
-                    $(currentWindow).focus();
-                }else{
-                    currentWindow = window.open(
-                        link.attr("href"),
-                        windowName,
-                        "menubar=0,resizable=0,width=850,height=400");
-                
-                    uploadWindows[windowName] = currentWindow;
-                }
-                evt.stopPropagation();
-                return false;
-            }
-        );
-	})();
-	
-	var scrollToCurrentSpace = function(){
-		var spacesList = $("#spaces-list");
-		var current = spacesList.selectablelist("currentItem"); 
-		
-		if(current != null && current != undefined && 
-				current.data != null && current.data != undefined ){
-			 spacesList
-			 	.closest(".dc-item-list-wrapper")
-			 	.scrollTo(current.item);
-		}
-	};
-	
-	// ///////////////////////////////////////////////////////////
-	// Spaces / Content Ajax calls
-	// ///////////////////////////////////////////////////////////
-	var notEmpty = function(value){
-		return value != null && value != undefined && value.length != 0;
-	};
-
-	var loadWhatYouCan = function(obj){
-		var storeId = obj.storeId;
-		var spaceId = obj.spaceId;
-		var contentId = obj.contentId;
-		
-		if(notEmpty(storeId)){
-			changeProviderStore(storeId);
-			refreshSpaces(storeId, function(){
-				if(notEmpty(spaceId)){
-					var spacesList = $("#spaces-list");
-					spacesList.selectablelist("setCurrentItemById", spaceId, false);
-					scrollToCurrentSpace();
-					getSpace(spaceId, 
-						function(space){
-							if(notEmpty(contentId)){
-								getContentItem(storeId,spaceId,contentId);
-								loadContentItems(space);
-							}else{
-								loadSpace(space);
-							}
-						}
-					);
-				}
-			});
-			
-		}
-
-
-	};
-	
-	var copyContentItems = function(evt, contentItems){
-	    var d = $("#copy-content-item-dialog");
-
-        //initialize the dialog proper
-	    d.dialog({
-	        autoOpen: true,
-            show: 'blind',
-            hide: 'blind',
-            height: 400,
-            resizable: false,
-            closeOnEscape:true,
-            modal: true,
-            width:650,
-            buttons: {
-	           "OK": function(){
-	               var form = $("form", d),
-	               destStoreId       = $("#destStoreId", d).val(),
-	               destSpaceId       = $("#spaceId", d).val(),
-	               contentId         = $("#contentId", d).val();
-	               navigateToCopy    = $("#navigateToCopy", d).is(":checked"),
-	               deleteAfterCopy   = $("#deleteAfterCopy", d).is(":checked"),
-	               overwriteExisting = $("#overwriteExisting", d).is(":checked");
-	               
-	               if(form.valid() || contentItems.length > 1){
-	                   d.dialog("close");
-	                   dc.busy("Performing copy...", {modal: true});
-	       
-	                   var job = dc.util.createJob("copy-items",true);   
-	                   
-	                   for(i in contentItems){
-	                       job.addTask({
-	                           _contentItem: contentItems[i],
-	                           execute: function(callback){
-	                               var that = this;
-                                   
-                                   var destContentId = contentId;
-                                   if(!destContentId || destContentId.length == 0){
-                                       destContentId = that._contentItem.contentId;
-                                   }
-
-                                   
-	                               //define copy function
-	                               var doCopy = function(){
-	                                  
-                                      dc.store.copyContentItem(
-                                           that._contentItem.storeId, 
-                                           that._contentItem.spaceId, 
-                                           that._contentItem.contentId, 
-                                           destStoreId, 
-                                           destSpaceId, 
-                                           destContentId, 
-                                           deleteAfterCopy, 
-                                           {
-                                               success: function(copiedContentItem){
-                                                   if(deleteAfterCopy){
-                                                       $("#content-item-list")
-                                                           .selectablelist(
-                                                                   "removeById", 
-                                                                   that._contentItem.contentId);
-                                                   }
-                                                   
-                                                   if(getCurrentProviderStoreId() == copiedContentItem.storeId && 
-                                                           getCurrentSpaceId() == copiedContentItem.spaceId){
-                                                       addContentItemToList(copiedContentItem);
-                                                   }
-                                                   
-                                                   callback.success();
-                                               }
-                                           }
-                                       ); 	                                   
-	                               };//end copy function definition
-	                               
-	                               if(overwriteExisting){
-	                                   doCopy();
-	                               }else{
-	                                   checkIfContentItemExists(
-	                                       {
-                                               storeId:destStoreId,
-                                               spaceId:destSpaceId,
-                                               contentId:destContentId,
-	                                       },
-                                           {
-                                               onCancel: function(){
-                                                   callback.success();
-                                               },
-                                               onProceed: function(){
-                                                   doCopy();
-                                               }
-                                           }
-                                       );
-	                               }
-	                           },
-	                       });
-	                   }
-
-	                   job.execute(
-	                       { 
-	                           changed: function(job){
-	                               var total = contentItems.length;
-	                               if(total > 1){
-	                                   dc.log("changed:" + job);
-	                                   var p = job.getProgress();
-	                                   dc.busy("Processed " + p.successes + "/" + total, {modal: true});
-	                               }
-	                           },
-	                           cancelled: function(job){
-	                               dc.log("cancelled:" + job);
-	                               dc.done();
-	                           }, 
-	                           done: function(job){
-	                               dc.log("done:" + job);
-	                               dc.done();
-	                               
-	                               if(contentItems.length == 1 && job.getProgress().successes > 0){
-	                                  var copiedContentItem =  {
-                                           storeId:destStoreId,
-                                           spaceId:destSpaceId,
-                                           contentId:contentId,
-                                       };
-	                                   
-	                                   if(navigateToCopy){
-	                                       if(getCurrentProviderStoreId() == copiedContentItem.storeId && 
-	                                           getCurrentSpaceId() == copiedContentItem.spaceId){
-	                                           loadContentItem(copiedContentItem);
-	                                       }else{
-                                               setHash(copiedContentItem);
-                                               loadWhatYouCan(copiedContentItem);
-	                                       }
-	                                   }                                  
-	                               }
-	                               
-	                           },
-	                       }
-	                   );
-	               }
-	           },
-	           "Cancel": function(){
-                 $(this).dialog('close');
-               },
+	            return handled;
 	        },
 	        
-	        open: function(){
-	            var that = this;
-	            var destStoreIdField = $("#destStoreId", that);
-	            var contentIdField = $("#contentId", that);
-	            var spaceSelect = $("#spaceId", that);
-	            var loadWriteableSpaces = function(storeId, spaceId){
-	                dc.store.GetSpaces(
-	                    storeId,
-	                    true,
-	                    {
-	                     success:function(spaces){
-	                        var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
-	                        spaceSelect.children().remove();
-	                        spaceSelect.append("<option value=''>Choose</option>");
-	                        $.each(spaces, function(index,space){
-	                            spaceSelect.append("<option>"+space.spaceId+"</option>");
-	                        });
-	                        spaceSelect.val(selectedSpaceId);
-	                     },
-	                    },
-	                    false //make it a synchronous call 
-	                );
-	            };
-	            
-	            //attach listener if destStoreId is a select box (ie multiple stores available)
-	            //load list of spaces
-	            destStoreIdField.change(
-	              function(evt){
-	                  var that = this;
-	                  loadWriteableSpaces($(that).val());
-	              }
-	            );
-	            
-	            
-	            $.validator
-	                .addMethod(
-    	                "contentIdAlreadyInSpace", 
-	                    function(value, element) { 
-	                        return !(destStoreIdField.val() == contentItems[0].storeId && 
-	                                 spaceSelect.val() == contentItems[0].spaceId &&
-	                                 contentItems[0].contentId == value);
-	                    },
-	                    "New content id equals current id. " +
-	                    "Change it or copy to another space."
-	                );
-	            
-                $.validator.addMethod(
-                        "spaceIdNotEmpty", 
-                        function(value, element) { 
-                           return !(value == null || value.trim().length == 0);
-                        },
-                        "Select a space"
-                    );
+	        /**
+	         * Adds a change handler to the list of handlers.
+	         * Handler functions are processed in the order they were added.
+	         * @param handler
+	         */
+	        addChangeHandler: function(handler){
+	            if(!(typeof(handler) == "function")){
+	                throw "handler must be a function";
+	            }
+	            handlers.push(handler);
+	        },
+	    };
+        
+        $(window).bind("popstate pushstate", function(evt){
+            var state = evt.originalEvent.state;
+            if(!state){
+                state = buildStateFromUrl(window.location, window.location.hash);
+            }
+            instance.change(state);
+        });
 
-                $.validator.addMethod(
-                        "availableSpaces", 
-                        function(value, element) { 
-                            return $(element).children().length > 1;
-                        },
-                        "There are no writable spaces " +
-                        " in this content provider.<br/>" +
-                        " Please contact your DuraCloud admin for help."
-                    );                
-	            
-	            var validator = $("form",that).validate({
-	                rules: {
-                        contentId: {
-                            required: true,
-                            minlength: 1,
-                            illegalchars: true,
-                            contentIdAlreadyInSpace: true,
-                        },
-                        spaceId: {
-                            availableSpaces: true,
-                            spaceIdNotEmpty: true,
+        return instance;
+        
+	})();
+	
+	
+    $('#page-content').spacesmanager({storeProviders: storeProviders});
+
+});
+
+(function(){
+    
+    /**
+     * The base pane defines functions that are common to some or all of the panel widgets.
+     */
+    $.widget("ui.basepane",{
+        _layoutOptions: null,
+        _layout: null,
+        
+        _init: function(){
+            this._configureLayout();
+        },
+        
+        _storeId: null,
+        
+        resizeAll:function(){
+            if(this._layout){
+                this._layout.resizeAll();
+            }
+        },
+        
+        _isObjectAlreadyDisplayedInDetail: function(objectId){
+            return(this._storeId + "/" + objectId == $("#detail-pane .object-id").html());
+        },
+        
+        _configureLayout: function(){
+            var layoutOptions = this._layoutOptions;
+            if(this.options){
+                if(this.options.layoutOptions){
+                    layoutOptions = this.options.layoutOptions;
+                }
+            }
+            
+            if(layoutOptions){
+                this._layout = $(this.element).layout(layoutOptions);
+            }
+        },
+        
+        _isReadOnly: function(/*space or contentItem obj*/obj){
+            return obj.callerAcl != "WRITE";
+        },
+        
+        _isAdmin: function(){
+            //user is defined globally in spaces-manager.jsp
+            var i = 0;
+            for(i in user.authorities){
+                if(user.authorities[i] == 'ROLE_ADMIN'){
+                    return true;
+                }
+            }
+            
+            return false;
+        },
+        
+        _notEmpty: function(value){
+            return value != null 
+                    && value != undefined 
+                    && value.length != 0;
+        },
+        
+        _deleteContentItem: function(evt, contentItem){
+            var that = this;
+            evt.stopPropagation();
+            if(!dc.confirm("Are you sure you want to delete \n" + contentItem.contentId + "?")){
+                return;
+            }
+            dc.store.DeleteContentItem(contentItem, {
+                begin: function(){
+                    dc.busy( "Deleting content item...", {modal: true});
+                },
+                success:function(){
+                    dc.done();
+                    $(that.element).trigger("contentItemDeleted", contentItem);
+                },
+                failure: function(message){
+                    dc.done();
+                    alert("failed to delete contentItem: " + message);
+                },
+            });
+        },
+        
+
+
+        
+        _serialize: function(obj){
+            var str = "";
+            for(p in obj){
+                str += "&" + p + "=" + encodeURIComponent(obj[p]);
+            }
+            return str;
+        },
+        
+        _createGenericJobCallback: function(updateText){
+            var that = this;
+            return { 
+                changed: function(job){
+                    dc.log("changed:" + job);
+                    var p = job.getProgress();
+                    dc.busy(updateText + p.successes, {modal: true});
+                },
+                cancelled: function(job){
+                    dc.log("cancelled:" + job);
+                    dc.done();
+                }, 
+                done: function(job){
+                    var p = job.getProgress();
+                    dc.log("done:" + job);
+                    var message = "Successfully updated " + p.successes + " item(s).";
+                    if(p.failures > 0){
+                        message +=" However there were some errors: " + p.failures + " were not updated successfully.";
+                    }
+                    dc.done(message);
+                },
+            };
+        },
+        
+        _initializePropertiesDialog: function(saveFunction){
+            var d = $("#add-remove-properties-dialog");
+            d.dialog({
+                autoOpen: false,
+                show: 'blind',
+                hide: 'blind',
+                height: 600,
+                resizable: false,
+                closeOnEscape:true,
+                modal: true,
+                width:500,
+                buttons: {
+                    'Save': saveFunction,
+                    Cancel: function() {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function() {},
+                open: function(){}
+            });
+            var pane = $(".center", d);
+            pane.empty();
+            return d;
+        },
+        
+        /**
+         * @param contentItem
+         * @param callback - an object with an onProceed() function
+         *                 that is called if the content item exists and the user has said
+         *                 continue with the operation or the content item doesn't exist.
+         */
+        _checkIfContentItemExists: function(contentItem, callback){
+            dc.store.CheckIfContentItemExists(
+                    contentItem, 
+                    { 
+                        success: function(exists){
+                            if(exists){
+                                if(!confirm("A contentId named '" + contentItem.contentId + 
+                                            "' already exists in '" + contentItem.spaceId +
+                                            "' already exists. Overwrite?")){
+                                    if(callback.onCancel) callback.onCancel();
+                                    return;
+                                }
+                            }
+
+                            if(callback.onProceed) callback.onProceed();
+
                         },
                         
-                    }
-                });
-	            
-	            //on change event above doesn't seem to work for select boxes
-	            $("select", that).change(function(){
-	                validator.form(); //validates the form.
-	            });
-	            
-	            validator.resetForm();
-	            var first = contentItems[0];
-	            var sourceStoreId = first.storeId;
-                
-
-	            $("#storeId", that).val(sourceStoreId);
-	            destStoreIdField.val(sourceStoreId);
-	            var navigateToCopy = $("#navigateToCopy", that);
-	            var multiple = contentItems.length > 1;
-	            if(multiple){
-	                contentIdField.closest("li").hide();
-	                navigateToCopy.closest("li").hide();
-	            }else{
-                    contentIdField.closest("li").show();
-                    contentIdField.val(first.contentId);
-                    navigateToCopy.closest("li").show();
-
-	            }
-	            
-	            loadWriteableSpaces(sourceStoreId, first.spaceId);
-	            
-	            setTimeout(function(){
-	                contentIdField.get(0).select();
-	            },100);
-	        },
-	    });
-	    
-	};
-	
-	var deleteContentItem = function(evt, contentItem){
-		evt.stopPropagation();
-		if(!dc.confirm("Are you sure you want to delete \n" + contentItem.contentId + "?")){
-			return;
-		}
-		dc.store.DeleteContentItem(contentItem, {
-			begin: function(){
-				dc.busy( "Deleting content item...", {modal: true});
-			},
-			success:function(){
-				dc.done();
-				$("#content-item-list").selectablelist("removeById", contentItem.contentId);
-			},
-			failure: function(message){
-				dc.done();
-				alert("failed to delete contentItem: " + message);
-			},
-		});
-	};
-	
-	var deleteSpace = function(evt, space) {
-		evt.stopPropagation();
-		if(!dc.confirm("Are you sure you want to delete \n" + space.spaceId + "?")){
-			return;
-		}
-		
-		dc.store.DeleteSpace(space, {
-			begin: function(){
-				dc.busy( "Deleting space...",{modal: true});
-			},
-			
-			success:function(){
-				dc.done();
-
-				$("#spaces-list").selectablelist("removeById", space.spaceId);
-			},
-			
-			failure: function(message){
-				dc.done();
-				alert("failed to delete space!");
-			},
-		});
-	};
-	
-	var isReadOnly = function(/*space or contentItem obj*/obj){
-	    return obj.callerAcl != "WRITE";
-	};
-
-	var isAdmin = function(){
-	    //user is defined globally in spaces-manager.jsp
-	    var i;
-	    for(i in user.authorities){
-	        if(user.authorities[i] == 'ROLE_ADMIN'){
-	            return true;
-	        }
-	    }
-	    
-	    return false;
-    };
-
-	/**
-	 * loads the space data into the detail pane
-	 */
-	var loadSpace = function(space){
-		var detail = $("#spaceDetailPane").clone();
-		setObjectName(detail, space.spaceId);
-		setObjectId(detail,space.spaceId);
-		
-		var center = $(".center", detail);
-
-		var readOnly = isReadOnly(space);
-		
-		// attach delete button listener
-		var deleteSpaceButton = $(".delete-space-button",detail);
-        deleteSpaceButton.click(function(evt){
-			deleteSpace(evt,space);
-		});
-        
-        
-        if(readOnly) {
-            deleteSpaceButton.hide();
-        }
-
-        
-		if(isAdmin()){
-            var makePublicButton = createMakePublicButton(
-                    space.storeId, 
-                    space.spaceId);
-            $(makePublicButton).insertAfter(deleteSpaceButton);
-
-		    if(!isPubliclyReadable(space.acls)){
-		        makePublicButton.hide();
-		    }
-		    
-	        loadAclPane(detail, space);
-		}
-
-		loadProperties(detail, extractSpaceProperties(space));
-		
-		if(space.itemCount == null || space.itemCount < 0){
-			//attach poller if itemCount is null or -1
-			var pollItemCount = function(){
-				dc.store.GetSpace(
-						space.storeId,
-						space.spaceId, 
-						{
-							success: function(s){
-								if(isObjectAlreadyDisplayedInDetail(s.spaceId)){
-									if(s != undefined && s != null){
-	                                    loadProperties(center, extractSpaceProperties(s));
-										if(s.itemCount == null || s.itemCount < 0){
-											setTimeout(pollItemCount, 10000);
-										}
-									}
-								}
-							}, 
-							//failure:function(info){
-							//	alert("Get Space failed for: " + space.spaceId);
-							//},
-						}
-					);				
-			};
-			
-			setTimeout(pollItemCount, 10000);
-		}
-		
-		var mp = loadPropertiesPane(detail, space.extendedProperties, readOnly);
-		
-		$(mp).bind("dc-add", function(evt, future){
-				var value = future.value;
-				addSpaceProperties(space.spaceId, value.name, value.value, future);
-			}).bind("dc-remove", function(evt, future){
-				removeSpaceProperties(space.spaceId, future.value.name,future);
-			});
-		
-		var tag = loadTagPane(detail, space.properties.tags, readOnly);
-
-		$(tag).bind("dc-add", function(evt, future){
-			var value = future.value[0];
-			addSpaceTag(space.spaceId, value, future);
-		}).bind("dc-remove", function(evt, future){
-			var value = future.value;
-			removeSpaceTag(space.spaceId, value, future);
-		});
-
-		
-		
-		$("#detail-pane").replaceContents(detail, spaceDetailLayoutOptions);
-
-		loadContentItems(space);
-		
-	};
-
-	var loadAclPane = function(detail, space){
-        var viewerPane =  $.fn.create("div")
-                              .attr("id", "acl-editor")
-                              .acleditor({open: true, space: space});
-        
-        $(".center", detail).append(viewerPane);
-        return viewerPane;	    
-	};
-	
-	
-	var extractSpaceProperties = function(space){
-		return [ 
-					['Items', (space.itemCount == null || space.itemCount == undefined || space.itemCount < 0 ? space.properties.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
-					['Created', space.properties.created],
-                    ['Size', space.properties.size],
-			   ];
-	};
-
-    var extractContentItemProperties = function(contentItem){
-        var m = contentItem.properties;
-        return [
-                    ["Space", contentItem.spaceId],
-                    ["Size", formatBytes(m.size)],
-                    ["Modified", m.modified],
-                    ["Checksum", m.checksum],
-               ];
-    };
-
-    var formatBytes = function(bytes){
-        var val = null;
-        bytes = new Number(bytes);
-        var bytesValue = bytes + " bytes";
-        
-        if(bytes < 1024){
-            return bytesValue;
-        }else if(bytes < 1024*1000){
-           val = (bytes/1000).toFixed(1) + " KB";
-        }else if(bytes < 1024*1000*1000){
-            val = (bytes/(1000*1000)).toFixed(1) + " MB";
-        }else{
-            val = (bytes/(1000*1000*1000)).toFixed(1) + " GB";
-        }
-        
-        return val + " (" + bytesValue + ")";
-        
-    };
-    
-	var j2kViewerBaseURL = "";
-	
-	var loadContentItem = function(/*object*/contentItem){
-		setHash(contentItem);
-		var readOnly = isReadOnly(contentItem);
-		var pane = $("#contentItemDetailPane").clone();
-		setObjectName(pane, contentItem.contentId);
-		setObjectId(pane,contentItem.spaceId+"/"+contentItem.contentId);
-        
-		$(".download-content-item-button", pane)
-			.attr("href", dc.store.formatDownloadURL(contentItem));
-
-		var deleteContentButton = $(".delete-content-item-button",pane);
-	    deleteContentButton.click(function(evt){
-				deleteContentItem(evt,contentItem);
-			});
-	    if(readOnly) {
-            deleteContentButton.hide();
-        }
-
-        $(".copy-content-item-button",pane)
-            .click(function(evt){
-                copyContentItems(
-                        evt,[contentItem]);
-            });
-    		
-		var mimetype = contentItem.properties.mimetype;
-		
-		if(mimetype.indexOf("image") == 0){
-			if(j2kViewerBaseURL != ""){
-				loadPreview(pane,contentItem,j2kViewerBaseURL);
-			}else{
-				dc.service.GetJ2kBaseURL({
-					success:function(url){
-						j2kViewerBaseURL = url;
-						loadPreview(pane,contentItem, j2kViewerBaseURL);
-					},
-					failure: function(text){
-						alert("GetJ2kBaseURL failed: " + text);
-					}
-				});			
-			}			
-		}else if(mimetype.indexOf("video") == 0){
-			loadVideo(pane, contentItem);
-		}else if(mimetype.indexOf("audio") == 0){
-			loadAudio(pane, contentItem);
-		}else {
-			var viewerURL= dc.store.formatDownloadURL(contentItem, false);
-			$(".view-content-item-button", pane).attr("href", viewerURL).css("display", "inline-block");
-		}
-
-		$(".durastore-link", pane).attr("href", contentItem.durastoreURL);
-
-		loadProperties(pane, extractContentItemProperties(contentItem));
-		// load the details panel
-		var mimetype = contentItem.properties.mimetype;
-		$(".mime-type .value", pane).text(mimetype);
-		$(".mime-type-image-holder", pane).addClass(dc.getMimetypeImageClass(mimetype));
-
-		var mp = loadPropertiesPane(pane, contentItem.extendedProperties, readOnly);
-		
-		
-		$(mp).bind("dc-add", function(evt, future){
-				var value = future.value;
-				addContentItemProperties(contentItem.spaceId, contentItem.contentId, value.name, value.value, future);
-			}).bind("dc-remove", function(evt, future){
-				removeContentItemProperties(contentItem.spaceId, contentItem.contentId, future.value.name,future);
-			});
-		
-		var tag = loadTagPane(pane, contentItem.properties.tags, readOnly);
-
-		$(tag).bind("dc-add", function(evt, future){
-			var value = future.value[0];
-			addContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
-		}).bind("dc-remove", function(evt, future){
-			var value = future.value;
-			removeContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
-		});
-
-		var editContentItemButton = $(".edit-content-item-button",pane);
-        editContentItemButton.click(
-				function(evt){
-					openContentItemDialog(function(){
-						var form = $("#edit-content-item-form");
-						var data = form.serialize();
-						if(form.valid()){
-							var callback = {
-								success: function(contentItem){
-									dc.done();
-									loadContentItem(contentItem);
-								},
-								failure: function(text){
-									dc.done();
-									alert("failed to update content item.");
-								},
-							};
-							$('#edit-content-item-dialog').dialog("close");
-							dc.busy("Updating mime type", {modal: true});
-							dc.store.UpdateContentItemMimetype(data, callback);
-						}
-					}, contentItem);
-				}
-			);
-        if(readOnly){
-            editContentItemButton.hide();
-        }
-		
-		$("#detail-pane").replaceContents(pane,contentItemDetailLayoutOptions);
-
-	
-
-	};
-
-	var contentItemListStatusId = "#content-item-list-status";
-	
-	var showContentItemListStatus = function(text){
-		if(text == null || text == undefined || text == ''){
-			$(contentItemListStatusId).fadeOut("fast").html('');
-		}else{
-			$(contentItemListStatusId).html(text).fadeIn("slow");
-		}
-	};
-	
-	var getFilterText = function(){
-		return $("#content-item-filter").val();
-	};
-
-	var getSpace = function(spaceId, loadHandler){
-		var storeId = getCurrentProviderStoreId();
-		if(isObjectAlreadyDisplayedInDetail(spaceId)){
-			return;
-		}
-		clearContents();
-		//clearPageHistory();
-		$("#detail-pane").fadeOut("slow");
-		dc.store.GetSpace(
-			storeId,
-			spaceId, 
-			{
-				begin: function(){
-					dc.busy("Loading...", {modal:true});
-					showContentItemListStatus("Loading...");
-				},
-				success: function(space){
-                    //select space if not already selected
-                    $("#spaces-list").selectablelist("setCurrentItemById", space.spaceId, false);
-				    if(getCurrentProviderStoreId() == space.storeId){
-						dc.done();
-						if(!space){
-							dc.error("error: space == " + space);
-						}else{
-							setHash(space);
-							loadHandler(space);
-						}
-                        var i;
-                        for(i in space.extendedProperties){
-                            var prop = space.extendedProperties[i];
-                            if(prop.name == "is-delete" && prop.value == "true") {
-                                alert("The space '" + space.spaceId + "' is in the process of being deleted.");
-                            }
+                        failure: function(message){
+                            alert("check for existing content item failed: " + message);
                         }
-						//showContentItemListStatus();
-					}
-				}, 
-				//failure:function(info){
-				//	dc.done();
-				//	alert("Get Space failed: " + info);
-				//},
-			}
-		);
-	};
-	
-	var getContentItem = function(storeId, spaceId, contentId, forceRefresh){
-	    
-		if(!forceRefresh && isObjectAlreadyDisplayedInDetail(spaceId+"/"+contentId)){
-			return;
-		}
-
-		dc.store.GetContentItem(storeId,spaceId,contentId,{
-			begin: function(){
-				dc.busy("Loading...", {modal:true});
-			},
-			
-			failure: function(text, xhr){
-				dc.done();
-				if(xhr.status == 404){
-					alert(contentId + " does not exist.");
-				}else{
-				    dc.displayErrorDialog(xhr, text, text)
-				}
-			},
-
-			success: function(data){
-				dc.done();
-				loadContentItem(data);
-			},
-		});
-	};
-	
-	
-	$("#content-item-list-view").find(".dc-item-list-filter").bindEnterKey(function(evt){
-		reloadContents(getCurrentSpaceId(), null, function(space){loadContentItems(space)});
-	});
-	
-	var reloadContents = function(spaceId, marker, handler, message){
-		$("#content-item-list").selectablelist("clear");
-		var prefix = getFilterText();
-		dc.store.GetSpace(
-				getCurrentProviderStoreId(),
-				getCurrentSpaceId(), 
-				{
-					begin: function(){
-						dc.busy((message ? message :"Filtering content items..."), {modal:true});
-					},
-					success: function(space){
-						dc.done();
-						if(space == undefined || space == null){
-							showContentItemListStatus("Error: space not found.");
-						}else{
-							handler(space);
-						}
-					}, 
-					//failure:function(info){
-					//	dc.done();
-					//	alert("Get Space failed: " + info);
-					//},
-				},
-				{
-					prefix: prefix,
-					marker: marker,
-				});
-	};
-
-	var loadContentItems = function(space){
-		var list,listView, readOnly = isReadOnly(space); 
-		listView = $("#content-item-list-view");		
-		list = $("#content-item-list");
-		list.selectablelist("clear");
-
-        listView
-            .find("button,input,a")
-            .fadeIn();
-
-		
-		$(".bulk-add-content-item")
-		    .attr("href", "spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
-		    .attr("target", "bulk-upload-" + escape(space.spaceId));
-		    
-		var refreshButton = $(".refresh-space-button"); 
-		refreshButton.unbind("click");
-		refreshButton.click(function(){
-		        reloadContents(space.spaceId, null, loadSpace, "Refreshing...");
-		    });
-		addContentItemsToList(space);
-		updateNavigationControls(space);
-
-        if(readOnly){
-            $(".add-content-item-button, .bulk-add-content-item", listView)
-                .hide();
-        }
-
-
-	};
-	
-	var addContentItemsToList = function(space){
-	    var readOnly = isReadOnly(space); 
-		$.each(space.contents,function(i,value){
-			addContentItemToList({
-				contentId:value,
-				spaceId:space.spaceId,
-				storeId:space.storeId,
-			}, readOnly);
-		});
-	};
-
-	var updateNavigationControls = function(space){
-	    var list,listView, listCount,totalCount,statusTxt;
-		
-		listView = $("#content-item-list-view");		
-		list = $("#content-item-list");
-		listCount = list.selectablelist("length");
-		listView.find(".dc-show-more-link").remove();
-		
-		if(space.properties.count == 0){
-			statusTxt = "";
-		}else{
-			totalCount = (getFilterText() == '' ? space.properties.count : "?");
-			if(listCount == 0 && space.contents.length == 0){
-				statusText = "";
-			}else{
-				statusTxt = "Showing 1 - " + listCount + " of " + totalCount;
-			}
-		}
-
-		showContentItemListStatus(statusTxt);
-
-		if(space.contents.length > 199){
-			listView.find(".dc-item-list-controls").html('').append(createShowMoreLink());
-			list.selectablelist("setFooter", createShowMoreLink());
-		}else{
-			if(space.properties.count == 0){
-				list.selectablelist("setFooter",$.fn.create("div").html("This space is empty."));
-			}else{
-				list.selectablelist("setFooter",'');
-			}
-
-		}
-	};
-	
-	var createShowMoreLink = function(){
-		var link;
-		link = $.fn.create("a");
-		link.html('show more')
-		.addClass("dc-link")
-		.addClass("dc-show-more-link")
-		.click(function(){showMoreHandler()});
-		return link;
-	};
-	
-	var showMoreHandler = function(){
-		var list, itemData, lastItem, prefix, marker;
-		list = $("#content-item-list");
-		itemData = list.selectablelist("lastItemData");
-		lastItem = list.selectablelist("lastItem");
-
-		var marker = null;
-		if(itemData != null){
-			marker = itemData.contentId;
-			prefix = getFilterText();
-			dc.store.GetSpace(
-					itemData.storeId,
-					itemData.spaceId, 
-					{
-						begin: function(){
-							dc.busy("Loading more content items...", {modal:true});
-							lastItem.addClass("dc-selectablelist-hl");		
-					},
-						success: function(s){
-							dc.done();
-							addContentItemsToList(s);
-							updateNavigationControls(s);
-							/*
-							var viewPort = list.closest(".dc-item-list-wrapper");
-							var scrollY = 0.75*viewPort.height();
-							viewPort.animate(
-								{scrollTop:'+='+scrollY},
-								{duration:1500, easing:"swing"});
-							*/
-						}, 
-						failure:function(info){
-							setTimeout(function(){
-								alert("Failed to retrieve more content items:" + info);
-							},200);
-
-							dc.done();
-						},
-					},
-					{prefix: prefix, marker: marker}
-				);
-		}
-		
-	};
-	
-	var addContentItemToList = function(contentItem, readOnly){
-		var node, actions, content, deleteButton, copyButton;
-	    actions = $.fn.create("div");
-        copyButton = 
-             $("<button title='copy content item' class='copy-button icon-only'>" +
-                     "<i class='pre copy'></i>" +
-                     "</button>")
-             .click(function(evt){
-                 evt.stopPropagation();
-                 copyContentItems(evt,[contentItem]);
-             });
-
-	    actions.append(copyButton);
+                    }
+                );          
+        },
         
-        if(!readOnly){
-            deleteButton = 
-                $("<button title='delete content item' class='delete-space-button icon-only'>" +
-                        "<i class='pre trash'></i>" +
-                        "</button>")
-                .click(function(evt){
-                    deleteContentItem(evt,contentItem);
-                });
 
-            actions.append(deleteButton);
-        }
+      // ///////////////////////////////////////////////////////////
+      // Spaces / Content Ajax calls
+      // ///////////////////////////////////////////////////////////
+      _handleCopyClick: function(dialog, contentItems){
+          var that = this;
+          var d = dialog;
+          
+          var form = $("form", d),
+          destStoreId       = $("#destStoreId", d).val(),
+          destSpaceId       = $("#spaceId", d).val(),
+          contentId         = $("#contentId", d).val();
+          navigateToCopy    = $("#navigateToCopy", d).is(":checked"),
+          deleteAfterCopy   = $("#deleteAfterCopy", d).is(":checked"),
+          overwriteExisting = $("#overwriteExisting", d).is(":checked");
+          
+          if(form.valid() || contentItems.length > 1){
+              d.dialog("close");
+              dc.busy("Performing copy...", {modal: true});
 
-        content = $.fn.create("span");
-		content.attr("class", "dc-item-content")
-                  .html(contentItem.contentId);
-
-        node =  $.fn.create("div");
-
-		node.attr("id", contentItem.contentId)
-			   .append(content)
-			   .append(actions);
-		
-		var item =  $("#content-item-list").selectablelist('addItem',node, contentItem);
-		//$("button, input", item).disable(readOnly);
-		return item;
-		
-	};
-
-	var makeSpacePubliclyReadable = function(/*event object*/evt, storeId, spaceId, successFunc){
-            dc.busy("Making space public...");
-	        dc.store.UpdateSpaceAcls("storeId="+storeId+
-                                    "&spaceId="+escape(spaceId) + 
-                                    "&read=group-public", 
-                                    true,
-                                    {
-                                      success:function(acls){
-                                          dc.done();
-                                          setAcls(acls); 
-                                          if(successFunc){
-                                              successFunc();
+              var job = dc.util.createJob("copy-items",true);   
+              
+              for(i in contentItems){
+                  job.addTask({
+                      _contentItem: contentItems[i],
+                      execute: function(callback){
+                          var theOther = this;
+                          
+                          var destContentId = contentId;
+                          if(!destContentId || destContentId.length == 0){
+                              destContentId = theOther._contentItem.contentId;
+                          }
+                          //define copy function
+                          var doCopy = function(){
+                             dc.store.copyContentItem(
+                                  theOther._contentItem.storeId, 
+                                  theOther._contentItem.spaceId, 
+                                  theOther._contentItem.contentId, 
+                                  destStoreId, 
+                                  destSpaceId, 
+                                  destContentId, 
+                                  deleteAfterCopy, 
+                                  {
+                                      success: function(copiedContentItem){
+                                          if(deleteAfterCopy){
+                                              $(document).trigger("contentItemDeleted", theOther._contentItem);
                                           }
+                                          
+                                          if(that._storeId == copiedContentItem.storeId && 
+                                                  that._spaceId == copiedContentItem.spaceId){
+                                              $(document).trigger("contentItemAdded", theOther._contentItem);
 
+                                          }
+                                          
+                                          callback.success();
+                                      }
+                                  }
+                              );                                      
+                          };//end copy function definition
+                          
+                          if(overwriteExisting){
+                              doCopy();
+                          }else{
+                              that._checkIfContentItemExists(
+                                  {
+                                      storeId:destStoreId,
+                                      spaceId:destSpaceId,
+                                      contentId:destContentId,
+                                  },
+                                  {
+                                      onCancel: function(){
+                                          callback.success();
                                       },
-                                    });
-	};
-       
-    var setAcls = function(acls){
-        var aclEditor = $("#detail-pane #acl-editor");
-        aclEditor.acleditor("acls", acls);
-        if(!aclEditor.length){
-            $(document).trigger("acls-updated", [acls]);
-        }
-    };
+                                      onProceed: function(){
+                                          doCopy();
+                                      }
+                                  }
+                              );
+                          }
+                      },
+                  });
+              }
 
-    
-	var createSpacePropertiesCall = function(spaceId, data, method,callback){
-		var newData = data + "&method=" + method;
-		var storeId = getCurrentProviderStoreId();
-		return {
-			url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&action=put",
-			type: "POST",
-			data: newData,
-			cache: false,
-			context: document.body, 
-			success: function(data){
-				callback.success();
-			},
-		    error: function(xhr, textStatus, errorThrown){
-	    		//dc.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
-	    		callback.failure(textStatus);
-		    },
-		};
-	};
-	
+              job.execute(
+                  { 
+                      changed: function(job){
+                          var total = contentItems.length;
+                          if(total > 1){
+                              dc.log("changed:" + job);
+                              var p = job.getProgress();
+                              dc.busy("Processed " + p.successes + "/" + total, {modal: true});
+                          }
+                      },
+                      cancelled: function(job){
+                          dc.log("cancelled:" + job);
+                          dc.done();
+                      }, 
+                      done: function(job){
+                          dc.log("done:" + job);
+                          dc.done();
+                          
+                          if(contentItems.length == 1 && job.getProgress().successes > 0){
+                             var copiedContentItem =  {
+                                  storeId:destStoreId,
+                                  spaceId:destSpaceId,
+                                  contentId:contentId,
+                              };
+                              
+                              if(navigateToCopy){
+                                  HistoryManager.pushState(copiedContentItem);
+                              }                                  
+                          }
+                      },
+                  }
+              );
+          }
+      },
+      
+      _copyContentItems: function(evt, contentItems){
+          var that = this;
+          //initialize the dialog proper
+          var d = $("#copy-content-item-dialog");
 
-	
-	var addSpaceProperties = function(spaceId, name, value, callback){
-		var data = "properties-name=" + encodeURIComponent(name) +"&properties-value="+encodeURIComponent(value);
-		dc.ajax(createSpacePropertiesCall(spaceId, data, "addProperties", callback));
-	};
+          d.dialog({
+              autoOpen: true,
+              show: 'blind',
+              hide: 'blind',
+              height: 400,
+              resizable: false,
+              closeOnEscape:true,
+              modal: true,
+              width:650,
+              buttons: {
+                 "OK": function(){
+                     that._handleCopyClick(d,contentItems);
+                 },
+                 "Cancel": function(){
+                   $(this).dialog('close');
+                 },
+              },
+              
+              open: function(){
+                  var theOther = this;
+                  var destStoreIdField = $("#destStoreId", theOther);
+                  var contentIdField = $("#contentId", theOther);
+                  var spaceSelect = $("#spaceId", theOther);
+                  var loadWriteableSpaces = function(storeId, spaceId){
+                      dc.store.GetSpaces(
+                          storeId,
+                          true,
+                          {
+                           success:function(spaces){
+                              var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
+                              spaceSelect.children().remove();
+                              spaceSelect.append("<option value=''>Choose</option>");
+                              $.each(spaces, function(index,space){
+                                  spaceSelect.append("<option>"+space.spaceId+"</option>");
+                              });
+                              spaceSelect.val(selectedSpaceId);
+                           },
+                          },
+                          false //make it a synchronous call 
+                      );
+                  };
+                  
+                  //attach listener if destStoreId is a select box (ie multiple stores available)
+                  //load list of spaces
+                  destStoreIdField.change(
+                    function(evt){
+                        var dest = this;
+                        loadWriteableSpaces($(dest).val());
+                    }
+                  );
+                  
+                  
+                  $.validator
+                      .addMethod(
+                          "contentIdAlreadyInSpace", 
+                          function(value, element) { 
+                              return !(destStoreIdField.val() == contentItems[0].storeId && 
+                                       spaceSelect.val() == contentItems[0].spaceId &&
+                                       contentItems[0].contentId == value);
+                          },
+                          "New content id equals current id. " +
+                          "Change it or copy to another space."
+                      );
+                  
+                  $.validator.addMethod(
+                          "spaceIdNotEmpty", 
+                          function(value, element) { 
+                             return !(value == null || value.trim().length == 0);
+                          },
+                          "Select a space"
+                      );
 
-	var removeSpaceProperties = function(spaceId, name,callback){
-		var data = "properties-name=" + encodeURIComponent(name);
-		dc.ajax(createSpacePropertiesCall(spaceId, data, "removeProperties", callback));
-	};
+                  $.validator.addMethod(
+                          "availableSpaces", 
+                          function(value, element) { 
+                              return $(element).children().length > 1;
+                          },
+                          "There are no writable spaces " +
+                          " in this content provider.<br/>" +
+                          " Please contact your DuraCloud admin for help."
+                      );                
+                  
+                  var validator = $("form",theOther).validate({
+                      rules: {
+                          contentId: {
+                              required: true,
+                              minlength: 1,
+                              illegalchars: true,
+                              contentIdAlreadyInSpace: true,
+                          },
+                          spaceId: {
+                              availableSpaces: true,
+                              spaceIdNotEmpty: true,
+                          },
+                          
+                      }
+                  });
+                  
+                  //on change event above doesn't seem to work for select boxes
+                  $("select", theOther).change(function(){
+                      validator.form(); //validates the form.
+                  });
+                  
+                  validator.resetForm();
+                  var first = contentItems[0];
+                  var sourceStoreId = first.storeId;
+                  
 
-	var addSpaceTag = function(spaceId, tag, callback){
-		var data = "tag="+ encodeURIComponent(tag);
-		dc.ajax(createSpacePropertiesCall(spaceId, data, "addTag", callback));
-	};
+                  $("#storeId", theOther).val(sourceStoreId);
+                  destStoreIdField.val(sourceStoreId);
+                  var navigateToCopy = $("#navigateToCopy", theOther);
+                  var multiple = contentItems.length > 1;
+                  if(multiple){
+                      contentIdField.closest("li").hide();
+                      navigateToCopy.closest("li").hide();
+                  }else{
+                      contentIdField.closest("li").show();
+                      contentIdField.val(first.contentId);
+                      navigateToCopy.closest("li").show();
 
-	var removeSpaceTag = function(spaceId, tag,callback){
-		var data = "tag="+encodeURIComponent(tag);
-		dc.ajax(createSpacePropertiesCall(spaceId, data, "removeTag", callback));
-	};
-
-	var addRemoveSpaceProperties = function(spaceId, params,callback){
-		dc.ajax(createSpacePropertiesCall(spaceId, formatBulkPropertiesUpdateParams(params), "addRemove", callback));
-	};
-	
-	var formatBulkPropertiesUpdateParams = function(params){
-		var data = "";
-		data += formatPropertiesList(params.propertiesToRemove, "remove");
-		data += formatPropertiesList(params.propertiesToAdd, "add");
-		data += formatParamList(params.tagsToRemove, "tag", "remove");
-		data += formatParamList(params.tagsToAdd, "tag", "add");
-		return data;
-	};
-
-	var formatPropertiesList = function(list, fieldNameModifier){
-		var i, list,item,data;
-		data = "";
-		for(i = 0; i < list.length; i++){
-			item = list[i];
-			data += "&properties-name-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.name);
-			data += "&properties-value-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.value);
-		}
-		return data;
-	};
-
-	var formatParamList = function(list, fieldPrefix, fieldNameModifier){
-		var i, list,item,data;
-		data = "";
-		for(i = 0; i < list.length; i++){
-			item = list[i];
-			data += "&" + fieldPrefix + "-" + fieldNameModifier + "-"+ i + "=" + encodeURIComponent(item);
-		}
-		return data;
-	};
-
-	// ///////////////////////////////////////////////////////////////////////////////
-	// /content properties functions
-	var createContentItemPropertiesCall = function(spaceId, contentId, data, method,callback){
-		var newData = data + "&method=" + method;
-		var storeId = getCurrentProviderStoreId();
-		return {
-			url: "/duradmin/spaces/content?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&contentId="+encodeURIComponent(contentId) +"&action=put",
-			type: "POST",
-			data: newData,
-			cache: false,
-			context: document.body, 
-			success: function(data){
-				callback.success();
-			},
-		    failure: function(textStatus){
-	    		callback.failure(textStatus);
-		    },
-		};
-	};
-	
-	var addContentItemProperties = function(spaceId, contentId, name, value, callback){
-		var data = "properties-name=" + encodeURIComponent(name) +"&properties-value="+encodeURIComponent(value);
-		dc.ajax(createContentItemPropertiesCall(spaceId, contentId, data, "addProperties", callback));
-	};
-
-	var removeContentItemProperties = function(spaceId, contentId, name,callback){
-		var data = "properties-name=" + encodeURIComponent(name);
-		dc.ajax(createContentItemPropertiesCall(spaceId,contentId, data, "removeProperties", callback));
-	};
-
-	var addContentItemTag = function(spaceId, contentId, tag, callback){
-		var data = "tag="+ encodeURIComponent(tag);
-		dc.ajax(createContentItemPropertiesCall(spaceId,contentId, data, "addTag", callback));
-	};
-
-	var removeContentItemTag = function(spaceId, contentId, tag,callback){
-		var data = "tag="+encodeURIComponent(tag);
-		dc.ajax(createContentItemPropertiesCall(spaceId, contentId, data, "removeTag", callback));
-	};
-	
-	var addRemoveContentItemProperties = function(spaceId, contentId, params,callback){
-		dc.ajax(
-			createContentItemPropertiesCall(
-				spaceId,
-				contentId,
-				formatBulkPropertiesUpdateParams(params),
-				"addRemove", 
-				callback));		
-	};
-
-
-	$("#content-item-list").selectablelist({selectable: true});
-	$("#spaces-list").selectablelist({selectable: true});
-
-	// /////////////////////////////////////////
-	// /click on a space list item
-
-	var handleSpaceListStateChangedEvent = function(evt, state){
-		try{
-			
-			if(state.selectedItems.length == 0){
-				//uncheck 'check all' box
-				$("#check-all-spaces").attr("checked", false);
-				var currentItem = state.currentItem;
-				if(currentItem !=undefined && currentItem != null){
-					var spaceId = $(currentItem.item).attr("id");
-					if(spaceId != undefined){
-						getSpace(spaceId, loadSpace);
-					}else{
-						dc.error("spaceId is undefined");
-					}
-				}else{
-					//do nothing;
-				}
-			}else{
-                showMultiSpaceDetail();
-			}
-		}catch(err){
-			dc.error(err);
-		}
-	};
-	
-	$("#spaces-list").bind("currentItemChanged", function(evt,state){
-		handleSpaceListStateChangedEvent(evt, state);
-	});
-
-	$("#spaces-list").bind("selectionChanged", function(evt,state){
-		handleSpaceListStateChangedEvent(evt, state);
-	});
-
-	$("#spaces-list").bind("itemRemoved", function(evt,state){
-		clearContents();
-		showGenericDetailPane();
-	});
-
-	// /////////////////////////////////////////
-	// /click on a content list item
-	var handleContentListStateChangedEvent = function(evt, state){
-		try{
-			if(state.selectedItems.length == 0){
-				//uncheck 'check all' box
-				$("#check-all-content-items").attr("checked", false);
-				var currentItem = state.currentItem;
-				if(currentItem !=undefined && currentItem != null){
-					var spaceId = getCurrentSpaceId();
-					if(spaceId != undefined){
-						var contentId = $(currentItem.item).attr("id");
-						getContentItem(getCurrentProviderStoreId(),spaceId,contentId);
-
-					}else{
-						dc.error("spaceId is undefined");
-					}
-				}else{
-					//do nothing
-				}
-			}else{
-			    
-			    if(!isMultiContentItemDetailVisible()){
-			        var space = getCurrentSpace();
-                    showMultiContentItemDetail(isReadOnly(space));
-			    }
-			}
-		}catch(err){
-			dc.error(err);
-		}
-	};
-	$("#content-item-list").bind("currentItemChanged", function(evt,state){
-		handleContentListStateChangedEvent(evt,state);
-	});
-
-	$("#content-item-list").bind("selectionChanged", function(evt,state){
-		handleContentListStateChangedEvent(evt,state);
-	});
-
-    $("#content-item-list").bind("itemRemoved", function(evt,state){
-        var ci = state.data;
-        if(isObjectAlreadyDisplayedInDetail(ci.spaceId + "/"+ ci.contentId)){
-            showGenericDetailPane();
-        }
+                  }
+                  
+                  loadWriteableSpaces(sourceStoreId, first.spaceId);
+                  
+                  setTimeout(function(){
+                      contentIdField.get(0).select();
+                  },100);
+              },
+          });
+      },
     });
 
-	
-	// /////////////////////////////////////////
-	// /click on a space list item
-	var spacesArray = new Array();
+    
+    /**
+     * This widget defines the spaces manager as a whole and contains within it the detail panes,
+     * dialogs, spaces and content item list widgets as well as other functions that coordinate the 
+     * various panels.
+     */
+    $.widget("ui.spacesmanager",$.extend({}, $.ui.basepane.prototype, {
+        _spacesListViewId: "spaces-list-view",
+        _contentItemListViewId: "content-item-list-view",
+        _listBrowserId: "list-browser",
+        _detailPaneId: "detail-pane",
+        _spacesListPane: null,
+        _contentItemListPane: null, 
+        _detailPane: null,
+        _detailManager: null,
+        _spacesArray: [],
+        _addSpaceDialog: null,
+        _layoutOptions: {
+                north__paneSelector:    ".north"
+            ,   north__size:            60
+            ,   center__paneSelector:   ".center"
+            ,   resizable:              false
+            ,   slidable:               false
+            ,   spacing_open:           0           
+            ,   togglerLength_open:     0   
+        },
+        
+        _init: function(){
+            var that = this;
+            this._configureLayout();
 
-	
-	$("#spaces-list-view").find(".dc-item-list-filter").bind("keyup", $.debounce(500,function(evt){
-			loadSpaces(spacesArray, evt.target.value);
-	}));
+            this._spacesListPane = $('#'+this._spacesListViewId,this.element);
+            this._spacesListPane.spaceslistpane({layoutOptions:this._layoutOptions});
+            
+            this._initContentItemListPane();
+            this._initializeDetailManager();
+            this._initStoreSelectbox();
+            this._initAddSpaceDialog();
+            this._initHistoryHandlers();
+            if(!this._isAdmin()) {
+                $(".add-space-button").hide();
+            }
 
-	var clearContents = function(){
-		$("#content-item-list").selectablelist("clear");
-		$("#content-item-list-view").find("button,a,input").fadeOut();
-		$("#content-item-list-view").val('');
-		
-	};
+            
+            this._spacesListPane.bind("itemRemoved", function(evt,state){
+               if(that._detailManager.isSpaceDetailDisplayed()){
+                   that._detailManager.showSpaces();
+               }
+            });
+            
+            $(document).bind("contentItemDeleted", function(evt,state){
+                if(that._detailManager.isContentItemDisplayed(state)){
+                    HistoryManager.pushState({storeId: state.storeId, spaceId: state.spaceId});
+                }
+             });
+        },
+        
+        _initContentItemListPane: function(){
+            var that = this;
+            this._contentItemListPane = $('#'+this._contentItemListViewId,this.element);
+            this._contentItemListPane.contentitemlistpane({layoutOptions:this._layoutOptions});
 
-	var clearSpaces = function(){
-		$("#spaces-list").selectablelist("clear");
-		showGenericDetailPane();
-	};
+            this._contentItemListPane.bind("currentItemChanged", function(evt,state){
+                that._handleContentListStateChangedEvent(evt,state);
+            });
 
-	
-	var addSpaceToList = function(space){
-	    var disabled = isReadOnly(space);
-		var node =  $.fn.create("div");
-		node.attr("id", space.spaceId)
-			   .html(space.spaceId);
-		$("#spaces-list").selectablelist(
-		        'addItem',node,space, false, disabled);	   
-		
-	};
-	
-	var loadSpaces = function(spaces,filter) {
-        $("#provider-logo").removeClass();
-        $("#provider-logo").addClass(getStoreType(getCurrentProviderStoreId()) + '-logo');
+            this._contentItemListPane.bind("selectionChanged", function(evt,state){
+                that._handleContentListStateChangedEvent(evt,state);
+            });
+        },
+        
+        _handleContentListStateChangedEvent: function(evt, state){
+            try{
+                if(state.selectedItems.length == 0){
+                    var currentItem = state.currentItem;
+                    if(currentItem){
+                            HistoryManager.pushState(currentItem.data);
+                    }else{
+                        if(!this._detailManager.isSpaceDetailDisplayed()){
+                            var space = this._contentItemListPane.contentitemlistpane("currentSpace");
+                            if(space.spaceId){
+                                //HistoryManager.pushState(space);
+                            }
+                        }
+                    }
+                }else{
+                    var contentItems = this._contentItemListPane.contentitemlistpane("selectedContentItems");
+                    this._detailManager.showMultiContentItems(contentItems);
+                    
+                    /*HistoryManager.pushState({
+                        storeId: space.storeId,
+                        spaceId: space.spaceId,
+                        multi: true});
+                    */
+                }
+            }catch(err){
+                dc.error(err);
+            }
+        },
 
-		$("#spaces-list").selectablelist("clear");
-		var firstMatchFound = false;
-		for(s in spaces){
-			var space = spaces[s];
-			if(filter === undefined || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1){
-				addSpaceToList(space);
-				if(!firstMatchFound){
-					//$("#spaces-list").selectablelist('setCurrentItemById',space.spaceId);	   
-					firstMatchFound = true;
-				}
-			}
-		}
-	};
-	
-	var refreshSpaces = function(providerId, /*optional*/successFunc){
-		clearContents();
-		clearSpaces();
-		dc.store.GetSpaces(providerId, false, {
-			begin: function(){
-				dc.busy("Loading spaces...", {modal: true});
-				$("#space-list-status").html("Loading...").fadeIn("slow");
-			},
-			success: function(spaces){
-				dc.done();
-				spacesArray = spaces;
-				$("#content-item-filter").val('');
-				loadSpaces(spacesArray, $("#space-filter").val());
-				$("#space-list-status").fadeOut("fast");
-				
-				if(successFunc != undefined){
-					successFunc();
-				}
-			},
-			failure: function(xhr, message){
-				dc.done();
-				alert("error:" + message);
-				$("#space-list-status").fadeOut("fast");
-			}
-			
-		});
-	};
+        /**
+         * Adds handlers for the various possible state changes.
+         */
+        _initHistoryHandlers: function (){
+            var that = this;
+            
+             //content handler
+             HistoryManager.addChangeHandler(function(params){
+                 if(params['contentId']){
+                     that._loadContentItem(params);
+                     return true;
+                 }
+             });
 
-	
-	var setHash = function(obj){
-		window.location.hash = buildHash(obj);
-	};
-	
-	var buildHash = function(obj) {
-		var hash = obj.storeId;
-		var spaceId = obj.spaceId;
-		if(spaceId != null && spaceId != undefined){
-			hash += "/" + spaceId;
-		}
-		
-		var contentId = obj.contentId;
-		if(contentId != null && contentId != undefined){
-			hash += "/" + contentId;
-		}
-		
-		return hash;
-	};
+             //multi content handler
+             HistoryManager.addChangeHandler(function(params){
+                 if(params['spaceId'] && params['multi']){
+                     var contentItems = that._contentItemListPane
+                                            .contentitemlistpane("selectedContentItems");
+                     that._detailManager.showMultiContentItems(contentItems);
+                     return true;
+                 }
+             });
 
-	var parseHash = function(hash) {
-		var pHash = {
-			storeId: null,
-			spaceId: null,
-			contentId: null,
-		};
-		
-		pHash.toString = function(){
-			return "storeId: " + this.storeId + ", spaceId: " + this.spaceId + ", contentId: " + this.contentId;
-		};
+             //space handler
+             HistoryManager.addChangeHandler(function(params){
+                 if(params['spaceId']){
+                     that._loadSpace(params, true);
+                     return true;
+                 }
+             });
 
-		if(hash != undefined && hash != null){
-			var first = hash.indexOf("/");
-			if(first > 1){
-				pHash.storeId = hash.slice(1, first);
-				var second = first + hash.substring(first+1).indexOf("/");
-				if(second > first){
-					pHash.spaceId = hash.slice(first+1, second+1);
-					if(hash.length > second){
-						pHash.contentId = decodeURIComponent(hash.substring(second+2));
-					}
-				}else{
-					pHash.spaceId = hash.substring(second+2);
-				}
-			}else if(hash.length > 1){
-				pHash.storeId = hash.substring(1);
-			}
-		}
-		
-		//alert(pHash);
-		return pHash;
-	};
+             //multi spaces handler
+             HistoryManager.addChangeHandler(function(params){
+                 if(params['multi']){
+                     var spaces = that._spacesListPane.spaceslistpane("selectedSpaces");
+                     that._detailManager.showMultiSpaces(spaces);
+                     return true;
+                 }
+             });
+            
+             //all spaces
+             HistoryManager.addChangeHandler(function(params){
+                 $.when(that.loadSpaces(params)).always(function(){dc.done();});
+                 that._detailManager.showSpaces();
+                 return true;
+             });
+         },
+        
+        _handleAddSpaceClick: function(){
+            var that = this;
+            if($("#add-space-form", this._addSpaceDialog).valid()){
+                var space = {
+                    storeId: this.getStoreId(),
+                    spaceId: $("#spaceId",this._addSpaceDialog).val(),
+                };
 
-	var isUploadManagerBusy = function(){
-		var inprogress = false;
-		$.ajax({
-			async:false,
-			cache:false,
-			url: "/duradmin/spaces/upload",
-			success: function(data){
-				if(data != null && data.taskList != null && data.taskList.length > 0){
-					for(i in data.taskList){
-						var props = data.taskList[i].properties;
-						if(props.state =='running'){
-							inprogress = true;
-							break;
-						}
-					}
-				}
-			}
-		});
-		return inprogress;
-	};
-	
-	
-	
-	
-	var initSpacesManager =  function(){
-	
-		////////////////////////////////////////////
-		//alert user if they are navigating away from 
-		//spaces manager while an upload is still underway
-		////////////////////////////////////////////
-		$("a").each(function(i,element){
-			if($(element).attr("href")  != undefined){
-				$(element).click(function(e){
-					if(isUploadManagerBusy()){
-						return confirm(
-								"The upload manager is uploading files.  " +
-								"\nIf you navigate away from this page, the uploads in process may not complete.");
-					}
-					return true;
-				});
-			}
-		});
-		
-		var phash = parseHash(window.location.hash);
-		
-        if(!isAdmin()) {
-            $(".add-space-button").hide();
-        }
-		
-		if(phash.storeId != null){
-			loadWhatYouCan(phash);
-			return;
-		}
+                var publicFlag = $("#publicFlag", this._addSpaceDialog).is(":checked");
+                 
+                dc.store.AddSpace(
+                    space,
+                    publicFlag,
+                    {
+                        begin: function(){
+                            dc.busy( "Adding space...",{modal: true});
+                        },
+                        success: function(space){
+                            dc.done();
+                            if(space == undefined){
+                                alert("error: space is undefined");
+                            }else{
+                                that._spacesListPane
+                                    .spaceslistpane("addSpaceToList",space);
+                                that._spacesArray.push(space);
+                                that._spacesArray.sort(function(a,b){
+                                   return a.spaceId > b.spaceId;
+                                });
+                            
+                                $("#spaces-list").selectablelist("setCurrentItemById", space.spaceId);
+                                that._spacesListPane.spaceslistpane("scrollToCurrentSpace");
+                            }
+                            
+                        },
+                    }
+                );
+                this._addSpaceDialog.dialog("close");
+            }
+        },
+        
+        
+        _initAddSpaceDialog: function(){
+            var that = this;
+            this._addSpaceDialog = $("#add-space-dialog");
+            this._addSpaceDialog.dialog({
+                autoOpen: false,
+                show: 'blind',
+                hide: 'blind',
+                resizable: false,
+                height: 425,
+                closeOnEscape:true,
+                modal: true,
+                width:500,
+                buttons: {
+                    'Add': function(evt) {
+                        that._handleAddSpaceClick();
+                    },
+                    Cancel: function(evt) {
+                        $(this).dialog('close');
+                    }
+                },
+                close: function() {},
+                open: function(e){
+                    $("#add-space-form").resetForm();
+                    //wrapping in a setTimeout seems to be necessary 
+                    //to get this to run properly:  the dialog must be 
+                    //visible before the focus can be set.
+                    setTimeout(function(){
+                        $("#add-space-form #spaceId").focus();
+                    });
+                }
+                
+            });
+            
+            
+            $("#add-space-form").validate({
+                rules: {
+                    spaceId: {
+                        rangelength: [3,42],
+                        startswith: true,
+                        endswith: true,
+                        spacelower: true,
+                        notip: true,
+                        dotnum: true,
+                        misc: true,
+                        reserved: true,
+                    },
+                },
+                messages: {
+                        
+                }
+            });
 
-		refreshSpaces(getCurrentProviderStoreId());
+            //implements enter key behavior
+            $("#add-space-form #spaceId").keypress(function(evt) {
+              if(evt.which == 13){
+                 evt.stopPropagation();
+                 that._handleAddSpaceClick();
+                 return false;
+               }
+            });
+            
+            //launcher 
+            $('.add-space-button', this.element).live("click",function(evt){
+                that._addSpaceDialog.dialog("open");
+            });
+            
+            $('#add-space-help-content').expandopanel({
+                
+            });
+        },
+        
+        _initializeDetailManager: function(){
+            var that = this;
+            var currentlyDisplayedDetail = null;
+            var currentlyDislayedObject = null;
+            this._detailPane = $('#'+this._detailPaneId, this.element);
+            
+            this._detailManager = (function(){
+                return {
+                    
+                   isSpaceDetailDisplayed: function(){
+                       return currentlyDisplayedDetail == "space";
+                       
+                   },
 
-	};
-	
-	initSpacesManager();
-});
+                   isContentItemDisplayed: function(contentItem){
+                       if(currentlyDisplayedDetail == "contentItem" 
+                               && currentlyDisplayedObject
+                               && contentItem.storeId == currentlyDisplayedObject.storeId 
+                               && contentItem.spaceId == currentlyDisplayedObject.spaceId 
+                               && contentItem.contentId == currentlyDisplayedObject.contentId) {
+                           return true;
+                       }
+                       
+                       return false;
+                   },
+
+                   
+                   showSpaces: function(params){
+                       currentlyDisplayedDetail = "spaces";
+                       var storeId = (params ? params.storeId:null);
+                       if(storeId == null){
+                           storeId = that.getStoreId();
+                       }
+                       that._detailPane
+                           .replaceContents($("#spacesDetailPane").clone())
+                           .spacesdetail({storeId:storeId});
+                       that._detailPane.spacesdetail("load", storeId);
+                   
+                   },
+
+                   showEmpty: function(params){
+                       currentlyDisplayedDetail = "empty";
+                       that._detailPane
+                           .replaceContents($("#genericDetailPane").clone());
+                   },
+
+                   showSpace: function(space){
+                       currentlyDisplayedDetail = "space";
+                       currentlyDisplayedObject = space;
+                       that._detailPane
+                       .replaceContents($("#spaceDetailPane").clone());
+                       that._detailPane.spacedetail();
+                       that._detailPane.spacedetail("load", space);
+                   },
+                   
+                   showContentItem: function(contentItem){
+                       currentlyDisplayedDetail = "contentItem";
+                       currentlyDisplayedObject = contentItem;
+
+                       that._detailPane
+                           .replaceContents($("#contentItemDetailPane").clone());
+                       that._detailPane.contentitemdetail();
+                       that._detailPane.contentitemdetail("load", contentItem);
+                       
+                   },
+                   
+                   showMultiSpaces: function(spaces){
+                       currentlyDisplayedDetail = "spacesMulti";
+
+                       that._detailPane
+                       .replaceContents($("#spaceMultiSelectPane").clone());
+                       that._detailPane.spacesmultiselectdetail({storeId: that.getStoreId()});
+                       that._detailPane.spacesmultiselectdetail("spaces", spaces);
+                   },
+
+                   showMultiContentItems: function(contentItems){
+                       currentlyDisplayedDetail = "contentMulti";
+
+                       that._detailPane
+                           .replaceContents($("#contentItemMultiSelectPane").clone());
+                       var space = that._spacesListPane.spaceslistpane("currentSpace");
+                       that._detailPane.contentmultiselectdetail({
+                           storeId: that.getStoreId(),
+                           readOnly: that._isReadOnly(space)
+                       });
+                       that._detailPane.contentmultiselectdetail("contentItems", contentItems);
+                   },
+
+                };
+            })();
+        },
+        
+        _clearContents: function(){
+            $("#content-item-list").selectablelist("clear");
+            $("#content-item-list-view").find("button,a,input").fadeOut();
+            $("#content-item-list-view").val('');
+            
+        },
+
+        _clearSpaces: function(){
+            $("#spaces-list").selectablelist("clear");
+        },
+        
+        _getStoreType: function(storeId) {
+            for(i in storeProviders){
+                var store = storeProviders[i];
+                if(storeId == store.id){
+                    return store.type;
+                }
+            }
+
+            return 'no provider found with id = ' + storeId;
+        },
+        
+        detailManager: function(){
+            return this._detailManager;
+        },
+        
+        ////////////////////////////////////////////
+        //  provider selection defs start
+        ////////////////////////////////////////////
+
+        _PROVIDER_SELECT_ID: "provider-select-box",
+
+        _initStoreSelectbox: function(){
+            var PROVIDER_COOKIE_ID = "providerId";
+            var options = {
+                data: this.options.storeProviders, 
+                selectedIndex: 0,
+            };
+
+            var cookie = dc.cookie(PROVIDER_COOKIE_ID);
+            
+            if(cookie != undefined){
+                for(i in options.data)
+                {
+                    var pid = options.data[i].id;
+                    if(pid == cookie){
+                        options.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+            $("#"+this._PROVIDER_SELECT_ID).flyoutselect(options).bind("changed",function(evt,state){
+                dc.cookie(PROVIDER_COOKIE_ID, state.value.id);
+                HistoryManager.pushState({storeId:state.value.id});
+            });         
+        },
+        
+        setStoreId: function(storeId){
+            $("#"+this._PROVIDER_SELECT_ID,this.element)
+                .flyoutselect("setValueById", storeId, false);
+        },
+        
+        getStoreId: function(){
+            var provider = $("#"+this._PROVIDER_SELECT_ID)
+                                .flyoutselect("value");
+            return provider.id;
+        },
+        
+        _loadSpace:function(params, showDetail){
+            var that = this;
+            if(showDetail == undefined){
+                showDetail = true;
+            }
+
+            dc.busy("Loading...", {modal:true});
+            var retrieveSpace = 
+                    dc.store.GetSpace2(params)
+                            .success(function(data){
+                                var space = data.space;
+                                that._spacesListPane.spaceslistpane("setCurrentById", space.spaceId);
+                                var currentSpace = that._contentItemListPane.contentitemlistpane("currentSpace");
+                                if(currentSpace.spaceId != space.spaceId || currentSpace.storeId  != space.storeId){
+                                    that._loadContentItems(space);
+                                }
+                                
+                                if(showDetail){
+                                    that._displaySpace(space,params);
+                                }
+                            });
+            
+            return $.when(that.loadSpaces(params),retrieveSpace)
+                       .always(function(){
+                           dc.done();
+                       });
+        },
+        
+        _loadContentItem: function(params){
+            var that = this;
+            dc.busy("Loading...", {modal:true});
+            
+            var space = that._contentItemListPane.contentitemlistpane("currentSpace");
+
+            var loadSpace;
+            if(space.spaceId == params.spaceId && space.storeId == params.storeId){
+                loadSpace = $.Deferred().resolve();
+            }else{
+                loadSpace = that._loadSpace(params, false);
+            }
+
+            var retrieveContentItem = 
+                    dc.store.GetContentItem(params.storeId,params.spaceId, params.contentId,{
+                        failure: function(text, xhr){
+                            if(xhr.status == 404){
+                                alert(contentId + " does not exist.");
+                            }else{
+                                dc.displayErrorDialog(xhr, text, text);
+                            }
+                        },
+        
+                        success: function(contentItem){
+                            that._detailManager.showContentItem(contentItem);
+                        },
+                    });
+            
+            $.when(loadSpace, retrieveContentItem)
+             .always(function(){
+                dc.done();
+             });
+        },
+
+        _displaySpace: function(space){
+            this._detailManager.showSpace(space);
+        },
+
+        _loadContentItems: function(space){
+            this._contentItemListPane.contentitemlistpane("load", space);
+        },
+        
+        /**
+         * params {
+         *    storeId,
+         *    forceRefresh,
+         *    showDetail,
+         * }
+         */
+        loadSpaces: function(optionalParams){
+            var that = this;
+            var forceRefresh = false;
+            if(optionalParams.forceRefresh){
+                forceRefresh = optionalParams.forceRefresh;
+            }
+            
+            var storeId = optionalParams.storeId;
+            
+            if(storeId == undefined){
+                storeId = this.getStoreId();
+                forceRefresh = true;
+            }
+
+            if(storeId == this._storeId && !forceRefresh){
+                return $.Deferred().resolve();
+            }
+            
+            this._storeId = storeId;
+            this.setStoreId(this._storeId);
+            
+            this._clearContents();
+            this._clearSpaces();
+            
+            this._spacesListPane.spaceslistpane("showStatus", "Loading...");
+            $("#provider-logo").removeClass();
+            $("#provider-logo").addClass(this._getStoreType(this.getStoreId()) + '-logo');
+            
+            var jqxhr = dc.store.GetSpaces2({
+                             storeId: storeId,
+                         }).done(function(data){
+                             that._spacesArray = data.spaces;
+                             that._spacesListPane.spaceslistpane("load",that._spacesArray,storeId);
+                             
+                         }).fail(function(xhr, message){
+                                dc.logXhr(xhr, message);
+                                that._spacesListPane.spaceslistpane("hideStatus");
+                         });
+            return jqxhr;
+        },
+        
+        _configureLayout: function(){
+            var listBrowserLayout = null, 
+                that = this;
+            //perform layout first
+            $(this.element).layout({
+                north__size:            50  
+            ,   north__paneSelector:     ".center-north"
+            ,   north__resizable:   false
+            ,   north__slidable:    false
+            ,   north__spacing_open:            0           
+            ,   north__togglerLength_open:      0           
+            ,   north__togglerLength_closed:    0           
+
+            ,   west__size:             800
+            ,   west__minSize:          600
+            ,   west__paneSelector:     "#"+that._listBrowserId
+            ,   west__onresize:         function(){listBrowserLayout.resizeAll();}
+            ,   center__paneSelector:   "#"+that._detailPaneId
+            ,   center__onresize:       function(){that._detailPane.resizeAll();}
+            });
+
+
+            listBrowserLayout = $('#'+that._listBrowserId).layout({
+                    west__size:             300
+                ,   west__minSize:          260
+                ,   west__paneSelector:     "#"+that._spacesListViewId
+                ,   center__paneSelector:   "#"+that._contentItemListViewId
+                ,   center__onresize:        function(){that._contentItemListPane.contentitemlistpane("resizeAll");}
+            });
+        },
+    }));
+
+    /**
+     * This widget defines the spaces list  panel which includes the selectable list
+     * as well as the filter and add space button.
+     */
+    $.widget("ui.spaceslistpane", $.extend({}, $.ui.basepane.prototype, {
+        _layoutOptions: {
+                    north__paneSelector:    ".north"
+                ,   north__size:            60
+                ,   center__paneSelector:   ".center"
+                ,   resizable:              false
+                ,   slidable:               false
+                ,   spacing_open:           0           
+                ,   togglerLength_open:     0   
+        },
+        
+        _spaces: [],
+        _spacesList: null,
+        
+        _init: function(){
+            $.ui.basepane.prototype._init.call(this);
+            this._initSelectAll();
+            this._initSpacesList();
+            this._initFilter();
+        },
+        
+        _initFilter: function(){
+            var that = this;
+            //bind space filter field to enter key
+            $(".dc-item-list-filter",this.element).bind("keyup", $.debounce(500,function(evt){
+                that.load(that._spaces, evt.target.value);
+            }));
+        },
+
+        _initSpacesList: function(){
+            var that = this;
+            this._spacesList = $("#spaces-list",this.element);
+            this._spacesList.selectablelist({selectable: true});
+
+            this._spacesList.bind("currentItemChanged", function(evt,state){
+                that._handleSpaceListStateChangedEvent(evt, state);
+            });
+
+            this._spacesList.bind("selectionChanged", function(evt,state){
+                that._handleSpaceListStateChangedEvent(evt, state);
+            });
+
+            $(document).bind("spaceDeleted", function(evt,state){
+                that._spacesList.selectablelist("removeById", state.spaceId);
+            });
+
+        },
+        
+        setCurrentById: function(spaceId){
+          this._spacesList.selectablelist("setCurrentItemById", spaceId, false);  
+        },
+
+        _handleSpaceListStateChangedEvent: function(evt, state){
+            var that = this;
+            try{
+                
+                if(state.selectedItems.length == 0){
+                    //uncheck 'check all' box
+                    $("#check-all-spaces", that.element).attr("checked", false);
+                    var currentItem = state.currentItem;
+                    if(currentItem){
+                        var spaceId = $(currentItem.item).attr("id");
+                        if(spaceId){
+                            HistoryManager.pushState({storeId: that._storeId, spaceId:spaceId});
+                        }else{
+                            dc.error("spaceId is undefined");
+                        }
+                    }else{
+                        //do nothing;
+                    }
+                }else{
+                    HistoryManager.pushState({storeId: that._storeId, multi:true});
+                }
+            }catch(err){
+                dc.error(err);
+            }
+        },
+        
+        
+        _initSelectAll: function(){
+            var that = this;
+            $(".dc-check-all", this.element)
+                .click(function(evt){
+                    var checked = $(evt.target).is(":checked");
+                    that._spacesList.selectablelist("select", checked);
+                });
+        },
+        
+        showStatus:function(message){
+            $("#space-list-status",this.element).html(message).fadeIn("fast");
+        },
+
+        hideStatus:function(){
+            $("#space-list-status",this.element).fadeOut("fast");
+        },
+        
+        currentSpace: function(){
+          var obj =  this._spacesList.selectablelist("currentItem");  
+          if(obj.data){
+              return obj.data;
+          }else{
+              return null;
+          }
+        },
+
+        addSpaceToList: function(space){
+            var disabled = this._isReadOnly(space);
+            var node =  $.fn.create("div");
+            node.attr("id", space.spaceId)
+                   .html(space.spaceId);
+            this._spacesList.selectablelist(
+                    'addItem',node,space, false, disabled);    
+        },
+        
+        selectedSpaces: function(){
+            var spaces =  this._spacesList.selectablelist("getSelectedData");
+            var storeId = this._storeId;
+            var i;
+            for(i = 0; i < spaces.length; i++){
+                var s = spaces[i];
+                
+                if(s.storeId == undefined){
+                    s.storeId = storeId;
+                }
+            };
+            return spaces;
+        },
+
+        load: function(spaces, storeId){
+            this._spaces = spaces;
+            this._storeId = storeId;
+            var that = this;
+            var filter = $("#space-filter").val();
+            this._spacesList.selectablelist("clear");
+            var firstMatchFound = false;
+            $.each(this._spaces,function(i, space){
+                if(!filter || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1){
+                    that.addSpaceToList(space);
+                    if(!firstMatchFound){
+                        //$("#spaces-list").selectablelist('setCurrentItemById',space.spaceId);    
+                        firstMatchFound = true;
+                    }
+                }
+            });            
+            
+            this.hideStatus();
+        },
+        
+        scrollToCurrentSpace: function(){
+            var current = this._spacesList.selectablelist("currentItem"); 
+            
+            if(current != null && current != undefined && 
+                    current.data != null && current.data != undefined ){
+                 this._spacesList
+                    .closest(".dc-item-list-wrapper")
+                    .scrollTo(current.item);
+            }
+        },
+
+    
+    }));
+    
+    
+    /**
+     * This widget defines the content list pane which includes the selected list, filter box, navigation
+     * links and related buttons.
+     */
+    $.widget("ui.contentitemlistpane", $.extend({}, $.ui.basepane.prototype, {
+         _layoutOptions: {
+                north__paneSelector:    ".north"
+            ,   north__size:            60
+            ,   center__paneSelector:   ".center"
+            ,   resizable:              false
+            ,   slidable:               false
+            ,   spacing_open:           0           
+            ,   togglerLength_open:     0   
+        },
+        _spaceId: null,
+        _init: function(){
+            var that = this;
+            $.ui.basepane.prototype._init.call(this);
+            this._initSelectAll();
+            
+            this._initContentItemList();
+
+            this._initBulkUploadButton();
+            //handle enter key behavior on filter.
+            $(this.element).find(".dc-item-list-filter").bindEnterKey(function(evt){
+                that._reloadContents(that._spaceId, null, function(space){that.load(space);});
+            });
+        },
+        
+        currentSpace: function(){
+          return {storeId: this._storeId, spaceId: this._spaceId};  
+        },
+        
+        selectedContentItems: function(){
+            var that = this;
+            var contentItems =  this._getList().selectablelist("getSelectedData");
+            $.each(contentItems, function(i,ci){
+                if(!ci.spaceId){
+                    ci.spaceId = that._spaceId;
+                }
+                if(!ci.storeId){
+                    ci.storeId = that._storeId;
+                }
+            });
+            
+            return contentItems;
+        },
+
+        _initBulkUploadButton: function(){
+          //open bulk upload tool window only if it is not already open
+            //otherwise simply activate it.
+            var uploadWindows = {};
+                currentWindow = null, 
+                windowName = null;
+                
+            $('.bulk-add-content-item',this.element).click(
+                function(evt){
+                    var link = $(evt.target),
+                        windowName = link.attr("href"),
+                        currentWindow = uploadWindows[windowName];
+                    
+                    if( currentWindow && !currentWindow.closed ){
+                        $(currentWindow).focus();
+                    }else{
+                        currentWindow = window.open(
+                            link.attr("href"),
+                            windowName,
+                            "menubar=0,resizable=0,width=850,height=400");
+                    
+                        uploadWindows[windowName] = currentWindow;
+                    }
+                    evt.stopPropagation();
+                    return false;
+                }
+            );
+        },
+        _initContentItemList: function(){
+            var that = this;
+            this._getList().selectablelist({selectable: true});
+
+            this._getList().bind("selectionChanged", function(evt,state){
+                var that = this;
+                if(state.selectedItems.length == 0){
+                    //uncheck 'check all' box
+                    $("#check-all-content-items", that.element).attr("checked", false);
+                }
+            });
+            
+            $(document).bind("contentItemDeleted", function(evt, state){
+                that._getList().selectablelist("removeById", state.contentId);
+            });
+
+        },
+        
+
+
+        _reloadContents: function(spaceId, marker, handler, message){
+            this._getList().selectablelist("clear");
+            var prefix = this._getFilterText();
+            dc.store.GetSpace(
+                    this._storeId,
+                    spaceId, 
+                    {
+                        begin: function(){
+                            dc.busy((message ? message :"Filtering content items..."), {modal:true});
+                        },
+                        success: function(space){
+                            dc.done();
+                            if(space == undefined || space == null){
+                                that._showContentItemListStatus("Error: space not found.");
+                            }else{
+                                handler(space);
+                            }
+                        }, 
+                    },
+                    {
+                        prefix: prefix,
+                        marker: marker,
+                    });
+        },
+        
+        _initSelectAll: function(){
+            var that = this;
+            $(".dc-check-all", this.element)
+                .click(function(evt){
+                    var checked = $(evt.target).is(":checked");
+                    that._getList().selectablelist("select", checked);
+                });
+        },
+        
+        _addContentItemsToList: function(space){
+            var that = this,
+                readOnly = this._isReadOnly(space); 
+            
+            $.each(space.contents,function(i,value){
+                that._addContentItemToList({
+                    contentId:value,
+                    spaceId:space.spaceId,
+                    storeId:space.storeId,
+                }, readOnly);
+            });
+        },
+        
+        _addContentItemToList: function(contentItem, readOnly){
+            var that = this, node, actions, content, deleteButton, copyButton;
+            actions = $.fn.create("div");
+            copyButton = 
+                 $("<button title='copy content item' class='copy-button icon-only'>" +
+                         "<i class='pre copy'></i>" +
+                         "</button>")
+                 .click(function(evt){
+                     evt.stopPropagation();
+                     that._copyContentItems(evt,[contentItem]);
+                 });
+
+            actions.append(copyButton);
+            
+            if(!readOnly){
+                deleteButton = 
+                    $("<button title='delete content item' class='delete-space-button icon-only'>" +
+                            "<i class='pre trash'></i>" +
+                            "</button>")
+                    .click(function(evt){
+                        that._deleteContentItem(evt,contentItem);
+                    });
+
+                actions.append(deleteButton);
+            }
+
+            content = $.fn.create("span");
+            content.attr("class", "dc-item-content")
+                      .html(contentItem.contentId);
+            node =  $.fn.create("div");
+            node.attr("id", contentItem.contentId)
+                   .append(content)
+                   .append(actions);
+            
+            var item =  this._getList()
+                            .selectablelist('addItem',node, contentItem);
+            return item;
+            
+        },
+
+        _getList: function(){
+          return $("#content-item-list");  
+        },
+        
+        _showContentItemListStatus: function(text){
+            var contentItemListStatus = $("#content-item-list-status",this.element);
+            if(!text){
+                contentItemListStatus.fadeOut("fast").html('');
+            }else{
+                contentItemListStatus.html(text).fadeIn("slow");
+            }
+        },
+        
+        _createShowMoreLink: function(){
+            var link, that = this;
+            link = $.fn.create("a");
+            link.html('show more')
+            .addClass("dc-link")
+            .addClass("dc-show-more-link")
+            .click(function(){that._showMoreHandler();});
+            return link;
+        },
+        
+        _getFilterText: function(){
+            return $("#content-item-filter",this.element).val();
+        },
+        
+        _showMoreHandler: function(){
+            var that = this,  list, itemData, lastItem, prefix, marker;
+            list = this._getList();
+            itemData = list.selectablelist("lastItemData");
+            lastItem = list.selectablelist("lastItem");
+            marker = null;
+
+            if(itemData != null){
+                marker = itemData.contentId;
+                prefix = this._getFilterText();
+                dc.store.GetSpace(
+                        itemData.storeId,
+                        itemData.spaceId, 
+                        {
+                            begin: function(){
+                                dc.busy("Loading more content items...", {modal:true});
+                                lastItem.addClass("dc-selectablelist-hl");      
+                        },
+                            success: function(s){
+                                dc.done();
+                                that._addContentItemsToList(s);
+                                that._updateNavigationControls(s);
+                            }, 
+                            failure:function(info){
+                                setTimeout(function(){
+                                    alert("Failed to retrieve more content items:" + info);
+                                },200);
+
+                                dc.done();
+                            },
+                        },
+                        {prefix: prefix, marker: marker}
+                    );
+            }
+            
+        },
+        
+        _updateNavigationControls: function(space){
+            var list,listView, listCount,totalCount,statusTxt = null;
+            
+            listView = this.element;        
+            list = this._getList();
+            listCount = list.selectablelist("length");
+            listView.find(".dc-show-more-link").remove();
+            
+            if(space.properties.count == 0){
+                statusTxt = "";
+            }else{
+                totalCount = (this._getFilterText() == '' ? space.properties.count : "?");
+                if(listCount == 0 && space.contents.length == 0){
+                    statusText = "";
+                }else{
+                    statusTxt = "Showing 1 - " + listCount + " of " + totalCount;
+                }
+            }
+
+            this._showContentItemListStatus(statusTxt);
+
+            if(space.contents.length > 199){
+                listView.find(".dc-item-list-controls").html('').append(this._createShowMoreLink());
+                list.selectablelist("setFooter", this._createShowMoreLink());
+            }else{
+                if(space.properties.count == 0){
+                    list.selectablelist("setFooter",$.fn.create("div").html("This space is empty."));
+                }else{
+                    list.selectablelist("setFooter",'');
+                }
+
+            }
+        },
+        
+        load: function(space){
+            this._spaceId = space.spaceId;
+            this._storeId = space.storeId;
+            var list,listView, readOnly = this._isReadOnly(space); 
+    
+            listView = $(this.element);       
+            list = this._getList();
+            
+            list.selectablelist("clear");
+    
+            listView
+                .find("button,input,a")
+                .fadeIn();
+    
+            $(".bulk-add-content-item", listView)
+                .attr("href", "/duradmin/spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
+                .attr("target", "bulk-upload-" + escape(space.spaceId));
+                
+            var refreshButton = $(".refresh-space-button",listView); 
+            refreshButton.unbind("click");
+            refreshButton.click(function(){
+                    window.location.reload();
+            });
+            
+            this._addContentItemsToList(space);
+            this._updateNavigationControls(space);
+    
+            if(readOnly){
+                $(".add-content-item-button, .bulk-add-content-item", listView)
+                    .hide();
+            }
+        },
+    }));
+
+    /**
+     * This is a base class for all the detail panes.
+     */
+    $.widget("ui.basedetailpane", $.extend({}, $.ui.basepane.prototype, {
+        _layoutOptions: {
+                north__paneSelector:    ".north"
+            ,   north__size:            100
+            ,   center__paneSelector:   ".center"
+            ,   resizable:              false
+            ,   slidable:               false
+            ,   spacing_open:           0
+            ,   togglerLength_open:     0
+            
+       },
+       
+       _init: function(){
+           $.ui.basepane.prototype._init.call(this);
+           this._storeId = this.options.storeId;
+       },
+       
+       _setObjectName: function(name){
+           $(".object-name", this.element).empty().prepend(name);  
+       },
+
+       _getStoreId: function(){
+           return this._storeId;
+       },
+       _setObjectId: function(objectId){
+           $(".object-id", this.element).html(this._getStoreId()+"/"+objectId);   
+       },
+       
+       _appendToCenter: function(node){
+           $(".center", this.element).append(node);
+       },
+
+       _loadAclPane: function(space){
+           var viewerPane =  $.fn.create("div")
+                                 .attr("id", "acl-editor")
+                                 .acleditor({open: true, space: space});
+           this._appendToCenter(viewerPane);
+           return viewerPane;      
+       },
+       
+       _loadPropertiesPane: function(extendedProperties, /*bool*/ readOnly){
+           var viewerPane = this._createPropertiesPane(extendedProperties, readOnly);
+           this._appendToCenter(viewerPane);
+           return viewerPane;
+       },
+
+       _createPropertiesPane: function(extendedProperties, /*bool*/readOnly){
+           var viewerPane = $.fn.create("div")
+                           .propertiesviewer({title: "Properties", readOnly: readOnly})
+                           .propertiesviewer("load",extendedProperties);
+           return viewerPane;
+       },
+
+       _createTagPane: function(tags, /*bool*/readOnly){
+           var viewerPane = $.fn.create("div")
+                           .tagsviewer({title: "Tags", readOnly: readOnly})
+                           .tagsviewer("load",tags);
+           return viewerPane;
+       },
+
+       _loadTagPane: function(tags, /*bool*/readOnly){
+           var viewerPane = this._createTagPane(tags,readOnly);
+           this._appendToCenter(viewerPane);
+           return viewerPane;
+       },
+
+       _loadProperties: function(/* array */ properties){
+           var propertiesDiv = $(".detail-properties", this.element).first();
+           
+           if(propertiesDiv.size() == 0){
+               propertiesDiv = $.fn.create("div").addClass("detail-properties");
+               propertiesDiv.tabularexpandopanel({
+                                    title: "Details", 
+                                    data: properties});
+               this._appendToCenter(propertiesDiv);
+           }else{
+               $(propertiesDiv).tabularexpandopanel("setData", properties);
+           }
+           
+           return propertiesDiv;
+       },
+       
+       _isPubliclyReadable: function(acls){
+           if(!acls){
+               return false;
+           }
+           
+           var value = false;
+           $.each(acls, function(i,acl){
+               if(acl.publicGroup){
+                   value = true;
+                   return true;
+               }
+           });
+           return value;
+       },
+       
+       _makeSpacePubliclyReadable: function(/*event object*/evt, storeId, spaceId, successFunc){
+           var that = this;
+           dc.busy("Making space public...");
+           dc.store.UpdateSpaceAcls("storeId="+storeId+
+                                   "&spaceId="+escape(spaceId) + 
+                                   "&read=group-public", 
+                                   true,
+                                   {
+                                     success:function(acls){
+                                         dc.done();
+                                         that.setAcls(acls); 
+                                         if(successFunc){
+                                             successFunc();
+                                         }
+
+                                     },
+                                   });
+       },
+
+       _createMakePublicButton: function(storeId, spaceId, successFunc){
+           var that = this;
+           var button = $.fn.create("button")
+                           .addClass("featured")
+                           .css("margin-left","10px")
+                           .html("Make space publicly readable");
+               
+           button.click(function(evt){
+               that._makeSpacePubliclyReadable(
+                       evt,
+                       storeId, 
+                       spaceId,
+                       successFunc);
+               
+           });     
+           
+           $(document).unbind("acls-updated");
+           $(document).bind("acls-updated",function(evt, acls){
+               if(!that._isPubliclyReadable(acls)){
+                   button.show();
+               }else{
+                   button.hide();
+                   $("#make-public-warning").hide();
+                   
+               }
+           });
+           
+           return button;
+       },
+       
+       setAcls: function(acls){
+           var aclEditor = $("#detail-pane #acl-editor");
+           aclEditor.acleditor("acls", acls);
+           if(!aclEditor.length){
+               $(document).trigger("acls-updated", [acls]);
+           }
+       },
+
+       _formatBulkPropertiesUpdateParams: function(params){
+           var data = "";
+           data += this._formatPropertiesList(params.propertiesToRemove, "remove");
+           data += this._formatPropertiesList(params.propertiesToAdd, "add");
+           data += this._formatParamList(params.tagsToRemove, "tag", "remove");
+           data += this._formatParamList(params.tagsToAdd, "tag", "add");
+           return data;
+       },
+
+       _formatPropertiesList: function(list, fieldNameModifier){
+           var i, list,item,data;
+           data = "";
+           for(i = 0; i < list.length; i++){
+               item = list[i];
+               data += "&properties-name-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.name);
+               data += "&properties-value-"+fieldNameModifier+"-" + i + "=" + encodeURIComponent(item.value);
+           }
+           return data;
+       },
+
+       _formatParamList: function(list, fieldPrefix, fieldNameModifier){
+           var i, list,item,data;
+           data = "";
+           for(i = 0; i < list.length; i++){
+               item = list[i];
+               data += "&" + fieldPrefix + "-" + fieldNameModifier + "-"+ i + "=" + encodeURIComponent(item);
+           }
+           return data;
+       },
+       
+       _openContentItemDialog: function(saveFunction, contentItem){
+           var d = $('#edit-content-item-dialog');
+
+           // prepare edit dialog
+           d.find("input[name=storeId]").val(contentItem ? contentItem.storeId : "");
+           d.find("input[name=spaceId]").val(contentItem ? contentItem.spaceId : "");
+           d.find("input[name=contentId]").val(contentItem ? contentItem.contentId : "");
+           d.find("input[name=contentMimetype]").val(contentItem ? contentItem.properties.mimetype : "");
+           
+           d.dialog({
+               autoOpen: false,
+               show: 'blind',
+               hide: 'blind',
+               height: 250,
+               resizable: false,
+               closeOnEscape:true,
+               modal: true,
+               width:500,
+               buttons: {
+                   'Save': saveFunction,
+                   Cancel: function() {
+                       $(this).dialog('close');
+                   }
+               },
+               close: function() {},
+               open: function(e){
+                   var form = $("#edit-content-item-form",this);
+                   form.validate({
+                       rules: {
+                           contentMimetype: {
+                               required:true,
+                               minlength: 3,
+                               mimetype: true,
+                           },
+                       },
+                       messages: {
+                               
+                       }
+                   });
+
+                   $("input",this).bindEnterKey(saveFunction);
+               }
+           });
+           d.dialog("open");
+       },
+       
+       _addSpaceProperties: function(spaceId, name, value, callback){
+           var data = "properties-name=" + encodeURIComponent(name) +"&properties-value="+encodeURIComponent(value);
+           dc.ajax(this._createSpacePropertiesCall(spaceId, data, "addProperties", callback));
+       },
+
+       _removeSpaceProperties: function(spaceId, name,callback){
+           var data = "properties-name=" + encodeURIComponent(name);
+           dc.ajax(this._createSpacePropertiesCall(spaceId, data, "removeProperties", callback));
+       },
+
+       _addSpaceTag: function(spaceId, tag, callback){
+           var data = "tag="+ encodeURIComponent(tag);
+           dc.ajax(this._createSpacePropertiesCall(spaceId, data, "addTag", callback));
+       },
+
+       _removeSpaceTag: function(spaceId, tag,callback){
+           var data = "tag="+encodeURIComponent(tag);
+           dc.ajax(this._createSpacePropertiesCall(spaceId, data, "removeTag", callback));
+       },
+
+       _addRemoveSpaceProperties: function(spaceId, params,callback){
+           dc.ajax(this._createSpacePropertiesCall(spaceId, this._formatBulkPropertiesUpdateParams(params), "addRemove", callback));
+       },
+       
+       _createSpacePropertiesCall: function(spaceId, data, method,callback){
+           var newData = data + "&method=" + method;
+           var storeId = this._storeId;
+           return {
+               url: "/duradmin/spaces/space?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&action=put",
+               type: "POST",
+               data: newData,
+               cache: false,
+               context: document.body, 
+               success: function(data){
+                   callback.success();
+               },
+               error: function(xhr, textStatus, errorThrown){
+                   //dc.error("get spaces failed: " + textStatus + ", error: " + errorThrown);
+                   callback.failure(textStatus);
+               },
+           };
+       },
+       
+       _createContentItemPropertiesCall: function(spaceId, contentId, data, method,callback){
+           var newData = data + "&method=" + method;
+           var storeId = this._storeId;
+           return {
+               url: "/duradmin/spaces/content?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&contentId="+encodeURIComponent(contentId) +"&action=put",
+               type: "POST",
+               data: newData,
+               cache: false,
+               context: document.body, 
+               success: function(data){
+                   callback.success();
+               },
+               failure: function(textStatus){
+                   callback.failure(textStatus);
+               },
+           };
+       },
+       
+       _addContentItemProperties: function(spaceId, contentId, name, value, callback){
+           var data = "properties-name=" + encodeURIComponent(name) +"&properties-value="+encodeURIComponent(value);
+           dc.ajax(this._createContentItemPropertiesCall(spaceId, contentId, data, "addProperties", callback));
+       },
+
+       _removeContentItemProperties: function(spaceId, contentId, name,callback){
+           var data = "properties-name=" + encodeURIComponent(name);
+           dc.ajax(this._createContentItemPropertiesCall(spaceId,contentId, data, "removeProperties", callback));
+       },
+
+       _addContentItemTag: function(spaceId, contentId, tag, callback){
+           var data = "tag="+ encodeURIComponent(tag);
+           dc.ajax(this._createContentItemPropertiesCall(spaceId,contentId, data, "addTag", callback));
+       },
+
+       _removeContentItemTag: function(spaceId, contentId, tag,callback){
+           var data = "tag="+encodeURIComponent(tag);
+           dc.ajax(this._createContentItemPropertiesCall(spaceId, contentId, data, "removeTag", callback));
+       },
+       
+       _addRemoveContentItemProperties: function(spaceId, contentId, params,callback){
+           dc.ajax(
+                   this._createContentItemPropertiesCall(
+                   spaceId,
+                   contentId,
+                   this._formatBulkPropertiesUpdateParams(params),
+                   "addRemove", 
+                   callback));     
+       },
+
+    }));
+
+    
+    $.widget("ui.basemultidetailpane", $.extend({}, $.ui.basedetailpane.prototype, {
+        
+        _init: function(){
+            $.ui.basedetailpane.prototype._init.call(this);
+        },
+ 
+        _preparePropertiesDialog: function(targetListDataType){
+            var that = this;
+            var items, getFunction;
+            if(targetListDataType == "contentItem"){
+                items = this._contentItems;
+                getFunction = function(ci,callback){
+                    dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, callback);
+                };
+            }else{
+                items = this._spaces;
+                getFunction = function(space,callback){
+                    dc.store.GetSpace(space.storeId, space.spaceId, callback);
+                };
+            }
+
+            this._aggregatePropertiesFromSelection(items,getFunction,{
+                success: function(data){
+                    that._loadPropertiesDialog(data,targetListDataType);
+                },
+                failure: function(text){
+                    alert("unable to load selection:" + text);
+                },
+            });
+
+        },
+
+        _appendToListIfNew: function(newItems, itemList, equalsFunc) {
+            var toAppend = [];
+            var i,j,ni,item,append;
+            for(i = 0; i < newItems.length; i++){
+                ni = newItems[i];
+                if(itemList.length == 0){
+                    toAppend.push(ni);
+                }else{
+                    append = true;
+                    for(j = 0; j <  itemList.length; j++){
+                        item = itemList[j];
+                        if(equalsFunc != undefined){
+                            if(equalsFunc(ni,item)){
+                                append = false;
+                                break;
+                            }
+                        }else{
+                            if(ni == item){
+                                append = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if(append){
+                        toAppend.push(ni);
+                    }
+                }
+            }
+
+            for(i = 0; i < toAppend.length; i++){
+                itemList.push(toAppend[i]);
+            }
+        },
+
+
+        _aggregatePropertiesFromSelection: function(items, getFunction, fcallback){
+            var that = this;
+            dc.busy("Loading selection...", {modal: true});
+            var propertiesLists = [];
+            var tagLists = [];
+            var job = dc.util.createJob("load-content-items");  
+            for(i in items){
+                job.addTask({
+                    _item: items[i],
+                    execute: function(callback){
+                        getFunction(
+                                this._item,
+                                {
+                                    success:function(obj){
+                                        propertiesLists.push(obj.extendedProperties);
+                                        tagLists.push(obj.properties.tags);
+                                        callback.success();
+                                    },
+                                    failure: function(message){
+                                        callback.failure();
+                                    },
+                                }                   
+                        );
+                    },
+                });
+            }
+
+            job.execute({ 
+                changed: function(job){
+                    dc.debug("changed:" + job);
+                    var p = job.getProgress();
+                    dc.busy(p.successes  + " content items loaded...", {modal: true});
+                },
+                cancelled: function(job){
+                    dc.debug("cancelled:" + job);
+                    dc.done();
+                }, 
+                done: function(job){
+                    dc.log("done:" + job);
+                    dc.done();
+                    var properties = [];
+                    var tags = [];
+                    var i;
+                    for(i = 0; i < propertiesLists.length; i++){
+                        that._appendToListIfNew(propertiesLists[i],properties, function(a,b){ return a.name == b.name && a.value == b.value;});
+                    }
+                    
+                    for(i = 0; i < tagLists.length; i++){
+                        that._appendToListIfNew(tagLists[i],tags);
+                    }
+                    
+                    fcallback.success({
+                        properties: properties,
+                        tags: tags,
+                    });
+                }, 
+            });
+        },
+        
+        _equals:function(a,b){
+            return (a.name == b.name && a.value == b.value);
+        },
+        
+        _removeValueFromList: function(value, list, equals){
+            var i = -1,
+                el;
+            
+            for(i in list){
+                el = list[i];
+                if(equals != undefined ? equals(value, el) : value == el){
+                    list.splice(i,1);
+                    return el;
+                }
+            }
+            return null;
+        },
+        
+        _loadPropertiesDialog: function(data, targetListType){
+            var that = this;
+            var propertiesToBeAdded = [];
+            var propertiesToBeRemoved = [];
+            var tagsToBeAdded = [];
+            var tagsToBeRemoved = [];
+
+            var mp = this._createPropertiesPane(data.properties);
+            
+            
+            $(mp).bind("dc-add", function(evt, future){
+                evt.stopPropagation();
+                var value = future.value;
+                future.success();
+                //if in the removed list, remove from remove list
+                that._removeValueFromList(value,propertiesToBeRemoved, that._equals);
+                that._removeValueFromList(value,propertiesToBeAdded, that._equals);
+                propertiesToBeAdded.push(value);
+            }).bind("dc-remove", function(evt, future){
+                evt.stopPropagation();
+                future.success();
+                var value = future.value;
+                if(that._removeValueFromList(value, propertiesToBeAdded, that._equals) == null){
+                    that._removeValueFromList(value, propertiesToBeRemoved, that._equals);
+                    propertiesToBeRemoved.push(value);
+                }
+            });
+
+            var tag = that._createTagPane(data.tags);
+
+            $(tag).bind("dc-add", function(evt, future){
+                evt.stopPropagation();
+                var value = future.value[0];
+                future.success();
+                that._removeValueFromList(value,tagsToBeRemoved);
+                that._removeValueFromList(value,tagsToBeAdded);
+                tagsToBeAdded.push(value);
+            }).bind("dc-remove", function(evt, future){
+                evt.stopPropagation();
+                var value = future.value;
+                future.success();
+                if(that._removeValueFromList(value, tagsToBeAdded) == null){
+                    that._removeValueFromList(value, tagsToBeRemoved);
+                    tagsToBeRemoved.push(value);
+                }
+            });
+
+            
+            var saveFunction = function(){
+                var msg = "Applying the following changes: \n";
+                for(i in propertiesToBeRemoved){
+                    var m = propertiesToBeRemoved[i];
+                    msg +="\tremoving: " + m.name + "=" + m.value + "\n";
+                }
+
+                for(i in tagsToBeRemoved){
+                    msg +="\tremoving: " + tagsToBeRemoved[i] + "\n";
+                }
+
+                for(i in propertiesToBeAdded){
+                    var m = propertiesToBeAdded[i];
+                    msg +="\tadding: " + m.name + "=" + m.value + "\n";
+                }
+
+                for(i in tagsToBeAdded){
+                    msg +="\tadding: " + tagsToBeAdded[i] + "\n";
+                }
+                
+                if(confirm(msg)){
+                    var params = {
+                        propertiesToRemove: propertiesToBeRemoved,
+                        propertiesToAdd:    propertiesToBeAdded,
+                        tagsToRemove:     tagsToBeRemoved, 
+                        tagsToAdd:        tagsToBeAdded,
+                    };
+                    
+                    if(targetListType == "contentItem"){
+                        params.contentItems = that._contentItems;
+                        that._bulkUpdateContentProperties(params);
+                    }else{
+                        params.spaces = that._spaces;
+                        that._bulkUpdateSpaceProperties(params);
+                    }
+
+                    d.dialog("close");
+                    dc.busy("Preparing to perform update...", {modal: true});
+                    
+                }
+            };
+            
+            
+            var d = that._initializePropertiesDialog(saveFunction);
+            var center = $(".center", d);
+            center.append(mp);
+            center.append(tag);
+            dc.done();
+            d.dialog("open");
+            
+        },
+        
+        _bulkUpdateContentProperties: function(params){
+            var that = this;
+            var job = dc.util.createJob("bulk-update-content-properties");
+            var contentItems = params.contentItems;
+            var i;
+            for(i = 0; i < contentItems.length; i++){
+                var contentItem = contentItems[i];
+                job.addTask({
+                    _contentItem: contentItem,
+                    execute: function(callback){
+                        var theOther = this;
+                        var citem = theOther._contentItem;
+                        that._addRemoveContentItemProperties(citem.spaceId, citem.contentId, params,callback);
+                    },
+                });
+            }
+            job.execute(this._createGenericJobCallback("Updating content items: "));
+        },
+
+        _bulkUpdateSpaceProperties: function(params){
+            var that = this;
+            var job = dc.util.createJob("bulk-update-space-properties");
+            $.each(params.spaces, function(i, space){
+                job.addTask({
+                    _space: space,
+                    execute: function(callback){
+                        that._addRemoveSpaceProperties(this._space.spaceId, params,callback);
+                    },
+                });
+            });
+            job.execute(this._createGenericJobCallback("Updating spaces: "));
+        },
+    
+    }));
+    /**
+     * This widget defines the detail view to be displayed when no spaces are loaded.
+     */
+    $.widget("ui.spacesdetail", $.extend({}, $.ui.basedetailpane.prototype, {
+        _init: function(){
+            $.ui.basedetailpane.prototype._init.call(this);
+            this._setObjectName("Spaces");
+        },     
+        
+        load: function(storeId){
+          this._storeId = storeId;
+          
+          var history = $.fn.create("div");
+          this._appendToCenter(history);
+          history.historypanel({storeId: this._storeId});
+        },
+    }));
+
+    /**
+     * This widget defines the detail that is displayed when multiple spaces are selected
+     */
+    $.widget("ui.spacesmultiselectdetail", $.extend({}, $.ui.basemultidetailpane.prototype, {
+        _init: function(){
+            $.ui.basemultidetailpane.prototype._init.call(this);
+            this._initPane();
+        },        
+        
+        _spaces: [],
+        _title: "{count} space(s) selected.",
+        
+        
+        _updateTitle: function(count){
+            var title = this._title.replace("{count}", count);
+            this._setObjectName(title);
+        },
+
+        spaces: function(spaces){
+          this._spaces = spaces;  
+          this._updateTitle(this._spaces.length);
+          
+        },
+        _initPane: function(){
+            var that = this;
+            
+            // attach delete button listener
+            var deleteButton = $(".delete-space-button",this.element);
+            deleteButton.click(function(evt){
+                var confirmText = "Are you sure you want to delete multiple spaces?";
+                var busyText = "Deleting spaces";
+                var spaces = that._spaces;
+                if(spaces.length < 2){
+                    confirmText = "Are you sure you want to delete this space?";
+                    busyText = "Deleting space";
+                }
+
+                if(!dc.confirm(confirmText)){
+                    return;
+                }
+                dc.busy(busyText, {modal: true});
+
+                var job = dc.util.createJob("delete-spaces");   
+
+                $.each(spaces, function(i,space){
+                    job.addTask({
+                        _space: spaces[i],
+                        execute: function(callback){
+                            var theOther = this;
+                            dc.store.DeleteSpace(this._space, {
+                                success:function(){
+                                    callback.success();
+                                    $(document).trigger("spaceDeleted", theOther._space);
+                                },
+                                failure: function(error, xhr){
+                                    callback.failure();
+                                    dc.displayErrorDialog(xhr,"Unable to delete '" + theOther._space.spaceId +"'");
+                                },
+                            });
+                        },
+                    });
+                });
+
+                job.execute(
+                    { 
+                        changed: function(job){
+                            dc.log("changed:" + job);
+                            var p = job.getProgress();
+                            dc.busy("Deleting spaces: " + p.successes, {modal: true});
+                        },
+                        cancelled: function(job){
+                            dc.log("cancelled:" + job);
+                            dc.done();
+                        }, 
+                        done: function(job){
+                            dc.log("done:" + job);
+                            dc.done();
+                            HistoryManager.pushState({storeId: that._storeId});
+                    }, 
+                });
+            });
+
+            if(!this._isAdmin()){
+                deleteButton.hide();
+            }
+            
+            $(".add-remove-properties-button",this.element).click(function(evt){
+                that._preparePropertiesDialog("space");
+            });
+            
+        },
+        
+    }));
+
+    
+    /**
+     * This widget defines the detailed view of a space
+     */
+    $.widget("ui.spacedetail", $.extend({}, $.ui.basedetailpane.prototype, {
+        _init: function(){
+            $.ui.basedetailpane.prototype._init.call(this);
+        },                   
+        
+        _extractSpaceProperties: function(space){
+            return [ 
+                    ['Items', (space.itemCount == null || space.itemCount == undefined || space.itemCount < 0 ? space.properties.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
+                    ['Created', space.properties.created],
+                    ['Size', space.properties.size],
+            ];
+        },
+        
+        _getSpaceMetrics: function(space){
+            return dc.store.GetStorageReportDetail(space.storeId, space.spaceId, null);
+        },
+
+        _createMimetypeGraphPanel: function(space){
+            var that = this;
+            var mimetypePanel =  $.fn.create("div");
+            //get metrics ajax call
+            $.when(this._getSpaceMetrics(space))
+             .done(function(response) { 
+                $.each(response.metrics.spaceMetrics, function(i, metrics){
+                    if(space.spaceId == metrics.spaceName){
+                        metrics.reportId = response.reportId;
+                        metrics.date = response.metrics.date;
+
+                        dc.chart.loadMimetypeMetricsPanel(mimetypePanel, metrics);
+                        return false;
+                    }
+                });
+            });
+
+            return mimetypePanel;
+        },
+        
+        load: function(space){
+            var that = this;
+            this._storeId = space.storeId;
+            this._setObjectName(space.spaceId);
+            this._setObjectId(space.spaceId);
+            
+            var readOnly = this._isReadOnly(space);
+            
+            // attach delete button listener
+            var deleteSpaceButton = $(".delete-space-button",this.element);
+            deleteSpaceButton.click(function(evt){
+                that._deleteSpace(evt,space);
+            });
+            
+            if(readOnly) {
+                deleteSpaceButton.hide();
+            }
+
+            if(this._isAdmin()){
+                var makePublicButton = this._createMakePublicButton(
+                        space.storeId, 
+                        space.spaceId);
+                $(makePublicButton).insertAfter(deleteSpaceButton);
+
+                if(!this._isPubliclyReadable(space.acls)){
+                    makePublicButton.hide();
+                }
+                
+                this._loadAclPane(space);
+            }
+
+            var spaceProps = this._extractSpaceProperties(space);
+            var propertiesDiv = this._loadProperties(spaceProps);
+            
+            
+            var mimetypeGraphPanel = this._createMimetypeGraphPanel(space);
+            $(propertiesDiv).expandopanel("append",mimetypeGraphPanel);
+
+            if(space.itemCount == null || space.itemCount < 0){
+                //attach poller if itemCount is null or -1
+                var pollItemCount = function(){
+                    dc.store.GetSpace(
+                            space.storeId,
+                            space.spaceId, 
+                            {
+                                success: function(s){
+                                    if(that._isObjectAlreadyDisplayedInDetail(s.spaceId)){
+                                        if(s != undefined && s != null){
+                                            that._loadProperties(that._extractSpaceProperties(s));
+                                            if(s.itemCount == null || s.itemCount < 0){
+                                                setTimeout(pollItemCount, 10000);
+                                            }
+                                        }
+                                    }
+                                }, 
+                            }
+                        );              
+                };
+                
+                setTimeout(pollItemCount, 10000);
+            }
+            
+            this._loadHistoryPanel(space);
+
+            var mp = this._loadPropertiesPane(space.extendedProperties, readOnly);
+            
+            $(mp).bind("dc-add", function(evt, future){
+                    var value = future.value;
+                    that._addSpaceProperties(space.spaceId, value.name, value.value, future);
+                }).bind("dc-remove", function(evt, future){
+                    that._removeSpaceProperties(space.spaceId, future.value.name,future);
+                });
+            
+            var tag = that._loadTagPane(space.properties.tags, readOnly);
+
+            $(tag).bind("dc-add", function(evt, future){
+                var value = future.value[0];
+                that._addSpaceTag(space.spaceId, value, future);
+            }).bind("dc-remove", function(evt, future){
+                var value = future.value;
+                that._removeSpaceTag(space.spaceId, value, future);
+            });
+        },
+        
+        _loadHistoryPanel: function(options){
+            var history = $.fn.create("div");
+            this._appendToCenter(history);
+            history.historypanel(options);
+        },
+        
+        _deleteSpace: function(evt, space) {
+            evt.stopPropagation();
+            if(!dc.confirm("Are you sure you want to delete \n" + space.spaceId + "?")){
+                return;
+            }
+            
+            dc.store.DeleteSpace(space, {
+                begin: function(){
+                    dc.busy( "Deleting space...",{modal: true});
+                },
+                
+                success:function(){
+                    dc.done();
+                    $(document).trigger("spaceDeleted", space);
+                },
+                
+                failure: function(message){
+                    dc.done();
+                    alert("failed to delete space!");
+                },
+            });
+        },
+        
+
+    }));
+    
+    /**
+     * This widget defines detail view to be displayed when multiple content items are selected.
+     */
+    $.widget("ui.contentmultiselectdetail", $.extend({}, $.ui.basemultidetailpane.prototype, {
+        _contentItems: [],
+        _init: function(){
+            var that = this;
+            $.ui.basemultidetailpane.prototype._init.call(this);
+            var readOnly = this.options.readOnly;
+        
+            // attach delete button listener
+            var deleteButton = $(".delete-content-item-button",this.element);
+            if(readOnly){
+                deleteButton.hide();
+            }else{
+                deleteButton.click(function(evt){
+                    that._handleDeleteButtonClick(evt);
+                });
+            }
+
+            //attach mimetype edit listener
+            var editButton = $(".edit-selected-content-items-button",this.element);
+            if(readOnly){
+                editButton.hide();
+            }else{
+                editButton.click(function(evt){
+                    that._handleEditButtonClick(evt);
+                });
+            }
+
+            var addRemoveProperties = $(".add-remove-properties-button",this.element);
+            if(readOnly){
+                addRemoveProperties.hide();
+            }else{
+                addRemoveProperties.click(function(evt){
+                    that._preparePropertiesDialog("contentItem");
+                });
+            }
+            
+            $(".copy-content-item-button",this.element)
+                .click(function(evt){
+                    that._copyContentItems(evt, that._contentItems);
+            });     
+        },
+        
+        contentItems: function(contentItems){
+            this._contentItems = contentItems;
+            this._updateTitle(this._contentItems.length);
+        },
+        _updateTitle: function(count){
+            this._setObjectName(
+                    "{count} content item(s) selected."
+                                    .replace("{count}", count));
+        },
+        
+        _handleDeleteButtonClick: function(evt){
+            var that = this;
+            var contentItems = that._contentItems;
+
+            var confirmMessage = "Are you sure you want to delete multiple content items?";
+            var busyMessage = "Deleting content items...";
+    
+            if(contentItems.length < 2)
+            {
+                confirmMessage = "Are you sure you want to delete the content item?";
+                busyMessage = "Deleting content item...";
+            }
+    
+            if(!dc.confirm(confirmMessage)){
+                return;
+            }
+            
+            //identify space from first contentitem.
+            var space = {storeId: contentItems[0].storeId, 
+                         spaceId: contentItems[0].spaceId};
+            
+            dc.busy(busyMessage, {modal: true});
+            var job = dc.util.createJob("delete-content-items");
+            var i;
+            for(i = 0; i < contentItems.length; i++){
+                job.addTask({
+                    _contentItem: contentItems[i],
+                    execute: function(callback){
+                        var that = this;
+                        dc.store.DeleteContentItem(this._contentItem, {
+                            success:function(){
+                                callback.success();
+                                $(document).trigger("contentItemDeleted", that._contentItem);
+                            },
+                            failure: function(message){
+                                callback.failure();
+                            },
+                        });
+                    },
+                });
+            }
+    
+            job.execute(
+                { 
+                    changed: function(job){
+                        dc.log("changed:" + job);
+                        var p = job.getProgress();
+                        dc.busy("Deleting content items: " + p.successes, {modal: true});
+                    },
+    
+                    cancelled: function(job){
+                        dc.log("cancelled:" + job);
+                        dc.done();
+                    }, 
+                    done: function(job){
+                        dc.log("done:" + job);
+                        dc.done();
+                        HistoryManager.pushState(space);
+                }, 
+            });
+        },
+        
+        _handleEditButtonClick: function(evt){
+            var that = this;
+            this._openContentItemDialog(function(){
+                var form = $("#edit-content-item-form");
+
+                if(form.valid()){
+                    dc.busy("Preparing to update content items...", {modal: true});
+                    $('#edit-content-item-dialog').dialog("close");
+                    var contentItems = that._contentItems;
+                    var job = dc.util.createJob("update-content-items");    
+                    $.each(contentItems, function(i, contentItem){
+                        contentItem.contentMimetype = $("input[name=contentMimetype]", form).val();
+                        job.addTask({
+                            _contentItem: contentItem,
+                            execute: function(callback){
+                                var theOther = this;
+                                var citem = theOther._contentItem;
+                                var data = that._serialize(citem);
+                                dc.store.UpdateContentItemMimetype(data, {
+                                    success:function(){
+                                        callback.success();
+                                    },
+                                    failure: function(message){
+                                        callback.failure();
+                                    },
+                                });
+                            },
+                        });
+                    });
+    
+                    job.execute(
+                        { 
+                            changed: function(job){
+                                dc.log("changed:" + job);
+                                var p = job.getProgress();
+                                dc.busy("Updating content items: " + p.successes, {modal: true});
+                            },
+                            cancelled: function(job){
+                                dc.log("cancelled:" + job);
+                                dc.done();
+                            }, 
+                            done: function(job){
+                                dc.log("done:" + job);
+                                dc.done();
+                        }, 
+                    });
+                }
+            });    
+        },
+        
+        
+    }));
+
+    
+    /**
+     * This widget defines the detail view of a content item.
+     */
+    $.widget("ui.contentitemdetail", $.extend({}, $.ui.basedetailpane.prototype, {
+        _contentItem: null, 
+        
+        _layoutOptions: $.extend(
+                            true,
+                            {}, 
+                            $.ui.spacesdetail.prototype._layoutOptions,{
+                                north__size:150,
+                            }),
+        _init: function(){
+            $.ui.basedetailpane.prototype._init.call(this);
+        },      
+        
+        _extractContentItemProperties: function(contentItem){
+            var m = contentItem.properties;
+            return [
+                        ["Space", contentItem.spaceId],
+                        ["Size", dc.formatBytes(m.size)],
+                        ["Modified", m.modified],
+                        ["Checksum", m.checksum],
+                   ];
+        },
+        
+        _j2kViewerBaseURL: "",
+        
+        load: function(/*object*/contentItem){
+            var that = this,
+                readOnly = this._isReadOnly(contentItem);
+            this._contentItem = contentItem;
+            this._storeId = contentItem.storeId;
+            this._setObjectName(contentItem.contentId);
+            this._setObjectId(contentItem.spaceId+"/"+contentItem.contentId);
+            
+            $(".download-content-item-button", this.element)
+                .attr("href", dc.store.formatDownloadURL(contentItem));
+
+            var deleteContentButton = $(".delete-content-item-button",this.element);
+            deleteContentButton.click(function(evt){
+                    that._deleteContentItem(evt,contentItem);
+                });
+            if(readOnly) {
+                deleteContentButton.hide();
+            }
+
+            $(".copy-content-item-button",this.element)
+                .click(function(evt){
+                    that._copyContentItems(
+                            evt,[contentItem]);
+                });
+                
+            var mimetype = contentItem.properties.mimetype;
+            
+            if(mimetype.indexOf("image") == 0){
+                if(this._j2kViewerBaseURL != ""){
+                    this._loadPreview(contentItem,this._j2kViewerBaseURL);
+                }else{
+                    dc.service.GetJ2kBaseURL({
+                        success:function(url){
+                            that._j2kViewerBaseURL = url;
+                            that._loadPreview(contentItem, that._j2kViewerBaseURL);
+                        },
+                        failure: function(text){
+                            alert("GetJ2kBaseURL failed: " + text);
+                        }
+                    });         
+                }           
+            }else if(mimetype.indexOf("video") == 0){
+                this._loadVideo(contentItem);
+            }else if(mimetype.indexOf("audio") == 0){
+                this._loadAudio(contentItem);
+            }else {
+                var viewerURL= dc.store.formatDownloadURL(contentItem, false);
+                $(".view-content-item-button", this.element)
+                    .attr("href", viewerURL)
+                    .css("display", "inline-block");
+            }
+
+            $(".durastore-link", this.element)
+                .attr("href", contentItem.durastoreURL);
+
+            this._loadProperties(this._extractContentItemProperties(contentItem));
+            // load the details panel
+            var mimetype = contentItem.properties.mimetype;
+            $(".mime-type .value", this.element).text(mimetype);
+            $(".mime-type-image-holder", this.element).addClass(dc.getMimetypeImageClass(mimetype));
+
+            var mp = this._loadPropertiesPane(contentItem.extendedProperties, readOnly);
+            
+            
+            $(mp).bind("dc-add", function(evt, future){
+                    var value = future.value;
+                    that._addContentItemProperties(contentItem.spaceId, contentItem.contentId, value.name, value.value, future);
+                }).bind("dc-remove", function(evt, future){
+                    that._removeContentItemProperties(contentItem.spaceId, contentItem.contentId, future.value.name,future);
+                });
+            
+            var tag = this._loadTagPane(contentItem.properties.tags, readOnly);
+
+            $(tag).bind("dc-add", function(evt, future){
+                var value = future.value[0];
+                that._addContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
+            }).bind("dc-remove", function(evt, future){
+                var value = future.value;
+                that._removeContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
+            });
+
+            var editContentItemButton = $(".edit-content-item-button",this.element);
+            editContentItemButton.click(
+                    function(evt){
+                        that._handleEditContentItemClick(evt);
+                    }
+                );
+            if(readOnly){
+                editContentItemButton.hide();
+            }
+        },
+
+        _handleEditContentItemClick:function(evt){
+            var that = this;
+            this._openContentItemDialog(function(){
+                var form = $("#edit-content-item-form");
+                var data = form.serialize();
+                if(form.valid()){
+                    var callback = {
+                        success: function(contentItem){
+                            dc.done();
+                            that.load(contentItem);
+                        },
+                        failure: function(text){
+                            dc.done();
+                            alert("failed to update content item.");
+                        },
+                    };
+                    $('#edit-content-item-dialog').dialog("close");
+                    dc.busy("Updating mime type", {modal: true});
+                    dc.store.UpdateContentItemMimetype(data, callback);
+                }
+            }, this._contentItem);
+            
+        },
+        _loadPreview: function(contentItem,j2kBaseURL){
+            //if space is not publicly visible and j2K service is running, we must 
+            //notify the user that the space must be opened.
+        
+           var options = {
+                           'transitionIn'  :       'elastic',
+                           'transitionOut' :       'elastic',
+                           'speedIn'               :       600, 
+                           'speedOut'              :       200, 
+                           'overlayShow'   :       false,};
+
+           var open = this._isPubliclyReadable(contentItem.acls);
+           var externalViewer = j2kBaseURL != null && open;
+           var viewerURL,thumbnailURL;
+
+           if(externalViewer){
+                   options['width'] = $(document).width()*0.8;
+                   options['height'] = $(document).height()*0.8;
+                   options['type'] = 'iframe';
+                   viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
+                   thumbnailURL = dc.store.formatThumbnail(contentItem, 2,j2kBaseURL, open);
+           }else{
+                   options['type'] = 'image';
+                   viewerURL = dc.store.formatDownloadURL(contentItem,false);
+                   thumbnailURL = dc.store.formatGenericThumbnail(contentItem);
+           }
+           
+           var div = $.fn.create("div")
+                                     .expandopanel({title: "Preview",});
+           
+           $(".view-content-item-button", this.element)
+                   .css("display","inline-block")
+                   .attr("href", viewerURL);
+
+           var thumbnail = $.fn.create("img")
+                                                   .attr("src", thumbnailURL)
+                                                   .addClass("preview-image");
+           
+           var viewerLink = $.fn.create("a").append(thumbnail)
+                                                   .attr("href", viewerURL)
+                                                   .fancybox(options);      
+
+           var wrapper = $.fn.create("div")
+                                                   .addClass("preview-image-wrapper")
+                                                   .append(viewerLink);
+
+           var parent = $(viewerLink.parent());
+           var loadingMessage = $("<div><h2><img src='/duradmin/images/wait.gif'/>Loading image...</h2>");
+           parent.append(loadingMessage);
+           thumbnail.hide();
+           thumbnail.load(function(){
+               loadingMessage.remove();
+               thumbnail.show();
+           });
+           
+           if(!open && j2kBaseURL != null && isAdmin()){
+                   var warning = $.fn.create("div").addClass("warning").attr("id", "make-public-warning");
+                   $(div).expandopanel("getContent").append(warning);
+                   var button = createMakePublicButton(
+                                   contentItem.storeId, 
+                                   contentItem.spaceId, 
+                                   function(){
+                                       getContentItem(
+                                               contentItem.storeId,
+                                               contentItem.spaceId,
+                                               contentItem.contentId,
+                                               true);
+                                                                         
+                                   });
+
+                   warning.append("<span>To use the JP2 Viewer you must grant the 'public'" +
+                                       " group read access to this space.</span>")
+                              .append(button);
+           }
+                    
+           $(div).expandopanel("getContent").append(wrapper);
+           this._appendToCenter(div);
+        },
+
+        _loadVideo: function(contentItem){      
+            this._loadMedia(contentItem, "Watch","video");
+        },
+
+        _loadAudio: function(contentItem){      
+            this._loadMedia(contentItem, "Listen","audio");
+        },
+
+        _findStreamingService: function(services){
+            var streamingService = null;
+            $.each(services, function(i, service){
+                if(service.contentId.indexOf('mediastreamingservice') > -1){
+                    streamingService = service;
+                    return false;
+                }
+            });
+            return streamingService;
+        },
+        
+        _isMediaSourceMatchingContentSpaceId: function(service, spaceId){
+            var sourceMediaSpace = false;
+            $.each(service.deployments, function(j,deployment){
+                var modeSets = deployment.userConfigModeSets;
+                $.each( deployment.userConfigModeSets, function(k, modes){
+                    var modes = modeSets[k].modes;
+                    $.each(modes, function(p, mode){
+                        $.each(mode.userConfigs, function(m,uc){
+                            if(uc.name == "mediaSourceSpaceId" && uc.displayValue.indexOf(spaceId) != -1){
+                                sourceMediaSpace = true;
+                                //return false breaks out of the loop.
+                                return false;
+                            }
+                        });
+                    });
+                });
+            });
+            
+            return sourceMediaSpace;
+        },
+
+        _loadMedia: function(contentItem, title,/*audio or video*/type){  
+            var that = this;
+            var viewer = $.fn.create("div").attr("id", "mediaspace");
+            
+            var div = $.fn.create("div")
+            .expandopanel({title: title});
+            
+            $(div).expandopanel("getContent").css("text-align", "center").append(viewer);
+
+            this._appendToCenter(div);
+
+            dc.service.GetDeployedServices({
+                success: function(data){
+                    var streamingService = that._findStreamingService(data.services);
+                    if(streamingService != null){
+                        var sourceMediaSpace = 
+                                that._isMediaSourceMatchingContentSpaceId(
+                                        streamingService, 
+                                        contentItem.spaceId);
+                        if(sourceMediaSpace){
+                            that._writeMediaTag(service,deployment, contentItem);
+                        }else{
+                            viewer.html("<p>No streaming service is running against this space." + 
+                            "Please reconfigure the streaming service to use this space as the source.</p>");
+                            //viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
+                            //viewer.append(that._createHTML5MediaTag(contentItem,type));
+                        }                        
+                    }else{
+                        viewer.html("<p>The media stream services must be running to stream audio/video files for this space.</p");
+                        //viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
+                        //viewer.append(that._createHTML5MediaTag(contentItem, type));
+                    }
+                },
+                failure: function(text){
+                    alert("failed to get deployed services: " + text);
+                },
+            });
+        },
+
+        _writeMediaTag: function(service, deployment, contentItem){
+            dc.service.GetServiceDeploymentConfig(service, deployment,{
+                success: function(data) {
+                    var streamingHost = null;
+                    $.each(data.properties, function(k,prop){
+                        if(prop.name == 'Streaming Host for ' + contentItem.spaceId){
+                            streamingHost = prop.value;
+                            setTimeout(function(){
+                                //async necessary to let the DOM update itself so that the mediaspace dom element is present.
+                                var so = new SWFObject('/duradmin/jwplayer/player.swf','ply','350','216','9','#ffffff');
+                                so.addParam('allowfullscreen','true');
+                                so.addParam('allowscriptaccess','always');
+                                so.addParam('wmode','opaque');
+                                so.addVariable('skin','/duradmin/jwplayer/stylish.swf');
+                                so.addVariable('file', contentItem.contentId);
+                                so.addVariable('streamer', 'rtmp://' +streamingHost+ '/cfx/st');
+                                so.write('mediaspace');
+                            },1000);
+                            return false;
+                        }
+                    });
+                },
+                
+                failure: function(text){
+                    alert("failed to get deployment config for " + streamingService.serviceId + " deployed on " + deployment.hostname + ": " + text);
+                },
+                
+            });
+        },
+        
+        _createHTML5MediaTag: function(contentItem,type){
+            return type == 'audio' ? this._createHTML5AudioTag(contentItem) : this._createHTML5VideoTag(contentItem);
+        },
+        
+        _createHTML5AudioTag: function(contentItem){
+            return $.fn.create("audio")
+            .attr("src", contentItem.viewerURL)
+            .attr("loop", "false")
+            .attr("preload", "false")
+            .attr("controls", "true");
+        },
+
+        _createHTML5VideoTag: function(contentItem){
+            return $.fn.create("video")
+            .attr("src", contentItem.viewerURL)
+            .attr("loop", "false")
+            .attr("preload", "false")
+            .attr("width", "350")
+            .attr("height", "216")
+            .attr("controls", "true");
+        },
+        
+
+        
+    }));
+})();
+

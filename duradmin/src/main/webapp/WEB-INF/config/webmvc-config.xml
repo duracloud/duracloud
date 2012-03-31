@@ -31,16 +31,17 @@
     <property name="mappings">
       <props>
         <prop key="/login">loginController</prop>
-        <prop key="/init">initController</prop>
         <prop key="/download/contentItem">contentItemDownloadController</prop>
         <prop key="/security">initSecurityUsersController</prop>
         <prop key="/admin">manageSecurityUsersController</prop>
-        <prop key="/spaces">spacesController</prop>
         <prop key="/spaces/content">contentItemController</prop>
         <prop key="/spaces/content/upload">contentItemUploadController</prop>
         <prop key="/spaces/space">spaceController</prop>
         <prop key="/spaces/bulk-upload">bulkUploadController</prop>
+        <!-- 
         <prop key="/spaces/upload">uploadController</prop>
+         -->
+        
         <prop key="/services">servicesController</prop>
         <prop key="/services/service">serviceController</prop>
         <prop key="/partnerlogo">partnerLogoController</prop>
@@ -51,21 +52,15 @@
   
   <!-- Request Controllers - processes request -->
   <bean id="loginController" class="org.duracloud.duradmin.control.LoginController" />
-  <bean id="initController" class="org.duracloud.duradmin.control.InitController" parent="baseCommandController" />
   <bean id="partnerLogoController" class="org.duracloud.duradmin.spaces.controller.PartnerLogoController">
     <property name="contentStoreManager" ref="contentStoreManager" />
   </bean>
-  <bean id="spacesController" class="org.duracloud.duradmin.spaces.controller.SpacesController">
-    <property name="contentStoreManager" ref="contentStoreManager" />
-  </bean>
-  
 
   <bean id="bulkUploadController" class="org.duracloud.duradmin.spaces.controller.BulkUploadController">
     <property name="contentStoreManager" ref="contentStoreManager" />
     <property name="userDetailsService" ref="userDetailsSvc" />
   </bean>
-
-  <bean id="uploadController" class="org.duracloud.controller.UploadController" />
+  
   <bean id="contentItemController" class="org.duracloud.duradmin.spaces.controller.ContentItemController">
     <property name="contentStoreManager" ref="contentStoreManager" />
     <property name="servicesManager" ref="servicesManager" />

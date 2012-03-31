@@ -41,7 +41,7 @@ var dc;
 		}
 
 		
-		dc.ajax({
+		return dc.ajax({
 			url: "/duradmin/spaces/space", 
 			data: "storeId="+storeProviderId+"&spaceId="+encodeURIComponent(spaceId)+"&prefix="+encodeURIComponent(prefix)+"&marker="+encodeURIComponent(marker),
 			cache: false,
@@ -52,6 +52,29 @@ var dc;
 			},
 		}, callback);		
 	};
+	
+    dc.store.GetSpace2 = function(params){
+        var marker = '', prefix = '', async = true;
+        if(params.marker != undefined){
+            marker = params.marker;
+        }
+        if(params.prefix != undefined){
+            prefix = params.prefix;
+        }
+        if(params.async != undefined){
+            async = params.async;
+        }
+
+        return $.ajax({
+            url: "/duradmin/spaces/space", 
+            data: "storeId="+params.storeId+
+                  "&spaceId="+encodeURIComponent(params.spaceId)+
+                  "&prefix="+encodeURIComponent(prefix)+
+                  "&marker="+encodeURIComponent(marker),
+            cache: false,
+            async: async,
+        });       
+    };
 	
 	/**
 	 * @param Object space
@@ -96,8 +119,8 @@ var dc;
 	 */
 	dc.store.GetSpaces = function(storeProviderId, writeableOnly, callback, async){
 		dc.ajax({ 
-				url: "/duradmin/spaces", 
-				data: "storeId="+storeProviderId+"&writeableOnly="+writeableOnly + "&f=json",
+				url: "/duradmin/spaces/json", 
+				data: "storeId="+storeProviderId+"&writeableOnly="+writeableOnly,
 				cache: false,
 				async: (async != undefined ? async : true),
 				success: function(data){
@@ -108,12 +131,35 @@ var dc;
 		
 	};
 	
+	/**
+	 * params: storeProviderId, writeableOnly, async
+	 */
+    dc.store.GetSpaces2 = function(params){
+        var writeableOnly = false,
+            async = true;
+        
+        if(params.writeableOnly){
+            writeableOnly = params.writeableOnly;
+        }
+
+        if(params.async){
+            async = params.async;
+        }
+
+        return $.ajax({ 
+                url: "/duradmin/spaces/json", 
+                data: "storeId="+params.storeId+"&writeableOnly="+writeableOnly,
+                cache: false,
+                async: (async != undefined ? async : true),
+        });
+        
+    };
 	
 	/**
 	 * returns contentItem details
 	 */
 	dc.store.GetContentItem = function(storeProviderId, spaceId, contentItemId, callback){
-		dc.ajax({
+		return dc.ajax({
 				url: "/duradmin/spaces/content",
 				data: "storeId="+storeProviderId+"&spaceId="+encodeURIComponent(spaceId)+"&contentId="+encodeURIComponent(contentItemId),
                 cache: false,
@@ -336,6 +382,56 @@ var dc;
             },
         });
     };
+    
+    /**
+     * 
+     */
+    dc.store.GetStorageReportIds = function(callback){
+        var ids = null;
+        
+        dc.ajax({
+            url: "/duradmin/storagereport/list",
+            type:"GET",
+            success: function(result){
+                var storageReportList = [];
+                $.each(result.storageReportList, function(i,item){
+                    var s = item.substring(item.length-3);
+                    if(s == "xml") storageReportList.push(item);
+                });
+                callback.success(storageReportList);
+            },
+            
+            failure: function(textStatus){
+                alert("failed to get report ids: " + textStatus);
+            },
+        }); 
+    };
+    
+    dc.store.GetStorageReportSummaries = function(storeId, spaceId){
+        
+        return $.ajax({
+            url: "/duradmin/storagereport/summaries?storeId="+storeId + 
+                    (spaceId ? "&spaceId="+spaceId : ""),
+            type:"GET",
+        });
+    };
+    
+    dc.store.GetStorageReportDetail = function(storeId, /*optional*/spaceId, /*optional*/ reportId){
+        
+        return $.ajax({
+            url: "/duradmin/storagereport/detail?"+(reportId ? "reportId="+reportId : "")+
+                    "&storeId="+storeId+ (spaceId ? "&spaceId="+spaceId :"") ,
+            type:"GET",
+        });
+    };
+
+    dc.store.GetStorageReport = function(storageReportId){
+       return  $.ajax({
+            url: "/duradmin/storagereport/get?reportId=" + storageReportId,
+            type:"GET",
+        }); 
+    };
+
 })();
 
 

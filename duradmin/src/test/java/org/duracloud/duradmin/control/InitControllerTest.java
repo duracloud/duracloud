@@ -52,6 +52,7 @@ public class InitControllerTest {
 
     private HttpServletRequest request;
     private HttpServletResponse response;
+    private StorageSummaryCache storageSummaryCache;
     private final Object o = null;
     private final BindException be = null;
 
@@ -66,16 +67,14 @@ public class InitControllerTest {
         ControllerSupport support = EasyMock.createMock("ControllerSupport",
                                                         ControllerSupport.class);
         EasyMock.expect(support.getContentStoreManager()).andReturn(contentStoreManager);
-
         controller = new InitController();
         controller.setControllerSupport(support);
-
         EasyMock.replay(support, contentStoreManager);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(request, response);
+        EasyMock.verify(request, response, storageSummaryCache);
         resetDuradminConfig();
     }
 
@@ -156,7 +155,15 @@ public class InitControllerTest {
         response.setStatus(status);
         EasyMock.expectLastCall();
 
-        EasyMock.replay(request, response);
+        storageSummaryCache = EasyMock.createMock("StorageSummaryCache", StorageSummaryCache.class);
+        if(status == SC_OK){
+            storageSummaryCache.init();
+            EasyMock.expectLastCall();
+        }
+        controller.setStorageSummaryCache(storageSummaryCache);
+
+        
+        EasyMock.replay(request, response, storageSummaryCache);
     }
 
     private ServletInputStream createConfigStream(int status) {

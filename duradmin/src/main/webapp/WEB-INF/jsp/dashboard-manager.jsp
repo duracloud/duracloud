@@ -6,7 +6,8 @@
 	</tiles:putAttribute>
 
 	<tiles:putAttribute name="header-extensions">
-
+        <script type="text/javascript"
+            src="${pageContext.request.contextPath}/jquery/dc/ext/jquery.dc.chart.js"></script>
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/js/dashboard-manager.js"></script>
 

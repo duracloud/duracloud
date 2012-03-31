@@ -792,6 +792,23 @@ span.label,
 	padding:2px;
 }
 
+.segment-content h4 {
+	vertical-align: middle;
+	border-radius: 5px;
+	background-color: #555555;
+	margin:10px 0px 5px 0px;
+	padding: 10px 5px 10px 5px;
+	height:25px;
+}
+
+.segment-content h4 span {
+	margin-top: 5px;
+}
+.segment-content h4 button {
+	float:right;
+}
+
+
 .detail-pane .mime-type
 {
 	font-size:13px;
@@ -1209,4 +1226,24 @@ table.dc-acls td:last-child {
 	padding-left:20px;
 }
 
+.dc-graph {
+	width:150px;
+	height:150px;
+	display:inline-block;
+	margin:5px 0px 5px 40px;
+}
 
+
+#summaries-graph {
+	width:450px;
+	height:150px;
+	/*
+	float:left;
+	*/
+	display:inline-block;
+}
+
+#summaries-legend {
+	display:inline-block;
+	float:right;
+}

@@ -21,20 +21,28 @@ import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
 
 /**
  * 
  * @author Daniel Bernstein
  *
  */
-public class SpacesController implements Controller {
+@Controller
+public class SpacesController {
 
     protected final Logger log = LoggerFactory.getLogger(SpacesController.class);
-    
+
+    @Autowired
+    @Qualifier("contentStoreManager")
+    private ContentStoreManager contentStoreManager;
+
     public ContentStoreManager getContentStoreManager() {
 		return contentStoreManager;
 	}
@@ -44,20 +52,18 @@ public class SpacesController implements Controller {
 		this.contentStoreManager = contentStoreManager;
 	}
 
-
-	private ContentStoreManager contentStoreManager;
     
-    
-	public ModelAndView handleRequest(HttpServletRequest request,
+    @RequestMapping(value="/spaces/json")
+	public ModelAndView getSpacesAsJson(HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-	    try { 
-	        
-            if ("json".equals(request.getParameter("f"))) {
+
+        ModelAndView mav = new ModelAndView("jsonView");
+
+        try { 
                 String writeableOnlyStr = request.getParameter("writeableOnly");
                 boolean writeableOnly = Boolean.valueOf(writeableOnlyStr);
                 String storeId = request.getParameter("storeId");
                 ContentStore c = contentStoreManager.getContentStore(storeId);
-                ModelAndView mav = new ModelAndView("jsonView");
                 List<String> spaceIds = c.getSpaces();
                 List<Space> spaces = new LinkedList<Space>();
 
@@ -86,31 +92,8 @@ public class SpacesController implements Controller {
 	            }
 	            mav.addObject("spaces",spaces);
 	            return mav;
-	        }else{
-	            ModelAndView mav = new ModelAndView("spaces-manager");
-	            List<ContentStore> stores = new LinkedList<ContentStore>();
-	            String primaryStoreId = contentStoreManager.getPrimaryContentStore().getStoreId();
-	            for(ContentStore store : contentStoreManager.getContentStores().values()){
-	            	if(store.getStoreId().equals(primaryStoreId)){
-	            		stores.add(0,store);
-	            	}else{
-	            		stores.add(store);
-	            	}
-	            	
-	            }
-	            mav.addObject("contentStores", stores);
-                mav.addObject("user",
-                              (DuracloudUserDetails) SecurityContextHolder.getContext()
-                                                                          .getAuthentication()
-                                                                          .getPrincipal());
-
-	            return mav;
-	        }
-	        
-	        
 	    } catch(Exception ex){
             log.error(ex.getMessage(), ex);
-            ModelAndView mav = new ModelAndView("spaces-manager");
             mav.addObject("contentStores", new LinkedList<ContentStore>());
             String error = "An error occurred attempting to retrieve your " +
                            "spaces. You may need to log out and back in to " +
@@ -124,4 +107,41 @@ public class SpacesController implements Controller {
 	}
 
 
+    @RequestMapping(value={"/spaces",  "/spaces/sm/**"})
+    public ModelAndView handle(HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        ModelAndView mav = new ModelAndView("spaces-manager");
+
+        try { 
+                List<ContentStore> stores = new LinkedList<ContentStore>();
+                String primaryStoreId = contentStoreManager.getPrimaryContentStore().getStoreId();
+                for(ContentStore store : contentStoreManager.getContentStores().values()){
+                    if(store.getStoreId().equals(primaryStoreId)){
+                        stores.add(0,store);
+                    }else{
+                        stores.add(store);
+                    }
+                    
+                }
+                mav.addObject("contentStores", stores);
+                mav.addObject("user",
+                              (DuracloudUserDetails) SecurityContextHolder.getContext()
+                                                                          .getAuthentication()
+                                                                          .getPrincipal());
+        } catch(Exception ex){
+            log.error(ex.getMessage(), ex);
+            mav.addObject("contentStores", new LinkedList<ContentStore>());
+            String error = "An error occurred attempting to retrieve your " +
+                           "spaces. You may need to log out and back in to " +
+                           "restore this feature. If this does not correct " +
+                           "the problem, please contact your DuraCloud " +
+                           "Administrator.";
+            mav.addObject("error", error);
+        }
+
+        return mav;
+        
+    }
+
+    
 }

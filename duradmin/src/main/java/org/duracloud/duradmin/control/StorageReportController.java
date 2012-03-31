@@ -1,10 +1,24 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
 package org.duracloud.duradmin.control;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.report.StorageReportManager;
 import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.reportdata.storage.StorageReport;
+import org.duracloud.reportdata.storage.metrics.StorageProviderMetrics;
 import org.duracloud.reportdata.storage.serialize.StorageReportSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +27,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * 
@@ -27,11 +38,15 @@ public class StorageReportController {
 
     private Logger log = LoggerFactory.getLogger(StorageReportController.class);
     private StorageReportManager storageReportManager;
-
+    private StorageSummaryCache storageSummaryCache;
+    
     @Autowired
-    public StorageReportController(StorageReportManager storageReportManager) {
+    public StorageReportController(
+        StorageReportManager storageReportManager,
+        StorageSummaryCache storageSummaryCache) {
         this.storageReportManager = storageReportManager;
         this.storageReportManager.login(new RootUserCredential());
+        this.storageSummaryCache = storageSummaryCache;
     }
 
     @RequestMapping("/storagereport/list")
@@ -41,14 +56,38 @@ public class StorageReportController {
             this.storageReportManager.getStorageReportList());
     }
 
+
+    @RequestMapping("/storagereport/summaries")
+    public ModelAndView  getStorageReportSummaries(
+                                                  @RequestParam String storeId, 
+                                                  @RequestParam(required=false) String spaceId)
+        throws ParseException,
+            ReportException,
+            NotFoundException {
+
+        
+        List<StorageSummary> summaries = this.storageSummaryCache.getSummaries(storeId, spaceId);
+
+        ModelAndView mav = new ModelAndView("jsonView");
+        mav.addObject("summaries", summaries);        
+        return mav;
+    }
+
     @RequestMapping(value="/storagereport/get")
+    @Deprecated
     public ModelAndView getStorageReport(
-            @RequestParam(required=true, value="reportId" ) String reportId, 
+            @RequestParam(required=false, value="reportId" ) String reportId, 
             @RequestParam(required=false, value="format" ) String format, 
             HttpServletResponse response)
                 throws ReportException,NotFoundException {
         
-        StorageReport report = this.storageReportManager.getStorageReport(reportId);
+        StorageReport report;
+        
+        if(reportId != null){
+            report = this.storageReportManager.getStorageReport(reportId);
+        }else{
+            report = this.storageReportManager.getLatestStorageReport();
+        }
 
         if(format == null || "json".equals(format)){
             return new ModelAndView("jsonView",
@@ -64,5 +103,31 @@ public class StorageReportController {
             }
             return null;
         }
+    }
+    
+    @RequestMapping(value="/storagereport/detail")
+    public ModelAndView getDetail(
+            @RequestParam(required=true, value="storeId" ) String storeId, 
+            @RequestParam(required=false, value="reportId" ) String reportId)
+                throws ReportException,NotFoundException {
+        
+        StorageReport report;
+        if(reportId != null){
+            report = this.storageReportManager.getStorageReport(reportId);
+        }else{
+            report = this.storageReportManager.getLatestStorageReport();
+        }
+        
+        StorageProviderMetrics metrics = null;
+        for(StorageProviderMetrics spm : report.getStorageMetrics().getStorageProviderMetrics()){
+            if(spm.getStorageProviderId().equals(storeId)){
+               metrics = spm;
+               break;
+            }
+        }
+        ModelAndView mav =  new ModelAndView("jsonView");
+        mav.addObject("metrics", metrics);
+        mav.addObject("reportId", reportId);
+        return mav;
     }
 }

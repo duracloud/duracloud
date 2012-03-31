@@ -31,14 +31,14 @@ $.widget("ui.selectablelist",{
 	
 	_restyleSiblings: function(siblings){
 		siblings.removeClass("dc-selected-list-item dc-checked-selected-list-item dc-checked-list-item");
-		siblings.find("input[type=checkbox][checked]").closest("." +this.options.itemClass).addClass("dc-checked-list-item");
+		siblings.find("input[type='checkbox']:checked").closest("." +this.options.itemClass).addClass("dc-checked-list-item");
 	},
 	
 	_styleItem:  function(target){
 		if(target != undefined && target != null){
 			var item = $(target).nearestOfClass(this.options.itemClass);
 			$(item).removeClass("dc-checked-selected-list-item dc-checked-list-item dc-selected-list-item");
-			var checked = $(item).find("input[type=checkbox][checked]").size() > 0;
+			var checked = $(item).find("input[type='checkbox']:checked").size() > 0;
 			$(item).addClass(checked ? "dc-checked-selected-list-item" : "dc-selected-list-item");
 			this._restyleSiblings(item.siblings());
 		}else{
@@ -51,7 +51,7 @@ $.widget("ui.selectablelist",{
 		var array =  new Array();
 		var items = this.element.find("."+this.options.itemClass).toArray();
 		$.each(items, function(i, e){
-			if($(e).find("input[type=checkbox][checked]").size() > 0){
+			if($(e).find("input[type='checkbox']:checked").size() > 0){
 				array.push(e);
 			}
 		});
@@ -81,7 +81,7 @@ $.widget("ui.selectablelist",{
 			this._currentItem = null;
 		}
 		
-		$("input[type=checkbox][checked]",this.element).attr("checked", false);
+		$("input[type='checkbox']:checked",this.element).attr("checked", false);
 		this._styleItem(item);
 		
 		var fire = (notify == undefined || notify == null || notify == true);
@@ -122,8 +122,6 @@ $.widget("ui.selectablelist",{
 
 	_itemSelectionStateChanged: function(target){
 		var item = $(target).closest("."+this.options.itemClass);
-		var checkbox = $("input[type=checkbox]", item).first();
-		var checked = checkbox.attr("checked");
 		this._fireSelectionChanged(item);
 	},
 	
@@ -140,9 +138,6 @@ $.widget("ui.selectablelist",{
 	 */
 	_init: function(){
 		var that = this;
-		var options = this.options;
-		var itemClass = options.itemClass;
-		var actionClass = options.itemActionClass;
 		this.clear();
 
 		this._footer = $.fn.create("div").addClass("dc-selectablelist-footer").html("");
