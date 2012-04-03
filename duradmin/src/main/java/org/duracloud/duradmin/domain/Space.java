@@ -29,6 +29,8 @@ public class Space
 
 	private List<Acl> acls; 
 	
+	private boolean streamingEnabled = false;
+	
     public String getStoreId() {
 		return storeId;
 	}
@@ -126,6 +128,14 @@ public class Space
 
     public void setAcls(List<Acl> acls) {
         this.acls = acls;
+    }
+
+    public boolean isStreamingEnabled() {
+        return streamingEnabled;
+    }
+
+    public void setStreamingEnabled(boolean streamingEnabled) {
+        this.streamingEnabled = streamingEnabled;
     }
 
 }

@@ -131,6 +131,17 @@ $(function(){
 			
 			return this;
 		};
+		
+		$.fn.busy = function(){
+		    $(".dc-busy",this).show("fast");
+		    return this;
+		};
+
+		$.fn.idle = function(){
+            $(".dc-busy",this).hide();
+            return this;
+        };
+
 	})();
 });
 

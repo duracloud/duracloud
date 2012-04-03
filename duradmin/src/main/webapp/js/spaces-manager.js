@@ -2493,16 +2493,14 @@ $(function(){
                 deleteSpaceButton.hide();
             }
 
-            
-            $("#streaming-switch-holder").hide();                
+            var switchHolder = $("#streaming-switch-holder");
+            switchHolder.hide();                
             if(this._isAdmin){
-                $("#streaming-switch-holder").show();                
-
-                $.when(this._getStreamingEnabled(space.spaceId))
-                 .done(function(result){
+                switchHolder.show();                
+                    
                     //deploy/undeploy switch definition and bindings
                     $("#streaming-switch",that.element).onoffswitch({
-                                initialState: result.streamingEnabled ? "on" : "off"
+                                initialState: space.streamingEnabled ? "on" : "off"
                                             , onStateClass: "on left"
                                             , onIconClass: "checkbox"
                                             , offStateClass: "off right"
@@ -2510,24 +2508,23 @@ $(function(){
                                             , onText: "On"
                                             , offText: "Off"
                     }).bind("turnOff", function(evt, future){
-                        dc.busy("Turning off streaming for this space...", {modal:true});
+                        switchHolder.busy();
                         $.when(dc.service.UpdateSpaceStreaming(space.storeId, space.spaceId, false))
                          .done(function(){
                              future.success();
                          }).always(function(){
-                             dc.done();
+                             switchHolder.idle();
                          });
                     }).bind("turnOn", function(evt, future){
-                        dc.busy("Turning on streaming for this space...", {modal:true});
+                        switchHolder.busy();
                         $.when(dc.service.UpdateSpaceStreaming(space.storeId, space.spaceId, true))
                          .done(function(){
                              future.success();
                          }).always(function(){
-                             dc.done();
+                             switchHolder.idle();
                          });
                         
                     });
-                });
             }
             
             if(this._isAdmin()){

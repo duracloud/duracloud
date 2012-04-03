@@ -86,15 +86,15 @@ $.widget("ui.controlpanel",
             form.append(that._header);
             form.append(that._content);
             this.element.append(form);
-            this._header.append($("<div class='dc-expando-status dc-busy'></div>").hide());
+            this._header.append($("<div class='dc-busy'></div>").hide());
         }, 
 
         _busy: function(){
-            $(".dc-busy",this.element).show();
+            $(this.element).busy();
         },
         
         _idle: function(){
-            $(".dc-busy",this.element).hide();
+            $(this.element).idle();
         },
         
         _activate: function(){ 

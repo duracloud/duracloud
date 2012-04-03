@@ -965,6 +965,8 @@ span.label,
 .dc-busy {
 	background: url('../images/wait.gif') no-repeat center center;
 	display:inline-block; vertical-align:middle;
+	height:20px;
+	width:30px;
 }
 
 .dc-removing {

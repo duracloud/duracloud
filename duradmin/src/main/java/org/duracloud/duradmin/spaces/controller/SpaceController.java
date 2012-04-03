@@ -99,6 +99,7 @@ public class SpaceController extends  AbstractRestController<Space> {
 	         org.duracloud.domain.Space cloudSpace = contentStore.getSpace(space.getSpaceId(), prefix, 200, marker);
 			populateSpace(space, cloudSpace, contentStore);
 			populateSpaceCount(space, request);
+			populateStreamEnabled(space);
 			return createModel(space);
 		}catch(ContentStoreException ex){
 			ex.printStackTrace();
@@ -106,6 +107,13 @@ public class SpaceController extends  AbstractRestController<Space> {
 			return createModel(null);
 		}
 	}
+
+    private void populateStreamEnabled(Space space) {
+        //TODO add duraboss call here
+        boolean enabled = false;
+        //enabled = this.durabossClient.isStreamEnabled(space.getStoreId(),space.getSpaceId());
+        space.setStreamingEnabled(enabled);
+    }
 
     private void populateSpace(Space space,
                                org.duracloud.domain.Space cloudSpace,
