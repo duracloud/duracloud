@@ -102,7 +102,17 @@ $(function(){
             	},
 			},false);
 		};
-
+		
+		dc.service.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
+		    return $.ajax({
+		        url: APP_CONTEXT+"/services/streamservice?storeId="+storeId+"&spaceId="
+		                        + encodeURIComponent(spaceId) 
+		                        + "&enable=" + enable,
+		        type: "post",
+		        cache: false,
+		    });
+		};
+		
 	})();
 });
 

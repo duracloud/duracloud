@@ -1247,3 +1247,18 @@ table.dc-acls td:last-child {
 	display:inline-block;
 	float:right;
 }
+
+#streaming-switch-holder {
+	height:20px;width:225px; 
+	text-align:right; 
+	display:inline-block; 
+	float:right;
+}
+#streaming-switch-holder label {
+	font-size: 0.6em;
+}
+
+#streaming-switch {
+	display:inline-block;
+	font-size:0.7em"
+}

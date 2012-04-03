@@ -43,6 +43,8 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.acleditor.js"></script>
     <script type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.historypanel.js"></script>
+    <script type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.onoffswitch.js"></script>
 
 		<script type="text/javascript"
 			src="${pageContext.request.contextPath}/jquery/dc/widget/ui.flyoutselect.js"></script>
@@ -137,6 +139,9 @@
 							 -->
               
                             <button class="delete-space-button dc-delete-button"><i class="pre trash"></i>Delete Space</button>
+                            <div id="streaming-switch-holder">
+                              <label>Streaming:</label><div id="streaming-switch"></div>
+                            </div>
 						</div>
 					</div>
 					<div class="center"></div>

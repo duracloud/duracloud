@@ -1978,6 +1978,67 @@ $(function(){
                    callback));     
        },
 
+       
+       _findStreamingService: function(services){
+           var streamingService = null;
+           $.each(services, function(i, service){
+               if(service.contentId.indexOf('mediastreamingservice') > -1){
+                   streamingService = service;
+                   return false;
+               }
+           });
+           return streamingService;
+       },
+       
+       _isMediaSourceMatchingContentSpaceId: function(service, spaceId){
+           var sourceMediaSpace = false;
+           $.each(service.deployments, function(j,deployment){
+               var modeSets = deployment.userConfigModeSets;
+               $.each( deployment.userConfigModeSets, function(k, modes){
+                   var modes = modeSets[k].modes;
+                   $.each(modes, function(p, mode){
+                       $.each(mode.userConfigs, function(m,uc){
+                           if(uc.name == "mediaSourceSpaceId" && uc.displayValue.indexOf(spaceId) != -1){
+                               sourceMediaSpace = true;
+                               //return false breaks out of the loop.
+                               return false;
+                           }
+                       });
+                   });
+               });
+           });
+           
+           return sourceMediaSpace;
+       },
+
+       _getStreamingEnabled: function(spaceId){
+           var that = this;
+           var deferred = $.Deferred();
+           var enabled = false;
+           
+           dc.service.GetDeployedServices({
+               success: function(data){
+                   var streamingService = that._findStreamingService(data.services);
+                   if(streamingService != null){
+                       enabled = 
+                               that._isMediaSourceMatchingContentSpaceId(
+                                       streamingService, 
+                                       spaceId);
+                       
+                   }
+
+                   deferred.resolve({streamingEnabled: enabled, service: streamingService});
+
+               },
+               failure: function(text){
+                   alert("failed to resolve streaming status for this space: "+
+                           "deployed services could not be retrieved: " + text);
+                   deferred.reject();
+               },
+           });
+           
+           return deferred;
+       },
     }));
 
     
@@ -2276,6 +2337,7 @@ $(function(){
           this._appendToCenter(history);
           history.historypanel({storeId: this._storeId});
         },
+
     }));
 
     /**
@@ -2431,6 +2493,43 @@ $(function(){
                 deleteSpaceButton.hide();
             }
 
+            
+            $("#streaming-switch-holder").hide();                
+            if(this._isAdmin){
+                $("#streaming-switch-holder").show();                
+
+                $.when(this._getStreamingEnabled(space.spaceId))
+                 .done(function(result){
+                    //deploy/undeploy switch definition and bindings
+                    $("#streaming-switch",that.element).onoffswitch({
+                                initialState: result.streamingEnabled ? "on" : "off"
+                                            , onStateClass: "on left"
+                                            , onIconClass: "checkbox"
+                                            , offStateClass: "off right"
+                                            , offIconClass: "x"
+                                            , onText: "On"
+                                            , offText: "Off"
+                    }).bind("turnOff", function(evt, future){
+                        dc.busy("Turning off streaming for this space...", {modal:true});
+                        $.when(dc.service.UpdateSpaceStreaming(space.storeId, space.spaceId, false))
+                         .done(function(){
+                             future.success();
+                         }).always(function(){
+                             dc.done();
+                         });
+                    }).bind("turnOn", function(evt, future){
+                        dc.busy("Turning on streaming for this space...", {modal:true});
+                        $.when(dc.service.UpdateSpaceStreaming(space.storeId, space.spaceId, true))
+                         .done(function(){
+                             future.success();
+                         }).always(function(){
+                             dc.done();
+                         });
+                        
+                    });
+                });
+            }
+            
             if(this._isAdmin()){
                 var makePublicButton = this._createMakePublicButton(
                         space.storeId, 
@@ -2525,6 +2624,7 @@ $(function(){
                 },
             });
         },
+        
         
 
     }));
@@ -2930,38 +3030,6 @@ $(function(){
             this._loadMedia(contentItem, "Listen","audio");
         },
 
-        _findStreamingService: function(services){
-            var streamingService = null;
-            $.each(services, function(i, service){
-                if(service.contentId.indexOf('mediastreamingservice') > -1){
-                    streamingService = service;
-                    return false;
-                }
-            });
-            return streamingService;
-        },
-        
-        _isMediaSourceMatchingContentSpaceId: function(service, spaceId){
-            var sourceMediaSpace = false;
-            $.each(service.deployments, function(j,deployment){
-                var modeSets = deployment.userConfigModeSets;
-                $.each( deployment.userConfigModeSets, function(k, modes){
-                    var modes = modeSets[k].modes;
-                    $.each(modes, function(p, mode){
-                        $.each(mode.userConfigs, function(m,uc){
-                            if(uc.name == "mediaSourceSpaceId" && uc.displayValue.indexOf(spaceId) != -1){
-                                sourceMediaSpace = true;
-                                //return false breaks out of the loop.
-                                return false;
-                            }
-                        });
-                    });
-                });
-            });
-            
-            return sourceMediaSpace;
-        },
-
         _loadMedia: function(contentItem, title,/*audio or video*/type){  
             var that = this;
             var viewer = $.fn.create("div").attr("id", "mediaspace");
@@ -2973,36 +3041,21 @@ $(function(){
 
             this._appendToCenter(div);
 
-            dc.service.GetDeployedServices({
-                success: function(data){
-                    var streamingService = that._findStreamingService(data.services);
-                    if(streamingService != null){
-                        var sourceMediaSpace = 
-                                that._isMediaSourceMatchingContentSpaceId(
-                                        streamingService, 
-                                        contentItem.spaceId);
-                        if(sourceMediaSpace){
-                            that._writeMediaTag(service,deployment, contentItem);
-                        }else{
-                            viewer.html("<p>No streaming service is running against this space." + 
-                            "Please reconfigure the streaming service to use this space as the source.</p>");
-                            //viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
-                            //viewer.append(that._createHTML5MediaTag(contentItem,type));
-                        }                        
-                    }else{
-                        viewer.html("<p>The media stream services must be running to stream audio/video files for this space.</p");
-                        //viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
-                        //viewer.append(that._createHTML5MediaTag(contentItem, type));
-                    }
-                },
-                failure: function(text){
-                    alert("failed to get deployed services: " + text);
-                },
-            });
+            $.when(this._getStreamingEnabled(contentItem.spaceId))
+             .done(function(result){
+                if(result.streamingEnabled){
+                    that._writeMediaTag(result.service, contentItem);
+                }else{
+                    viewer.html("<p>No streaming service is running against this space." + 
+                    "Please reconfigure the streaming service to use this space as the source.</p>");
+                    //viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
+                    //viewer.append(that._createHTML5MediaTag(contentItem,type));
+                }
+             });
         },
 
-        _writeMediaTag: function(service, deployment, contentItem){
-            dc.service.GetServiceDeploymentConfig(service, deployment,{
+        _writeMediaTag: function(service, contentItem){
+            dc.service.GetServiceDeploymentConfig(service, service.deployments[0],{
                 success: function(data) {
                     var streamingHost = null;
                     $.each(data.properties, function(k,prop){
