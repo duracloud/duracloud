@@ -36,6 +36,7 @@ public class SyncIntegrationTestBase {
     protected static String port;
     protected static ContentStore store;
     protected static String spaceId;
+    protected static String username;
     protected File tempDir;
     protected ChangedList changedList;
 
@@ -53,6 +54,7 @@ public class SyncIntegrationTestBase {
     public static void beforeClass() throws Exception {
         host = "localhost";
         context = "durastore";
+        username = "username";
         port = getPort();
 
         acctUtil.initializeDurastore(host, port, context);

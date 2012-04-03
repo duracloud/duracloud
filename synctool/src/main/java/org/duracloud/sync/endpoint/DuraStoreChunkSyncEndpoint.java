@@ -37,18 +37,18 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     private FileStitcher stitcher;
 
     public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
+                                      String username,
                                       String spaceId,
                                       boolean syncDeletes,
                                       long maxFileSize) {
-        super(contentStore, spaceId, syncDeletes);
+        super(contentStore, username, spaceId, syncDeletes);
 
         if (maxFileSize % 1024 != 0) {
             throw new RuntimeException("Max file size must be factor of 1024");
         }
 
-        DuracloudContentWriter contentWriter = new DuracloudContentWriter(
-            contentStore,
-            true);
+        DuracloudContentWriter contentWriter =
+            new DuracloudContentWriter(contentStore, username, true);
         FileChunkerOptions chunkerOptions = new FileChunkerOptions(maxFileSize);
 
         chunker = new FileChunker(contentWriter, chunkerOptions);

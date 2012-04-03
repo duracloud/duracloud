@@ -220,8 +220,10 @@ public class FileChunkerDriver {
 
         // Are there credentials?
         Credential credential = null;
+        String username = "";
         if (cmd.hasOption("username") || cmd.hasOption("password")) {
-            credential = getCredentials(cmd.getOptionValue("username"),
+            username = cmd.getOptionValue("username");
+            credential = getCredentials(username,
                                         cmd.getOptionValue("password"));
         }
 
@@ -237,7 +239,8 @@ public class FileChunkerDriver {
                 mgr.login(credential);
             }
 
-            writer = new DuracloudContentWriter(mgr.getPrimaryContentStore());
+            writer = new DuracloudContentWriter(mgr.getPrimaryContentStore(),
+                                                username);
         } else {
             writer = new FilesystemContentWriter();
         }

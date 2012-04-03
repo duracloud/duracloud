@@ -48,6 +48,7 @@ public class TestDuracloudContentWriter {
     private static String port = null;
     private static final String defaultPort = "8080";
     private static String context = "durastore";
+    private static String username = "user-1";
 
     private static String accountXml = null;
 
@@ -73,8 +74,8 @@ public class TestDuracloudContentWriter {
         storeManager.login(getRootCredential());
 
         store = storeManager.getPrimaryContentStore();
-        writer = new DuracloudContentWriter(store);
-        writerThrow = new DuracloudContentWriter(store, true);
+        writer = new DuracloudContentWriter(store, username);
+        writerThrow = new DuracloudContentWriter(store, username, true);
     }
 
     private static String getPort() throws Exception {

@@ -69,6 +69,7 @@ public class Uploader {
 
         SyncEndpoint syncEndpoint =
             new DuraStoreChunkSyncEndpoint(contentStore,
+                                           username,
                                            spaceId,
                                            false,
                                            1073741824); // 1GB chunk size

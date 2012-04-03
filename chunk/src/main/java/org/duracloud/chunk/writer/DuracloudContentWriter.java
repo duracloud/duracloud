@@ -16,11 +16,13 @@ import org.duracloud.chunk.stream.KnownLengthInputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,19 +40,22 @@ public class DuracloudContentWriter implements ContentWriter {
     private final Logger log = LoggerFactory.getLogger(DuracloudContentWriter.class);
 
     private ContentStore contentStore;
+    private String username;
     private Set<String> existingSpaces = new HashSet<String>();
     private List<AddContentResult> results = new ArrayList<AddContentResult>();
 
     // if true, skip writing results and throw exception when errors occur
     private boolean throwOnError = false;
 
-    public DuracloudContentWriter(ContentStore contentStore) {
+    public DuracloudContentWriter(ContentStore contentStore, String username) {
         this.contentStore = contentStore;
+        this.username = username;
     }
 
     public DuracloudContentWriter(ContentStore contentStore,
+                                  String username,
                                   boolean throwOnError) {
-        this.contentStore = contentStore;
+        this(contentStore, username);
         this.throwOnError = throwOnError;
     }
 
@@ -185,7 +190,8 @@ public class DuracloudContentWriter implements ContentWriter {
                               String contentMimetype,
                               String contentChecksum)
         throws ContentNotAddedException {
-        Map<String, String> properties = null;
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, username);
         try {
             return contentStore.addContent(spaceId,
                                            contentId,

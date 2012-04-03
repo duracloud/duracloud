@@ -155,6 +155,7 @@ public class SyncTool {
 
         syncEndpoint = 
             new DuraStoreChunkSyncEndpoint(contentStore,
+                                           syncConfig.getUsername(),
                                            syncConfig.getSpaceId(),
                                            syncConfig.syncDeletes(),
                                            syncConfig.getMaxFileSize());

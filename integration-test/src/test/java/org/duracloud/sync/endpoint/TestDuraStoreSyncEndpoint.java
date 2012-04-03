@@ -20,12 +20,14 @@ public class TestDuraStoreSyncEndpoint extends DuraStoreSyncTestBase {
     public void testDuraStoreSyncEndpoint() throws Exception {
         DuraStoreSyncEndpoint endpoint =
             new DuraStoreSyncEndpoint(getContentStore(),
+                                      username,
                                       SyncIntegrationTestBase.spaceId,
                                       true);
         testSync(endpoint);
 
         endpoint =
             new DuraStoreSyncEndpoint(getContentStore(),
+                                      username,
                                       SyncIntegrationTestBase.spaceId,
                                       false);
         testSyncNoDeletes(endpoint);

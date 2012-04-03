@@ -41,15 +41,17 @@ public class DuracloudContentWriterTest {
     private DuracloudContentWriter writerErrorThrow;
     private ContentStore contentStore;
     private ContentStore contentStoreThrow;
+    private String username = "user-1";
 
     @Before
     public void setUp() throws ContentStoreException {
         contentStore = EasyMock.createMock(ContentStore.class);
-        writer = new DuracloudContentWriter(contentStore);
+        writer = new DuracloudContentWriter(contentStore, username);
 
         contentStoreThrow = createThrowingMockContentStore();
-        writerError = new DuracloudContentWriter(contentStoreThrow);
-        writerErrorThrow = new DuracloudContentWriter(contentStoreThrow, true);
+        writerError = new DuracloudContentWriter(contentStoreThrow, username);
+        writerErrorThrow =
+            new DuracloudContentWriter(contentStoreThrow, username, true);
     }
 
     private ContentStore createMockContentStore(boolean exists) throws ContentStoreException {

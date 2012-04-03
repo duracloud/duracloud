@@ -10,6 +10,7 @@ package org.duracloud.sync.endpoint;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +34,16 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         LoggerFactory.getLogger(DuraStoreSyncEndpoint.class);
 
     private ContentStore contentStore;
+    private String username;
     private String spaceId;
     private boolean syncDeletes;
 
     public DuraStoreSyncEndpoint(ContentStore contentStore,
+                                 String username,
                                  String spaceId,
                                  boolean syncDeletes) {
         this.contentStore = contentStore;
+        this.username = username;
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
         ensureSpaceExists();
@@ -158,6 +162,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     protected void addUpdateContent(String contentId, MonitoredFile syncFile)
         throws ContentStoreException {
         InputStream syncStream = syncFile.getStream();
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, username);
         try {
             contentStore.addContent(spaceId,
                                     contentId,
@@ -165,7 +171,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                     syncFile.length(),
                                     syncFile.getMimetype(),
                                     syncFile.getChecksum(),
-                                    null);
+                                    props);
         } finally {
             try {
                 syncStream.close();
