@@ -39,8 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.duracloud.common.util.DateUtil.DateFormat.VERBOSE_FORMAT;
-
 /**
  * This class manages the generation of content manifests.
  *
@@ -229,7 +227,7 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
 
     private File getTempFile() {
         try {
-            return File.createTempFile(DateUtil.now() + "-", "-manifest-gen");
+            return File.createTempFile(DateUtil.nowPlain() + "-", "-manifest-gen");
 
         } catch (IOException e) {
             StringBuilder err = new StringBuilder("Error creating temp file, ");

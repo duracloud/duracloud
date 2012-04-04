@@ -19,7 +19,8 @@ public class DateUtil {
         MID_FORMAT ("yyyy-MM-dd'T'HH:mm"),
         SHORT_FORMAT ("yyyy-MM-dd"),
         YEAR_MONTH_FORMAT ("yyyy-MM"),
-        VERBOSE_FORMAT("EEE, d MMM yyyy HH:mm:ss z");
+        VERBOSE_FORMAT("EEE, d MMM yyyy HH:mm:ss z"),
+        PLAIN_FORMAT("yyyy-MM-dd-HH-mm-ss");
 
         private final SimpleDateFormat format;
 
@@ -70,6 +71,11 @@ public class DateUtil {
         return convertToString(now, DateFormat.VERBOSE_FORMAT);
     }
 
+    public static String nowPlain() {
+        long now = System.currentTimeMillis();
+        return convertToString(now, DateFormat.PLAIN_FORMAT);
+    }
+
     public static String convertToString(long millis, DateFormat format) {
         SimpleDateFormat dateFormat = format.format;
         return dateFormat.format(millis);
@@ -93,6 +99,10 @@ public class DateUtil {
 
     public static String convertToStringVerbose(long millis) {
         return convertToString(millis, DateFormat.VERBOSE_FORMAT);
+    }
+
+    public static String convertToStringPlain(long millis) {
+        return convertToString(millis, DateFormat.PLAIN_FORMAT);
     }
 
     public static String convertToStringYearMonth(long millis) {

@@ -13,7 +13,6 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.audit.Auditor;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.storage.aop.ContentMessage;
 import org.easymock.EasyMock;

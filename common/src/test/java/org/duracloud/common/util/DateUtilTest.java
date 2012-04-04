@@ -77,4 +77,12 @@ public class DateUtilTest {
         Date date = DateUtil.convertToDate(text, DateFormat.VERBOSE_FORMAT);
         Assert.assertNotNull(date);
     }
+
+    @Test
+    public void testConvertToDatePlain() throws Exception {
+        String text = "2012-03-29-12-00-00";
+        Date date = DateUtil.convertToDate(text, DateFormat.PLAIN_FORMAT);
+        Assert.assertNotNull(date);
+    }
+
 }
