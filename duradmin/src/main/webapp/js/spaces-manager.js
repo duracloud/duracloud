@@ -2566,12 +2566,18 @@ $(function(){
                 spaceProps.push(["Last Health Check", "<div class='health-check "+
                                      bitIntegrityResult.result+"'>"+completionDate+" - " 
                                      + result 
-                                     + " <a href='/duradmin/spaces/sm/0/"+reportContentId+"'>[report]</a>"
+                                     + " <a id='report-viewer' href=''>[report]</a>"
                                      + "</div>" ]);
             }
+            
+            
 
             var propertiesDiv = this._loadProperties(spaceProps);
 
+            dc.reportOverlayOnClick(
+                    $("#report-viewer", propertiesDiv), 
+                    reportContentId);
+            
             if(space.itemCount == null || space.itemCount < 0){
                 //attach poller if itemCount is null or -1
                 var pollItemCount = function(){
