@@ -164,13 +164,27 @@ $(function(){
             instance.change(state);
         });
 
+        //This is a solution to the a problem related to differences in the way
+        //the browser handles popstate on page load. Chrome and Safari issue a
+        //'popstate' event on page load; firefox does not
+        //cf http://stackoverflow.com/questions/6421769/popstate-on-pages-load-in-chrome
+        if($.browser['mozilla']){
+            var unpopped = ('state' in window.history);
+            if(unpopped){
+                setTimeout(function(){
+                    var evt = document.createEvent("PopStateEvent");
+                    evt.initPopStateEvent("popstate", false, false, null);
+                    window.dispatchEvent(evt);
+                });
+            }
+        }
+        
         return instance;
         
 	})();
 	
 	
     $('#page-content').spacesmanager({storeProviders: storeProviders});
-
 });
 
 (function(){
