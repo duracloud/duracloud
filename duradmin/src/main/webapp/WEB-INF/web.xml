@@ -69,28 +69,52 @@
 
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/images/*</url-pattern>
+    <url-pattern>*.css</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/style/*</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>/js/*</url-pattern>
+    <url-pattern>*.js</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/jquery/*</url-pattern>
+    <url-pattern>*.html</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>default</servlet-name>
-    <url-pattern>/jwplayer/*</url-pattern>
+    <url-pattern>*.gif</url-pattern>
   </servlet-mapping>
 
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.ico</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.jpg</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.png</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.swf</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.json</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>duradmin</servlet-name>
+    <url-pattern>*.htm</url-pattern>
+  </servlet-mapping>
 
   <servlet-mapping>
     <servlet-name>duradmin</servlet-name>
