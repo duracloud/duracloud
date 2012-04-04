@@ -21,6 +21,33 @@
     - set a character encoding even if specified in the HTML page or form
   -->
   <filter>
+    <filter-name>default</filter-name>
+    <filter-class>org.duracloud.servlet.DefaultFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>default</filter-name>
+    <url-pattern>/images/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>default</filter-name>
+    <url-pattern>/jquery/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>default</filter-name>
+    <url-pattern>/js/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>default</filter-name>
+    <url-pattern>/style/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>default</filter-name>
+    <url-pattern>/jwplayer/*</url-pattern>
+  </filter-mapping>
+
+
+  <filter>
     <filter-name>encodingFilter</filter-name>
     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
     <init-param>
@@ -57,6 +84,11 @@
     <load-on-startup>1</load-on-startup>
   </servlet>
 
+  <servlet-mapping>
+    <servlet-name>duradmin</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+
   <servlet>
     <servlet-name>JnlpDownloadServlet</servlet-name>
     <servlet-class>jnlp.sample.servlet.JnlpDownloadServlet</servlet-class>
@@ -67,60 +99,7 @@
     <url-pattern>/webstart/*</url-pattern>
   </servlet-mapping>
 
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.css</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.js</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.html</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.gif</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.ico</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.jpg</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.png</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.swf</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.json</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>duradmin</servlet-name>
-    <url-pattern>*.htm</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>duradmin</servlet-name>
-    <url-pattern>/</url-pattern>
-  </servlet-mapping>
-
+  
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
