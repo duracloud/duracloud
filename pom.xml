@@ -88,6 +88,7 @@
         <module>reporter</module>
         <module>executordata</module>
         <module>executor</module>
+        <module>executorclient</module>
         <module>auditor</module>
         <module>manifest</module>
         <module>duraboss</module>
