@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.duracloud.duradmin.util.NameValuePair;
 import org.duracloud.duradmin.util.PropertiesUtils;
+import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
 
 public class Space
         implements Serializable {
@@ -31,15 +32,8 @@ public class Space
 	
 	private boolean streamingEnabled = false;
 	
-    public String getStoreId() {
-		return storeId;
-	}
+    private SpaceBitIntegrityResult bitIntegrityResult = null;
 
-	public void setStoreId(String storeId) {
-		this.storeId = storeId;
-	}
-
-	
     private String action;
 
     private String spaceId;
@@ -47,10 +41,19 @@ public class Space
     private String access;
 
     private SpaceProperties properties;
-
+    
     private List<NameValuePair> extendedProperties;
 
     private List<String> contents;
+    
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+
 
     /**
 	 * the count of all the items in the space
@@ -137,5 +140,14 @@ public class Space
     public void setStreamingEnabled(boolean streamingEnabled) {
         this.streamingEnabled = streamingEnabled;
     }
+
+    public SpaceBitIntegrityResult getBitIntegrityResult() {
+        return bitIntegrityResult;
+    }
+
+    public void setBitIntegrityResult(SpaceBitIntegrityResult bitIntegrityResult) {
+        this.bitIntegrityResult = bitIntegrityResult;
+    }
+
 
 }

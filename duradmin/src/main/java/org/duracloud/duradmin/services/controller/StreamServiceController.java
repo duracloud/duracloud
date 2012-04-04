@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Daniel Bernstein Date: April 2, 2012
  */
 @Controller
-@RequestMapping(value = "/services/streamservice")
+@RequestMapping(value = "/services/mediastreamer")
 public class StreamServiceController {
 
     protected static final String STREAM_ENABLED_KEY = "streamEnabled";

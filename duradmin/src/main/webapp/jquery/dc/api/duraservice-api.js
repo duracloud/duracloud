@@ -105,7 +105,7 @@ $(function(){
 		
 		dc.service.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
 		    return $.ajax({
-		        url: APP_CONTEXT+"/services/streamservice?storeId="+storeId+"&spaceId="
+		        url: APP_CONTEXT+"/services/mediastreamer?storeId="+storeId+"&spaceId="
 		                        + encodeURIComponent(spaceId) 
 		                        + "&enable=" + enable,
 		        type: "post",

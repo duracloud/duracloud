@@ -243,6 +243,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>executordata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+
+    <dependency>
       <!-- this artifact is also defined below: org.apache.tomcat -->
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>

@@ -874,6 +874,15 @@ span.label,
  	border:1px solid #ff9933;
 	background-color:#ff6600;
  }
+ 
+ .success {
+ 	border:1px solid #00AA00;
+	background-color:#009900;
+ }
+ 
+ .health-check {
+ 	padding:5px;
+ }
 
  /* MISC **********************************************************/
  

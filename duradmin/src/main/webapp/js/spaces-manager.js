@@ -2541,11 +2541,22 @@ $(function(){
             }
 
             var spaceProps = this._extractSpaceProperties(space);
+            
+            
+            var bitIntegrityResult = space.bitIntegrityResult;
+            if(bitIntegrityResult){
+                var completionDate = bitIntegrityResult.completionDate;
+                var result = bitIntegrityResult.result;
+                var reportContentId = bitIntegrityResult.reportContentId;
+                
+                spaceProps.push(["Last Health Check", "<div class='health-check "+
+                                     bitIntegrityResult.result+"'>"+completionDate+" - " 
+                                     + result 
+                                     + " <a href='/duradmin/spaces/sm/0/"+reportContentId+"'>[report]</a>"
+                                     + "</div>" ]);
+            }
+
             var propertiesDiv = this._loadProperties(spaceProps);
-            
-            
-            var mimetypeGraphPanel = this._createMimetypeGraphPanel(space);
-            $(propertiesDiv).expandopanel("append",mimetypeGraphPanel);
 
             if(space.itemCount == null || space.itemCount < 0){
                 //attach poller if itemCount is null or -1
@@ -2574,6 +2585,7 @@ $(function(){
             this._loadHistoryPanel(space);
 
             var mp = this._loadPropertiesPane(space.extendedProperties, readOnly);
+
             
             $(mp).bind("dc-add", function(evt, future){
                     var value = future.value;

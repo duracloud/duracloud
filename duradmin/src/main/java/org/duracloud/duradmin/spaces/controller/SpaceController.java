@@ -8,8 +8,10 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,12 +23,18 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.StoreCaller;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ExtendedIteratorCounterThread;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.controller.AbstractRestController;
+import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.execdata.bitintegrity.BitIntegrityResults;
+import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
+import org.duracloud.execdata.bitintegrity.StoreBitIntegrityResults;
+import org.duracloud.execdata.bitintegrity.serialize.BitIntegrityResultsSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -100,6 +108,8 @@ public class SpaceController extends  AbstractRestController<Space> {
 			populateSpace(space, cloudSpace, contentStore);
 			populateSpaceCount(space, request);
 			populateStreamEnabled(space);
+            populateBitIntegrityResults(space);
+
 			return createModel(space);
 		}catch(ContentStoreException ex){
 			ex.printStackTrace();
@@ -107,6 +117,35 @@ public class SpaceController extends  AbstractRestController<Space> {
 			return createModel(null);
 		}
 	}
+
+    private void populateBitIntegrityResults(Space space) {
+        try{
+            String storeId = space.getStoreId();
+            String spaceId = space.getSpaceId();
+            ContentStore contentStore = this.contentStoreManager.getPrimaryContentStore();
+            Content content = contentStore.getContent("x-duracloud-admin", "bit-integrity-results.json");
+            InputStream is = content.getStream();
+            BitIntegrityResultsSerializer serializer = new BitIntegrityResultsSerializer();
+            String json = IOUtil.readStringFromStream(is);
+            BitIntegrityResults results = serializer.deserialize(json);
+            StoreBitIntegrityResults storeResults = results.getStores().get(storeId);
+            if(storeResults != null){
+                List<SpaceBitIntegrityResult> spaceResults = storeResults.getSpaceResults(spaceId);
+                if(spaceResults != null && spaceResults.size() > 0){
+                    for(SpaceBitIntegrityResult spaceResult : spaceResults){
+                        if(spaceResult.isDisplay()){
+                            
+                            space.setBitIntegrityResult(spaceResult);
+                            break;
+                        }
+                    }
+                }
+            }        
+            
+        }catch(Exception ex){
+            log.error("failed to populate bit integrity results due to error:" + ex.getMessage(), ex);
+        }
+    }
 
     private void populateStreamEnabled(Space space) {
         //TODO add duraboss call here
