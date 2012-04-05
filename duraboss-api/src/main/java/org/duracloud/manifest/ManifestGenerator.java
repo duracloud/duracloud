@@ -5,11 +5,10 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.manifest;
+package org.duracloud.manifest;
 
-import org.duracloud.client.manifest.error.ManifestArgumentException;
-import org.duracloud.client.manifest.error.ManifestEmptyException;
-import org.duracloud.common.model.Securable;
+import org.duracloud.manifest.error.ManifestArgumentException;
+import org.duracloud.manifest.error.ManifestEmptyException;
 
 import java.io.InputStream;
 import java.util.Date;
@@ -22,7 +21,7 @@ import java.util.Date;
  * @author Andrew Woods
  *         Date: 3/27/12
  */
-public interface ManifestGenerator extends Securable {
+public interface ManifestGenerator {
 
     /**
      * This enum defines the supported output manifest formats.

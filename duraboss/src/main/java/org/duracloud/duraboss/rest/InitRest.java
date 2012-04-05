@@ -9,7 +9,7 @@ package org.duracloud.duraboss.rest;
 
 import org.duracloud.appconfig.domain.DurabossConfig;
 import org.duracloud.appconfig.xml.DurabossInitDocumentBinding;
-import org.duracloud.audit.Auditor;
+import org.duracloud.audit.LocalAuditor;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.client.ServicesManagerImpl;
@@ -18,8 +18,8 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
 import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
-import org.duracloud.exec.Executor;
-import org.duracloud.manifest.ManifestGenerator;
+import org.duracloud.exec.LocalExecutor;
+import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.reporter.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
@@ -54,9 +54,9 @@ public class InitRest extends BaseRest {
     private RestUtil restUtil;
     private String reportSpaceId;
     private NotificationManager notificationManager;
-    private Executor executor;
-    private Auditor auditor;
-    private ManifestGenerator manifestGenerator;
+    private LocalExecutor executor;
+    private LocalAuditor auditor;
+    private LocalManifestGenerator manifestGenerator;
 
     public InitRest(StorageReportResource storageResource,
                     ServiceReportResource serviceResource,
@@ -65,9 +65,9 @@ public class InitRest extends BaseRest {
                     RestUtil restUtil,
                     String reportSpaceId,
                     NotificationManager notificationManager,
-                    Executor executor,
-                    Auditor auditor,
-                    ManifestGenerator manifestGenerator) {
+                    LocalExecutor executor,
+                    LocalAuditor auditor,
+                    LocalManifestGenerator manifestGenerator) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
         this.summaryDirectory = summaryDirectory;

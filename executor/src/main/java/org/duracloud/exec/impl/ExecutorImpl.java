@@ -9,7 +9,7 @@ package org.duracloud.exec.impl;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.exec.Executor;
+import org.duracloud.exec.LocalExecutor;
 import org.duracloud.exec.ServiceHandler;
 import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
@@ -26,7 +26,7 @@ import java.util.Set;
  * @author: Bill Branan
  * Date: 3/2/12
  */
-public class ExecutorImpl implements Executor {
+public class ExecutorImpl implements LocalExecutor {
 
     private final Logger log = LoggerFactory.getLogger(ExecutorImpl.class);
 

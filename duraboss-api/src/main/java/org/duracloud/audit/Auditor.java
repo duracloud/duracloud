@@ -8,7 +8,6 @@
 package org.duracloud.audit;
 
 import org.duracloud.audit.error.AuditLogNotFoundException;
-import org.duracloud.client.ContentStoreManager;
 
 import java.util.List;
 
@@ -20,14 +19,6 @@ import java.util.List;
  *         Date: 3/17/12
  */
 public interface Auditor {
-
-    /**
-     * This method initializes the Auditor by providing a handle to the content
-     * store.
-     *
-     * @param storeMgr storage manager
-     */
-    public void initialize(ContentStoreManager storeMgr);
 
     /**
      * This method creates an initial audit log, and removes any existing audit

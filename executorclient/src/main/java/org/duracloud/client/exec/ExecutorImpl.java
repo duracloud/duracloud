@@ -8,18 +8,20 @@
 package org.duracloud.client.exec;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.client.exec.error.ExecutorException;
-import org.duracloud.client.exec.error.UnsupportedActionException;
+import org.duracloud.exec.error.ExecutorException;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.Securable;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.exec.Executor;
+import org.duracloud.exec.error.InvalidActionRequestException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Allows for communication with Duraboss executor
@@ -27,7 +29,7 @@ import java.util.Map;
  * @author: Bill Branan
  * Date: 4/4/12
  */
-public class ExecutorImpl implements Executor {
+public class ExecutorImpl implements Executor, Securable {
 
     private static final String DEFAULT_CONTEXT = "duraboss";
     private String baseURL = null;
@@ -86,20 +88,20 @@ public class ExecutorImpl implements Executor {
     }
 
     @Override
-    public List<String> getSupportedActions() {
+    public Set<String> getSupportedActions() {
         String url = buildURL("action");
         String err = "Could not get supported executor actions due to: ";
         return runGetSupportedActions(url, err);
     }
 
-    private List<String> runGetSupportedActions(String url, String err) {
+    private Set<String> runGetSupportedActions(String url, String err) {
         try {
             RestHttpHelper.HttpResponse response = getRestHelper().get(url);
             checkResponse(response, HttpStatus.SC_OK);
 
             InputStream actionsStream = response.getResponseStream();
             String actions = IOUtil.readStringFromStream(actionsStream);
-            return SerializationUtil.deserializeList(actions);
+            return SerializationUtil.deserializeSet(actions);
         } catch (Exception e) {
             String error = err + e.getMessage();
             throw new ExecutorException(error, e);
@@ -107,7 +109,8 @@ public class ExecutorImpl implements Executor {
     }
 
     @Override
-    public void performAction(String actionName, String actionParameters) {
+    public void performAction(String actionName, String actionParameters)
+        throws InvalidActionRequestException {
         String url = buildURL(actionName);
         String err = "Could not perform action " + actionName + " due to: ";
         runPerformAction(url, actionParameters, err);
@@ -166,7 +169,7 @@ public class ExecutorImpl implements Executor {
 
     protected void checkResponse(RestHttpHelper.HttpResponse response,
                                  int expectedCode)
-            throws ExecutorException, UnsupportedActionException {
+        throws ExecutorException, InvalidActionRequestException {
         if (response == null) {
             throw new ExecutorException("Could not complete request due to " +
                                         "error: Response was null.");
@@ -181,7 +184,7 @@ public class ExecutorImpl implements Executor {
             }
 
             if(statusCode == HttpStatus.SC_BAD_REQUEST) {
-                throw new UnsupportedActionException(errorMessage);
+                throw new InvalidActionRequestException(errorMessage);
             } else {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Could not complete request due to error: ");

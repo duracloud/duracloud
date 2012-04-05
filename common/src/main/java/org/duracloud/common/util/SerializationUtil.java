@@ -9,8 +9,10 @@ package org.duracloud.common.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -83,5 +85,36 @@ public class SerializationUtil {
         }
         XStream xstream = new XStream(new DomDriver());
         return (List<String>)xstream.fromXML(list);
+    }
+
+    /**
+     * Serializes a List to XML. If the list is either empty or null
+     * the XML will indicate an empty list.
+     *
+     * @param set of Strings
+     * @return serialized Set
+     */
+    public static String serializeSet(Set<?> set) {
+        if(set == null) {
+            set = new HashSet<String>();
+        }
+        XStream xstream = new XStream(new DomDriver());
+        return xstream.toXML(set);
+    }
+
+    /**
+     * DeSerializes XML into a Set of Strings. If the XML is either
+     * empty or null an empty List is returned.
+     *
+     * @param set serialized as a String
+     * @return deserialized Set
+     */
+    @SuppressWarnings("unchecked")
+    public static Set<String> deserializeSet(String set) {
+        if(set == null || set.equals("")) {
+            return new HashSet<String>();
+        }
+        XStream xstream = new XStream(new DomDriver());
+        return (Set<String>)xstream.fromXML(set);
     }
 }

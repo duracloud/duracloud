@@ -54,7 +54,6 @@ public class ManifestGeneratorImplTest {
     private final String storeId = "store-id";
     private final String spaceId = "space-id";
     private final FORMAT format = FORMAT.BAGIT;
-    private final String asOfDate = "$WEEKDAY$, $DAY$ Mar 2012 02:06:21 UTC";
 
     private static final int NUM_LOGS = 2;
     private List<File> tmpFiles;

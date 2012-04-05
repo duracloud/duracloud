@@ -9,7 +9,7 @@ package org.duracloud.audit.impl;
 
 import org.duracloud.audit.AuditListener;
 import org.duracloud.audit.AuditLogStore;
-import org.duracloud.audit.Auditor;
+import org.duracloud.audit.LocalAuditor;
 import org.duracloud.audit.error.AuditLogNotFoundException;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -43,7 +43,7 @@ import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_
  * @author Andrew Woods
  *         Date: 3/17/12
  */
-public class AuditorImpl implements Auditor {
+public class AuditorImpl implements LocalAuditor {
 
     private final Logger log = LoggerFactory.getLogger(AuditorImpl.class);
 

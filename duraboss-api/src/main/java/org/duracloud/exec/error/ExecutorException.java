@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.exec.error;
+package org.duracloud.exec.error;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
 

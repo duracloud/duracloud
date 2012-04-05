@@ -12,6 +12,7 @@ import org.duracloud.exec.Executor;
 import org.duracloud.exec.error.InvalidActionRequestException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,8 +47,8 @@ public class ExecResource {
      */
     public String getSupportedActions() {
         Set<String> supportedActions = exec.getSupportedActions();
-        List<String> listActions = new ArrayList<String>(supportedActions);
-        return SerializationUtil.serializeList(listActions);
+        Set<String> setActions = new HashSet<String>(supportedActions);
+        return SerializationUtil.serializeSet(setActions);
     }
 
     /**

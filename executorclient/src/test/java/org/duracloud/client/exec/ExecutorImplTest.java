@@ -16,10 +16,10 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -72,17 +72,17 @@ public class ExecutorImplTest {
     public void testGetSupportedActions() throws Exception {
         String url = getBaseUrl() + "/action";
 
-        List<String> actions = new ArrayList<String>();
+        Set<String> actions = new HashSet<String>();
         actions.add("action-1");
         actions.add("action-2");
-        setResponse(SerializationUtil.serializeList(actions));
+        setResponse(SerializationUtil.serializeSet(actions));
 
         EasyMock.expect(mockRestHelper.get(url))
                 .andReturn(successResponse);
 
         replayMocks();
 
-        List<String> resultActions = exec.getSupportedActions();
+        Set<String> resultActions = exec.getSupportedActions();
         assertNotNull(resultActions);
         assertEquals(actions, resultActions);
     }

@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.manifest.error;
+package org.duracloud.manifest.error;
 
 import org.duracloud.common.error.DuraCloudCheckedException;
 
@@ -15,12 +15,12 @@ import org.duracloud.common.error.DuraCloudCheckedException;
  */
 public class ManifestEmptyException extends DuraCloudCheckedException {
 
-    public ManifestEmptyException(String msg) {
-        super(msg);
-    }
-
     public ManifestEmptyException(String msg, Throwable e) {
         super(msg, e);
+    }
+
+    public ManifestEmptyException(String msg) {
+        super(msg);
     }
 
 }

@@ -17,8 +17,8 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.manifest.ManifestFormatter;
-import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestEmptyException;
 import org.duracloud.manifest.error.ManifestGeneratorException;
@@ -45,7 +45,7 @@ import java.util.Map;
  * @author Andrew Woods
  *         Date: 3/27/12
  */
-public class ManifestGeneratorImpl implements ManifestGenerator {
+public class ManifestGeneratorImpl implements LocalManifestGenerator {
 
     private final Logger log =
         LoggerFactory.getLogger(ManifestGeneratorImpl.class);

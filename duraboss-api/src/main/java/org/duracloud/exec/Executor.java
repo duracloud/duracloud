@@ -7,9 +7,7 @@
  */
 package org.duracloud.exec;
 
-import org.duracloud.client.ContentStoreManager;
 import org.duracloud.exec.error.InvalidActionRequestException;
-import org.duracloud.serviceapi.ServicesManager;
 
 import java.util.Map;
 import java.util.Set;
@@ -23,15 +21,6 @@ import java.util.Set;
  * Date: 3/1/12
  */
 public interface Executor {
-
-    /**
-     * Provides the Executor and Handlers access to storage and services.
-     *
-     * @param storeMgr storage manager
-     * @param servicesMgr services manager
-     */
-    public void initialize(ContentStoreManager storeMgr,
-                           ServicesManager servicesMgr);
 
     /**
      * Stops the work of the Executor.

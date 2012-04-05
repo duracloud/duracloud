@@ -6,7 +6,7 @@
  *     http://duracloud.org/license/
  */
 
-import org.duracloud.client.manifest.ManifestGenerator;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.client.manifest.ManifestGeneratorImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.IOUtil;
@@ -32,7 +32,7 @@ public class ExampleManifestClient {
     private static final String STORE_ID = null;       // replace as necessary
     private static final String SPACE_ID = "my-space"; // replace as necessary
 
-    private ManifestGenerator generator;
+    private ManifestGeneratorImpl generator;
 
     public ExampleManifestClient() {
         generator = new ManifestGeneratorImpl(HOST, PORT, CONTEXT);

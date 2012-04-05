@@ -8,11 +8,13 @@
 package org.duracloud.client.manifest;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.client.manifest.error.ManifestArgumentException;
-import org.duracloud.client.manifest.error.ManifestEmptyException;
-import org.duracloud.client.manifest.error.ManifestGeneratorException;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.model.Securable;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.manifest.ManifestGenerator;
+import org.duracloud.manifest.error.ManifestArgumentException;
+import org.duracloud.manifest.error.ManifestEmptyException;
+import org.duracloud.manifest.error.ManifestGeneratorException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +26,7 @@ import java.util.Date;
  * @author: Bill Branan
  * Date: 4/5/12
  */
-public class ManifestGeneratorImpl implements ManifestGenerator {
+public class ManifestGeneratorImpl implements ManifestGenerator, Securable {
 
     private static final String DEFAULT_CONTEXT = "duraboss";
     private String baseURL = null;

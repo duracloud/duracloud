@@ -10,7 +10,7 @@ package org.duracloud.duraboss.rest;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.NotificationConfig;
-import org.duracloud.audit.Auditor;
+import org.duracloud.audit.LocalAuditor;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
@@ -18,8 +18,8 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
-import org.duracloud.exec.Executor;
-import org.duracloud.manifest.ManifestGenerator;
+import org.duracloud.exec.LocalExecutor;
+import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.reporter.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.serviceapi.ServicesManager;
@@ -54,9 +54,9 @@ public class InitRestTest {
     private ServiceSummaryDirectory serviceSummaryDirectory;
     private SecurityContextUtil securityContextUtil;
     private NotificationManager notificationManager;
-    private Executor executor;
-    private Auditor auditor;
-    private ManifestGenerator manifestGenerator;
+    private LocalExecutor executor;
+    private LocalAuditor auditor;
+    private LocalManifestGenerator manifestGenerator;
 
     private RestUtil.RequestContent requestContent;
 
@@ -72,10 +72,10 @@ public class InitRestTest {
                                                   SecurityContextUtil.class);
         notificationManager = EasyMock.createMock("NotificationManager",
                                                   NotificationManager.class);
-        executor = EasyMock.createMock("Executor", Executor.class);
-        auditor = EasyMock.createMock("Auditor", Auditor.class);
+        executor = EasyMock.createMock("Executor", LocalExecutor.class);
+        auditor = EasyMock.createMock("Auditor", LocalAuditor.class);
         manifestGenerator = EasyMock.createMock("ManifestGenerator",
-                                                ManifestGenerator.class);
+                                                LocalManifestGenerator.class);
         requestContent = EasyMock.createMock("RequestContent",
                                              RestUtil.RequestContent.class);
         initRest = new InitRest(storageResource,

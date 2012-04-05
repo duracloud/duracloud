@@ -9,7 +9,7 @@ package org.duracloud.exec.impl;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.exec.Executor;
+import org.duracloud.exec.LocalExecutor;
 import org.duracloud.exec.ServiceHandler;
 import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
  */
 public class ExecutorImplTest {
 
-    private Executor exec;
+    private LocalExecutor exec;
     private ContentStoreManager storeMgr;
     private ServicesManager servicesMgr;
     private ServiceHandler handler;

@@ -7,15 +7,19 @@
  */
 package org.duracloud.manifest.error;
 
-import org.duracloud.common.error.DuraCloudCheckedException;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 
 /**
  * @author Andrew Woods
  *         Date: 3/29/12
  */
-public class ManifestEmptyException extends DuraCloudCheckedException {
+public class ManifestGeneratorException extends DuraCloudRuntimeException {
 
-    public ManifestEmptyException(String msg, Throwable e) {
+    public ManifestGeneratorException(String msg, Throwable e) {
         super(msg, e);
+    }
+
+    public ManifestGeneratorException(String msg) {
+        super(msg);
     }
 }

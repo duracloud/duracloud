@@ -102,6 +102,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>duraboss-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>

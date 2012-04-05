@@ -9,8 +9,10 @@ package org.duracloud.common.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -79,6 +81,7 @@ public class SerializationUtilTest {
         assertEquals(0, resultMap.size());
     }
 
+    @Test
     public void testSerializeDeserializeList() throws Exception
     {
         List<String> testList = new ArrayList<String>();
@@ -116,6 +119,43 @@ public class SerializationUtilTest {
         resultList = SerializationUtil.deserializeList(null);
         assertNotNull(resultList);
         assertEquals(0, resultList.size());
+    }
+
+    @Test
+    public void testSerializeDeserializeSet() throws Exception {
+        Set<String> testSet = new HashSet<String>();
+        testSet.add("testName");
+        testSet.add("foo");
+        testSet.add("dura");
+
+        String serialized = SerializationUtil.serializeSet(testSet);
+        Set<String> resultSet = SerializationUtil.deserializeSet(serialized);
+
+        assertTrue(testSet.equals(resultSet));
+
+        // Test empty/null values
+        String serNull = SerializationUtil.serializeSet(null);
+        String serEmpty =
+            SerializationUtil.serializeSet(new HashSet<Object> ());
+        assertNotNull(serNull);
+        assertNotNull(serEmpty);
+        assertEquals(serNull, serEmpty);
+
+        resultSet = SerializationUtil.deserializeSet(serNull);
+        assertNotNull(resultSet);
+        assertEquals(0, resultSet.size());
+
+        resultSet = SerializationUtil.deserializeSet(serEmpty);
+        assertNotNull(resultSet);
+        assertEquals(0, resultSet.size());
+
+        resultSet = SerializationUtil.deserializeSet("");
+        assertNotNull(resultSet);
+        assertEquals(0, resultSet.size());
+
+        resultSet = SerializationUtil.deserializeSet(null);
+        assertNotNull(resultSet);
+        assertEquals(0, resultSet.size());
     }
 
 }

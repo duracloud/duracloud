@@ -84,6 +84,7 @@
         <module>serviceapi</module>
         <module>servicemonitor</module>
         <module>duraservice</module>
+        <module>duraboss-api</module>
         <module>reportdata</module>
         <module>reporter</module>
         <module>executordata</module>
