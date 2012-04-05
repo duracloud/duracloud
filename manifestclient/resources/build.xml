@@ -1,5 +1,5 @@
-<project name="ExampleServiceClient" default="compile" basedir=".">
-  <description>Builds the example service client</description>
+<project name="ExampleExecutorClient" default="compile" basedir=".">
+  <description>Builds the example manifest client</description>
 
   <property name="src" location="."/>
   <property name="lib" location="lib"/>
@@ -19,10 +19,7 @@
   </target>
 
   <target name="run" description="run the example">
-    <input message="Enter space-name over which to run service: "
-           addproperty="space.name"/>
-    <java classname="ExampleServiceClient">
-      <arg value="${space.name}"/>
+    <java classname="ExampleManifestClient" fork="true">
       <classpath>
         <pathelement location="."/>
         <fileset dir="${lib}"/>

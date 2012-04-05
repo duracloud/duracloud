@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
-  <artifactId>serviceclient</artifactId>
+  <artifactId>manifestclient</artifactId>
   <packaging>bundle</packaging>
   <version>1.4.0-SNAPSHOT</version>
-  <name>ServiceClient</name>
+  <name>Manifest Client</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
@@ -57,7 +57,7 @@
               </execution>
             </executions>
             <configuration>
-              <finalName>service-client</finalName>
+              <finalName>manifest-client</finalName>
               <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </plugin>
@@ -70,11 +70,11 @@
       <dependencies>
 
         <dependency>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>com.springsource.org.apache.commons.lang</artifactId>
           <scope>compile</scope>
         </dependency>
-        
+
         <dependency>
           <groupId>xerces</groupId>
           <artifactId>xercesImpl</artifactId>
@@ -82,8 +82,8 @@
         </dependency>
 
         <dependency>
-          <groupId>com.thoughtworks.xstream</groupId>
-          <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+          <groupId>commons-io</groupId>
+          <artifactId>commons-io</artifactId>
           <scope>compile</scope>
         </dependency>
 
@@ -93,7 +93,7 @@
   </profiles>
 
   <dependencies>
-  
+
     <!-- internal projects -->
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -102,40 +102,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>serviceconfig</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>serviceapi</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-        
-    <!-- for JDOM -->
-    <dependency>
-        <groupId>org.jdom</groupId>
-        <artifactId>jdom</artifactId>
-    </dependency>
-    
-    <!-- for HttpClient -->
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-    </dependency>    
-
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
 
-    <dependency>  
-      <groupId>com.thoughtworks.xstream</groupId>  
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-      <scope>provided</scope>
-    </dependency>    
+    <!-- for HttpClient -->
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+    </dependency>
 
-     
   </dependencies>
 </project>

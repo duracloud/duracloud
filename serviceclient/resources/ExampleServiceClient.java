@@ -6,11 +6,11 @@
  *     http://duracloud.org/license/
  */
 
-import org.duracloud.client.ServicesManager;
 import org.duracloud.client.ServicesManagerImpl;
-import org.duracloud.client.error.ServicesException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
@@ -33,8 +33,8 @@ import java.util.Map;
  */
 public class ExampleServiceClient {
 
-    private static final String USERNAME = "user";  // replace as necessary
-    private static final String PASSWORD = "upw";   // replace as necessary
+    private static final String USERNAME = "admin";  // replace as necessary
+    private static final String PASSWORD = "apw";   // replace as necessary
     private static final String HOST = "localhost"; // replace as necessary
     private static final String PORT = "8080";      // replace as necessary
     private static final String CONTEXT = "duraservice";

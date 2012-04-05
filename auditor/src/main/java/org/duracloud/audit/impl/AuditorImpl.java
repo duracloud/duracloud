@@ -14,6 +14,7 @@ import org.duracloud.audit.error.AuditLogNotFoundException;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.HttpHeaders;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.storage.aop.ContentMessage;
@@ -135,7 +136,7 @@ public class AuditorImpl implements Auditor {
     }
 
     private boolean isSystemEvent(String spaceId) {
-        return Auditor.systemSpaces.contains(spaceId);
+        return Constants.SYSTEM_SPACES.contains(spaceId);
     }
 
     private void addToSpaceStore(String space,

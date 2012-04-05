@@ -91,6 +91,7 @@
         <module>executorclient</module>
         <module>auditor</module>
         <module>manifest</module>
+        <module>manifestclient</module>
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>

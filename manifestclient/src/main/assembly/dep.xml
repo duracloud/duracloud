@@ -18,7 +18,7 @@
       <includes>
         <include>readme.txt</include>
         <include>build.xml</include>
-        <include>ExampleServiceClient.java</include>
+        <include>ExampleManifestClient.java</include>
         <include>logback.xml</include>
       </includes>
     </fileSet>

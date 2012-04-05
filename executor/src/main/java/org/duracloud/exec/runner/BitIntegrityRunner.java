@@ -9,6 +9,7 @@ package org.duracloud.exec.runner;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
@@ -233,7 +234,7 @@ public class BitIntegrityRunner implements Runnable {
         // Check bit integrity of each space
         while(spaceIdsIt.hasNext()) {
             String spaceId = spaceIdsIt.next();
-            if(running) {
+            if(running && !Constants.SYSTEM_SPACES.contains(spaceId)) {
                 if(storeState) {
                     Map<String, String> state = new HashMap<String, String>();
                     state.put(STATE_STORE_ID, store.getStoreId());

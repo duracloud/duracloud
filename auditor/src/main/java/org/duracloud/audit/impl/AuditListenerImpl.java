@@ -9,7 +9,7 @@ package org.duracloud.audit.impl;
 
 import org.duracloud.audit.AuditListener;
 import org.duracloud.audit.AuditLogStore;
-import org.duracloud.audit.Auditor;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.storage.aop.ContentMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public class AuditListenerImpl implements AuditListener {
 
     private boolean isSystemEvent(ContentMessage message) {
         String spaceId = message.getSpaceId();
-        return Auditor.systemSpaces.contains(spaceId);
+        return Constants.SYSTEM_SPACES.contains(spaceId);
     }
 
     private void scheduleWrite(String spaceId) {

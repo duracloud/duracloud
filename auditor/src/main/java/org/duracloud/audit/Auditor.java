@@ -10,7 +10,6 @@ package org.duracloud.audit;
 import org.duracloud.audit.error.AuditLogNotFoundException;
 import org.duracloud.client.ContentStoreManager;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,14 +20,6 @@ import java.util.List;
  *         Date: 3/17/12
  */
 public interface Auditor {
-
-    /**
-     * This structure defines the system managed spaces.
-     */
-    public static final List<String> systemSpaces = Arrays.asList(
-        "x-duracloud-admin",
-        "x-service-out",
-        "x-service-work");
 
     /**
      * This method initializes the Auditor by providing a handle to the content
