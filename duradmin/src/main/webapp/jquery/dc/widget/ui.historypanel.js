@@ -173,9 +173,14 @@
                 }
             });
             
-
-            
-            this._loadDetail(that.options.storeId, that.options.spaceId);
+            if(summaries.length > 0){
+                var summary = summaries[0];
+                this._loadDetail(
+                        that.options.storeId, 
+                        that.options.spaceId, 
+                        summary.reportId, 
+                        new Date(summary.date));
+            }
         },
         
         

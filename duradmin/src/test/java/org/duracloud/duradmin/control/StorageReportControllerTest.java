@@ -16,6 +16,7 @@ import org.duracloud.client.report.StorageReportManager;
 import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
 import org.duracloud.common.model.Credential;
+import org.duracloud.duradmin.test.AbstractTestBase;
 import org.duracloud.reportdata.storage.StorageReport;
 import org.duracloud.reportdata.storage.metrics.StorageMetrics;
 import org.duracloud.reportdata.storage.metrics.StorageProviderMetrics;
@@ -30,21 +31,25 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Daniel Bernstein
  *
  */
-public class StorageReportControllerTest {
+public class StorageReportControllerTest extends AbstractTestBase {
     private StorageReportController controller;
     private StorageReportManager storageReportManager;
     private StorageSummaryCache storageSummaryCache;
+
+    @Override
     @Before
-    public void setUp() throws Exception {
-        storageReportManager  = EasyMock.createMock("StorageReportManager", StorageReportManager.class);
-        storageSummaryCache = EasyMock.createMock("StorageSummaryCache", StorageSummaryCache.class);
+    public void setup() {
+        super.setup();
+        storageReportManager  = createMock(StorageReportManager.class);
+        storageSummaryCache = createMock(StorageSummaryCache.class);
         storageReportManager.login(EasyMock.isA(Credential.class));
         EasyMock.expectLastCall();
     }
 
+    @Override
     @After
-    public void tearDown() throws Exception {
-        EasyMock.verify(storageReportManager, storageSummaryCache);
+    public void tearDown() {
+        super.tearDown();
     }
 
     @Test
@@ -59,27 +64,20 @@ public class StorageReportControllerTest {
         Assert.assertEquals(list, mav.getModel().get("summaries"));
     }
 
-    
-    private void replay() {
-        EasyMock.replay(storageReportManager, storageSummaryCache);
-    }
-
     @Test
     public void testGetDetail() throws Exception{
-        StorageReport report = EasyMock.createMock("StorageReport" ,StorageReport.class);
+        StorageReport report = createMock(StorageReport.class);
+        EasyMock.expect(report.getReportId()).andReturn("reportspace/reportId");
         report.getStorageMetrics();
         List<StorageProviderMetrics> providerMetrics = new LinkedList<StorageProviderMetrics>();
         StorageMetrics sm = new StorageMetrics(providerMetrics, 0, 0, null);
         EasyMock.expectLastCall().andReturn(sm);
         EasyMock.expect(storageReportManager.getStorageReport(EasyMock.isA(String.class))).andReturn(report);
-        EasyMock.replay(report);
         replay();
         controller = new StorageReportController(storageReportManager, storageSummaryCache);
         ModelAndView mav = controller.getDetail("test","test");
         Assert.assertTrue(mav.getModel().containsKey("metrics"));
         Assert.assertTrue(mav.getModel().containsKey("reportId"));
-
-        EasyMock.verify(report);
     }
 
 }

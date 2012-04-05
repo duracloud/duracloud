@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.StoreCaller;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ExtendedIteratorCounterThread;
 import org.duracloud.common.util.IOUtil;
@@ -29,12 +30,23 @@ import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.duradmin.util.PropertiesUtils;
+import org.duracloud.duradmin.util.ServiceUtil;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.execdata.bitintegrity.BitIntegrityResults;
 import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
 import org.duracloud.execdata.bitintegrity.StoreBitIntegrityResults;
 import org.duracloud.execdata.bitintegrity.serialize.BitIntegrityResultsSerializer;
+import org.duracloud.execdata.mediastreaming.MediaStreamingConstants;
+import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.serviceapi.error.NotFoundException;
+import org.duracloud.serviceapi.error.ServicesException;
+import org.duracloud.serviceconfig.Deployment;
+import org.duracloud.serviceconfig.ServiceInfo;
+import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
+import org.duracloud.serviceconfig.user.Option;
+import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -55,6 +67,7 @@ public class SpaceController extends  AbstractRestController<Space> {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	private ContentStoreManager contentStoreManager;
+	private ServicesManager servicesManager;
 	
 	public SpaceController(){
 		super(null);
@@ -148,11 +161,24 @@ public class SpaceController extends  AbstractRestController<Space> {
     }
 
     private void populateStreamEnabled(Space space) {
-        //TODO add duraboss call here
         boolean enabled = false;
-        //enabled = this.durabossClient.isStreamEnabled(space.getStoreId(),space.getSpaceId());
+        try {
+            ServiceInfo info =
+                ServiceUtil.findMediaStreamingService(this.servicesManager);
+            enabled =
+                ServiceUtil.isMediaStreamingServiceEnabled(info,
+                                                           space.getSpaceId());
+        }catch(NotFoundException e){
+            enabled = false;
+        }catch (ServicesException e) {
+            throw new DuraCloudRuntimeException(e);
+        }
+
         space.setStreamingEnabled(enabled);
+
     }
+    
+
 
     private void populateSpace(Space space,
                                org.duracloud.domain.Space cloudSpace,
@@ -283,6 +309,14 @@ public class SpaceController extends  AbstractRestController<Space> {
 	protected ContentStore getContentStore(Space space) throws ContentStoreException{
 		return contentStoreManager.getContentStore(space.getStoreId());
 	}
+
+    public ServicesManager getServicesManager() {
+        return servicesManager;
+    }
+
+    public void setServicesManager(ServicesManager servicesManager) {
+        this.servicesManager = servicesManager;
+    }
 
 
 }

@@ -244,6 +244,12 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>executorclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>executordata</artifactId>
       <version>${project.version}</version>
     </dependency>

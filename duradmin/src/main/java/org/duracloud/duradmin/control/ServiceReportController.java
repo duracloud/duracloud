@@ -42,11 +42,12 @@ public class ServiceReportController {
     private ContentStoreManager contentStoreManager;
 
     @Autowired
-    public ServiceReportController(ServiceReportManager serviceReportManager, 
-                                   @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
+    public ServiceReportController(
+        ServiceReportManager serviceReportManager,
+        @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
         this.serviceReportManager = serviceReportManager;
-        this.serviceReportManager.login(new RootUserCredential());
         this.contentStoreManager = contentStoreManager;
+        this.serviceReportManager.login(new RootUserCredential());
     }
 
     @RequestMapping("/servicesreport/deployed")

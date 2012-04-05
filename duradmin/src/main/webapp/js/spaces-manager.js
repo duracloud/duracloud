@@ -1056,6 +1056,10 @@ $(function(){
                                 if(showDetail){
                                     that._displaySpace(space,params);
                                 }
+                            }).fail(function(){
+                                if(retrieveSpace.status == 404){
+                                    alert(params.spaceId + " does not exist.");
+                                }                                
                             });
             
             return $.when(that.loadSpaces(params),retrieveSpace)
@@ -1081,7 +1085,7 @@ $(function(){
                     dc.store.GetContentItem(params.storeId,params.spaceId, params.contentId,{
                         failure: function(text, xhr){
                             if(xhr.status == 404){
-                                alert(contentId + " does not exist.");
+                                alert(params.contentId + " does not exist.");
                             }else{
                                 dc.displayErrorDialog(xhr, text, text);
                             }
@@ -1991,69 +1995,7 @@ $(function(){
                    "addRemove", 
                    callback));     
        },
-
-       
-       _findStreamingService: function(services){
-           var streamingService = null;
-           $.each(services, function(i, service){
-               if(service.contentId.indexOf('mediastreamingservice') > -1){
-                   streamingService = service;
-                   return false;
-               }
-           });
-           return streamingService;
-       },
-       
-       _isMediaSourceMatchingContentSpaceId: function(service, spaceId){
-           var sourceMediaSpace = false;
-           $.each(service.deployments, function(j,deployment){
-               var modeSets = deployment.userConfigModeSets;
-               $.each( deployment.userConfigModeSets, function(k, modes){
-                   var modes = modeSets[k].modes;
-                   $.each(modes, function(p, mode){
-                       $.each(mode.userConfigs, function(m,uc){
-                           if(uc.name == "mediaSourceSpaceId" && uc.displayValue.indexOf(spaceId) != -1){
-                               sourceMediaSpace = true;
-                               //return false breaks out of the loop.
-                               return false;
-                           }
-                       });
-                   });
-               });
-           });
-           
-           return sourceMediaSpace;
-       },
-
-       _getStreamingEnabled: function(spaceId){
-           var that = this;
-           var deferred = $.Deferred();
-           var enabled = false;
-           
-           dc.service.GetDeployedServices({
-               success: function(data){
-                   var streamingService = that._findStreamingService(data.services);
-                   if(streamingService != null){
-                       enabled = 
-                               that._isMediaSourceMatchingContentSpaceId(
-                                       streamingService, 
-                                       spaceId);
-                       
-                   }
-
-                   deferred.resolve({streamingEnabled: enabled, service: streamingService});
-
-               },
-               failure: function(text){
-                   alert("failed to resolve streaming status for this space: "+
-                           "deployed services could not be retrieved: " + text);
-                   deferred.reject();
-               },
-           });
-           
-           return deferred;
-       },
-    }));
+     }));
 
     
     $.widget("ui.basemultidetailpane", $.extend({}, $.ui.basedetailpane.prototype, {
@@ -2574,9 +2516,12 @@ $(function(){
 
             var propertiesDiv = this._loadProperties(spaceProps);
 
-            dc.reportOverlayOnClick(
-                    $("#report-viewer", propertiesDiv), 
-                    reportContentId);
+            if(bitIntegrityResult){
+                dc.reportOverlayOnClick(
+                        $("#report-viewer", propertiesDiv), 
+                        bitIntegrityResult.reportContentId);
+                
+            }
             
             if(space.itemCount == null || space.itemCount < 0){
                 //attach poller if itemCount is null or -1
@@ -3070,10 +3015,10 @@ $(function(){
 
             this._appendToCenter(div);
 
-            $.when(this._getStreamingEnabled(contentItem.spaceId))
+            $.when(dc.service.GetStreamingStatus(contentItem.storeId, contentItem.spaceId))
              .done(function(result){
                 if(result.streamingEnabled){
-                    that._writeMediaTag(result.service, contentItem);
+                    that._writeMediaTag(result.streamingHost, contentItem);
                 }else{
                     viewer.html("<p>No streaming service is running against this space." + 
                     "Please reconfigure the streaming service to use this space as the source.</p>");
@@ -3083,34 +3028,18 @@ $(function(){
              });
         },
 
-        _writeMediaTag: function(service, contentItem){
-            dc.service.GetServiceDeploymentConfig(service, service.deployments[0],{
-                success: function(data) {
-                    var streamingHost = null;
-                    $.each(data.properties, function(k,prop){
-                        if(prop.name == 'Streaming Host for ' + contentItem.spaceId){
-                            streamingHost = prop.value;
-                            setTimeout(function(){
-                                //async necessary to let the DOM update itself so that the mediaspace dom element is present.
-                                var so = new SWFObject('/duradmin/jwplayer/player.swf','ply','350','216','9','#ffffff');
-                                so.addParam('allowfullscreen','true');
-                                so.addParam('allowscriptaccess','always');
-                                so.addParam('wmode','opaque');
-                                so.addVariable('skin','/duradmin/jwplayer/stylish.swf');
-                                so.addVariable('file', contentItem.contentId);
-                                so.addVariable('streamer', 'rtmp://' +streamingHost+ '/cfx/st');
-                                so.write('mediaspace');
-                            },1000);
-                            return false;
-                        }
-                    });
-                },
-                
-                failure: function(text){
-                    alert("failed to get deployment config for " + streamingService.serviceId + " deployed on " + deployment.hostname + ": " + text);
-                },
-                
-            });
+        _writeMediaTag: function(streamingHost, contentItem){
+            setTimeout(function(){
+                //async necessary to let the DOM update itself so that the mediaspace dom element is present.
+                var so = new SWFObject('/duradmin/jwplayer/player.swf','ply','350','216','9','#ffffff');
+                so.addParam('allowfullscreen','true');
+                so.addParam('allowscriptaccess','always');
+                so.addParam('wmode','opaque');
+                so.addVariable('skin','/duradmin/jwplayer/stylish.swf');
+                so.addVariable('file', contentItem.contentId);
+                so.addVariable('streamer', 'rtmp://' +streamingHost+ '/cfx/st');
+                so.write('mediaspace');
+            },1000);
         },
         
         _createHTML5MediaTag: function(contentItem,type){

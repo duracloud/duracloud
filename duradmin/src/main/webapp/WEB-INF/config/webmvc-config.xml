@@ -71,6 +71,8 @@
   </bean>
   <bean id="spaceController" class="org.duracloud.duradmin.spaces.controller.SpaceController">
     <property name="contentStoreManager" ref="contentStoreManager" />
+    <property name="servicesManager" ref="servicesManager" />
+
   </bean>
   <bean id="contentItemDownloadController" class="org.duracloud.duradmin.control.ContentItemDownloadController">
     <constructor-arg ref="controllerSupport" />

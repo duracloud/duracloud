@@ -103,16 +103,33 @@ $(function(){
 			},false);
 		};
 		
+		var MEDIA_STREAMER_URL = APP_CONTEXT+"/services/mediastreamer";
+
 		dc.service.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
-		    return $.ajax({
-		        url: APP_CONTEXT+"/services/mediastreamer?storeId="+storeId+"&spaceId="
+		    var jqxhr = $.ajax({
+		        url: MEDIA_STREAMER_URL +"?storeId="+storeId+"&spaceId="
 		                        + encodeURIComponent(spaceId) 
 		                        + "&enable=" + enable,
 		        type: "post",
 		        cache: false,
+		    }).fail(function(){
+                dc.displayErrorDialog(jqxhr);  
 		    });
+		    return jqxhr;
 		};
 		
+		dc.service.GetStreamingStatus = function (storeId, spaceId){
+		    var jqxhr =  $.ajax({
+                url: MEDIA_STREAMER_URL + "?storeId="+storeId+"&spaceId="
+                                + encodeURIComponent(spaceId), 
+                type: "get",
+                cache: false,
+            }).fail(function(){
+	            dc.displayErrorDialog(jqxhr);  
+	        });
+		    return jqxhr;
+		};
+
 	})();
 });
 
