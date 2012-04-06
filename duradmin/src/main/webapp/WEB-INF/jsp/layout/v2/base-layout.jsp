@@ -2,20 +2,21 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <div id="page-header" class="outer">
 	<div id="left" class="float-l">
-		<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a><span id="dc-app-title"></span></div>
+		<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a></div>
 		<div id="dc-tabs-panel">
 		    <ul class="horizontal-list dc-main-tabs flex clearfix">
 		    	<tiles:importAttribute name="mainTab" />
+                <sec:authorize ifAnyGranted="ROLE_ROOT">
 		        <li id="dashboard-tab" class="${mainTab == 'dashboard' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/dashboard"><span>Dashboard</span></a></li>
-		        <li id="spaces-tab" class="${mainTab == 'spaces' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/spaces"><span>Spaces</span></a></li>
+                </sec:authorize>
+
+                <sec:authorize ifAnyGranted="ROLE_ADMIN,ROLE_ROOT">
+    	        <li id="spaces-tab" class="${mainTab == 'spaces' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/spaces"><span>Spaces</span></a></li>
+                </sec:authorize>
                 <sec:authorize ifAnyGranted="ROLE_ADMIN">
                     <li id="services-tab" class="${mainTab == 'services' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/services"><span>Services</span></a></li>
 		            <li class="${mainTab == 'admin' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/admin"><span>Administration</span></a></li>
                 </sec:authorize>
-		        <!-- 
-		        <li class="${mainTab == 'reports' ? 'selected':'' }"><a href="javascript:void(1); alert('Reports click')"><span>Reports</span></a></li>
-		     	-->
-		        
 		    </ul>
 		</div>
 	</div>	

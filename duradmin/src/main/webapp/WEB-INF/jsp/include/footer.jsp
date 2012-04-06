@@ -7,10 +7,11 @@ Duracloud Administrator Release v${project.version} ${prefix.revision}${prefix.s
              type="org.duracloud.duradmin.config.DuradminConfig"
              scope="session"/>
 
-<a target="_blank" href="http://www.duraspace.org">DuraSpace.org</a>  <span class="sep">|</span>
-<a target="_blank" href="http://www.duracloud.org">Duracloud.org</a>  <span class="sep">|</span>
+<a target="_blank" href="http://www.duracloud.org">DuraCloud</a>  <span class="sep">|</span>
+<a target="_blank" href="http://www.duraspace.org">DuraSpace</a>  <span class="sep">|</span>
+
 <c:if test="${!empty duradminConfig.amaUrl && duradminConfig.amaUrl != 'null'}">
     <a target="_blank" href="${duradminConfig.amaUrl}">Management Console</a>  <span class="sep">|</span>
 </c:if>
-<a target="_blank" href="http://duracloud.kayako.com">Help Desk</a> <span class="sep">|</span>
+<a target="_blank" href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Help+Center">Help Center</a> <span class="sep">|</span>
 <a target="_blank" href="mailto:info@duracloud.org">Contact Us</a>
