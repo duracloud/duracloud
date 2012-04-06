@@ -68,9 +68,16 @@ public class SpaceController extends  AbstractRestController<Space> {
 
 	private ContentStoreManager contentStoreManager;
 	private ServicesManager servicesManager;
+
+    private String bitIntegrityResultsContentId;
+
+    private String adminSpaceId;
 	
-	public SpaceController(){
+	public SpaceController(String adminSpaceId, String bitIntegrityResultsContentId){
 		super(null);
+		this.adminSpaceId = adminSpaceId;
+		this.bitIntegrityResultsContentId = bitIntegrityResultsContentId;
+		
 		setValidator(new Validator(){
 			@SuppressWarnings("unchecked")
 			@Override
@@ -136,7 +143,9 @@ public class SpaceController extends  AbstractRestController<Space> {
             String storeId = space.getStoreId();
             String spaceId = space.getSpaceId();
             ContentStore contentStore = this.contentStoreManager.getPrimaryContentStore();
-            Content content = contentStore.getContent("x-duracloud-admin", "bit-integrity-results.json");
+            Content content =
+                contentStore.getContent(this.adminSpaceId,
+                                        this.bitIntegrityResultsContentId);
             InputStream is = content.getStream();
             BitIntegrityResultsSerializer serializer = new BitIntegrityResultsSerializer();
             String json = IOUtil.readStringFromStream(is);

@@ -68,7 +68,7 @@ public class ServiceUtil {
                 List<Option> spaceOptions =
                     ((MultiSelectUserConfig) config).getOptions();
                 for (Option option : spaceOptions) {
-                    if (option.getValue().equals(spaceId)) {
+                    if (option.getValue().equals(spaceId) && option.isSelected()) {
                         return true;
                     }
                 }

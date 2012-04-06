@@ -2459,7 +2459,7 @@ $(function(){
                                 initialState: space.streamingEnabled ? "on" : "off"
                                             , onStateClass: "on left"
                                             , onIconClass: "checkbox"
-                                            , offStateClass: "off right"
+                                            , offStateClass: "right"
                                             , offIconClass: "x"
                                             , onText: "On"
                                             , offText: "Off"

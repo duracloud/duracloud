@@ -8,7 +8,7 @@
 package org.duracloud.duradmin.exec;
 
 import org.duracloud.client.exec.ExecutorImpl;
-import org.duracloud.common.model.SystemUserCredential;
+import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.duradmin.config.DuradminConfig;
 
 /**
@@ -22,7 +22,7 @@ public class DuradminExecutorImpl extends ExecutorImpl {
         super(DuradminConfig.getDuraBossHost(),
               DuradminConfig.getDuraBossPort(),
               DuradminConfig.getDuraBossContext(),
-              new SystemUserCredential());
+              new RootUserCredential());
     }
     
 }

@@ -32,21 +32,20 @@ public class PartnerLogoController implements Controller{
     protected final Logger log = 
         LoggerFactory.getLogger(PartnerLogoController.class);
 
-	private ContentStoreManager contentStoreManager;
-	
-    public ContentStoreManager getContentStoreManager() {
-		return contentStoreManager;
-	}
+    private ContentStoreManager contentStoreManager;
 
-	public void setContentStoreManager(ContentStoreManager contentStoreManager) {
-		this.contentStoreManager = contentStoreManager;
-	}
+    private String adminSpaceId;
 
+    public PartnerLogoController(ContentStoreManager contentStoreManager, String adminSpaceId){
+        this.contentStoreManager = contentStoreManager;
+        this.adminSpaceId = adminSpaceId;
+    }
+    
 	@Override
 	public ModelAndView handleRequest(HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		try{
-			SpaceUtil.streamContent( contentStoreManager.getPrimaryContentStore(), response,"x-duracloud-admin", "logo");
+			SpaceUtil.streamContent( contentStoreManager.getPrimaryContentStore(), response,this.adminSpaceId, "logo");
 		}catch(Exception ex){
 			ServletContext sc = request.getSession().getServletContext();
 			InputStream is =  sc.getResourceAsStream("/images/partner_logo_placeholder.png");

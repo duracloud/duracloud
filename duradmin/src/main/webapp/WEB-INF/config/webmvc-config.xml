@@ -53,7 +53,8 @@
   <!-- Request Controllers - processes request -->
   <bean id="loginController" class="org.duracloud.duradmin.control.LoginController" />
   <bean id="partnerLogoController" class="org.duracloud.duradmin.spaces.controller.PartnerLogoController">
-    <property name="contentStoreManager" ref="contentStoreManager" />
+    <constructor-arg ref="contentStoreManager" />
+    <constructor-arg ref="adminSpaceId" />
   </bean>
 
   <bean id="bulkUploadController" class="org.duracloud.duradmin.spaces.controller.BulkUploadController">
@@ -70,10 +71,21 @@
     <property name="servicesManager" ref="servicesManager" />
   </bean>
   <bean id="spaceController" class="org.duracloud.duradmin.spaces.controller.SpaceController">
+    <constructor-arg ref="adminSpaceId"/>
+    <constructor-arg ref="bitIntegrityResultsContentId"/>
     <property name="contentStoreManager" ref="contentStoreManager" />
     <property name="servicesManager" ref="servicesManager" />
-
   </bean>
+
+  <bean id="adminSpaceId" class="java.lang.String">
+    <constructor-arg value="x-duracloud-admin"/>
+  </bean>
+
+  <bean id="bitIntegrityResultsContentId" class="java.lang.String">
+    <constructor-arg value="bit-integrity-results.json"/>
+  </bean>
+
+
   <bean id="contentItemDownloadController" class="org.duracloud.duradmin.control.ContentItemDownloadController">
     <constructor-arg ref="controllerSupport" />
   </bean>
