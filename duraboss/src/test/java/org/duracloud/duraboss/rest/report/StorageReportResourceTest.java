@@ -8,7 +8,6 @@
 package org.duracloud.duraboss.rest.report;
 
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.duraboss.rest.report.StorageReportResource;
 import org.duracloud.reporter.storage.StorageReportBuilder;
 import org.duracloud.reporter.storage.StorageReportHandler;
 import org.duracloud.reporter.storage.StorageReportScheduler;

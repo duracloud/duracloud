@@ -8,6 +8,7 @@
 package org.duracloud.duraboss.rest.report;
 
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.util.CalendarUtil;
 import org.duracloud.reporter.error.InvalidScheduleException;
 import org.duracloud.reporter.storage.StorageReportBuilder;
 import org.duracloud.reporter.storage.StorageReportHandler;
@@ -19,8 +20,9 @@ import org.duracloud.reportdata.storage.serialize.StorageReportInfoSerializer;
 import org.duracloud.reportdata.storage.serialize.StorageReportListSerializer;
 
 import java.io.InputStream;
-import java.util.Calendar;
 import java.util.Date;
+
+import static org.duracloud.common.util.CalendarUtil.DAY_OF_WEEK.SAT;
 
 /**
  * First line of business logic to handle the requests coming in via the
@@ -37,7 +39,6 @@ public class StorageReportResource {
     private StorageReportBuilder reportBuilder;
     private StorageReportHandler reportHandler;
     private StorageReportScheduler reportScheduler;
-    private static final long ONE_WEEK_MILLIS = 604800000L;
 
     public StorageReportResource(String reportPrefix, String errorLogName) {
         this.reportPrefix = reportPrefix;
@@ -61,26 +62,13 @@ public class StorageReportResource {
 
         // adds default report schedule: weekly at 1 AM on Saturday
         scheduleStorageReport(getDefaultScheduleStartDate().getTime(),
-                              ONE_WEEK_MILLIS);
+                              CalendarUtil.ONE_WEEK_MILLIS);
         // start a report now
         startStorageReport();
     }
 
     protected Date getDefaultScheduleStartDate() {
-        Calendar date = Calendar.getInstance();
-        date.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-        date.set(Calendar.HOUR, 1);
-        date.set(Calendar.AM_PM, Calendar.AM);
-        date.set(Calendar.MINUTE, 0);
-        date.set(Calendar.SECOND, 0);
-        date.set(Calendar.MILLISECOND, 0);
-
-        Calendar now = Calendar.getInstance();
-        while(date.before(now)) {
-            date.add(Calendar.WEEK_OF_YEAR, 1);
-        }
-
-        return date.getTime();
+        return new CalendarUtil().getDateAtOneAmNext(SAT);
     }
 
     /**

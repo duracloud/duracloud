@@ -274,8 +274,10 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         try {
             return filesClient.containerExists(containerName);
         } catch (IOException e) {
+            log.warn(e.getClass() + ", msg: " + e.getMessage());
             return false;
         } catch (HttpException e) {
+            log.warn(e.getClass() + ", msg: " + e.getMessage());
             return false;
         }
     }
