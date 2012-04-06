@@ -7,10 +7,7 @@
  */
 package org.duracloud.duradmin.util;
 
-import java.util.List;
-import java.util.Map;
-
-import org.duracloud.execdata.mediastreaming.MediaStreamingConstants;
+import org.duracloud.execdata.ExecConstants;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
@@ -20,6 +17,9 @@ import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -49,7 +49,7 @@ public class ServiceUtil {
             throws ServicesException,
                 NotFoundException {
         return findDeployedServiceByName(servicesManager,
-                                         MediaStreamingConstants.MEDIA_STREAMER_NAME);
+                                         ExecConstants.MEDIA_STREAMER_NAME);
     }
 
     public static boolean isMediaStreamingServiceEnabled(ServiceInfo info,
@@ -63,7 +63,7 @@ public class ServiceUtil {
                 deployment.getUserConfigModeSets();
             UserConfig config =
                 userConfig.get(0).getModes().get(0).getUserConfigs().get(0);
-            if (MediaStreamingConstants.SOURCE_SPACE_ID.equals(config.getName())
+            if (ExecConstants.SOURCE_SPACE_ID.equals(config.getName())
                 && config instanceof MultiSelectUserConfig) {
                 List<Option> spaceOptions =
                     ((MultiSelectUserConfig) config).getOptions();

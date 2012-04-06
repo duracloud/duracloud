@@ -9,6 +9,7 @@ package org.duracloud.exec;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.exec.error.InvalidActionRequestException;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceapi.ServicesManager;
 
 import java.util.Set;
@@ -28,9 +29,11 @@ public interface ServiceHandler {
      *
      * @param storeMgr storage manager
      * @param servicesMgr services manager
+     * @param manifestGenerator manifest generator
      */
     public void initialize(ContentStoreManager storeMgr,
-                           ServicesManager servicesMgr);
+                           ServicesManager servicesMgr,
+                           ManifestGenerator manifestGenerator);
 
     /**
      * Retrieves the name of the handler.

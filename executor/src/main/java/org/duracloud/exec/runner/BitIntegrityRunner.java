@@ -13,20 +13,26 @@ import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.exec.error.ManifestException;
 import org.duracloud.exec.handler.BitIntegrityHandler;
 import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
+import org.duracloud.manifest.ManifestGenerator;
+import org.duracloud.manifest.error.ManifestArgumentException;
+import org.duracloud.manifest.error.ManifestEmptyException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
+import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.services.ComputeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,25 +44,32 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Does the actual work of running bit integrity checks over spaces.
+ *
  * @author: Bill Branan
  * Date: 3/8/12
  */
 public class BitIntegrityRunner implements Runnable {
 
-    public static final String MODE_NAME = "generate-for-space";
-    public static final String HASH_APPROACH_FILES = "generated";
-    public static final String HASH_APPROACH_PROVIDER = "stored";
+    protected static final String GENERATE_MODE_NAME = "generate-for-space";
+    protected static final String COMPARE_MODE_NAME = "compare";
+    protected static final String HASH_APPROACH_FILES = "generated";
+    protected static final String HASH_APPROACH_PROVIDER = "stored";
 
     protected static final String HANDLER_STATE_FILE =
         "bit-integrity-handler-state.xml";
     protected static final String STATE_STORE_ID = "store-id";
     protected static final String STATE_SPACE_ID = "space-id";
+    protected static final String MANIFEST_CONTENT_ID = "manifest.tsv";
+    protected static final String RESULT_SPACE_ID = "x-service-out";
+    protected static final String RESULT_PREFIX = "bit-integrity";
 
     private final Logger log =
         LoggerFactory.getLogger(BitIntegrityRunner.class);
 
     private ContentStoreManager storeMgr;
     private ServicesManager servicesMgr;
+    private ManifestGenerator manifestGenerator;
     private ServiceInfo service;
     private BitIntegrityHandler handler;
 
@@ -65,10 +78,12 @@ public class BitIntegrityRunner implements Runnable {
 
     public BitIntegrityRunner(ContentStoreManager storeMgr,
                               ServicesManager servicesMgr,
+                              ManifestGenerator manifestGenerator,
                               ServiceInfo service,
                               BitIntegrityHandler handler) {
         this.storeMgr = storeMgr;
         this.servicesMgr = servicesMgr;
+        this.manifestGenerator = manifestGenerator;
         this.service = service;
         this.handler = handler;
         this.status = "Bit Integrity: Idle";
@@ -245,15 +260,10 @@ public class BitIntegrityRunner implements Runnable {
                 try {
                     runBitIntegrityOnSpace(store, download, spaceId);
                      ++spacesChecked;
-                } catch(NotFoundException e) {
+                } catch(Exception e) {
                     setError("Unable to complete bit integrity check on " +
                              "space " + spaceId + "due to a " +
-                             "NotFoundException: " + e.getMessage(), e);
-                    failureList.add(spaceId);
-                } catch(ServicesException e) {
-                    setError("Unable to complete bit integrity check on " +
-                             "space " + spaceId + "due to a " +
-                             "ServicesException: " + e.getMessage(), e);
+                             e.getClass().getName() + ": " + e.getMessage(), e);
                     failureList.add(spaceId);
                 }
 
@@ -268,7 +278,7 @@ public class BitIntegrityRunner implements Runnable {
     private void runBitIntegrityOnSpace(ContentStore store,
                                         boolean download,
                                         String spaceId)
-        throws ServicesException, NotFoundException {
+        throws ServicesException, NotFoundException, ManifestException {
         // Deploy bit integrity check service
         String storeId = store.getStoreId();
         int deploymentId = runIntegrityCheck(storeId, spaceId, download);
@@ -280,26 +290,51 @@ public class BitIntegrityRunner implements Runnable {
 
         // Get the bit integrity report
         Map<String, String> props = getServiceProps(deploymentId);
-        String reportId = getReportId(props);
+        String reportPath = getReportId(props);
+        String reportContentId = getReportContentId(reportPath);
 
-        // TODO: Compare result file to space manifest
-        log.error("Should be comparing report file " + reportId +
-                  " to space manifest.");
-        // TODO: Notify on comparison mismatch
+        // Undeploy bit integrity tools (after bit integrity run)
+        servicesMgr.undeployService(service.getId(), deploymentId);
 
-        // TODO: Use result of manifest comparison here
-        boolean serviceSuccess = isServiceSuccessful(props);
+        boolean success = true;
+        if(isServiceSuccessful(props)) { // Verify successful to continue
+            // Store the space manifest in DuraCloud
+            storeManifest(store, spaceId);
+
+            // Compare result file to space manifest
+            deploymentId = runManifestComparison(storeId,
+                                                 RESULT_SPACE_ID,
+                                                 reportContentId,
+                                                 MANIFEST_CONTENT_ID);
+
+            // Wait for comparison completion
+            while(!serviceComplete(deploymentId)) {
+                sleep(20000); // Wait a bit, then try again
+            }
+
+            // Get the manifest comparison report
+            Map<String, String> compareProps = getServiceProps(deploymentId);
+            String compareReportId = getReportId(props);
+
+            // Undeploy bit integrity tools (after comparison run)
+            servicesMgr.undeployService(service.getId(), deploymentId);
+
+            if(!isServiceSuccessful(compareProps)) {
+                success = false;
+                // TODO: Notify on comparison mismatch
+            }
+        } else {
+            success = false;
+            // TODO: Notify on comparison mismatch
+        }
 
         // Write to results file (for display)
         SpaceBitIntegrityResult result =
             new SpaceBitIntegrityResult(new Date(),
-                                        serviceSuccess ? "success" : "failure",
-                                        reportId,
-                                        serviceSuccess ? true : false);
+                                        success ? "success" : "failure",
+                                        reportPath,
+                                        success ? true : false);
         handler.storeResults(storeId, spaceId, result);
-
-        // Undeploy bit integrity service
-        servicesMgr.undeployService(service.getId(), deploymentId);
     }
 
     private List<String> getSpaces(ContentStore store) {
@@ -329,7 +364,7 @@ public class BitIntegrityRunner implements Runnable {
 
         // Set user config selections
         for(UserConfigMode mode : userConfigMode.getModes()) {
-            if(MODE_NAME.equals(mode.getName())) {
+            if(GENERATE_MODE_NAME.equals(mode.getName())) {
                 mode.setSelected(true);
 
                 // Set Hash approach
@@ -355,27 +390,7 @@ public class BitIntegrityRunner implements Runnable {
                         SingleSelectUserConfig spaceConfigs =
                             (SingleSelectUserConfig)storeMode
                                 .getUserConfigs().get(0);
-
-                        boolean optionFound = false;
-                        List<Option> spaceOptions = spaceConfigs.getOptions();
-                        for(Option spaceOption : spaceOptions) {
-                            if(spaceId.equals(spaceOption.getValue())) {
-                                optionFound = true;
-                                spaceOption.setSelected(true);
-                                break;
-                            }
-                        }
-                        if(!optionFound) { // Space not found as an option
-                            // Space must have been created after the service
-                            // was deployed. Add the space as a new option.
-                            Option newOption =
-                                new Option(spaceId, spaceId, true);
-                            List<Option> updatedOptions =
-                                new ArrayList<Option>();
-                            updatedOptions.addAll(spaceOptions);
-                            updatedOptions.add(newOption);
-                            spaceConfigs.setOptions(updatedOptions);
-                        }
+                        updateSpaceConfig(spaceConfigs, spaceId);
                     } else {
                         storeMode.setSelected(false);
                     }
@@ -391,6 +406,91 @@ public class BitIntegrityRunner implements Runnable {
                                          handler.getDeploymentHost(service),
                                          service.getUserConfigVersion(),
                                          userConfig);
+    }
+
+    private int runManifestComparison(String storeId,
+                                      String spaceId,
+                                      String reportContentId,
+                                      String manifestContentId)
+        throws NotFoundException, ServicesException {
+        // Get user config
+        List<UserConfigModeSet> userConfigOrig =
+            service.getUserConfigModeSets();
+        // Clone top level config, to ensure a clean config on each run
+        UserConfigModeSet userConfigMode;
+        try {
+            userConfigMode = userConfigOrig.get(0).clone();
+        } catch(CloneNotSupportedException e) {
+            throw new DuraCloudRuntimeException(e);
+        }
+
+        // Set user config selections
+        for(UserConfigMode mode : userConfigMode.getModes()) {
+            if(COMPARE_MODE_NAME.equals(mode.getName())) {
+                mode.setSelected(true);
+
+                // Set contentIds
+                TextUserConfig contentIdA =
+                    (TextUserConfig)mode.getUserConfigs().get(0);
+                contentIdA.setValue(reportContentId);
+                TextUserConfig contentIdB =
+                    (TextUserConfig)mode.getUserConfigs().get(1);
+                contentIdB.setValue(manifestContentId);
+
+                // Set store and space
+                for(UserConfigMode storeMode :
+                    mode.getUserConfigModeSets().get(0).getModes()) {
+                    if(storeId.equals(storeMode.getName())) {
+                        storeMode.setSelected(true);
+
+                        SingleSelectUserConfig spaceConfigsA =
+                            (SingleSelectUserConfig)storeMode
+                                .getUserConfigs().get(0);
+                        updateSpaceConfig(spaceConfigsA, spaceId);
+
+                        SingleSelectUserConfig spaceConfigsB =
+                            (SingleSelectUserConfig)storeMode
+                                .getUserConfigs().get(1);
+                        updateSpaceConfig(spaceConfigsB, spaceId);
+                    } else {
+                        storeMode.setSelected(false);
+                    }
+                }
+            }
+        }
+
+        List<UserConfigModeSet> userConfig = new ArrayList<UserConfigModeSet>();
+        userConfig.add(userConfigMode);
+
+        // Run service
+        return servicesMgr.deployService(service.getId(),
+                                         handler.getDeploymentHost(service),
+                                         service.getUserConfigVersion(),
+                                         userConfig);
+    }
+
+    private void updateSpaceConfig(SingleSelectUserConfig spaceConfigs,
+                                   String spaceId) {
+        boolean optionFound = false;
+        List<Option> spaceOptions = spaceConfigs.getOptions();
+        for(Option spaceOption : spaceOptions) {
+            if(spaceId.equals(spaceOption.getValue())) {
+                optionFound = true;
+                spaceOption.setSelected(true);
+                break;
+            }
+        }
+        if(!optionFound) { // Space not found as an option
+            // Space must have been created after the service
+            // was deployed. Add the space as a new option.
+            Option newOption =
+                new Option(spaceId, spaceId, true);
+            List<Option> updatedOptions =
+                new ArrayList<Option>();
+            updatedOptions.addAll(spaceOptions);
+            updatedOptions.add(newOption);
+            spaceConfigs.setOptions(updatedOptions);
+        }
     }
 
     private boolean serviceComplete(int deploymentId)
@@ -417,12 +517,64 @@ public class BitIntegrityRunner implements Runnable {
                                                    deploymentId);
     }
 
-    private String getReportId(Map<String, String> props) {
+    private String getReportId(Map<String, String> props)
+        throws ServicesException {
         String report = props.get(ComputeService.REPORT_KEY);
-        if(null == report) {
-            report = "";
+        if(null == report || report.equals("")) {
+            String err = "No bit integrity report file available.";
+            throw new ServicesException(err);
         }
         return report;
+    }
+
+    private String getReportContentId(String reportPath) {
+        int endIndex = reportPath.indexOf("?");
+        if(endIndex < 0) {
+            endIndex = reportPath.length();
+        }
+        return reportPath.substring(reportPath.indexOf(RESULT_PREFIX),
+                                    endIndex);
+    }
+
+    private void storeManifest(ContentStore store, String spaceId)
+        throws ManifestException {
+        try {
+            boolean success = false;
+            int attempts = 0;
+            while(!success && attempts < 5) {
+                InputStream stream = getManifest(store.getStoreId(), spaceId);
+                try {
+                    store.addContent(RESULT_SPACE_ID,
+                                     MANIFEST_CONTENT_ID,
+                                     stream,
+                                     stream.available(),
+                                     "text/tab-separated-values",
+                                     null,
+                                     null);
+                    success = true;
+                } catch(ContentStoreException e) {
+                    log.warn("Failed to store manifest file due to: " +
+                             e.getMessage());
+                }
+                ++attempts;
+            }
+            if(!success) {
+                String err = "Exceeded allowable attempts to store file";
+                throw new DuraCloudRuntimeException(err);
+            }
+        } catch(Exception e) {
+            String error = "Not able to store manifest file due to " +
+                           e.getClass().getName() + ": " + e.getMessage();
+            throw new ManifestException(error, e);
+        }
+    }
+
+    private InputStream getManifest(String storeId, String spaceId)
+        throws ManifestArgumentException, ManifestEmptyException {
+        return manifestGenerator.getManifest(storeId,
+                                             spaceId,
+                                             ManifestGenerator.FORMAT.TSV,
+                                             null);
     }
 
     private boolean isServiceSuccessful(Map<String, String> props) {

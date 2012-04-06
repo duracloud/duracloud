@@ -13,6 +13,7 @@ import org.duracloud.audit.LocalAuditor;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.client.ServicesManagerImpl;
+import org.duracloud.client.manifest.ManifestGeneratorImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
@@ -20,6 +21,7 @@ import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.manifest.LocalManifestGenerator;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.reporter.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.security.error.NoUserLoggedInException;
@@ -106,17 +108,22 @@ public class InitRest extends BaseRest {
 
         Credential credential = securityContextUtil.getCurrentUser();
 
+        String host = config.getDurastoreHost();
+        String port = config.getDurastorePort();
+
+        String context = config.getDurastoreContext();
         ContentStoreManager storeMgr =
-            new ContentStoreManagerImpl(config.getDurastoreHost(),
-                                        config.getDurastorePort(),
-                                        config.getDurastoreContext());
+            new ContentStoreManagerImpl(host, port, context);
         storeMgr.login(credential);
 
+        context = config.getDuraserviceContext();
         ServicesManager servicesMgr =
-            new ServicesManagerImpl(config.getDuraserviceHost(),
-                                    config.getDuraservicePort(),
-                                    config.getDuraserviceContext());
+            new ServicesManagerImpl(host, port, context);
         servicesMgr.login(credential);
+
+        context = config.getDurabossContext();
+        ManifestGenerator manifestClient =
+            new ManifestGeneratorImpl(host, port, context, credential);
 
         // Only initialize the Reporter if it is enabled
         if(config.isReporterEnabled()) {
@@ -135,7 +142,7 @@ public class InitRest extends BaseRest {
 
         // Only initialize the Executor if it is enabled
         if(config.isExecutorEnabled()) {
-            executor.initialize(storeMgr, servicesMgr);
+            executor.initialize(storeMgr, servicesMgr, manifestClient);
         }
 
         // Only initialize the Auditor if it is enabled

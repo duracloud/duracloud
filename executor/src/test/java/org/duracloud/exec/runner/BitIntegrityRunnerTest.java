@@ -8,12 +8,15 @@
 package org.duracloud.exec.runner;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.exec.handler.BitIntegrityHandler;
 import org.duracloud.exec.handler.HandlerTestBase;
 import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.user.Option;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
+import org.duracloud.serviceconfig.user.TextUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
@@ -24,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,7 +59,9 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
     private int depId2 = 12;
     private int depId3 = 13;
     private int depId4 = 14;
-    private String reportId = "report-id";
+    private String reportPath =
+        "x-service-out/bit-integrity/report-id?storeId=0";
+    private String reportContentId = "bit-integrity/report-id";
 
     @Before
     @Override
@@ -64,7 +70,11 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         service = EasyMock.createMock("ServiceInfo", ServiceInfo.class);
         handler = EasyMock.createMock("BitIntegrityHandler",
                                       BitIntegrityHandler.class);
-        runner = new BitIntegrityRunner(storeMgr, servicesMgr, service, handler);
+        runner = new BitIntegrityRunner(storeMgr,
+                                        servicesMgr,
+                                        manifestGenerator,
+                                        service,
+                                        handler);
     }
 
     @Override
@@ -84,7 +94,8 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
      * Tests the bit integrity runner using a single (primary) provider
      * with 2 spaces. Each space should be verified against both the
      * provider checksum and a generated checksum, meaning that the
-     * bit integrity service should be run 4 times.
+     * bit integrity service should be run 4 times in generation mode and
+     * another 4 times in comparison mode (after the manifest is retrieved).
      */
     @Test
     public void testRun() throws Exception {
@@ -115,32 +126,38 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
                            EasyMock.isA(Map.class));
         EasyMock.expectLastCall().times(4);
 
+        setUpStoreManifest(4);
+
         EasyMock.expect(service.getUserConfigModeSets())
-                .andReturn(createConfig()).times(4);
+                .andReturn(createConfig()).times(8);
 
         EasyMock.expect(service.getId())
                 .andReturn(serviceId).anyTimes();
 
         EasyMock.expect(handler.getDeploymentHost(service))
-                .andReturn(host).times(4);
+                .andReturn(host).times(8);
 
         EasyMock.expect(service.getUserConfigVersion())
-                .andReturn(configVersion).times(4);
+                .andReturn(configVersion).times(8);
 
         // Space 1 - generated checksum
         Capture<List<UserConfigModeSet>> configCapture1 = setUpDeploy(depId1);
+        Capture<List<UserConfigModeSet>> compCapture1 = setUpDeploy(depId1);
         Capture<SpaceBitIntegrityResult> resultCapture1 = setUpResult(space1);
 
         // Space 2 - generated checksum
         Capture<List<UserConfigModeSet>> configCapture2 = setUpDeploy(depId2);
+        Capture<List<UserConfigModeSet>> compCapture2 = setUpDeploy(depId2);
         Capture<SpaceBitIntegrityResult> resultCapture2 = setUpResult(space2);
 
         // Space 1 - files checksum
         Capture<List<UserConfigModeSet>> configCapture3 = setUpDeploy(depId3);
+        Capture<List<UserConfigModeSet>> compCapture3 = setUpDeploy(depId3);
         Capture<SpaceBitIntegrityResult> resultCapture3 = setUpResult(space1);
 
         // Space 2 - files checksum
         Capture<List<UserConfigModeSet>> configCapture4 = setUpDeploy(depId4);
+        Capture<List<UserConfigModeSet>> compCapture4 = setUpDeploy(depId4);
         Capture<SpaceBitIntegrityResult> resultCapture4 = setUpResult(space2);
 
         handler.clearState(BitIntegrityRunner.HANDLER_STATE_FILE);
@@ -163,10 +180,40 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
                             BitIntegrityRunner.HASH_APPROACH_PROVIDER,
                             space2);
 
+        verifyCompareCapture(compCapture1);
+        verifyCompareCapture(compCapture2);
+        verifyCompareCapture(compCapture3);
+        verifyCompareCapture(compCapture4);
+
         verifyResultCapture(resultCapture1);
         verifyResultCapture(resultCapture2);
         verifyResultCapture(resultCapture3);
         verifyResultCapture(resultCapture4);
+    }
+
+    private void setUpStoreManifest(int times) throws Exception {
+        InputStream manifest = IOUtil.writeStringToStream("manifest");
+        EasyMock.expect(
+            manifestGenerator.getManifest(EasyMock.eq(storeId),
+                                          EasyMock.<String>anyObject(),
+                                          EasyMock.eq(
+                                              ManifestGenerator.FORMAT.TSV),
+                                          EasyMock.<Date>isNull()))
+                .andReturn(manifest)
+                .times(times);
+
+        EasyMock.expect(
+            contentStore.addContent(EasyMock.eq(
+                                        BitIntegrityRunner.RESULT_SPACE_ID),
+                                    EasyMock.eq(
+                                        BitIntegrityRunner.MANIFEST_CONTENT_ID),
+                                    EasyMock.<InputStream>anyObject(),
+                                    EasyMock.anyInt(),
+                                    EasyMock.eq("text/tab-separated-values"),
+                                    EasyMock.<String>isNull(),
+                                    EasyMock.<Map<String,String>>isNull()))
+                .andReturn("")
+                .times(times);
     }
 
     private void verifyConfigCapture(Capture<List<UserConfigModeSet>> capture,
@@ -175,7 +222,7 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         throws Exception {
         List<UserConfigModeSet> modeSets = capture.getValue();
         UserConfigMode capMode = modeSets.get(0).getModes().get(0);
-        assertEquals(BitIntegrityRunner.MODE_NAME, capMode.getName());
+        assertEquals(BitIntegrityRunner.GENERATE_MODE_NAME, capMode.getName());
         assertTrue(capMode.isSelected());
 
         // Check hash approach setting
@@ -202,11 +249,47 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         }
     }
 
+    private void verifyCompareCapture(Capture<List<UserConfigModeSet>> capture)
+        throws Exception {
+        List<UserConfigModeSet> modeSets = capture.getValue();
+        UserConfigMode capMode = modeSets.get(0).getModes().get(1);
+        assertEquals(BitIntegrityRunner.COMPARE_MODE_NAME, capMode.getName());
+        assertTrue(capMode.isSelected());
+
+        // Check contentId setting
+        String manId = BitIntegrityRunner.MANIFEST_CONTENT_ID;
+        String contentIdA =
+            ((TextUserConfig)capMode.getUserConfigs().get(0)).getValue();
+        assertTrue(reportContentId.equals(contentIdA) ||
+                   manId.equals(contentIdA));
+        String contentIdB =
+            ((TextUserConfig)capMode.getUserConfigs().get(1)).getValue();
+        assertTrue(reportContentId.equals(contentIdB) ||
+                   manId.equals(contentIdB));
+
+        // Check space setting
+        List<UserConfig> spaceConfigs =
+            capMode.getUserConfigModeSets().get(0).getModes().get(0)
+                   .getUserConfigs();
+        // Space A
+        SingleSelectUserConfig targetSpaceIdA =
+            (SingleSelectUserConfig)spaceConfigs.get(0);
+        for(Option option : targetSpaceIdA.getOptions()) {
+            verifyOption(option, BitIntegrityRunner.RESULT_SPACE_ID);
+        }
+        // Space B
+        SingleSelectUserConfig targetSpaceIdB =
+            (SingleSelectUserConfig)spaceConfigs.get(1);
+        for(Option option : targetSpaceIdB.getOptions()) {
+            verifyOption(option, BitIntegrityRunner.RESULT_SPACE_ID);
+        }
+    }
+
     private void verifyResultCapture(Capture<SpaceBitIntegrityResult> capture) {
         SpaceBitIntegrityResult result = capture.getValue();
         assertNotNull(result);
         assertEquals("success", result.getResult());
-        assertEquals(reportId, result.getReportContentId());
+        assertEquals(reportPath, result.getReportContentId());
         long now = new Date().getTime();
         long resultTime = result.getCompletionDate().getTime();
         assertTrue(now >= resultTime);
@@ -214,7 +297,8 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         assertTrue(result.isDisplay());
     }
 
-    private Capture<List<UserConfigModeSet>> setUpDeploy(int depId) throws Exception {
+    private Capture<List<UserConfigModeSet>> setUpDeploy(int depId)
+        throws Exception {
         Capture<List<UserConfigModeSet>> configCapture =
             new Capture<List<UserConfigModeSet>>();
         EasyMock.expect(
@@ -227,7 +311,7 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         Map<String, String> depProps = new HashMap<String, String>();
         depProps.put(ComputeService.STATUS_KEY,
                      ComputeService.ServiceStatus.SUCCESS.name());
-        depProps.put(ComputeService.REPORT_KEY, reportId);
+        depProps.put(ComputeService.REPORT_KEY, reportPath);
         depProps.put(ComputeService.FAILURE_COUNT_KEY, "0");
         EasyMock.expect(servicesMgr.getDeployedServiceProps(serviceId, depId))
                 .andReturn(depProps).times(2);
@@ -252,8 +336,22 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         List<UserConfigModeSet> userConfig = new ArrayList<UserConfigModeSet>();
         UserConfigModeSet modeSet = new UserConfigModeSet();
         List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+
+        UserConfigMode generateMode = createGenerateConfigMode();
+        UserConfigMode compareMode = createCompareConfigMode();
+
+        modes.add(generateMode);
+        modes.add(compareMode);
+        modeSet.setModes(modes);
+        userConfig.add(modeSet);
+
+        return userConfig;
+    }
+
+    private UserConfigMode createGenerateConfigMode() {
+        // Generate Mode
         UserConfigMode mode = new UserConfigMode();
-        mode.setName(BitIntegrityRunner.MODE_NAME);
+        mode.setName(BitIntegrityRunner.GENERATE_MODE_NAME);
 
         // Hash Approach
         List<UserConfig> configs = new ArrayList<UserConfig>();
@@ -294,11 +392,58 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         storesModeSets.add(storesModeSet);
         mode.setUserConfigModeSets(storesModeSets);
 
-        modes.add(mode);
-        modeSet.setModes(modes);
-        userConfig.add(modeSet);
-
-        return userConfig;
+        return mode;
     }
+
+    private UserConfigMode createCompareConfigMode() {
+        // Generate Mode
+        UserConfigMode mode = new UserConfigMode();
+        mode.setName(BitIntegrityRunner.COMPARE_MODE_NAME);
+
+        // Content Ids
+        List<UserConfig> configs = new ArrayList<UserConfig>();
+        TextUserConfig contentA = new TextUserConfig("idA", "ID A");
+        TextUserConfig contentB = new TextUserConfig("idB", "ID B");
+        configs.add(contentA);
+        configs.add(contentB);
+        mode.setUserConfigs(configs);
+
+        // Stores and spaces
+        List<UserConfigModeSet> storesModeSets =
+            new ArrayList<UserConfigModeSet>();
+        UserConfigModeSet storesModeSet = new UserConfigModeSet();
+        List<UserConfigMode> storeModes = new ArrayList<UserConfigMode>();
+        UserConfigMode storeMode = new UserConfigMode();
+        storeMode.setName(storeId);
+
+        // Space A
+        List<Option> spaceOptionsA = new ArrayList<Option>();
+        Option adminSpaceOptionA =
+            new Option("", handler.HANDLER_STATE_SPACE, false);
+        spaceOptionsA.add(adminSpaceOptionA);
+        UserConfig spaceConfigA =
+            new SingleSelectUserConfig("spaceIdA", "", spaceOptionsA);
+        // Space B
+        List<Option> spaceOptionsB = new ArrayList<Option>();
+        Option adminSpaceOptionB =
+            new Option("", handler.HANDLER_STATE_SPACE, false);
+        spaceOptionsB.add(adminSpaceOptionB);
+        UserConfig spaceConfigB =
+            new SingleSelectUserConfig("spaceIdB", "", spaceOptionsB);
+
+        List<UserConfig> spaceConfigs = new ArrayList<UserConfig>();
+        spaceConfigs.add(spaceConfigA);
+        spaceConfigs.add(spaceConfigB);
+        storeMode.setUserConfigs(spaceConfigs);
+
+        // Putting it all together
+        storeModes.add(storeMode);
+        storesModeSet.setModes(storeModes);
+        storesModeSets.add(storesModeSet);
+        mode.setUserConfigModeSets(storesModeSets);
+
+        return mode;
+    }
+
 
 }

@@ -9,6 +9,8 @@ package org.duracloud.exec.handler;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.execdata.ExecConstants;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceapi.ServicesManager;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -18,10 +20,11 @@ import org.junit.Before;
  * @author: Bill Branan
  * Date: 3/15/12
  */
-public class HandlerTestBase {
+public class HandlerTestBase implements ExecConstants {
 
     protected ContentStoreManager storeMgr;
     protected ServicesManager servicesMgr;
+    protected ManifestGenerator manifestGenerator;
     protected ContentStore contentStore;
 
     @Before
@@ -30,6 +33,8 @@ public class HandlerTestBase {
             .createMock("ContentStoreManager", ContentStoreManager.class);
         servicesMgr = EasyMock.createMock("ServicesManager",
                                            ServicesManager.class);
+        manifestGenerator = EasyMock.createMock("ManifestGenerator",
+                                                ManifestGenerator.class);
         contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
 
         EasyMock.expect(storeMgr.getPrimaryContentStore())
@@ -43,12 +48,12 @@ public class HandlerTestBase {
     }
 
     protected void replayMocks() {
-        EasyMock.replay(storeMgr, servicesMgr, contentStore);
+        EasyMock.replay(storeMgr, servicesMgr, manifestGenerator, contentStore);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(storeMgr, servicesMgr, contentStore);
+        EasyMock.verify(storeMgr, servicesMgr, manifestGenerator, contentStore);
     }
 
 }

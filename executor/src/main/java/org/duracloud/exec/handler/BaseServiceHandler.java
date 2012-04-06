@@ -17,6 +17,8 @@ import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.exec.ServiceHandler;
 import org.duracloud.exec.error.InvalidActionRequestException;
+import org.duracloud.execdata.ExecConstants;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
@@ -26,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,16 +38,15 @@ import java.util.Set;
  * @author: Bill Branan
  * Date: 3/2/12
  */
-public abstract class BaseServiceHandler implements ServiceHandler {
+public abstract class BaseServiceHandler
+    implements ServiceHandler, ExecConstants {
 
     private final Logger log =
         LoggerFactory.getLogger(BaseServiceHandler.class);
 
-    protected static final String HANDLER_STATE_SPACE = "x-duracloud-admin";
-    public static final String ERROR_PREFIX = "Error: ";
-
     protected ContentStoreManager storeMgr;
     protected ServicesManager servicesMgr;
+    protected ManifestGenerator manifestGenerator;
 
     protected Set<String> supportedActions;
 
@@ -58,9 +58,11 @@ public abstract class BaseServiceHandler implements ServiceHandler {
 
     @Override
     public void initialize(ContentStoreManager storeMgr,
-                           ServicesManager servicesMgr) {
+                           ServicesManager servicesMgr,
+                           ManifestGenerator manifestGenerator) {
         this.storeMgr = storeMgr;
         this.servicesMgr = servicesMgr;
+        this.manifestGenerator = manifestGenerator;
 
         verifyStateSpaceExists();
     }
@@ -210,26 +212,41 @@ public abstract class BaseServiceHandler implements ServiceHandler {
      */
     public void storeState(String stateFileName, Map<String, String> state) {
         String xml = SerializationUtil.serializeMap(state);
-        InputStream stream;
-        try {
-            stream = IOUtil.writeStringToStream(xml);
-        } catch(IOException e) {
-            String error = "Unable to write state to file: " + stateFileName +
-                           " due to IOException: " + e.getMessage();
-            throw new DuraCloudRuntimeException(error);
-        }
+        storeFile(stateFileName, xml, "text/xml");
+    }
 
+    protected void storeFile(String contentId, String value, String mimetype) {
         ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
-        String checksum = checksumUtil.generateChecksum(xml);
+        String checksum = checksumUtil.generateChecksum(value);
 
         try {
             ContentStore store = storeMgr.getPrimaryContentStore();
-            store.addContent(HANDLER_STATE_SPACE, stateFileName, stream,
-                             xml.getBytes().length, "text/xml", checksum, null);
-        } catch(ContentStoreException e) {
-            String error = "Unable to write state file: " + stateFileName +
-                           " due to ContentStoreException: " + e.getMessage();
-            throw new DuraCloudRuntimeException(error);
+            boolean success = false;
+            int attempts = 0;
+            while(!success && attempts < 5) {
+                try {
+                    store.addContent(HANDLER_STATE_SPACE,
+                                     contentId,
+                                     IOUtil.writeStringToStream(value),
+                                     value.length(),
+                                     mimetype,
+                                     checksum,
+                                     null);
+                    success = true;
+                } catch(ContentStoreException e) {
+                    log.warn("Failed to store file due to: " +
+                             e.getMessage());
+                }
+                ++attempts;
+            }
+            if(!success) {
+                String err = "Exceeded allowable attempts to store file";
+                throw new DuraCloudRuntimeException(err);
+            }
+        } catch(Exception e) {
+            String error = "Not able to store file " + contentId + " due to " +
+                           e.getClass().getName() + ": " + e.getMessage();
+            throw new DuraCloudRuntimeException(error, e);
         }
     }
 

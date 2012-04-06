@@ -62,7 +62,7 @@ public class BitIntegrityHandlerTest extends HandlerTestBase {
         super.replayMocks();
         EasyMock.replay(runner);
 
-        handler.initialize(storeMgr, servicesMgr);
+        handler.initialize(storeMgr, servicesMgr, manifestGenerator);
     }
 
     @After
@@ -212,7 +212,7 @@ public class BitIntegrityHandlerTest extends HandlerTestBase {
             EasyMock.isA(InputStream.class),
             EasyMock.anyInt(),
             EasyMock.eq(BitIntegrityHandler.RESULTS_MIME_TYPE),
-            EasyMock.<String>isNull(),
+            EasyMock.<String>anyObject(),
             EasyMock.<Map<String,String>>isNull())).andReturn("");
 
         replayMocks();

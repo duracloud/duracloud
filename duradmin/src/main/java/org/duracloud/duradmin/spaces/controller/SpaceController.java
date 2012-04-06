@@ -8,15 +8,6 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -37,16 +28,10 @@ import org.duracloud.execdata.bitintegrity.BitIntegrityResults;
 import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
 import org.duracloud.execdata.bitintegrity.StoreBitIntegrityResults;
 import org.duracloud.execdata.bitintegrity.serialize.BitIntegrityResultsSerializer;
-import org.duracloud.execdata.mediastreaming.MediaStreamingConstants;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
-import org.duracloud.serviceconfig.Deployment;
 import org.duracloud.serviceconfig.ServiceInfo;
-import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
-import org.duracloud.serviceconfig.user.Option;
-import org.duracloud.serviceconfig.user.UserConfig;
-import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -56,6 +41,14 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 

@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,8 +38,6 @@ public class BitIntegrityHandler extends BaseServiceHandler {
         LoggerFactory.getLogger(BitIntegrityHandler.class);
 
     protected static final String HANDLER_NAME = "bit-integrity-handler";
-    protected static final String START_BIT_INTEGRITY = "start-bit-integrity";
-    protected static final String CANCEL_BIT_INTEGRITY = "cancel-bit-integrity";
 
     protected static final String BIT_INTEGRITY_NAME =
         "Bit Integrity Checker - Tools";
@@ -85,8 +82,11 @@ public class BitIntegrityHandler extends BaseServiceHandler {
 
     private void initializeRunner(ServiceInfo service) {
         if(null == this.runner) {
-            this.runner =
-                new BitIntegrityRunner(storeMgr, servicesMgr, service, this);
+            this.runner = new BitIntegrityRunner(storeMgr,
+                                                 servicesMgr,
+                                                 manifestGenerator,
+                                                 service,
+                                                 this);
         }
     }
 
@@ -205,31 +205,7 @@ public class BitIntegrityHandler extends BaseServiceHandler {
             BitIntegrityResultsSerializer serializer =
                 new BitIntegrityResultsSerializer();
             String resultValue = serializer.serialize(results);
-            InputStream resultStream = IOUtil.writeStringToStream(resultValue);
-
-            ContentStore store = storeMgr.getPrimaryContentStore();
-            boolean success = false;
-            int attempts = 0;
-            while(!success && attempts < 3) {
-                try {
-                    store.addContent(HANDLER_STATE_SPACE,
-                                     resultsFileName,
-                                     resultStream,
-                                     resultValue.length(),
-                                     RESULTS_MIME_TYPE,
-                                     null,
-                                     null);
-                    success = true;
-                } catch(ContentStoreException e) {
-                    log.warn("Failed to store results file due to: " +
-                             e.getMessage());
-                }
-                ++attempts;
-            }
-            if(!success) {
-                String err = "Exceeded allowable attempts to store results file";
-                throw new DuraCloudRuntimeException(err);
-            }
+            storeFile(resultsFileName, resultValue, RESULTS_MIME_TYPE);
         } catch(Exception e) {
             log.error("Not able to store Bit Integrity results file " +
                       "due to " + e.getClass().getName() + ": " +

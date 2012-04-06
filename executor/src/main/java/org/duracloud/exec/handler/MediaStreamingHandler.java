@@ -10,7 +10,6 @@ package org.duracloud.exec.handler;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.exec.error.InvalidActionRequestException;
-import org.duracloud.execdata.mediastreaming.MediaStreamingConstants;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.Deployment;
@@ -32,7 +31,7 @@ import java.util.Map;
  * @author: Bill Branan
  * Date: 3/2/12
  */
-public class MediaStreamingHandler extends BaseServiceHandler implements MediaStreamingConstants {
+public class MediaStreamingHandler extends BaseServiceHandler {
 
     private final Logger log =
         LoggerFactory.getLogger(MediaStreamingHandler.class);

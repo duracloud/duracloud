@@ -12,6 +12,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.exec.ServiceHandler;
 import org.duracloud.exec.error.InvalidActionRequestException;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,10 +54,11 @@ public class ExecutorImpl implements LocalExecutor {
 
     @Override
     public void initialize(ContentStoreManager storeMgr,
-                           ServicesManager servicesMgr) {
+                           ServicesManager servicesMgr,
+                           ManifestGenerator manifestGenerator) {
         log.debug("initialize() the Executor");
         for(ServiceHandler handler : serviceHandlers) {
-            handler.initialize(storeMgr, servicesMgr);
+            handler.initialize(storeMgr, servicesMgr, manifestGenerator);
         }
         initialized = true;
         start();

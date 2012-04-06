@@ -8,6 +8,7 @@
 package org.duracloud.exec;
 
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceapi.ServicesManager;
 
 /**
@@ -21,7 +22,9 @@ public interface LocalExecutor extends Executor {
      *
      * @param storeMgr storage manager
      * @param servicesMgr services manager
+     * @param manifestGenerator manifest generator
      */
     public void initialize(ContentStoreManager storeMgr,
-                           ServicesManager servicesMgr);
+                           ServicesManager servicesMgr,
+                           ManifestGenerator manifestGenerator);
 }

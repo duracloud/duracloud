@@ -18,10 +18,6 @@ import org.duracloud.exec.error.InvalidActionRequestException;
 public class DuplicationHandler extends BaseServiceHandler {
 
     private static final String HANDLER_NAME = "duplication-handler";
-    private static final String START_DUPLICATION = "start-duplication";
-    private static final String ADD_TO_DUPLICATION = "add-to-duplication";
-    private static final String REMOVE_FROM_DUPLICATION =
-        "remove-from-duplication";
 
     public DuplicationHandler() {
         super();

@@ -20,6 +20,7 @@ import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.manifest.LocalManifestGenerator;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.reporter.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.serviceapi.ServicesManager;
@@ -32,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
@@ -162,7 +162,8 @@ public class InitRestTest {
         EasyMock.expectLastCall();
 
         executor.initialize(EasyMock.<ContentStoreManager>anyObject(),
-                            EasyMock.<ServicesManager>anyObject());
+                            EasyMock.<ServicesManager>anyObject(),
+                            EasyMock.<ManifestGenerator>anyObject());
         EasyMock.expectLastCall();
 
         auditor.initialize(EasyMock.<ContentStoreManager>anyObject());

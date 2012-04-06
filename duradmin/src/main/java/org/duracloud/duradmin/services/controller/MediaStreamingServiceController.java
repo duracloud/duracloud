@@ -11,7 +11,7 @@ package org.duracloud.duradmin.services.controller;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.duradmin.util.ServiceUtil;
 import org.duracloud.exec.Executor;
-import org.duracloud.execdata.mediastreaming.MediaStreamingConstants;
+import org.duracloud.execdata.ExecConstants;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
 import org.duracloud.serviceapi.error.ServicesException;
@@ -57,8 +57,8 @@ public class MediaStreamingServiceController {
             
             String action =
                 enable
-                    ? MediaStreamingConstants.START_STREAMING
-                    : MediaStreamingConstants.STOP_STREAMING;
+                    ? ExecConstants.START_STREAMING
+                    : ExecConstants.STOP_STREAMING;
             this.executor.performAction(action, spaceId);
             log.info("successfully "
                 + (enable ? "enabled" : "disabled")

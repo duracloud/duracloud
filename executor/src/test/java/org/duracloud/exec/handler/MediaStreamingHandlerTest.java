@@ -59,7 +59,7 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
     protected void replayMocks() {
         super.replayMocks();
 
-        handler.initialize(storeMgr, servicesMgr);
+        handler.initialize(storeMgr, servicesMgr, manifestGenerator);
     }
 
     @Test
@@ -230,7 +230,7 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
         setUpPerformAction(spaceOption);
         replayMocks();
 
-        handler.performAction(MediaStreamingHandler.START_STREAMING, spaceId);
+        handler.performAction(START_STREAMING, spaceId);
 
         String status = handler.getStatus();
         assertNotNull(status);
@@ -260,7 +260,7 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
 
         replayMocks();
 
-        handler.performAction(MediaStreamingHandler.START_STREAMING, newSpaceId);
+        handler.performAction(START_STREAMING, newSpaceId);
 
         String status = handler.getStatus();
         assertNotNull(status);

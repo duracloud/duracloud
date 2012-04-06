@@ -12,6 +12,7 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.exec.ServiceHandler;
 import org.duracloud.exec.error.InvalidActionRequestException;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceapi.ServicesManager;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -35,6 +36,7 @@ public class ExecutorImplTest {
     private LocalExecutor exec;
     private ContentStoreManager storeMgr;
     private ServicesManager servicesMgr;
+    private ManifestGenerator manifestGenerator;
     private ServiceHandler handler;
 
     private static final String ACTION = "ACTION";
@@ -46,6 +48,8 @@ public class ExecutorImplTest {
                                        ContentStoreManager.class);
         servicesMgr = EasyMock.createMock("ServicesManager",
                                           ServicesManager.class);
+        manifestGenerator = EasyMock.createMock("ManifestGenerator",
+                                                ManifestGenerator.class);
         handler = EasyMock.createMock("ServiceHandler", ServiceHandler.class);
 
         actions = new HashSet<String>();
@@ -98,7 +102,7 @@ public class ExecutorImplTest {
         assertEquals(4, execptions);
 
         // Run init
-        exec.initialize(storeMgr, servicesMgr);
+        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
     }
 
     private void setUpInitMocks() {
@@ -106,7 +110,7 @@ public class ExecutorImplTest {
                 .andReturn(actions)
                 .anyTimes();
 
-        handler.initialize(storeMgr, servicesMgr);
+        handler.initialize(storeMgr, servicesMgr, manifestGenerator);
         EasyMock.expectLastCall();
         
         handler.start();
@@ -122,7 +126,7 @@ public class ExecutorImplTest {
 
         replayMocks();
         exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr);
+        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
 
         // Run stop
         exec.stop();
@@ -134,7 +138,7 @@ public class ExecutorImplTest {
 
         replayMocks();
         exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr);
+        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
 
         // Get supported actions
         Set<String> retActions = exec.getSupportedActions();
@@ -153,7 +157,7 @@ public class ExecutorImplTest {
 
         replayMocks();
         exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr);
+        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
 
         // Perform invalid action
         try {
@@ -179,7 +183,7 @@ public class ExecutorImplTest {
 
         replayMocks();
         exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr);
+        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
 
         // Get status
         Map<String, String> status = exec.getStatus();

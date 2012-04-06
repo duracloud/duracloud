@@ -66,6 +66,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>manifestclient</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>runtime</scope>
