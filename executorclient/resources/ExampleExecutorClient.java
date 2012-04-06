@@ -6,6 +6,7 @@
  *     http://duracloud.org/license/
  */
 
+import org.duracloud.exec.Executor;
 import org.duracloud.client.exec.ExecutorImpl;
 import org.duracloud.common.model.Credential;
 
@@ -27,11 +28,11 @@ public class ExampleExecutorClient {
     private static final String PORT = "8080";      // replace as necessary
     private static final String CONTEXT = "duraboss";
 
-    private ExecutorImpl executor;
+    private Executor executor;
 
     public ExampleExecutorClient() {
-        executor = new ExecutorImpl(HOST, PORT, CONTEXT);
-        executor.login(new Credential(USERNAME, PASSWORD));
+        Credential user = new Credential(USERNAME, PASSWORD);
+        executor = new ExecutorImpl(HOST, PORT, CONTEXT, user);
     }
 
     public void runExample() throws Exception {

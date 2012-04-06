@@ -11,7 +11,6 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.exec.error.ExecutorException;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.Securable;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
@@ -29,17 +28,31 @@ import java.util.Set;
  * @author: Bill Branan
  * Date: 4/4/12
  */
-public class ExecutorImpl implements Executor, Securable {
+public class ExecutorImpl implements Executor {
 
     private static final String DEFAULT_CONTEXT = "duraboss";
     private String baseURL = null;
     private RestHttpHelper restHelper;
 
-    public ExecutorImpl(String host, String port) {
-        this(host, port, DEFAULT_CONTEXT);
+    public ExecutorImpl(String host, String port, Credential credential) {
+        this(host, port, DEFAULT_CONTEXT, new RestHttpHelper(credential));
     }
 
-    public ExecutorImpl(String host, String port, String context) {
+    public ExecutorImpl(String host, String port, RestHttpHelper restHelper) {
+        this(host, port, DEFAULT_CONTEXT, restHelper);
+    }
+
+    public ExecutorImpl(String host,
+                        String port,
+                        String context,
+                        Credential credential) {
+        this(host, port, context, new RestHttpHelper(credential));
+    }
+
+    public ExecutorImpl(String host,
+                        String port,
+                        String context,
+                        RestHttpHelper restHelper) {
         if ((host == null) || (host.equals(""))) {
             throw new IllegalArgumentException("Host must be a valid " +
                                                 "server host name");
@@ -56,6 +69,8 @@ public class ExecutorImpl implements Executor, Securable {
         } else {
             this.baseURL = ("http://" + host + ":" + port + "/" + context);
         }
+
+        this.restHelper = restHelper;
     }
 
     private String buildURL(String relativeURL) {
@@ -65,26 +80,12 @@ public class ExecutorImpl implements Executor, Securable {
         }
         return this.baseURL + "/" + exec + "/" + relativeURL;
     }
-    
-    @Override
-    public void login(Credential credential) {
-        setRestHelper(new RestHttpHelper(credential));
-    }
 
-    @Override
-    public void logout() {
-        setRestHelper(new RestHttpHelper());
-    }
-
-    protected RestHttpHelper getRestHelper() {
+    private RestHttpHelper getRestHelper() {
         if (null == this.restHelper) {
             this.restHelper = new RestHttpHelper();
         }
         return this.restHelper;
-    }
-
-    protected void setRestHelper(RestHttpHelper restHelper) {
-        this.restHelper = restHelper;
     }
 
     @Override

@@ -7,9 +7,9 @@
  */
 package org.duracloud.duradmin.services.controller;
 
-import org.duracloud.client.exec.Executor;
-import org.duracloud.common.model.Credential;
 import org.duracloud.duradmin.test.AbstractTestBase;
+import org.duracloud.exec.Executor;
+import org.duracloud.exec.error.InvalidActionRequestException;
 import org.duracloud.serviceapi.ServicesManager;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -33,10 +33,12 @@ public class MediaStreamingServiceControllerTest extends AbstractTestBase {
         ServicesManager servicesManager = createMock(ServicesManager.class);
 
         Executor executor = createMock(Executor.class);
-        executor.login(EasyMock.isA(Credential.class));
-        EasyMock.expectLastCall();
-        executor.performAction(EasyMock.isA(String.class),
-                               EasyMock.isA(String.class));
+        try {
+            executor.performAction(EasyMock.isA(String.class),
+                                   EasyMock.isA(String.class));
+        } catch (InvalidActionRequestException e) {
+            Assert.fail("Unexpected exception: "+e.getMessage());
+        }
         EasyMock.expectLastCall();
         replay();
         

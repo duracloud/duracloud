@@ -44,8 +44,7 @@ public class ExecutorImplTest {
     public void setup() {
         mockRestHelper = EasyMock.createMock(RestHttpHelper.class);
 
-        exec = new ExecutorImpl(host, port, context);
-        exec.setRestHelper(mockRestHelper);
+        exec = new ExecutorImpl(host, port, context, mockRestHelper);
         setResponse("result");
     }
 

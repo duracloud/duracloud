@@ -9,7 +9,6 @@ package org.duracloud.client.manifest;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.Securable;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.error.ManifestArgumentException;
@@ -26,17 +25,35 @@ import java.util.Date;
  * @author: Bill Branan
  * Date: 4/5/12
  */
-public class ManifestGeneratorImpl implements ManifestGenerator, Securable {
+public class ManifestGeneratorImpl implements ManifestGenerator {
 
     private static final String DEFAULT_CONTEXT = "duraboss";
     private String baseURL = null;
     private RestHttpHelper restHelper;
 
-    public ManifestGeneratorImpl(String host, String port) {
-        this(host, port, DEFAULT_CONTEXT);
+    public ManifestGeneratorImpl(String host,
+                                 String port,
+                                 Credential credential) {
+        this(host, port, DEFAULT_CONTEXT, new RestHttpHelper(credential));
     }
 
-    public ManifestGeneratorImpl(String host, String port, String context) {
+    public ManifestGeneratorImpl(String host,
+                                 String port,
+                                 RestHttpHelper restHelper) {
+        this(host, port, DEFAULT_CONTEXT, restHelper);
+    }
+
+    public ManifestGeneratorImpl(String host,
+                                 String port,
+                                 String context,
+                                 Credential credential) {
+        this(host, port, context, new RestHttpHelper(credential));
+    }
+
+    public ManifestGeneratorImpl(String host,
+                                 String port,
+                                 String context,
+                                 RestHttpHelper restHelper) {
         if ((host == null) || (host.equals(""))) {
             throw new IllegalArgumentException("Host must be a valid " +
                                                 "server host name");
@@ -53,6 +70,8 @@ public class ManifestGeneratorImpl implements ManifestGenerator, Securable {
         } else {
             this.baseURL = ("http://" + host + ":" + port + "/" + context);
         }
+
+        this.restHelper = restHelper;
     }
 
     private String buildURL(String relativeURL) {
@@ -62,26 +81,12 @@ public class ManifestGeneratorImpl implements ManifestGenerator, Securable {
         }
         return this.baseURL + "/" + manifest + "/" + relativeURL;
     }
-    
-    @Override
-    public void login(Credential credential) {
-        setRestHelper(new RestHttpHelper(credential));
-    }
 
-    @Override
-    public void logout() {
-        setRestHelper(new RestHttpHelper());
-    }
-
-    protected RestHttpHelper getRestHelper() {
+    private RestHttpHelper getRestHelper() {
         if (null == this.restHelper) {
             this.restHelper = new RestHttpHelper();
         }
         return this.restHelper;
-    }
-
-    protected void setRestHelper(RestHttpHelper restHelper) {
-        this.restHelper = restHelper;
     }
 
     @Override

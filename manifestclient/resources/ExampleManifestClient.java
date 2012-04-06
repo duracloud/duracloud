@@ -32,11 +32,11 @@ public class ExampleManifestClient {
     private static final String STORE_ID = null;       // replace as necessary
     private static final String SPACE_ID = "my-space"; // replace as necessary
 
-    private ManifestGeneratorImpl generator;
+    private ManifestGenerator generator;
 
     public ExampleManifestClient() {
-        generator = new ManifestGeneratorImpl(HOST, PORT, CONTEXT);
-        generator.login(new Credential(USERNAME, PASSWORD));
+        Credential user = new Credential(USERNAME, PASSWORD);
+        generator = new ManifestGeneratorImpl(HOST, PORT, CONTEXT, user);
     }
 
     public void runExample() throws Exception {

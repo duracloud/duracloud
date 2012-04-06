@@ -38,8 +38,10 @@ public class ManifestGeneratorImplTest {
     public void setup() {
         mockRestHelper = EasyMock.createMock(RestHttpHelper.class);
 
-        generator = new ManifestGeneratorImpl(host, port, context);
-        generator.setRestHelper(mockRestHelper);
+        generator = new ManifestGeneratorImpl(host,
+                                              port,
+                                              context,
+                                              mockRestHelper);
         setResponse("result");
     }
 

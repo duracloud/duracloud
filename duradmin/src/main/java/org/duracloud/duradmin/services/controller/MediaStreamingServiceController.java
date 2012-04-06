@@ -8,10 +8,9 @@
 
 package org.duracloud.duradmin.services.controller;
 
-import org.duracloud.client.exec.ExecutorImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.duradmin.util.ServiceUtil;
+import org.duracloud.exec.Executor;
 import org.duracloud.execdata.mediastreaming.MediaStreamingConstants;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
@@ -40,14 +39,13 @@ public class MediaStreamingServiceController {
     protected final Logger log =
         LoggerFactory.getLogger(MediaStreamingServiceController.class);
 
-    private ExecutorImpl executor;
+    private Executor executor;
     private ServicesManager servicesManager;
 
     @Autowired
-    public MediaStreamingServiceController(@Qualifier("executor") ExecutorImpl executor,
+    public MediaStreamingServiceController(@Qualifier("executor") Executor executor,
                                            @Qualifier("servicesManager") ServicesManager servicesManager){
         this.executor = executor;
-        this.executor.login(new RootUserCredential());
         this.servicesManager = servicesManager;
     }
     @RequestMapping(method = RequestMethod.POST)
