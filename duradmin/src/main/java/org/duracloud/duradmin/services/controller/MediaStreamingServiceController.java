@@ -8,7 +8,7 @@
 
 package org.duracloud.duradmin.services.controller;
 
-import org.duracloud.client.exec.Executor;
+import org.duracloud.client.exec.ExecutorImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.duradmin.util.ServiceUtil;
@@ -40,11 +40,11 @@ public class MediaStreamingServiceController {
     protected final Logger log =
         LoggerFactory.getLogger(MediaStreamingServiceController.class);
 
-    private Executor executor;
+    private ExecutorImpl executor;
     private ServicesManager servicesManager;
 
     @Autowired
-    public MediaStreamingServiceController(@Qualifier("executor") Executor executor,
+    public MediaStreamingServiceController(@Qualifier("executor") ExecutorImpl executor,
                                            @Qualifier("servicesManager") ServicesManager servicesManager){
         this.executor = executor;
         this.executor.login(new RootUserCredential());
