@@ -40,7 +40,7 @@
       </div>
     </div>
     <div id="page-content" class="pane-L1-body">
-  <div id="upload-tool">
+  <div class="upload-tool">
       <c:choose>
         <c:when test="${not empty space}">
           <h2 style="margin-bottom:10px">

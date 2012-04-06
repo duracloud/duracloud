@@ -121,7 +121,7 @@ h3 { font-size:1em; }
 
 /* MAIN PAGE ELEMENTS ******************************************/
 
-#page-header
+body > #page-header
 {
 	height:87px;
 	min-width:960px;
@@ -139,7 +139,7 @@ h3 { font-size:1em; }
 	color:#ccc;
 }
 
-#center-pane-north
+.center-pane-north
 {
 	color:#9b9b9b;
 	font-size:13px;
@@ -396,7 +396,7 @@ ul.dc-user-config > li:last-child {
 
 #footer-content { margin-top:15px; }
 
-#logo-ds
+#footer-content #logo-ds
 {
 	background:url(../images/logo_duraspace_onwhite.gif) no-repeat top left;
 	margin-top:-5px;
@@ -608,12 +608,12 @@ input.dc-check-all
 	width:110px;
 }
 
-#dc-app-title
+#page-header #dc-app-title
 {
 	width:280px;
 }
 
-#dc-user
+#page-header #dc-user
 {	
 	border-right:solid 1px #ccc;
 	height:60px;
@@ -700,7 +700,7 @@ h2,.footer-prompt
 	position:relative;
 }
 
-.detail-pane .center, #dynamic-panel 
+.detail-pane .center 
 {
 	background-color:#414141;
 	border:1px solid #2d2d2d;
@@ -716,7 +716,6 @@ h2,.footer-prompt
 }
 
 .detail-pane .segment-header, 
-#dynamic-panel .segment-header,
 #add-remove-properties-dialog .segment-header
 {
 	background:url(../images/bg_segment_header.gif) repeat-x top left;
@@ -730,28 +729,24 @@ h2,.footer-prompt
 }
 
 .detail-pane .segment-header:hover, 
-#dynamic-panel .segment-header:hover,
 #add-remove-properties-dialog .segment-header:hover
 {
 	color:#fff;
 }
 
 .detail-pane .segment-content,
-#dynamic-panel .segment-content,
 #add-remove-properties-dialog .segment-content
 {
 	padding:10px;
 }
 
 .detail-pane .segment-content table,
-#dynamic-panel .segment-content table,
 #add-remove-properties-dialog .segment-content table
 {
 	width:100%;
 }
 
 .detail-pane .segment-content table td, 
-#dynamic-panel .segment-content table td,
 #add-remove-properties-dialog .segment-content table td
 {
 	border-bottom:1px solid #555;
@@ -760,14 +755,12 @@ h2,.footer-prompt
 
 .detail-pane .segment-content table td.label,
 span.label,
-#dynamic-panel .segment-content table td.label,
 #add-remove-properties-dialog .segment-content table td.label
 {
 	color:#999;
 }
 
 .detail-pane .segment-content table td.label,
-#dynamic-panel .segment-content table td.label,
 #add-remove-properties-dialog .segment-content table td.label
 {
 	width:30%;
@@ -775,14 +768,12 @@ span.label,
 
 
 .detail-pane .segment-content table td.value,
-#dynamic-panel .segment-content table td.value,
 #add-remove-properties-dialog .segment-content table td.value
 {
 	width:70%;
 }
 
 .detail-pane .segment-content input,
-#dynamic-panel .segment-content input,
 #add-remove-properties-dialog .segment-content input
 {
 	background-color:#484747;
@@ -1032,29 +1023,6 @@ span.label,
 	color: white;
 }
 
-/*Dashboard*/
-
-#static-panel, #dynamic-panel {
-	overflow:auto;	
-}
-
-#static-panel
-{
-	color:#ccc;
-	font-size:13px;
-	line-height:130%;
-	padding:10px;
-}
-
-#static-panel h2,
-#static-panel p
-{
-	margin-bottom:10px;
-}
-
-#static-panel h2 { color:#fff; }
-
-#static-panel a { color:#44C8F4; }
 
 #busy-dialog-title {
 	margin-bottom:20px;	
@@ -1206,7 +1174,7 @@ table.tablesorter tr {
 * Upload tool
 */
 
-#upload-tool {
+.upload-tool {
 	padding:10px;
 }
 
@@ -1244,7 +1212,7 @@ table.dc-acls td:last-child {
 }
 
 
-#summaries-graph {
+.history-panel #summaries-graph {
 	width:450px;
 	height:150px;
 	/*
@@ -1253,22 +1221,23 @@ table.dc-acls td:last-child {
 	display:inline-block;
 }
 
-#summaries-legend {
+.history-panel #summaries-legend {
 	display:inline-block;
 	float:right;
 }
 
-#streaming-switch-holder {
+.streaming-switch-holder {
 	height:20px;width:200px; 
 	text-align:right; 
 	display:inline-block; 
 	float:right;
+	white-space: nowrap;
 }
-#streaming-switch-holder label {
+.streaming-switch-holder label {
 	font-size: 0.6em;
 }
 
-#streaming-switch {
+.streaming-switch {
 	display:inline-block;
 	font-size:0.7em"
 }

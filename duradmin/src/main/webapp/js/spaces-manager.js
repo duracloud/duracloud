@@ -2449,13 +2449,13 @@ $(function(){
                 deleteSpaceButton.hide();
             }
 
-            var switchHolder = $("#streaming-switch-holder");
+            var switchHolder = $(".streaming-switch-holder");
             switchHolder.hide();                
             if(this._isAdmin){
                 switchHolder.show();                
                     
                     //deploy/undeploy switch definition and bindings
-                    $("#streaming-switch",that.element).onoffswitch({
+                    $(".streaming-switch",that.element).onoffswitch({
                                 initialState: space.streamingEnabled ? "on" : "off"
                                             , onStateClass: "on left"
                                             , onIconClass: "checkbox"

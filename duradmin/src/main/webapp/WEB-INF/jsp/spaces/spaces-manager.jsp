@@ -86,8 +86,7 @@
         value="spaces" />
       <tiles:putAttribute name="main-content">
         <div
-          class="center-north"
-          id="center-pane-north">
+          class="center-pane-north center-north">
           <div
             <c:if test="${fn:length(contentStores) < 2}">style="display:none;"</c:if>>
             <div class="provider-float">
@@ -207,12 +206,12 @@
               <button class="delete-space-button dc-delete-button">
                 <i class="pre trash"></i>Delete Space
               </button>
-              <div id="streaming-switch-holder">
+              <div class="streaming-switch-holder">
                 <div
                   class="dc-busy"
                   style="display: none"></div>
                 <label>Streaming:</label>
-                <div id="streaming-switch"></div>
+                <div class="streaming-switch"></div>
               </div>
             </div>
           </div>
