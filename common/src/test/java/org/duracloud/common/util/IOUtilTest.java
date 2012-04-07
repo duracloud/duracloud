@@ -7,10 +7,9 @@
  */
 package org.duracloud.common.util;
 
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertEquals;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -19,6 +18,10 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the I/O Utilities.
@@ -71,4 +74,18 @@ public class IOUtilTest {
             testFile.delete();
         }
     }
+
+    @Test
+    public void testStreamToFileToStream() throws Exception {
+        String content = "content";
+        InputStream contentStream = IOUtil.writeStringToStream(content);
+        File file = IOUtil.writeStreamToFile(contentStream);
+        assertNotNull(file);
+        assertTrue(file.exists());
+
+        InputStream fileStream = IOUtil.getFileStream(file);
+        String finalContent = IOUtil.readStringFromStream(fileStream);
+        Assert.assertEquals(content, finalContent);
+    }
+
 }

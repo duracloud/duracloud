@@ -9,6 +9,7 @@ package org.duracloud.common.util;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 
 import java.io.File;
@@ -70,6 +71,37 @@ public class IOUtil {
         String fileContents = FileUtils.readFileToString(file);
         fileContents = fileContents.replaceAll("\\Q" + find + "\\E", replace);
         FileUtils.writeStringToFile(file, fileContents);
+    }
+
+    public static File writeStreamToFile(InputStream inStream) {
+        File file = null;
+        OutputStream outStream = null;
+        try {
+            file = File.createTempFile("file", ".tmp");
+            outStream = FileUtils.openOutputStream(file);
+            IOUtils.copy(inStream, outStream);
+        } catch (IOException e) {
+            String err = "Error writing stream to file: " + e.getMessage();
+            throw new DuraCloudRuntimeException(err, e);
+        } finally {
+            if(null != inStream) {
+                IOUtils.closeQuietly(inStream);
+            }
+            if(null != outStream) {
+                IOUtils.closeQuietly(outStream);
+            }
+        }
+        return file;
+    }
+
+    public static InputStream getFileStream(File file) {
+        try {
+            return new AutoCloseInputStream(FileUtils.openInputStream(file));
+        } catch (IOException e) {
+            String err = "Error opening stream from file " +
+                         file.getAbsolutePath() + ": " + e.getMessage();
+            throw new DuraCloudRuntimeException(err, e);
+        }
     }
 
 }

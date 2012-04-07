@@ -7,11 +7,14 @@
  */
 package org.duracloud.exec.runner;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.common.util.IOUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.exec.error.ManifestException;
 import org.duracloud.exec.handler.BitIntegrityHandler;
@@ -32,6 +35,7 @@ import org.duracloud.services.ComputeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -543,18 +547,23 @@ public class BitIntegrityRunner implements Runnable {
             int attempts = 0;
             while(!success && attempts < 5) {
                 InputStream stream = getManifest(store.getStoreId(), spaceId);
+                File tempFile = IOUtil.writeStreamToFile(stream);
+                InputStream fileStream = IOUtil.getFileStream(tempFile);
                 try {
                     store.addContent(RESULT_SPACE_ID,
                                      MANIFEST_CONTENT_ID,
-                                     stream,
-                                     stream.available(),
-                                     "text/tab-separated-values",
+                                     fileStream,
+                                     tempFile.length(),
+                                     Constants.TEXT_TSV,
                                      null,
                                      null);
                     success = true;
                 } catch(ContentStoreException e) {
                     log.warn("Failed to store manifest file due to: " +
                              e.getMessage());
+                } finally {
+                    IOUtils.closeQuietly(fileStream);
+                    FileUtils.deleteQuietly(tempFile);
                 }
                 ++attempts;
             }

@@ -22,4 +22,9 @@ public class Constants {
     public static final List<String> SYSTEM_SPACES = Arrays
         .asList("x-duracloud-admin", "x-service-out", "x-service-work");
 
+    /**
+     * Mime types
+     */
+    public static final String TEXT_TSV = "text/tab-separated-values";
+
 }
