@@ -57,8 +57,8 @@ public class MediaStreamingServiceController {
             
             String action =
                 enable
-                    ? ExecConstants.START_STREAMING
-                    : ExecConstants.STOP_STREAMING;
+                    ? ExecConstants.START_STREAMING_SPACE
+                    : ExecConstants.STOP_STREAMING_SPACE;
             this.executor.performAction(action, spaceId);
             log.info("successfully "
                 + (enable ? "enabled" : "disabled")

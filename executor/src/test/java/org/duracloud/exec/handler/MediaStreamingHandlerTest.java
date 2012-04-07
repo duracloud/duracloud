@@ -95,7 +95,7 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
         setUpGetState(state);
         replayMocks();
 
-        handler.start();
+        handler.performAction(START_STREAMING, null);
         String status = handler.getStatus();
         assertNotNull(status);
         if(state) {
@@ -197,7 +197,7 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
 
         replayMocks();
 
-        handler.stop();
+        handler.performAction(STOP_STREAMING, null);
         String status = handler.getStatus();
         assertNotNull(status);
         assertEquals(status, "Media Streamer: Stopped");
@@ -230,7 +230,7 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
         setUpPerformAction(spaceOption);
         replayMocks();
 
-        handler.performAction(START_STREAMING, spaceId);
+        handler.performAction(START_STREAMING_SPACE, spaceId);
 
         String status = handler.getStatus();
         assertNotNull(status);
@@ -260,7 +260,7 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
 
         replayMocks();
 
-        handler.performAction(START_STREAMING, newSpaceId);
+        handler.performAction(START_STREAMING_SPACE, newSpaceId);
 
         String status = handler.getStatus();
         assertNotNull(status);
@@ -280,7 +280,8 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
         setUpPerformAction(spaceOption);
         replayMocks();
 
-        handler.performAction(MediaStreamingHandler.STOP_STREAMING, spaceId);
+        handler.performAction(MediaStreamingHandler.STOP_STREAMING_SPACE,
+                              spaceId);
 
         String status = handler.getStatus();
         assertNotNull(status);

@@ -36,6 +36,7 @@ public class MediaStreamingHandler extends BaseServiceHandler {
     private final Logger log =
         LoggerFactory.getLogger(MediaStreamingHandler.class);
 
+    private static final String STATUS_PREFIX = "Media Streamer: ";
     protected static final String HANDLER_NAME = "media-streaming-handler";
 
     protected static final String HANDLER_STATE_FILE =
@@ -47,7 +48,8 @@ public class MediaStreamingHandler extends BaseServiceHandler {
         super();
         supportedActions.add(START_STREAMING);
         supportedActions.add(STOP_STREAMING);
-        status = "Media Streamer: Initialized";
+        supportedActions.add(START_STREAMING_SPACE);
+        supportedActions.add(STOP_STREAMING_SPACE);
         spacesStreamed = 0;
     }
 
@@ -58,9 +60,13 @@ public class MediaStreamingHandler extends BaseServiceHandler {
 
     @Override
     public void start() {
+        status = STATUS_PREFIX + "Idle";
+    }
+
+    private void startStreamingService() {
         log.info("Executor: Starting Media Streaming Service");
 
-        status = "Media Streamer: Starting";
+        status = STATUS_PREFIX + "Starting";
         try {
             ServiceInfo service =
                 findAvailableServiceByName(MEDIA_STREAMER_NAME);
@@ -75,7 +81,7 @@ public class MediaStreamingHandler extends BaseServiceHandler {
                                           getDeploymentHost(service),
                                           service.getUserConfigVersion(),
                                           userConfig);
-                status = "Media Streamer: Started. Spaces Streamed: " +
+                status = STATUS_PREFIX + "Started. Spaces Streamed: " +
                          spacesStreamed;
             }
         } catch(NotFoundException e) {
@@ -109,14 +115,14 @@ public class MediaStreamingHandler extends BaseServiceHandler {
     public void stop() {
         log.info("Executor: Stopping Media Streaming Service");
 
-        status = "Media Streamer: Stopping";
+        status = STATUS_PREFIX + "Stopping";
         try {
             ServiceInfo service =
                 findDeployedServiceByName(MEDIA_STREAMER_NAME);
             if(null != service) {
                 Deployment dep = service.getDeployments().get(0);
                 servicesMgr.undeployService(service.getId(), dep.getId());
-                status = "Media Streamer: Stopped";
+                status = STATUS_PREFIX + "Stopped";
             }
         } catch(NotFoundException e) {
             setError("Unable to stop the Media Streaming service due " +
@@ -137,20 +143,20 @@ public class MediaStreamingHandler extends BaseServiceHandler {
         log.info("Executor: Performing action: " + actionName +
                  ", with parameters: " + actionParameters);
 
-        String spaceId = actionParameters;
-        if(spaceId.isEmpty()) {
-            String err = "Parameters expected: 'spaceId'";
-            throw new InvalidActionRequestException(err);
-        }
-
         if(START_STREAMING.equals(actionName)) {
+            startStreamingService();
+        } else if(STOP_STREAMING.equals(actionName)) {
+            stop();
+        } else if(START_STREAMING_SPACE.equals(actionName)) {
             Map<String, String> state = getState(HANDLER_STATE_FILE);
+            String spaceId = getSpaceId(actionParameters);
             state.put(spaceId, Boolean.TRUE.toString());
             storeState(HANDLER_STATE_FILE, state);
 
             setStreaming(spaceId, true);
-        } else if(STOP_STREAMING.equals(actionName)) {
+        } else if(STOP_STREAMING_SPACE.equals(actionName)) {
             Map<String, String> state = getState(HANDLER_STATE_FILE);
+            String spaceId = getSpaceId(actionParameters);
             state.remove(spaceId);
             storeState(HANDLER_STATE_FILE, state);
 
@@ -159,6 +165,15 @@ public class MediaStreamingHandler extends BaseServiceHandler {
             String err = actionName + " is not a valid action";
             throw new InvalidActionRequestException(err);
         }
+    }
+
+    private String getSpaceId(String actionParameters)
+        throws InvalidActionRequestException {
+        if(actionParameters.isEmpty()) {
+            String err = "Parameters expected: 'spaceId'";
+            throw new InvalidActionRequestException(err);
+        }
+        return actionParameters;
     }
 
     private void setStreaming(String spaceId, boolean enabled) {
@@ -222,7 +237,7 @@ public class MediaStreamingHandler extends BaseServiceHandler {
                     }
                 }
 
-                status = "Media Streamer: Started. Spaces Streamed: " +
+                status = STATUS_PREFIX + "Started. Spaces Streamed: " +
                          spacesStreamed;
             }
         } catch(NotFoundException e) {
