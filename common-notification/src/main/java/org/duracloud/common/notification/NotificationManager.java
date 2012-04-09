@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.reporter.notification;
+package org.duracloud.common.notification;
 
 import org.duracloud.appconfig.domain.NotificationConfig;
 
@@ -63,6 +63,24 @@ public class NotificationManager {
         for(Notifier notifier : notifiers) {
             if(notifier.getNotificationType().equals(type)) {
                 notifier.notify(subject, message, destinations);
+            }
+        }
+    }
+
+    /**
+     * Sends a notification to system administrators through all configured
+     * notifiers of a given type.
+     *
+     * @param type of notification to be sent
+     * @param subject of the notification
+     * @param message of the notification
+     */
+    public void sendAdminNotification(NotificationType type,
+                                      String subject,
+                                      String message) {
+        for(Notifier notifier : notifiers) {
+            if(notifier.getNotificationType().equals(type)) {
+                notifier.notifyAdmins(subject, message);
             }
         }
     }

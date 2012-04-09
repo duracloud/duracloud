@@ -9,6 +9,7 @@ package org.duracloud.exec.handler;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.execdata.ExecConstants;
 import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.serviceapi.ServicesManager;
@@ -26,6 +27,7 @@ public class HandlerTestBase implements ExecConstants {
     protected ServicesManager servicesMgr;
     protected ManifestGenerator manifestGenerator;
     protected ContentStore contentStore;
+    protected NotificationManager notifier;
 
     @Before
     public void setup() throws Exception {
@@ -36,6 +38,8 @@ public class HandlerTestBase implements ExecConstants {
         manifestGenerator = EasyMock.createMock("ManifestGenerator",
                                                 ManifestGenerator.class);
         contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
+        notifier = EasyMock.createMock("NotificationManager",
+                                       NotificationManager.class);
 
         EasyMock.expect(storeMgr.getPrimaryContentStore())
                 .andReturn(contentStore)
@@ -48,12 +52,14 @@ public class HandlerTestBase implements ExecConstants {
     }
 
     protected void replayMocks() {
-        EasyMock.replay(storeMgr, servicesMgr, manifestGenerator, contentStore);
+        EasyMock.replay(storeMgr, servicesMgr, manifestGenerator,
+                        contentStore, notifier);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(storeMgr, servicesMgr, manifestGenerator, contentStore);
+        EasyMock.verify(storeMgr, servicesMgr, manifestGenerator,
+                        contentStore, notifier);
     }
 
 }

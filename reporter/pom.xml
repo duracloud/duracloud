@@ -31,6 +31,12 @@
 
         <dependency>
             <groupId>org.duracloud</groupId>
+            <artifactId>common-notification</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.duracloud</groupId>
             <artifactId>security</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -74,18 +80,6 @@
         <dependency>
             <groupId>org.duracloud</groupId>
             <artifactId>reportdata</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>notification</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>notification-amazon</artifactId>
             <version>${project.version}</version>
         </dependency>
 

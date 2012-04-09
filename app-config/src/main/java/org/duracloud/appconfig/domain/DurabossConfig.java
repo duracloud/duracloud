@@ -9,8 +9,10 @@ package org.duracloud.appconfig.domain;
 
 import org.duracloud.appconfig.xml.DurabossInitDocumentBinding;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,6 +27,7 @@ public class DurabossConfig extends DuradminConfig {
     public static final String notificationUsernameKey = "username";
     public static final String notificationPasswordKey = "password";
     public static final String notificationOriginatorKey = "originator";
+    public static final String notificationAdminKey = "admin";
 
     public static final String reporterKey = "reporter";
     public static final String executorKey = "executor";
@@ -77,6 +80,13 @@ public class DurabossConfig extends DuradminConfig {
             config.setPassword(value);
         } else if (suffix.equalsIgnoreCase(notificationOriginatorKey)) {
             config.setOriginator(value);
+        } else if(suffix.startsWith(notificationAdminKey)) {
+            List<String> admins = config.getAdmins();
+            if(null == admins) {
+                admins = new ArrayList<String>();
+            }
+            admins.add(value);
+            config.setAdmins(admins);
         }
 
         notificationConfigs.put(id, config);

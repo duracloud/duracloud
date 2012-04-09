@@ -21,6 +21,7 @@ import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
 import org.duracloud.serviceconfig.user.UserConfigModeSet;
 import org.duracloud.services.ComputeService;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -140,24 +141,34 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         EasyMock.expect(service.getUserConfigVersion())
                 .andReturn(configVersion).times(8);
 
+        Map<String, String> successProps = getSuccessProps();
+
         // Space 1 - generated checksum
-        Capture<List<UserConfigModeSet>> configCapture1 = setUpDeploy(depId1);
-        Capture<List<UserConfigModeSet>> compCapture1 = setUpDeploy(depId1);
+        Capture<List<UserConfigModeSet>> configCapture1 =
+            setUpDeploy(depId1, successProps);
+        Capture<List<UserConfigModeSet>> compCapture1 =
+            setUpDeploy(depId1, successProps);
         Capture<SpaceBitIntegrityResult> resultCapture1 = setUpResult(space1);
 
         // Space 2 - generated checksum
-        Capture<List<UserConfigModeSet>> configCapture2 = setUpDeploy(depId2);
-        Capture<List<UserConfigModeSet>> compCapture2 = setUpDeploy(depId2);
+        Capture<List<UserConfigModeSet>> configCapture2 =
+            setUpDeploy(depId2, successProps);
+        Capture<List<UserConfigModeSet>> compCapture2 =
+            setUpDeploy(depId2, successProps);
         Capture<SpaceBitIntegrityResult> resultCapture2 = setUpResult(space2);
 
         // Space 1 - files checksum
-        Capture<List<UserConfigModeSet>> configCapture3 = setUpDeploy(depId3);
-        Capture<List<UserConfigModeSet>> compCapture3 = setUpDeploy(depId3);
+        Capture<List<UserConfigModeSet>> configCapture3 =
+            setUpDeploy(depId3, successProps);
+        Capture<List<UserConfigModeSet>> compCapture3 =
+            setUpDeploy(depId3, successProps);
         Capture<SpaceBitIntegrityResult> resultCapture3 = setUpResult(space1);
 
         // Space 2 - files checksum
-        Capture<List<UserConfigModeSet>> configCapture4 = setUpDeploy(depId4);
-        Capture<List<UserConfigModeSet>> compCapture4 = setUpDeploy(depId4);
+        Capture<List<UserConfigModeSet>> configCapture4 =
+            setUpDeploy(depId4, successProps);
+        Capture<List<UserConfigModeSet>> compCapture4 =
+            setUpDeploy(depId4, successProps);
         Capture<SpaceBitIntegrityResult> resultCapture4 = setUpResult(space2);
 
         handler.clearState(BitIntegrityRunner.HANDLER_STATE_FILE);
@@ -297,7 +308,8 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         assertTrue(result.isDisplay());
     }
 
-    private Capture<List<UserConfigModeSet>> setUpDeploy(int depId)
+    private Capture<List<UserConfigModeSet>> setUpDeploy(int depId,
+                                                         Map<String, String> depProps)
         throws Exception {
         Capture<List<UserConfigModeSet>> configCapture =
             new Capture<List<UserConfigModeSet>>();
@@ -308,11 +320,6 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
                                       EasyMock.capture(configCapture)))
                 .andReturn(depId);
 
-        Map<String, String> depProps = new HashMap<String, String>();
-        depProps.put(ComputeService.STATUS_KEY,
-                     ComputeService.ServiceStatus.SUCCESS.name());
-        depProps.put(ComputeService.REPORT_KEY, reportPath);
-        depProps.put(ComputeService.FAILURE_COUNT_KEY, "0");
         EasyMock.expect(servicesMgr.getDeployedServiceProps(serviceId, depId))
                 .andReturn(depProps).times(2);
 
@@ -320,6 +327,24 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         EasyMock.expectLastCall();
 
         return configCapture;
+    }
+
+    private Map<String, String> getSuccessProps() {
+        Map<String, String> depProps = new HashMap<String, String>();
+        depProps.put(ComputeService.STATUS_KEY,
+                     ComputeService.ServiceStatus.SUCCESS.name());
+        depProps.put(ComputeService.REPORT_KEY, reportPath);
+        depProps.put(ComputeService.FAILURE_COUNT_KEY, "0");
+        return depProps;
+    }
+
+    private Map<String, String> getFailureProps() {
+        Map<String, String> depProps = new HashMap<String, String>();
+        depProps.put(ComputeService.STATUS_KEY,
+                     ComputeService.ServiceStatus.FAILED.name());
+        depProps.put(ComputeService.REPORT_KEY, reportPath);
+        depProps.put(ComputeService.FAILURE_COUNT_KEY, "3");
+        return depProps;
     }
 
     private Capture<SpaceBitIntegrityResult> setUpResult(String spaceId) {
@@ -445,5 +470,45 @@ public class BitIntegrityRunnerTest extends HandlerTestBase {
         return mode;
     }
 
+    @Test
+    public void testRunFailure() throws Exception {
+        EasyMock.expect(service.getUserConfigModeSets())
+                .andReturn(createConfig());
+
+        EasyMock.expect(service.getId())
+                .andReturn(serviceId);
+
+        EasyMock.expect(handler.getDeploymentHost(service))
+                .andReturn(host);
+
+        EasyMock.expect(service.getUserConfigVersion())
+                .andReturn(configVersion);
+
+        setUpDeploy(depId1, getFailureProps());
+
+        EasyMock.expect(service.getId())
+                .andReturn(serviceId).anyTimes();
+
+        Capture<String> failureMsgCap = new Capture<String>();
+        handler.notify(EasyMock.capture(failureMsgCap));
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(contentStore.getStoreId())
+                .andReturn(storeId).anyTimes();
+        EasyMock.expect(contentStore.getStorageProviderType())
+                .andReturn(StorageProviderType.AMAZON_S3.getName()).anyTimes();
+
+        Capture<SpaceBitIntegrityResult> storeResultCap =  setUpResult(space1);
+
+        replayMocks();
+        runner.runBitIntegrityOnSpace(contentStore, true, space1);
+
+        String failureMsg = failureMsgCap.getValue();
+        assertNotNull(failureMsg);
+
+        SpaceBitIntegrityResult storeResult = storeResultCap.getValue();
+        assertNotNull(storeResult);
+        assertEquals("failure", storeResult.getResult());
+    }
 
 }

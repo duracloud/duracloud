@@ -9,6 +9,7 @@ package org.duracloud.exec.impl;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.exec.ServiceHandler;
 import org.duracloud.exec.error.InvalidActionRequestException;
@@ -37,10 +38,12 @@ public class ExecutorImplTest {
     private ContentStoreManager storeMgr;
     private ServicesManager servicesMgr;
     private ManifestGenerator manifestGenerator;
+    private NotificationManager notifier;
     private ServiceHandler handler;
 
     private static final String ACTION = "ACTION";
     private Set<String> actions;
+    private String hostname = "host-name";
 
     @Before
     public void setup() {
@@ -50,10 +53,18 @@ public class ExecutorImplTest {
                                           ServicesManager.class);
         manifestGenerator = EasyMock.createMock("ManifestGenerator",
                                                 ManifestGenerator.class);
+        notifier = EasyMock.createMock("NotificationManager",
+                                       NotificationManager.class);
         handler = EasyMock.createMock("ServiceHandler", ServiceHandler.class);
 
         actions = new HashSet<String>();
         actions.add(ACTION);
+    }
+
+    private void initExec() {
+        exec = new ExecutorImpl(handler);
+        exec.initialize(hostname, storeMgr, servicesMgr,
+                        manifestGenerator, notifier);
     }
 
     @After
@@ -102,7 +113,7 @@ public class ExecutorImplTest {
         assertEquals(4, execptions);
 
         // Run init
-        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
+        initExec();
     }
 
     private void setUpInitMocks() {
@@ -110,7 +121,8 @@ public class ExecutorImplTest {
                 .andReturn(actions)
                 .anyTimes();
 
-        handler.initialize(storeMgr, servicesMgr, manifestGenerator);
+        handler.initialize(hostname, storeMgr, servicesMgr,
+                           manifestGenerator, notifier);
         EasyMock.expectLastCall();
         
         handler.start();
@@ -125,8 +137,7 @@ public class ExecutorImplTest {
         EasyMock.expectLastCall();
 
         replayMocks();
-        exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
+        initExec();
 
         // Run stop
         exec.stop();
@@ -137,8 +148,7 @@ public class ExecutorImplTest {
         setUpInitMocks();
 
         replayMocks();
-        exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
+        initExec();
 
         // Get supported actions
         Set<String> retActions = exec.getSupportedActions();
@@ -156,8 +166,7 @@ public class ExecutorImplTest {
         EasyMock.expectLastCall();
 
         replayMocks();
-        exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
+        initExec();
 
         // Perform invalid action
         try {
@@ -182,8 +191,7 @@ public class ExecutorImplTest {
         EasyMock.expect(handler.getStatus()).andReturn(handlerStatus);
 
         replayMocks();
-        exec = new ExecutorImpl(handler);
-        exec.initialize(storeMgr, servicesMgr, manifestGenerator);
+        initExec();
 
         // Get status
         Map<String, String> status = exec.getStatus();

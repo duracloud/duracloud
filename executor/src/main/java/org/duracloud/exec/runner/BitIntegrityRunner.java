@@ -214,11 +214,13 @@ public class BitIntegrityRunner implements Runnable {
                 spacesBuilder.append(spaceId);
                 spacesBuilder.append(" ");
             }
-            String spaces = spacesBuilder.toString().trim();
-            log.error("Bit integrity failed to complete for these spaces: " +
-                      spaces);
-
-            //TODO: Notify
+            String spaces =
+                spacesBuilder.toString().trim().replaceAll(" ", ", ");
+            String message = "The DuraCloud Executor failed to complete bit" +
+                             " integrity runs for the following spaces: " +
+                             spaces;
+            log.error(message);
+            handler.notify(message);
         }
     }
 
@@ -279,9 +281,9 @@ public class BitIntegrityRunner implements Runnable {
         return failureList;
     }
 
-    private void runBitIntegrityOnSpace(ContentStore store,
-                                        boolean download,
-                                        String spaceId)
+    protected void runBitIntegrityOnSpace(ContentStore store,
+                                          boolean download,
+                                          String spaceId)
         throws ServicesException, NotFoundException, ManifestException {
         // Deploy bit integrity check service
         String storeId = store.getStoreId();
@@ -318,18 +320,18 @@ public class BitIntegrityRunner implements Runnable {
 
             // Get the manifest comparison report
             Map<String, String> compareProps = getServiceProps(deploymentId);
-            String compareReportId = getReportId(props);
 
             // Undeploy bit integrity tools (after comparison run)
             servicesMgr.undeployService(service.getId(), deploymentId);
 
             if(!isServiceSuccessful(compareProps)) {
                 success = false;
-                // TODO: Notify on comparison mismatch
+                notifyOnFailure(download, true, spaceId,
+                                store, props, compareProps);
             }
         } else {
             success = false;
-            // TODO: Notify on comparison mismatch
+            notifyOnFailure(download, false, spaceId, store, props, null);
         }
 
         // Write to results file (for display)
@@ -339,6 +341,42 @@ public class BitIntegrityRunner implements Runnable {
                                         reportPath,
                                         success ? true : false);
         handler.storeResults(storeId, spaceId, result);
+    }
+
+    private void notifyOnFailure(boolean download,
+                                 boolean onCompare,
+                                 String spaceId,
+                                 ContentStore store,
+                                 Map<String, String> props,
+                                 Map<String, String> compareProps) {
+        String type = download ? "generated from the stored files" :
+                     "retrieved from the storage provider";
+        String reason = onCompare ?
+            "while comparing the manifest checksums and those " :
+            "while collecting checksums ";
+        String message =
+            "The DuraCloud Executor reported a failed bit integrity run " +
+            reason + type + ". The failure was in space with ID " + spaceId +
+            " in store with ID " + store.getStoreId() + " and type " +
+            store.getStorageProviderType() + "." +
+            "\n\nThe properties of the bit integrity run where checksums from" +
+            " the space were collected as they were " + type + ":" +
+            buildPropsString(props);
+        if(onCompare) {
+            message += ("\n\nThe properties of the comparison bit integrity " +
+            "run showing the failure were: " + buildPropsString(compareProps));
+        }
+        log.error(message);
+        handler.notify(message);
+    }
+
+    private String buildPropsString(Map<String, String> props) {
+        StringBuilder builder = new StringBuilder();
+        for(String key : props.keySet()) {
+            builder.append("\n  ").append(key).append(": ")
+                   .append(props.get(key));
+        }
+        return builder.toString();
     }
 
     private List<String> getSpaces(ContentStore store) {

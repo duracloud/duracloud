@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.reporter.notification;
+package org.duracloud.common.notification;
 
 import org.duracloud.appconfig.domain.NotificationConfig;
 
@@ -44,5 +44,13 @@ public interface Notifier {
      *                     email address, a URL address, etc.
      */
     public void notify(String subject, String message, String... destinations);
+
+    /**
+     * Sends a notification to configured admins
+     *
+     * @param subject the subject of the notification
+     * @param message the actual notification message
+     */
+    public void notifyAdmins(String subject, String message);
 
 }

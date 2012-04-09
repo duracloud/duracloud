@@ -12,11 +12,11 @@
   </bean>
 
   <bean id="notificationManager"
-        class="org.duracloud.reporter.notification.NotificationManager">
+        class="org.duracloud.common.notification.NotificationManager">
     <constructor-arg ref="emailNotifier"/>
   </bean>
 
   <bean id="emailNotifier"
-        class="org.duracloud.reporter.notification.EmailNotifier"/>
+        class="org.duracloud.common.notification.EmailNotifier"/>
 
 </beans>

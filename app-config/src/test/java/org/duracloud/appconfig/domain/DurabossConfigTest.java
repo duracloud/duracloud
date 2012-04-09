@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +32,8 @@ public class DurabossConfigTest {
     private String notifyUsername = "notifyUser";
     private String notifyPassword = "notifyPass";
     private String notifyOriginator = "notifyOriginator";
+    private String notifyAdmin1 = "notifyAdmin1";
+    private String notifyAdmin2 = "notifyAdmin2";
 
     private Boolean reporterEnabled = Boolean.FALSE;
     private Boolean executorEnabled = Boolean.FALSE;
@@ -67,6 +70,12 @@ public class DurabossConfigTest {
         props.put(p + DurabossConfig.notificationKey + ".0." +
                       DurabossConfig.notificationOriginatorKey,
                   notifyOriginator);
+        props.put(p + DurabossConfig.notificationKey + ".0." +
+                      DurabossConfig.notificationAdminKey  + ".0",
+                  notifyAdmin1);
+        props.put(p + DurabossConfig.notificationKey + ".0." +
+                      DurabossConfig.notificationAdminKey  + ".1",
+                  notifyAdmin2);
 
         props.put(p + DurabossConfig.reporterKey + "." +
                       DurabossConfig.enabledKey,
@@ -106,6 +115,10 @@ public class DurabossConfigTest {
         Assert.assertEquals(notifyUsername, notifyConfig.getUsername());
         Assert.assertEquals(notifyPassword, notifyConfig.getPassword());
         Assert.assertEquals(notifyOriginator, notifyConfig.getOriginator());
+        List<String> admins = notifyConfig.getAdmins();
+        Assert.assertEquals(2, admins.size());
+        Assert.assertTrue(admins.contains(notifyAdmin1));
+        Assert.assertTrue(admins.contains(notifyAdmin2));
 
         Assert.assertEquals(reporterEnabled, config.isReporterEnabled());
         Assert.assertEquals(executorEnabled, config.isExecutorEnabled());

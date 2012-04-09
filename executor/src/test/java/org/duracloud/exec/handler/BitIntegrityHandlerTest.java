@@ -44,6 +44,7 @@ public class BitIntegrityHandlerTest extends HandlerTestBase {
     private int serviceId = 6;
     private String configVersion = "config-version";
     private String resultFileName = "result-file";
+    private String hostname = "host-name";
 
     @Before
     @Override
@@ -62,7 +63,8 @@ public class BitIntegrityHandlerTest extends HandlerTestBase {
         super.replayMocks();
         EasyMock.replay(runner);
 
-        handler.initialize(storeMgr, servicesMgr, manifestGenerator);
+        handler.initialize(hostname, storeMgr, servicesMgr,
+                           manifestGenerator, notifier);
     }
 
     @After

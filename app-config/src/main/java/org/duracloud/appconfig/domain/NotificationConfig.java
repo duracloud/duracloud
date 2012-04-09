@@ -7,6 +7,8 @@
  */
 package org.duracloud.appconfig.domain;
 
+import java.util.List;
+
 /**
  * Configuration information necessary to set up notification.
  *
@@ -26,6 +28,9 @@ public class NotificationConfig {
 
     /* The source of notifications (from address for email) */
     private String originator;
+
+    /* For administrative notifications (list of addresses for email) */
+    private List<String> admins;
 
     public String getType() {
         return type;
@@ -57,6 +62,14 @@ public class NotificationConfig {
 
     public void setOriginator(String originator) {
         this.originator = originator;
+    }
+
+    public List<String> getAdmins() {
+        return admins;
+    }
+
+    public void setAdmins(List<String> admins) {
+        this.admins = admins;
     }
 
 }

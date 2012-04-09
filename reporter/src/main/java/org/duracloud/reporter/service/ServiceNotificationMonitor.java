@@ -7,8 +7,8 @@
  */
 package org.duracloud.reporter.service;
 
-import org.duracloud.reporter.notification.NotificationManager;
-import org.duracloud.reporter.notification.NotificationType;
+import org.duracloud.common.notification.NotificationManager;
+import org.duracloud.common.notification.NotificationType;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.serviceconfig.ServiceSummary;

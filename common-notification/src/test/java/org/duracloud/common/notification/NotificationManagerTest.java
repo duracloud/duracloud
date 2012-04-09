@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.reporter.notification;
+package org.duracloud.common.notification;
 
 import org.duracloud.appconfig.domain.NotificationConfig;
 import org.easymock.EasyMock;
@@ -34,6 +34,9 @@ public class NotificationManagerTest {
     public void setup() {
         config = new NotificationConfig();
         config.setType("email");
+
+        notifier1 = EasyMock.createMock(Notifier.class);
+        notifier2 = EasyMock.createMock(Notifier.class);
     }
 
     @After
@@ -61,9 +64,6 @@ public class NotificationManagerTest {
     }
 
     private void setupMocks() {
-        notifier1 = EasyMock.createMock(Notifier.class);
-        notifier2 = EasyMock.createMock(Notifier.class);
-
         EasyMock.expect(notifier1.getNotificationType())
                 .andReturn(NotificationType.EMAIL)
                 .times(2);
@@ -79,6 +79,45 @@ public class NotificationManagerTest {
         notifier1.notify(subject, message, destination);
         EasyMock.expectLastCall().once();
         notifier2.notify(subject, message, destination);
+        EasyMock.expectLastCall().once();
+
+        EasyMock.replay(notifier1, notifier2);
+    }
+
+   @Test
+    public void testSendAdminNotifcation() {
+        setupAdminMocks();
+
+        NotificationManager manager =
+            new NotificationManager(notifier1, notifier2);
+
+        List<NotificationConfig> configList =
+            new ArrayList<NotificationConfig>();
+        configList.add(config);
+
+        manager.initializeNotifiers(configList);
+
+        manager.sendAdminNotification(NotificationType.EMAIL,
+                                      subject,
+                                      message);
+    }
+
+    private void setupAdminMocks() {
+        EasyMock.expect(notifier1.getNotificationType())
+                .andReturn(NotificationType.EMAIL)
+                .times(2);
+        EasyMock.expect(notifier2.getNotificationType())
+                .andReturn(NotificationType.EMAIL)
+                .times(2);
+
+        notifier1.initialize(config);
+        EasyMock.expectLastCall().once();
+        notifier2.initialize(config);
+        EasyMock.expectLastCall().once();
+
+        notifier1.notifyAdmins(subject, message);
+        EasyMock.expectLastCall().once();
+        notifier2.notifyAdmins(subject, message);
         EasyMock.expectLastCall().once();
 
         EasyMock.replay(notifier1, notifier2);

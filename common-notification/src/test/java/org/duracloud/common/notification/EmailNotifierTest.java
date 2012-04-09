@@ -5,11 +5,14 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.reporter.notification;
+package org.duracloud.common.notification;
 
 import org.duracloud.notification.Emailer;
 import org.easymock.EasyMock;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +61,35 @@ public class EmailNotifierTest {
 
         // Send notification
         notifier.notify(subject, message, emailAddresses);
+
+        // Verify mock
+        EasyMock.verify(emailer);
+    }
+
+    @Test
+    public void testNotifyAdmins() {
+        String admin1 = "admin1";
+        String admin2 = "admin2";
+        List<String> adminEmails = new ArrayList<String>();
+        adminEmails.add(admin1);
+        adminEmails.add(admin2);
+        String[] adminEmailArray = {admin1, admin2};
+
+        // Set up mock emailer
+        Emailer emailer = EasyMock.createMock(Emailer.class);
+
+        emailer.send(subject, message, adminEmailArray);
+        EasyMock.expectLastCall().times(1);
+
+        EasyMock.replay(emailer);
+
+        // Set up notifier
+        EmailNotifier notifier = new EmailNotifier();
+        notifier.setEmailer(emailer);
+        notifier.setAdminEmails(adminEmails);
+
+        // Send notification
+        notifier.notifyAdmins(subject, message);
 
         // Verify mock
         EasyMock.verify(emailer);

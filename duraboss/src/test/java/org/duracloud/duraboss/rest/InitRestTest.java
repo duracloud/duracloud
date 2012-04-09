@@ -21,7 +21,7 @@ import org.duracloud.duraboss.rest.report.StorageReportResource;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.manifest.ManifestGenerator;
-import org.duracloud.reporter.notification.NotificationManager;
+import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.servicemonitor.ServiceSummarizer;
@@ -161,9 +161,11 @@ public class InitRestTest {
         notificationManager.initializeNotifiers(EasyMock.<Collection<NotificationConfig>>anyObject());
         EasyMock.expectLastCall();
 
-        executor.initialize(EasyMock.<ContentStoreManager>anyObject(),
+        executor.initialize(EasyMock.<String>anyObject(),
+                            EasyMock.<ContentStoreManager>anyObject(),
                             EasyMock.<ServicesManager>anyObject(),
-                            EasyMock.<ManifestGenerator>anyObject());
+                            EasyMock.<ManifestGenerator>anyObject(),
+                            EasyMock.<NotificationManager>anyObject());
         EasyMock.expectLastCall();
 
         auditor.initialize(EasyMock.<ContentStoreManager>anyObject());

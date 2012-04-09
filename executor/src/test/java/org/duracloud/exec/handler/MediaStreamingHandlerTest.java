@@ -59,7 +59,8 @@ public class MediaStreamingHandlerTest extends HandlerTestBase {
     protected void replayMocks() {
         super.replayMocks();
 
-        handler.initialize(storeMgr, servicesMgr, manifestGenerator);
+        handler.initialize(hostname, storeMgr, servicesMgr,
+                           manifestGenerator, notifier);
     }
 
     @Test

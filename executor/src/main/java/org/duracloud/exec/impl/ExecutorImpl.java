@@ -9,6 +9,7 @@ package org.duracloud.exec.impl;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.exec.ServiceHandler;
 import org.duracloud.exec.error.InvalidActionRequestException;
@@ -53,12 +54,18 @@ public class ExecutorImpl implements LocalExecutor {
     }
 
     @Override
-    public void initialize(ContentStoreManager storeMgr,
+    public void initialize(String host,
+                           ContentStoreManager storeMgr,
                            ServicesManager servicesMgr,
-                           ManifestGenerator manifestGenerator) {
+                           ManifestGenerator manifestGenerator,
+                           NotificationManager notifier) {
         log.debug("initialize() the Executor");
         for(ServiceHandler handler : serviceHandlers) {
-            handler.initialize(storeMgr, servicesMgr, manifestGenerator);
+            handler.initialize(host,
+                               storeMgr,
+                               servicesMgr,
+                               manifestGenerator,
+                               notifier);
         }
         initialized = true;
         start();

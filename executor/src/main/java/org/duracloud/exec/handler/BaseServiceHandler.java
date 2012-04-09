@@ -10,6 +10,7 @@ package org.duracloud.exec.handler;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.util.SerializationUtil;
@@ -44,9 +45,12 @@ public abstract class BaseServiceHandler
     private final Logger log =
         LoggerFactory.getLogger(BaseServiceHandler.class);
 
+    protected String host;
+
     protected ContentStoreManager storeMgr;
     protected ServicesManager servicesMgr;
     protected ManifestGenerator manifestGenerator;
+    protected NotificationManager notifier;
 
     protected Set<String> supportedActions;
 
@@ -57,12 +61,16 @@ public abstract class BaseServiceHandler
     }
 
     @Override
-    public void initialize(ContentStoreManager storeMgr,
+    public void initialize(String host,
+                           ContentStoreManager storeMgr,
                            ServicesManager servicesMgr,
-                           ManifestGenerator manifestGenerator) {
+                           ManifestGenerator manifestGenerator,
+                           NotificationManager notifier) {
+        this.host = host;
         this.storeMgr = storeMgr;
         this.servicesMgr = servicesMgr;
         this.manifestGenerator = manifestGenerator;
+        this.notifier = notifier;
 
         verifyStateSpaceExists();
     }

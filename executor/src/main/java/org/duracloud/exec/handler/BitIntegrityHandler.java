@@ -9,6 +9,7 @@ package org.duracloud.exec.handler;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.common.notification.NotificationType;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
@@ -211,6 +212,13 @@ public class BitIntegrityHandler extends BaseServiceHandler {
                       "due to " + e.getClass().getName() + ": " +
                       e.getMessage(), e);
         }
+    }
+
+    public void notify(String message) {
+        String subject = "DuraCloud Bit Integrity failure on: " + host;
+        notifier.sendAdminNotification(NotificationType.EMAIL,
+                                       subject,
+                                       message);
     }
 
     private void setError(String error, Exception e) {

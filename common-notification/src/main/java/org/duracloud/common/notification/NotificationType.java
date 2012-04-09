@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.reporter.notification;
+package org.duracloud.common.notification;
 
 /**
  * Defines the supported types of notification.
