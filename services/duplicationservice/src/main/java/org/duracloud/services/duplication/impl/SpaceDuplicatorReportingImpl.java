@@ -89,6 +89,10 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
                             updateSpace(event.getSpaceId());
                             break;
 
+                        case SPACE_UPDATE_ACL:
+                            updateSpaceAcl(event.getSpaceId());
+                            break;
+
                         default:
                             String msg = "Unexpected retry event: " + event;
                             log.error(msg);
@@ -125,6 +129,17 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
 
         } catch (DuplicationException e) {
             updateSpaceFailure(spaceId);
+        }
+    }
+
+    @Override
+    public void updateSpaceAcl(String spaceId) {
+        try {
+            spaceDuplicator.updateSpaceAcl(spaceId);
+            updateSpaceAclSuccess(spaceId);
+
+        } catch (DuplicationException e) {
+            updateSpaceAclFailure(spaceId);
         }
     }
 
@@ -167,6 +182,10 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
         processSuccess(spaceId, DuplicationEvent.TYPE.SPACE_UPDATE);
     }
 
+    private void updateSpaceAclSuccess(String spaceId) {
+        processSuccess(spaceId, DuplicationEvent.TYPE.SPACE_UPDATE_ACL);
+    }
+
     private void deleteSpaceSuccess(String spaceId) {
         processSuccess(spaceId, DuplicationEvent.TYPE.SPACE_DELETE);
     }
@@ -188,6 +207,11 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
     private void updateSpaceFailure(String spaceId) {
         log.debug("updateSpaceFailure({})", spaceId);
         spaceFailure(spaceId, DuplicationEvent.TYPE.SPACE_UPDATE);
+    }
+
+    private void updateSpaceAclFailure(String spaceId) {
+        log.debug("updateSpaceAclFailure({})", spaceId);
+        spaceFailure(spaceId, DuplicationEvent.TYPE.SPACE_UPDATE_ACL);
     }
 
     private void deleteSpaceFailure(String spaceId) {

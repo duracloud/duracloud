@@ -25,6 +25,8 @@ import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingIm
 import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImplTest.MODE.CREATE_SUCCESS;
 import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImplTest.MODE.DELETE_ERROR;
 import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImplTest.MODE.DELETE_SUCCESS;
+import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImplTest.MODE.UPDATE_ACL_ERROR;
+import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImplTest.MODE.UPDATE_ACL_SUCCESS;
 import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImplTest.MODE.UPDATE_ERROR;
 import static org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImplTest.MODE.UPDATE_SUCCESS;
 import static org.duracloud.services.duplication.result.DuplicationEvent.TYPE.SPACE_CREATE;
@@ -131,6 +133,16 @@ public class SpaceDuplicatorReportingImplTest {
     }
 
     @Test
+    public void testUpdateSpaceAcl() throws Exception {
+        doTestSpace(UPDATE_ACL_SUCCESS);
+    }
+
+    @Test
+    public void testUpdateSpaceAclError() throws Exception {
+        doTestSpace(UPDATE_ACL_ERROR);
+    }
+
+    @Test
     public void testDeleteSpace() throws Exception {
         doTestSpace(DELETE_SUCCESS);
     }
@@ -160,6 +172,11 @@ public class SpaceDuplicatorReportingImplTest {
                 spaceDuplicatorReporting.updateSpace(spaceId);
                 break;
 
+            case UPDATE_ACL_SUCCESS:
+            case UPDATE_ACL_ERROR:
+                spaceDuplicatorReporting.updateSpaceAcl(spaceId);
+                break;
+
             case DELETE_SUCCESS:
             case DELETE_ERROR:
                 spaceDuplicatorReporting.deleteSpace(spaceId);
@@ -186,6 +203,11 @@ public class SpaceDuplicatorReportingImplTest {
                 EasyMock.expectLastCall();
                 break;
 
+            case UPDATE_ACL_SUCCESS:
+                spaceDuplicator.updateSpaceAcl(spaceId);
+                EasyMock.expectLastCall();
+                break;
+
             case DELETE_SUCCESS:
                 spaceDuplicator.deleteSpace(spaceId);
                 EasyMock.expectLastCall();
@@ -201,6 +223,14 @@ public class SpaceDuplicatorReportingImplTest {
 
             case UPDATE_ERROR:
                 spaceDuplicator.updateSpace(spaceId);
+                EasyMock.expectLastCall().andThrow(new DuplicationException(
+                    "canned-exception")).times(
+                    SpaceDuplicatorReportingImpl.MAX_RETRIES + 1);
+                EasyMock.makeThreadSafe(spaceDuplicator, true);
+                break;
+
+            case UPDATE_ACL_ERROR:
+                spaceDuplicator.updateSpaceAcl(spaceId);
                 EasyMock.expectLastCall().andThrow(new DuplicationException(
                     "canned-exception")).times(
                     SpaceDuplicatorReportingImpl.MAX_RETRIES + 1);
@@ -242,9 +272,11 @@ public class SpaceDuplicatorReportingImplTest {
     protected enum MODE {
         CREATE_SUCCESS(true, SPACE_CREATE),
         UPDATE_SUCCESS(true, DuplicationEvent.TYPE.SPACE_UPDATE),
+        UPDATE_ACL_SUCCESS(true, DuplicationEvent.TYPE.SPACE_UPDATE_ACL),
         DELETE_SUCCESS(true, DuplicationEvent.TYPE.SPACE_DELETE),
         CREATE_ERROR(false, SPACE_CREATE),
         UPDATE_ERROR(false, DuplicationEvent.TYPE.SPACE_UPDATE),
+        UPDATE_ACL_ERROR(false, DuplicationEvent.TYPE.SPACE_UPDATE_ACL),
         DELETE_ERROR(false, DuplicationEvent.TYPE.SPACE_DELETE);
 
         private boolean valid;

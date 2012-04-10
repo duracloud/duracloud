@@ -11,10 +11,10 @@ package org.duracloud.durastore.aop;
  * @author Andrew Woods
  *         Date: 4/09/12
  */
-public class SpaceUpdateAdviceTest extends SpaceAdviceTestBase {
+public class SpaceAclUpdateAdviceTest extends SpaceAdviceTestBase {
 
     @Override
     protected BaseContentStoreAdvice getSpaceAdvice() {
-        return new SpaceUpdateAdvice();
+        return new SpaceAclUpdateAdvice();
     }
 }

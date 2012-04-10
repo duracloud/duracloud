@@ -67,6 +67,10 @@
     <constructor-arg index="0" value="org.duracloud.topic.change.space.update" />
   </bean>
 
+  <bean id="updateSpaceAclDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg index="0" value="org.duracloud.topic.change.space.update.acl" />
+  </bean>
+
   <bean id="deleteSpaceDestination" class="org.apache.activemq.command.ActiveMQTopic">
     <constructor-arg index="0" value="org.duracloud.topic.change.space.delete" />
   </bean>

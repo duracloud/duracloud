@@ -38,6 +38,7 @@ public abstract class BaseListenerService extends BaseService
 
     private String spaceCreateTopic;
     private String spaceUpdateTopic;
+    private String spaceUpdateAclTopic;
     private String spaceDeleteTopic;
     private String contentCreateTopic;
     private String contentCopyTopic;
@@ -146,6 +147,14 @@ public abstract class BaseListenerService extends BaseService
 
     public void setSpaceUpdateTopic(String spaceUpdateTopic) {
         this.spaceUpdateTopic = spaceUpdateTopic;
+    }
+
+    public String getSpaceUpdateAclTopic() {
+        return spaceUpdateAclTopic;
+    }
+
+    public void setSpaceUpdateAclTopic(String spaceUpdateAclTopic) {
+        this.spaceUpdateAclTopic = spaceUpdateAclTopic;
     }
 
     public String getSpaceDeleteTopic() {

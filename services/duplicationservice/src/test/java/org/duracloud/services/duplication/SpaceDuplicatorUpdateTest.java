@@ -8,6 +8,7 @@
 package org.duracloud.services.duplication;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.AclType;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.services.duplication.error.DuplicationException;
@@ -60,9 +61,21 @@ public class SpaceDuplicatorUpdateTest {
     }
 
     @Test
+    public void testUpdateSpaceAcl() throws Exception {
+        init(Mode.OK_ACL);
+        replicator.updateSpaceAcl(spaceId);
+    }
+
+    @Test
     public void testNullInputUpdateSpace() throws Exception {
         init(Mode.NULL_INPUT);
         replicator.updateSpace(null);
+    }
+
+    @Test
+    public void testNullInputUpdateSpaceAcl() throws Exception {
+        init(Mode.NULL_INPUT);
+        replicator.updateSpaceAcl(null);
     }
 
     @Test
@@ -77,7 +90,7 @@ public class SpaceDuplicatorUpdateTest {
         try {
             replicator.updateSpace(spaceId);
             Assert.fail("exception expected");
-            
+
         } catch (DuplicationException e) {
             Assert.assertNotNull(e.getMessage());
         }
@@ -100,6 +113,42 @@ public class SpaceDuplicatorUpdateTest {
         init(Mode.CREATE_EXCEPTION);
         try {
             replicator.updateSpace(spaceId);
+            Assert.fail("exception expected");
+
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testNotFoundUpdateSpaceAcl() throws Exception {
+        init(Mode.NOT_FOUND_ACL);
+        try {
+            replicator.updateSpaceAcl(spaceId);
+            Assert.fail("exception expected");
+            
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testNotFoundCreateExceptionUpdateSpaceAcl() throws Exception {
+        init(Mode.NOT_FOUND_ACL_CREATE_EXCEPTION);
+        try {
+            replicator.updateSpaceAcl(spaceId);
+            Assert.fail("exception expected");
+
+        } catch (DuplicationException e) {
+            Assert.assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testCreateExceptionUpdateSpaceAcl() throws Exception {
+        init(Mode.CREATE_ACL_EXCEPTION);
+        try {
+            replicator.updateSpaceAcl(spaceId);
             Assert.fail("exception expected");
 
         } catch (DuplicationException e) {
@@ -141,6 +190,13 @@ public class SpaceDuplicatorUpdateTest {
                         .andThrow(new ContentStoreException("canned-exception"))
                         .times(4);
                 break;
+            case OK_ACL:
+            case NOT_FOUND_ACL:
+            case NOT_FOUND_ACL_CREATE_EXCEPTION:
+            case CREATE_ACL_EXCEPTION:
+                EasyMock.expect(store.getSpaceACLs(spaceId)).andReturn(
+                    createSpaceACLs(cmd));
+                break;
             default:
                 EasyMock.expect(store.getSpaceProperties(spaceId)).andReturn(
                     createSpaceProperties(cmd));
@@ -153,6 +209,13 @@ public class SpaceDuplicatorUpdateTest {
         properties.put(ContentStore.SPACE_COUNT, "10");
 
         return properties;
+    }
+
+    private Map<String, AclType> createSpaceACLs(Mode cmd) {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
+        acls.put("user", AclType.READ);
+
+        return acls;
     }
 
     private ContentStore createMockToStore(Mode cmd)
@@ -173,6 +236,17 @@ public class SpaceDuplicatorUpdateTest {
                 store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall();              
                 break;
+            case OK_ACL:
+                store.setSpaceACLs(spaceId, createSpaceACLs(cmd));
+                EasyMock.expectLastCall();
+                break;
+            case NOT_FOUND_ACL:
+            case NOT_FOUND_ACL_CREATE_EXCEPTION:
+            case CREATE_ACL_EXCEPTION:
+                store.setSpaceACLs(spaceId, createSpaceACLs(cmd));
+                EasyMock.expectLastCall().andThrow(new NotFoundException(
+                    "test-exception")).times(4);
+                break;
             case SET_PROPERTIES_EXCEPTION:
                 store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
@@ -191,8 +265,8 @@ public class SpaceDuplicatorUpdateTest {
     }
 
     private enum Mode {
-        OK, NULL_INPUT, SET_PROPERTIES_EXCEPTION,
-        NOT_FOUND, NOT_FOUND_CREATE_EXCEPTION, CREATE_EXCEPTION,
-        GET_PROPERTIES_EXCEPTION;//, SET_PROPS_EXCEPTION;
+        OK, OK_ACL, NULL_INPUT, SET_PROPERTIES_EXCEPTION,NOT_FOUND_ACL,
+        NOT_FOUND, NOT_FOUND_CREATE_EXCEPTION, NOT_FOUND_ACL_CREATE_EXCEPTION,
+        CREATE_EXCEPTION, CREATE_ACL_EXCEPTION,GET_PROPERTIES_EXCEPTION;//, SET_PROPS_EXCEPTION;
     }
 }

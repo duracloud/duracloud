@@ -8,6 +8,7 @@
 package org.duracloud.services.duplication.impl;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.model.AclType;
 import org.duracloud.services.duplication.StoreCaller;
 import org.duracloud.services.duplication.SpaceDuplicator;
 import org.duracloud.services.duplication.error.DuplicationException;
@@ -99,6 +100,34 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
     }
 
     @Override
+    public void updateSpaceAcl(String spaceId) {
+        logDebug("Updating ACL", spaceId);
+
+        if (spaceId == null) {
+            String err = "Space to update is null.";
+            log.warn(err);
+            return;
+        }
+
+        // Set space ACLs
+        Map<String, AclType> acls = getSpaceACLs(spaceId);
+        if (null == acls) {
+            StringBuilder err = new StringBuilder();
+            err.append("Unable to get space ACLs for :");
+            err.append(spaceId);
+            log.error(err.toString());
+            throw new DuplicationException(err.toString());
+        }
+
+        boolean success = setSpaceACLs(spaceId, acls);
+        if (!success) {
+            String error = "Unable to set space ACLs: " + spaceId;
+            log.error(error);
+            throw new DuplicationException(error);
+        }
+    }
+
+    @Override
     public void deleteSpace(String spaceId) {
         logDebug("Deleting", spaceId);
 
@@ -169,6 +198,40 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
             String err = "Error setting space properties for space: {}, " +
                 "props: {}, due to: {}";
             log.error(err, new Object[]{spaceId, properties, e.getMessage()});
+            return false;
+        }
+    }
+
+    private Map<String, AclType> getSpaceACLs(final String spaceId) {
+        try {
+            return new StoreCaller<Map<String, AclType>>(waitMillis) {
+                protected Map<String, AclType> doCall() throws Exception {
+                    return fromStore.getSpaceACLs(spaceId);
+                }
+            }.call();
+
+        } catch (Exception e) {
+            log.error("Error getting space ACLs: {}, due to: {}",
+                      spaceId,
+                      e.getMessage());
+            return null;
+        }
+    }
+
+    private boolean setSpaceACLs(final String spaceId,
+                                 final Map<String, AclType> acls) {
+        try {
+            return new StoreCaller<Boolean>(waitMillis) {
+                protected Boolean doCall() throws Exception {
+                    toStore.setSpaceACLs(spaceId, acls);
+                    return true;
+                }
+            }.call();
+
+        } catch (Exception e) {
+            String err = "Error setting space ACLs for space: {}, " +
+                "acls: {}, due to: {}";
+            log.error(err, new Object[]{spaceId, acls, e.getMessage()});
             return false;
         }
     }

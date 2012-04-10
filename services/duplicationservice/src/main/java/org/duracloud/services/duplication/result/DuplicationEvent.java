@@ -46,6 +46,7 @@ public class DuplicationEvent implements Delayed {
     public static enum TYPE {
         SPACE_CREATE,
         SPACE_UPDATE,
+        SPACE_UPDATE_ACL,
         SPACE_DELETE,
         CONTENT_CREATE,
         CONTENT_UPDATE,
