@@ -2918,6 +2918,7 @@ $(function(){
             
         },
         _loadPreview: function(contentItem,j2kBaseURL){
+            var that = this;
             //if space is not publicly visible and j2K service is running, we must 
             //notify the user that the space must be opened.
         
@@ -2972,14 +2973,14 @@ $(function(){
                thumbnail.show();
            });
            
-           if(!open && j2kBaseURL != null && isAdmin()){
+           if(!open && j2kBaseURL != null && this._isAdmin()){
                    var warning = $.fn.create("div").addClass("warning").attr("id", "make-public-warning");
                    $(div).expandopanel("getContent").append(warning);
-                   var button = createMakePublicButton(
+                   var button = this._createMakePublicButton(
                                    contentItem.storeId, 
                                    contentItem.spaceId, 
                                    function(){
-                                       getContentItem(
+                                       that._getContentItem(
                                                contentItem.storeId,
                                                contentItem.spaceId,
                                                contentItem.contentId,
