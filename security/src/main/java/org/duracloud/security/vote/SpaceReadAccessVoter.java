@@ -7,6 +7,8 @@
  */
 package org.duracloud.security.vote;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.storage.provider.StorageProvider;
@@ -20,6 +22,7 @@ import org.springframework.security.userdetails.UserDetailsService;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +40,22 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
 
     private final Logger log =
         LoggerFactory.getLogger(SpaceReadAccessVoter.class);
-
+    
+    private List<String> pathExemptions = null;
     public SpaceReadAccessVoter(StorageProviderFactory storageProviderFactory,
                                 UserDetailsService userDetailsService) {
+        this(storageProviderFactory, userDetailsService, new LinkedList<String>());
+    }
+    /**
+     * 
+     * @param storageProviderFactory
+     * @param userDetailsService
+     * @param pathExemptions A list of regular expressions designating path info strings allowable for users.
+     */
+    public SpaceReadAccessVoter(StorageProviderFactory storageProviderFactory,
+                                UserDetailsService userDetailsService, List<String> pathExemptions) {
         super(storageProviderFactory, userDetailsService);
+        this.pathExemptions = pathExemptions;
     }
 
     /**
@@ -91,7 +106,7 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
-
+        
         Map<String, AclType> acls = getSpaceACLs(httpRequest);
         // All READs on PUBLIC spaces are granted.
         if (acls.containsKey(StorageProvider.PROPERTIES_SPACE_ACL_PUBLIC)) {
@@ -116,9 +131,27 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
 
+        //special case allowing configurable file patterns to be exempted 
+        if(matchesPathExemptions(httpRequest)){
+          return ACCESS_GRANTED;
+        }
+        
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
         return grant;
     }
 
+    private boolean matchesPathExemptions(HttpServletRequest httpRequest) {
+        String path = httpRequest.getPathInfo();
+        
+        if(!CollectionUtils.isEmpty(this.pathExemptions)){
+            for(String pattern : this.pathExemptions){
+                if(path.matches(pattern)){
+                    return true;
+                }
+            }
+        }
+        return false;
+       
+    }
 }

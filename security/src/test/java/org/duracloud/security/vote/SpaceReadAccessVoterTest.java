@@ -7,13 +7,26 @@
  */
 package org.duracloud.security.vote;
 
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.easymock.IAnswer;
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,17 +42,6 @@ import org.springframework.security.providers.anonymous.AnonymousAuthenticationT
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
-
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -59,7 +61,7 @@ public class SpaceReadAccessVoterTest {
     private UserDetailsService userDetailsService;
     private FilterInvocation resource;
     private HttpServletRequest request;
-
+    private List<String> userPathOverrides;
 
     @Before
     public void setUp() {
@@ -74,7 +76,8 @@ public class SpaceReadAccessVoterTest {
         request = EasyMock.createMock("HttpServletRequest",
                                       HttpServletRequest.class);
 
-        voter = new SpaceReadAccessVoter(providerFactory, userDetailsService);
+        this.userPathOverrides = new LinkedList<String>();
+        voter = new SpaceReadAccessVoter(providerFactory, userDetailsService, this.userPathOverrides);
     }
 
     @After
@@ -90,7 +93,7 @@ public class SpaceReadAccessVoterTest {
     public void testUserAccessMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser(userRead, "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.GET);
+        createMockInvocation(caller, securedSpace, HttpVerb.GET, 2);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -103,7 +106,7 @@ public class SpaceReadAccessVoterTest {
     public void testUserNoAccessMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.GET);
+        createMockInvocation(caller, securedSpace, HttpVerb.GET,3);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -116,7 +119,7 @@ public class SpaceReadAccessVoterTest {
     public void testGroupAccessMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", groupWrite);
-        createMockInvocation(caller, securedSpace, HttpVerb.GET);
+        createMockInvocation(caller, securedSpace, HttpVerb.GET, 2);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -125,11 +128,13 @@ public class SpaceReadAccessVoterTest {
         Assert.assertEquals(ACCESS_GRANTED, decision);
     }
 
+
+
     @Test
     public void testGroupNoAccessMethodsGET() {
         boolean securedSpace = true;
         Authentication caller = registeredUser("joe", "none");
-        createMockInvocation(caller, securedSpace, HttpVerb.GET);
+        createMockInvocation(caller, securedSpace, HttpVerb.GET,3);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
         replayMocks();
@@ -184,6 +189,19 @@ public class SpaceReadAccessVoterTest {
     }
 
     @Test
+    public void testVoteUserPathOverridesReport() {
+        boolean securedSpace = true;
+        Authentication caller = registeredUser("joe", "none");
+        createMockInvocation(caller, securedSpace, HttpVerb.GET, "/x-service-out/bit-integrity/report", 3);
+        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        this.userPathOverrides.add("/x-service-out/bit-integrity.*");
+        replayMocks();
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(ACCESS_GRANTED, decision);
+    }
+
+    
+    @Test
     public void testVoteOpenAuthenticated() {
         boolean securedSpace = false;
         verifyVote(registeredUser("joe", "none"), securedSpace, ACCESS_GRANTED);
@@ -198,7 +216,7 @@ public class SpaceReadAccessVoterTest {
     @Test
     public void testVoteClosedAuthenticatedNoAccess() {
         boolean securedSpace = true;
-        verifyVote(registeredUser("joe", "none"), securedSpace, ACCESS_DENIED);
+        verifyVote(registeredUser("joe", "none"), securedSpace, ACCESS_DENIED, 3);
     }
 
     @Test
@@ -216,7 +234,14 @@ public class SpaceReadAccessVoterTest {
     private void verifyVote(Authentication caller,
                             boolean securedSpace,
                             int expected) {
-        resource = createMockInvocation(caller, securedSpace, HttpVerb.GET);
+        verifyVote(caller, securedSpace, expected, 2);
+    }
+
+    private void verifyVote(Authentication caller,
+                            boolean securedSpace,
+                            int expected,
+                            int times) {
+        resource = createMockInvocation(caller, securedSpace, HttpVerb.GET, times);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
         replayMocks();
 
@@ -250,11 +275,28 @@ public class SpaceReadAccessVoterTest {
     }
 
     private FilterInvocation createMockInvocation(Authentication caller,
+                                      boolean securedSpace,
+                                      HttpVerb method,
+                                      int times) {
+        return createMockInvocation(caller, securedSpace, method, null, times);
+    }
+    
+    private FilterInvocation createMockInvocation(Authentication caller,
                                                   boolean securedSpace,
                                                   HttpVerb method) {
+        return createMockInvocation(caller, securedSpace, method, 2);
+    }
+
+    private FilterInvocation createMockInvocation(Authentication caller,
+                                                  boolean securedSpace,
+                                                  HttpVerb method, String pathInfo, int times) {
         String spaceId = OPEN_SPACE_ID;
-        if (securedSpace) {
-            spaceId = "some-closed-space";
+        if(pathInfo != null){
+            spaceId = pathInfo;
+        }else{
+            if (securedSpace) {
+                spaceId = "some-closed-space";
+            }
         }
 
         EasyMock.expect(request.getMethod()).andReturn(method.name());
@@ -262,17 +304,22 @@ public class SpaceReadAccessVoterTest {
         if (method.isRead()) {
             EasyMock.expect(request.getQueryString()).andReturn(
                 "storeID=" + storeId + "&attachment=true");
-            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(2);
+            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(times);
         }
 
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }
 
-    private FilterInvocation createMockInvocation(String spaceId,
+    private FilterInvocation createMockInvocation(String pathInfo,
                                                   HttpVerb method) {
+        return createMockInvocation(pathInfo, method, 1);
+    }
+
+    private FilterInvocation createMockInvocation(String pathInfo,
+                                                  HttpVerb method, int times) {
         EasyMock.expect(request.getMethod()).andReturn(method.name());
-        EasyMock.expect(request.getPathInfo()).andReturn(spaceId);
+        EasyMock.expect(request.getPathInfo()).andReturn(pathInfo).times(times);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }

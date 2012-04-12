@@ -50,6 +50,11 @@
   <beans:bean id="spaceReadAccessVoter" class="org.duracloud.security.vote.SpaceReadAccessVoter">
     <beans:constructor-arg ref="storageProviderFactory"/>
     <beans:constructor-arg ref="userDetailsSvc"/>
+    <beans:constructor-arg>
+      <beans:list>
+        <beans:value>/x-service-out/bit-integrity/.*</beans:value>
+      </beans:list>
+    </beans:constructor-arg>
   </beans:bean>
   <beans:bean id="spaceWriteAccessVoter" class="org.duracloud.security.vote.SpaceWriteAccessVoter">
     <beans:constructor-arg ref="storageProviderFactory"/>
