@@ -295,10 +295,10 @@ public class ApplicationInitializer extends BaseConfig {
 
         response = initApp(appsWithConfigs.get(durastoreKey));
         response = initApp(appsWithConfigs.get(duraserviceKey));
-        response = initApp(appsWithConfigs.get(duradminKey));
         if (durabossEndpointLoad()) {
             response = initApp(appsWithConfigs.get(durabossKey));
         }
+        response = initApp(appsWithConfigs.get(duradminKey));
 
         return response;
     }
