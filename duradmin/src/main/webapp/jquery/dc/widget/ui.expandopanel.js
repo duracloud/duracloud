@@ -31,6 +31,7 @@ $.widget("ui.expandopanel",{
 			contentClass: "segment-content",
 	},
 	
+	_header: null,
 	
 	/**
 	 * Initialization 
@@ -46,29 +47,29 @@ $.widget("ui.expandopanel",{
 			$(this.element).append(document.createElement("div"));
 		};
 		
-		var header = $(this.element).children().first();
+		this._header = $(this.element).children().first();
 		var content = $(this.element).children().last();
 		var title = options.title;
 		
  		//set the title if not null
 		if(title != null){
-			header.html(title);
+			this._header.html(title);
 		}
 		
 		//add toggle button
 		if($("."+togglerClass,this.element).size() == 0){
-			header.append("<a class='"+togglerClass+"'></a>");
+			this._header.append("<a class='"+togglerClass+"'></a>");
 		}
 		
-		var toggler = header.children().first();
+		var toggler = this._header.children().first();
 		
 		//style the header
-		header.addClass(options.headerClass);
-		header.addClass(options.clearfix);
+		this._header.addClass(options.headerClass);
+		this._header.addClass(options.clearfix);
 		
 		
 		//add toggle to the header 
-		header.click(function(evt){
+		this._header.click(function(evt){
 			toggler.toggleClass(options.togglerClassClose);
 			content.slideToggle("fast");
 		});
@@ -82,6 +83,10 @@ $.widget("ui.expandopanel",{
             toggler.toggleClass(options.togglerClassClose);
 		}
 
+	},
+	
+	toggle: function(){
+	    $(this._header).trigger("click");
 	},
 	
 	getContent: function(){

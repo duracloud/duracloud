@@ -2289,9 +2289,11 @@ $(function(){
         load: function(storeId){
           this._storeId = storeId;
           
-          var history = $.fn.create("div");
-          this._appendToCenter(history);
-          history.historypanel({storeId: this._storeId});
+          if(this._isAdmin()){
+              var history = $.fn.create("div");
+              this._appendToCenter(history);
+              history.historypanel({storeId: this._storeId});
+          }
         },
 
     }));

@@ -204,11 +204,14 @@ var dc;
         chart.formatDataTable = function(firstColumnFieldName, firstColumnDisplayName,  metrics){
             var dt = {};
             var defaultCssClass = "label number";
+            var formatGB = function(bytes){
+                return dc.formatGB(bytes, 3, false);
+            };
             
             dt.columnDefs = 
                 [
                  {name: firstColumnDisplayName}
-                ,{name: "Gigabytes",cssClass:defaultCssClass, formatter: this._formatGigabytes}
+                ,{name: "Gigabytes",cssClass:defaultCssClass, formatter: formatGB}
                 ,{name: "Files",cssClass:defaultCssClass}
                 ];
             dt.rows = [];
@@ -248,14 +251,14 @@ var dc;
         chart.loadSpacesMetricsPanel = function(panel, metrics, admin){
             var p = $.fn.create("div");
             panel.append(p);
-            p.piemetricspanel({metrics: metrics.spaceMetrics, title:"Spaces", field:"spaceName", admin:admin, date: metrics.date});
+            p.piemetricspanel({metrics: metrics.spaceMetrics, title:"Spaces as of ", field:"spaceName", admin:admin, date: metrics.date});
             return p;
         }
 
         chart.loadMimetypeMetricsPanel = function(panel, metrics, admin){
             var p = $.fn.create("div");
             panel.append(p);
-            p.piemetricspanel({metrics: metrics.mimetypeMetrics, title:"Mimetypes", field:"mimetype", admin:admin, date: metrics.date});
+            p.piemetricspanel({metrics: metrics.mimetypeMetrics, title:"Mime Types as of ", field:"mimetype", admin:admin, date: metrics.date});
             return p;
         }
 
@@ -342,7 +345,9 @@ var dc;
             var metrics = this.options.metrics;
             var admin = this.options.admin;
             var date = this.options.date;
-            var header = $("<h4><span>"+this.options.title+ " " +date+"</span></h4");
+            var formattedDate = date.toString("MMM d, yyyy");
+            
+            var header = $("<h4><span>"+this.options.title+ " " + formattedDate+"</span></h4");
             dataTable = dc.chart.formatDataTable(field, "File Types", metrics);
             header.append(dc.chart.createDataButton(dataTable, "File Types"));
             if(admin){
@@ -352,7 +357,10 @@ var dc;
 
             this.element.append(header);
             bytes = $.fn.create("div").addClass("dc-graph");
-            this.element.append(bytes);
+            var  bytesHolder = $.fn.create("div").addClass("dc-graph-holder");
+            bytesHolder.append(bytes);
+            bytesHolder.append("<h6>File Size</h6>");
+            this.element.append(bytesHolder);
 
             data = dc.chart.formatPieChartData(
                     metrics, 
@@ -366,7 +374,10 @@ var dc;
             );
 
             files = $.fn.create("div").addClass("dc-graph");
-            this.element.append(files);
+            var  filesHolder = $.fn.create("div").addClass("dc-graph-holder");
+            filesHolder.append(files);
+            filesHolder.append("<h6>File Count</h6>");
+            this.element.append(filesHolder);
 
             data = dc.chart.formatPieChartData(
                     metrics,

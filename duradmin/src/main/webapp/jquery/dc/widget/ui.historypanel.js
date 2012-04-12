@@ -18,11 +18,14 @@
             title: "History", 
             spaceId: null,
             storeId: "0",
+            open: false
         }),         
         
         _init : function() {
             $.ui.expandopanel.prototype._init.call(this); //call super init first
             this.element.addClass("history-panel");
+            this.getContent().append("<h6>Byte and File Counts Over Time</h6>");
+
             this.getContent().append(this._createDiv(this._SUMMARIES_GRAPH_ELEMENT));
             this.getContent().append(this._createDiv("summaries-legend"));
             this.getContent().append(this._createDiv(this._DETAIL_GRAPH_ELEMENT));
@@ -44,6 +47,10 @@
             $.when(this._getSummaries())
                 .done(function(result){
                     var summaries = result.summaries;
+                    if(summaries.length > 0){
+                        that.toggle();
+                    }
+
                     that._initTimeSeriesGraph(summaries);
                 }).fail(function(err){
                     alert("failed to retrieve time series");
@@ -86,28 +93,30 @@
             
             var sizeSeries = {
                 label: "Bytes",
-                lines: { show: true },
-                points: { show: true },                    
+                lines: { show: true, lineWidth:5},
+                points: { show: true},                    
                 data: sizeData,    
                 yaxis: 1
             };
             
             var countSeries = {
                 label: "Files",
-                lines: { show: true },
-                points: { show: true },                    
+                lines: { show: true, lineWidth:5},
+                points: { show: true},                    
                 data: countData,
                 yaxis: 2
             };
             
             var plot = $.plot(summariesGraph, [sizeSeries,countSeries], {
                 xaxes: [{
+                    color: "#EEE",
                     mode: "time",
                     min: min,
-                    max: max,
+                    max: max
                 }],
                 yaxes: [
                  {
+                    color: "#EEE",
                     minTickSize: 1,
                     show: true, 
                     tickFormatter: function(tickValue, axis){
@@ -115,6 +124,7 @@
                     }
                  }, 
                  {
+                     color: "#EEE",
                      tickDecimals: 0,
                      minTickSize: 1,
                      show: true, 
@@ -122,7 +132,8 @@
                 ],
                 legend: {
                     show: true, 
-                    container: $("#summaries-legend")
+                    container: $("#summaries-legend"),
+                    noColumns: 7,
                 },
                 
                 grid: { hoverable: true, clickable: true },
@@ -145,7 +156,7 @@
                         var value = item.seriesIndex == 0 ? dc.formatBytes(y) : y + " Items";
                         
                         dc.chart.showTooltip(item.pageX, item.pageY,
-                                     new Date(x)  + " on " +  value);
+                                     new Date(x).toString("MMM d yyyy")  + " - " +  value);
                     }
                     
                 }else {
@@ -163,7 +174,7 @@
                     var datum = item.series.data[item.dataIndex];
                     var date = new Date(datum[0]);
                     var reportId = datum[2];
-                    var message = "Loading report for " + date;
+                    var message = "Loading...";
                     dc.busy(message, {modal: true});
 
                     that._loadDetail(that.options.storeId, that.options.spaceId, reportId, date)
@@ -198,7 +209,7 @@
                  if(!spaceId){
                     var p = dc.chart.loadSpacesMetricsPanel(detail, metrics);
                     p.bind("plotclick", function (event, pos, item) {
-                        alert("clicked space not yet implemented!");
+                        //alert("clicked space not yet implemented!");
                     });
                     
                  }else{
