@@ -1241,3 +1241,7 @@ table.dc-acls td:last-child {
 	display:inline-block;
 	font-size:0.7em"
 }
+
+button#enable-streaming {
+	margin-top:10px;
+}

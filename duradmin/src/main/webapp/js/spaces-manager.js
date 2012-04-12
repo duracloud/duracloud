@@ -2451,7 +2451,7 @@ $(function(){
 
             var switchHolder = $(".streaming-switch-holder");
             switchHolder.hide();                
-            if(this._isAdmin){
+            if(this._isAdmin()){
                 switchHolder.show();                
                     
                     //deploy/undeploy switch definition and bindings
@@ -3018,11 +3018,36 @@ $(function(){
 
             $.when(dc.service.GetStreamingStatus(contentItem.storeId, contentItem.spaceId))
              .done(function(result){
+                 var streamingHost = null;
                 if(result.streamingEnabled){
-                    that._writeMediaTag(result.streamingHost, contentItem);
+                    streamingHost = result.streamingHost;
+                    if(streamingHost != null && streamingHost.indexOf("null") == -1){
+                        that._writeMediaTag(result.streamingHost, contentItem);
+                    }else{
+                        viewer.append("<p>The streaming service for this space is starting up.</p>");
+                        viewer.append("<p>Please try again in a few minutes by refreshing this page.</p>");
+                    }
                 }else{
-                    viewer.html("<p>No streaming service is running against this space." + 
-                    "Please reconfigure the streaming service to use this space as the source.</p>");
+                    viewer.append("<p>No streaming service is running against this space.</p>");
+                    if(that._isAdmin()){
+                        var streamingButton = $.fn.create("button").attr("id", "enable-streaming");
+                        streamingButton.html("Enable streaming for this space");
+                        streamingButton.click(function(evt){
+                            $(evt.target).disable();
+                            dc.busy("Enabling streaming service...");
+                            dc.service.UpdateSpaceStreaming(
+                                        contentItem.storeId, 
+                                        contentItem.spaceId, true)
+                                      .done(function(){
+                                          HistoryManager.pushState(contentItem);
+                                      })
+                                      .always(function(){
+                                          dc.done();
+                                      });
+                        });
+                        viewer.append(streamingButton);
+                    }
+                    
                     //viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
                     //viewer.append(that._createHTML5MediaTag(contentItem,type));
                 }
