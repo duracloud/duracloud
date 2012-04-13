@@ -2501,7 +2501,7 @@ $(function(){
                         space.spaceId);
                 $(makePublicButton).insertAfter(deleteSpaceButton);
 
-                if(!this._isPubliclyReadable(space.acls)){
+                if(this._isPubliclyReadable(space.acls)){
                     makePublicButton.hide();
                 }
                 
