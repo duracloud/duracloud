@@ -106,7 +106,7 @@ $(function(){
 		var MEDIA_STREAMER_URL = APP_CONTEXT+"/services/mediastreamer";
 
 		dc.service.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
-		    var jqxhr = $.ajax({
+		    var jqxhr = dc.ajax2({
 		        url: MEDIA_STREAMER_URL +"?storeId="+storeId+"&spaceId="
 		                        + encodeURIComponent(spaceId) 
 		                        + "&enable=" + enable,
@@ -119,7 +119,7 @@ $(function(){
 		};
 		
 		dc.service.GetStreamingStatus = function (storeId, spaceId){
-		    var jqxhr =  $.ajax({
+		    var jqxhr =  dc.ajax2({
                 url: MEDIA_STREAMER_URL + "?storeId="+storeId+"&spaceId="
                                 + encodeURIComponent(spaceId), 
                 type: "get",

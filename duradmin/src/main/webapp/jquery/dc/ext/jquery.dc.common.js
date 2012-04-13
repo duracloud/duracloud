@@ -101,6 +101,14 @@ $(function(){
 			});
 		};
 
+		
+		dc.ajax2 = function(settings){
+		    return $.ajax(settings)
+		            .done(function(data){
+	                    dc.checkSession(data);
+	                });
+		};
+		
 		dc.ajax = function(innerCallback, outerCallback){
 			var callback = $.extend(
 					true, 
