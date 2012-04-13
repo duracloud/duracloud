@@ -1292,7 +1292,7 @@ $(function(){
         
         currentSpace: function(){
           var obj =  this._spacesList.selectablelist("currentItem");  
-          if(obj.data){
+          if(obj && obj.data){
               return obj.data;
           }else{
               return null;

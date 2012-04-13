@@ -270,6 +270,11 @@ $.widget("ui.selectablelist",{
 		    var checkboxHolder = $("<span class='cb-holder'></span>");
             checkboxHolder.append(checkbox);
             $(item).prepend(checkboxHolder);
+            
+            if(selectionDisabled == undefined){
+                selectionDisabled = false;
+            }
+            
             if(selectionDisabled != undefined){
                 checkbox.disable(selectionDisabled);
                 if(selectionDisabled){
