@@ -1059,7 +1059,7 @@ $(function(){
                             }).fail(function(){
                                 if(retrieveSpace.status == 404){
                                     alert(params.spaceId + " does not exist.");
-                                }                                
+                                }                           
                             });
             
             return $.when(that.loadSpaces(params),retrieveSpace)
@@ -1382,7 +1382,7 @@ $(function(){
             this._initBulkUploadButton();
             //handle enter key behavior on filter.
             $(this.element).find(".dc-item-list-filter").bindEnterKey(function(evt){
-                that._reloadContents(that._spaceId, null, function(space){that.load(space);});
+                that._reloadContents(that._spaceId, null, function(space){that._load(space);});
             });
         },
         
@@ -1567,6 +1567,10 @@ $(function(){
             return $("#content-item-filter",this.element).val();
         },
         
+        _clearFilterText: function(){
+            return $("#content-item-filter",this.element).val("");
+        },
+        
         _showMoreHandler: function(){
             var that = this,  list, itemData, lastItem, prefix, marker;
             list = this._getList();
@@ -1637,8 +1641,14 @@ $(function(){
 
             }
         },
-        
+
         load: function(space){
+            this._clearFilterText();
+            this._load(space);
+        },
+        
+        _load: function(space){
+    
             this._spaceId = space.spaceId;
             this._storeId = space.storeId;
             var list,listView, readOnly = this._isReadOnly(space); 
@@ -1647,7 +1657,7 @@ $(function(){
             list = this._getList();
             
             list.selectablelist("clear");
-    
+            
             listView
                 .find("button,input,a")
                 .fadeIn();
