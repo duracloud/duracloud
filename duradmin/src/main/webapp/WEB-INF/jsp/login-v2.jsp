@@ -1,7 +1,7 @@
 <%@include file="/WEB-INF/jsp/include.jsp" %>
 <tiles:insertDefinition name="app-base" >
 	<tiles:putAttribute name="title">
-		Duradmin: Login
+		Login
 	</tiles:putAttribute>
 	
 	<tiles:putAttribute name="header-extensions">
@@ -22,7 +22,7 @@
 		<form id="loginForm" action="${pageContext.request.contextPath}/j_spring_security_check"  method="post" onsubmit="return false;" >
 			<div id="login-wrapper">
 				<div id="login-header" class="outer clearfix">
-					<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a><span id="dc-app-title"></span></div>			
+					<div id="dc-logo-panel"><a href="/duradmin/spaces" id="dc-logo"></a></div>			
 				</div>
 				<div id="login-content" class="pane-L1-body clearfix">
 					<h1 id="title" class="float-l">Login</h1>
