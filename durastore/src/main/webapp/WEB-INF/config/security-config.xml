@@ -53,6 +53,7 @@
     <beans:constructor-arg>
       <beans:list>
         <beans:value>/x-service-out/bit-integrity/.*</beans:value>
+        <beans:value>/x-duracloud-admin/bit-integrity-results.json</beans:value>
       </beans:list>
     </beans:constructor-arg>
   </beans:bean>
