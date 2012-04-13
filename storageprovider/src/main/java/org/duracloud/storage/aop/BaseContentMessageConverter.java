@@ -45,6 +45,7 @@ public abstract class BaseContentMessageConverter {
         throws JMSException, MessageConversionException {
         MapMessage msg = session.createMapMessage();
         msg.setStringProperty(STORE_ID, contentMsg.getStoreId());
+        msg.setStringProperty(SPACE_ID, contentMsg.getSpaceId());
         msg.setString(SPACE_ID, contentMsg.getSpaceId());
         msg.setString(CONTENT_ID, contentMsg.getContentId());
         msg.setString(USERNAME, contentMsg.getUsername());

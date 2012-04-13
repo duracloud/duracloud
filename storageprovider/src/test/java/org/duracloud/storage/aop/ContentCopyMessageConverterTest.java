@@ -125,6 +125,9 @@ public class ContentCopyMessageConverterTest {
                                  storeId);
         EasyMock.expectLastCall().once();
 
+        mapMsg.setStringProperty(IngestMessageConverter.SPACE_ID, destSpaceId);
+        EasyMock.expectLastCall().once();
+
         mapMsg.setString(ContentCopyMessageConverter.SPACE_ID,
                          destSpaceId);
         EasyMock.expectLastCall().once();
