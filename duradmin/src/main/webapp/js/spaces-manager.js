@@ -1219,7 +1219,7 @@ $(function(){
             var that = this;
             //bind space filter field to enter key
             $(".dc-item-list-filter",this.element).bind("keyup", $.debounce(500,function(evt){
-                that.load(that._spaces, evt.target.value);
+                that.load(that._spaces, that._storeId);
             }));
         },
 
