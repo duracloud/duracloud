@@ -170,7 +170,7 @@
 				mode = modeSet.modes[i];
 				modeSetSelect.append($.fn.create("option")
 										 .attr("value",mode.name)
-										 .attr("selected", mode.selected ? "selected" : "")
+										 .attr("selected", mode.selected)
 										 .html(mode.displayName));
 			}
 
