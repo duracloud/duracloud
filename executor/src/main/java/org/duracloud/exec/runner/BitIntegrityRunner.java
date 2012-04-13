@@ -268,7 +268,7 @@ public class BitIntegrityRunner implements Runnable {
                      ++spacesChecked;
                 } catch(Exception e) {
                     setError("Unable to complete bit integrity check on " +
-                             "space " + spaceId + "due to a " +
+                             "space " + spaceId + " due to a " +
                              e.getClass().getName() + ": " + e.getMessage(), e);
                     failureList.add(spaceId);
                 }
@@ -320,6 +320,7 @@ public class BitIntegrityRunner implements Runnable {
 
             // Get the manifest comparison report
             Map<String, String> compareProps = getServiceProps(deploymentId);
+            reportPath = getReportId(compareProps);
 
             // Undeploy bit integrity tools (after comparison run)
             servicesMgr.undeployService(service.getId(), deploymentId);
