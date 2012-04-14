@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +86,15 @@ public class DurabossInitDocumentBinding {
                     notifyConfig.setPassword(decrypt(encPassword));
                     notifyConfig.setOriginator(
                         notifyElement.getChildText("originator"));
+
+                    List<String> admins = new ArrayList<String>();
+                    List<Element> adminElements =
+                        notifyElement.getChildren("admin");
+                    for(Element adminElement : adminElements) {
+                        admins.add(adminElement.getText());
+                    }
+                    notifyConfig.setAdmins(admins);
+
                     configMap.put(String.valueOf(i), notifyConfig);
                 }
                 config.setNotificationConfigs(configMap);
@@ -154,6 +164,9 @@ public class DurabossInitDocumentBinding {
                                  "</password>");
                     xml.append("  <originator>" + config.getOriginator() +
                                  "</originator>");
+                    for(String admin : config.getAdmins()) {
+                        xml.append("  <admin>" + admin + "</admin>");
+                    }
                     xml.append("</notificationConfig>");
                 }
             }

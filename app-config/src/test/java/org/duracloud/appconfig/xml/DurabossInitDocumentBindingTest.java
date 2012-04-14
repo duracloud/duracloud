@@ -13,13 +13,16 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author: Bill Branan
@@ -38,6 +41,8 @@ public class DurabossInitDocumentBindingTest {
     private String notifyUsername = "notifyUser";
     private String notifyPassword = "notifyPass";
     private String notifyOriginator = "notifyOriginator";
+    private String notifyAdmin1 = "admin1";
+    private String notifyAdmin2 = "admin2";
 
     @Test
     public void testXmlRoundTrip() throws Exception {
@@ -58,6 +63,10 @@ public class DurabossInitDocumentBindingTest {
         notifyConfig.setUsername(notifyUsername);
         notifyConfig.setPassword(notifyPassword);
         notifyConfig.setOriginator(notifyOriginator);
+        List<String> admins = new ArrayList<String>();
+        admins.add(notifyAdmin1);
+        admins.add(notifyAdmin2);
+        notifyConfig.setAdmins(admins);
         Map<String, NotificationConfig> notifyConfigMap =
             new HashMap<String, NotificationConfig>();
         notifyConfigMap.put("0", notifyConfig);
@@ -102,6 +111,10 @@ public class DurabossInitDocumentBindingTest {
                      trippedNotifyConfig.getPassword());
         assertEquals(notifyConfig.getOriginator(),
                      trippedNotifyConfig.getOriginator());
+        List<String> trippedAdmins = trippedNotifyConfig.getAdmins();
+        assertEquals(2, trippedAdmins.size());
+        assertTrue(trippedAdmins.contains(notifyAdmin1));
+        assertTrue(trippedAdmins.contains(notifyAdmin2));
     }
 
 }
