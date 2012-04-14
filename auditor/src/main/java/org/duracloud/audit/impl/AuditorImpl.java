@@ -198,9 +198,8 @@ public class AuditorImpl implements LocalAuditor {
 
         } catch (Exception e) {
             String storeId = store.getStoreId();
-            log.error("Error building event for, {}:{}//{}",
-                      new Object[]{storeId, space, contentId},
-                      e);
+            log.error("Error building event for, {}:{}//{}, error: {}",
+                      new Object[]{storeId, space, contentId, e});
             ContentMessage msg = new ContentMessage();
             msg.setStoreId(storeId);
             msg.setSpaceId(space);
@@ -248,6 +247,9 @@ public class AuditorImpl implements LocalAuditor {
         }
         if (null == contentSize) {
             contentSize = props.get(PROPERTIES_CONTENT_SIZE);
+        }
+        if (null == contentSize) {
+            contentSize = "0";
         }
 
         event.setStoreId(storeId);
