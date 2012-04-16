@@ -7,7 +7,9 @@
  */
 package org.duracloud.client.manifest;
 
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.manifest.ManifestGenerator;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +17,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -66,17 +69,46 @@ public class ManifestGeneratorImplTest {
 
     @Test
     public void testGetManifest() throws Exception {
+        String storeId = "store-id";
         String spaceId = "space-id";
-        String url = getBaseUrl() + "/" + spaceId;
+        String url1 = getBaseUrl() + "/" + spaceId + "?storeID=" + storeId;
 
-        EasyMock.expect(mockRestHelper.get(url))
+        EasyMock.expect(mockRestHelper.get(url1))
+                .andReturn(successResponse);
+
+        String format = ManifestGenerator.FORMAT.TSV.name();
+        String url2 = url1 + "&format=" + format;
+
+        EasyMock.expect(mockRestHelper.get(url2))
+                .andReturn(successResponse);
+
+        Date asOfDate = new Date();
+        String url3 =
+            url2 + "&date=" + DateUtil.convertToStringPlain(asOfDate.getTime());
+
+        EasyMock.expect(mockRestHelper.get(url3))
                 .andReturn(successResponse);
 
         replayMocks();
 
-        InputStream result =
-            generator.getManifest("store-id", spaceId, null, null);
-        assertNotNull(result);
+        InputStream result1 =
+            generator.getManifest(storeId, spaceId, null, null);
+        assertNotNull(result1);
+
+        InputStream result2 =
+            generator.getManifest(storeId,
+                                  spaceId,
+                                  ManifestGenerator.FORMAT.TSV,
+                                  null);
+        assertNotNull(result2);
+
+        InputStream result3 =
+            generator.getManifest(storeId,
+                                  spaceId,
+                                  ManifestGenerator.FORMAT.TSV,
+                                  asOfDate);
+        assertNotNull(result3);
+
     }
 
 }

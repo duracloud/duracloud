@@ -9,6 +9,8 @@ package org.duracloud.client.manifest;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.error.ManifestArgumentException;
@@ -96,10 +98,33 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
                                    Date asOfDate)
         throws ManifestArgumentException, ManifestEmptyException {
         String url = buildURL(spaceId);
+        if(null != storeId) {
+            url = addQueryParameter(url, "storeID", storeId);
+        }
+        if(null != format) {
+            url = addQueryParameter(url, "format", format.name());
+        }
+        if(null != asOfDate) {
+            String date = DateUtil.convertToStringPlain(asOfDate.getTime());
+            url = addQueryParameter(url, "date", date);
+        }
 
         RestHttpHelper.HttpResponse response = runGetManifest(url);
         checkResponse(response, HttpStatus.SC_OK);
         return response.getResponseStream();
+    }
+
+    private String addQueryParameter(String url, String name, String value) {
+        if (value != null && !value.equals("")) {
+            if (url.contains("?")) {
+                url += "&";
+            } else {
+                url += "?";
+            }
+
+            url += (name + "=" + EncodeUtil.urlEncode(value));
+        }
+        return url;
     }
 
     private RestHttpHelper.HttpResponse runGetManifest(String url) {
