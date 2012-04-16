@@ -46,7 +46,7 @@ public class MediaStreamingServiceInfo extends AbstractServiceInfo {
 
         MultiSelectUserConfig mediaSourceSpace = new MultiSelectUserConfig(
             "mediaSourceSpaceId",
-            "Source Media Space (select multiple spaces by holding ctrl or cmd)",
+            "Source Media Space (optional, zero to many spaces may be selected)",
             spaceOptions);
 
         msServiceUserConfig.add(mediaSourceSpace);
