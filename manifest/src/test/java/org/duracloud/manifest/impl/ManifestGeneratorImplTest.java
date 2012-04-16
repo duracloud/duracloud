@@ -68,10 +68,13 @@ public class ManifestGeneratorImplTest {
         primaryStore = EasyMock.createMock("PrimaryStore",
                                            ContentStore.class);
 
+        EasyMock.expect(storeManager.getPrimaryContentStore()).andReturn(
+            primaryStore);
+        EasyMock.expect(primaryStore.getStoreId()).andReturn(storeId);
+
         generator = new ManifestGeneratorImpl(auditor,
                                               auditLogSpace,
                                               new FileCleaningTracker());
-        generator.initialize(storeManager);
     }
 
     @After
@@ -85,6 +88,8 @@ public class ManifestGeneratorImplTest {
 
     private void replayMocks() {
         EasyMock.replay(storeManager, auditor, primaryStore);
+
+        generator.initialize(storeManager);
     }
 
     @Test
@@ -100,6 +105,16 @@ public class ManifestGeneratorImplTest {
     @Test
     public void testGetManifestWithDates() throws Exception {
         doTestGetManifest(MODE.MODE_DATE);
+    }
+
+    @Test
+    public void testGetManifestWithStoreIds() throws Exception {
+        doTestGetManifest(MODE.MODE_STOREID);
+    }
+
+    @Test
+    public void testGetManifestWithStoreIdsNull() throws Exception {
+        doTestGetManifest(MODE.MODE_STOREID_NULL);
     }
 
     private void doTestGetManifest(MODE mode) throws Exception {
@@ -123,7 +138,12 @@ public class ManifestGeneratorImplTest {
 
         replayMocks();
 
-        InputStream stream = generator.getManifest(storeId,
+        String cStoreId = storeId;
+        if (mode.equals(MODE.MODE_STOREID_NULL)) {
+            cStoreId = null;
+        }
+
+        InputStream stream = generator.getManifest(cStoreId,
                                                    spaceId,
                                                    format,
                                                    getDate());
@@ -248,6 +268,30 @@ public class ManifestGeneratorImplTest {
                     Assert.fail("unexpected index: " + i);
                 }
                 break;
+
+            case MODE_STOREID:
+            case MODE_STOREID_NULL:
+                day = 0;
+                String storeIdSuffix0 = "";
+                String storeIdSuffix1 = "1";
+                if (0 == i) {
+                    events.add(createEvent(INGEST, 0, day, storeIdSuffix0));
+                    events.add(createEvent(INGEST, 1, day, storeIdSuffix0));
+                    events.add(createEvent(INGEST, 2, day, storeIdSuffix0));
+                    events.add(createEvent(INGEST, 3, day, storeIdSuffix0));
+                    events.add(createEvent(INGEST, 4, day, storeIdSuffix0));
+
+                } else if (1 == i) {
+                    events.add(createEvent(DELETE, 0, day, storeIdSuffix0)); //
+                    events.add(createEvent(DELETE, 1, day, storeIdSuffix1));
+                    events.add(createEvent(DELETE, 2, day, storeIdSuffix1));
+                    events.add(createEvent(DELETE, 3, day, storeIdSuffix1));
+                    events.add(createEvent(DELETE, 4, day, storeIdSuffix1));
+
+                } else {
+                    Assert.fail("unexpected index: " + i);
+                }
+                break;
         }
 
         return events;
@@ -277,6 +321,13 @@ public class ManifestGeneratorImplTest {
                 contentIds.add(getContentId(2));
                 break;
 
+            case MODE_STOREID:
+            case MODE_STOREID_NULL:
+                contentIds.add(getContentId(1));
+                contentIds.add(getContentId(2));
+                contentIds.add(getContentId(3));
+                contentIds.add(getContentId(4));
+                break;
         }
         return contentIds;
     }
@@ -284,11 +335,18 @@ public class ManifestGeneratorImplTest {
     private ContentMessage createEvent(ContentMessage.ACTION action,
                                        int i,
                                        int day) {
+        return createEvent(action, i, day, "");
+    }
+
+    private ContentMessage createEvent(ContentMessage.ACTION action,
+                                       int i,
+                                       int day,
+                                       String storeIdSuffix) {
         String contentId = getContentId(i);
 
         ContentMessage event = new ContentMessage();
         event.setAction(action.name());
-        event.setStoreId(storeId);
+        event.setStoreId(storeId + storeIdSuffix);
         event.setSpaceId(spaceId);
         event.setContentId(contentId);
         event.setContentMd5(getContentMd5(contentId));
@@ -316,6 +374,6 @@ public class ManifestGeneratorImplTest {
     }
 
     protected static enum MODE {
-        MODE_INGEST, MODE_DELETE, MODE_DATE;
+        MODE_INGEST, MODE_DELETE, MODE_DATE, MODE_STOREID, MODE_STOREID_NULL
     }
 }

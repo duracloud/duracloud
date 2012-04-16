@@ -54,6 +54,7 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
     private ContentStoreManager storeManager;
     private Auditor auditor;
     private String auditLogSpace;
+    private String primaryStoreId;
 
     private Map<String, ContentMessage> events; // contentId -> event
 
@@ -69,6 +70,7 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
     @Override
     public void initialize(ContentStoreManager storeManager) {
         this.storeManager = storeManager;
+        this.primaryStoreId = getPrimaryStoreId(storeManager);
         this.events = new HashMap<String, ContentMessage>();
     }
 
@@ -151,7 +153,7 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
 
     private boolean matchesStoreId(ContentMessage event, String storeId) {
         if (null == storeId) {
-            return true;
+            return primaryStoreId.equals(event.getStoreId());
         }
 
         return storeId.equals(event.getStoreId());
@@ -291,6 +293,19 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
 
     private ContentStore getContentStore() throws ContentStoreException {
         return storeManager.getPrimaryContentStore();
+    }
+
+    private String getPrimaryStoreId(ContentStoreManager storeManager) {
+        try {
+            return storeManager.getPrimaryContentStore().getStoreId();
+
+        } catch (ContentStoreException e) {
+            StringBuilder err = new StringBuilder("Error getting primary ");
+            err.append("storeId, msg: ");
+            err.append(e.getMessage());
+            log.error(err.toString());
+            throw new ManifestGeneratorException(err.toString(), e);
+        }
     }
 
     private InputStream stream(File file) {
