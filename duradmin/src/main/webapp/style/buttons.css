@@ -77,7 +77,7 @@ a.button,
 button.featured,
 a.button.featured
 { 
-	background-color:#999999;
+	background-color:#bbb !important;
 	background: -moz-linear-gradient(top, #e4e4e4, #999999);
 	background: -webkit-gradient(linear, left top, left bottom, from(#e4e4e4), to(#999999)); 	/* For WebKit (Safari, Google Chrome etc) */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFe4e4e4, endColorstr=#FF999999); /* For Internet Explorer 5.5 - 7 */
@@ -117,25 +117,13 @@ button.small,
 	height:20px;
 }
 
-button:hover,
-a.button:hover
-{
-	background-color:#757575;
-	background: -moz-linear-gradient(top, #8e8e8e, #757575);
-	background: -webkit-gradient(linear, left top, left bottom, from(#8e8e8e), to(#757575)); 	/* For WebKit (Safari, Google Chrome etc) */
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF8e8e8e, endColorstr=#FF757575); /* For Internet Explorer 5.5 - 7 */
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF8e8e8e, endColorstr=#FF757575)";	/* For Internet Explorer 8 */
-	border-color:#00CC00;
-	color:#fff;
-}
-
 
 button:hover,
 a.button:hover,
 button.featured:hover,
 a.button.featured:hover
 { 
-	background-color:#c9c9c9;
+	background-color:#c9c9c9 !important;
 	background: -moz-linear-gradient(top, #f8f8f8, #c9c9c9);
 	background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#c9c9c9)); 	/* For WebKit (Safari, Google Chrome etc) */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFf8f8f8, endColorstr=#FFc9c9c9); /* For Internet Explorer 5.5 - 7 */
