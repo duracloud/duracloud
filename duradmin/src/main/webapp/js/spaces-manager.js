@@ -695,7 +695,7 @@ $(function(){
                         if(!this._detailManager.isSpaceDetailDisplayed()){
                             var space = this._contentItemListPane.contentitemlistpane("currentSpace");
                             if(space.spaceId){
-                                HistoryManager.pushState(space);
+                                //HistoryManager.pushState(space);
                             }
                         }
                     }
