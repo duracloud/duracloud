@@ -2465,7 +2465,7 @@ $(function(){
 
             var switchHolder = $(".streaming-switch-holder");
             switchHolder.hide();                
-            if(this._isAdmin()){
+            if(this._isAdmin() && space.primaryStorageProvider){
                 switchHolder.show();                
                     
                     //deploy/undeploy switch definition and bindings
@@ -3007,9 +3007,12 @@ $(function(){
         },
 
         _loadMedia: function(contentItem, title,/*audio or video*/type){  
+            //non primary content is not streamable.
+            if(!contentItem.primaryStorageProvider){
+                return; 
+            }
             var that = this;
             var viewer = $.fn.create("div").attr("id", "mediaspace");
-            
             var div = $.fn.create("div")
             .expandopanel({title: title});
             

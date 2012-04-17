@@ -39,6 +39,8 @@ public class Space
     private String spaceId;
 
     private String access;
+    
+    private boolean primaryStorageProvider;
 
     private SpaceProperties properties;
     
@@ -147,6 +149,14 @@ public class Space
 
     public void setBitIntegrityResult(SpaceBitIntegrityResult bitIntegrityResult) {
         this.bitIntegrityResult = bitIntegrityResult;
+    }
+
+    public boolean isPrimaryStorageProvider() {
+        return primaryStorageProvider;
+    }
+
+    public void setPrimaryStorageProvider(boolean primaryStorageProvider) {
+        this.primaryStorageProvider = primaryStorageProvider;
     }
 
 

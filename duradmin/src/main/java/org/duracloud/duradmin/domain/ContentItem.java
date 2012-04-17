@@ -28,6 +28,8 @@ public class ContentItem
     private String contentId;
 
 	private String storeId;
+	
+	private boolean primaryStorageProvider;
 
     private String contentMimetype;
 
@@ -147,5 +149,13 @@ public class ContentItem
 
     public void setImageViewerBaseURL(String imageViewerBaseURL) {
         this.imageViewerBaseURL = imageViewerBaseURL;
+    }
+
+    public boolean isPrimaryStorageProvider() {
+        return primaryStorageProvider;
+    }
+
+    public void setPrimaryStorageProvider(boolean primaryStorageProvider) {
+        this.primaryStorageProvider = primaryStorageProvider;
     }
 }

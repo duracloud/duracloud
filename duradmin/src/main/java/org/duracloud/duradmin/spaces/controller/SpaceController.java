@@ -117,8 +117,9 @@ public class SpaceController extends  AbstractRestController<Space> {
 			}
 			String marker = request.getParameter("marker");
 			ContentStore contentStore = contentStoreManager.getContentStore(space.getStoreId());
-	         org.duracloud.domain.Space cloudSpace = contentStore.getSpace(space.getSpaceId(), prefix, 200, marker);
-			populateSpace(space, cloudSpace, contentStore);
+			org.duracloud.domain.Space cloudSpace =
+                contentStore.getSpace(space.getSpaceId(), prefix, 200, marker);
+            populateSpace(space, cloudSpace, contentStore);
 			populateSpaceCount(space, request);
 			populateStreamEnabled(space);
             populateBitIntegrityResults(space);
@@ -190,6 +191,10 @@ public class SpaceController extends  AbstractRestController<Space> {
                                 cloudSpace,
                                 contentStore,
                                 getAuthentication());
+
+        String primaryStoreId = contentStoreManager.getPrimaryContentStore().getStoreId();
+        boolean primary = primaryStoreId.equals(space.getStoreId());
+        space.setPrimaryStorageProvider(primary);
     }
 	
 	

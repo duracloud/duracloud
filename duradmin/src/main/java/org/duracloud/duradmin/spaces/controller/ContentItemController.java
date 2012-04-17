@@ -226,6 +226,10 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
                                       contentStore,
                                       servicesManager,
                                       auth);
+        String primaryStorageProviderId =
+            contentStoreManager.getPrimaryContentStore().getStoreId();
+        boolean primary = contentItem.getStoreId().equals(primaryStorageProviderId);
+        result.setPrimaryStorageProvider(primary);
     }
 
 
