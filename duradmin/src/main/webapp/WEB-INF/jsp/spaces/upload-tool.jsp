@@ -6,7 +6,7 @@
 
 <tiles:insertDefinition name="app-base">
   <tiles:putAttribute name="title">
-      Duracloud :: Upload Tool  ::  ${storageProviderName} :: ${spaceId} 
+      Upload Tool  ::  ${storageProviderName} :: ${spaceId} 
   </tiles:putAttribute>
   <tiles:putAttribute name="header-extensions">
     <script id="deployJava" src="https://www.java.com/js/deployJava.js"></script>
