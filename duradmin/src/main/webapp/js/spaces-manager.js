@@ -2814,8 +2814,6 @@ $(function(){
                    ];
         },
         
-        _j2kViewerBaseURL: "",
-        
         load: function(/*object*/contentItem){
             var that = this,
                 readOnly = this._isReadOnly(contentItem);
@@ -2844,19 +2842,7 @@ $(function(){
             var mimetype = contentItem.properties.mimetype;
             
             if(mimetype.indexOf("image") == 0){
-                if(this._j2kViewerBaseURL != ""){
-                    this._loadPreview(contentItem,this._j2kViewerBaseURL);
-                }else{
-                    dc.service.GetJ2kBaseURL({
-                        success:function(url){
-                            that._j2kViewerBaseURL = url;
-                            that._loadPreview(contentItem, that._j2kViewerBaseURL);
-                        },
-                        failure: function(text){
-                            alert("GetJ2kBaseURL failed: " + text);
-                        }
-                    });         
-                }           
+                this._loadPreview(contentItem);
             }else if(mimetype.indexOf("video") == 0){
                 this._loadVideo(contentItem);
             }else if(mimetype.indexOf("audio") == 0){
@@ -2931,9 +2917,9 @@ $(function(){
             }, this._contentItem);
             
         },
-        _loadPreview: function(contentItem,j2kBaseURL){
+        _loadPreview: function(contentItem){
             var that = this;
-            //if space is not publicly visible and j2K service is running, we must 
+            //if space is not publicly visible and image viewer service is running, we must 
             //notify the user that the space must be opened.
         
            var options = {
@@ -2944,15 +2930,16 @@ $(function(){
                            'overlayShow'   :       false,};
 
            var open = this._isPubliclyReadable(contentItem.acls);
-           var externalViewer = j2kBaseURL != null && open;
+           var imageViewerBaseURL = contentItem.imageViewerBaseURL;
+           
            var viewerURL,thumbnailURL;
 
-           if(externalViewer){
+           if(imageViewerBaseURL && open){
                    options['width'] = $(document).width()*0.8;
                    options['height'] = $(document).height()*0.8;
                    options['type'] = 'iframe';
-                   viewerURL = dc.store.formatJ2kViewerURL(j2kBaseURL, contentItem, open);
-                   thumbnailURL = dc.store.formatThumbnail(contentItem, 2,j2kBaseURL, open);
+                   viewerURL = dc.store.formatJ2kViewerURL(imageViewerBaseURL, contentItem, open);
+                   thumbnailURL = dc.store.formatThumbnail(contentItem, 2,imageViewerBaseURL, open);
            }else{
                    options['type'] = 'image';
                    viewerURL = dc.store.formatDownloadURL(contentItem,false);
@@ -2987,7 +2974,7 @@ $(function(){
                thumbnail.show();
            });
            
-           if(!open && j2kBaseURL != null && this._isAdmin()){
+           if(!open && imageViewerBaseURL && this._isAdmin()){
                    var warning = $.fn.create("div").addClass("warning").attr("id", "make-public-warning");
                    $(div).expandopanel("getContent").append(warning);
                    var button = this._createMakePublicButton(

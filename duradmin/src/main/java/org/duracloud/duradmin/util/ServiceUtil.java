@@ -7,6 +7,8 @@
  */
 package org.duracloud.duradmin.util;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.execdata.ExecConstants;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.serviceapi.error.NotFoundException;
@@ -50,6 +52,43 @@ public class ServiceUtil {
                 NotFoundException {
         return findDeployedServiceByName(servicesManager,
                                          ExecConstants.MEDIA_STREAMER_NAME);
+    }
+
+    /**
+     * 
+     * @param servicesManager
+     * @return Image server base url if the service is running, otherwise null
+     * @throws ServicesException
+     */
+    public static String
+        findImageServerUrlIfAvailable(ServicesManager servicesManager) {
+        try {
+            String url = null;
+
+            List<ServiceInfo> deployedServices =
+                servicesManager.getDeployedServices();
+            for (ServiceInfo service : deployedServices) {
+                if (service.getContentId().startsWith("j2kservice")) {
+                    List<Deployment> deployments = service.getDeployments();
+
+                    if (!CollectionUtils.isEmpty(deployments)) {
+                        Deployment deployment = deployments.get(0);
+                        Map<String, String> props =
+                            servicesManager.getDeployedServiceProps(service.getId(),
+                                                                    deployment.getId());
+                        if(props != null){
+                            url = props.get("url");
+                        }
+                    }
+
+                    break;
+                }
+            }
+
+            return url;
+        } catch (Exception e) {
+            throw new DuraCloudRuntimeException(e);
+        }
     }
 
     public static boolean isMediaStreamingServiceEnabled(ServiceInfo info,

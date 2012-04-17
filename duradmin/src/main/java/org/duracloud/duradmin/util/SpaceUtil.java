@@ -7,6 +7,17 @@
  */
 package org.duracloud.duradmin.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.EncodeUtil;
@@ -16,22 +27,14 @@ import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.domain.ContentProperties;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
+import org.duracloud.duradmin.security.RootAuthentication;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.storage.provider.StorageProvider;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.context.SecurityContextHolder;
 
 /**
  * Provides utility methods for spaces.
@@ -91,11 +94,32 @@ public class SpaceUtil {
         contentItem.setAcls(toAclList(acls));
         AclType callerAcl = resolveCallerAcl(acls, authentication);
 
+        
         String aclName = null;
         if (null != callerAcl) {
             aclName = callerAcl.name();
         }
         contentItem.setCallerAcl(aclName);
+
+        String imageViewerBaseURL = resolveImageViewerBaseURL(properties, servicesManager);
+        contentItem.setImageViewerBaseURL(imageViewerBaseURL);
+    }
+
+    private static String resolveImageViewerBaseURL(ContentProperties properties,
+                                  ServicesManager servicesManager) {
+        if(!properties.getMimetype().startsWith("image")){
+            return null;
+        }
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication auth = securityContext.getAuthentication();
+        securityContext.setAuthentication(new RootAuthentication());
+        
+        try {
+            return ServiceUtil.findImageServerUrlIfAvailable(servicesManager);
+        } finally {
+            securityContext.setAuthentication(auth);
+        }
     }
 
     private static String formatDurastoreURL(ContentItem contentItem,ContentStore store) {

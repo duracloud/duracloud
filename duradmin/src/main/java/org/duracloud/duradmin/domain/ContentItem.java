@@ -37,6 +37,7 @@ public class ContentItem
 
     private ContentProperties properties;
 
+    private String imageViewerBaseURL;
     /*
      * The caller's acl based on the granted authorities and group membership of the 
      * caller as well as the space acls. 
@@ -138,5 +139,13 @@ public class ContentItem
     	return "{storeId: " + storeId + ", spaceId: " + spaceId + ", contentId: " + contentId + 
     				", properties: " + properties + ", contentMimetype: " + contentMimetype +
     				", callerAcl: " + callerAcl + "}";
+    }
+
+	public String getImageViewerBaseURL() {
+        return imageViewerBaseURL;
+    }
+
+    public void setImageViewerBaseURL(String imageViewerBaseURL) {
+        this.imageViewerBaseURL = imageViewerBaseURL;
     }
 }

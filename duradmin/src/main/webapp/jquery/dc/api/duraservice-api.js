@@ -58,51 +58,6 @@ $(function(){
 			}, callback);
 		};
 
-		
-		dc.service.GetJ2kBaseURL = function(callback){
-			dc.service.GetDeployedServices({ 
-				success: function(data){
-					var services = data.services;
-					var i,service,deployment;
-		            for (i = 0; i < services.length; i++) {
-		            	service = services[i];
-		                if (service.contentId.toLowerCase().indexOf("j2k") >= 0 &&
-		                    service.deploymentCount > 0) {
-		                    deploymentId = service.deployments[0].id;
-		                    dc.service.GetServiceDeploymentConfig(service,service.deployments[0], { 
-		                    	success:function(response){
-		                    		var props = response.properties;
-		                    		var j;
-		                    		if(props != undefined && props != null){
-			                    		for(j = 0; j < props.length; j++){
-			                    			var p = props[j];
-			                    			if(p.name == 'url'){
-			                    				callback.success(p.value);
-			                    				return;
-			                    			}
-			                    		}
-		                    		}
-
-		                    		callback.success(null);
-		                    	},
-		                    	failure: function(text){
-		                    		callback.failure(text);	
-		                    	},
-		                    }, false);
-		                    
-		                    return;
-		                }
-		            }
-
-            		callback.success(null);
-		            
-				},
-            	failure: function(text){
-            		callback.failure(text);	
-            	},
-			},false);
-		};
-		
 		var MEDIA_STREAMER_URL = APP_CONTEXT+"/services/mediastreamer";
 
 		dc.service.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
