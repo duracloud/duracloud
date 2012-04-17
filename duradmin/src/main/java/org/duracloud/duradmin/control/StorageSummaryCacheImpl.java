@@ -52,14 +52,25 @@ public class StorageSummaryCacheImpl implements StorageSummaryCache {
     private static final DateFormat REPORT_ID_DATE_FORMAT =
         new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
+    private static final int DEFAULT_CACHE_RELOAD_FREQUENCY_IN_MINUTES = 60;
+
     private Timer timer = null;
     
+    private boolean running = false;
+ 
+    private int cacheReloadFrequencyInMinutes = DEFAULT_CACHE_RELOAD_FREQUENCY_IN_MINUTES;
+
     @Autowired
     public StorageSummaryCacheImpl(StorageReportManager storageReportManager) {
+        this(storageReportManager, DEFAULT_CACHE_RELOAD_FREQUENCY_IN_MINUTES);
+    }
+    
+    public StorageSummaryCacheImpl(StorageReportManager storageReportManager, int cacheReloadFrequencyInMinutes) {
         if (storageReportManager == null) {
             throw new IllegalArgumentException("The storageReportManager must be non-null");
         }
         this.storageReportManager = storageReportManager;
+        this.cacheReloadFrequencyInMinutes = cacheReloadFrequencyInMinutes;
     }
 
     public void init(){
@@ -68,29 +79,32 @@ public class StorageSummaryCacheImpl implements StorageSummaryCache {
         }
         this.timer = new Timer();
         
+        this.running = false;
+        
+        
         class LoadTimerTask extends TimerTask {
             @Override
             public void run() {
+                if(running){
+                    log.info("Storage summary cache is being built. Skipping cache load...");
+                    return;
+                }
                 try {
+                    running = true;
                     log.info("loading storage summary cache...");
                     loadCache();
                     log.info("loaded storage summary cache.");
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                }
+                } 
+                
+                running = false;
             }
         };
 
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, 1);
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        Date midnight = new Date(c.getTimeInMillis());
-        // run immediately
-        timer.schedule(new LoadTimerTask(), new Date());
-        // and run
-        timer.schedule(new LoadTimerTask(), midnight, 24 * 60 * 60 * 1000);
+        long frequency = this.cacheReloadFrequencyInMinutes*60*1000;
+        
+        timer.schedule(new LoadTimerTask(), new Date(), frequency);
     }
     
     private Long parseDateFromReportId(String reportId) {
@@ -110,15 +124,18 @@ public class StorageSummaryCacheImpl implements StorageSummaryCache {
         List<String> list = this.storageReportManager.getStorageReportList();
         
         log.info("approximately " + list.size() + " reports in list");
-        this.summaryListCache.clear();
+        Map<String, List<StorageSummary>> newCache =
+            new HashMap<String, List<StorageSummary>>();
         for (String reportId : list) {
             if (reportId.endsWith("xml")) {
-                appendSummaries(reportId);
+                appendSummaries(newCache, reportId);
             }
         }
+        
+        this.summaryListCache = newCache;
     }
 
-    private void appendSummaries(String reportId)
+    private void appendSummaries(Map<String, List<StorageSummary>> cache, String reportId)
         throws NotFoundException,
             ReportException {
         Long dateInMs = parseDateFromReportId(reportId);
@@ -134,7 +151,7 @@ public class StorageSummaryCacheImpl implements StorageSummaryCache {
                                    spm.getTotalItems(),
                                    reportId);
 
-            appendToSummaryList(storeId, sps);
+            appendToSummaryList(storeId, sps, cache);
             for (SpaceMetrics spaceMetrics : spm.getSpaceMetrics()) {
                 StorageSummary spaceSummary =
                     new StorageSummary(dateInMs,
@@ -143,30 +160,30 @@ public class StorageSummaryCacheImpl implements StorageSummaryCache {
                                        reportId);
                 appendToSummaryList(storeId,
                                     spaceMetrics.getSpaceName(),
-                                    spaceSummary);
+                                    spaceSummary,cache);
             }
         }
         
         log.info("added storage summaries extracted from " + reportId);
     }
 
-    private void appendToSummaryList(String storeId, StorageSummary summary) {
-        appendToSummaryList(storeId, null, summary);
+    private void appendToSummaryList(String storeId, StorageSummary summary, Map<String, List<StorageSummary>> cache) {
+        appendToSummaryList(storeId, null, summary,cache);
     }
 
     private void appendToSummaryList(String storeId,
                                      String spaceId,
-                                     StorageSummary summary) {
-        List<StorageSummary> list = getSummaryList(storeId, spaceId);
+                                     StorageSummary summary, Map<String,List<StorageSummary>> cache) {
+        List<StorageSummary> list = getSummaryList(storeId, spaceId,cache);
         list.add(summary);
     }
 
-    private List<StorageSummary> getSummaryList(String storeId, String spaceId) {
+    private List<StorageSummary> getSummaryList(String storeId, String spaceId, Map<String,List<StorageSummary>> cache) {
         String key = formatKey(storeId, spaceId);
-        List<StorageSummary> summaryList = summaryListCache.get(key);
+        List<StorageSummary> summaryList = cache.get(key);
         if (summaryList == null) {
             summaryList = new LinkedList<StorageSummary>();
-            summaryListCache.put(key, summaryList);
+            cache.put(key, summaryList);
         }
 
         return summaryList;
@@ -177,7 +194,7 @@ public class StorageSummaryCacheImpl implements StorageSummaryCache {
             throw new IllegalArgumentException("storeId must be non-null");
         }
 
-        return getSummaryList(storeId, spaceId);
+        return getSummaryList(storeId, spaceId, this.summaryListCache);
     }
 
     private String formatKey(String storeId, String spaceId) {
