@@ -216,9 +216,16 @@ public class BitIntegrityHandler extends BaseServiceHandler {
 
     public void notify(String message) {
         String subject = "DuraCloud Bit Integrity failure on: " + host;
-        notifier.sendAdminNotification(NotificationType.EMAIL,
-                                       subject,
-                                       message);
+        try {
+            notifier.sendAdminNotification(NotificationType.EMAIL,
+                                           subject,
+                                           message);
+        } catch(RuntimeException e) {
+            String err = "Could not send notification due to " +
+                e.getClass().getName() + ": " + e.getMessage() +
+                ". Notification message: " + message;
+            log.error(err, e);
+        }
     }
 
     private void setError(String error, Exception e) {

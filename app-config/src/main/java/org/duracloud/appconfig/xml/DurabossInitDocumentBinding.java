@@ -164,9 +164,18 @@ public class DurabossInitDocumentBinding {
                                  "</password>");
                     xml.append("  <originator>" + config.getOriginator() +
                                  "</originator>");
-                    for(String admin : config.getAdmins()) {
-                        xml.append("  <admin>" + admin + "</admin>");
+
+                    List<String> admins = config.getAdmins();
+                    if(null != admins && admins.size() > 0) {
+                        for(String admin : admins) {
+                            xml.append("  <admin>" + admin + "</admin>");
+                        }
+                    } else {
+                        String err = "At least one administrative " +
+                                     "notification address must be supplied.";
+                        throw new DuraCloudRuntimeException(err);
                     }
+
                     xml.append("</notificationConfig>");
                 }
             }
