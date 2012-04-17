@@ -214,9 +214,6 @@ public class ServiceResultProcessor implements ServiceResultListener {
 
     @Override
     public void setTotalWorkItems(long total) {
-        if (0 == total) {
-            this.statusListener.setError("Zero workitems found.");
-        }
         this.totalWorkItems = total;
     }
 
