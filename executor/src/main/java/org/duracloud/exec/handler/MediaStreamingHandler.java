@@ -131,6 +131,7 @@ public class MediaStreamingHandler extends BaseServiceHandler {
             setError("Unable to stop the Media Streaming service due " +
                      "to a ServicesException: " + e.getMessage(), e);
         }
+        spacesStreamed = 0;
     }
 
     /**
