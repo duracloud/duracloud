@@ -1703,7 +1703,9 @@ $(function(){
        },
        
        _setObjectName: function(name){
-           $(".object-name", this.element).empty().prepend(name);  
+           $(".object-name", this.element).empty()
+                                          .prepend(name)
+                                          .attr("title", name);
        },
 
        _getStoreId: function(){

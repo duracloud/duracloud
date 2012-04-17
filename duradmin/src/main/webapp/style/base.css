@@ -672,6 +672,10 @@ input.dc-check-all
 	margin-bottom:10px;
 }
 
+.detail-pane > .north {
+	overflow: hidden;	
+}
+
 .detail-pane th {
 	text-align: left;
 	background-color: #555;
@@ -708,7 +712,8 @@ h2,.footer-prompt
 	border-bottom-color:#999;
 	font-family:Verdana, Sans-Serif;
 	font-size:11px;
-	overflow: auto;
+	overflow-x:hidden;
+	overflow-y:scroll;
 }
 
 .detail-pane .center {
@@ -1218,9 +1223,13 @@ table.dc-acls td:last-child {
 	
 }
  .history-panel #summaries-graph {
-	width:100%;
  	height:150px;
-	display:block;
+	display:inline-block;
+		
+ }
+
+ .history-panel .segment-content > * {
+    width: 95%;
  }
  
  .history-panel #summaries-legend {
@@ -1245,10 +1254,9 @@ table.dc-acls td:last-child {
 }
 
 .streaming-switch-holder {
-	height:20px;width:200px; 
-	text-align:right; 
+	height:20px;
+	margin-left:15px;
 	display:inline-block; 
-	float:right;
 	white-space: nowrap;
 }
 .streaming-switch-holder label {
@@ -1258,6 +1266,14 @@ table.dc-acls td:last-child {
 .streaming-switch {
 	display:inline-block;
 	font-size:0.7em"
+}
+
+.button-bar {
+	white-space: nowrap;
+}
+
+.object-name {
+	white-space: nowrap;
 }
 
 button#enable-streaming {
