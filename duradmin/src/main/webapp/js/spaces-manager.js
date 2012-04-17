@@ -69,6 +69,11 @@ $(function(){
 	HistoryManager = (function(){
 	    var handlers = []; //an internal list of handlers
 	    var contextPath = "/duradmin/spaces/sm/";
+	    var requestQueue = $.Deferred();
+	    
+	    //make sure subsequent requestQueue.then() calls are processed immediately.
+	    requestQueue.resolve();
+	    
         var _buildUrl = function(obj) {
             var relative = obj.storeId;
             var spaceId = obj.spaceId;
@@ -154,6 +159,10 @@ $(function(){
 	            }
 	            handlers.push(handler);
 	        },
+	        
+	        queue: function(deferredRequest){
+	            requestQueue = requestQueue.then(deferredRequest);
+	        }
 	    };
         
         $(window).bind("popstate pushstate", function(evt){
@@ -723,7 +732,10 @@ $(function(){
              //content handler
              HistoryManager.addChangeHandler(function(params){
                  if(params['contentId']){
-                     that._loadContentItem(params);
+                     HistoryManager.queue(function(){
+                         return that._loadContentItem(params);
+                      });
+
                      return true;
                  }
              });
@@ -741,7 +753,9 @@ $(function(){
              //space handler
              HistoryManager.addChangeHandler(function(params){
                  if(params['spaceId']){
-                     that._loadSpace(params, true);
+                     HistoryManager.queue(function(){
+                        return that._loadSpace(params, true);
+                     });
                      return true;
                  }
              });
@@ -757,8 +771,14 @@ $(function(){
             
              //all spaces
              HistoryManager.addChangeHandler(function(params){
-                 $.when(that.loadSpaces(params)).always(function(){dc.done();});
-                 that._detailManager.showSpaces();
+                 HistoryManager.queue(function(){
+                     dc.busy("Loading...", {modal: true});
+                     return that.loadSpaces(params).then(function(){
+                         that._detailManager.showSpaces();
+                     }).always(function(){
+                         dc.done();
+                     });
+                 });
                  return true;
              });
          },
@@ -1081,25 +1101,26 @@ $(function(){
                 loadSpace = that._loadSpace(params, false);
             }
 
-            var retrieveContentItem = 
-                    dc.store.GetContentItem(params.storeId,params.spaceId, params.contentId,{
-                        failure: function(text, xhr){
-                            if(xhr.status == 404){
-                                alert(params.contentId + " does not exist.");
-                            }else{
-                                dc.displayErrorDialog(xhr, text, text);
-                            }
-                        },
-        
-                        success: function(contentItem){
-                            that._detailManager.showContentItem(contentItem);
-                        },
-                    });
+            var retrieveContentItem = function(){
+                return dc.store.GetContentItem(params.storeId,params.spaceId, params.contentId,{
+                    failure: function(text, xhr){
+                        if(xhr.status == 404){
+                            alert(params.contentId + " does not exist.");
+                        }else{
+                            dc.displayErrorDialog(xhr, text, text);
+                        }
+                    },
+    
+                    success: function(contentItem){
+                        that._detailManager.showContentItem(contentItem);
+                    },
+                });
+            };
             
-            $.when(loadSpace, retrieveContentItem)
-             .always(function(){
-                dc.done();
-             });
+            return loadSpace.then(retrieveContentItem)
+                            .always(function(){
+                                dc.done();
+                            });
         },
 
         _displaySpace: function(space){
