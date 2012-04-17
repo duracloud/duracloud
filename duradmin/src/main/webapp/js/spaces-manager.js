@@ -2456,7 +2456,10 @@ $(function(){
             // attach delete button listener
             var deleteSpaceButton = $(".delete-space-button",this.element);
             deleteSpaceButton.click(function(evt){
-                that._deleteSpace(evt,space);
+                var deferred = that._deleteSpace(evt,space);
+                deferred.then(function(){
+                    HistoryManager.pushState({storeId: space.storeId});
+                });
             });
             
             if(readOnly) {
@@ -2596,7 +2599,7 @@ $(function(){
                 return;
             }
             
-            dc.store.DeleteSpace(space, {
+            return dc.store.DeleteSpace(space, {
                 begin: function(){
                     dc.busy( "Deleting space...",{modal: true});
                 },

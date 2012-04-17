@@ -81,7 +81,7 @@ var dc;
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.
 	 */
 	dc.store.DeleteSpace = function(space, callback){
-		dc.ajax({
+		return dc.ajax({
 			url: "/duradmin/spaces/space", 
 			data: "action=delete&storeId="+space.storeId+"&spaceId="+encodeURIComponent(space.spaceId),
 			type: "POST",
