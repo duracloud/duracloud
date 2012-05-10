@@ -44,7 +44,10 @@
       <c:choose>
         <c:when test="${not empty space}">
           <h2 style="margin-bottom:10px">
-            Upload to ${space.spaceId} in  ${storageProviderName} 
+            Upload to ${space.spaceId} in  ${storageProviderName}
+            <a class="upload-tool-help"
+               href="https://wiki.duraspace.org/display/DURACLOUDDOC/Upload+Tool+Help"
+               target="_blank">Help</a>
           </h2>
           
           <script>

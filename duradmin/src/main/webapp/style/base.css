@@ -1179,6 +1179,14 @@ table.tablesorter tr {
 
 .upload-tool {
 	padding:10px;
+    position:relative;
+}
+
+.upload-tool-help {
+    position:absolute;
+    left:765px;
+    font-size: 0.7em;
+    margin-top: 4px;
 }
 
 .dc-controlpanel .dc-controlpanel-header > * {
