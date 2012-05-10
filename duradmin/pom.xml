@@ -80,6 +80,15 @@
             </overlay>
             <overlay>
               <groupId>org.duracloud</groupId>
+              <artifactId>jquery.history</artifactId>
+              <type>zip</type>
+              <targetPath>${jquery.plugin.target.path}</targetPath>
+              <includes>
+                <include>jquery.history.js</include>
+              </includes>
+            </overlay>
+            <overlay>
+              <groupId>org.duracloud</groupId>
               <artifactId>jquery.form</artifactId>
               <type>zip</type>
               <targetPath>${jquery.plugin.target.path}</targetPath>
@@ -449,7 +458,12 @@
       <type>zip</type>
       <version>1.1</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>jquery.history</artifactId>
+      <type>zip</type>
+      <version>1.7.1-r2</version>
+    </dependency>
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>jquery.form</artifactId>

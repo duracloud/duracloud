@@ -91,16 +91,22 @@ $(function(){
         var buildStateFromUrl = function(location) {
             var state = {};            
             var pathname = location.pathname;
-            //var queryString = location.search;
 
+            //this check is necessary for non html5 history api
+            //compliant browsers.
+            var hash = location.hash;
+            if(hash && hash.indexOf("#" + contextPath) == 0){
+                pathname = "/duradmin/" + hash.substring(1, hash.length);
+            }
+            
             if(pathname){
-                var index = location.pathname.indexOf(contextPath);
+                var index = pathname.indexOf(contextPath);
                 if(index == -1){
                     return state;
                 }
                 
                 var subpathname = pathname.substring(index+contextPath.length);
-
+                
                 var first = subpathname.indexOf("/");
                 if(first > 0){
                     state.storeId = subpathname.slice(0, first);
@@ -108,7 +114,12 @@ $(function(){
                     if(second > first){
                         state.spaceId = subpathname.slice(first+1, second+1);
                         if(subpathname.length > second){
-                            state.contentId = decodeURIComponent(subpathname.substring(second+2));
+                            var contentId = subpathname.substring(second+2);
+                            var qmIndex = contentId.indexOf("?");
+                            if(qmIndex > 0){
+                                contentId = contentId.substring(0, qmIndex);
+                            }
+                            state.contentId = decodeURIComponent(contentId);
                         }
                     }else{
                         state.spaceId = subpathname.substring(second+2);
@@ -127,7 +138,7 @@ $(function(){
             pushState: function(data){
                 var url = _buildUrl(data);
                 var title = "DuraCloud";
-                window.history.pushState(data, title, url);
+                window.History.pushState(data, title, url);
                 this.change(data);
             },               
                 
@@ -164,11 +175,11 @@ $(function(){
 	            requestQueue = requestQueue.then(deferredRequest);
 	        }
 	    };
-        
-        $(window).bind("popstate pushstate", function(evt){
-            var state = evt.originalEvent.state;
+
+        $(window).bind("popstate pushstate statechanged", function(evt){
+            var state = window.History.getState().data;
             if(!state){
-                state = buildStateFromUrl(window.location, window.location.hash);
+                state = buildStateFromUrl(window.location);
             }
             instance.change(state);
         });
@@ -186,6 +197,13 @@ $(function(){
                     window.dispatchEvent(evt);
                 });
             }
+        }
+        
+        if($.browser['msie']){
+            setTimeout(function(){
+                var state = buildStateFromUrl(window.location);
+                instance.change(state);
+            });
         }
         
         return instance;

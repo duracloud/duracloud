@@ -34,7 +34,11 @@ $(function(){
 				if(window.opera){
 					console.log(message);
 				}else{
-					console.debug(message);
+				    if(console.debug){
+	                    console.debug(message);
+				    }else{
+				        console.log(message);
+				    }
 				}
 			}
 		};
@@ -518,7 +522,7 @@ $(function(){
                         }
                     } catch (err) {
                         dc.error(err);
-                        dc.displayErrorDialog(jqXHR, text,
+                        dc.displayErrorDialog(jqXHR, textStatus,
                                 "An unexpected error occurred: " + err);
                     }
                 },
