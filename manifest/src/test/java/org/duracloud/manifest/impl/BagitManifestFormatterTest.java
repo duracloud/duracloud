@@ -40,7 +40,7 @@ public class BagitManifestFormatterTest {
         String line = formatter.getLine(event);
         Assert.assertNotNull(line);
 
-        String expected = contentMd5 + " " + spaceId + "/" + contentId;
+        String expected = contentMd5 + "  " + spaceId + "/" + contentId;
         Assert.assertEquals(expected, line);
     }
 
@@ -52,7 +52,7 @@ public class BagitManifestFormatterTest {
         Assert.assertNotNull(line);
 
         String nil = null;
-        String expected = nil + " " + nil + "/" + nil;
+        String expected = nil + "  " + nil + "/" + nil;
         Assert.assertEquals(expected, line);
     }
 

@@ -36,7 +36,7 @@ public class BagitManifestFormatter extends ManifestFormatterBase {
     public String getLine(ContentMessage event) {
         StringBuilder line = new StringBuilder();
         line.append(event.getContentMd5());
-        line.append(" ");
+        line.append("  ");
         line.append(event.getSpaceId());
         line.append("/");
         line.append(event.getContentId());
