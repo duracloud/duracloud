@@ -100,9 +100,7 @@ public class SpaceUtil {
             aclName = callerAcl.name();
         }
         contentItem.setCallerAcl(aclName);
-
-        String imageViewerBaseURL = resolveImageViewerBaseURL(properties, servicesManager);
-        contentItem.setImageViewerBaseURL(imageViewerBaseURL);
+        contentItem.setImageViewerBaseURL(null);
     }
 
     private static String resolveImageViewerBaseURL(ContentProperties properties,
