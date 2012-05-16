@@ -2453,13 +2453,34 @@ $(function(){
         },                   
         
         _extractSpaceProperties: function(space){
-            return [ 
+            var spaceProps = [
                     ['Items', (space.itemCount == null || space.itemCount == undefined || space.itemCount < 0 ? space.properties.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
                     ['Created', space.properties.created],
                     ['Size', space.properties.size],
             ];
+
+            var bitIntegrityResult = space.bitIntegrityResult;
+            if(bitIntegrityResult){
+                var completionDate = bitIntegrityResult.completionDate;
+                var result = bitIntegrityResult.result;
+                var reportContentId = bitIntegrityResult.reportContentId;
+
+                spaceProps.push(["Last Health Check", "<div class='health-check "+
+                                     bitIntegrityResult.result+"'>"+completionDate+" - "
+                                     + result
+                                     + " <a id='report-viewer' href=''>[report]</a>"
+                                     + "</div>" ]);
+            }
+
+            var propertiesDiv = this._loadProperties(spaceProps);
+
+            if(bitIntegrityResult){
+                dc.reportOverlayOnClick(
+                        $("#report-viewer", propertiesDiv),
+                        bitIntegrityResult.reportContentId);
+            }
         },
-        
+
         _getSpaceMetrics: function(space){
             return dc.store.GetStorageReportDetail(space.storeId, space.spaceId, null);
         },
@@ -2552,33 +2573,8 @@ $(function(){
                 this._loadAclPane(space);
             }
 
-            var spaceProps = this._extractSpaceProperties(space);
-            
-            
-            var bitIntegrityResult = space.bitIntegrityResult;
-            if(bitIntegrityResult){
-                var completionDate = bitIntegrityResult.completionDate;
-                var result = bitIntegrityResult.result;
-                var reportContentId = bitIntegrityResult.reportContentId;
-                
-                spaceProps.push(["Last Health Check", "<div class='health-check "+
-                                     bitIntegrityResult.result+"'>"+completionDate+" - " 
-                                     + result 
-                                     + " <a id='report-viewer' href=''>[report]</a>"
-                                     + "</div>" ]);
-            }
-            
-            
+            this._extractSpaceProperties(space);
 
-            var propertiesDiv = this._loadProperties(spaceProps);
-
-            if(bitIntegrityResult){
-                dc.reportOverlayOnClick(
-                        $("#report-viewer", propertiesDiv), 
-                        bitIntegrityResult.reportContentId);
-                
-            }
-            
             if(space.itemCount == null || space.itemCount < 0){
                 //attach poller if itemCount is null or -1
                 var pollItemCount = function(){
@@ -2589,7 +2585,7 @@ $(function(){
                                 success: function(s){
                                     if(that._isObjectAlreadyDisplayedInDetail(s.spaceId)){
                                         if(s != undefined && s != null){
-                                            that._loadProperties(that._extractSpaceProperties(s));
+                                            that._extractSpaceProperties(s);
                                             if(s.itemCount == null || s.itemCount < 0){
                                                 setTimeout(pollItemCount, 10000);
                                             }
@@ -2625,7 +2621,7 @@ $(function(){
                 that._removeSpaceTag(space.spaceId, value, future);
             });
         },
-        
+
         _loadHistoryPanel: function(options){
             var history = $.fn.create("div");
             this._appendToCenter(history);
