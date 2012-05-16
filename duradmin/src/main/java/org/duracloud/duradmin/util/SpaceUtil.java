@@ -7,17 +7,6 @@
  */
 package org.duracloud.duradmin.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.EncodeUtil;
@@ -35,6 +24,16 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides utility methods for spaces.
@@ -103,6 +102,14 @@ public class SpaceUtil {
         contentItem.setImageViewerBaseURL(null);
     }
 
+    /*
+     * The use of this method is risky. As noted in this issue:
+     * https://jira.duraspace.org/browse/DURACLOUD-708, when a call was being
+     * made from populateContentItem() to this method, the user was often
+     * seeing 500 errors due to a null authentication in the security context.
+     * It appears that performing the authentication switch while other calls
+     * were under way (likely via ajax) caused these errors to occur.
+     */
     private static String resolveImageViewerBaseURL(ContentProperties properties,
                                   ServicesManager servicesManager) {
         if(!properties.getMimetype().startsWith("image")){
