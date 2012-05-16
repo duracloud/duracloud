@@ -2878,10 +2878,8 @@ $(function(){
                 });
                 
             var mimetype = contentItem.properties.mimetype;
-            
-            if(mimetype.indexOf("image") == 0){
-                this._loadPreview(contentItem);
-            }else if(mimetype.indexOf("video") == 0){
+
+            if(mimetype.indexOf("video") == 0){
                 this._loadVideo(contentItem);
             }else if(mimetype.indexOf("audio") == 0){
                 this._loadAudio(contentItem);
