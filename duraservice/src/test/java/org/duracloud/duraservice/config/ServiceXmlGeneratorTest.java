@@ -385,28 +385,20 @@ public class ServiceXmlGeneratorTest {
 
         String xmlAllName = registry.getName() + ".xml";
         String xmlProfessionalName = registry.getNameProfessional() + ".xml";
-        String xmlPreservationName = registry.getNamePreservation() + ".xml";
-        String xmlMediaName = registry.getNameMedia() + ".xml";
         String xmlTrialName = registry.getNameTrial() + ".xml";
 
         // verify all xml files were created
         File xmlAll = new File(outputDirPath, xmlAllName);
         File xmlProfessional = new File(outputDirPath, xmlProfessionalName);
-        File xmlPreservation = new File(outputDirPath, xmlPreservationName);
-        File xmlMedia = new File(outputDirPath, xmlMediaName);
         File xmlTrial = new File(outputDirPath, xmlTrialName);
 
         Assert.assertTrue(xmlAll.getPath(), xmlAll.exists());
         Assert.assertTrue(xmlProfessional.getPath(), xmlProfessional.exists());
-        Assert.assertTrue(xmlPreservation.getPath(), xmlPreservation.exists());
-        Assert.assertTrue(xmlMedia.getPath(), xmlMedia.exists());
         Assert.assertTrue(xmlTrial.getPath(), xmlTrial.exists());
 
         // verify each xml files has correct services
         verifyServiceXmlAll(xmlAll);
         verifyServiceXmlProfessional(xmlProfessional);
-        verifyServiceXmlPreservation(xmlPreservation);
-        verifyServiceXmlMedia(xmlMedia);
         verifyServiceXmlTrial(xmlTrial);
     }
 
@@ -452,33 +444,6 @@ public class ServiceXmlGeneratorTest {
         verifyService(services.get(7), "imagemagickservice-", 9);
         verifyService(services.get(8), "webapputilservice-", 10);
         verifyService(services.get(9), "cloudsyncservice-", 11);
-    }
-
-    private void verifyServiceXmlPreservation(File xmlFile)
-        throws FileNotFoundException {
-        List<ServiceInfo> services = getServicesFromXml(xmlFile);
-        Assert.assertNotNull(services);
-
-        int count = 2;
-        Assert.assertEquals(xmlFile.getName(), count, services.size());
-
-        verifyService(services.get(0), "fixityservice-", 0);
-        verifyService(services.get(1), "bitintegritytoolsservice-", 2);
-    }
-
-    private void verifyServiceXmlMedia(File xmlFile)
-        throws FileNotFoundException {
-        List<ServiceInfo> services = getServicesFromXml(xmlFile);
-        Assert.assertNotNull(services);
-
-        int count = 4   ;
-        Assert.assertEquals(xmlFile.getName(), count, services.size());
-
-        verifyService(services.get(0), "j2kservice-", 5);
-//        verifyService(services.get(1), "imageconversionservice-", 6);
-        verifyService(services.get(1), "mediastreamingservice-", 8);
-        verifyService(services.get(2), "imagemagickservice-", 9);
-        verifyService(services.get(3), "webapputilservice-", 10);
     }
 
     private void verifyServiceXmlTrial(File xmlFile)

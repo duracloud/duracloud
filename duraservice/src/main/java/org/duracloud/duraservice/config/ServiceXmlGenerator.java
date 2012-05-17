@@ -60,8 +60,6 @@ public class ServiceXmlGenerator {
     public void generateServiceXml(String dirPath) throws IOException {
         generateServiceXmlAll(dirPath);
         generateServiceXmlProfessional(dirPath);
-        generateServiceXmlPreservation(dirPath);
-        generateServiceXmlMedia(dirPath);
         generateServiceXmlTrial(dirPath);
     }
 
@@ -75,19 +73,6 @@ public class ServiceXmlGenerator {
         doGenerateServiceXml(dirPath,
                              getRepositoryNameProfessional(),
                              getServicesProfessional());
-    }
-
-    private void generateServiceXmlPreservation(String dirPath)
-        throws IOException {
-        doGenerateServiceXml(dirPath,
-                             getRepositoryNamePreservation(),
-                             getServicesPreservation());
-    }
-
-    private void generateServiceXmlMedia(String dirPath) throws IOException {
-        doGenerateServiceXml(dirPath,
-                             getRepositoryNameMedia(),
-                             getServicesMedia());
     }
 
     private void generateServiceXmlTrial(String dirPath) throws IOException {
@@ -114,14 +99,6 @@ public class ServiceXmlGenerator {
 
     private String getRepositoryNameProfessional() {
         return new ServiceRegistryName(version).getNameProfessional();
-    }
-
-    private String getRepositoryNamePreservation() {
-        return new ServiceRegistryName(version).getNamePreservation();
-    }
-
-    private String getRepositoryNameMedia() {
-        return new ServiceRegistryName(version).getNameMedia();
     }
 
     private String getRepositoryNameTrial() {
@@ -155,28 +132,6 @@ public class ServiceXmlGenerator {
         results.add(services.get(9));
         results.add(services.get(10));
         results.add(services.get(11));
-
-        return results;
-    }
-
-    private List<ServiceInfo> getServicesPreservation() {
-        List<ServiceInfo> results = new ArrayList<ServiceInfo>();
-
-        List<ServiceInfo> services = getServices();
-        results.add(services.get(0));
-        results.add(services.get(2));
-
-        return results;
-    }
-
-    private List<ServiceInfo> getServicesMedia() {
-        List<ServiceInfo> results = new ArrayList<ServiceInfo>();
-
-        List<ServiceInfo> services = getServices();
-        results.add(services.get(5));
-        results.add(services.get(8));
-        results.add(services.get(9));
-        results.add(services.get(10));
 
         return results;
     }
