@@ -11,6 +11,7 @@ import org.apache.commons.io.FileCleaningTracker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.audit.Auditor;
+import org.duracloud.audit.error.AuditLogNotFoundException;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.domain.Content;
@@ -28,6 +29,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -376,4 +378,49 @@ public class ManifestGeneratorImplTest {
     protected static enum MODE {
         MODE_INGEST, MODE_DELETE, MODE_DATE, MODE_STOREID, MODE_STOREID_NULL
     }
+
+    @Test
+    public void testGetManifestEmptySpace() throws Exception {
+        EasyMock.expect(auditor.getAuditLogs(spaceId))
+                .andThrow(new AuditLogNotFoundException("test"));
+
+        EasyMock.expect(storeManager.getPrimaryContentStore())
+                .andReturn(primaryStore);
+
+        EasyMock.expect(primaryStore.getSpaceProperties(spaceId))
+                .andReturn(new HashMap<String, String>());
+
+        replayMocks();
+
+        InputStream stream = generator.getManifest(null,
+                                                   spaceId,
+                                                   FORMAT.TSV,
+                                                   getDate());
+        Assert.assertNotNull(stream);
+        List<String> lines = IOUtils.readLines(stream);
+        Assert.assertEquals(1, lines.size());
+    }
+
+    @Test
+    public void testGetManifestEmptySpaceSecondaryStore() throws Exception {
+        EasyMock.expect(auditor.getAuditLogs(spaceId))
+                .andThrow(new AuditLogNotFoundException("test"));
+
+        EasyMock.expect(storeManager.getContentStore(storeId))
+                .andReturn(primaryStore);
+
+        EasyMock.expect(primaryStore.getSpaceProperties(spaceId))
+                .andReturn(new HashMap<String, String>());
+
+        replayMocks();
+
+        InputStream stream = generator.getManifest(storeId,
+                                                   spaceId,
+                                                   FORMAT.BAGIT,
+                                                   getDate());
+        Assert.assertNotNull(stream);
+        List<String> lines = IOUtils.readLines(stream);
+        Assert.assertEquals(0, lines.size());
+    }
+
 }

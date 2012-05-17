@@ -80,7 +80,18 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
                                    FORMAT format,
                                    Date asOfDate)
         throws ManifestArgumentException, ManifestEmptyException {
-        List<String> logs = getAuditLogs(storeId, spaceId);
+
+        List<String> logs;
+        try {
+            logs = getAuditLogs(storeId, spaceId);
+        } catch(ManifestEmptyException e) {
+            if(spaceExists(storeId, spaceId)) {
+                logs = new ArrayList<String>();
+            } else {
+                throw e;
+            }
+        }
+
         for (String log : logs) {
             scanLog(log, storeId, asOfDate);
         }
@@ -321,6 +332,21 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
 
             throw new ManifestGeneratorException(err.toString(), e);
         }
+    }
+
+    private boolean spaceExists(String storeId, String spaceId) {
+        try {
+            ContentStore store;
+            if(null == storeId) {
+                store = storeManager.getPrimaryContentStore();
+            } else {
+                store = storeManager.getContentStore(storeId);
+            }
+            store.getSpaceProperties(spaceId);
+            return true;
+        } catch(ContentStoreException e) {
+        }
+        return false;
     }
 
 }
