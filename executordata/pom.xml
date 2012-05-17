@@ -3,13 +3,13 @@
     <groupId>org.duracloud</groupId>
     <artifactId>executordata</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.2</version>
+    <version>2.1.0-SNAPSHOT</version>
     <name>DuraCloud Executor Data</name>
 
     <parent>
         <groupId>org.duracloud</groupId>
         <artifactId>duracloud</artifactId>
-        <version>2.0.2</version>
+        <version>2.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
