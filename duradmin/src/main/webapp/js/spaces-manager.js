@@ -2512,18 +2512,19 @@ $(function(){
             this._setObjectId(space.spaceId);
             
             var readOnly = this._isReadOnly(space);
-            
-            // attach delete button listener
+
             var deleteSpaceButton = $(".delete-space-button",this.element);
-            deleteSpaceButton.click(function(evt){
-                var deferred = that._deleteSpace(evt,space);
-                deferred.then(function(){
-                    HistoryManager.pushState({storeId: space.storeId});
+            deleteSpaceButton.hide();
+            if(this._isAdmin()){
+                deleteSpaceButton.show();
+
+                // attach delete button listener
+                deleteSpaceButton.click(function(evt){
+                    var deferred = that._deleteSpace(evt,space);
+                    deferred.then(function(){
+                        HistoryManager.pushState({storeId: space.storeId});
+                    });
                 });
-            });
-            
-            if(readOnly) {
-                deleteSpaceButton.hide();
             }
 
             var switchHolder = $(".streaming-switch-holder");
