@@ -7,14 +7,6 @@
  */
 package org.duracloud.services.fixity.results;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
@@ -23,6 +15,14 @@ import org.duracloud.services.ComputeService;
 import org.duracloud.services.fixity.status.StatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 
 /**
  * @author: Andrew Woods
@@ -89,6 +89,9 @@ public class ServiceResultProcessor implements ServiceResultListener {
         this.state = State.IN_PROGRESS;
 
         this.resultsFile = createFile(workDir, outputContentId);
+        startFile(this.resultsFile, ServiceResult.HEADER);
+        storeFile(this.resultsFile, outputSpaceId, outputContentId);
+
         if(errorContentId != null){
             this.errorsFile = createFile(workDir, errorContentId);
         }
@@ -101,6 +104,13 @@ public class ServiceResultProcessor implements ServiceResultListener {
         }
         
         return file;
+    }
+
+    private void startFile(File file, String header) {
+        if (!file.exists()) {
+            mkdir(file);
+            write(file, header);
+        }
     }
 
     public synchronized void processServiceResult(ServiceResult result) {
@@ -175,11 +185,10 @@ public class ServiceResultProcessor implements ServiceResultListener {
     private void writeToLocalFile(File file, ServiceResult result) {
         writeToLocalFile(file, result.getHeader(), result.getEntry());
     }
-    
+
     private void writeToLocalFile(File file, String header, String entry) {
         if (!file.exists()) {
-            mkdir(file);
-            write(file, header);
+            startFile(file, header);
         }
         write(file, entry);
     }

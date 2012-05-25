@@ -7,10 +7,10 @@
  */
 package org.duracloud.services.fixity.results;
 
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 /**
  * @author: Andrew Woods
@@ -19,9 +19,6 @@ import org.slf4j.LoggerFactory;
 public class HashFinderResult implements ServiceResult {
 
     private static final Logger log = LoggerFactory.getLogger(HashFinderResult.class);
-
-    private static final String HEADER =
-        "space-id" + DELIM + "content-id" + DELIM + "MD5";
 
     private String spaceId;
     private String contentId;

@@ -163,12 +163,19 @@ public class ServiceResultProcessorTest {
     private ServiceResultProcessor createProcessor(StatusListener listener)
         throws ContentStoreException {
         ContentStore contentStore = createContentStore();
-        return new ServiceResultProcessor(contentStore, listener, outputSpaceId,
-                                          outputContentId,
-                                          errorContentId,
-                                          "test-hashing",
-                                          "previous status blah",
-                                          workDir);
+        ServiceResultProcessor processor =
+            new ServiceResultProcessor(contentStore,
+                                       listener,
+                                       outputSpaceId,
+                                       outputContentId,
+                                       errorContentId,
+                                       "test-hashing",
+                                       "previous status blah",
+                                       workDir);
+        File file = new File(workDir, outputContentId);
+        Assert.assertTrue(file.exists());
+
+        return processor;
     }
 
     private void processResult(boolean success, int index) {
