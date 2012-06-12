@@ -38,8 +38,8 @@ public class ApplicationInitDriver {
         }
 
         ApplicationInitializer appInit = new ApplicationInitializer(propsFile);
-        appInit.initialize();
         appInit.setSecurityUsers();
+        appInit.initialize();
         if (dir != null) {
             appInit.outputXml(dir);
             System.out.println("config xml files written to: " + dir.getPath());
