@@ -42,7 +42,8 @@ public class AuditLogStoreImplTest {
 
     private ContentStore contentStore;
     private static final String auditLogSpaceId = "x-admin";
-    private static final String auditLogPrefixBase = "audit/audit-log-";
+    private static final String auditLogPrefixBase =
+        "audit" + File.separator + "audit-log-";
     private static final long auditLogSizeLimit = 100;
 
     private int idCounter = 0;
@@ -240,15 +241,15 @@ public class AuditLogStoreImplTest {
 
     private void expectAddContent(String contentIdPattern, long contentSize)
         throws ContentStoreException {
-        EasyMock.expect(contentStore.addContent(EasyMock.eq(auditLogSpaceId),
-                                                EasyMock.matches(
-                                                    contentIdPattern),
-                                                EasyMock.<InputStream>anyObject(),
-                                                EasyMock.eq(contentSize),
-                                                EasyMock.eq(
-                                                    "text/tab-separated-values"),
-                                                EasyMock.<String>notNull(),
-                                                EasyMock.<Map<String, String>>isNull()))
+        EasyMock.expect(
+            contentStore.addContent(EasyMock.eq(auditLogSpaceId),
+                                    EasyMock.matches(
+                                        contentIdPattern.replace("\\", "\\\\")),
+                                    EasyMock.<InputStream>anyObject(),
+                                    EasyMock.anyLong(),
+                                    EasyMock.eq("text/tab-separated-values"),
+                                    EasyMock.<String>notNull(),
+                                    EasyMock.<Map<String, String>>isNull()))
                 .andReturn("md5");
     }
 
@@ -257,10 +258,10 @@ public class AuditLogStoreImplTest {
         List<String> contentIds = new ArrayList<String>();
 
         long now = System.currentTimeMillis() - 50000;
-        String time3 = DateUtil.convertToString(now);
-        String time2 = DateUtil.convertToString(now - 10000);
-        String time1 = DateUtil.convertToString(now - 20000);
-        String time0 = DateUtil.convertToString(now - 30000);
+        String time3 = DateUtil.convertToStringPlain(now);
+        String time2 = DateUtil.convertToStringPlain(now - 10000);
+        String time1 = DateUtil.convertToStringPlain(now - 20000);
+        String time0 = DateUtil.convertToStringPlain(now - 30000);
 
         String contentId3 = auditLogPrefix + spaceId + "-" + time3 + ".tsv";
         String contentId2 = auditLogPrefix + spaceId + "-" + time2 + ".tsv";

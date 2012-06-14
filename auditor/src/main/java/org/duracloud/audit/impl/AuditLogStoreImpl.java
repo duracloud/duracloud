@@ -362,9 +362,9 @@ public class AuditLogStoreImpl implements AuditLogStore {
             return false;
         }
 
-        String prefix = auditLogPrefix + spaceId;
+        String prefix = auditLogPrefix.replace("\\", "\\\\") + spaceId;
         return contentId.matches(
-            prefix + "-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.tsv");
+            prefix + "-\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}.tsv");
     }
 
     private void copy(OutputStream logFileOutputStream,
@@ -436,7 +436,7 @@ public class AuditLogStoreImpl implements AuditLogStore {
 
     private File newLogFile(String spaceId) {
         String prefix = auditLogPrefix + spaceId;
-        String fullName = prefix + "-" + DateUtil.now() + ".tsv";
+        String fullName = prefix + "-" + DateUtil.nowPlain() + ".tsv";
 
         File logFile = new File(getTmpDir(), fullName);
         mkdir(logFile);
