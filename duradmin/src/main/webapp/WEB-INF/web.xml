@@ -22,7 +22,7 @@
   -->
   <filter>
     <filter-name>default</filter-name>
-    <filter-class>org.duracloud.servlet.DefaultFilter</filter-class>
+    <filter-class>org.duracloud.common.servlet.DefaultFilter</filter-class>
   </filter>
 
   <filter-mapping>
