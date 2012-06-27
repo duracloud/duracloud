@@ -17,8 +17,8 @@ import org.duracloud.client.HttpHeaders;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.storage.aop.ContentMessage;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.storage.aop.ContentMessage;
 import org.duracloud.storage.aop.IngestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,17 @@ public class AuditorImpl implements LocalAuditor {
     public void createInitialAuditLogs(boolean async) {
         AuditLogRunner runner = new AuditLogRunner();
         if (async) {
-            new Thread(runner).start();
+            Thread thread = new Thread(runner);
+            thread.setUncaughtExceptionHandler(
+                new Thread.UncaughtExceptionHandler() {
+                    @Override
+                    public void uncaughtException(Thread t, Throwable e) {
+                        log.error("Exiting the Create Initial Audit Logs " +
+                                   "process due to an unexpected exception: " +
+                                   e.getMessage(), e);
+                    }
+            });
+            thread.start();
 
         } else {
             runner.run();
