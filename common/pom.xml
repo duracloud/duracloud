@@ -86,6 +86,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>  
+      <groupId>javax.servlet</groupId>  
+      <artifactId>servlet-api</artifactId>
+      <scope>provided</scope>
+      <version>2.5</version>
+    </dependency>
+
+    <dependency>  
       <groupId>org.xmlpull</groupId>  
       <artifactId>com.springsource.org.xmlpull</artifactId>
       <scope>provided</scope>
