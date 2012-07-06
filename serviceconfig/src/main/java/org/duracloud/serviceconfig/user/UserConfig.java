@@ -55,8 +55,16 @@ public abstract class UserConfig implements Serializable, Cloneable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDisplayName() {
         return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getExclusion() {

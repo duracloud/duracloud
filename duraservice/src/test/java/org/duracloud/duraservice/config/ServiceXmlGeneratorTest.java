@@ -156,11 +156,13 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyDuplication(ServiceInfo serviceInfo) {
-        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
-        Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(7, systemConfigs.size());
+        int numUserConfigs = 1;
+        int numSystemConfigs = 7;
+        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
-        verifyDurastoreCredential(systemConfigs);
+        List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
+        setsModesConfigs.add(Arrays.asList(1));
+        verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 
     private void verifyImagemagick(ServiceInfo serviceInfo) {
@@ -295,7 +297,8 @@ public class ServiceXmlGeneratorTest {
     private void verifyServiceInfo(int numUserConfigs,
                                    int numSystemConfigs,
                                    ServiceInfo serviceInfo) {
-        List<UserConfigModeSet> userConfigModeSets = serviceInfo.getUserConfigModeSets();
+        List<UserConfigModeSet> userConfigModeSets =
+            serviceInfo.getUserConfigModeSets();
         Assert.assertNotNull(userConfigModeSets);
 
         UserConfigModeSet userConfigModeSet = userConfigModeSets.get(0);

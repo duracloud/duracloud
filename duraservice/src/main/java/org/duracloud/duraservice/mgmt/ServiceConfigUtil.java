@@ -43,8 +43,13 @@ public class ServiceConfigUtil {
     private static final Logger log = LoggerFactory.getLogger(ServiceConfigUtil.class);
 
     // User Config Variables
+    /* Expands to include all stores as Options for a Selectable Config */
     public static final String STORES_VAR = "$STORES";
+    /* Expands to include all spaces within a store as Options for a Selectable Config*/
     public static final String SPACES_VAR = "$SPACES";
+    /* Expands to create a UserConfig for each space within a store */
+    public static final String SPACES_CONFIG_VAR = "$SPACES_CONFIG";
+    /* Expands to create a Mode (within a ModeSet) for each store */
     public static final String ALL_STORE_SPACES_VAR = "$ALL_STORE_SPACES";
 
     // System Config Variables
@@ -162,20 +167,54 @@ public class ServiceConfigUtil {
     }
 
     /**
-     * Handles the population of option sets for variables $STORES and $SPACES.
+     * Handles the population of Option sets for variables $STORES and $SPACES
+     * as well as populating the UserConfigs for variable $SPACES_CONFIG.
      *
      * @param userConfigs user configuration for a service
      * @return the populated user configuration list
      */
-    private List<UserConfig> populateUserConfigVariables(ContentStore contentStore,
-                                                         ContentStoreManager userStoreManager,
-                                                         List<UserConfig> userConfigs) {
-        List<UserConfig> newUserConfigs = new ArrayList<UserConfig>();
+    protected List<UserConfig> populateUserConfigVariables(ContentStore contentStore,
+                                                           ContentStoreManager userStoreManager,
+                                                           List<UserConfig> userConfigs) {
+        List<UserConfig> newUserConfigs1 = new ArrayList<UserConfig>();
+        List<UserConfig> newUserConfigs2 = new ArrayList<UserConfig>();
         if(userConfigs != null){
             Map<String, ContentStore> storesMap = getContentStores(userStoreManager);
             String storeId = contentStore.getStoreId();
 
+            // Expand the SPACES_CONFIG variable
             for(UserConfig config : userConfigs) {
+                String configName = config.getName();
+                if(null != configName && configName.equals(SPACES_CONFIG_VAR)) {
+                    try {
+                        List<String> spaces = contentStore.getSpaces();
+                        for(String spaceId : spaces) {
+                            UserConfig newUserConfig = config.clone();
+                            newUserConfig.setName(spaceId);
+                            newUserConfig.setDisplayName(spaceId);
+                            // Add the new config to the list
+                            newUserConfigs1.add(newUserConfig);
+                        }
+                    } catch(CloneNotSupportedException cnse) {
+                        String error =
+                            "Error encountered attempting to clone user " +
+                            "configuration in order to expand the variable " +
+                            SPACES_CONFIG_VAR + ": " + cnse.getMessage();
+                        throw new RuntimeException(error, cnse);
+                    } catch(ContentStoreException cse) {
+                        String error =
+                            "Error encountered attempting to get spaces for " +
+                            "store with ID " + contentStore.getStoreId() +
+                            ": " + cse.getMessage();
+                        throw new RuntimeException(error, cse);
+                    }
+                } else {
+                    newUserConfigs1.add(config);
+                }
+            }
+
+            // Expand the STORES and SPACES variables
+            for(UserConfig config : newUserConfigs1) {
                 if(config instanceof SelectableUserConfig) {
                     List<Option> options = ((SelectableUserConfig) config).getOptions();
                     options = populateStoresVariable(storeId, storesMap, options);
@@ -186,24 +225,24 @@ public class ServiceConfigUtil {
                             config.getDisplayName(),
                             options,
                             config.getExclusion());
-                        newUserConfigs.add(newConfig);
+                        newUserConfigs2.add(newConfig);
                     } else if (config instanceof MultiSelectUserConfig) {
                         MultiSelectUserConfig newConfig = new MultiSelectUserConfig(
                             config.getName(),
                             config.getDisplayName(),
                             options,
                             config.getExclusion());
-                        newUserConfigs.add(newConfig);
+                        newUserConfigs2.add(newConfig);
                     } else {
                         throw new RuntimeException("Unexpected UserConfig type: " +
                                                    config.getClass());
                     }
                 } else {
-                    newUserConfigs.add(config);
+                    newUserConfigs2.add(config);
                 }
             }
         }
-        return newUserConfigs;
+        return newUserConfigs2;
     }
 
     private ContentStore getPrimaryContentStore(ContentStoreManager userStoreManager) {
@@ -231,7 +270,7 @@ public class ServiceConfigUtil {
     /*
      * Populates the $STORES variable
      */
-    private List<Option> populateStoresVariable(String primaryStoreId,
+    private List<Option> populateStoresVariable(String contentStoreId,
                                                 Map<String, ContentStore> contentStores,
                                                 List<Option> options) {
         List<Option> newOptionsList = new ArrayList<Option>();
@@ -239,14 +278,15 @@ public class ServiceConfigUtil {
             String value = option.getValue();
             if (value.equals(STORES_VAR)) {
                 for (String storeId : contentStores.keySet()) {
-                    ContentStore contentStore = contentStores.get(storeId);
-                    String type = contentStore.getStorageProviderType();
-                    String displayName = type + " (" + storeId + ")";
-                    boolean primary = storeId.equals(primaryStoreId);
-                    Option storeOption = new Option(displayName,
-                                                    storeId,
-                                                    primary);
-                    newOptionsList.add(storeOption);
+                    // Only provide options that are not the current storeId
+                    if(!storeId.equals(contentStoreId)) {
+                        ContentStore contentStore = contentStores.get(storeId);
+                        String displayName =
+                            contentStore.getStorageProviderType();
+                        Option storeOption =
+                            new Option(displayName, storeId, false);
+                        newOptionsList.add(storeOption);
+                    }
                 }
             } else {
                 newOptionsList.add(option);

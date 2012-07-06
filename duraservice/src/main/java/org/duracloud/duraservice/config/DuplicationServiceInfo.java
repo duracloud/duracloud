@@ -3,9 +3,11 @@ package org.duracloud.duraservice.config;
 import org.duracloud.duraservice.mgmt.ServiceConfigUtil;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
+import org.duracloud.serviceconfig.user.MultiSelectUserConfig;
 import org.duracloud.serviceconfig.user.Option;
-import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
+import org.duracloud.serviceconfig.user.UserConfigMode;
+import org.duracloud.serviceconfig.user.UserConfigModeSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,31 +34,44 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
         repService.setServiceVersion(version);
         repService.setMaxDeploymentsAllowed(1);
 
-        // User Configs
-        List<UserConfig> repServiceUserConfig = new ArrayList<UserConfig>();
+        repService.setUserConfigModeSets(getUserConfig());
+        repService.setSystemConfigs(getSystemConfig());
+        repService.setDeploymentOptions(getSimpleDeploymentOptions());
 
-        // Store Options (from/to)
+        return repService;
+    }
+
+    private List<UserConfigModeSet> getUserConfig() {
+        List<UserConfigModeSet> modeSetList = new ArrayList<UserConfigModeSet>();
+
+        UserConfigModeSet modeSet = new UserConfigModeSet();
+        modeSet.setName("fromStoreId");
+        modeSet.setDisplayName("Store to watch");
+        modeSet.setValue(ServiceConfigUtil.ALL_STORE_SPACES_VAR);
+
         List<Option> storeOptions = new ArrayList<Option>();
-        Option stores =
-            new Option("Stores", ServiceConfigUtil.STORES_VAR, false);
-        storeOptions.add(stores);
+        storeOptions.add(new Option("Not Duplicated", "none", true));
+        storeOptions.add(
+            new Option("Stores", ServiceConfigUtil.STORES_VAR, false));
 
-        SingleSelectUserConfig fromStoreId =
-            new SingleSelectUserConfig("fromStoreId",
-                                       "Watch this store for changes",
-                                       storeOptions);
+        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
+        userConfigs.add(
+            new MultiSelectUserConfig(ServiceConfigUtil.SPACES_CONFIG_VAR,
+                                      "Space",
+                                      storeOptions));
 
-        SingleSelectUserConfig toStoreId =
-            new SingleSelectUserConfig("toStoreId",
-                                       "Apply to this store",
-                                       storeOptions);
+        UserConfigMode mode = new UserConfigMode();
+        mode.setUserConfigs(userConfigs);
 
-        repServiceUserConfig.add(fromStoreId);
-        repServiceUserConfig.add(toStoreId);
+        List<UserConfigMode> modes = new ArrayList<UserConfigMode>();
+        modes.add(mode);
 
-        repService.setUserConfigModeSets(createDefaultModeSet(repServiceUserConfig));
+        modeSet.setModes(modes);
+        modeSetList.add(modeSet);
+        return modeSetList;
+    }
 
-        // System Configs
+    private List<SystemConfig> getSystemConfig() {
         List<SystemConfig> systemConfig = getBaseSystemConfigs();
 
         SystemConfig host = new SystemConfig("host",
@@ -85,10 +100,6 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
         systemConfig.add(username);
         systemConfig.add(password);
 
-        repService.setSystemConfigs(systemConfig);
-
-        repService.setDeploymentOptions(getSimpleDeploymentOptions());
-
-        return repService;
+        return systemConfig;
     }
 }

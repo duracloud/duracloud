@@ -17,6 +17,7 @@ import org.duracloud.serviceconfig.DeploymentOption;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.duracloud.serviceconfig.SystemConfig;
 import org.duracloud.serviceconfig.user.Option;
+import org.duracloud.serviceconfig.user.SelectableUserConfig;
 import org.duracloud.serviceconfig.user.SingleSelectUserConfig;
 import org.duracloud.serviceconfig.user.UserConfig;
 import org.duracloud.serviceconfig.user.UserConfigMode;
@@ -50,8 +51,6 @@ public class ServiceConfigUtilTest {
     private final String space0 = "space0";
     private final String space1 = "space1";
     private final String space2 = "space2";
-
-    private final String storeId = "store-id";
 
     private ServiceInfo service;
     private List<UserConfigModeSet> modeSets;
@@ -163,13 +162,14 @@ public class ServiceConfigUtilTest {
 
         contentStores = new HashMap<String, ContentStore>();
         for (int i = 0; i < NUM_CONTENT_STORES; ++i) {
-            contentStores.put("id_" + i, createMockContentStore(i));
+            String storeId = "id_" + i;
+            contentStores.put(storeId, createMockContentStore(storeId));
         }
 
         return contentStores;
     }
 
-    private ContentStore createMockContentStore(int i)
+    private ContentStore createMockContentStore(String storeId)
         throws ContentStoreException {
         ContentStore contentStore = EasyMock.createMock("ContentStore",
                                                         ContentStore.class);
@@ -358,7 +358,7 @@ public class ServiceConfigUtilTest {
                 Assert.assertNotNull("mode name is null", modeName);
                 Assert.assertNotNull("mode display is null", modeDisplayName);
 
-                Assert.assertEquals(storeId, modeName);
+                Assert.assertTrue(modeName.startsWith("id_"));
                 Assert.assertEquals(StorageProviderType.AMAZON_S3.name(),
                                     modeDisplayName);
 
@@ -491,15 +491,8 @@ public class ServiceConfigUtilTest {
         ContentStoreManagerUtil util = EasyMock.createMock(
             "ContentStoreManagerUtil",
             ContentStoreManagerUtil.class);
-
-        ContentStoreManager contentStoreManager = EasyMock.createMock(
-            "ContentStoreManager",
-            ContentStoreManager.class);
-        EasyMock.expect(contentStoreManager.getContentStores()).andReturn(
-            contentStores).anyTimes();
-        EasyMock.expect(contentStoreManager.getPrimaryContentStore()).andReturn(
-            createMockContentStore(0)).anyTimes();
-        EasyMock.replay(contentStoreManager);
+        ContentStoreManager contentStoreManager =
+            createMockContentStoreManager();
 
         EasyMock.expect(util.getContentStoreManager(EasyMock.isA(UserStore.class)))
             .andReturn(contentStoreManager)
@@ -510,4 +503,51 @@ public class ServiceConfigUtilTest {
         EasyMock.replay(util);
         return util;
     }
+
+    private ContentStoreManager createMockContentStoreManager()
+        throws Exception {
+        ContentStoreManager contentStoreManager = EasyMock.createMock(
+            "ContentStoreManager",
+            ContentStoreManager.class);
+        EasyMock.expect(contentStoreManager.getContentStores()).andReturn(
+            contentStores).anyTimes();
+        EasyMock.expect(contentStoreManager.getPrimaryContentStore()).andReturn(
+            createMockContentStore("0")).anyTimes();
+        EasyMock.replay(contentStoreManager);
+
+        return contentStoreManager;
+    }
+
+    @Test
+    public void testPopulateUserConfigVariables() throws Exception {
+        ContentStore store = contentStores.get("id_0");
+        ContentStoreManager storeManager = createMockContentStoreManager();
+        List<UserConfig> userConfig = getUserConfig();
+        List<UserConfig> popUserConfig =
+            util.populateUserConfigVariables(store, storeManager, userConfig);
+
+        Assert.assertNotNull(popUserConfig);
+        Assert.assertEquals(3, popUserConfig.size());
+        for(UserConfig config : popUserConfig) {
+            Assert.assertTrue(config instanceof SelectableUserConfig);
+            List<Option> options = ((SelectableUserConfig) config).getOptions();
+            Assert.assertNotNull(options);
+            Assert.assertEquals(1, options.size());
+            Assert.assertEquals("id_1", options.get(0).getValue());
+        }
+    }
+
+    private List<UserConfig> getUserConfig() {
+        List<Option> storeOptions = new ArrayList<Option>();
+        storeOptions.add(
+            new Option("Stores", ServiceConfigUtil.STORES_VAR, false));
+
+        List<UserConfig> userConfigs = new ArrayList<UserConfig>();
+        userConfigs.add(
+            new SingleSelectUserConfig(ServiceConfigUtil.SPACES_CONFIG_VAR,
+                                      "Space",
+                                      storeOptions));
+        return userConfigs;
+    }
+
 }
