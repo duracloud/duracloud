@@ -9,12 +9,17 @@ package org.duracloud.sync.mgmt;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.Assert;
+
 import org.duracloud.sync.SyncTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
 
 
 /**
@@ -70,4 +75,25 @@ public class ChangedListTest extends SyncTestBase {
 
         persistFile.delete();
     }
+
+    @Test
+    public void testPeek() throws Exception {
+        int fileCount = 100;
+        List<File> files = new ArrayList<File>(fileCount);
+        for(int i = 0; i < fileCount; i++){
+            File f = new File("changedListTest-"+i+".tmp");
+            files.add(f);
+            changedList.addChangedFile(f);
+        }
+        
+        Assert.assertEquals(fileCount, changedList.getListSize());
+        
+        List<File> peekedFiles = changedList.peek(fileCount-1);
+        
+        for(int i = 0; i < peekedFiles.size(); i++){
+            Assert.assertEquals(files.get(i), peekedFiles.get(i));
+        }
+        
+    }
+
 }

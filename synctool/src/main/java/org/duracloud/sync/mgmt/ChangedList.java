@@ -14,6 +14,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * The list of files which have been changed.
@@ -23,7 +28,7 @@ import java.util.HashMap;
  */
 public class ChangedList {
 
-    private HashMap<String, ChangedFile> fileList;
+    private LinkedHashMap<String, ChangedFile> fileList;
     private long listVersion;
 
     private static ChangedList instance;
@@ -36,7 +41,7 @@ public class ChangedList {
     }
 
     private ChangedList() {
-        fileList = new HashMap<String, ChangedFile>();
+        fileList = new LinkedHashMap<String, ChangedFile>();
         listVersion = 0;
     }
 
@@ -59,9 +64,11 @@ public class ChangedList {
         return fileList.size();
     }
 
-    protected synchronized void addChangedFile(ChangedFile changedFile) {
-        fileList.put(changedFile.getFile().getAbsolutePath(), changedFile);
-        incrementVersion();
+    protected  void addChangedFile(ChangedFile changedFile) {
+        synchronized(this){
+            fileList.put(changedFile.getFile().getAbsolutePath(), changedFile);
+            incrementVersion();
+        }
     }
 
     /**
@@ -70,15 +77,19 @@ public class ChangedList {
      *
      * @return a file which has changed on the file system
      */
-    public synchronized ChangedFile getChangedFile() {
-        if(fileList.isEmpty()) {
-            return null;
-        }
+    public  ChangedFile getChangedFile() {
+        synchronized(this){
 
-        String key = fileList.keySet().iterator().next();
-        ChangedFile changedFile = fileList.remove(key);
-        incrementVersion();
-        return changedFile;
+            if(fileList.isEmpty()) {
+                return null;
+            }
+
+            String key = fileList.keySet().iterator().next();
+            ChangedFile changedFile = fileList.remove(key);
+            incrementVersion();
+            return changedFile;
+        }
+        
     }
 
     private void incrementVersion() {
@@ -131,7 +142,7 @@ public class ChangedList {
             ObjectInputStream oStream = new ObjectInputStream(fileStream);
 
             synchronized(this) {
-                fileList = (HashMap<String, ChangedFile>) oStream.readObject();
+                fileList = (LinkedHashMap<String, ChangedFile>) oStream.readObject();
             }
 
             oStream.close();
@@ -141,4 +152,15 @@ public class ChangedList {
         }
     }
     
+    public List<File> peek(int maxFiles){
+        List<File> files = new LinkedList<File>();
+        Iterator<Entry<String, ChangedFile>> it = this.fileList.entrySet().iterator();
+        int count = 0;
+        while(it.hasNext() && count < maxFiles) {
+            files.add(it.next().getValue().getFile());
+            count++;
+        }
+        return files;
+    }
+        
 }
