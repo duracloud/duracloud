@@ -64,11 +64,9 @@ public class ChangedList {
         return fileList.size();
     }
 
-    protected  void addChangedFile(ChangedFile changedFile) {
-        synchronized(this){
-            fileList.put(changedFile.getFile().getAbsolutePath(), changedFile);
-            incrementVersion();
-        }
+    protected synchronized void addChangedFile(ChangedFile changedFile) {
+        fileList.put(changedFile.getFile().getAbsolutePath(), changedFile);
+        incrementVersion();
     }
 
     /**
@@ -77,19 +75,15 @@ public class ChangedList {
      *
      * @return a file which has changed on the file system
      */
-    public  ChangedFile getChangedFile() {
-        synchronized(this){
-
-            if(fileList.isEmpty()) {
-                return null;
-            }
-
-            String key = fileList.keySet().iterator().next();
-            ChangedFile changedFile = fileList.remove(key);
-            incrementVersion();
-            return changedFile;
+    public synchronized ChangedFile getChangedFile() {
+        if(fileList.isEmpty()) {
+            return null;
         }
-        
+
+        String key = fileList.keySet().iterator().next();
+        ChangedFile changedFile = fileList.remove(key);
+        incrementVersion();
+        return changedFile;
     }
 
     private void incrementVersion() {
@@ -152,7 +146,7 @@ public class ChangedList {
         }
     }
     
-    public List<File> peek(int maxFiles){
+    public synchronized List<File> peek(int maxFiles){
         List<File> files = new LinkedList<File>();
         Iterator<Entry<String, ChangedFile>> it = this.fileList.entrySet().iterator();
         int count = 0;
