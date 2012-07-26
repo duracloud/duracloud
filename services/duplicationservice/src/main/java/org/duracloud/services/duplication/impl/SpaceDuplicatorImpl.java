@@ -45,6 +45,16 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
     }
 
     @Override
+    public String getFromStoreId() {
+        return fromStore.getStoreId();
+    }
+
+    @Override
+    public String getToStoreId() {
+        return toStore.getStoreId();
+    }
+
+    @Override
     public void createSpace(String spaceId) {
         logDebug("Creating", spaceId);
 

@@ -24,10 +24,10 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
         repService.setId(index);
         repService.setContentId("duplicationservice-" + version + ".zip");
         String desc = "Duplicate on Change provides a simple mechanism " +
-            "for applying changes to a secondary storage provider. When " +
-            "running, Duplicate on Change will watch for changes in " +
-            "your primary storage provider and apply those changes to a " +
-            "specified secondary provider.";
+            "for applying changes to secondary storage providers. When " +
+            "running, Duplicate on Change will watch for changes in spaces " +
+            "within a selected storage provider and apply those changes to " +
+            "spaces in the specified provider(s).";
         repService.setDescription(desc);
         repService.setDisplayName("Duplicate on Change");
         repService.setUserConfigVersion("1.0");

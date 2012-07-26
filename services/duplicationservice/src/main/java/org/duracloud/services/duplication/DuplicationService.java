@@ -10,17 +10,19 @@ package org.duracloud.services.duplication;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.services.ComputeService;
 import org.duracloud.services.duplication.impl.ContentDuplicatorImpl;
 import org.duracloud.services.duplication.impl.ContentDuplicatorReportingImpl;
+import org.duracloud.services.duplication.impl.DuplicatorImpl;
 import org.duracloud.services.duplication.impl.SpaceDuplicatorImpl;
 import org.duracloud.services.duplication.impl.SpaceDuplicatorReportingImpl;
 import org.duracloud.services.duplication.result.DuplicationResultListener;
 import org.duracloud.services.duplication.result.ResultListener;
 import org.duracloud.services.listener.BaseListenerService;
-import org.duracloud.services.ComputeService;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DuplicationService extends BaseListenerService implements ComputeService, ManagedService {
@@ -36,60 +39,104 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
     private static final Logger log =
         LoggerFactory.getLogger(DuplicationService.class);
 
+    private static final String HOST_PROP = "host";
+    private static final String PORT_PROP = "port";
+    private static final String CONTEXT_PROP = "context";
+    private static final String USER_PROP = "username";
+    private static final String PASS_PROP = "password";
+    private static final String FROM_STORE_PROP = "fromStoreId";
+    private static final String BROKER_PROP = "brokerURL";
+    private static final String SPACE_PREFIX = "spaceID-";
+    private static final String SPACE_TO_SKIP = "none";
+
     private String host;
-
     private String port;
-
     private String context;
-
     private String username;
-
     private String password;
-
     private String fromStoreId;
-
-    private String toStoreId;
-
     private String outputSpaceId;
 
-    private SpaceDuplicator spaceDuplicator;
-
-    private ContentDuplicator contentDuplicator;
+    private Map<String, Duplicator> duplicators;
 
     private DuplicationResultListener resultListener;
+
+    private Map<String, String> spacesToWatch;
+
+    /**
+     * Used to set the configuration for this service.
+     * @param properties
+     */
+    public void updateConfig(Map<String,?> properties) {
+         spacesToWatch = new HashMap<String, String>();
+
+        for(String key : properties.keySet()) {
+            String value = (String)properties.get(key);
+
+            if(HOST_PROP.equals(key)) {
+                host = value;
+            } else if (PORT_PROP.equals(key)) {
+                port = value;
+            } else if (CONTEXT_PROP.equals(key)) {
+               context = value;
+            } else if (USER_PROP.equals(key)) {
+                username = value;
+            } else if (PASS_PROP.equals(key)) {
+                password = value;
+            } else if (FROM_STORE_PROP.equals(key)) {
+                fromStoreId = value;
+            } else if (BROKER_PROP.equals(key)) {
+                brokerURL = value;
+            } else if (null != key && key.startsWith(SPACE_PREFIX)) {
+                if(value != null &&
+                   !value.isEmpty() &&
+                   !value.equals(SPACE_TO_SKIP) &&
+                   !Constants.SYSTEM_SPACES.contains(value)) {
+                    spacesToWatch.put(key.substring(SPACE_PREFIX.length()),
+                                      value);
+                }
+            }
+        }
+    }
+
     @Override
     public void start() throws Exception {
-        log.info("Starting Duplication Service");
+        StringBuilder startupNotice = new StringBuilder();
 
         Credential credential = new Credential(username, password);
 
-        log.info("**********");
-        log.info("Starting duplication service");
-        log.info("host: " + host);
-        log.info("port: " + port);
-        log.info("context: " + context);
-        log.info("brokerURL: " + brokerURL);
-        log.info("credential: " + credential);
-        log.info("fromStoreId: " + fromStoreId);
-        log.info("toStoreId: " + toStoreId);
+        startupNotice.append("\n\n**********\n");
+        startupNotice.append("Starting Duplication Service\n");
+        startupNotice.append("host: " + host + "\n");
+        startupNotice.append("port: " + port + "\n");
+        startupNotice.append("context: " + context + "\n");
+        startupNotice.append("brokerURL: " + brokerURL + "\n");
+        startupNotice.append("credential: " + credential + "\n");
+        startupNotice.append("fromStoreId: " + fromStoreId + "\n");
+        startupNotice.append("----\n");
+        startupNotice.append("Duplicating Spaces (to storeIDs)\n");
+        for(String spaceId : spacesToWatch.keySet()) {
+            startupNotice.append(
+                spaceId + ": " + spacesToWatch.get(spaceId) + "\n");
+        }
+        startupNotice.append("----\n");
 
         String messageSelector = STORE_ID + " = '" + fromStoreId + "'";
         initializeMessaging(messageSelector);
 
-        ContentStoreManager storeManager = new ContentStoreManagerImpl(host,
-                                                                       port,
-                                                                       context);
+        ContentStoreManager storeManager =
+            new ContentStoreManagerImpl(host, port, context);
 
         storeManager.login(credential);
 
-        ContentStore fromStore;
-        ContentStore toStore;
         ContentStore primaryStore;
-        try {
-            fromStore = storeManager.getContentStore(fromStoreId);
-            toStore = storeManager.getContentStore(toStoreId);
-            primaryStore = storeManager.getPrimaryContentStore();
+        ContentStore fromStore;
+        Map<String, ContentStore> toStores;
 
+        try {
+            primaryStore = storeManager.getPrimaryContentStore();
+            fromStore = storeManager.getContentStore(fromStoreId);
+            toStores = storeManager.getContentStores();
         } catch (ContentStoreException cse) {
             String error = "Unable to create connections to content " +
                 "stores for duplication " + cse.getMessage();
@@ -100,47 +147,57 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
 
         super.start();
 
-        String reportId = getReportContentId(fromStore, toStore);
+        String reportId = getReportContentId(fromStore);
         super.setReportId(outputSpaceId, reportId);
 
-        String errorReportId = getErrorReportContentId(fromStore, toStore);
+        String errorReportId = getErrorReportContentId(fromStore);
         super.setErrorReportId(outputSpaceId, errorReportId);
 
-        this.resultListener = new DuplicationResultListener(primaryStore,
-                                                                outputSpaceId,
-                                                                reportId,
-                                                                errorReportId,
-                                                                super.getServiceWorkDir());
+        // Create the result listener, which will record duplication results
+        this.resultListener =
+            new DuplicationResultListener(primaryStore,
+                                          outputSpaceId,
+                                          reportId,
+                                          errorReportId,
+                                          super.getServiceWorkDir());
 
-        spaceDuplicator = getSpaceDuplicator(fromStore, toStore, this.resultListener);
-        contentDuplicator = getContentDuplicator(fromStore, toStore, this.resultListener);
+        // Create the duplicators, one for each of the stores to which content
+        // can be duplicated (meaning all stores except the from store).
+        duplicators = new HashMap<String, Duplicator>();
+        for(String storeId : toStores.keySet()) {
+            if(!fromStoreId.equals(storeId)) {
+                ContentStore toStore = toStores.get(storeId);
+                Duplicator duplicator =
+                    createDuplicator(fromStore, toStore, this.resultListener);
+                duplicators.put(storeId, duplicator);
+            }
+        }
 
-        log.info("reportId: " + reportId);
-        log.info("Listener container started: " + jmsContainer.isRunning());
-        log.info("**********");
-        log.info("Duplication Service Listener Started");
+        startupNotice.append("reportSpaceId: " + outputSpaceId + "\n");
+        startupNotice.append("reportId: " + reportId + "\n");
+        startupNotice.append("Listener container started: " +
+                             jmsContainer.isRunning() + "\n");
+        startupNotice.append("**********\n");
+        log.info(startupNotice.toString());
 
         setServiceStatus(ServiceStatus.STARTED);
     }
 
-    private String getReportContentId(ContentStore fromStore,
-                                      ContentStore toStore) {
-        return getReportContentId(fromStore, toStore, false);
+    private String getReportContentId(ContentStore fromStore) {
+        return getReportContentId(fromStore, false);
     }
 
-    private String getErrorReportContentId(ContentStore fromStore,
-                                      ContentStore toStore) {
-        return getReportContentId(fromStore, toStore, true);
+    private String getErrorReportContentId(ContentStore fromStore) {
+        return getReportContentId(fromStore, true);
     }
 
     private String getReportContentId(ContentStore fromStore,
-                                      ContentStore toStore, boolean errorReport) {
+                                      boolean errorReport) {
         StringBuilder reportId = new StringBuilder("duplication-on-change/");
+        reportId.append("from-");
         reportId.append(fromStore.getStorageProviderType());
-        reportId.append("-to-");
-        reportId.append(toStore.getStorageProviderType());
         reportId.append("-report-");
-        reportId.append(DateUtil.nowMid());
+        reportId.append(DateUtil.nowPlain());
         if(errorReport){
             reportId.append(".errors");
         }
@@ -158,16 +215,20 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
             long totalCount = passCount+failedCount;
             
             if(failedCount > 0){
-                props.put(ComputeService.FAILURE_COUNT_KEY, String.valueOf(failedCount));
-                props.put(ComputeService.ERROR_REPORT_KEY, getErrorReportId());
+                props.put(ComputeService.FAILURE_COUNT_KEY,
+                          String.valueOf(failedCount));
+                props.put(ComputeService.ERROR_REPORT_KEY,
+                          getErrorReportId());
             }
             
             if(totalCount == 0){
                 props.remove(ComputeService.REPORT_KEY);
             }
             
-            props.put(ComputeService.PASS_COUNT_KEY, String.valueOf(passCount));
-            props.put(ComputeService.ITEMS_PROCESS_COUNT, String.valueOf(totalCount));
+            props.put(ComputeService.PASS_COUNT_KEY,
+                      String.valueOf(passCount));
+            props.put(ComputeService.ITEMS_PROCESS_COUNT,
+                      String.valueOf(totalCount));
         }
         return props;
     }
@@ -175,8 +236,9 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
     public void stop() throws Exception {
         log.info("Stopping Duplication Service");
         terminateMessaging();
-        contentDuplicator.stop();
-        spaceDuplicator.stop();
+        for(Duplicator duplicator : duplicators.values()) {
+            duplicator.stop();
+        }
         setServiceStatus(ServiceStatus.STOPPED);
     }
 
@@ -186,32 +248,14 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
             String spaceId = message.getString(SPACE_ID);
             String contentId = message.getString(CONTENT_ID);
 
-            log.debug("handling message for item: {}/{}, on topic: {}",
-                     new Object[]{spaceId, contentId, topic});
-
-            if (getSpaceCreateTopic().equals(topic)) {
-                spaceDuplicator.createSpace(spaceId);
-
-            } else if (getSpaceUpdateTopic().equals(topic)) {
-                spaceDuplicator.updateSpace(spaceId);
-
-            } else if (getSpaceUpdateAclTopic().equals(topic)) {
-                spaceDuplicator.updateSpaceAcl(spaceId);
-
-            } else if (getSpaceDeleteTopic().equals(topic)) {
-                spaceDuplicator.deleteSpace(spaceId);
-
-            } else if (getContentCreateTopic().equals(topic)) {
-                contentDuplicator.createContent(spaceId, contentId);
-
-            } else if (getContentCopyTopic().equals(topic)) {
-                contentDuplicator.createContent(spaceId, contentId);
-
-            } else if (getContentUpdateTopic().equals(topic)) {
-                contentDuplicator.updateContent(spaceId, contentId);
-
-            } else if (getContentDeleteTopic().equals(topic)) {
-                contentDuplicator.deleteContent(spaceId, contentId);
+            String dupStores = spacesToWatch.get(spaceId);
+            if(null != dupStores) {
+                for(String storeId : dupStores.split(",")) {
+                    Duplicator duper = duplicators.get(storeId);
+                    if(null != duper) {
+                        processDuplication(topic, spaceId, contentId, duper);
+                    }
+                }
             }
         } catch (JMSException je) {
             String error =
@@ -222,51 +266,57 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
         }
     }
 
+    protected void processDuplication(String topic,
+                                      String spaceId,
+                                      String contentId,
+                                      Duplicator duplicator) {
+        if (getSpaceCreateTopic().equals(topic)) {
+            duplicator.createSpace(spaceId);
+        } else if (getSpaceUpdateTopic().equals(topic)) {
+            duplicator.updateSpace(spaceId);
+        } else if (getSpaceUpdateAclTopic().equals(topic)) {
+            duplicator.updateSpaceAcl(spaceId);
+        } else if (getSpaceDeleteTopic().equals(topic)) {
+            duplicator.deleteSpace(spaceId);
+        } else if (getContentCreateTopic().equals(topic)) {
+            duplicator.createContent(spaceId, contentId);
+        } else if (getContentCopyTopic().equals(topic)) {
+            duplicator.createContent(spaceId, contentId);
+        } else if (getContentUpdateTopic().equals(topic)) {
+            duplicator.updateContent(spaceId, contentId);
+        } else if (getContentDeleteTopic().equals(topic)) {
+            duplicator.deleteContent(spaceId, contentId);
+        }
+        log.debug("handling message for item: {}/{}, on topic: {}",
+                 new Object[]{spaceId, contentId, topic});
+    }
+
     @SuppressWarnings("unchecked")
     public void updated(Dictionary properties) throws ConfigurationException {
-        // Implementation not needed. Update performed through setters.
+        // Implementation not needed. Update performed through updateConfig().
     }
 
-    private SpaceDuplicator getSpaceDuplicator(ContentStore fromStore,
-                                               ContentStore toStore,
-                                               ResultListener listener) {
-        if (null == spaceDuplicator) {
-            SpaceDuplicator sd = new SpaceDuplicatorImpl(fromStore, toStore);
-            spaceDuplicator = new SpaceDuplicatorReportingImpl(sd, listener);
-        }
-        return spaceDuplicator;
-    }
+    private Duplicator createDuplicator(ContentStore fromStore,
+                                        ContentStore toStore,
+                                        ResultListener listener) {
+        SpaceDuplicator sd = new SpaceDuplicatorImpl(fromStore, toStore);
+        SpaceDuplicator spaceDuplicator =
+            new SpaceDuplicatorReportingImpl(sd, listener);
 
-    private ContentDuplicator getContentDuplicator(ContentStore fromStore,
-                                                   ContentStore toStore,
-                                                   ResultListener listener) {
-        if (null == contentDuplicator) {
-            SpaceDuplicator sd = getSpaceDuplicator(fromStore,
-                                                    toStore,
-                                                    listener);
-            ContentDuplicator cd = new ContentDuplicatorImpl(fromStore,
-                                                             toStore,
-                                                             sd);
-            contentDuplicator = new ContentDuplicatorReportingImpl(cd,
-                                                                   listener);
-        }
-        return contentDuplicator;
+        ContentDuplicator cd =
+            new ContentDuplicatorImpl(fromStore, toStore, spaceDuplicator);
+        ContentDuplicator contentDuplicator =
+            new ContentDuplicatorReportingImpl(cd, listener);
+
+        return new DuplicatorImpl(spaceDuplicator, contentDuplicator);
     }
 
     public String getHost() {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     public String getPort() {
         return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
     }
 
     public String getContext() {
@@ -274,41 +324,16 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
         return context;
     }
 
-    public void setContext(String context) {
-        log.debug("setContext(): " + context);
-        this.context = context;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getFromStoreId() {
         return fromStoreId;
-    }
-
-    public void setFromStoreId(String fromStoreId) {
-        this.fromStoreId = fromStoreId;
-    }
-
-    public String getToStoreId() {
-        return toStoreId;
-    }
-
-    public void setToStoreId(String toStoreId) {
-        this.toStoreId = toStoreId;
     }
 
     public String getOutputSpaceId() {
@@ -318,4 +343,5 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
     public void setOutputSpaceId(String outputSpaceId) {
         this.outputSpaceId = outputSpaceId;
     }
+
 }

@@ -16,6 +16,18 @@ package org.duracloud.services.duplication;
 public interface SpaceDuplicator {
 
     /**
+     * Gets the ID of the store from which spaces are to be retrieved
+     * @return storeId of the FROM storage provider
+     */
+    public String getFromStoreId();
+
+    /**
+     * Gets the ID of the store from which spaces are to be duplicated
+     * @return storeId of the TO storage provider
+     */
+    public String getToStoreId();
+
+    /**
      * This method creates a newly duplicated space with the arg spaceId.
      *
      * @param spaceId of duplicated space

@@ -42,6 +42,8 @@ public class SpaceDuplicatorReportingImplTest {
     private SpaceDuplicator spaceDuplicator;
     private ResultListener listener;
 
+    private static final String fromStoreId = "from-store-id";
+    private static final String toStoreId = "to-store-id";
     private final String spaceId = "space-id";
     private final long waitMillis = 1;
 
@@ -49,6 +51,11 @@ public class SpaceDuplicatorReportingImplTest {
     public void setUp() throws Exception {
         spaceDuplicator = EasyMock.createMock("SpaceDuplicator",
                                               SpaceDuplicator.class);
+        EasyMock.expect(spaceDuplicator.getFromStoreId())
+                .andReturn(fromStoreId).anyTimes();
+        EasyMock.expect(spaceDuplicator.getToStoreId())
+                .andReturn(toStoreId).anyTimes();
+
         listener = EasyMock.createMock("ResultListener", ResultListener.class);
     }
 

@@ -38,6 +38,8 @@ public class ContentDuplicatorReportingImplTest {
     private ContentDuplicator contentDuplicator;
     private ResultListener listener;
 
+    private static final String fromStoreId = "from-store-id";
+    private static final String toStoreId = "to-store-id";
     private final String spaceId = "space-id";
     private final String contentId = "content-id";
     private final long waitMillis = 1;
@@ -46,6 +48,11 @@ public class ContentDuplicatorReportingImplTest {
     public void setUp() throws Exception {
         contentDuplicator = EasyMock.createMock("ContentDuplicator",
                                                 ContentDuplicator.class);
+        EasyMock.expect(contentDuplicator.getFromStoreId())
+                .andReturn(fromStoreId).anyTimes();
+        EasyMock.expect(contentDuplicator.getToStoreId())
+                .andReturn(toStoreId).anyTimes();
+
         listener = EasyMock.createMock("ResultListener", ResultListener.class);
     }
 
@@ -223,7 +230,7 @@ public class ContentDuplicatorReportingImplTest {
     }
 
     private void waitForCompletion() throws InterruptedException {
-        final long maxWait = 5000;
+        final long maxWait = 8000;
         long waited = 0;
         long wait = 400;
         while (contentDuplicatorReporting.eventsExist()) {

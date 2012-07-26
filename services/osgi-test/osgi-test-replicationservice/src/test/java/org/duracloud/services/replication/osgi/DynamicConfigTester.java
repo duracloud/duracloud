@@ -28,8 +28,6 @@ public class DynamicConfigTester {
 
     private static final String FROM_STORE_ID = "fromStoreId";
 
-    private static final String TO_STORE_ID = "toStoreId";
-
     private final DuraConfigAdmin configAdmin;
 
     private final DuplicationService duplicationService;
@@ -50,7 +48,6 @@ public class DynamicConfigTester {
         defaultConfig.put(CONTEXT, "durastore");
         defaultConfig.put(BROKER_URL, "tcp://localhost:61617");
         defaultConfig.put(FROM_STORE_ID, "1");
-        defaultConfig.put(TO_STORE_ID, "5");
 
         verifyConfig(defaultConfig);
 
@@ -60,7 +57,6 @@ public class DynamicConfigTester {
         newConfig.put(CONTEXT, "durastore-new");
         newConfig.put(BROKER_URL, "tcp://localhost:99999");
         newConfig.put(FROM_STORE_ID, "2");
-        newConfig.put(TO_STORE_ID, "6");
 
         configAdmin.updateConfiguration(
             "duplicationservice-" + getVersion() + ".zip", newConfig);
@@ -77,21 +73,18 @@ public class DynamicConfigTester {
         String context = duplicationService.getContext();
         String url = duplicationService.getBrokerURL();
         String fromId = duplicationService.getFromStoreId();
-        String toId = duplicationService.getToStoreId();
 
         Assert.assertNotNull(host);
         Assert.assertNotNull(port);
         Assert.assertNotNull(context);
         Assert.assertNotNull(url);
         Assert.assertNotNull(fromId);
-        Assert.assertNotNull(toId);
 
         Assert.assertEquals(config.get(HOST), host);
         Assert.assertEquals(config.get(PORT), port);
         Assert.assertEquals(config.get(CONTEXT), context);
         Assert.assertEquals(config.get(BROKER_URL), url);
         Assert.assertEquals(config.get(FROM_STORE_ID), fromId);
-        Assert.assertEquals(config.get(TO_STORE_ID), toId);
     }
 
     private static String getVersion() {

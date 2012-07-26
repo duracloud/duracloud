@@ -17,13 +17,7 @@
   <bean name="duplicationService" class="org.duracloud.services.duplication.DuplicationService"
 	   destroy-method="stop">
 <!--    init-method="start" destroy-method="stop">-->
-    <osgix:managed-properties persistent-id="duplicationservice-${project.version}.zip" update-strategy="container-managed"/>
-	  <property name="host" value="localhost"/>  
-    <property name="port" value="8080"/>       
-    <property name="context" value="durastore"/>
-    <property name="brokerURL" value="tcp://localhost:61617"/> 
-    <property name="fromStoreId" value="1"/>                   
-    <property name="toStoreId" value="5"/>
+    <osgix:managed-properties persistent-id="duplicationservice-${project.version}.zip" update-strategy="bean-managed" update-method="updateConfig" />
     <property name="outputSpaceId" value="${service.output.spaceid}"/>
     <property name="spaceCreateTopic" value="org.duracloud.topic.change.space.create"/>
     <property name="spaceUpdateTopic" value="org.duracloud.topic.change.space.update"/>

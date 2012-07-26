@@ -530,6 +530,8 @@ public class ServiceConfigUtilTest {
         Assert.assertEquals(3, popUserConfig.size());
         for(UserConfig config : popUserConfig) {
             Assert.assertTrue(config instanceof SelectableUserConfig);
+            Assert.assertTrue(
+                config.getName().startsWith(ServiceConfigUtil.SPACE_PREFIX));
             List<Option> options = ((SelectableUserConfig) config).getOptions();
             Assert.assertNotNull(options);
             Assert.assertEquals(1, options.size());

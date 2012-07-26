@@ -32,12 +32,15 @@ public class DuplicationEventTest {
 
     private DuplicationEvent event;
 
+    private static final String fromStoreId = "from-store-id";
+    private static final String toStoreId = "to-store-id";
     private static final String spaceId = "space-id";
     private static final String contentId = "content-id";
 
     @Test
     public void testGetDelay() throws Exception {
-        event = new DuplicationEvent(spaceId, SPACE_UPDATE);
+        event = new DuplicationEvent(fromStoreId, toStoreId, SPACE_UPDATE,
+                                     spaceId);
 
         // before setting a delay, delay shows as expired
         long delay = event.getDelay(NANOSECONDS);
@@ -63,9 +66,12 @@ public class DuplicationEventTest {
 
     @Test
     public void testCompareTo() throws Exception {
-        DuplicationEvent e0 = new DuplicationEvent(spaceId, SPACE_UPDATE);
-        DuplicationEvent e1 = new DuplicationEvent(spaceId, SPACE_UPDATE);
-        DuplicationEvent e2 = new DuplicationEvent(spaceId, SPACE_UPDATE);
+        DuplicationEvent e0 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_UPDATE, spaceId);
+        DuplicationEvent e1 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_UPDATE, spaceId);
+        DuplicationEvent e2 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_UPDATE, spaceId);
 
         Assert.assertEquals(0, e0.compareTo(e0));
         Assert.assertEquals(0, e1.compareTo(e1));
@@ -93,22 +99,26 @@ public class DuplicationEventTest {
 
     @Test
     public void testGetSpaceId() throws Exception {
-        event = new DuplicationEvent(spaceId, SPACE_DELETE);
+        event = new DuplicationEvent(fromStoreId, toStoreId, SPACE_DELETE,
+                                     spaceId);
         Assert.assertEquals(spaceId, event.getSpaceId());
     }
 
     @Test
     public void testGetContentId() throws Exception {
-        event = new DuplicationEvent(spaceId, SPACE_DELETE);
+        event = new DuplicationEvent(fromStoreId, toStoreId, SPACE_DELETE,
+                                     spaceId);
         Assert.assertNull(event.getContentId());
 
-        event = new DuplicationEvent(spaceId, contentId, CONTENT_CREATE);
+        event = new DuplicationEvent(fromStoreId, toStoreId, CONTENT_CREATE,
+                                     spaceId, contentId);
         Assert.assertEquals(contentId, event.getContentId());
     }
 
     @Test
     public void testIsSuccess() throws Exception {
-        event = new DuplicationEvent(spaceId, SPACE_DELETE);
+        event = new DuplicationEvent(fromStoreId, toStoreId, SPACE_DELETE,
+                                     spaceId);
         Assert.assertTrue(event.isSuccess());
 
         event.fail("canned-message");
@@ -117,7 +127,8 @@ public class DuplicationEventTest {
 
     @Test
     public void testFail() throws Exception {
-        event = new DuplicationEvent(spaceId, SPACE_DELETE);
+        event = new DuplicationEvent(fromStoreId, toStoreId, SPACE_DELETE,
+                                     spaceId);
 
         String msg = "test-event-failed";
         Assert.assertTrue(!event.getEntry().contains(msg));
@@ -128,10 +139,13 @@ public class DuplicationEventTest {
 
     @Test
     public void testGetHeader() throws Exception {
-        event = new DuplicationEvent(spaceId, SPACE_DELETE);
+        event = new DuplicationEvent(fromStoreId, toStoreId, SPACE_DELETE,
+                                     spaceId);
         String header = event.getHeader();
 
         List<String> fields = new ArrayList<String>();
+        fields.add("from-store-id");
+        fields.add("to-store-id");
         fields.add("space-id");
         fields.add("content-id");
         fields.add("md5");
@@ -146,11 +160,13 @@ public class DuplicationEventTest {
     @Test
     public void testGetEntrySpace() throws Exception {
         DuplicationEvent.TYPE type = SPACE_CREATE;
-        event = new DuplicationEvent(spaceId, type);
+        event = new DuplicationEvent(fromStoreId, toStoreId, type, spaceId);
 
         String entry = event.getEntry();
 
         List<String> fields = new ArrayList<String>();
+        fields.add(fromStoreId);
+        fields.add(toStoreId);
         fields.add(spaceId);
         fields.add("-");
         fields.add("-");
@@ -167,12 +183,14 @@ public class DuplicationEventTest {
         DuplicationEvent.TYPE type = CONTENT_UPDATE;
         String error = "canned-message";
 
-        event = new DuplicationEvent(spaceId, contentId, type);
+        event = new DuplicationEvent(fromStoreId, toStoreId, type, spaceId, contentId);
         event.fail(error);
 
         String entry = event.getEntry();
 
         List<String> fields = new ArrayList<String>();
+        fields.add(fromStoreId);
+        fields.add(toStoreId);
         fields.add(spaceId);
         fields.add(contentId);
         fields.add("-");
@@ -201,16 +219,19 @@ public class DuplicationEventTest {
     @Test
     public void testGetType() throws Exception {
         DuplicationEvent.TYPE type = SPACE_CREATE;
-        event = new DuplicationEvent(spaceId, type);
+        event = new DuplicationEvent(fromStoreId, toStoreId, type, spaceId);
 
         Assert.assertEquals(type, event.getType());
     }
 
     @Test
     public void testEquals() throws Exception {
-        DuplicationEvent e0 = new DuplicationEvent(spaceId, SPACE_UPDATE);
-        DuplicationEvent e1 = new DuplicationEvent(spaceId, SPACE_UPDATE);
-        DuplicationEvent e2 = new DuplicationEvent(spaceId, SPACE_UPDATE);
+        DuplicationEvent e0 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_UPDATE, spaceId);
+        DuplicationEvent e1 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_UPDATE, spaceId);
+        DuplicationEvent e2 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_UPDATE, spaceId);
 
         e0.setDelay(500);
         e1.setDelay(5000);
@@ -232,11 +253,12 @@ public class DuplicationEventTest {
 
     @Test
     public void testEqualsNot() throws Exception {
-        DuplicationEvent e0 = new DuplicationEvent(spaceId, SPACE_UPDATE);
-        DuplicationEvent e1 = new DuplicationEvent(spaceId, SPACE_CREATE);
-        DuplicationEvent e2 = new DuplicationEvent(spaceId,
-                                                   contentId,
-                                                   CONTENT_UPDATE);
+        DuplicationEvent e0 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_UPDATE, spaceId);
+        DuplicationEvent e1 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   SPACE_CREATE, spaceId);
+        DuplicationEvent e2 = new DuplicationEvent(fromStoreId, toStoreId,
+                                                   CONTENT_UPDATE, spaceId, contentId);
 
         Assert.assertTrue(!e0.equals(e1));
         Assert.assertTrue(!e0.equals(e2));

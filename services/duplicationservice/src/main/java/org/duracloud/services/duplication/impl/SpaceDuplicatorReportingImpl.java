@@ -70,6 +70,16 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
         executor.execute(new QWatcher());
     }
 
+    @Override
+    public String getFromStoreId() {
+        return spaceDuplicator.getFromStoreId();
+    }
+
+    @Override
+    public String getToStoreId() {
+        return spaceDuplicator.getToStoreId();
+    }
+
     private class QWatcher extends Thread {
         @Override
         public void run() {
@@ -191,12 +201,19 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
     }
 
     private void processSuccess(String spaceId, DuplicationEvent.TYPE type) {
-        DuplicationEvent event = new DuplicationEvent(spaceId, type);
+        DuplicationEvent event = createDuplicationEvent(spaceId, type);
         log.debug("processing success: {}", event);
 
         // clear the tracking of this event.
         retryTally.remove(event);
         listener.processResult(event);
+    }
+
+    private DuplicationEvent createDuplicationEvent(String spaceId,
+                                                    DuplicationEvent.TYPE type) {
+        return new DuplicationEvent(spaceDuplicator.getFromStoreId(),
+                                    spaceDuplicator.getToStoreId(), type,
+                                    spaceId);
     }
 
     private void createSpaceFailure(String spaceId) {
@@ -220,7 +237,7 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
     }
 
     private void spaceFailure(String spaceId, DuplicationEvent.TYPE type) {
-        DuplicationEvent event = new DuplicationEvent(spaceId, type);
+        DuplicationEvent event = createDuplicationEvent(spaceId, type);
 
         Integer tally = retryTally.get(event);
         if (null == tally) {

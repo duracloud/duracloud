@@ -9,6 +9,7 @@ package org.duracloud.duraservice.mgmt;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.Credential;
 import org.duracloud.duraservice.domain.ServiceComputeInstance;
 import org.duracloud.duraservice.domain.Store;
@@ -51,6 +52,9 @@ public class ServiceConfigUtil {
     public static final String SPACES_CONFIG_VAR = "$SPACES_CONFIG";
     /* Expands to create a Mode (within a ModeSet) for each store */
     public static final String ALL_STORE_SPACES_VAR = "$ALL_STORE_SPACES";
+
+    /* Used as a prefix for space IDs when they are included as user config names */
+    public static final String SPACE_PREFIX = "spaceID-";
 
     // System Config Variables
     public static final String STORE_HOST_VAR = "$DURASTORE-HOST";
@@ -189,11 +193,14 @@ public class ServiceConfigUtil {
                     try {
                         List<String> spaces = contentStore.getSpaces();
                         for(String spaceId : spaces) {
-                            UserConfig newUserConfig = config.clone();
-                            newUserConfig.setName(spaceId);
-                            newUserConfig.setDisplayName(spaceId);
-                            // Add the new config to the list
-                            newUserConfigs1.add(newUserConfig);
+                            // Create a config for the (non-system) space
+                            if(!Constants.SYSTEM_SPACES.contains(spaceId)) {
+                                UserConfig newUserConfig = config.clone();
+                                newUserConfig.setName(SPACE_PREFIX + spaceId);
+                                newUserConfig.setDisplayName(spaceId);
+                                // Add the new config to the list
+                                newUserConfigs1.add(newUserConfig);
+                            }
                         }
                     } catch(CloneNotSupportedException cnse) {
                         String error =

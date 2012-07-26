@@ -29,9 +29,12 @@ public class DuplicationEvent implements Delayed {
     private final Logger log = LoggerFactory.getLogger(DuplicationEvent.class);
 
     private static final String header =
-        "space-id" + DELIM + "content-id" + DELIM + "md5" + DELIM + "event" +
-            DELIM + "success" + DELIM + "date-time" + DELIM + "message";
+        "from-store-id" + DELIM + "to-store-id" + DELIM + "space-id" + DELIM +
+        "content-id" + DELIM + "md5" + DELIM + "event" + DELIM +
+        "success" + DELIM + "date-time" + DELIM + "message";
 
+    private String fromStoreId;
+    private String toStoreId;
     private String spaceId;
     private String contentId;
     private String md5;
@@ -53,22 +56,33 @@ public class DuplicationEvent implements Delayed {
         CONTENT_DELETE;
     }
 
-    public DuplicationEvent(String spaceId, TYPE type) {
-        this(spaceId, null, type);
+    public DuplicationEvent(String fromStoreId,
+                            String toStoreId,
+                            TYPE type,
+                            String spaceId) {
+        this(fromStoreId, toStoreId, type, spaceId, null);
     }
 
-    public DuplicationEvent(String spaceId, String contentId, TYPE type) {
-        this(spaceId, contentId, null, type);
+    public DuplicationEvent(String fromStoreId,
+                            String toStoreId,
+                            TYPE type,
+                            String spaceId,
+                            String contentId) {
+        this(fromStoreId, toStoreId, type, spaceId, contentId, null);
     }
 
-    public DuplicationEvent(String spaceId,
+    public DuplicationEvent(String fromStoreId,
+                            String toStoreId,
+                            TYPE type,
+                            String spaceId,
                             String contentId,
-                            String md5,
-                            TYPE type) {
+                            String md5) {
+        this.fromStoreId = fromStoreId;
+        this.toStoreId = toStoreId;
+        this.type = type;
         this.spaceId = spaceId;
         this.contentId = contentId;
         this.md5 = md5;
-        this.type = type;
 
         this.eventTime = System.currentTimeMillis();
         this.success = true;
@@ -91,6 +105,14 @@ public class DuplicationEvent implements Delayed {
         long thatDelay = that.getDelay(TimeUnit.NANOSECONDS);
 
         return thisDelay == thatDelay ? 0 : (thisDelay > thatDelay ? 1 : -1);
+    }
+
+    public String getFromStoreId() {
+        return fromStoreId;
+    }
+
+    public String getToStoreId() {
+        return toStoreId;
     }
 
     public String getSpaceId() {
@@ -116,6 +138,10 @@ public class DuplicationEvent implements Delayed {
 
     public String getEntry() {
         StringBuilder entry = new StringBuilder();
+        entry.append(fromStoreId);
+        entry.append(DELIM);
+        entry.append(toStoreId);
+        entry.append(DELIM);
         entry.append(spaceId);
         entry.append(DELIM);
         entry.append(null == contentId ? "-" : contentId);
@@ -151,7 +177,7 @@ public class DuplicationEvent implements Delayed {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DuplicationEvent)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
@@ -161,8 +187,16 @@ public class DuplicationEvent implements Delayed {
             that.contentId != null) {
             return false;
         }
+        if (fromStoreId != null ? !fromStoreId.equals(that.fromStoreId) :
+            that.fromStoreId != null) {
+            return false;
+        }
         if (spaceId != null ? !spaceId.equals(that.spaceId) :
             that.spaceId != null) {
+            return false;
+        }
+        if (toStoreId != null ? !toStoreId.equals(that.toStoreId) :
+            that.toStoreId != null) {
             return false;
         }
         if (type != that.type) {
@@ -174,9 +208,12 @@ public class DuplicationEvent implements Delayed {
 
     @Override
     public int hashCode() {
-        int result = spaceId != null ? spaceId.hashCode() : 0;
+        int result = fromStoreId != null ? fromStoreId.hashCode() : 0;
+        result = 31 * result + (toStoreId != null ? toStoreId.hashCode() : 0);
+        result = 31 * result + (spaceId != null ? spaceId.hashCode() : 0);
         result = 31 * result + (contentId != null ? contentId.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
     }
+
 }

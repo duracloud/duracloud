@@ -32,6 +32,9 @@ import static org.duracloud.services.duplication.result.DuplicationResultListene
  */
 public class DuplicationResultListenerTest {
 
+    private static final String fromStoreId = "from-store-id";
+    private static final String toStoreId = "to-store-id";
+
     private DuplicationResultListener listener;
 
     private ContentStore contentStore;
@@ -85,7 +88,8 @@ public class DuplicationResultListenerTest {
                                                  errorReportId,
                                                  workDir);
 
-        DuplicationEvent event = new DuplicationEvent(spaceId, SPACE_CREATE);
+        DuplicationEvent event = new DuplicationEvent(fromStoreId, toStoreId,
+                                                      SPACE_CREATE, spaceId);
         if(!successfulEvent){
             event.fail("fail");
         }
@@ -103,9 +107,8 @@ public class DuplicationResultListenerTest {
                                                  errorReportId,
                                                  workDir);
 
-        DuplicationEvent event = new DuplicationEvent(spaceId,
-                                                      reportId,
-                                                      CONTENT_CREATE);
+        DuplicationEvent event = new DuplicationEvent(fromStoreId, toStoreId,
+                                                      CONTENT_CREATE, spaceId, reportId);
         event.fail("failed");
         listener.processResult(event);
     }
@@ -121,7 +124,8 @@ public class DuplicationResultListenerTest {
                                                  errorReportId,
                                                  workDir);
 
-        DuplicationEvent event = new DuplicationEvent(spaceId, SPACE_CREATE);
+        DuplicationEvent event = new DuplicationEvent(fromStoreId, toStoreId,
+                                                      SPACE_CREATE, spaceId);
         // catches exception and writes a log.
         listener.processResult(event);
     }

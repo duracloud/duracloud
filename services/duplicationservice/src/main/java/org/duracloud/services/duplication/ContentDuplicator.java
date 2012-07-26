@@ -16,6 +16,18 @@ package org.duracloud.services.duplication;
 public interface ContentDuplicator {
 
     /**
+     * Gets the ID of the store from which content is to be retrieved
+     * @return storeId of the FROM storage provider
+     */
+    public String getFromStoreId();
+
+    /**
+     * Gets the ID of the store to which content is to be duplicated
+     * @return storeId of the TO storage provider
+     */
+    public String getToStoreId();
+
+    /**
      * This method creates a newly duplicated content item in the arg spaceId
      * with the arg contentId.
      *

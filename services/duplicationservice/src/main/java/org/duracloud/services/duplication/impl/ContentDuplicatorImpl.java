@@ -68,6 +68,16 @@ public class ContentDuplicatorImpl implements ContentDuplicator {
     }
 
     @Override
+    public String getFromStoreId() {
+        return fromStore.getStoreId();
+    }
+
+    @Override
+    public String getToStoreId() {
+        return toStore.getStoreId();
+    }
+
+    @Override
     public String createContent(String spaceId, String contentId) {
         logDebug("Creating", spaceId, contentId);
 

@@ -78,6 +78,16 @@ public class ContentDuplicatorReportingImpl implements ContentDuplicator {
         executor.execute(new QWatcher(retryQ));
     }
 
+    @Override
+    public String getFromStoreId() {
+        return contentDuplicator.getFromStoreId();
+    }
+
+    @Override
+    public String getToStoreId() {
+        return contentDuplicator.getToStoreId();
+    }
+
     /**
      * This thread spins on the provided queue of DuplicationEvents, executing
      * the appropriate method.
@@ -128,18 +138,35 @@ public class ContentDuplicatorReportingImpl implements ContentDuplicator {
 
     @Override
     public String createContent(String spaceId, String contentId) {
-        submitEvent(new DuplicationEvent(spaceId, contentId, CONTENT_CREATE));
+        submitEvent(createDuplicationEvent(spaceId, contentId, CONTENT_CREATE));
         return "returned-string-not-used";
     }
 
     @Override
     public void updateContent(String spaceId, String contentId) {
-        submitEvent(new DuplicationEvent(spaceId, contentId, CONTENT_UPDATE));
+        submitEvent(createDuplicationEvent(spaceId, contentId, CONTENT_UPDATE));
     }
 
     @Override
     public void deleteContent(String spaceId, String contentId) {
-        submitEvent(new DuplicationEvent(spaceId, contentId, CONTENT_DELETE));
+        submitEvent(createDuplicationEvent(spaceId, contentId, CONTENT_DELETE));
+    }
+
+    private DuplicationEvent createDuplicationEvent(String spaceId,
+                                                    String contentId,
+                                                    TYPE type) {
+        return createDuplicationEvent(spaceId, contentId, null, type);
+    }
+
+    private DuplicationEvent createDuplicationEvent(String spaceId,
+                                                    String contentId,
+                                                    String md5,
+                                                    TYPE type) {
+        return new DuplicationEvent(contentDuplicator.getFromStoreId(),
+                                    contentDuplicator.getToStoreId(), type,
+                                    spaceId,
+                                    contentId,
+                                    md5);
     }
 
     private void submitEvent(DuplicationEvent event) {
@@ -235,11 +262,11 @@ public class ContentDuplicatorReportingImpl implements ContentDuplicator {
                                 String contentId,
                                 String md5,
                                 TYPE type) {
-        processSuccess(new DuplicationEvent(spaceId, contentId, md5, type));
+        processSuccess(createDuplicationEvent(spaceId, contentId, md5, type));
     }
 
     private void processSuccess(String spaceId, String contentId, TYPE type) {
-        processSuccess(new DuplicationEvent(spaceId, contentId, type));
+        processSuccess(createDuplicationEvent(spaceId, contentId, type));
     }
 
     private void processSuccess(DuplicationEvent event) {
@@ -266,7 +293,8 @@ public class ContentDuplicatorReportingImpl implements ContentDuplicator {
     }
 
     private void contentFailure(String spaceId, String contentId, TYPE type) {
-        DuplicationEvent event = new DuplicationEvent(spaceId, contentId, type);
+        DuplicationEvent event =
+            createDuplicationEvent(spaceId, contentId, type);
 
         Integer tally = retryTally.get(event);
         if (null == tally) {
