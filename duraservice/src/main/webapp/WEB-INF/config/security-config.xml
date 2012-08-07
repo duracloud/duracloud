@@ -17,21 +17,14 @@
    -->
   <http access-decision-manager-ref="duraAccessDecisionManager"
         realm="DuraCloud:DuraService">
-    <!--
-      Set initial access as if all spaces are 'open'.
-      'closed' spaces will be handled by the spaceAccessVoter.
-     -->
-    <intercept-url pattern="/services" method="POST" access="ROLE_ROOT"/>
 
-    <intercept-url pattern="/security" method="POST" access="ROLE_ADMIN"/>
-    <intercept-url pattern="/security" method="GET" access="ROLE_ADMIN"/>
+    <intercept-url pattern="/security" access="ROLE_ROOT"/>
 
     <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS, ROLE_USER"/>
+    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
 
-    <intercept-url pattern="/**" method="POST"   access="ROLE_ADMIN"/>
-    <intercept-url pattern="/**" method="PUT"    access="ROLE_ADMIN"/>
-    <intercept-url pattern="/**" method="DELETE" access="ROLE_ADMIN"/>
-    <intercept-url pattern="/**" access="ROLE_USER"/>
+    <intercept-url pattern="/**"  method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/**" method="POST" access="ROLE_ADMIN"/>
 
     <anonymous />
     <http-basic />

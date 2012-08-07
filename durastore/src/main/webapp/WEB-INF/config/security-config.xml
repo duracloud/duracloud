@@ -17,29 +17,33 @@
    -->
   <http access-decision-manager-ref="duraAccessDecisionManager"
         realm="DuraCloud:DuraStore">
-    <!--
-      Set initial access as if all spaces are 'open'.
-      'closed' spaces will be handled by the spaceAccessVoter.
-     -->
-    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
+
+    <intercept-url pattern="/security" access="ROLE_ROOT"/>
+
     <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS, ROLE_USER"/>
+    <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
 
     <!-- no one should be adding the 'acl' space, not even ROOT -->
     <intercept-url pattern="/acl" method="PUT" access="ROLE_ROOT"/>
     <intercept-url pattern="/acl/" method="PUT" access="ROLE_ROOT"/>
+    <intercept-url pattern="/acl" method="POST" access="ROLE_ADMIN"/>
 
-    <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
+    <intercept-url pattern="/task" method="GET" access="ROLE_ADMIN"/>
+    <intercept-url pattern="/task" method="POST" access="ROLE_ADMIN"/>
+
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
 
-    <intercept-url pattern="/security" method="POST" access="ROLE_ADMIN"/>
-    <intercept-url pattern="/security" method="GET" access="ROLE_ADMIN"/>
+    <!--
+      Set initial access as if all spaces are 'open'.
+      'closed' spaces will be handled by the spaceAccessVoter.
+     -->
+    <intercept-url pattern="/**" method="HEAD" access="ROLE_USER, ROLE_ANONYMOUS"/>
+    <intercept-url pattern="/**" method="GET" access="ROLE_USER, ROLE_ANONYMOUS"/>
 
     <intercept-url pattern="/**" method="PUT" access="ROLE_USER"/>
     <intercept-url pattern="/**" method="POST" access="ROLE_USER"/>
     <intercept-url pattern="/**" method="DELETE" access="ROLE_USER"/>
-
-    <intercept-url pattern="/**" method="HEAD" access="ROLE_USER, ROLE_ANONYMOUS"/>
-    <intercept-url pattern="/**" method="GET" access="ROLE_USER, ROLE_ANONYMOUS"/>
 
     <anonymous />
     <http-basic />
