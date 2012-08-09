@@ -23,8 +23,10 @@
     <intercept-url pattern="/init" method="GET" access="ROLE_ANONYMOUS, ROLE_USER"/>
     <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
 
-    <intercept-url pattern="/**"  method="GET" access="ROLE_USER"/>
+    <intercept-url pattern="/**" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/**" method="POST" access="ROLE_ADMIN"/>
+    <intercept-url pattern="/**" method="PUT" access="ROLE_ADMIN"/>
+    <intercept-url pattern="/**" method="DELETE" access="ROLE_ADMIN"/>
 
     <anonymous />
     <http-basic />
