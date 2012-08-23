@@ -96,4 +96,20 @@ public class ChangedListTest extends SyncTestBase {
         
     }
 
+    @Test
+    public void testClear() throws Exception {
+        int fileCount = 5;
+        List<File> files = new ArrayList<File>(fileCount);
+        for(int i = 0; i < fileCount; i++){
+            File f = new File("changedListTest-"+i+".tmp");
+            files.add(f);
+            changedList.addChangedFile(f);
+        }
+        
+        Assert.assertEquals(fileCount, changedList.getListSize());
+        
+        changedList.clear();
+        Assert.assertEquals(0, changedList.getListSize());
+    }
+
 }

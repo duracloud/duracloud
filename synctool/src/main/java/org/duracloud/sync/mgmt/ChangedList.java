@@ -70,6 +70,13 @@ public class ChangedList {
     }
 
     /**
+     * Removes all files from the changed list.
+     */
+    public synchronized void clear(){
+        fileList.clear();
+    }
+
+    /**
      * Retrieves a changed file for processing and removes it from the list.
      * Returns null if there are no changed files in the list.
      *
