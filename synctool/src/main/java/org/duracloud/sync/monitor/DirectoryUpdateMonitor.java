@@ -7,14 +7,15 @@
  */
 package org.duracloud.sync.monitor;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.util.List;
+
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Monitors of local file system directories for changes.
@@ -41,15 +42,28 @@ public class DirectoryUpdateMonitor {
         monitor = new FileAlterationMonitor(pollFrequency);
 
         for (File watchDir : directories) {
-            if (watchDir.exists() && watchDir.isDirectory()) {
-                FileAlterationObserver observer =
-                    new FileAlterationObserver(watchDir);
+            if (watchDir.exists()) {
+                FileAlterationObserver observer; 
+                if(watchDir.isDirectory()){
+                    observer =
+                        new FileAlterationObserver(watchDir);
+                }else {
+                    final File file = watchDir;
+                    observer =
+                        new FileAlterationObserver(watchDir.getParentFile(), new FileFilter(){
+                            @Override
+                            public boolean accept(File pathname) {
+                                return (file.equals(pathname));
+                            }});
+                }
+
                 observer.addListener(new DirectoryListener(syncDeletes));
                 monitor.addObserver(observer);
+
             } else {
                 throw new RuntimeException("Path " +
                     watchDir.getAbsolutePath() +
-                    " either does not exist or is not a directory");
+                    " does not exist");
             }
         }
     }
@@ -77,4 +91,5 @@ public class DirectoryUpdateMonitor {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
 }

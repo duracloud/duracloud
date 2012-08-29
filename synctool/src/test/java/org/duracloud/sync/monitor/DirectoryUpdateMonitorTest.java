@@ -67,6 +67,34 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
 
         monitor.stopMonitor();
     }
+    
+    @Test
+    public void testDirectoryUpdateMonitorWithASingleFile() throws Exception {
+        List<File> dirs = new ArrayList<File>();
+        // Create file
+        File tempFile = File.createTempFile("temp", "file", tempDir);
+
+        dirs.add(tempFile);
+
+        DirectoryUpdateMonitor monitor =
+            new DirectoryUpdateMonitor(dirs, 100, true);
+        monitor.startMonitor();
+        
+        Thread.sleep(1000);
+        assertNull(changedList.getChangedFile());
+
+        // Update file
+        FileWriter writer = new FileWriter(tempFile);
+        writer.write("test");
+        writer.close();
+        checkFileInChangedList(tempFile);
+
+        // Delete file
+        tempFile.delete();
+        checkFileInChangedList(tempFile);
+
+        monitor.stopMonitor();
+    }
 
     @Test
     public void testDirectoryUpdateMonitorNoDeletes() throws Exception {
