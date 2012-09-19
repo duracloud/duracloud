@@ -294,7 +294,9 @@ span.off i,
 	height:auto;
 }
 
-
+button#recount {
+  margin-left: 25px;
+}
 /* ICON LINKS **********************************************/
 
 .icon-link
