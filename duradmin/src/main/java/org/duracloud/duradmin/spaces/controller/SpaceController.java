@@ -42,6 +42,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
@@ -199,6 +200,11 @@ public class SpaceController extends  AbstractRestController<Space> {
 	
 	
 	private void populateSpaceCount(Space space, HttpServletRequest request) throws Exception{
+	    //flush space count cache
+	    if(request.getParameterMap().containsKey("recount")){
+	        expireItemCount(request, space);
+	    }
+	    
 		String countStr = space.getProperties().getCount();
 		if(countStr.endsWith("+")){
 			setItemCount(space, request);
@@ -207,29 +213,27 @@ public class SpaceController extends  AbstractRestController<Space> {
 		}
 	}
 
+
 	private void setItemCount(final Space space, HttpServletRequest request) throws ContentStoreException{
-		String key = space.getStoreId() + "/" + space.getSpaceId() + "/itemCountListener";
-		ItemCounter listener = (ItemCounter)request.getSession().getAttribute(key);
+		String key = formatItemCountCacheKey(space);
+		final ServletContext appContext = request.getSession().getServletContext();
+		ItemCounter listener = (ItemCounter)appContext.getAttribute(key);
 		space.setItemCount(new Long(-1));
         if(listener != null){
             if(listener.isCountComplete()) {
                 space.setItemCount(listener.getCount());
-                request.getSession().removeAttribute(key);
             } else {
                 SpaceProperties properties = space.getProperties();
                 Long interCount = listener.getIntermediaryCount();
                 if(interCount == null){
                     interCount = 0l;
                 }
-                if(interCount % 1000 != 0) {
-                    interCount += 1;
-                }
                 properties.setCount(String.valueOf(interCount) + "+");
                 space.setProperties(properties);
             }
 		}else{
 		    final ItemCounter itemCounterListener = new ItemCounter();
-			request.getSession().setAttribute(key, itemCounterListener);
+		    appContext.setAttribute(key, itemCounterListener);
 			final ContentStore contentStore = contentStoreManager.getContentStore(space.getStoreId());
 			final StoreCaller<Iterator<String>> caller = new StoreCaller<Iterator<String>>() {
 	            protected Iterator<String> doCall() throws ContentStoreException {
@@ -251,6 +255,15 @@ public class SpaceController extends  AbstractRestController<Space> {
 		}
 	}
 
+    private String formatItemCountCacheKey(Space space) {
+        return space.getStoreId() + "/" + space.getSpaceId() + "/itemCountListener";
+    }
+
+    private void expireItemCount(HttpServletRequest request, Space space){
+        String key = formatItemCountCacheKey(space);
+        request.getSession().getServletContext().removeAttribute(key);
+    }
+    
     @Override
     protected ModelAndView put(HttpServletRequest request,
                                HttpServletResponse response,

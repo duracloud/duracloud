@@ -40,10 +40,15 @@ var dc;
 			prefix = options.prefix;
 		}
 
+		var recount='';
+        if(options.recount){
+            recount = '&recount=true';
+            
+        }
 		
 		return dc.ajax({
 			url: "/duradmin/spaces/space", 
-			data: "storeId="+storeProviderId+"&spaceId="+encodeURIComponent(spaceId)+"&prefix="+encodeURIComponent(prefix)+"&marker="+encodeURIComponent(marker),
+			data: "storeId="+storeProviderId+"&spaceId="+encodeURIComponent(spaceId)+"&prefix="+encodeURIComponent(prefix)+"&marker="+encodeURIComponent(marker)+recount,
 			cache: false,
 			async: options.async != undefined ? options.async : true,
 			context: document.body,

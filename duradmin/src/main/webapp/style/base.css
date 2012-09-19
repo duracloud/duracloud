@@ -28,7 +28,9 @@ body {
 	line-height: 1;
 }
 
-
+a:hover {
+  cursor:pointer;
+}
 
 ol, ul {
 	list-style: none;

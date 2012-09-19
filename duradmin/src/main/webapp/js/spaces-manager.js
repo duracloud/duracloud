@@ -1750,6 +1750,7 @@ $(function(){
        _getStoreId: function(){
            return this._storeId;
        },
+
        _setObjectId: function(objectId){
            $(".object-id", this.element).html(this._getStoreId()+"/"+objectId);   
        },
@@ -2448,13 +2449,39 @@ $(function(){
      * This widget defines the detailed view of a space
      */
     $.widget("ui.spacedetail", $.extend({}, $.ui.basedetailpane.prototype, {
+        _spaceId: null,
         _init: function(){
+            var that = this;
             $.ui.basedetailpane.prototype._init.call(this);
+            $("#recount").live("click",function(){
+                $(this).parent().empty().append("Recounting " + that._createThrobberHtml());
+                that._pollItemCount(
+                        {   storeId: that._storeId, 
+                            spaceId: that._spaceId,
+                        }, 
+                        true);
+                
+            });
         },                   
         
+        _createThrobberHtml:function(){
+           return "<img src='/duradmin/images/wait.gif'/>";    
+        },
+        
         _extractSpaceProperties: function(space){
+            var itemCount;
+            if(space.itemCount == null || 
+                    space.itemCount == undefined || 
+                        parseInt(space.itemCount) < 0) {
+                itemCount = space.properties.count + 
+                                ": performing exact count " + 
+                                    this._createThrobberHtml();               
+            }else{
+                itemCount = space.itemCount + " <a id='recount'>[Recount]</a>";
+            };
+            
             var spaceProps = [
-                    ['Items', (space.itemCount == null || space.itemCount == undefined || space.itemCount < 0 ? space.properties.count + ": performing exact count <img src='/duradmin/images/wait.gif'/>":space.itemCount)],
+                    ['Items', itemCount],
                     ['Created', space.properties.created],
                     ['Size', space.properties.size],
             ];
@@ -2505,9 +2532,38 @@ $(function(){
             return mimetypePanel;
         },
         
+        _pollItemCount: function(space, recount){
+            var that = this;
+            
+            dc.store.GetSpace(
+                    space.storeId,
+                    space.spaceId, 
+                    {
+                        success: function(s){
+                            if(that._isObjectAlreadyDisplayedInDetail(s.spaceId)){
+                                if(s != undefined && s != null){
+                                    that._extractSpaceProperties(s);
+                                    if(s.itemCount == null || parseInt(s.itemCount) < 0){
+                                        setTimeout(function(){
+                                            recount = false;
+                                            that._pollItemCount(s);
+                                        }, 5000);
+                                    }
+                                }
+                            }
+                        }, 
+                    },
+                    {
+                        recount: recount
+                    }
+                );              
+        },
+
+        
         load: function(space){
             var that = this;
             this._storeId = space.storeId;
+            this._spaceId = space.spaceId;
             this._setObjectName(space.spaceId);
             this._setObjectId(space.spaceId);
             
@@ -2576,28 +2632,14 @@ $(function(){
 
             this._extractSpaceProperties(space);
 
-            if(space.itemCount == null || space.itemCount < 0){
+            if(space.itemCount == null || parseInt(space.itemCount) < 0){
                 //attach poller if itemCount is null or -1
-                var pollItemCount = function(){
-                    dc.store.GetSpace(
-                            space.storeId,
-                            space.spaceId, 
-                            {
-                                success: function(s){
-                                    if(that._isObjectAlreadyDisplayedInDetail(s.spaceId)){
-                                        if(s != undefined && s != null){
-                                            that._extractSpaceProperties(s);
-                                            if(s.itemCount == null || s.itemCount < 0){
-                                                setTimeout(pollItemCount, 10000);
-                                            }
-                                        }
-                                    }
-                                }, 
-                            }
-                        );              
-                };
                 
-                setTimeout(pollItemCount, 10000);
+                setTimeout(function(){
+                    that._pollItemCount(space);
+                }, 5000);
+                
+                
             }
             
             this._loadHistoryPanel(space);
