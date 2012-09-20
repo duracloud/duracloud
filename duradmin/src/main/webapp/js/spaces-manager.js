@@ -2477,7 +2477,7 @@ $(function(){
                                 ": performing exact count " + 
                                     this._createThrobberHtml();               
             }else{
-                itemCount = space.itemCount + " <button id='recount'>Recount</button>";
+                itemCount = space.itemCount + " <button id='recount'><i class='pre refresh'></i>Recount</button>";
             };
             
             var spaceProps = [

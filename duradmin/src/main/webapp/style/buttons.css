@@ -295,7 +295,7 @@ span.off i,
 }
 
 button#recount {
-  margin-left: 25px;
+    float: right;
 }
 /* ICON LINKS **********************************************/
 
