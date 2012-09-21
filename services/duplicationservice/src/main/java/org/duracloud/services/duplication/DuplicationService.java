@@ -46,8 +46,9 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
     private static final String PASS_PROP = "password";
     private static final String FROM_STORE_PROP = "fromStoreId";
     private static final String BROKER_PROP = "brokerURL";
-    private static final String SPACE_PREFIX = "spaceID-";
+    protected static final String SPACE_PREFIX = "spaceID-";
     private static final String SPACE_TO_SKIP = "none";
+    protected static final String NEW_SPACE_DEFAULT = "default";
 
     private String host;
     private String port;
@@ -56,12 +57,13 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
     private String password;
     private String fromStoreId;
     private String outputSpaceId;
+    private String newSpaceDefault;
 
-    private Map<String, Duplicator> duplicators;
+    protected Map<String, Duplicator> duplicators;
 
     private DuplicationResultListener resultListener;
 
-    private Map<String, String> spacesToWatch;
+    protected Map<String, String> spacesToWatch;
 
     /**
      * Used to set the configuration for this service.
@@ -87,15 +89,20 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
                 fromStoreId = value;
             } else if (BROKER_PROP.equals(key)) {
                 brokerURL = value;
+            } else if (NEW_SPACE_DEFAULT.equals(key)) {
+                newSpaceDefault = value;
             } else if (null != key && key.startsWith(SPACE_PREFIX)) {
-                if(value != null &&
-                   !value.isEmpty() &&
-                   !value.equals(SPACE_TO_SKIP) &&
-                   !Constants.SYSTEM_SPACES.contains(value)) {
-                    spacesToWatch.put(key.substring(SPACE_PREFIX.length()),
-                                      value);
-                }
+                addWatchedSpace(key.substring(SPACE_PREFIX.length()), value);
             }
+        }
+    }
+
+    private void addWatchedSpace(String spaceId, String dupStoreList) {
+        if(dupStoreList != null &&
+           !dupStoreList.isEmpty() &&
+           !dupStoreList.equals(SPACE_TO_SKIP) &&
+           !Constants.SYSTEM_SPACES.contains(dupStoreList)) {
+            spacesToWatch.put(spaceId, dupStoreList);
         }
     }
 
@@ -114,6 +121,8 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
         startupNotice.append("credential: " + credential + "\n");
         startupNotice.append("fromStoreId: " + fromStoreId + "\n");
         startupNotice.append("----\n");
+        startupNotice.append("New Space (to storeIds):" +
+                             newSpaceDefault + "\n");
         startupNotice.append("Duplicating Spaces (to storeIDs)\n");
         for(String spaceId : spacesToWatch.keySet()) {
             startupNotice.append(
@@ -122,7 +131,12 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
         startupNotice.append("----\n");
 
         String messageSelector = STORE_ID + " = '" + fromStoreId + "'";
+        for(String systemSpace : Constants.SYSTEM_SPACES) {
+            messageSelector +=
+                (" AND " + SPACE_ID + " <> '" + systemSpace + "'");
+        }
         initializeMessaging(messageSelector);
+        log.info("Setting duplication message selector to: " + messageSelector);
 
         ContentStoreManager storeManager =
             new ContentStoreManagerImpl(host, port, context);
@@ -247,22 +261,31 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
         try {
             String spaceId = message.getString(SPACE_ID);
             String contentId = message.getString(CONTENT_ID);
-
-            String dupStores = spacesToWatch.get(spaceId);
-            if(null != dupStores) {
-                for(String storeId : dupStores.split(",")) {
-                    Duplicator duper = duplicators.get(storeId);
-                    if(null != duper) {
-                        processDuplication(topic, spaceId, contentId, duper);
-                    }
-                }
-            }
+            handleDuplicationMessage(topic, spaceId, contentId);
         } catch (JMSException je) {
             String error =
                 "Error occured processing map message: " + je.getMessage();
             log.error(error);
             super.setError(error);
             throw new RuntimeException(error, je);
+        }
+    }
+
+    protected void handleDuplicationMessage(String topic,
+                                            String spaceId,
+                                            String contentId) {
+        if (getSpaceCreateTopic().equals(topic)) {
+            addWatchedSpace(spaceId, newSpaceDefault);
+        }
+
+        String dupStores = spacesToWatch.get(spaceId);
+        if(null != dupStores) {
+            for(String storeId : dupStores.split(",")) {
+                Duplicator duper = duplicators.get(storeId);
+                if(null != duper) {
+                    processDuplication(topic, spaceId, contentId, duper);
+                }
+            }
         }
     }
 

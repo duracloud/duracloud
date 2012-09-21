@@ -156,12 +156,12 @@ public class ServiceXmlGeneratorTest {
     }
 
     private void verifyDuplication(ServiceInfo serviceInfo) {
-        int numUserConfigs = 1;
+        int numUserConfigs = 2;
         int numSystemConfigs = 7;
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
-        setsModesConfigs.add(Arrays.asList(1));
+        setsModesConfigs.add(Arrays.asList(2));
         verifyServiceModes(setsModesConfigs, serviceInfo);
     }
 

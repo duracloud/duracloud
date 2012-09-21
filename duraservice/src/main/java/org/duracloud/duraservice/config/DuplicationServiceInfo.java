@@ -56,6 +56,10 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
 
         List<UserConfig> userConfigs = new ArrayList<UserConfig>();
         userConfigs.add(
+            new MultiSelectUserConfig("default",
+                                      "Default (for new spaces)",
+                                      storeOptions));
+        userConfigs.add(
             new MultiSelectUserConfig(ServiceConfigUtil.SPACES_CONFIG_VAR,
                                       "Space",
                                       storeOptions));
