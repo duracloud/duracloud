@@ -6,7 +6,7 @@
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
         
   <bean id="connFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <property name="brokerURL" value="tcp://localhost:61616" />
+    <property name="brokerURL" value="failover:tcp://localhost:61617" />
   </bean>
    
   <bean id="listenerDestination" class="org.apache.activemq.command.ActiveMQTopic">

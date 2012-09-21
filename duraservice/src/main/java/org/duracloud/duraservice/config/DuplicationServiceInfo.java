@@ -89,7 +89,7 @@ public class DuplicationServiceInfo extends AbstractServiceInfo {
                                                 "durastore");
         SystemConfig brokerURL = new SystemConfig("brokerURL",
                                                   ServiceConfigUtil.STORE_MSG_BROKER_VAR,
-                                                  "tcp://localhost:61617");
+                                                  "failover:tcp://localhost:61617");
         SystemConfig username = new SystemConfig("username",
                                                  ServiceConfigUtil.STORE_USER_VAR,
                                                  "no-username");

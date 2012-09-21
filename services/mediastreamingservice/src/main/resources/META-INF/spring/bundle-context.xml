@@ -16,7 +16,7 @@
 	  <property name="duraStoreHost" value="localhost"/>
     <property name="duraStorePort" value="8080"/>
     <property name="duraStoreContext" value="durastore"/>
-    <property name="brokerURL" value="tcp://localhost:61617"/>
+    <property name="brokerURL" value="failover:tcp://localhost:61617"/>
     <property name="contentCreateTopic" value="org.duracloud.topic.change.content.ingest"/>
     <property name="contentCopyTopic" value="org.duracloud.topic.change.content.copy"/>
     <property name="connectionFactory" ref="connFactory" />

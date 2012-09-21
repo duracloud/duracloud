@@ -7,11 +7,11 @@
 
   <!-- AMQ connection configuration -->
   <bean id="connFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <property name="brokerURL" value="tcp://localhost:61618" />
+    <property name="brokerURL" value="failover:tcp://localhost:61618" />
   </bean>
 
   <bean id="contentConnFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <property name="brokerURL" value="tcp://localhost:61617" />
+    <property name="brokerURL" value="failover:tcp://localhost:61617" />
   </bean>
 
   <bean id="deployDestination" class="org.apache.activemq.command.ActiveMQTopic">
