@@ -2453,7 +2453,7 @@ $(function(){
         _init: function(){
             var that = this;
             $.ui.basedetailpane.prototype._init.call(this);
-            $("#recount").live("click",function(){
+            $("#recount").die().live("click",function(){
                 $(this).parent().empty().append("Recounting " + that._createThrobberHtml());
                 that._pollItemCount(
                         {   storeId: that._storeId, 
