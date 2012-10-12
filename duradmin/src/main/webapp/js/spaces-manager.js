@@ -2482,10 +2482,13 @@ $(function(){
             
             var spaceProps = [
                     ['Items', itemCount],
-                    ['Created', space.properties.created],
-                    ['Size', space.properties.size],
+                    ['Created', space.properties.created]
             ];
 
+            if(space.properties.size){
+                spaceProps.push(['Size', space.properties.size]);
+            }
+            
             var bitIntegrityResult = space.bitIntegrityResult;
             if(bitIntegrityResult){
                 var completionDate = bitIntegrityResult.completionDate;
