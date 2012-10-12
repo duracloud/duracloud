@@ -419,24 +419,34 @@ $(function(){
 	    };
 	    
 	    dc.reportOverlayOnClick = function(link, reportId){
-	        var url = "/duradmin/servicesreport/htmltable?contentId=" + 
-	        escape(dc.extractContentId(reportId)) + 
-	        "&spaceId=" + escape(dc.extractSpaceId(reportId));
-	        
-	        var storeId = dc.extractStoreId(reportId);
-	        if(storeId){
-	            url+="&storeId="+storeId;
-	        }
-	        
-        	link.attr("href", url)
-            	.attr("title","View Service Report")
-            	.fancybox({type: 'iframe',
-            	           width: 800,
-            	           scrolling: 'auto',
-            	           titleShow: false,
-            	        });
-	    };
+            var params = "contentId=" + 
+                            escape(dc.extractContentId(reportId)) + 
+                            "&spaceId=" + escape(dc.extractSpaceId(reportId));
+            var storeId = dc.extractStoreId(reportId);
+            if(storeId){
+                params+="&storeId="+storeId;
+            }
+            
+            var prefix = "/duradmin/servicesreport";                 
+                            
+            var fileInfoUrl = prefix + "/info?" + params;
 
+            var jqxhr = $.getJSON(fileInfoUrl, function(data){
+                var size = new Number(data.fileInfo.size);
+                if(size > (1024*1000)){
+                    link.attr("href", "/duradmin/download/contentItem?attachment=true&" + params);
+                }else{
+                    var url = prefix + "/htmltable?" + params;
+                    link.attr("href", url)
+                        .attr("title","View Service Report")
+                        .fancybox({type: 'iframe',
+                                   width: 800,
+                                   scrolling: 'auto',
+                                   titleShow: false,
+                                });
+                }
+            });
+	    };
 
 		/**
 		 * checks the progress of a remote task and notifies caller of results.

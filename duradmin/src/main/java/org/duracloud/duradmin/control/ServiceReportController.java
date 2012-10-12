@@ -10,7 +10,9 @@ package org.duracloud.duradmin.control;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -106,4 +108,31 @@ public class ServiceReportController {
         
         return mav;
     }
+
+
+    @RequestMapping(value="/servicesreport/info")
+    public ModelAndView
+        getInfo(@RequestParam(required = false, value = "storeId") String storeId,
+                @RequestParam(required = true, value = "spaceId") String spaceId,
+                @RequestParam(required = true, value = "contentId") String contentId)
+
+            throws ReportException,
+                NotFoundException,
+                ContentStoreException,
+                IOException {
+
+        ContentStore store = contentStoreManager.getPrimaryContentStore();
+
+        if (storeId != null) {
+            store = contentStoreManager.getContentStore(storeId);
+        }
+
+        Content content = store.getContent(spaceId, contentId);
+
+        String size = content.getProperties().get(ContentStore.CONTENT_SIZE);
+        Map<String, String> fileInfo = new HashMap<String, String>();
+        fileInfo.put("size", size);
+        return new ModelAndView("jsonView", "fileInfo", fileInfo);
+    }
+
 }
