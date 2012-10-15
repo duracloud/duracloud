@@ -7,10 +7,6 @@
 
   <!-- AMQ connection configuration -->
   <bean id="connFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <property name="brokerURL" value="failover:tcp://localhost:61618" />
-  </bean>
-
-  <bean id="contentConnFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
     <property name="brokerURL" value="failover:tcp://localhost:61617" />
   </bean>
 
@@ -76,7 +72,7 @@
 
   <!--Content event listeners-->
   <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-    <property name="connectionFactory" ref="contentConnFactory"/>
+    <property name="connectionFactory" ref="connFactory"/>
     <property name="destination" ref="auditDestination"/>
     <property name="messageListener" ref="auditAdapter"/>
   </bean>
