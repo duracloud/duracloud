@@ -308,8 +308,8 @@
     </pluginRepositories>
 
     <scm>
-        <connection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-2.1.1</connection>
-        <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/tags/duracloud-2.1.1</developerConnection>
+        <connection>scm:svn:https://svn.duraspace.org/duracloud/branches/duracloud-2.1.2</connection>
+        <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/branches/duracloud-2.1.2</developerConnection>
     </scm>
 
     <build>
