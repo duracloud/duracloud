@@ -24,7 +24,7 @@
         _init : function() {
             $.ui.expandopanel.prototype._init.call(this); //call super init first
             this.element.addClass("history-panel");
-            this.getContent().append("<h6>Byte and File Counts Over Time</h6>");
+            this.getContent().append("<h6>Cumulative Byte and File Counts Over Time</h6>");
 
             this.getContent().append(this._createDiv(this._SUMMARIES_GRAPH_ELEMENT));
             this.getContent().append(this._createDiv("summaries-legend"));
@@ -128,7 +128,12 @@
                      tickDecimals: 0,
                      minTickSize: 1,
                      show: true, 
-                     position: "right"}
+                     position: "right",
+                     tickFormatter: function(tickValue, axis){
+                         return tickValue + " files";
+                     },
+                     
+                 }
                 ],
                 legend: {
                     show: true, 
