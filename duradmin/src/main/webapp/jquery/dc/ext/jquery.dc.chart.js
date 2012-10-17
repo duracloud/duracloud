@@ -172,6 +172,15 @@ var dc;
              
              return dc.chart.simpleSort(data, "label");
         };
+        
+        chart.sum = function(inputArray){
+           var result = 0;
+           $.each(inputArray, function(i,val){
+               result += val.data;
+           });
+           
+           return result;
+        };
 
         chart.simpleSort = function(array, field){
              array.sort(function(a,b){
@@ -360,13 +369,16 @@ var dc;
             var  bytesHolder = $.fn.create("div").addClass("dc-graph-holder");
             bytesHolder.append(bytes);
             bytesHolder.append("<h6>File Size</h6>");
-            this.element.append(bytesHolder);
 
             data = dc.chart.formatPieChartData(
                     metrics, 
                     field, 
                     "totalSize");
             
+            var bytesTotal = dc.chart.sum(data);
+            bytesHolder.append("<p>Total: "+dc.formatGB(bytesTotal,2)+"</p>");
+            this.element.append(bytesHolder);
+
             dc.chart.plotPieChart(
                 bytes, 
                 data, 
@@ -377,12 +389,15 @@ var dc;
             var  filesHolder = $.fn.create("div").addClass("dc-graph-holder");
             filesHolder.append(files);
             filesHolder.append("<h6>File Count</h6>");
-            this.element.append(filesHolder);
 
             data = dc.chart.formatPieChartData(
                     metrics,
                     field, 
                     "totalItems");
+
+            var fileTotal = dc.chart.sum(data);
+            filesHolder.append("<p>Total: "+fileTotal+"</p>");
+            this.element.append(filesHolder);
 
             dc.chart.plotPieChart(files, data, 
                     function(x){ return x;}         
