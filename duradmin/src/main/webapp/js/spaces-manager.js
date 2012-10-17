@@ -1006,6 +1006,7 @@ $(function(){
         },
         
         _clearContents: function(){
+            $("#content-item-list-status").fadeOut();
             $("#content-item-list").selectablelist("clear");
             $("#content-item-list-view").find("button,a,input").fadeOut();
             $("#content-item-list-view").val('');
@@ -1655,7 +1656,14 @@ $(function(){
             if(space.properties.count == 0){
                 statusTxt = "";
             }else{
-                totalCount = (this._getFilterText() == '' ? space.properties.count : "?");
+                var itemCount = space.properties.count;
+                
+                if(space.itemCount){
+                    itemCount = space.itemCount;
+                }
+                
+                totalCount = (this._getFilterText() == '' ? itemCount : "?");
+                
                 if(listCount == 0 && space.contents.length == 0){
                     statusText = "";
                 }else{
