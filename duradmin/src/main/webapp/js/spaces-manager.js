@@ -1086,10 +1086,7 @@ $(function(){
                             .success(function(data){
                                 var space = data.space;
                                 that._spacesListPane.spaceslistpane("setCurrentById", space.spaceId);
-                                var currentSpace = that._contentItemListPane.contentitemlistpane("currentSpace");
-                                if(currentSpace.spaceId != space.spaceId || currentSpace.storeId  != space.storeId){
-                                    that._loadContentItems(space);
-                                }
+                                that._loadContentItems(space);
                                 
                                 if(showDetail){
                                     that._displaySpace(space,params);
