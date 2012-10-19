@@ -276,7 +276,11 @@ $.widget("ui.acleditor",
                 stack = $.fn.create("div").stacklayout();
                 
                 //define list pane
-                this._listPanel =  $.fn.create("div").aclreadonlypanel({space:this.options.space});
+                this._listPanel =  $.fn.create("div").aclreadonlypanel(
+                        {
+                            space:this.options.space, 
+                            readOnly: this.options.readOnly});
+                
                 listPanel = this._listPanel;
 
                 addPanel = $.fn.create("div").acladdpanel({space:this.options.space});
@@ -421,8 +425,8 @@ $.widget("ui.aclreadonlypanel",
         _readOnly: false, 
         _init: function(){ 
             $.ui.controlpanel.prototype._init.call(this); //call super init first
-            if(this.options.space.callerAcl != "WRITE"){
-                this._readOnly = true;
+            if(this.options.readOnly){
+                this._readOnly = this.options.readOnly;
             }
             
             this.addButton(
@@ -440,12 +444,14 @@ $.widget("ui.aclreadonlypanel",
                       iconClass:"pencil",
                       disabled: true,
                     });
+            
         },
         
         load: function(/*optional map*/ acls){
             //ajax call for acls goes here
             var that = this;
             var space = this.options.space;
+            
             var loadFunc = function(acls){
                 if(acls){
                     that.acls(acls, "There are no permissions assigned to this space.");

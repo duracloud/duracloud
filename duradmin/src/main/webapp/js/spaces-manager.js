@@ -239,6 +239,10 @@ $(function(){
             return(this._storeId + "/" + objectId == $("#detail-pane .object-id").html());
         },
         
+        _isPrimary: function(){
+            return storeProviders[0].id == this._storeId;
+        },
+        
         _configureLayout: function(){
             var layoutOptions = this._layoutOptions;
             if(this.options){
@@ -253,7 +257,7 @@ $(function(){
         },
         
         _isReadOnly: function(/*space or contentItem obj*/obj){
-            return obj.callerAcl != "WRITE";
+            return obj.callerAcl != "WRITE" || (!this._isPrimary());
         },
         
         _isAdmin: function(){
@@ -680,10 +684,6 @@ $(function(){
             this._initStoreSelectbox();
             this._initAddSpaceDialog();
             this._initHistoryHandlers();
-            if(!this._isAdmin()) {
-                $(".add-space-button").hide();
-            }
-
             
             this._spacesListPane.bind("itemRemoved", function(evt,state){
                if(that._detailManager.isSpaceDetailDisplayed()){
@@ -1374,7 +1374,15 @@ $(function(){
                         firstMatchFound = true;
                     }
                 }
-            });            
+            });      
+            
+            var addSpaceButton = $(".add-space-button", this.element);
+            if(!this._isAdmin() || !this._isPrimary()) {
+                addSpaceButton.hide();
+            }else{
+                addSpaceButton.show();
+            }
+
             
             this.hideStatus();
         },
@@ -1443,6 +1451,7 @@ $(function(){
         },
 
         _initBulkUploadButton: function(){
+          
           //open bulk upload tool window only if it is not already open
             //otherwise simply activate it.
             var uploadWindows = {};
@@ -1549,7 +1558,10 @@ $(function(){
                      that._copyContentItems(evt,[contentItem]);
                  });
 
-            actions.append(copyButton);
+            if(this._isPrimary()){
+                actions.append(copyButton);
+            }
+
             
             if(!readOnly){
                 deleteButton = 
@@ -1562,6 +1574,7 @@ $(function(){
 
                 actions.append(deleteButton);
             }
+            
 
             content = $.fn.create("span");
             content.attr("class", "dc-item-content")
@@ -1764,10 +1777,10 @@ $(function(){
            $(".center", this.element).append(node);
        },
 
-       _loadAclPane: function(space){
+       _loadAclPane: function(space, readOnly){
            var viewerPane =  $.fn.create("div")
                                  .attr("id", "acl-editor")
-                                 .acleditor({open: true, space: space});
+                                 .acleditor({open: true, space: space, readOnly: readOnly});
            this._appendToCenter(viewerPane);
            return viewerPane;      
        },
@@ -2441,9 +2454,15 @@ $(function(){
                 deleteButton.hide();
             }
             
-            $(".add-remove-properties-button",this.element).click(function(evt){
+            var editPropsButton = $(".add-remove-properties-button",this.element);
+            editPropsButton.click(function(evt){
                 that._preparePropertiesDialog("space");
             });
+            
+            if(!this._isPrimary()){
+                deleteButton.hide();
+                editPropsButton.hide();
+            }
             
         },
         
@@ -2579,7 +2598,7 @@ $(function(){
 
             var deleteSpaceButton = $(".delete-space-button",this.element);
             deleteSpaceButton.hide();
-            if(this._isAdmin()){
+            if(this._isAdmin() && this._isPrimary()){
                 deleteSpaceButton.show();
 
                 // attach delete button listener
@@ -2629,13 +2648,14 @@ $(function(){
                 var makePublicButton = this._createMakePublicButton(
                         space.storeId, 
                         space.spaceId);
+                
                 $(makePublicButton).insertAfter(deleteSpaceButton);
 
-                if(this._isPubliclyReadable(space.acls)){
+                if(!this._isPrimary() || this._isPubliclyReadable(space.acls)){
                     makePublicButton.hide();
                 }
                 
-                this._loadAclPane(space);
+                this._loadAclPane(space, readOnly);
             }
 
             this._extractSpaceProperties(space);
@@ -2714,7 +2734,7 @@ $(function(){
         _init: function(){
             var that = this;
             $.ui.basemultidetailpane.prototype._init.call(this);
-            var readOnly = this.options.readOnly;
+            var readOnly = this.options.readOnly || (!this._isPrimary());
         
             // attach delete button listener
             var deleteButton = $(".delete-content-item-button",this.element);
@@ -2745,10 +2765,15 @@ $(function(){
                 });
             }
             
-            $(".copy-content-item-button",this.element)
-                .click(function(evt){
+            var copyButton = $(".copy-content-item-button",this.element);
+
+            if(this._isPrimary()){
+                copyButton.click(function(evt){
                     that._copyContentItems(evt, that._contentItems);
-            });     
+                });     
+            }else{
+                copyButton.hide();
+            }
         },
         
         contentItems: function(contentItems){
@@ -2922,11 +2947,17 @@ $(function(){
                 deleteContentButton.hide();
             }
 
-            $(".copy-content-item-button",this.element)
-                .click(function(evt){
+            
+            var copyButton = $(".copy-content-item-button",this.element);
+            if(this._isPrimary()){
+                copyButton.click(function(evt){
                     that._copyContentItems(
                             evt,[contentItem]);
                 });
+            }else{
+                copyButton.hide();
+            }
+             
                 
             var mimetype = contentItem.properties.mimetype;
 
