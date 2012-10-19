@@ -13,7 +13,7 @@
                 <sec:authorize ifAnyGranted="ROLE_ADMIN,ROLE_ROOT">
     	        <li id="spaces-tab" class="${mainTab == 'spaces' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/spaces"><span>Spaces</span></a></li>
                 </sec:authorize>
-                <sec:authorize ifAnyGranted="ROLE_ADMIN">
+                <sec:authorize ifAnyGranted="ROLE_ROOT">
                     <li id="services-tab" class="${mainTab == 'services' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/services"><span>Services</span></a></li>
 		            <li class="${mainTab == 'admin' ? 'selected':'' }"><a href="${pageContext.request.contextPath}/admin"><span>Administration</span></a></li>
                 </sec:authorize>
