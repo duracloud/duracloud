@@ -480,7 +480,10 @@
               type="hidden"
               name="storeId"
               id="storeId" />
-            <c:if test="${fn:length(contentStores) == 1 }">
+            <sec:authorize ifAnyGranted="ROLE_ROOT">
+              <c:set var="rootUser" value="rootUser" />
+            </sec:authorize>
+            <c:if test="${fn:length(contentStores) == 1 or empty rootUser}">
               <input
                 type="hidden"
                 name="destStoreId"
@@ -492,7 +495,7 @@
               class="form-fields">
               <fieldset>
                 <ul>
-                  <c:if test="${fn:length(contentStores) > 1 }">
+                  <c:if test="${fn:length(contentStores) > 1 and not empty rootUser}">
                     <li class="row clearfix"><label for="destStoreId">Storage
                         Provider</label> <select
                       id="destStoreId"
