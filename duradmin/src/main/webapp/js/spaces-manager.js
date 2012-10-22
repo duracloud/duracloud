@@ -256,15 +256,20 @@ $(function(){
             }
         },
         
-        _isReadOnly: function(/*space or contentItem obj*/obj){
-            return obj.callerAcl != "WRITE" || (!this._isPrimary());
+
+        _isReadOnlyStorageProvider: function(){
+            return !this._isPrimary() && !this._isRoot();
         },
         
-        _isAdmin: function(){
+        _isReadOnly: function(/*space or contentItem obj*/obj){
+            return obj.callerAcl != "WRITE" || this._isReadOnlyStorageProvider();
+        },
+        
+        _hasRole: function(/*string*/ role){
             //user is defined globally in spaces-manager.jsp
             var i = 0;
             for(i in user.authorities){
-                if(user.authorities[i] == 'ROLE_ADMIN'){
+                if(user.authorities[i] == role){
                     return true;
                 }
             }
@@ -272,6 +277,14 @@ $(function(){
             return false;
         },
         
+        _isAdmin: function(){
+            return this._hasRole('ROLE_ADMIN');
+        },
+
+        _isRoot: function(){
+            return this._hasRole('ROLE_ROOT');
+        },
+
         _notEmpty: function(value){
             return value != null 
                     && value != undefined 
@@ -1377,7 +1390,7 @@ $(function(){
             });      
             
             var addSpaceButton = $(".add-space-button", this.element);
-            if(!this._isAdmin() || !this._isPrimary()) {
+            if(!this._isAdmin() || this._isReadOnlyStorageProvider()) {
                 addSpaceButton.hide();
             }else{
                 addSpaceButton.show();
@@ -1558,7 +1571,7 @@ $(function(){
                      that._copyContentItems(evt,[contentItem]);
                  });
 
-            if(this._isPrimary()){
+            if(!this._isReadOnlyStorageProvider()){
                 actions.append(copyButton);
             }
 
@@ -2459,7 +2472,7 @@ $(function(){
                 that._preparePropertiesDialog("space");
             });
             
-            if(!this._isPrimary()){
+            if(this._isReadOnlyStorageProvider()){
                 deleteButton.hide();
                 editPropsButton.hide();
             }
@@ -2598,7 +2611,7 @@ $(function(){
 
             var deleteSpaceButton = $(".delete-space-button",this.element);
             deleteSpaceButton.hide();
-            if(this._isAdmin() && this._isPrimary()){
+            if(this._isAdmin() && !this._isReadOnlyStorageProvider()){
                 deleteSpaceButton.show();
 
                 // attach delete button listener
@@ -2651,7 +2664,7 @@ $(function(){
                 
                 $(makePublicButton).insertAfter(deleteSpaceButton);
 
-                if(!this._isPrimary() || this._isPubliclyReadable(space.acls)){
+                if(this._isReadOnlyStorageProvider() || this._isPubliclyReadable(space.acls)){
                     makePublicButton.hide();
                 }
                 
@@ -2734,7 +2747,7 @@ $(function(){
         _init: function(){
             var that = this;
             $.ui.basemultidetailpane.prototype._init.call(this);
-            var readOnly = this.options.readOnly || (!this._isPrimary());
+            var readOnly = this.options.readOnly || (this._isReadOnlyStorageProvider());
         
             // attach delete button listener
             var deleteButton = $(".delete-content-item-button",this.element);
@@ -2767,7 +2780,7 @@ $(function(){
             
             var copyButton = $(".copy-content-item-button",this.element);
 
-            if(this._isPrimary()){
+            if(!this._isReadOnlyStorageProvider()){
                 copyButton.click(function(evt){
                     that._copyContentItems(evt, that._contentItems);
                 });     
@@ -2949,7 +2962,7 @@ $(function(){
 
             
             var copyButton = $(".copy-content-item-button",this.element);
-            if(this._isPrimary()){
+            if(!this._isReadOnlyStorageProvider()){
                 copyButton.click(function(evt){
                     that._copyContentItems(
                             evt,[contentItem]);
