@@ -77,7 +77,15 @@
         <module>rackspacestorageprovider</module>
         <module>hpstorageprovider</module>
         <module>emcstorageprovider</module>
-        <module>azurestorageprovider</module>
+        <!-- Azure Storage Provider unit testing depends on PowerMock. Those
+             tests currently fail with Java 7 due to the issue expressed here:
+             http://code.google.com/p/powermock/issues/detail?id=355,
+             which is based on an issue in Jassist noted here:
+             https://issues.jboss.org/browse/JASSIST-160. Once Jassist version
+             3.17.0-GA+ has been released, and a new version of PowerMock is
+             made available (likely 1.4.13), the Azure Storage Provider can be
+             re-enabled.-->
+        <!--<module>azurestorageprovider</module>-->
         <module>irodsstorageprovider</module>
         <module>durastore</module>
         <module>hellowebapp</module>
@@ -343,8 +351,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -352,6 +360,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>2.3</version>
                 <configuration>
                     <warName>${artifactId}-${version}</warName>
                     <webResources>
