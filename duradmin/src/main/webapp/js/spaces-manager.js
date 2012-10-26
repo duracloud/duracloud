@@ -2942,13 +2942,13 @@ $(function(){
         },
         
         load: function(/*object*/contentItem){
-            var that = this,
-                readOnly = this._isReadOnly(contentItem);
+            var that = this, readOnly = false;
             this._contentItem = contentItem;
             this._storeId = contentItem.storeId;
             this._setObjectName(contentItem.contentId);
             this._setObjectId(contentItem.spaceId+"/"+contentItem.contentId);
-            
+            readOnly = this._isReadOnly(contentItem);
+
             $(".download-content-item-button", this.element)
                 .attr("href", dc.store.formatDownloadURL(contentItem));
 
