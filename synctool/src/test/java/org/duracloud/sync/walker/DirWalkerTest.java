@@ -29,9 +29,9 @@ public class DirWalkerTest extends SyncTestBase {
 
     @Test
     public void testDirWalker() {
-        File tempDir = new File("target");
+        File checkDir = new File("src");
         List<File> dirs = new ArrayList<File>();
-        dirs.add(tempDir);
+        dirs.add(checkDir);
 
         DirWalker dirWalker = new DirWalker(dirs);
         assertFalse(dirWalker.walkComplete());
@@ -44,7 +44,7 @@ public class DirWalkerTest extends SyncTestBase {
         }
 
         Collection tempDirFiles =
-            FileUtils.listFiles(tempDir,
+            FileUtils.listFiles(checkDir,
                                 TrueFileFilter.INSTANCE,
                                 TrueFileFilter.INSTANCE);
 
