@@ -99,6 +99,7 @@
         <module>app-config</module>
         <module>serviceclient</module>
         <module>servicesadminclient</module>
+        <module>chronclient</module>
         <module>chunk</module>
         <module>stitch</module>
         <module>uploadtool</module>
