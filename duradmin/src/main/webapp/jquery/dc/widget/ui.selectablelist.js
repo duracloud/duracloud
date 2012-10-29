@@ -81,8 +81,14 @@ $.widget("ui.selectablelist",{
 			this._currentItem = null;
 		}
 		
+		var selectedItems = this._getSelectedItems();
+		
 		$("input[type='checkbox']:checked",this.element).attr("checked", false);
 		this._styleItem(item);
+		if(item){
+	        $("input[type='checkbox']",$(item)).attr("checked", true);
+		}
+
 		
 		var fire = (notify == undefined || notify == null || notify == true);
 		if(fire){
@@ -90,7 +96,7 @@ $.widget("ui.selectablelist",{
 				"currentItemChanged",
 				{	
 					currentItem:this._currentItem, 
-					selectedItems: this._getSelectedItems()
+					selectedItems: selectedItems
 				}
 			);
 		}
@@ -99,6 +105,12 @@ $.widget("ui.selectablelist",{
 	_fireSelectionChanged: function(){
 		var ci = this._currentItem;
 		this._styleItem(ci != null && ci.item != null ? ci.item : null);
+		var selectedItems = this._getSelectedItems();
+		
+		if(selectedItems.length == 0){
+		    this._fireCurrentItemChanged(null, false);
+		}
+		
 		this.element.trigger(
 			"selectionChanged", 
 			{
@@ -125,11 +137,11 @@ $.widget("ui.selectablelist",{
 		this._fireSelectionChanged(item);
 	},
 	
-	clear: function(){
+	clear: function(notify){
 		this._currentItem = null;
 		this.element.children("."+this.options.itemClass).remove();	
 		this.dataMap = new Array();
-		this._fireCurrentItemChanged(null,null);
+		this._fireCurrentItemChanged(null,notify);
 		$(this._footer).html('');
 	},
 	
@@ -171,10 +183,15 @@ $.widget("ui.selectablelist",{
 	
 	select: function(select){
 		var that = this;
-		$("input[type=checkbox]",this.element).not("[disabled]").attr("checked",select);
+		that._select(select);
 		that._fireSelectionChanged();
 	},
-	
+
+    _select: function(select){
+        var that = this;
+        $("input[type=checkbox]",this.element).not("[disabled]").attr("checked",select);
+    },
+
 	removeById: function(elementId) {
 		var item = $("[id='"+elementId+"']", this.element).first();
 		var data = this._removeDataById(elementId);
@@ -219,7 +236,12 @@ $.widget("ui.selectablelist",{
 	},
 	
 	setCurrentItemById: function(id, notify){
-		 this._fireCurrentItemChanged($("#"+id, this.element), notify);
+	    if(this._currentItem){
+	        if(this._currentItem.item.attr("id") == id){
+	            return;
+	        }
+	    }
+		this._fireCurrentItemChanged($("#"+id, this.element), notify);
 	},
 	
 	setFirstItemAsCurrent: function(){
@@ -308,12 +330,15 @@ $.widget("ui.selectablelist",{
 		var clickHandler = function(evt){
 			var item = $(evt.target).nearestOfClass(itemClass);
 			if($(evt.target).attr("type") != "checkbox"){
-				if(that.options.clickable){
-					that._fireCurrentItemChanged(item);
-				}else if(that.options.selectable){
-					item.find(":checkbox").click();
-					that._itemSelectionStateChanged(evt.target);
-				}
+			    
+			    if(that.options.clickable){
+	                if(that.options.selectable){
+	                    that._select(false);
+	                    item.find(":checkbox").attr("checked", "checked");
+	                }
+			        
+	                that._fireCurrentItemChanged(item);
+                }
 
 				evt.stopPropagation();
 			}

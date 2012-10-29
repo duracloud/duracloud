@@ -139,7 +139,6 @@ $(function(){
                 var url = _buildUrl(data);
                 var title = "DuraCloud";
                 window.History.pushState(data, title, url);
-                this.change(data);
             },               
                 
             /**
@@ -726,28 +725,35 @@ $(function(){
         },
         
         _handleContentListStateChangedEvent: function(evt, state){
+            var that = this;
+            
             try{
-                if(state.selectedItems.length == 0){
-                    var currentItem = state.currentItem;
-                    if(currentItem){
-                            HistoryManager.pushState(currentItem.data);
-                    }else{
-                        if(!this._detailManager.isSpaceDetailDisplayed()){
-                            var space = this._contentItemListPane.contentitemlistpane("currentSpace");
-                            if(space.spaceId){
-                                //HistoryManager.pushState(space);
-                            }
+                var selectedItems = state.selectedItems;
+                var length = selectedItems.length;
+                var currentItem = state.currentItem;
+                var space = this._contentItemListPane.contentitemlistpane("currentSpace");
+
+                if(length == 0){
+                   if(!this._detailManager.isSpaceDetailDisplayed()){
+                        if(space.spaceId){
+                            HistoryManager.pushState(space);
                         }
                     }
                 }else{
-                    var contentItems = this._contentItemListPane.contentitemlistpane("selectedContentItems");
-                    this._detailManager.showMultiContentItems(contentItems);
-                    
-                    /*HistoryManager.pushState({
-                        storeId: space.storeId,
-                        spaceId: space.spaceId,
-                        multi: true});
-                    */
+                    if(length == 1){
+                        var contentId = $(selectedItems[0]).attr("id");
+                        var space = this._contentItemListPane.contentitemlistpane("currentSpace");
+
+                        HistoryManager.pushState(
+                                {
+                                    storeId: that._storeId, 
+                                    spaceId: space.spaceId, 
+                                    contentId: contentId
+                                });
+                    }else{
+                        var contentItems = this._contentItemListPane.contentitemlistpane("selectedContentItems");
+                        this._detailManager.showMultiContentItems(contentItems);
+                    }
                 }
             }catch(err){
                 dc.error(err);
@@ -804,6 +810,9 @@ $(function(){
              HistoryManager.addChangeHandler(function(params){
                  HistoryManager.queue(function(){
                      dc.busy("Loading...", {modal: true});
+                     if(!params.storeId){
+                         params.storeId = that.getStoreId();
+                     }
                      return that.loadSpaces(params).then(function(){
                          that._detailManager.showSpaces();
                      }).always(function(){
@@ -1020,14 +1029,14 @@ $(function(){
         
         _clearContents: function(){
             $("#content-item-list-status").fadeOut();
-            $("#content-item-list").selectablelist("clear");
+            $("#content-item-list").selectablelist("clear", false);
             $("#content-item-list-view").find("button,a,input").fadeOut();
             $("#content-item-list-view").val('');
             
         },
 
         _clearSpaces: function(){
-            $("#spaces-list").selectablelist("clear");
+            $("#spaces-list").selectablelist("clear", false);
         },
         
         _getStoreType: function(storeId) {
@@ -1108,6 +1117,7 @@ $(function(){
                             }).fail(function(){
                                 if(retrieveSpace.status == 404){
                                     alert(params.spaceId + " does not exist.");
+                                    this._detailManager.showEmpty();
                                 }                           
                             });
             
@@ -1263,6 +1273,7 @@ $(function(){
             this._initSelectAll();
             this._initSpacesList();
             this._initFilter();
+            
         },
         
         _initFilter: function(){
@@ -1299,8 +1310,10 @@ $(function(){
         _handleSpaceListStateChangedEvent: function(evt, state){
             var that = this;
             try{
+                var selectedItems = state.selectedItems;
+                var length = selectedItems.length;
                 
-                if(state.selectedItems.length == 0){
+                if(length == 0){
                     //uncheck 'check all' box
                     $("#check-all-spaces", that.element).attr("checked", false);
                     var currentItem = state.currentItem;
@@ -1312,10 +1325,15 @@ $(function(){
                             dc.error("spaceId is undefined");
                         }
                     }else{
-                        //do nothing;
+                        HistoryManager.pushState({storeId: that._storeId});
                     }
                 }else{
-                    HistoryManager.pushState({storeId: that._storeId, multi:true});
+                    if(length == 1){
+                        var spaceId = $(selectedItems[0]).attr("id");
+                        HistoryManager.pushState({storeId: that._storeId, spaceId: spaceId});
+                    }else{
+                        HistoryManager.pushState({storeId: that._storeId, multi:true});
+                    }
                 }
             }catch(err){
                 dc.error(err);
@@ -1377,7 +1395,7 @@ $(function(){
             this._storeId = storeId;
             var that = this;
             var filter = $("#space-filter").val();
-            this._spacesList.selectablelist("clear");
+            this._spacesList.selectablelist("clear",false);
             var firstMatchFound = false;
             $.each(this._spaces,function(i, space){
                 if(!filter || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1){
@@ -1726,7 +1744,7 @@ $(function(){
             listView = $(this.element);       
             list = this._getList();
             
-            list.selectablelist("clear");
+            list.selectablelist("clear", false);
             
             listView
                 .find("button,input,a")
