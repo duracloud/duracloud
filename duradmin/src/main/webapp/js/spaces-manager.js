@@ -724,6 +724,11 @@ $(function(){
             });
         },
         
+        _toggleCheckAllContentItems: function(checked){
+            $("#check-all-content-items", this.element).attr("checked", checked);
+        },
+
+        
         _handleContentListStateChangedEvent: function(evt, state){
             var that = this;
             
@@ -734,6 +739,7 @@ $(function(){
                 var space = this._contentItemListPane.contentitemlistpane("currentSpace");
 
                 if(length == 0){
+                   that._toggleCheckAllContentItems(false);
                    if(!this._detailManager.isSpaceDetailDisplayed()){
                         if(space.spaceId){
                             HistoryManager.pushState(space);
@@ -741,6 +747,7 @@ $(function(){
                     }
                 }else{
                     if(length == 1){
+                        that._toggleCheckAllContentItems(false);
                         var contentId = $(selectedItems[0]).attr("id");
                         var space = this._contentItemListPane.contentitemlistpane("currentSpace");
 
@@ -1307,6 +1314,10 @@ $(function(){
           this._spacesList.selectablelist("setCurrentItemById", spaceId, false);  
         },
 
+        _toggleCheckAll: function(checked){
+            $("#check-all-spaces", this.element).attr("checked", checked);
+        },
+        
         _handleSpaceListStateChangedEvent: function(evt, state){
             var that = this;
             try{
@@ -1315,7 +1326,7 @@ $(function(){
                 
                 if(length == 0){
                     //uncheck 'check all' box
-                    $("#check-all-spaces", that.element).attr("checked", false);
+                    that._toggleCheckAll(false);
                     var currentItem = state.currentItem;
                     if(currentItem){
                         var spaceId = $(currentItem.item).attr("id");
@@ -1329,6 +1340,7 @@ $(function(){
                     }
                 }else{
                     if(length == 1){
+                        that._toggleCheckAll(false);
                         var spaceId = $(selectedItems[0]).attr("id");
                         HistoryManager.pushState({storeId: that._storeId, spaceId: spaceId});
                     }else{
@@ -1733,6 +1745,8 @@ $(function(){
         load: function(space){
             this._clearFilterText();
             this._load(space);
+            $("#check-all-content-items").attr("checked", false);
+
         },
         
         _load: function(space){
