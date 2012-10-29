@@ -1141,7 +1141,8 @@ $(function(){
             }
 
             var retrieveContentItem = function(){
-                return dc.store.GetContentItem(params.storeId,params.spaceId, params.contentId,{
+                dc.busy("Loading item...", {modal: true});
+                var deferred =  dc.store.GetContentItem(params.storeId,params.spaceId, params.contentId,{
                     failure: function(text, xhr){
                         if(xhr.status == 404){
                             alert(params.contentId + " does not exist.");
@@ -1153,13 +1154,12 @@ $(function(){
                     success: function(contentItem){
                         that._detailManager.showContentItem(contentItem);
                     },
+                }).done(function(){
+                    dc.done();
                 });
             };
             
-            return loadSpace.then(retrieveContentItem)
-                            .always(function(){
-                                dc.done();
-                            });
+            return $.when(loadSpace).then(retrieveContentItem);
         },
 
         _displaySpace: function(space){
