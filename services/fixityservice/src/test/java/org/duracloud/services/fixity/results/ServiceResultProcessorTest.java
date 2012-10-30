@@ -173,7 +173,7 @@ public class ServiceResultProcessorTest {
                                        "previous status blah",
                                        workDir);
         File file = new File(workDir, outputContentId);
-        Assert.assertTrue(file.exists());
+        Assert.assertFalse(file.exists()); // File is created lazily
 
         return processor;
     }

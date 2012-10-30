@@ -89,8 +89,6 @@ public class ServiceResultProcessor implements ServiceResultListener {
         this.state = State.IN_PROGRESS;
 
         this.resultsFile = createFile(workDir, outputContentId);
-        startFile(this.resultsFile, ServiceResult.HEADER);
-        storeFile(this.resultsFile, outputSpaceId, outputContentId);
 
         if(errorContentId != null){
             this.errorsFile = createFile(workDir, errorContentId);
