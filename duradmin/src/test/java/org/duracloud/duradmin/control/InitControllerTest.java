@@ -7,20 +7,6 @@
  */
 package org.duracloud.duradmin.control;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
@@ -33,6 +19,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 /**
  * @author Andrew Woods
@@ -64,6 +63,8 @@ public class InitControllerTest {
         contentStoreManager.reinitialize((String)EasyMock.anyObject(), (String)EasyMock.anyObject(), (String)EasyMock.anyObject());
         EasyMock.expectLastCall();
 
+        resetDuradminConfig();
+
         ControllerSupport support = EasyMock.createMock("ControllerSupport",
                                                         ControllerSupport.class);
         EasyMock.expect(support.getContentStoreManager()).andReturn(contentStoreManager);
@@ -75,7 +76,6 @@ public class InitControllerTest {
     @After
     public void tearDown() throws Exception {
         EasyMock.verify(request, response, storageSummaryCache);
-        resetDuradminConfig();
     }
 
     private void resetDuradminConfig() {

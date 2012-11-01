@@ -363,7 +363,7 @@ public class ManifestGeneratorImplTest {
 
     private Date getDate(int day) {
         Calendar calendar = Calendar.getInstance();
-        calendar.roll(Calendar.DAY_OF_MONTH, day);
+        calendar.add(Calendar.DAY_OF_MONTH, day);
         return calendar.getTime();
     }
 
