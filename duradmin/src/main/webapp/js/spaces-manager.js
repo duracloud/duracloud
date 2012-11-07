@@ -1015,6 +1015,7 @@ $(function(){
                        .replaceContents($("#spaceMultiSelectPane").clone());
                        that._detailPane.spacesmultiselectdetail({storeId: that.getStoreId()});
                        that._detailPane.spacesmultiselectdetail("spaces", spaces);
+                       that._clearContents();
                    },
 
                    showMultiContentItems: function(contentItems){
