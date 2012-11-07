@@ -81,14 +81,16 @@ $.widget("ui.selectablelist",{
 			this._currentItem = null;
 		}
 		
-		var selectedItems = this._getSelectedItems();
 		
-		$("input[type='checkbox']:checked",this.element).attr("checked", false);
+		$("input[type='checkbox']:checked",this.element).removeAttr("checked");
 		this._styleItem(item);
 		if(item){
-	        $("input[type='checkbox']",$(item)).attr("checked", true);
+		    $(item).find("input[type='checkbox']")
+		           .not("[disabled]")
+		           .attr("checked",true);
 		}
 
+        var selectedItems = this._getSelectedItems();
 		
 		var fire = (notify == undefined || notify == null || notify == true);
 		if(fire){
@@ -334,7 +336,9 @@ $.widget("ui.selectablelist",{
 			    if(that.options.clickable){
 	                if(that.options.selectable){
 	                    that._select(false);
-	                    item.find(":checkbox").attr("checked", "checked");
+	                    item.find(":checkbox")
+                            .not("[disabled]")
+                            .attr("checked",true);
 	                }
 			        
 	                that._fireCurrentItemChanged(item);
