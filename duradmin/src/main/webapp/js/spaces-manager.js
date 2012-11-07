@@ -1318,12 +1318,25 @@ $(function(){
             $("#check-all-spaces", this.element).attr("checked", checked);
         },
         
+        /**
+         * This method adds uniqueness to a state object to ensure that 
+         * when the state is pushed onto the history stack it causes 
+         * a pushstack event to fire.  If no such uniqueness occurs, the 
+         * event will not fire and the content will not be updated.  For example, 
+         * clicking on a space that is already loaded, will not be refreshed unless
+         * the state object is made unique.
+         */
+        _createUniqueStateObject: function(state){
+            state.time = new Date();
+            return state;
+        },
+        
         _handleSpaceListStateChangedEvent: function(evt, state){
             var that = this;
             try{
                 var selectedItems = state.selectedItems;
                 var length = selectedItems.length;
-                
+                var newState;
                 if(length == 0){
                     //uncheck 'check all' box
                     that._toggleCheckAll(false);
@@ -1331,7 +1344,10 @@ $(function(){
                     if(currentItem){
                         var spaceId = $(currentItem.item).attr("id");
                         if(spaceId){
-                            HistoryManager.pushState({storeId: that._storeId, spaceId:spaceId});
+                            newState = that._createUniqueStateObject({
+                                                                storeId: that._storeId, 
+                                                                spaceId:spaceId});
+                            HistoryManager.pushState(newState);
                         }else{
                             dc.error("spaceId is undefined");
                         }
@@ -1342,7 +1358,10 @@ $(function(){
                     if(length == 1){
                         that._toggleCheckAll(false);
                         var spaceId = $(selectedItems[0]).attr("id");
-                        HistoryManager.pushState({storeId: that._storeId, spaceId: spaceId});
+                        newState = that._createUniqueStateObject({
+                            storeId: that._storeId, 
+                            spaceId:spaceId});
+                        HistoryManager.pushState(newState);
                     }else{
                         HistoryManager.pushState({storeId: that._storeId, multi:true});
                     }
