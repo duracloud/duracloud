@@ -1734,7 +1734,7 @@ $(function(){
             }else{
                 var itemCount = space.properties.count;
                 
-                if(space.itemCount){
+                if(space.itemCount && space.itemCount > -1){
                     itemCount = space.itemCount;
                 }
                 
