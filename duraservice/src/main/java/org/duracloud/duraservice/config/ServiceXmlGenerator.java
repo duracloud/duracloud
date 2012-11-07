@@ -29,20 +29,16 @@ public class ServiceXmlGenerator {
      * Add new service to this list and it will be included in the master
      * repository XML service configuration file.
      */
-    private AbstractServiceInfo[] serviceInfos = {//new HelloServiceInfo(),
-                                                new FixityServiceInfo(),
-                                                new AmazonFixityServiceInfo(),
-                                                new FixityToolsServiceInfo(),
-                                                new ReplicationOnDemandServiceInfo(),
-                                                new DuplicationServiceInfo(),
-                                                //new HelloWebappWrapperServiceInfo(),
-                                                new J2kServiceInfo(),
-                                                new ImageConversionServiceInfo(),
-                                                new BulkImageConversionServiceInfo(),
-                                                new MediaStreamingServiceInfo(),
-                                                new ImageMagickServiceInfo(),
-                                                new WebappUtilServiceInfo(),
-                                                new CloudSyncServiceInfo()};
+    private AbstractServiceInfo[] serviceInfos =
+        {new FixityServiceInfo(),
+         new FixityToolsServiceInfo(),
+         new DuplicationServiceInfo(),
+         new J2kServiceInfo(),
+         new ImageConversionServiceInfo(),
+         new MediaStreamingServiceInfo(),
+         new ImageMagickServiceInfo(),
+         new WebappUtilServiceInfo(),
+         new CloudSyncServiceInfo()};
 
     private String version;
 
@@ -122,16 +118,13 @@ public class ServiceXmlGenerator {
         List<ServiceInfo> results = new ArrayList<ServiceInfo>();
 
         List<ServiceInfo> services = getServices();
-        results.add(services.get(0));
-        results.add(services.get(1));
-        results.add(services.get(2));
-        results.add(services.get(3));
-        results.add(services.get(4));
-        results.add(services.get(5));
-        results.add(services.get(8));
-        results.add(services.get(9));
-        results.add(services.get(10));
-        results.add(services.get(11));
+        results.add(services.get(0));  // fixity
+        results.add(services.get(1));  // fixity tools
+        results.add(services.get(2));  // duplicate on change
+        results.add(services.get(3));  // j2k
+        results.add(services.get(5));  // media streamer
+        results.add(services.get(7));  // webapp util
+        results.add(services.get(8));  // cloudsync
 
         return results;
     }
@@ -140,14 +133,13 @@ public class ServiceXmlGenerator {
         List<ServiceInfo> results = new ArrayList<ServiceInfo>();
 
         List<ServiceInfo> services = getServices();
-        results.add(services.get(0));
-        results.add(services.get(2));
-        results.add(services.get(4));
-        results.add(services.get(5));
-        results.add(services.get(8));
-        results.add(services.get(9));
-        results.add(services.get(10));
-        results.add(services.get(11));
+        results.add(services.get(0));  // fixity
+        results.add(services.get(1));  // fixity tools
+        results.add(services.get(2));  // duplicate on change
+        results.add(services.get(3));  // j2k
+        results.add(services.get(5));  // media streamer
+        results.add(services.get(7));  // webapp util
+        results.add(services.get(8));  // cloudsync
 
         return results;
     }
