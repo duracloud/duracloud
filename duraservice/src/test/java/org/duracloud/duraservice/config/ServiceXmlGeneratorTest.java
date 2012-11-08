@@ -149,7 +149,7 @@ public class ServiceXmlGeneratorTest {
         verifyDurastoreCredential(systemConfigs);
 
         String ver = getVersion();
-        String dependencyServiceId = "10";
+        String dependencyServiceId = "7";
         String dependencyContentId = "webapputilservice-" + ver + ".zip";
         verifyDependencies(serviceInfo,
                            dependencyServiceId,
@@ -162,7 +162,7 @@ public class ServiceXmlGeneratorTest {
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         String ver = getVersion();
-        String dependencyServiceId = "9";
+        String dependencyServiceId = "6";
         String dependencyContentId = "imagemagickservice-" + ver + ".zip";
         verifyDependencies(serviceInfo,
                            dependencyServiceId,
@@ -217,7 +217,7 @@ public class ServiceXmlGeneratorTest {
         verifyDurastoreCredential(systemConfigs);
 
         String ver = getVersion();
-        String dependencyServiceId = "10";
+        String dependencyServiceId = "7";
         String dependencyContentId = "webapputilservice-" + ver + ".zip";
         verifyDependencies(serviceInfo,
                            dependencyServiceId,

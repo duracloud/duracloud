@@ -149,7 +149,7 @@ public class ImageConversionServiceInfo extends AbstractServiceInfo {
 
         // service dependencies
         Map<String, String> dependencies = new HashMap<String, String>();
-        dependencies.put("9", "imagemagickservice-" + version + ".zip");
+        dependencies.put("6", "imagemagickservice-" + version + ".zip");
         icService.setDependencies(dependencies);
 
         return icService;

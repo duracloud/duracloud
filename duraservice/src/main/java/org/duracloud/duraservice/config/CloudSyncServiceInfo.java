@@ -56,7 +56,7 @@ public class CloudSyncServiceInfo extends AbstractServiceInfo {
 
         // service dependencies
         Map<String, String> dependencies = new HashMap<String, String>();
-        dependencies.put("10", "webapputilservice-" + version + ".zip");
+        dependencies.put("7", "webapputilservice-" + version + ".zip");
         cloudSyncService.setDependencies(dependencies);
 
         return cloudSyncService;
