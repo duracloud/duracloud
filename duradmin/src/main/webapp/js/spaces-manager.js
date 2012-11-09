@@ -740,11 +740,21 @@ $(function(){
 
                 if(length == 0){
                    that._toggleCheckAllContentItems(false);
-                   if(!this._detailManager.isSpaceDetailDisplayed()){
-                        if(space.spaceId){
-                            HistoryManager.pushState(space);
-                        }
-                    }
+                   if(currentItem){
+                       var contentId = $(currentItem.item).attr("id");
+                       HistoryManager.pushState(
+                               {
+                                   storeId: that._storeId, 
+                                   spaceId: space.spaceId, 
+                                   contentId: contentId
+                               });
+                   }else{
+                       if(!this._detailManager.isSpaceDetailDisplayed()){
+                           if(space.spaceId){
+                               HistoryManager.pushState(space);
+                           }
+                       }
+                   }
                 }else{
                     if(length == 1){
                         that._toggleCheckAllContentItems(false);
@@ -1446,6 +1456,13 @@ $(function(){
                 addSpaceButton.show();
             }
 
+            var cb = $(".dc-check-all", this.element);
+            if(this._isReadOnlyStorageProvider()) {
+                cb.makeHidden();
+            }else{
+                cb.makeVisible();
+            }
+
             
             this.hideStatus();
         },
@@ -1648,7 +1665,7 @@ $(function(){
                    .append(actions);
             
             var item =  this._getList()
-                            .selectablelist('addItem',node, contentItem);
+                            .selectablelist('addItem',node, contentItem, false, readOnly);
             return item;
             
         },
@@ -1801,6 +1818,14 @@ $(function(){
                 $(".add-content-item-button, .bulk-add-content-item", listView)
                     .hide();
             }
+            
+            var cb = $(".dc-check-all", this.element);
+            if(this._isReadOnlyStorageProvider()) {
+                cb.makeHidden();
+            }else{
+                cb.makeVisible();
+            }
+
         },
     }));
 
