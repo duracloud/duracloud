@@ -139,6 +139,9 @@ $(function(){
                 var url = _buildUrl(data);
                 var title = "DuraCloud";
                 window.History.pushState(data, title, url);
+                if($.browser['msie']){
+                    instance.change(data);
+                }
             },               
                 
             /**
