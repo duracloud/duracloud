@@ -992,7 +992,7 @@ $(function(){
                            .replaceContents($("#spacesDetailPane").clone())
                            .spacesdetail({storeId:storeId});
                        that._detailPane.spacesdetail("load", storeId);
-                   
+                       that._clearContents();
                    },
 
                    showEmpty: function(params){
