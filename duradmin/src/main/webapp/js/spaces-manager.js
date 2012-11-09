@@ -754,6 +754,9 @@ $(function(){
                    }else{
                        if(!this._detailManager.isSpaceDetailDisplayed()){
                            if(space.spaceId){
+                               //ensures uniqueness of history entry 
+                               //so that pushState event is fired.
+                               space.date = new Date();
                                HistoryManager.pushState(space);
                            }
                        }
