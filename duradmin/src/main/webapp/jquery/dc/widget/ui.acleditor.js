@@ -283,8 +283,15 @@ $.widget("ui.acleditor",
                 
                 listPanel = this._listPanel;
 
-                addPanel = $.fn.create("div").acladdpanel({space:this.options.space});
-                editPanel = $.fn.create("div").acleditpanel({space:this.options.space});
+                addPanel = $.fn.create("div").acladdpanel(
+                        {
+                            space:this.options.space, 
+                            readOnly: this.options.readOnly});
+
+                editPanel = $.fn.create("div").acleditpanel(
+                        {
+                            space:this.options.space, 
+                            readOnly: this.options.readOnly});
 
                 stack.stacklayout("add", listPanel);
                 stack.stacklayout("add", addPanel);
@@ -351,6 +358,13 @@ $.widget("ui.acleditpanel",
                $("input[type='checkbox']", table).change(function(){
                    that._fireChanged();
                });
+
+               if(this.options.readOnly){
+                   $(table)
+                       .find("input[type='checkbox'][name='write'], #write-all, #write-all-label")
+                       .css("visibility", "hidden");
+               }
+               
                this.content().append(table);            
            }else{
                if(message){
@@ -434,7 +448,7 @@ $.widget("ui.aclreadonlypanel",
                       id:"add", 
                       text:"Add", 
                       iconClass:"plus",
-                      disabled: this._readOnly,
+                      disabled: false,
                     });
 
             this._editButton = this.addButton(
@@ -479,7 +493,7 @@ $.widget("ui.aclreadonlypanel",
                 this._acls = acls; 
                 if(this._acls && this._acls.length > 0){
                     this.content().append(createPermissionsTable(this._acls,true));
-                    this._editButton.disable(this._readOnly);
+                    this._editButton.disable(false);
                 }else{
                     if(message){
                         this.content().append("<p>"+message+"</p>")
@@ -583,7 +597,7 @@ var createPermissionsTable =  function(acls, readOnly){
             }
         });
 
-        write = $("<span><input type='checkbox' id='write-all'/><label for='write-all'>Write</label></span>");
+        write = $("<span><input type='checkbox' id='write-all'/><label id='write-all-label' for='write-all'>Write</label></span>");
         writeCb = $("input", write); 
         writeCb.change(function(){
             var checked = $(this).is(":checked");
