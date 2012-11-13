@@ -19,7 +19,10 @@
       <id>package-client</id>
 
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>package</name>
+          <value>client</value>
+        </property>
       </activation>
 
       <build>
