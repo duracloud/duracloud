@@ -709,6 +709,11 @@ $(function(){
             $(document).bind("contentItemDeleted", function(evt,state){
                 if(that._detailManager.isContentItemDisplayed(state)){
                     HistoryManager.pushState({storeId: state.storeId, spaceId: state.spaceId});
+                }else {
+                    var selected =  that._contentItemListPane.contentitemlistpane("selectedContentItems");
+                    if(selected.length == 0){
+                        HistoryManager.pushState({storeId: state.storeId, spaceId: state.spaceId, date: new Date()});
+                    }
                 }
              });
         },
@@ -2905,6 +2910,7 @@ $(function(){
             
             dc.busy(busyMessage, {modal: true});
             var job = dc.util.createJob("delete-content-items");
+            var deletedContentItems = [];
             var i;
             for(i = 0; i < contentItems.length; i++){
                 job.addTask({
@@ -2913,8 +2919,8 @@ $(function(){
                         var that = this;
                         dc.store.DeleteContentItem(this._contentItem, {
                             success:function(){
+                                deletedContentItems.push(that._contentItem);
                                 callback.success();
-                                $(document).trigger("contentItemDeleted", that._contentItem);
                             },
                             failure: function(message){
                                 callback.failure();
@@ -2939,7 +2945,10 @@ $(function(){
                     done: function(job){
                         dc.log("done:" + job);
                         dc.done();
-                        HistoryManager.pushState(space);
+                        $.each(deletedContentItems, function(i,ci){
+                            $(document).trigger("contentItemDeleted", ci);
+                        });
+
                 }, 
             });
         },

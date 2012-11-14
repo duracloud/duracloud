@@ -198,7 +198,12 @@ $.widget("ui.selectablelist",{
 		var item = $("[id='"+elementId+"']", this.element).first();
 		var data = this._removeDataById(elementId);
 		item.remove();
-		this._fireCurrentItemChanged(null,null);
+		
+		if(this._currentItem){
+		    if($(this._currentItem.item).attr("id") == elementId){
+	            this._fireCurrentItemChanged(null);
+		    }
+		}
 		this._fireItemRemoved(item, data);
 	},
 
