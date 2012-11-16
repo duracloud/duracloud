@@ -8,9 +8,12 @@
 package org.duracloud.sync.mgmt;
 
 import static junit.framework.Assert.assertEquals;
-import org.junit.Test;
 
 import java.io.File;
+import java.util.Date;
+
+import org.duracloud.sync.mgmt.SyncSummary.Status;
+import org.junit.Test;
 
 /**
  * @author: Bill Branan
@@ -33,8 +36,12 @@ public class StatusManagerTest {
         assertEquals(0, status.getSucceeded());
         assertEquals(0, status.getFailed().size());
 
-        for(int i=0; i<50; i++) {
-            status.successfulCompletion();
+        for (int i = 0; i < 50; i++) {
+            status.successfulCompletion(new SyncSummary(new File("test"),
+                                                        new Date(),
+                                                        new Date(),
+                                                        Status.SUCCESS,
+                                                        "success"));
         }
 
         assertEquals(50, status.getInWork());
@@ -42,7 +49,11 @@ public class StatusManagerTest {
         assertEquals(0, status.getFailed().size());
 
         for(int i=0; i<50; i++) {
-            status.failedCompletion(new File("test"));
+            status.failedCompletion(new SyncSummary(new File("test"),
+                                                        new Date(),
+                                                        new Date(),
+                                                        Status.FAILURE,
+                                                        "failure"));
         }
 
         assertEquals(0, status.getInWork());

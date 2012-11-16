@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -27,7 +28,8 @@ public class StatusManager {
 
     private long inWork;
     private long succeeded;
-    private List<File> failed;
+    private List<SyncSummary> failed;
+    private List<SyncSummary> recentlyCompleted;
     private String startTime;
     private ChangedList changedList;
     private String version;
@@ -46,9 +48,10 @@ public class StatusManager {
      */
     protected StatusManager() {
         succeeded = 0;
-        failed = new ArrayList<File>();
+        failed = new ArrayList<SyncSummary>();
         startTime = DATE_FORMAT.format(new Date());
         changedList = ChangedList.getInstance();
+        recentlyCompleted = new LinkedList<SyncSummary>();
     }
 
     public int getQueueSize() {
@@ -63,12 +66,16 @@ public class StatusManager {
         inWork--;
     }
 
-    public synchronized void successfulCompletion() {
+    public synchronized void successfulCompletion(SyncSummary summary) {
         succeeded++;
         inWork--;
+        this.recentlyCompleted.add(0,summary);
+        if (this.recentlyCompleted.size() > 100) {
+            this.recentlyCompleted = this.recentlyCompleted.subList(0, 100);
+        }
     }
 
-    public synchronized void failedCompletion(File file) {
+    public synchronized void failedCompletion(SyncSummary file) {
         failed.add(file);
         inWork--;
     }
@@ -81,8 +88,12 @@ public class StatusManager {
         return succeeded;
     }
 
-    public List<File> getFailed() {
+    public List<SyncSummary> getFailed() {
         return failed;
+    }
+    
+    public List<SyncSummary> getRecentlyCompleted(){
+        return new ArrayList<SyncSummary>(this.recentlyCompleted);
     }
 
     public void setVersion(String version) {
@@ -101,8 +112,8 @@ public class StatusManager {
         status.append("Syncs In Process: " + getInWork() + "\n");
         status.append("Successful Syncs: " + getSucceeded() + "\n");
         status.append("Failed Syncs: " + getFailed().size() + "\n");
-        for(File failedFile : getFailed()) {
-            status.append("  " + failedFile.getAbsolutePath() + "\n");    
+        for(SyncSummary failedFile : getFailed()) {
+            status.append("  " + failedFile.getFile().getAbsolutePath() + "\n");    
         }
         status.append("--------------------------------------\n");
         return status.toString();
