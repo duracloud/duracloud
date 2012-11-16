@@ -9,6 +9,7 @@ package org.duracloud.upload.panel;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.upload.UploadFacilitator;
 import org.duracloud.upload.Uploader;
 
@@ -24,7 +25,6 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.net.URL;
 import java.util.List;
 
@@ -93,11 +93,11 @@ public class CompletedPanel extends JPanel {
         long successful = uploader.getSuccessfulTransfers();
         successLabel.setText(successful + " files uploaded successfully");
 
-        List<File> failed = uploader.getFailedTransfers();
+        List<SyncSummary> failed = uploader.getFailedTransfers();
         if(null != failed && failed.size() > 0) {
             failedLabel.setText(failed.size() + " files failed to upload");
-            for(File file : failed) {
-                failedItems += (file.getAbsolutePath() + "\n");
+            for(SyncSummary summary : failed) {
+                failedItems += (summary.getFile().getAbsolutePath() + "\n");
             }
             failedButton.setVisible(true);
         }

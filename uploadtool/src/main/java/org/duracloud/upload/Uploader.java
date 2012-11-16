@@ -13,6 +13,7 @@ import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
+import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.sync.util.StoreClientUtil;
 import org.duracloud.sync.walker.DirWalker;
 import org.slf4j.Logger;
@@ -105,7 +106,7 @@ public class Uploader {
         return statusManager.getSucceeded();
     }
 
-    public List<File> getFailedTransfers() {
+    public List<SyncSummary> getFailedTransfers() {
         return statusManager.getFailed();
     }
 
