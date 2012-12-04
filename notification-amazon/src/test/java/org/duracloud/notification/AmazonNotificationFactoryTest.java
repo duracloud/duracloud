@@ -41,7 +41,7 @@ public class AmazonNotificationFactoryTest {
         Assert.assertTrue(threw);
 
         emailerFactory.initialize("accessKey", "secretAccessKey");
-        Emailer emailer = emailerFactory.getEmailer("a+b@g.com");
+        Emailer emailer = emailerFactory.getEmailer("a+b@g.h.com");
         Assert.assertNotNull(emailer);
     }
 

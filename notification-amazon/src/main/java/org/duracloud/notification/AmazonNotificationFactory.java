@@ -10,6 +10,7 @@ package org.duracloud.notification;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceAsyncClient;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class AmazonNotificationFactory implements NotificationFactory {
     @Override
     public Emailer getEmailer(String fromAddress) {
         if (null == fromAddress ||
-            !fromAddress.matches("[a-zA-Z_0-9+]+@\\w+\\.\\w+")) {
+            !EmailValidator.getInstance().isValid(fromAddress)) {
             String msg = "fromAddress not valid notification: " + fromAddress;
             log.error(msg);
             throw new IllegalArgumentException(msg);
