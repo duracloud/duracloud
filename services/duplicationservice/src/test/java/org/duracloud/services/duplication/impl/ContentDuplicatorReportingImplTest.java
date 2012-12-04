@@ -84,6 +84,7 @@ public class ContentDuplicatorReportingImplTest {
         for (String content : contents) {
             contentDuplicatorReporting.createContent(spaceId, content);
         }
+        Thread.sleep(3000);
         contentDuplicatorReporting.stop();
 
         // verify
