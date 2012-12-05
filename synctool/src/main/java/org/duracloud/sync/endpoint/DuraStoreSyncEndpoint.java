@@ -7,20 +7,27 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Endpoint which pushes files to DuraCloud.
@@ -47,6 +54,10 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
         ensureSpaceExists();
+    }
+    
+    protected String getUsername(){
+        return this.username;
     }
 
     private void ensureSpaceExists() {
@@ -162,8 +173,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     protected void addUpdateContent(String contentId, MonitoredFile syncFile)
         throws ContentStoreException {
         InputStream syncStream = syncFile.getStream();
-        Map<String, String> props = new HashMap<String, String>();
-        props.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, username);
+        Map<String,String> props = createProps(syncFile.getAbsolutePath(), this.username);        
+
         try {
             contentStore.addContent(spaceId,
                                     contentId,
@@ -180,6 +191,10 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                              contentId + ": " + e.getMessage(), e);
             }
         }
+    }
+
+    protected Map<String, String> createProps(String absolutePath, String username) {
+        return StorageProviderUtil.createContentProperties(absolutePath, username);
     }
 
     /*

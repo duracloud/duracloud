@@ -7,6 +7,22 @@
  */
 package org.duracloud.chunk;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.security.DigestInputStream;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -18,14 +34,9 @@ import org.duracloud.chunk.writer.ContentWriter;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.ExceptionUtil;
+import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.security.DigestInputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
 
 /**
  * This class provides the ability to loop over a directory of content which
@@ -45,8 +56,9 @@ public class FileChunker {
     private ContentWriter contentWriter;
     private FileChunkerOptions options;
 
-    public FileChunker(ContentWriter contentWriter) {
-        this(contentWriter, new FileChunkerOptions());
+    public FileChunker(
+        ContentWriter contentWriter) {
+        this(contentWriter,new FileChunkerOptions());
     }
 
     public FileChunker(ContentWriter contentWriter,
@@ -108,11 +120,16 @@ public class FileChunker {
                            String destContentId,
                            String fileChecksum,
                            File file) {
+        Map<String, String> properties =
+            StorageProviderUtil.createContentProperties(
+                                                        file.getAbsolutePath(), 
+                                                        null);
         addContent(destSpaceId,
                    destContentId,
                    fileChecksum,
                    file.length(),
-                   getInputStream(file));
+                   getInputStream(file),
+                   properties);
     }
 
     /**
@@ -123,18 +140,21 @@ public class FileChunker {
      * @param destContentId of content
      * @param fileChecksum MD5 checksum of file or null if not known
      * @param stream        to add
+     * @param properties user-defined properties associated with content
      */
     public void addContent(String destSpaceId,
                            String destContentId,
                            String fileChecksum,
                            long fileSize,
-                           InputStream stream) {
+                           InputStream stream,
+                           Map<String,String> properties) {
         try {
             doAddContent(destSpaceId,
                          destContentId,
                          fileChecksum,
                          fileSize,
-                         getInputStream(stream));
+                         getInputStream(stream), 
+                         properties);
         } catch(NotFoundException e) {
             throw new DuraCloudRuntimeException(e);
         }
@@ -173,16 +193,20 @@ public class FileChunker {
 
     private void doAddContent(File baseDir, String destSpaceId, File file)
         throws NotFoundException {
+        Map<String, String> properties =
+            StorageProviderUtil.createContentProperties(file.getAbsolutePath(),
+                                                        null);
         String destContentId = getContentId(baseDir, file);
         InputStream stream = getInputStream(file);
-        doAddContent(destSpaceId, destContentId, null, file.length(), stream);
+        doAddContent(destSpaceId, destContentId, null, file.length(), stream, properties);
     }
 
     private void doAddContent(String destSpaceId,
                               String destContentId,
                               String fileChecksum,
                               long fileSize,
-                              InputStream stream)
+                              InputStream stream, 
+                              Map<String,String> properties)
         throws NotFoundException {
         long maxChunkSize = options.getMaxChunkSize();
         boolean ignoreLargeFiles = options.isIgnoreLargeFiles();
@@ -196,7 +220,7 @@ public class FileChunker {
                                                           fileSize,
                                                           false);
 
-            contentWriter.writeSingle(destSpaceId, fileChecksum, chunk);
+            contentWriter.writeSingle(destSpaceId, fileChecksum, chunk, properties);
 
         } else if (!ignoreLargeFiles) {
             ChunkableContent chunkable = new ChunkableContent(destContentId,
@@ -205,7 +229,7 @@ public class FileChunker {
                                                               maxChunkSize);
             chunkable.setPreserveChunkMD5s(preserveChunkMD5s);
 
-            contentWriter.write(destSpaceId, chunkable);
+            contentWriter.write(destSpaceId, chunkable, properties);
 
             // Verify final checksum
             if(fileChecksum != null) {

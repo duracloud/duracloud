@@ -10,6 +10,7 @@ package org.duracloud.sync.endpoint;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -108,9 +109,6 @@ public class DuraStoreSyncEndpointTest {
 
         Map<String, String> props = propsCapture.getValue();
         assertNotNull(props);
-        String creator = props.get(StorageProvider.PROPERTIES_CONTENT_CREATOR);
-        assertEquals(username, creator);
-
         FileUtils.deleteQuietly(contentFile);
     }
 

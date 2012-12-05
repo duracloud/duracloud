@@ -38,6 +38,16 @@ public interface StorageProvider {
     public static final String PROPERTIES_CONTENT_SIZE = "content-size";
     public static final String PROPERTIES_CONTENT_CHECKSUM = "content-checksum";
     public static final String PROPERTIES_CONTENT_MODIFIED = "content-modified";
+
+    //created date of the file read from the original file at the time of upload.
+    public static final String PROPERTIES_CONTENT_FILE_CREATED = "content-file-created"; 
+    //modified date of the file read from the original file at the time of upload.
+    public static final String PROPERTIES_CONTENT_FILE_MODIFIED = "content-file-modified"; 
+    //last accessed date of the file read from the original file at the time of upload
+    public static final String PROPERTIES_CONTENT_FILE_LAST_ACCESSED = "content-file-last-accessed"; 
+    //path of the file at the time of upload.
+    public static final String PROPERTIES_CONTENT_FILE_PATH = "content-file-path"; 
+
     public static final String PROPERTIES_COPY_SOURCE = "copy-source";
     public static final String PROPERTIES_COPY_SOURCE_STORE = "copy-source-store";
     public static final String PROPERTIES_CONTENT_CREATOR = "creator";

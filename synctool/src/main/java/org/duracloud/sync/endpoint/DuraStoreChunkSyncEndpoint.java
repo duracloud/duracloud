@@ -128,11 +128,13 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     @Override
     protected void addUpdateContent(String contentId,
                                     MonitoredFile syncFile) {
+        Map<String,String> properties = createProps(syncFile.getAbsolutePath(),getUsername());
         chunker.addContent(getSpaceId(),
                            contentId,
                            syncFile.getChecksum(),
                            syncFile.length(),
-                           syncFile.getStream());
+                           syncFile.getStream(),
+                           properties);
     }
 
     @Override

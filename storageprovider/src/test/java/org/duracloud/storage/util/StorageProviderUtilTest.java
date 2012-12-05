@@ -8,12 +8,15 @@
 package org.duracloud.storage.util;
 
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,4 +111,16 @@ public class StorageProviderUtilTest {
         }
     }
 
+    public void testCreateContentProperties() throws IOException{
+        File file = File.createTempFile("test", ".properties");
+        file.deleteOnExit();
+        String creator = "test";
+        Map<String,String> props = StorageProviderUtil.createContentProperties(file.getAbsolutePath(), creator);
+        String creator2 = props.get(StorageProvider.PROPERTIES_CONTENT_CREATOR);
+        assertEquals(creator, creator2);
+        assertNotNull(props.get(StorageProvider.PROPERTIES_CONTENT_FILE_CREATED));
+        assertNotNull(props.get(StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED));
+        assertNotNull(props.get(StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED));
+        assertNotNull(props.get(StorageProvider.PROPERTIES_CONTENT_FILE_PATH));
+    }
 }

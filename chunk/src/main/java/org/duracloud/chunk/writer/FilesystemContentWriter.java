@@ -7,16 +7,6 @@
  */
 package org.duracloud.chunk.writer;
 
-import org.apache.commons.io.IOUtils;
-import org.duracloud.chunk.ChunkableContent;
-import org.duracloud.chunk.error.NotFoundException;
-import org.duracloud.chunk.manifest.ChunksManifest;
-import org.duracloud.chunk.stream.ChunkInputStream;
-import org.duracloud.chunk.stream.KnownLengthInputStream;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,6 +16,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
+import org.duracloud.chunk.ChunkableContent;
+import org.duracloud.chunk.error.NotFoundException;
+import org.duracloud.chunk.manifest.ChunksManifest;
+import org.duracloud.chunk.stream.ChunkInputStream;
+import org.duracloud.chunk.stream.KnownLengthInputStream;
+import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements the ContentWriter interface to write the provided
@@ -59,27 +60,48 @@ public class FilesystemContentWriter implements ContentWriter {
         results.add(result);
     }
 
+
     /**
      * This method implements the ContentWriter interface for writing content
      * to a DataStore. In this case, the DataStore is a local filesystem.
      * The arg spaceId is the path to the destination directory.
      *
      * @param spaceId   destination where arg chunkable content will be written
+     * @param contentProperties user defined properties to be associated with content.
      * @param chunkable content to be written
      */
-    public ChunksManifest write(String spaceId, ChunkableContent chunkable)
+    public ChunksManifest write(String spaceId,
+                                ChunkableContent chunkable) 
+                                    throws NotFoundException {
+        return write(spaceId, chunkable, null);
+    }
+
+    /**
+     * This method implements the ContentWriter interface for writing content
+     * to a DataStore. In this case, the DataStore is a local filesystem.
+     * The arg spaceId is the path to the destination directory.
+     *
+     * @param spaceId   destination where arg chunkable content will be written
+     * @param contentProperties user defined properties to be associated with content.
+     * @param chunkable content to be written
+     */
+    public ChunksManifest write(String spaceId,
+                                ChunkableContent chunkable,
+                                Map<String, String> contentProperties)
         throws NotFoundException {
         for (ChunkInputStream chunk : chunkable) {
-            writeSingle(spaceId, null, chunk);
+            writeSingle(spaceId, null, chunk, null);
         }
 
         ChunksManifest manifest = chunkable.finalizeManifest();
         KnownLengthInputStream manifestStream = manifest.getBody();
 
-        AddContentResult result = writeContent(spaceId,
-                                               manifest.getManifestId(),
-                                               manifestStream,
-                                               manifestStream.getLength());
+        AddContentResult result =
+            writeContent(spaceId,
+                         manifest.getManifestId(),
+                         manifestStream,
+                         manifestStream.getLength(),
+                         contentProperties);
         result.setMd5("md5-not-collected-for-manifest");
 
         return manifest;
@@ -92,17 +114,21 @@ public class FilesystemContentWriter implements ContentWriter {
      *
      * @param spaceId destination where arg chunk content will be written
      * @param chunk   content to be written
+     * @param properties user-defined properties associated with content
      * @return MD5 of content
      * @throws NotFoundException
      */
+    @Override
     public String writeSingle(String spaceId,
                               String chunkChecksum,
-                              ChunkInputStream chunk)
+                              ChunkInputStream chunk,
+                              Map<String, String> properties)
         throws NotFoundException {
         AddContentResult result = writeContent(spaceId,
                                                chunk.getChunkId(),
                                                chunk,
-                                               chunk.getChunkSize());
+                                               chunk.getChunkSize(),
+                                               properties);
         String finalChecksum = chunk.getMD5();
         if(chunkChecksum != null && chunk.md5Preserved()) {
             if(!chunkChecksum.equals(finalChecksum)) {
@@ -114,10 +140,21 @@ public class FilesystemContentWriter implements ContentWriter {
         return finalChecksum;
     }
 
-    private AddContentResult writeContent(String spaceId,
-                                          String contentId,
-                                          InputStream inputStream,
-                                          long contentSize) {
+    @Override
+    public String writeSingle(String spaceId,
+                              String chunkChecksum,
+                              ChunkInputStream chunk) 
+                                  throws NotFoundException {
+        return writeSingle(spaceId, chunkChecksum, chunk, null);
+    }
+
+    private AddContentResult
+        writeContent(String spaceId,
+                     String contentId,
+                     InputStream inputStream,
+                     long contentSize,
+                     Map<String, String> contentProperties) {
+
         File spaceDir = getSpaceDir(spaceId);
         OutputStream outStream = getOutputStream(spaceDir, contentId);
 
@@ -202,4 +239,6 @@ public class FilesystemContentWriter implements ContentWriter {
         }
         return spaceDir;
     }
+
+
 }

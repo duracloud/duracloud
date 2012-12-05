@@ -7,6 +7,11 @@
  */
 package org.duracloud.chunk;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.stream.ChunkInputStream;
@@ -14,10 +19,6 @@ import org.duracloud.chunk.stream.CountingDigestInputStream;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.util.Iterator;
 
 /**
  * This class manages the provided content stream by breaking it chunks of the

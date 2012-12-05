@@ -7,21 +7,29 @@
  */
 package org.duracloud.storage.util;
 
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
+import static org.duracloud.common.util.IOUtil.readStringFromStream;
+import static org.duracloud.common.util.SerializationUtil.deserializeMap;
+import static org.duracloud.common.util.SerializationUtil.serializeMap;
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.duracloud.common.util.IOUtil.readStringFromStream;
-import static org.duracloud.common.util.SerializationUtil.deserializeMap;
-import static org.duracloud.common.util.SerializationUtil.serializeMap;
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides utility methods for Storage Providers
@@ -29,6 +37,8 @@ import static org.duracloud.storage.error.StorageException.NO_RETRY;
  * @author Bill Branan
  */
 public class StorageProviderUtil {
+    
+    private static Logger log = LoggerFactory.getLogger(StorageProviderUtil.class);
 
     /**
      * Loads a stream containing properties and populates a map
@@ -190,5 +200,42 @@ public class StorageProviderUtil {
         }
         return contents;
     }
+    
+    /**
+     * Generates a map of all client-side default content properties to be added with new content.
+     * @param absolutePath
+     * @param creator
+     * @return
+     */
+    public static Map<String,String> createContentProperties(String absolutePath, String creator){
 
+        Map<String, String> props = new HashMap<String, String>();
+        if(creator != null && creator.trim().length() > 0){
+            props.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, creator);
+        }
+
+        props.put(StorageProvider.PROPERTIES_CONTENT_FILE_PATH, absolutePath);
+        
+        try{
+            Path path = FileSystems.getDefault().getPath(absolutePath);
+            
+            BasicFileAttributes bfa = Files.readAttributes(path, BasicFileAttributes.class);
+            
+            String creationDate = DateUtil.convertToStringLong(bfa.creationTime().toMillis());
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_CREATED, creationDate);
+
+            String lastAccessed = DateUtil.convertToStringLong(bfa.lastAccessTime().toMillis());
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED, lastAccessed);
+
+            String modified = DateUtil.convertToStringLong(bfa.lastModifiedTime().toMillis());
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED, modified);
+
+        }catch(IOException ex){
+            log.error("Failed to read basic file attributes from "
+                             + absolutePath + ": " + ex.getMessage(), 
+                         ex);
+        }        
+        
+        return props; 
+    }
 }

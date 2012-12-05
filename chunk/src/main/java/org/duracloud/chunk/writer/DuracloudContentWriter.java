@@ -79,31 +79,60 @@ public class DuracloudContentWriter implements ContentWriter {
      * @param chunkable content to be written
      * @throws NotFoundException if space is not found
      */
-    public ChunksManifest write(String spaceId, ChunkableContent chunkable)
+    @Override
+    public ChunksManifest write(String spaceId,
+                                ChunkableContent chunkable,
+                                Map<String, String> contentProperties)
         throws NotFoundException {
         log.debug("write: " + spaceId);
         createSpaceIfNotExist(spaceId);
 
         for (ChunkInputStream chunk : chunkable) {
-            writeSingle(spaceId, null, chunk);
+            writeSingle(spaceId, null, chunk, null);
         }
 
         ChunksManifest manifest = chunkable.finalizeManifest();
-        addManifest(spaceId, manifest);
+        addManifest(spaceId, manifest, contentProperties);
 
         log.debug("written: " + spaceId + ", " + manifest.getManifestId());
         return manifest;
     }
 
+    @Override
+    public ChunksManifest write(String spaceId, ChunkableContent chunkable)
+        throws NotFoundException {
+        return write(spaceId, chunkable, null);
+    }
+
+
+    
+    
     /**
      * This method writes a single chunk to the DataStore.
      *
      * @param spaceId destination where arg chunk content will be written
      * @param chunkChecksum md5 checksum of the chunk if known, null otherwise
      * @param chunk   content to be written
+     * @param properties user-defined properties for the content
      * @return MD5 of written content
      * @throws NotFoundException if space is not found
      */
+    @Override
+    public String writeSingle(String spaceId,
+                              String chunkChecksum,
+                              ChunkInputStream chunk,
+                              Map<String,String> properties)
+        throws NotFoundException {
+        log.debug("writeSingle: " + spaceId + ", " + chunk.getChunkId());
+        createSpaceIfNotExist(spaceId);
+
+        addChunk(spaceId, chunkChecksum, chunk, properties);
+
+        log.debug("written: " + spaceId + ", " + chunk.getChunkId());
+        return chunk.getMD5();
+    }
+
+    @Override
     public String writeSingle(String spaceId,
                               String chunkChecksum,
                               ChunkInputStream chunk)
@@ -111,7 +140,7 @@ public class DuracloudContentWriter implements ContentWriter {
         log.debug("writeSingle: " + spaceId + ", " + chunk.getChunkId());
         createSpaceIfNotExist(spaceId);
 
-        addChunk(spaceId, chunkChecksum, chunk);
+        addChunk(spaceId, chunkChecksum, chunk, null);
 
         log.debug("written: " + spaceId + ", " + chunk.getChunkId());
         return chunk.getMD5();
@@ -119,7 +148,8 @@ public class DuracloudContentWriter implements ContentWriter {
 
     private void addChunk(String spaceId,
                           String chunkChecksum,
-                          ChunkInputStream chunk) {
+                          ChunkInputStream chunk,
+                          Map<String,String> properties) {
         String chunkId = chunk.getChunkId();
         log.debug("addChunk: " + spaceId + ", " + chunkId);
 
@@ -128,10 +158,13 @@ public class DuracloudContentWriter implements ContentWriter {
                              chunk,
                              chunk.getChunkSize(),
                              chunk.getMimetype(),
-                             chunkChecksum);
+                             chunkChecksum,
+                             properties);
     }
 
-    private void addManifest(String spaceId, ChunksManifest manifest) {
+    private void addManifest(String spaceId,
+                             ChunksManifest manifest,
+                             Map<String, String> properties) {
         String manifestId = manifest.getManifestId();
         log.debug("addManifest: " + spaceId + ", " + manifestId);
 
@@ -141,7 +174,8 @@ public class DuracloudContentWriter implements ContentWriter {
                              manifestBody,
                              manifestBody.getLength(),
                              manifest.getMimetype(),
-                             null);
+                             null,
+                             properties);
     }
 
     private void addContentThenReport(String spaceId,
@@ -149,7 +183,8 @@ public class DuracloudContentWriter implements ContentWriter {
                                       InputStream contentStream,
                                       long contentSize,
                                       String contentMimetype,
-                                      String contentChecksum) {
+                                      String contentChecksum, 
+                                      Map<String,String> properties) {
         AddContentResult result = new AddContentResult(spaceId,
                                                        contentId,
                                                        contentSize);
@@ -160,7 +195,8 @@ public class DuracloudContentWriter implements ContentWriter {
                              contentStream,
                              contentSize,
                              contentMimetype,
-                             contentChecksum);
+                             contentChecksum, 
+                             properties);
         } catch (ContentNotAddedException e) {
             if(throwOnError) {
                 String err = "Content not added due to: " + e.getMessage();
@@ -188,10 +224,18 @@ public class DuracloudContentWriter implements ContentWriter {
                               InputStream contentStream,
                               long contentSize,
                               String contentMimetype,
-                              String contentChecksum)
+                              String contentChecksum,
+                              Map<String,String> properties)
         throws ContentNotAddedException {
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, username);
+        
+        if(properties == null){
+            properties = new HashMap<String, String>();
+        }
+        
+        if(!properties.containsKey(StorageProvider.PROPERTIES_CONTENT_CREATOR)){
+            properties.put(StorageProvider.PROPERTIES_CONTENT_CREATOR, username);
+        }
+        
         try {
             return contentStore.addContent(spaceId,
                                            contentId,
