@@ -7,18 +7,12 @@
  */
 package org.duracloud.durastore.util;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.duracloud.azurestorage.AzureStorageProvider;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
 import org.duracloud.durastore.test.MockVerifyDeleteStorageProvider;
 import org.duracloud.emcstorage.EMCStorageProvider;
+import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.hpstorage.HPStorageProvider;
 import org.duracloud.irodsstorage.IrodsStorageProvider;
 import org.duracloud.rackspacestorage.RackspaceStorageProvider;
@@ -34,6 +28,13 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides access to StorageProvider implementations
@@ -147,7 +148,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new S3StorageProvider(username,
                                                     password,
                                                     account.getOptions());
-
+        } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
+            storageProvider = new GlacierStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.MICROSOFT_AZURE)) {
             storageProvider = new AzureStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.RACKSPACE)) {

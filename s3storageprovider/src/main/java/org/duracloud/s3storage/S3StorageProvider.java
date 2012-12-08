@@ -62,7 +62,7 @@ public class S3StorageProvider extends StorageProviderBase {
     private static final StorageClass DEFAULT_STORAGE_CLASS = StorageClass.Standard;
 
     private String accessKeyId = null;
-    private AmazonS3Client s3Client = null;
+    protected AmazonS3Client s3Client = null;
     private StorageClass storageClass = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {

@@ -273,6 +273,11 @@ body > #page-header
     background:url(../images/amazon.png) no-repeat;
 }
 
+.amazon_glacier-logo
+{
+    background:url(../images/amazon.png) no-repeat;
+}
+
 .rackspace-logo
 {
     background:url(../images/rackspace.png) no-repeat;
