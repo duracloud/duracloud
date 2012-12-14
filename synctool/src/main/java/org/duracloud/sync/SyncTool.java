@@ -179,11 +179,14 @@ public class SyncTool {
     }
 
     private void startDirWalker() {
-        dirWalker = DirWalker.start(syncConfig.getContentDirs());
+        dirWalker = DirWalker.start(syncConfig.getContentDirs(),
+                                    syncConfig.getExcludeList());
     }
 
     private void startRestartDirWalker(long lastBackup) {
-        dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(), lastBackup);
+        dirWalker = RestartDirWalker.start(syncConfig.getContentDirs(),
+                                           syncConfig.getExcludeList(),
+                                           lastBackup);
     }
 
     private void startDeleteChecker() {

@@ -34,6 +34,7 @@ public class SyncToolConfig implements Serializable {
     private boolean syncDeletes;
     private boolean cleanStart;
     private boolean exitOnCompletion;
+    private File excludeList;
     private String version;
 
     public String getPrintableConfig() {
@@ -73,6 +74,12 @@ public class SyncToolConfig implements Serializable {
         config.append(getMaxFileSize()).append(" bytes\n");
         config.append("SyncTool Syncing Deletes: ");
         config.append(syncDeletes()).append("\n");
+
+        if(getExcludeList() != null) {
+            config.append("SyncTool Exclude List: ");
+            config.append(getExcludeList()).append("\n");
+        }
+
         config.append("Clean Start Mode: ");
         config.append(isCleanStart()).append("\n");
         config.append("SyncTool Exit on Completion: ");
@@ -200,6 +207,14 @@ public class SyncToolConfig implements Serializable {
 
     public void setExitOnCompletion(boolean exitOnCompletion) {
         this.exitOnCompletion = exitOnCompletion;
+    }
+
+    public File getExcludeList() {
+        return excludeList;
+    }
+
+    public void setExcludeList(File excludeList) {
+        this.excludeList = excludeList;
     }
 
     public void setVersion(String version) {

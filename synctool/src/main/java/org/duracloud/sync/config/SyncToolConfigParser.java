@@ -166,6 +166,14 @@ public class SyncToolConfigParser {
         exitOnCompletion.setRequired(false);
         cmdOptions.addOption(exitOnCompletion);
 
+       Option excludeOption =
+           new Option("e", "exclude", true,
+                      "file which provides a list of files and/or " +
+                      "directories to exclude from the sync (one file or " +
+                      "directory name rule per line)");
+       excludeOption.setRequired(false);
+       cmdOptions.addOption(excludeOption);
+
        // Options to use Backup Config
        configFileOptions = new Options();
 
@@ -255,7 +263,7 @@ public class SyncToolConfigParser {
         File workDir = new File(cmd.getOptionValue("w"));
         if(workDir.exists()) {
             if(!workDir.isDirectory()) {
-                throw new ParseException("Work Dir paramter must provide " +
+                throw new ParseException("Work Dir parameter must provide " +
                                          "the path to a directory.");
             }
         } else {
@@ -331,6 +339,16 @@ public class SyncToolConfigParser {
             config.setExitOnCompletion(true);
         } else {
             config.setExitOnCompletion(false);
+        }
+
+        if(cmd.hasOption("e")) {
+            File excludeFile = new File(cmd.getOptionValue("e"));
+            if(!excludeFile.exists()) {
+                throw new ParseException("Exclude parameter must provide the " +
+                                         "path to a valid file.");
+            }
+            workDir.setWritable(true);
+            config.setExcludeList(excludeFile);
         }
 
         return config;

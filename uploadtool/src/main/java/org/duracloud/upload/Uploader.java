@@ -80,7 +80,7 @@ public class Uploader {
                                       10000); // change list poll frequency
         syncManager.beginSync();
 
-        dirWalker = DirWalker.start(contentItems);
+        dirWalker = DirWalker.start(contentItems, null);
         statusManager = StatusManager.getInstance();
     }
 

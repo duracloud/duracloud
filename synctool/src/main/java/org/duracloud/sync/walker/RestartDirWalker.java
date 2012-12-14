@@ -29,9 +29,13 @@ public class RestartDirWalker extends DirWalker {
 
     private long lastBackup;
     private List<File> changedDirs;
+    private File excludeFile;
 
-    protected RestartDirWalker(List<File> topDirs, long lastBackup) {
-        super(topDirs);
+    protected RestartDirWalker(List<File> topDirs,
+                               File excludeFile,
+                               long lastBackup) {
+        super(topDirs, excludeFile);
+        this.excludeFile = excludeFile;
         this.lastBackup = lastBackup;
         changedDirs = new ArrayList<File>();
     }
@@ -42,7 +46,7 @@ public class RestartDirWalker extends DirWalker {
 
         // Walk and add all files in directories which have changed
         if(changedDirs.size() > 0) {
-            DirWalker dirWalker = new DirWalker(changedDirs);
+            DirWalker dirWalker = new DirWalker(changedDirs, excludeFile);
             dirWalker.walkDirs();
         }
     }
@@ -64,8 +68,11 @@ public class RestartDirWalker extends DirWalker {
         return true;
     }
 
-    public static DirWalker start(List<File> topDirs, long lastBackup) {
-        RestartDirWalker dirWalker = new RestartDirWalker(topDirs, lastBackup);
+    public static DirWalker start(List<File> topDirs,
+                                  File excludeFile,
+                                  long lastBackup) {
+        RestartDirWalker dirWalker =
+            new RestartDirWalker(topDirs, excludeFile, lastBackup);
         (new Thread(dirWalker)).start();
         return dirWalker;
     }
