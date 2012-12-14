@@ -195,7 +195,7 @@
                     <plugin>
                         <groupId>com.atlassian.maven.plugins</groupId>
                         <artifactId>maven-clover2-plugin</artifactId>
-                        <version>2.6.2</version>
+                        <version>3.1.8</version>
                         <configuration>
                             <licenseLocation>${cloverLicense}</licenseLocation>
                             <targetPercentage>50%</targetPercentage>
@@ -205,6 +205,7 @@
                             <generateHtml>true</generateHtml>
                             <generateHistorical>true</generateHistorical>
                             <historyDir>${user.home}/.clover/history/${project.artifact}</historyDir>
+                            <jdk>1.7</jdk>
                         </configuration>
                     </plugin>
                 </plugins>
