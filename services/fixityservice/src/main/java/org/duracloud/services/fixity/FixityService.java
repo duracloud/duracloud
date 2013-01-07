@@ -120,7 +120,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
 
         try {
             log.debug("Creating output space: {}", outSpaceId);
-            getContentStore().createSpace(outSpaceId, null);
+            getContentStore().createSpace(outSpaceId);
             
         } catch (ContentStoreException e) {
             log.warn("Error in creating output space: {}", outSpaceId);

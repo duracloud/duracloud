@@ -13,6 +13,7 @@ import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,10 @@ public class MockStorageProvider
     private Map<String, String> spaceProperties;
 
     private Iterator<String> spaces;
+
+    public MockStorageProvider() {
+        spaceProperties = new HashMap<>();
+    }
 
     public String addContent(String spaceId,
                              String contentId,
@@ -128,13 +133,6 @@ public class MockStorageProvider
         this.contentProperties = contentProperties;
     }
 
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties)
-            throws StorageException {
-        this.spaceId = spaceId;
-        this.spaceProperties = spaceProperties;
-    }
-
     @Override
     public Map<String, AclType> getSpaceACLs(String spaceId) {
         throw new UnsupportedOperationException("getSpaceACLs not implemented");
@@ -195,10 +193,6 @@ public class MockStorageProvider
 
     public Map<String, String> getSpaceProperties() {
         return spaceProperties;
-    }
-
-    public void setSpaceProperties(Map<String, String> spaceProperties) {
-        this.spaceProperties = spaceProperties;
     }
 
     public void setSpaces(Iterator<String> spaces) {

@@ -125,11 +125,6 @@ public class StorageProvidersTestProxyPipe
                                        contentId1);
     }
 
-    public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
-        proxy.testSetSpaceProperties(provider, spaceId0);
-    }
-
     public void close() {
         proxy.close();
     }

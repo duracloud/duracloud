@@ -119,8 +119,7 @@ public class ReplicationTester {
 
     private void createSpace(String spaceId)
         throws ContentStoreException {
-        Map<String, String> properties = null;
-        contentStore.createSpace(spaceId, properties);
+        contentStore.createSpace(spaceId);
 
         boolean created = false;
         int maxTries = 10;

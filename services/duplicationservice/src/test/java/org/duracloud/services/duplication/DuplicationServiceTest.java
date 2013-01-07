@@ -68,14 +68,6 @@ public class DuplicationServiceTest {
     }
 
     @Test
-    public void testDupSpaceUpdate() throws Exception {
-        duper.updateSpace(spaceId);
-        EasyMock.expectLastCall();
-
-        runTest(SPACE_UPDATE_TOPIC);
-    }
-
-    @Test
     public void testDupSpaceUpdateAcl() throws Exception {
         duper.updateSpaceAcl(spaceId);
         EasyMock.expectLastCall();

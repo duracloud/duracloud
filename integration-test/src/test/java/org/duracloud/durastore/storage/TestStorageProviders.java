@@ -10,8 +10,8 @@ package org.duracloud.durastore.storage;
 import org.duracloud.common.model.Credential;
 import org.duracloud.durastore.storage.probe.ProbedAzureStorageProvider;
 import org.duracloud.durastore.storage.probe.ProbedEMCStorageProvider;
-import org.duracloud.durastore.storage.probe.ProbedS3StorageProvider;
 import org.duracloud.durastore.storage.probe.ProbedRackspaceStorageProvider;
+import org.duracloud.durastore.storage.probe.ProbedS3StorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -169,8 +168,6 @@ public class TestStorageProviders {
                     String contentId = contentIds.next();
                     provider.deleteContent(spaceId, contentId);
                 }
-                provider.setSpaceProperties(spaceId,
-                                          new HashMap<String, String>());
             }
         }
     }
@@ -225,15 +222,6 @@ public class TestStorageProviders {
 
         for (StorageProvider provider : storageProviders) {
             tester.testGetSpaceProperties(provider, spaceId0);
-        }
-    }
-
-    @Test
-    public void testSetSpaceProperties() throws StorageException {
-        log.info("testSetSpaceProperties()");
-
-        for (StorageProvider provider : storageProviders) {
-            tester.testSetSpaceProperties(provider, spaceId0);
         }
     }
 

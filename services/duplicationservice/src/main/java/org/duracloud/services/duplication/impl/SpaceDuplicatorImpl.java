@@ -64,46 +64,9 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
             return;
         }
 
-        Map<String, String> properties = getSpaceProperties(spaceId);
-        if (null == properties) {
-            StringBuilder err = new StringBuilder();
-            err.append("Unable to get space properties for :");
-            err.append(spaceId);
-            log.error(err.toString());
-            throw new DuplicationException(err.toString());
-        }
-
-        boolean success = doCreateSpace(spaceId, properties);
+        boolean success = doCreateSpace(spaceId);
         if (!success) {
             String error = "Unable to create space " + spaceId;
-            log.error(error);
-            throw new DuplicationException(error);
-        }
-    }
-
-    @Override
-    public void updateSpace(String spaceId) {
-        logDebug("Updating", spaceId);
-
-        if (spaceId == null) {
-            String err = "Space to update is null.";
-            log.warn(err);
-            return;
-        }
-
-        // Set space properties
-        Map<String, String> properties = getSpaceProperties(spaceId);
-        if (null == properties) {
-            StringBuilder err = new StringBuilder();
-            err.append("Unable to get space properties for :");
-            err.append(spaceId);
-            log.error(err.toString());
-            throw new DuplicationException(err.toString());
-        }
-
-        boolean success = setSpaceProperties(spaceId, properties);
-        if (!success) {
-            String error = "Unable to set space properties: " + spaceId;
             log.error(error);
             throw new DuplicationException(error);
         }
@@ -160,12 +123,11 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
         log.info("stop() not implemented!");
     }
 
-    private boolean doCreateSpace(final String spaceId,
-                                  final Map<String, String> properties) {
+    private boolean doCreateSpace(final String spaceId) {
         try {
             return new StoreCaller<Boolean>(waitMillis) {
                 protected Boolean doCall() throws Exception {
-                    toStore.createSpace(spaceId, properties);
+                    toStore.createSpace(spaceId);
                     return true;
                 }
             }.call();
@@ -191,24 +153,6 @@ public class SpaceDuplicatorImpl implements SpaceDuplicator {
                       spaceId,
                       e.getMessage());
             return null;
-        }
-    }
-
-    private boolean setSpaceProperties(final String spaceId,
-                                       final Map<String, String> properties) {
-        try {
-            return new StoreCaller<Boolean>(waitMillis) {
-                protected Boolean doCall() throws Exception {
-                    toStore.setSpaceProperties(spaceId, properties);
-                    return true;
-                }
-            }.call();
-
-        } catch (Exception e) {
-            String err = "Error setting space properties for space: {}, " +
-                "props: {}, due to: {}";
-            log.error(err, new Object[]{spaceId, properties, e.getMessage()});
-            return false;
         }
     }
 

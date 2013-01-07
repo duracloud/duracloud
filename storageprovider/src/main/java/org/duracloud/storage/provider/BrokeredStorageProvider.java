@@ -150,15 +150,6 @@ public class BrokeredStorageProvider
                                               contentProperties);
     }
 
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties)
-            throws StorageException {
-        dispatchProvider.setSpaceProperties(targetProvider,
-                                            storeId,
-                                            spaceId,
-                                            spaceProperties);
-    }
-
     @Override
     public Map<String, AclType> getSpaceACLs(String spaceId) {
         return dispatchProvider.getSpaceACLs(targetProvider, storeId, spaceId);

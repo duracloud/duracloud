@@ -44,9 +44,8 @@ public class BrokeredStorageProviderTest {
 
     private InputStream content;
 
-    private final Map<String, String> spaceProperties = new HashMap<String, String>();
-
-    private final Map<String, String> contentProperties = new HashMap<String, String>();
+    private final Map<String, String> contentProperties =
+        new HashMap<String, String>();
 
     @Before
     public void setUp() throws Exception {
@@ -200,9 +199,6 @@ public class BrokeredStorageProviderTest {
 
     @Test
     public void getSpaceProperties() throws StorageException {
-        directProvider.setSpaceProperties(spaceId, spaceProperties);
-        broker.setSpaceProperties(spaceId, spaceProperties);
-
         Map<String, String> meta0 = directProvider.getSpaceProperties(spaceId);
         Map<String, String> meta1 = broker.getSpaceProperties(spaceId);
 
@@ -218,15 +214,6 @@ public class BrokeredStorageProviderTest {
         Iterator<String> spaces1 = broker.getSpaces();
 
         verifyIteratorContents(spaces0, spaces1);
-    }
-
-    @Test
-    public void setSpaceProperties() throws StorageException {
-        directProvider.setSpaceProperties(spaceId, spaceProperties);
-        broker.setSpaceProperties(spaceId, spaceProperties);
-
-        verifySpaceId();
-        verifySpaceProperties();
     }
 
     private void verifySpaceId() {

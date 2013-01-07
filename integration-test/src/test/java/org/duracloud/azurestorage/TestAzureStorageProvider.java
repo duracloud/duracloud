@@ -115,17 +115,9 @@ public class TestAzureStorageProvider {
         azureProvider.createSpace(SPACE_ID);
         testSpaceProperties(SPACE_ID, count);
 
-        // test setSpaceProperties()
-        log.debug("Test setSpaceProperties()");
-        Map<String, String> spaceProperties = new HashMap<String, String>();
-        spaceProperties.put(SPACE_PROPS_NAME, SPACE_PROPS_VALUE);
-        azureProvider.setSpaceProperties(SPACE_ID, spaceProperties);
-
         // test getSpaceProperties()
         log.debug("Test getSpaceProperties()");
         Map<String, String> sProperties = testSpaceProperties(SPACE_ID, count);
-        assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
-        assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
         // test getSpaces()
         log.debug("Test getSpaces()");
@@ -352,14 +344,6 @@ public class TestAzureStorageProvider {
 
         try {
             azureProvider.getSpaceProperties(spaceId);
-            fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            azureProvider.setSpaceProperties(spaceId,
-                    new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);

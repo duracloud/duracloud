@@ -70,19 +70,6 @@
     <property name="pattern" value=".*StatelessStorageProvider.createSpace"/>
   </bean>
 
-  <!-- AOP Advice - Space Update -->
-  <bean id="spaceUpdateAdvice" class="org.duracloud.durastore.aop.SpaceUpdateAdvice" >
-    <property name="jmsTemplate" ref="spaceJmsTemplate" />
-    <property name="destination" ref="updateSpaceDestination" />
-    <property name="order" value="3" />
-    <property name="securityContextUtil" ref="securityContextUtil"/>
-  </bean>
-
-  <bean id="spaceUpdateAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
-    <property name="advice" ref="spaceUpdateAdvice"/>
-    <property name="pattern" value=".*StatelessStorageProvider.setSpaceProperties"/>
-  </bean>
-
   <!-- AOP Advice - Space ACL Update -->
   <bean id="spaceAclUpdateAdvice" class="org.duracloud.durastore.aop.SpaceAclUpdateAdvice" >
     <property name="jmsTemplate" ref="spaceJmsTemplate" />

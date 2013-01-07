@@ -190,35 +190,6 @@ public class ACLStorageProviderErrorTest {
     }
 
     @Test
-    public void testSetSpaceProperties() {
-        createMockSecurityContext();
-
-        String spaceId = spacePrefix + 2;
-        Map<String, String> props = new HashMap<String, String>();
-        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "77");
-        mockProvider.setSpaceProperties(spaceId, props);
-        EasyMock.expectLastCall().andThrow(new StorageException("test"));
-
-        replayMocks();
-
-        // verify original state
-        ACLStorageProvider provider = new ACLStorageProvider(mockProvider);
-        verifyProviderState(provider);
-
-        // method under test
-        try {
-            provider.setSpaceProperties(spaceId, props);
-            Assert.fail("exception expected");
-
-        } catch (StorageException e) {
-            Assert.assertNotNull(e.getMessage());
-        }
-
-        // verify state has not changed
-        verifyProviderState(provider);
-    }
-
-    @Test
 
     public void testSetSpaceACLs() {
         createMockSecurityContext();

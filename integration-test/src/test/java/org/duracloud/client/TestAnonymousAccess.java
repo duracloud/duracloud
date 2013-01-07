@@ -101,21 +101,7 @@ public class TestAnonymousAccess extends ClientTestBase {
     public void testCreateSpace() throws ContentStoreException {
         boolean allowed = true;
         try {
-            store.createSpace("should-not-work", null);
-        } catch (UnauthorizedException e) {
-            allowed = false;
-        }
-        assertFalse(allowed);
-    }
-
-    @Test
-    public void testSetSpaceProperties() throws ContentStoreException {
-        boolean allowed = true;
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("name-x", "value-x");
-
-        try {
-            store.setSpaceProperties(getSpaceId(), properties);
+            store.createSpace("should-not-work");
         } catch (UnauthorizedException e) {
             allowed = false;
         }

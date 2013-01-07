@@ -74,22 +74,8 @@ public class SpaceDuplicatorCreateTest {
                                                  ContentStore.class);
         EasyMock.expect(store.getStorageProviderType()).andReturn("f-type");
 
-        mockGetSpacePropertiesExpectation(cmd, store);
-
         EasyMock.replay(store);
         return store;
-    }
-
-    private void mockGetSpacePropertiesExpectation(Mode cmd, ContentStore store)
-        throws ContentStoreException {
-        switch (cmd) {
-            case CREATE_EXCEPTION:
-                // fall-through
-            case OK:
-                EasyMock.expect(store.getSpaceProperties(spaceId)).andReturn(
-                    createContentProperties(cmd));
-                break;
-        }
     }
 
     private Map<String, String> createContentProperties(Mode cmd) {
@@ -114,15 +100,15 @@ public class SpaceDuplicatorCreateTest {
         throws ContentStoreException {
         switch (cmd) {
             case OK:
-                store.createSpace(spaceId, createContentProperties(cmd));
+                store.createSpace(spaceId);
                 EasyMock.expectLastCall();
                 break;
             case CREATE_EXCEPTION:
-                store.createSpace(spaceId, createContentProperties(cmd));
+                store.createSpace(spaceId);
                 EasyMock.expectLastCall().andThrow(new ContentStoreException(
                     "test-exception")).times(2);
                 
-                store.createSpace(spaceId, createContentProperties(cmd));
+                store.createSpace(spaceId);
                 EasyMock.expectLastCall();
                 break;
         }

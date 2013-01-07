@@ -168,17 +168,6 @@ public class StatelessStorageProviderImpl
         targetProvider.setContentProperties(spaceId, contentId, contentProperties);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setSpaceProperties(StorageProvider targetProvider,
-                                   String storeId,
-                                   String spaceId,
-                                   Map<String, String> spaceProperties)
-            throws StorageException {
-        targetProvider.setSpaceProperties(spaceId, spaceProperties);
-    }
-
     @Override
     public void setSpaceACLs(StorageProvider targetProvider,
                              String storeId,

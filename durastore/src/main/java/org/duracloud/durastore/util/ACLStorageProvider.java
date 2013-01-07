@@ -239,13 +239,6 @@ public class ACLStorageProvider implements StorageProvider {
     }
 
     @Override
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties) {
-        waitForCache();
-        targetProvider.setSpaceProperties(spaceId, spaceProperties);
-    }
-
-    @Override
     public Map<String, AclType> getSpaceACLs(String spaceId) {
         DuracloudUserDetails user = getCurrentUserDetails();
         if (isAdmin(user) && !loaded) {

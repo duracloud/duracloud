@@ -99,24 +99,6 @@ public class StorageProviderBaseTest {
     }
 
     @Test
-    public void testSetSpaceProperties() {
-        createSetSpacePropertiesMocks();
-
-        providerBase.setSpaceProperties(spaceId, userProps);
-    }
-
-    private void createSetSpacePropertiesMocks() {
-        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
-            spaceProps);
-
-        providerMock.doSetSpaceProperties(spaceId, spaceProps);
-        EasyMock.expectLastCall();
-
-        EasyMock.makeThreadSafe(providerMock, true);
-        replayMocks();
-    }
-
-    @Test
     public void testGetSpaceACLs() {
         createGetSpaceACLsMocks();
 

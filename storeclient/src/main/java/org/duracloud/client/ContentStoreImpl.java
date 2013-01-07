@@ -262,16 +262,13 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void createSpace(String spaceId, Map<String, String> spaceProperties)
+    public void createSpace(String spaceId)
             throws ContentStoreException {
         validateSpaceId(spaceId);
         String task = "create space";
         String url = buildSpaceURL(spaceId);
         try {
-            HttpResponse response =
-                restHelper.put(url,
-                               null,
-                               convertPropertiesToHeaders(spaceProperties));
+            HttpResponse response = restHelper.put(url, null, null);
             checkResponse(response, HttpStatus.SC_CREATED);
         } catch (InvalidIdException e) {
             throw new InvalidIdException(task, spaceId, e);
@@ -311,27 +308,6 @@ public class ContentStoreImpl implements ContentStore{
             HttpResponse response = restHelper.head(url);
             checkResponse(response, HttpStatus.SC_OK);
             return extractPropertiesFromHeaders(response);
-        } catch(NotFoundException e) {
-            throw new NotFoundException(task, spaceId, e);
-        } catch(UnauthorizedException e) {
-            throw new UnauthorizedException(task, spaceId, e);
-        } catch (Exception e) {
-            throw new ContentStoreException(task, spaceId, e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties)
-            throws ContentStoreException {
-        String task = "set space properties";
-        String url = buildSpaceURL(spaceId);
-        Map<String, String> headers = convertPropertiesToHeaders(spaceProperties);
-        try {
-            HttpResponse response = restHelper.post(url, null, headers);
-            checkResponse(response, HttpStatus.SC_OK);
         } catch(NotFoundException e) {
             throw new NotFoundException(task, spaceId, e);
         } catch(UnauthorizedException e) {
@@ -568,10 +544,7 @@ public class ContentStoreImpl implements ContentStore{
 
         return md5;
     }
-    
 
-
-    
     /**
      * {@inheritDoc}
      */

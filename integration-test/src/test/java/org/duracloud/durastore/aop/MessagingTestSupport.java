@@ -36,8 +36,6 @@ public class MessagingTestSupport {
 
     protected final String spaceCreateTopicName = "org.duracloud.topic.change.space.create";
 
-    protected final String spaceUpdateTopicName = "org.duracloud.topic.change.space.update";
-
     protected final String spaceDeleteTopicName = "org.duracloud.topic.change.space.delete";
 
     protected Connection createConnection() throws Exception {

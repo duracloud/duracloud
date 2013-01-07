@@ -174,12 +174,10 @@ public class SpaceResource {
      * Adds a space.
      *
      * @param spaceID
-     * @param userProperties
      * @param storeID
      */
     public void addSpace(String spaceID,
                          Map<String, AclType> userACLs,
-                         Map<String, String> userProperties,
                          String storeID)
     throws ResourceException, InvalidIdException {
         IdUtil.validateSpaceId(spaceID);
@@ -190,7 +188,7 @@ public class SpaceResource {
             storage.createSpace(spaceID);
             
             waitForSpaceCreation(storage, spaceID);
-            updateSpaceProperties(spaceID, userACLs, userProperties, storeID);
+            updateSpaceACLs(spaceID, userACLs, storeID);
         } catch (StorageException e) {
             throw new ResourceException("add space", spaceID, e);
         }
@@ -223,43 +221,6 @@ public class SpaceResource {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             // do nothing
-        }
-    }
-
-    /**
-     * Updates the properties of a space.
-     *
-     * @param spaceID
-     * @param userProperties
-     * @param storeID
-     */
-    public void updateSpaceProperties(String spaceID,
-                                      Map<String, AclType> userACLs,
-                                      Map<String, String> userProperties,
-                                      String storeID)
-    throws ResourceException {
-        try {
-            StorageProvider storage =
-                storageProviderFactory.getStorageProvider(storeID);
-
-            // Update space properties
-            if(userProperties != null) {
-                storage.setSpaceProperties(spaceID, userProperties);
-            }
-
-            // Update space ACLs
-            if(userACLs != null) {
-                storage.setSpaceACLs(spaceID, userACLs);
-            }
-
-        } catch (NotFoundException e) {
-            throw new ResourceNotFoundException("update space properties for",
-                                                spaceID,
-                                                e);
-        } catch (StorageException e) {
-            throw new ResourceException("update space properties for",
-                                        spaceID,
-                                        e);
         }
     }
 

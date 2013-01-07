@@ -7,27 +7,19 @@
  */
 package org.duracloud.sync.endpoint;
 
+import org.duracloud.client.ContentStore;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.NotFoundException;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Endpoint which pushes files to DuraCloud.
@@ -95,8 +87,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                 }
                 return true;
             } catch (NotFoundException e) {
-                contentStore.createSpace(spaceId,
-                                         new HashMap<String, String>());
+                contentStore.createSpace(spaceId);
                 return false;
             }
         } catch (ContentStoreException e) {

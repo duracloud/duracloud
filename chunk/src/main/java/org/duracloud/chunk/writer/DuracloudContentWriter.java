@@ -278,9 +278,8 @@ public class DuracloudContentWriter implements ContentWriter {
     }
 
     private void createSpace(String spaceId) {
-        Map<String, String> properties = null;
         try {
-            contentStore.createSpace(spaceId, properties);
+            contentStore.createSpace(spaceId);
         } catch (ContentStoreException e) {
             // do nothing.
         }

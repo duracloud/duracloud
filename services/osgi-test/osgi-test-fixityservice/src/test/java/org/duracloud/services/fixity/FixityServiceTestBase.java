@@ -194,7 +194,7 @@ public class FixityServiceTestBase {
         final int MAX_TRIES = 4;
         while (!success && tries < MAX_TRIES) {
             try {
-                store.createSpace(spaceId, null);
+                store.createSpace(spaceId);
                 success = true;
             } catch (ContentStoreException e) {
                 Thread.sleep(1000);

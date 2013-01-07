@@ -99,12 +99,6 @@ public interface StatelessStorageProvider {
                                               Map<String, String> contentProperties)
             throws StorageException;
 
-    public abstract void setSpaceProperties(StorageProvider targetProvider,
-                                            String storeId,
-                                            String spaceId,
-                                            Map<String, String> spaceProperties)
-            throws StorageException;
-
     public abstract void setSpaceACLs(StorageProvider targetProvider,
                                       String storeId,
                                       String spaceId,

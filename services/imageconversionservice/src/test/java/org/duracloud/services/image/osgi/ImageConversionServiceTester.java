@@ -75,7 +75,7 @@ public class ImageConversionServiceTester {
         String testFileName = "testfile.tiff";
         File testFile = new File(getResourceDir(), testFileName);
         assertTrue(testFile.exists());
-        contentStore.createSpace(sourceSpaceId, null);
+        contentStore.createSpace(sourceSpaceId);
         contentStore.addContent(sourceSpaceId,
                                 testFileName,
                                 new FileInputStream(testFile),

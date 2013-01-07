@@ -10,7 +10,7 @@
   </bean>
    
   <bean id="listenerDestination" class="org.apache.activemq.command.ActiveMQTopic">
-    <constructor-arg value="org.duracloud.topic.change.content.ingest,org.duracloud.topic.change.content.copy,org.duracloud.topic.change.content.update,org.duracloud.topic.change.content.delete,org.duracloud.topic.change.space.create,org.duracloud.topic.change.space.update,org.duracloud.topic.change.space.update.acl,org.duracloud.topic.change.space.delete" />
+    <constructor-arg value="org.duracloud.topic.change.content.ingest,org.duracloud.topic.change.content.copy,org.duracloud.topic.change.content.update,org.duracloud.topic.change.content.delete,org.duracloud.topic.change.space.create,org.duracloud.topic.change.space.update.acl,org.duracloud.topic.change.space.delete" />
   </bean>
 
 </beans>

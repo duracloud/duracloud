@@ -164,8 +164,7 @@ public class AmazonFixityServiceTest {
             RUN_HADOOP_TASK_NAME), EasyMock.isA(String.class))).andReturn(
             taskReturn).times(1);
 
-        contentStore.createSpace(EasyMock.isA(String.class),
-                                 EasyMock.<Map<String, String>>isNull());
+        contentStore.createSpace(EasyMock.isA(String.class));
         EasyMock.expectLastCall().times(1);
 
         EasyMock.expect(contentStore.getStoreId()).andReturn("0");

@@ -133,17 +133,9 @@ public class TestRackspaceStorageProvider {
         rackspaceProvider.createSpace(SPACE_ID);
         testSpaceProperties(SPACE_ID);
 
-        // test setSpaceProperties()
-        log.debug("Test setSpaceProperties()");
-        Map<String, String> spaceProperties = new HashMap<String, String>();
-        spaceProperties.put(SPACE_PROPS_NAME, SPACE_PROPS_VALUE);
-        rackspaceProvider.setSpaceProperties(SPACE_ID, spaceProperties);
-
         // test getSpaceProperties()
         log.debug("Test getSpaceProperties()");
         Map<String, String> sProperties = testSpaceProperties(SPACE_ID);
-        assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
-        assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
         // test getSpaces()
         log.debug("Test getSpaces()");
@@ -372,14 +364,6 @@ public class TestRackspaceStorageProvider {
 
         try {
             rackspaceProvider.getSpaceProperties(spaceId);
-            fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            rackspaceProvider.setSpaceProperties(spaceId,
-                                                 new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);

@@ -189,23 +189,6 @@ public class ACLStorageProviderTest {
         return spaces;
     }
 
-    @Test
-    public void testSetSpaceProperties() throws Exception {
-        String spaceId = spacePrefix + 1;
-        createMockStorageProvider(1);
-        Map<String, String> properties = createSpaceProperties();
-
-        mockProvider.setSpaceProperties(spaceId, properties);
-        EasyMock.expectLastCall();
-        replayMocks();
-
-        provider = new ACLStorageProvider(mockProvider);
-
-        // method under test
-        properties.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "99");
-        provider.setSpaceProperties(spaceId, properties);
-    }
-
     private Map<String, String> createSpaceProperties() {
         Map<String, String> props = new HashMap<String, String>();
         props.put("name0", "value0");

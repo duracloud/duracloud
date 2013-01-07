@@ -111,17 +111,7 @@ public class SDSCStorageProviderGetTestNotRun {
         }
     }
 
-    @Test
-    public void testSetSpaceProperties() {
-        String spaceId = getSpaceId();
-        Map<String, String> props = new HashMap<String, String>();
-        props.put("style", "fancy");
-        props.put("city", "arlington");
-
-        sdscProvider.setSpaceProperties(spaceId, props);
-    }
-
-    @Test
+   @Test
     public void testGetSpaceProperties() {
         String spaceId = getSpaceId();
 

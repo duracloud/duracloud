@@ -191,13 +191,6 @@ public class StorageProvidersTestMetricsProxy
         stopMetric(provider);
     }
 
-    public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
-        startMetric("testSetSpaceProperties", provider);
-        tester.testSetSpaceProperties(provider, spaceId0);
-        stopMetric(provider);
-    }
-
     public void close() {
         try {
             MetricsReport report =

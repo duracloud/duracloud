@@ -295,8 +295,6 @@ public class DuplicationService extends BaseListenerService implements ComputeSe
                                       Duplicator duplicator) {
         if (getSpaceCreateTopic().equals(topic)) {
             duplicator.createSpace(spaceId);
-        } else if (getSpaceUpdateTopic().equals(topic)) {
-            duplicator.updateSpace(spaceId);
         } else if (getSpaceUpdateAclTopic().equals(topic)) {
             duplicator.updateSpaceAcl(spaceId);
         } else if (getSpaceDeleteTopic().equals(topic)) {

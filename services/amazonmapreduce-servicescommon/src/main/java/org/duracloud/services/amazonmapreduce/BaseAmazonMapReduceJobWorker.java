@@ -132,7 +132,7 @@ public abstract class BaseAmazonMapReduceJobWorker implements AmazonMapReduceJob
     private void createSpace() {
         if (null != workSpaceId) {
             try {
-                contentStore.createSpace(workSpaceId, null);
+                contentStore.createSpace(workSpaceId);
             } catch (ContentStoreException e) {
                 log.debug("Ensuring output space exists: " + e.getMessage());
             }

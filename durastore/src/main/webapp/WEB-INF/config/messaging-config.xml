@@ -56,10 +56,6 @@
     <constructor-arg index="0" value="org.duracloud.topic.change.space.create" />
   </bean>
 
-  <bean id="updateSpaceDestination" class="org.apache.activemq.command.ActiveMQTopic">
-    <constructor-arg index="0" value="org.duracloud.topic.change.space.update" />
-  </bean>
-
   <bean id="updateSpaceAclDestination" class="org.apache.activemq.command.ActiveMQTopic">
     <constructor-arg index="0" value="org.duracloud.topic.change.space.update.acl" />
   </bean>
@@ -70,7 +66,7 @@
 
   <bean id="spaceJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
     <property name="connectionFactory" ref="connFactory" />
-    <property name="defaultDestination" ref="updateSpaceDestination" />
+    <property name="defaultDestination" ref="createSpaceDestination" />
     <property name="messageConverter" ref="spaceMsgConverter" />
   </bean>
 

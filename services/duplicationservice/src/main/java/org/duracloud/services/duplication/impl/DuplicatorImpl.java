@@ -42,11 +42,6 @@ public class DuplicatorImpl implements Duplicator {
     }
 
     @Override
-    public void updateSpace(String spaceId) {
-        spaceDuplicator.updateSpace(spaceId);
-    }
-
-    @Override
     public void updateSpaceAcl(String spaceId) {
         spaceDuplicator.updateSpaceAcl(spaceId);
     }

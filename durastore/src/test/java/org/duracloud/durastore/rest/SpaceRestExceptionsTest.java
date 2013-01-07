@@ -56,12 +56,6 @@ public class SpaceRestExceptionsTest {
     }
 
     @Test
-    public void testUpdateSpaceProperties() throws Exception {
-        Response response = spaceRest.updateSpaceProperties(null, null);
-        support.verifyErrorResponse(response);
-    }
-
-    @Test
     public void testDeleteSpace() throws Exception {
         Response response = spaceRest.deleteSpace(null, null);
         support.verifyErrorResponse(response);

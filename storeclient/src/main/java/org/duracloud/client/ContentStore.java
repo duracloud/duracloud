@@ -136,11 +136,10 @@ public interface ContentStore {
      * call to getSpaces() may not include a space with exactly this same name.
      *
      * @param spaceId the identifier of the DuraCloud Space
-     * @param spaceProperties a map of properties entries for the space
      * @throws InvalidIdException if the space ID is not valid
      * @throws ContentStoreException if the space already exists or cannot be created
      */
-    public void createSpace(String spaceId, Map<String, String> spaceProperties)
+    public void createSpace(String spaceId)
             throws ContentStoreException;   
 
     /**
@@ -161,19 +160,6 @@ public interface ContentStore {
      * @throws ContentStoreException if an error occurs
      */
     public Map<String, String> getSpaceProperties(String spaceId)
-            throws ContentStoreException;
-    
-    /**
-     * Sets the properties associated with a space. Only values included
-     * in the  properties map will be saved, others will be removed.
-     *
-     * @param spaceId the identifier of the DuraCloud Space
-     * @param spaceProperties a map of properties entries for the space
-     * @throws NotFoundException if the space does not exist
-     * @throws ContentStoreException if an error occurs
-     */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties)
             throws ContentStoreException;
 
     /**

@@ -85,7 +85,7 @@ public abstract class BaseServiceHandler
             try {
                 store.getSpaceProperties(HANDLER_STATE_SPACE);
             } catch(ContentStoreException e) {
-                store.createSpace(HANDLER_STATE_SPACE, null);
+                store.createSpace(HANDLER_STATE_SPACE);
             }
         } catch(ContentStoreException e) {
             String error = "Could not connect to space " + HANDLER_STATE_SPACE +

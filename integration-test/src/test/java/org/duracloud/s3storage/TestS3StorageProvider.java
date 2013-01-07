@@ -118,17 +118,9 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         s3Provider.createSpace(spaceId);
         testSpaceProperties(spaceId);
 
-        // test setSpaceProperties()
-        log.debug("Test setSpaceProperties()");
-        Map<String, String> spaceProperties = new HashMap<String, String>();
-        spaceProperties.put(SPACE_PROPS_NAME, SPACE_PROPS_VALUE);
-        s3Provider.setSpaceProperties(spaceId, spaceProperties);
-
         // test getSpaceProperties()
         log.debug("Test getSpaceProperties()");
         Map<String, String> sProperties = testSpaceProperties(spaceId);
-        assertTrue(sProperties.containsKey(SPACE_PROPS_NAME));
-        assertEquals(SPACE_PROPS_VALUE, sProperties.get(SPACE_PROPS_NAME));
 
         // test getSpaces()
         log.debug("Test getSpaces()");
@@ -362,13 +354,6 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
 
         try {
             s3Provider.getSpaceProperties(spaceId);
-            fail(failMsg);
-        } catch (NotFoundException expected) {
-            assertNotNull(expected);
-        }
-
-        try {
-            s3Provider.setSpaceProperties(spaceId, new HashMap<String, String>());
             fail(failMsg);
         } catch (NotFoundException expected) {
             assertNotNull(expected);

@@ -263,7 +263,11 @@ public class SpaceController extends  AbstractRestController<Space> {
         String key = formatItemCountCacheKey(space);
         request.getSession().getServletContext().removeAttribute(key);
     }
-    
+
+    // FIXME: This method should be removed, as updating space
+    //        properties is no longer a valid action. It is being left in
+    //        place for now to aid in selecting and removing the necessary
+    //        UI components. -bb
     @Override
     protected ModelAndView put(HttpServletRequest request,
                                HttpServletResponse response,
@@ -280,7 +284,9 @@ public class SpaceController extends  AbstractRestController<Space> {
                                "space [" + spaceId + "]",
                                properties,
                                request);
-        contentStore.setSpaceProperties(spaceId, properties);
+
+        //contentStore.setSpaceProperties(spaceId, properties);
+
         Space newSpace = new Space();
         populateSpace(newSpace,
                       contentStore.getSpace(spaceId, null, 0, null),
@@ -298,7 +304,7 @@ public class SpaceController extends  AbstractRestController<Space> {
                                 BindException errors) throws Exception {
         String spaceId = space.getSpaceId();
         ContentStore contentStore = getContentStore(space);
-        contentStore.createSpace(spaceId, null);
+        contentStore.createSpace(spaceId);
 
         if ("true".equals(request.getParameter("publicFlag"))) {
             Map<String, AclType> acls = new HashMap<String, AclType>();

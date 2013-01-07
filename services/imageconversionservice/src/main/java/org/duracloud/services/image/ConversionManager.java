@@ -237,7 +237,7 @@ public class ConversionManager {
             try {
                 contentStore.getSpaceProperties(destSpaceId);
             } catch (NotFoundException e) {
-                contentStore.createSpace(destSpaceId, null);
+                contentStore.createSpace(destSpaceId);
             }
         } catch(ContentStoreException e) {
             String err = "Could not access destination space " + destSpaceId +

@@ -35,13 +35,6 @@ public interface SpaceDuplicator {
     public void createSpace(String spaceId);
 
     /**
-     * This method updates the duplicated space with arg spaceId.
-     *
-     * @param spaceId of space to update
-     */
-    public void updateSpace(String spaceId);
-
-    /**
      * This method updates the duplicated space ACL with arg spaceId.
      *
      * @param spaceId of space to update

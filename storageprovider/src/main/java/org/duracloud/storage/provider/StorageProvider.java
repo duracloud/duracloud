@@ -141,17 +141,6 @@ public interface StorageProvider {
     public Map<String, String> getSpaceProperties(String spaceId);
 
     /**
-     * Sets the properties associated with a space.
-     *
-     * @param spaceId - ID of the space
-     * @param spaceProperties - Updated space properties
-     * @throws NotFoundException if space with ID spaceId does not exist
-     * @throws StorageException if errors occur
-     */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties);
-
-    /**
      * Retrieves the ACLs associated with a space.
      *
      * @param spaceId - ID of the space

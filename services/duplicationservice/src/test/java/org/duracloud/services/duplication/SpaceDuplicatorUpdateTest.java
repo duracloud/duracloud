@@ -55,69 +55,15 @@ public class SpaceDuplicatorUpdateTest {
     }
 
     @Test
-    public void testUpdateSpace() throws Exception {
-        init(Mode.OK);
-        replicator.updateSpace(spaceId);
-    }
-
-    @Test
     public void testUpdateSpaceAcl() throws Exception {
         init(Mode.OK_ACL);
         replicator.updateSpaceAcl(spaceId);
     }
 
     @Test
-    public void testNullInputUpdateSpace() throws Exception {
-        init(Mode.NULL_INPUT);
-        replicator.updateSpace(null);
-    }
-
-    @Test
     public void testNullInputUpdateSpaceAcl() throws Exception {
         init(Mode.NULL_INPUT);
         replicator.updateSpaceAcl(null);
-    }
-
-    @Test
-    public void testSetPropertiesExceptionUpdateSpace() throws Exception {
-        init(Mode.SET_PROPERTIES_EXCEPTION);
-        replicator.updateSpace(spaceId);
-    }
-
-    @Test
-    public void testNotFoundUpdateSpace() throws Exception {
-        init(Mode.NOT_FOUND);
-        try {
-            replicator.updateSpace(spaceId);
-            Assert.fail("exception expected");
-
-        } catch (DuplicationException e) {
-            Assert.assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testNotFoundCreateExceptionUpdateSpace() throws Exception {
-        init(Mode.NOT_FOUND_CREATE_EXCEPTION);
-        try {
-            replicator.updateSpace(spaceId);
-            Assert.fail("exception expected");
-
-        } catch (DuplicationException e) {
-            Assert.assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreateExceptionUpdateSpace() throws Exception {
-        init(Mode.CREATE_EXCEPTION);
-        try {
-            replicator.updateSpace(spaceId);
-            Assert.fail("exception expected");
-
-        } catch (DuplicationException e) {
-            Assert.assertNotNull(e.getMessage());
-        }
     }
 
     @Test
@@ -149,18 +95,6 @@ public class SpaceDuplicatorUpdateTest {
         init(Mode.CREATE_ACL_EXCEPTION);
         try {
             replicator.updateSpaceAcl(spaceId);
-            Assert.fail("exception expected");
-
-        } catch (DuplicationException e) {
-            Assert.assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
-    public void testGetPropertiesExceptionUpdateSpace() throws Exception {
-        init(Mode.GET_PROPERTIES_EXCEPTION);
-        try {
-            replicator.updateSpace(spaceId);
             Assert.fail("exception expected");
 
         } catch (DuplicationException e) {
@@ -232,10 +166,6 @@ public class SpaceDuplicatorUpdateTest {
     private void mockSetSpacePropertiesExpectation(Mode cmd, ContentStore store)
         throws ContentStoreException {
         switch (cmd) {
-            case OK:
-                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
-                EasyMock.expectLastCall();              
-                break;
             case OK_ACL:
                 store.setSpaceACLs(spaceId, createSpaceACLs(cmd));
                 EasyMock.expectLastCall();
@@ -244,20 +174,6 @@ public class SpaceDuplicatorUpdateTest {
             case NOT_FOUND_ACL_CREATE_EXCEPTION:
             case CREATE_ACL_EXCEPTION:
                 store.setSpaceACLs(spaceId, createSpaceACLs(cmd));
-                EasyMock.expectLastCall().andThrow(new NotFoundException(
-                    "test-exception")).times(4);
-                break;
-            case SET_PROPERTIES_EXCEPTION:
-                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
-                EasyMock.expectLastCall().andThrow(new ContentStoreException(
-                    "test-exception"));
-                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
-                EasyMock.expectLastCall();
-                break;
-            case CREATE_EXCEPTION:
-            case NOT_FOUND_CREATE_EXCEPTION:
-            case NOT_FOUND:
-                store.setSpaceProperties(spaceId, createSpaceProperties(cmd));
                 EasyMock.expectLastCall().andThrow(new NotFoundException(
                     "test-exception")).times(4);
                 break;

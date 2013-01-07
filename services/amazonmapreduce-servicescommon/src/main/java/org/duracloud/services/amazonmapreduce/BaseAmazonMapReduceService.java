@@ -281,7 +281,7 @@ public abstract class BaseAmazonMapReduceService extends BaseService implements 
     public void createDestSpace() {
         if (null != getDestSpaceId()) {
             try {
-                getContentStore().createSpace(getDestSpaceId(), null);
+                getContentStore().createSpace(getDestSpaceId());
             } catch (ContentStoreException e) {
                 log.debug("Ensuring output space exists: " + e.getMessage());
             }

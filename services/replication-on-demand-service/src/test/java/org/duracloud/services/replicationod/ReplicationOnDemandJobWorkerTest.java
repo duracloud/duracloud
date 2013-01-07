@@ -62,8 +62,7 @@ public class ReplicationOnDemandJobWorkerTest {
             .andReturn(taskReturn)
             .times(1);
 
-        contentStore.createSpace(EasyMock.isA(String.class),
-                                 EasyMock.<Map<String, String>>isNull());
+        contentStore.createSpace(EasyMock.isA(String.class));
         EasyMock.expectLastCall().times(1);
 
         EasyMock

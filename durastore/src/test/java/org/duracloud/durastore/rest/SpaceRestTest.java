@@ -187,29 +187,4 @@ public class SpaceRestTest {
         }
     }
 
-    @Test
-    public void testUpdateSpaceProperties() throws Exception {
-        createUpdateSpacePropertiesMocks();
-
-        Response response = spaceRest.updateSpaceProperties(spaceId, storeId);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(Response.Status.OK.getStatusCode(),
-                            response.getStatus());
-    }
-
-    private void createUpdateSpacePropertiesMocks() throws ResourceException {
-        // header mocks
-        spaceRest.headers = httpHeaders;
-
-        EasyMock.expect(httpHeaders.getRequestHeaders())
-                .andReturn(headersMap);
-
-        doCreateUpdatePropertiesMocks(spaceProps);
-
-        // space resource mocks
-        spaceResource.updateSpaceProperties(spaceId, null, spaceProps, storeId);
-        EasyMock.expectLastCall();
-
-        replayMocks();
-    }
 }

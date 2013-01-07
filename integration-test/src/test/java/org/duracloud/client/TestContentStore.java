@@ -91,8 +91,7 @@ public class TestContentStore {
     public void setUp() throws Exception {
         if(!spaceExists(spaceId)) {
             // Create space
-            Map<String, String> spaceProperties = new HashMap<String, String>();
-            createSpace(spaceId, spaceProperties);
+            createSpace(spaceId);
         }
     }
 
@@ -207,7 +206,7 @@ public class TestContentStore {
 
     private void checkInvalidSpaceId(String id) throws Exception {
         try {
-            createSpace(id, null);
+            createSpace(id);
             fail("Exception expected attempting to add " +
                  "a space with an invalid id: " + id);
         } catch(InvalidIdException e) {
@@ -216,14 +215,14 @@ public class TestContentStore {
     }
 
     private void checkValidSpaceId(String id) throws Exception {
-        createSpace(id, null);
+        createSpace(id);
     }
 
-    private void createSpace(String spaceId, Map<String, String> spaceProperties)
+    private void createSpace(String spaceId)
         throws Exception {
         boolean spaceExists = spaceExists(spaceId);
         if(!spaceExists) {
-            store.createSpace(spaceId, spaceProperties);
+            store.createSpace(spaceId);
             log.info("Created Space " + spaceId);
 
             int maxLoops = 20;
@@ -262,24 +261,13 @@ public class TestContentStore {
         assertTrue(spaces.size() >= 1);
         assertTrue(spaces.contains(spaceId));
 
-        Map<String, String> responseProperties = store.getSpaceProperties(spaceId);
+        Map<String, String> responseProperties =
+            store.getSpaceProperties(spaceId);
         assertNotNull(responseProperties);
 
         // Check space properties
-        assertNotNull(responseProperties);
-
-        // Set space properties
-        metaValue = "Testing Properties Value";
-        Map<String, String> spaceProperties = new HashMap<String, String>();
-        spaceProperties.put(metaName, metaValue);
-        store.setSpaceProperties(spaceId, spaceProperties);
-
-        // Check space properties
-        responseProperties = store.getSpaceProperties(spaceId);
-        assertNotNull(responseProperties);
         assertNotNull(responseProperties.get(ContentStore.SPACE_COUNT));
         assertNotNull(responseProperties.get(ContentStore.SPACE_CREATED));
-        assertEquals(metaValue, responseProperties.get(metaName));
     }
 
     @Test
@@ -308,12 +296,6 @@ public class TestContentStore {
         try {
             store.getSpaceProperties(invalidSpaceId);
             fail("Exception expected on getSpaceProperties(invalidSpaceId)");
-        } catch(NotFoundException expected) {
-        }
-
-        try {
-            store.setSpaceProperties(invalidSpaceId, emptyMap);
-            fail("Exception expected on setSpaceProperties(invalidSpaceId)");
         } catch(NotFoundException expected) {
         }
 

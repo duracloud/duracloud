@@ -277,7 +277,7 @@ public class ContentDuplicatorCreateTest {
         throws ContentStoreException {
         switch (cmd) {
             case NOT_FOUND_EXCEPTION:
-                store.createSpace(spaceId, null);
+                store.createSpace(spaceId);
                 EasyMock.expectLastCall();
         }
     }

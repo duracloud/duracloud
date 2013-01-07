@@ -27,7 +27,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import java.net.URI;
@@ -260,11 +259,9 @@ public class SpaceRest extends BaseRest {
     private Response doAddSpace(String spaceID, String storeID)
         throws ResourceException, InvalidIdException {
         Map<String, AclType> userACLs = getUserACLs();
-        Map<String, String> userProperties = getUserProperties();
 
         spaceResource.addSpace(spaceID,
                                userACLs,
-                               userProperties,
                                storeID);
         URI location = uriInfo.getRequestUri();
         return Response.created(location).build();
@@ -281,44 +278,6 @@ public class SpaceRest extends BaseRest {
             log.warn("Adding user acl, error: {}", e);
         }
         return acls;
-    }
-
-    /**
-     * see SpaceResource.updateSpaceProperties(String, String, String, String);
-     * @return 200 response with XML listing of space properties
-     */
-    @Path("/{spaceID}")
-    @POST
-    public Response updateSpaceProperties(@PathParam("spaceID")
-                                          String spaceID,
-                                          @QueryParam("storeID")
-                                          String storeID){
-        String msg = "update space properties(" + spaceID + ", " + storeID + ")";
-
-        try {
-            log.debug(msg);
-            return doUpdateSpaceProperties(spaceID, storeID);
-
-        } catch (ResourceNotFoundException e) {
-            return responseBad(msg, e, NOT_FOUND);
-
-        } catch (ResourceException e) {
-            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
-
-        } catch (Exception e) {
-            return responseBad(msg, e, INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private Response doUpdateSpaceProperties(String spaceID, String storeID)
-        throws ResourceException {
-        Map<String, String> userProperties = getUserProperties();
-        spaceResource.updateSpaceProperties(spaceID,
-                                            null,
-                                            userProperties,
-                                            storeID);
-        String responseText = "Space " + spaceID + " updated successfully";
-        return Response.ok(responseText, TEXT_PLAIN).build();
     }
 
     /**

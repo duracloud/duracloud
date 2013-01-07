@@ -159,7 +159,7 @@ public class FixityTester {
         final int MAX_TRIES = 4;
         while (!success && tries < MAX_TRIES) {
             try {
-                contentStore.createSpace(spaceId, null);
+                contentStore.createSpace(spaceId);
                 success = true;
             } catch (ContentStoreException e) {
                 sleep(1000);

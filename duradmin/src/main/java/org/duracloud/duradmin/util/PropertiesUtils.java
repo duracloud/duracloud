@@ -36,15 +36,7 @@ public class PropertiesUtils {
             	     "contentId="+ contentId + ", properties="+ properties);
             
             contentStore.setContentProperties(spaceId, contentId, properties);
-            
-        } else {
-            log.info("on contentStore[" + contentStore.getStoreId() + "]: " +
-            		"setting space properties: spaceId="+spaceId+", " +
-            				"properties="+ properties);
-            
-            contentStore.setSpaceProperties(spaceId, properties);
         }
-
     }
 
     public static Map<String, String> getProperties(ContentStore contentStore,

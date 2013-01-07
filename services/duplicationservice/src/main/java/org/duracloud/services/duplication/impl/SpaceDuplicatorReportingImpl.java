@@ -95,10 +95,6 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
                             deleteSpace(event.getSpaceId());
                             break;
 
-                        case SPACE_UPDATE:
-                            updateSpace(event.getSpaceId());
-                            break;
-
                         case SPACE_UPDATE_ACL:
                             updateSpaceAcl(event.getSpaceId());
                             break;
@@ -128,17 +124,6 @@ public class SpaceDuplicatorReportingImpl implements SpaceDuplicator {
 
         } catch (DuplicationException e) {
             createSpaceFailure(spaceId);
-        }
-    }
-
-    @Override
-    public void updateSpace(String spaceId) {
-        try {
-            spaceDuplicator.updateSpace(spaceId);
-            updateSpaceSuccess(spaceId);
-
-        } catch (DuplicationException e) {
-            updateSpaceFailure(spaceId);
         }
     }
 

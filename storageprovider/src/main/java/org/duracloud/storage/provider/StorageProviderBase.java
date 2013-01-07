@@ -53,34 +53,6 @@ public abstract class StorageProviderBase implements StorageProvider {
         return spaceProps;
     }
 
-    /**
-     * This method adds all of the existing ACLs to the properties to be set.
-     *
-     * @param spaceId    - ID of the space
-     * @param spaceProps - Updated space properties
-     */
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProps) {
-        Map<String, String> allProps = new HashMap<String, String>();
-
-        // Although allProps contains only ACLs at first, arg props will be added.
-        Map<String, AclType> acls = getSpaceACLs(spaceId);
-        for (String key : acls.keySet()) {
-            allProps.put(key, acls.get(key).name());
-        }
-
-        // ONLY add non ACL properties
-        if (null != spaceProps) {
-            for (String key : spaceProps.keySet()) {
-                if (!key.startsWith(PROPERTIES_SPACE_ACL)) {
-                    allProps.put(key, spaceProps.get(key));
-                }
-            }
-        }
-
-        doSetSpaceProperties(spaceId, allProps);
-    }
-
     protected void setNewSpaceProperties(String spaceId,
                                          Map<String, String> spaceProperties) {
         boolean success = false;

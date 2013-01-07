@@ -96,8 +96,7 @@ public class Replicator implements Runnable {
         } catch(NotFoundException e) {
             // Create Space
             System.out.println("Creating space: " + toSpaceId);
-            toStore.createSpace(toSpaceId,
-                                primaryStore.getSpaceProperties(fromSpaceId));
+            toStore.createSpace(toSpaceId);
         }
     }
 

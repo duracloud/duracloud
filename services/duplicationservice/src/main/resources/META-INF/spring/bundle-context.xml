@@ -20,7 +20,6 @@
     <osgix:managed-properties persistent-id="duplicationservice-${project.version}.zip" update-strategy="bean-managed" update-method="updateConfig" />
     <property name="outputSpaceId" value="${service.output.spaceid}"/>
     <property name="spaceCreateTopic" value="org.duracloud.topic.change.space.create"/>
-    <property name="spaceUpdateTopic" value="org.duracloud.topic.change.space.update"/>
     <property name="spaceUpdateAclTopic" value="org.duracloud.topic.change.space.update.acl"/>
     <property name="spaceDeleteTopic" value="org.duracloud.topic.change.space.delete"/>
     <property name="contentCreateTopic" value="org.duracloud.topic.change.content.ingest"/>

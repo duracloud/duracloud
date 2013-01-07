@@ -192,14 +192,6 @@ public abstract class ProbedStorageProvider
         stopMetric("setContentProperties");
     }
 
-    public void setSpaceProperties(String spaceId,
-                                   Map<String, String> spaceProperties)
-            throws StorageException {
-        startMetric("setSpaceProperties");
-        storageProvider.setSpaceProperties(spaceId, spaceProperties);
-        stopMetric("setSpaceProperties");
-    }
-
     @Override
     public Map<String, AclType> getSpaceACLs(String spaceId) {
         startMetric("getSpaceACLs");

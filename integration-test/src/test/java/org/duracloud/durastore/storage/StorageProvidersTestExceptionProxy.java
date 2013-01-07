@@ -178,15 +178,6 @@ public class StorageProvidersTestExceptionProxy
         }
     }
 
-    public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
-        try {
-            tester.testSetSpaceProperties(provider, spaceId0);
-        } catch (AssertionError e) {
-            throwRuntime(provider, e);
-        }
-    }
-
     public void close() {
         tester.close();
     }

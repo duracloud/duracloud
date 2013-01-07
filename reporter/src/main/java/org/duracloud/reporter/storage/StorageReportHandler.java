@@ -68,7 +68,7 @@ public class StorageReportHandler {
             try {
                 primaryStore.getSpaceProperties(storageSpace);
             } catch(NotFoundException e) {
-                primaryStore.createSpace(storageSpace, null);
+                primaryStore.createSpace(storageSpace);
             }
         } catch(ContentStoreException e) {
             throw new DuraCloudRuntimeException("Error checking metrics " +

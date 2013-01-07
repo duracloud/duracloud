@@ -222,57 +222,6 @@ public class StorageProvidersTestCore
         assertNotNull(spaceMd.get(StorageProvider.PROPERTIES_SPACE_COUNT));
     }
 
-    public void testSetSpaceProperties(StorageProvider provider, String spaceId0)
-            throws StorageException {
-        final String key0 = "key0";
-        final String key1 = "key1";
-        final String key2 = "key2";
-        final String val0 = "val0";
-        final String val1 = "val1";
-        final String val2 = "val2";
-
-        Map<String, String> spaceMd = provider.getSpaceProperties(spaceId0);
-        assertNotNull(spaceMd);
-
-        final int numProps = spaceMd.size();
-        assertTrue(numProps > 0);
-
-        // Add some props.
-        Map<String, String> newMd = new HashMap<String, String>();
-        newMd.put(key0, val0);
-        newMd.put(key2, val2);
-        provider.setSpaceProperties(spaceId0, newMd);
-
-        spaceMd = provider.getSpaceProperties(spaceId0);
-        assertNotNull(spaceMd);
-        assertEquals(numProps + 2, spaceMd.size());
-
-        assertTrue(spaceMd.containsKey(key0));
-        assertFalse(spaceMd.containsKey(key1));
-        assertTrue(spaceMd.containsKey(key2));
-
-        assertEquals(val0, spaceMd.get(key0));
-        assertEquals(val2, spaceMd.get(key2));
-
-        // Add some different props.
-        Map<String, String> newerMd = new HashMap<String, String>();
-        newerMd.put(key1, val1);
-        newerMd.put(key2, val2);
-        provider.setSpaceProperties(spaceId0, newerMd);
-
-        spaceMd = provider.getSpaceProperties(spaceId0);
-        assertNotNull(spaceMd);
-        assertEquals(numProps + 2, spaceMd.size());
-
-        assertFalse(spaceMd.containsKey(key0));
-        assertTrue(spaceMd.containsKey(key1));
-        assertTrue(spaceMd.containsKey(key2));
-
-        assertEquals(val1, spaceMd.get(key1));
-        assertEquals(val2, spaceMd.get(key2));
-
-    }
-
     public void testAddAndGetContent(StorageProvider provider,
                                      String spaceId0,
                                      String contentId0,
