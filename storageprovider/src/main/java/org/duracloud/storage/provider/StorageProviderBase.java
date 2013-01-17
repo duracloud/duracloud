@@ -14,8 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
@@ -24,6 +26,12 @@ import static org.duracloud.storage.error.StorageException.NO_RETRY;
  * Date: Apr 20, 2010
  */
 public abstract class StorageProviderBase implements StorageProvider {
+
+    protected static final String ACL_USER_READ = "acl-user-read";
+    protected static final String ACL_USER_WRITE = "acl-user-write";
+    protected static final String ACL_GROUP_READ = "acl-group-read";
+    protected static final String ACL_GROUP_WRITE = "acl-group-write";
+    protected static final String ACL_DELIM = ":";
 
     protected final Logger log = LoggerFactory.getLogger(StorageProviderBase.class);
 
@@ -74,19 +82,55 @@ public abstract class StorageProviderBase implements StorageProvider {
     }
 
     public Map<String, AclType> getSpaceACLs(String spaceId) {
-        Map<String, AclType> acls = new HashMap<String, AclType>();
         Map<String, String> allProps = getAllSpaceProperties(spaceId);
+        return unpackACLs(allProps);
+    }
 
-        for (String name : allProps.keySet()) {
-            if (name.startsWith(PROPERTIES_SPACE_ACL)) {
-                String val = allProps.get(name);
-                try {
-                    acls.put(name, AclType.valueOf(val));
-                    
-                } catch (IllegalArgumentException e) {
-                    log.error("Invalid ACL: {}, space: {}, error: {}",
-                              new Object[]{val, spaceId, e});
-                }
+    /*
+     * Converts from packed ACL format:
+     * name= acl-read
+     * value= username1
+     * name= acl-write
+     * value= username2:username3
+     *
+     * to the expected ACL output format:
+     * name= acl-username1
+     * value= READ
+     * name= acl-username2
+     * value= WRITE
+     * name= acl-username3
+     * value= WRITE
+     *
+     * Also converts from packed acl-group-read and acl-group-write formats
+     */
+    protected Map<String, AclType> unpackACLs(Map<String, String> spaceProps) {
+        Map<String, AclType> acls = new HashMap<String, AclType>();
+
+        String readUserList = spaceProps.get(ACL_USER_READ);
+        if(null != readUserList) {
+            for(String userName : readUserList.split(ACL_DELIM)) {
+                acls.put(PROPERTIES_SPACE_ACL + userName, AclType.READ);
+            }
+        }
+
+        String writeUserList = spaceProps.get(ACL_USER_WRITE);
+        if(null != writeUserList) {
+            for(String userName : writeUserList.split(ACL_DELIM)) {
+                acls.put(PROPERTIES_SPACE_ACL + userName, AclType.WRITE);
+            }
+        }
+
+        String readGroupList = spaceProps.get(ACL_GROUP_READ);
+        if(null != readGroupList) {
+            for(String groupName : readGroupList.split(ACL_DELIM)) {
+                acls.put(PROPERTIES_SPACE_ACL_GROUP + groupName, AclType.READ);
+            }
+        }
+
+        String writeGroupList = spaceProps.get(ACL_GROUP_WRITE);
+        if(null != writeGroupList) {
+            for(String groupName : writeGroupList.split(ACL_DELIM)) {
+                acls.put(PROPERTIES_SPACE_ACL_GROUP + groupName, AclType.WRITE);
             }
         }
 
@@ -94,24 +138,85 @@ public abstract class StorageProviderBase implements StorageProvider {
     }
 
     public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
-        Map<String, String> newProps = new HashMap<String, String>();
-        Map<String, String> spaceProps = getSpaceProperties(spaceId);
+        Map<String, String> newProps = new HashMap<>();
 
+        // get properties excluding ACLs
+        Map<String, String> spaceProps = getSpaceProperties(spaceId);
         // add existing non ACLs properties
         newProps.putAll(spaceProps);
 
-        // ONLY add new ACLs
+        // convert ACL format and add to props list
+        newProps.putAll(packACLs(spaceACLs));
+
+        // save
+        doSetSpaceProperties(spaceId, newProps);
+    }
+
+    /*
+     * Converts ACLs from the input format:
+     * name= acl-username1
+     * value= READ
+     * name= acl-username2
+     * value= WRITE
+     * name= acl-username3
+     * value= WRITE
+     *
+     * to packed ACL format:
+     * name= acl-read
+     * value= username1
+     * name= acl-write
+     * value= username2:username3
+     *
+     * Also converts to packed acl-group-read and acl-group-write formats
+     */
+    protected Map<String, String> packACLs(Map<String, AclType> spaceACLs) {
+        Set<String> readUserList = new HashSet<>();
+        Set<String> writeUserList = new HashSet<>();
+        Set<String> readGroupList = new HashSet<>();
+        Set<String> writeGroupList = new HashSet<>();
+
         if (null != spaceACLs) {
             for (String key : spaceACLs.keySet()) {
-                if (key.startsWith(PROPERTIES_SPACE_ACL)) {
-                    AclType acl = spaceACLs.get(key);
-                    newProps.put(key, acl.name());
+                AclType acl = spaceACLs.get(key);
+                if(key.startsWith(PROPERTIES_SPACE_ACL_GROUP)) {
+                    String groupName =
+                        key.substring(PROPERTIES_SPACE_ACL_GROUP.length());
+                    if(acl.equals(AclType.READ)) {
+                        readGroupList.add(groupName);
+                    } else if(acl.equals(AclType.WRITE)) {
+                        writeGroupList.add(groupName);
+                    }
+                } else if (key.startsWith(PROPERTIES_SPACE_ACL)) {
+                    String userName =
+                        key.substring(PROPERTIES_SPACE_ACL.length());
+                    if(acl.equals(AclType.READ)) {
+                        readUserList.add(userName);
+                    } else if(acl.equals(AclType.WRITE)) {
+                        writeUserList.add(userName);
+                    }
                 }
             }
         }
 
-        // save
-        doSetSpaceProperties(spaceId, newProps);
+        Map<String, String> packedAcls = new HashMap<>();
+        includeACL(packedAcls, ACL_USER_READ, readUserList);
+        includeACL(packedAcls, ACL_USER_WRITE, writeUserList);
+        includeACL(packedAcls, ACL_GROUP_READ, readGroupList);
+        includeACL(packedAcls, ACL_GROUP_WRITE, writeGroupList);
+
+        return packedAcls;
+    }
+
+    private void includeACL(Map<String, String> packedAcls,
+                            String acl,
+                            Set<String> listEntries) {
+        if(!listEntries.isEmpty()) {
+            StringBuilder aclValues = new StringBuilder();
+            for(String aclValue : listEntries) {
+                aclValues.append(aclValue).append(ACL_DELIM);
+            }
+            packedAcls.put(acl, aclValues.toString());
+        }
     }
 
     protected void throwIfSpaceExists(String spaceId) {

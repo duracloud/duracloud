@@ -15,11 +15,17 @@ import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
-import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.soyatec.windowsazure.blob.*;
-import org.soyatec.windowsazure.blob.internal.*;
+import org.soyatec.windowsazure.blob.BlobStorageClient;
+import org.soyatec.windowsazure.blob.IBlobContainer;
+import org.soyatec.windowsazure.blob.IBlobContents;
+import org.soyatec.windowsazure.blob.IBlobProperties;
+import org.soyatec.windowsazure.blob.IBlockBlob;
+import org.soyatec.windowsazure.blob.IContainerProperties;
+import org.soyatec.windowsazure.blob.internal.BlobContents;
+import org.soyatec.windowsazure.blob.internal.BlobProperties;
+import org.soyatec.windowsazure.blob.internal.RetryPolicies;
 import org.soyatec.windowsazure.blob.io.BlobMemoryStream;
 import org.soyatec.windowsazure.error.StorageServerException;
 import org.soyatec.windowsazure.internal.util.NameValueCollection;
@@ -31,7 +37,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
@@ -243,8 +255,8 @@ public class AzureStorageProvider extends StorageProviderBase {
     }
 
     private String formattedDate(Date created) {
-        RFC822_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
-        return RFC822_DATE_FORMAT.format(created);
+        ISO8601_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
+        return ISO8601_DATE_FORMAT.format(created);
     }
 
     private void createContainer(String spaceId) {
@@ -374,7 +386,7 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         Date created = null;
         try {
-            created = RFC822_DATE_FORMAT.parse(dateText);
+            created = ISO8601_DATE_FORMAT.parse(dateText);
         } catch (ParseException e) {
             log.warn("Unable to parse date: '" + dateText + "'");
         }

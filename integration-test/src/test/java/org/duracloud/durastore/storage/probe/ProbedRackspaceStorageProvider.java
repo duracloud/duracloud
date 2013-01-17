@@ -37,7 +37,7 @@ public class ProbedRackspaceStorageProvider
             throw new StorageException(err, e);
         }
 
-        setStorageProvider(new RackspaceStorageProvider(probedCore));
+        setStorageProvider(new RackspaceStorageProvider(probedCore, null));
     }
 
     @Override

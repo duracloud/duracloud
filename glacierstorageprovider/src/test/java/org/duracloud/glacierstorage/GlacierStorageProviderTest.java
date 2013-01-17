@@ -10,8 +10,7 @@ package org.duracloud.glacierstorage;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.storage.error.NotFoundException;
 import org.easymock.Capture;
@@ -56,15 +55,14 @@ public class GlacierStorageProviderTest {
         EasyMock.expect(s3Client.createBucket(EasyMock.isA(String.class)))
             .andReturn(new Bucket());
 
-        // Add space metadata file
-        EasyMock.expect(s3Client.getObject(EasyMock.isA(String.class),
-                                           EasyMock.isA(String.class)))
-            .andThrow(new NotFoundException(spaceId));
-        PutObjectResult putSpaceMetadataResult = new PutObjectResult();
-        // This allows the space metadata checksum check to pass
-        putSpaceMetadataResult.setETag("d41d8cd98f00b204e9800998ecf8427e");
-        EasyMock.expect(s3Client.putObject(EasyMock.isA(PutObjectRequest.class)))
-            .andReturn(putSpaceMetadataResult);
+        // Add space properties
+        EasyMock.expect(
+            s3Client.getBucketTaggingConfiguration(EasyMock.isA(String.class)))
+                .andThrow(new NotFoundException(spaceId));
+        s3Client.setBucketTaggingConfiguration(
+            EasyMock.isA(String.class),
+            EasyMock.isA(BucketTaggingConfiguration.class));
+        EasyMock.expectLastCall();
 
         // Space has been created. Now add glacier lifecycle policy.
         Capture<BucketLifecycleConfiguration> lcConfigCap = new Capture<>();

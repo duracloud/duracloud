@@ -31,6 +31,7 @@ public interface StorageProvider {
     public static final String PROPERTIES_SPACE_COUNT = "space-count";
     public static final String PROPERTIES_SPACE_SIZE = "space-total-size";
     public static final String PROPERTIES_SPACE_ACL = "acl-";
+    public static final String PROPERTIES_SPACE_ACL_GROUP = "acl-group-";
     public static final String PROPERTIES_SPACE_ACL_PUBLIC = "acl-group-public";
 
     /* Content property names */
@@ -55,13 +56,10 @@ public interface StorageProvider {
     /* Reserved property names */
     public static final String PROPERTIES_CONTENT_MD5 = "content-md5";
 
-    /* Name values for property files */
-    public static final String SPACE_PROPERTIES_SUFFIX = "-space-metadata";
-
     /* Other constants */
     public static final String DEFAULT_MIMETYPE = "application/octet-stream";
-    public static final DateFormat RFC822_DATE_FORMAT =
-        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+    public static final DateFormat ISO8601_DATE_FORMAT =
+        new SimpleDateFormat("yyyy-MM-dd");
 
     public static final long DEFAULT_MAX_RESULTS = 1000;
 

@@ -548,8 +548,8 @@ public class IrodsStorageProvider implements StorageProvider {
     }
 
     private String formattedDate(Date created) {
-        RFC822_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
-        return RFC822_DATE_FORMAT.format(created);
+        ISO8601_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
+        return ISO8601_DATE_FORMAT.format(created);
     }
 
     private String getOptionString(String name, Map<String, String> options) {

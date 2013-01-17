@@ -9,6 +9,7 @@ package org.duracloud.storage.provider;
 
 import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.NotFoundException;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -17,11 +18,12 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class StorageProviderBaseTest {
 
@@ -30,19 +32,25 @@ public class StorageProviderBaseTest {
 
     private final static String spaceId = "space-id";
     private static Map<String, String> spaceProps;
-    private static Map<String, AclType> spaceACLs;
-    private static Map<String, String> userProps;
+    private static Map<String, String> spaceACLs;
+    private static Map<String, String> systemProps;
 
-    private final static String user0 = "user-0";
-    private final static String user1 = "user-1";
-    private final static String group0 = "group-0";
+    private final static String userRead0 = "user-read-0";
+    private final static String userRead1 = "user-read-1";
+    private final static String userWrite0 = "user-write-0";
+    private final static String groupRead0 = "group-read-0";
+    private final static String groupWrite0 = "group-write-0";
+    private final static String groupWrite1 = "group-write-1";
 
-    private final static String propName0 = "unknown-name";
+    private final static String sysPropName = "space-created";
+    private final static String sysPropVal = new Date().toString();
 
     private final static String mimePrefix =
         StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
     private final static String aclPrefix =
         StorageProvider.PROPERTIES_SPACE_ACL;
+    private final static String aclGroupPrefix =
+        StorageProvider.PROPERTIES_SPACE_ACL_GROUP;
 
     @Before
     public void setUp() throws Exception {
@@ -50,20 +58,21 @@ public class StorageProviderBaseTest {
                                            StorageProviderBase.class);
         providerBase = new StorageProviderBaseImpl(providerMock);
 
-        spaceACLs = new HashMap<String, AclType>();
-        spaceACLs.put(aclPrefix + user0, AclType.READ);
-        spaceACLs.put(aclPrefix + group0, AclType.READ);
-        spaceACLs.put(aclPrefix + user1, AclType.WRITE);
+        String delim = StorageProviderBase.ACL_DELIM;
+        spaceACLs = new HashMap<>();
+        spaceACLs.put(StorageProviderBase.ACL_USER_READ,
+                      userRead0 + delim  + userRead1 + delim);
+        spaceACLs.put(StorageProviderBase.ACL_USER_WRITE, userWrite0 + delim);
+        spaceACLs.put(StorageProviderBase.ACL_GROUP_READ, groupRead0 + delim);
+        spaceACLs.put(StorageProviderBase.ACL_GROUP_WRITE,
+                      groupWrite0 + delim + groupWrite1 + delim);
 
-        userProps = new HashMap<String, String>();
-        userProps.put(propName0, "unknown-value");
-        userProps.put(mimePrefix, "text/plain");
+        systemProps = new HashMap<>();
+        systemProps.put(sysPropName, sysPropVal);
 
-        spaceProps = new HashMap<String, String>();
-        spaceProps.putAll(userProps);
-        for (String key : spaceACLs.keySet()) {
-            spaceProps.put(key, spaceACLs.get(key).name());
-        }
+        spaceProps = new HashMap<>();
+        spaceProps.putAll(systemProps);
+        spaceProps.putAll(spaceACLs);
     }
 
     @After
@@ -82,12 +91,9 @@ public class StorageProviderBaseTest {
         Map<String, String> props = providerBase.getSpaceProperties(spaceId);
         Assert.assertNotNull(props);
 
-        Assert.assertEquals(userProps.size(), props.size());
-        Set<String> propKeys = props.keySet();
-        for (String key : userProps.keySet()) {
-            Assert.assertTrue(propKeys.contains(key));
-            Assert.assertEquals(userProps.get(key), props.get(key));
-        }
+        Assert.assertEquals(systemProps.size(), props.size());
+        Assert.assertTrue(systemProps.containsKey(sysPropName));
+        Assert.assertEquals(sysPropVal, systemProps.get(sysPropName));
     }
 
     private void createGetSpacePropertiesMocks() {
@@ -105,7 +111,16 @@ public class StorageProviderBaseTest {
         Map<String, AclType> acls = providerBase.getSpaceACLs(spaceId);
         Assert.assertNotNull(acls);
 
-        Assert.assertEquals(spaceACLs.size(), acls.size());
+        Assert.assertEquals(6, acls.size()); // users + groups = 6
+        Assert.assertEquals(AclType.READ, acls.get(aclPrefix + userRead0));
+        Assert.assertEquals(AclType.READ, acls.get(aclPrefix + userRead1));
+        Assert.assertEquals(AclType.WRITE, acls.get(aclPrefix + userWrite0));
+        Assert.assertEquals(AclType.READ,
+                            acls.get(aclGroupPrefix + groupRead0));
+        Assert.assertEquals(AclType.WRITE,
+                            acls.get(aclGroupPrefix + groupWrite0));
+        Assert.assertEquals(AclType.WRITE,
+                            acls.get(aclGroupPrefix + groupWrite0));
     }
 
     private void createGetSpaceACLsMocks() {
@@ -121,35 +136,87 @@ public class StorageProviderBaseTest {
         EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
             spaceProps);
 
-        Map<String, AclType> newProps = new HashMap<String, AclType>();
-        String name0 = aclPrefix + "name0";
-        String name1 = "name1";
-        String name2 = aclPrefix + "name2";
-        String name3 = mimePrefix + "name3";
+        Map<String, AclType> newProps = new HashMap<>();
+        newProps.put(aclPrefix + userRead0, AclType.READ);
+        newProps.put(aclPrefix + userRead1, AclType.READ);
+        newProps.put(aclPrefix + userWrite0, AclType.WRITE);
+        newProps.put(aclGroupPrefix + groupRead0, AclType.READ);
+        newProps.put(aclGroupPrefix + groupWrite0, AclType.WRITE);
+        newProps.put(aclGroupPrefix + groupWrite1, AclType.WRITE);
 
-        AclType value0 = AclType.READ;
-        AclType value1 = AclType.READ;
-        AclType value2 = AclType.READ;
-        AclType value3 = AclType.READ;
-
-        newProps.put(name0, value0);
-        newProps.put(name1, value1);
-        newProps.put(name2, value2);
-        newProps.put(name3, value3);
-
-        Map<String, String> expectedProps = new HashMap<String, String>();
-        expectedProps.put(name0, value0.name());
-        expectedProps.put(name2, value2.name());
-        expectedProps.put(propName0, spaceProps.get(propName0));
-        expectedProps.put(mimePrefix, spaceProps.get(mimePrefix));
-
-        providerMock.doSetSpaceProperties(spaceId, expectedProps);
+        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
+                                          EasyMock.capture(propsSetCapture));
         EasyMock.expectLastCall();
 
         replayMocks();
 
-        // This test passes if the mock objects verify.
+        // Run the test
         providerBase.setSpaceACLs(spaceId, newProps);
+
+        // Verify results
+        Map<String, String> propsSet = propsSetCapture.getValue();
+        Assert.assertNotNull(propsSet);
+
+        String userRead = propsSet.get(StorageProviderBase.ACL_USER_READ);
+        Assert.assertNotNull(userRead);
+        Assert.assertTrue(userRead.contains(userRead0));
+        Assert.assertTrue(userRead.contains(userRead1));
+
+        String userWrite = propsSet.get(StorageProviderBase.ACL_USER_WRITE);
+        Assert.assertNotNull(userWrite);
+        Assert.assertTrue(userWrite.contains(userWrite0));
+
+        String groupRead = propsSet.get(StorageProviderBase.ACL_GROUP_READ);
+        Assert.assertNotNull(groupRead);
+        Assert.assertTrue(groupRead.contains(groupRead0));
+
+        String groupWrite = propsSet.get(StorageProviderBase.ACL_GROUP_WRITE);
+        Assert.assertNotNull(groupWrite);
+        Assert.assertTrue(groupWrite.contains(groupWrite0));
+        Assert.assertTrue(groupWrite.contains(groupWrite1));
+    }
+
+    @Test
+    public void testPackUnpackACLs() {
+        Map<String, AclType> unpackedACLs = providerBase.unpackACLs(spaceACLs);
+        Map<String, String> repackedACLs = providerBase.packACLs(unpackedACLs);
+
+        // Verify equality (considering that ordering may differ)
+        for(String aclGrouping : spaceACLs.keySet()) {
+            String[] original = spaceACLs.get(aclGrouping)
+                                         .split(StorageProviderBase.ACL_DELIM);
+            Arrays.sort(original);
+            String[] repacked = repackedACLs.get(aclGrouping)
+                                            .split(StorageProviderBase.ACL_DELIM);
+            Arrays.sort(repacked);
+            Assert.assertArrayEquals(original, repacked); 
+        }
+
+        replayMocks();
+    }
+
+    @Test
+    public void testSetSpaceACLsEmpty() {
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId)).andReturn(
+            spaceProps);
+
+        Map<String, AclType> newProps = new HashMap<>();
+
+        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
+                                          EasyMock.capture(propsSetCapture));
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        // Run the test
+        providerBase.setSpaceACLs(spaceId, newProps);
+
+        // Verify results
+        Map<String, String> propsSet = propsSetCapture.getValue();
+        Assert.assertNotNull(propsSet);
+        Assert.assertEquals(systemProps, propsSet);
     }
 
     @Test

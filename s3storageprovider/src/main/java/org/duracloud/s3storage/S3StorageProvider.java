@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
@@ -23,6 +24,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
+import com.amazonaws.services.s3.model.TagSet;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
@@ -34,7 +36,6 @@ import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,12 +43,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
-import static org.duracloud.storage.util.StorageProviderUtil.loadProperties;
-import static org.duracloud.storage.util.StorageProviderUtil.storeProperties;
 
 /**
  * Provides content storage backed by Amazon's Simple Storage Service.
@@ -59,7 +57,8 @@ public class S3StorageProvider extends StorageProviderBase {
     private final Logger log = LoggerFactory.getLogger(S3StorageProvider.class);
 
     protected static final int MAX_ITEM_COUNT = 1000;
-    private static final StorageClass DEFAULT_STORAGE_CLASS = StorageClass.Standard;
+    private static final StorageClass DEFAULT_STORAGE_CLASS =
+        StorageClass.Standard;
 
     private String accessKeyId = null;
     protected AmazonS3Client s3Client = null;
@@ -93,7 +92,7 @@ public class S3StorageProvider extends StorageProviderBase {
     public Iterator<String> getSpaces() {
         log.debug("getSpaces()");
 
-        List<String> spaces = new ArrayList<String>();
+        List<String> spaces = new ArrayList<>();
         List<Bucket> buckets = listAllBuckets();
         for (Bucket bucket : buckets) {
             String bucketName = bucket.getName();
@@ -139,35 +138,18 @@ public class S3StorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        String bucketName = getBucketName(spaceId);
-        String bucketProperties = bucketName + SPACE_PROPERTIES_SUFFIX;
-
         if(maxResults <= 0) {
             maxResults = StorageProvider.DEFAULT_MAX_RESULTS;
         }
 
-        // Queries for maxResults +1 to account for the possibility of needing
-        // to remove the space properties but still maintain a full result
-        // set (size == maxResults).
-        List<String> spaceContents =
-            getCompleteSpaceContents(spaceId, prefix, maxResults + 1, marker);
-
-        if(spaceContents.contains(bucketProperties)) {
-            // Remove space properties
-            spaceContents.remove(bucketProperties);
-        } else if(spaceContents.size() > maxResults) {
-            // Remove extra content item
-            spaceContents.remove(spaceContents.size()-1);
-        }
-
-        return spaceContents;
+        return getCompleteSpaceContents(spaceId, prefix, maxResults, marker);
     }
 
     private List<String> getCompleteSpaceContents(String spaceId,
                                                   String prefix,
                                                   long maxResults,
                                                   String marker) {
-        List<String> contentItems = new ArrayList<String>();
+        List<String> contentItems = new ArrayList<>();
 
         List<S3ObjectSummary> objects =
             listObjects(spaceId, prefix, maxResults, marker);
@@ -216,7 +198,7 @@ public class S3StorageProvider extends StorageProviderBase {
         }
 
         // Add space properties
-        Map<String, String> spaceProperties = new HashMap<String, String>();
+        Map<String, String> spaceProperties = new HashMap<>();
         spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
 
         try {
@@ -240,8 +222,7 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
      private String formattedDate(Date created) {
-        RFC822_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
-        return RFC822_DATE_FORMAT.format(created);
+        return ISO8601_DATE_FORMAT.format(created);
     }
 
     /**
@@ -249,13 +230,6 @@ public class S3StorageProvider extends StorageProviderBase {
      */
     public void removeSpace(String spaceId) {
         String bucketName = getBucketName(spaceId);
-
-        String bucketProperties = bucketName + SPACE_PROPERTIES_SUFFIX;
-        try {
-            deleteContent(spaceId, bucketProperties);
-        } catch(NotFoundException e) {
-            // Properties has already been removed. Continue deleting space.
-        }
 
         try {
             s3Client.deleteBucket(bucketName);
@@ -274,13 +248,20 @@ public class S3StorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        // Space properties is stored as a content item
-        String bucketName = getBucketName(spaceId);
-        InputStream is = getContent(spaceId, bucketName + SPACE_PROPERTIES_SUFFIX);
-        Map<String, String> spaceProperties = loadProperties(is);
+        // Retrieve space properties from bucket tags
+        Map<String, String> spaceProperties = new HashMap<>();
+        BucketTaggingConfiguration tagConfig =
+            s3Client.getBucketTaggingConfiguration(getBucketName(spaceId));
+        if(null != tagConfig) {
+            for(TagSet tagSet : tagConfig.getAllTagSets()) {
+                spaceProperties.putAll(tagSet.getAllTags());
+            }
+        }
 
+        // Add space count
         spaceProperties.put(PROPERTIES_SPACE_COUNT,
-                          getSpaceCount(spaceId, MAX_ITEM_COUNT));
+                            getSpaceCount(spaceId, MAX_ITEM_COUNT));
+
         return spaceProperties;
     }
 
@@ -349,12 +330,12 @@ public class S3StorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        Map<String, String> originalProperties = null;
+        Map<String, String> originalProperties;
         try {
             originalProperties = getAllSpaceProperties(spaceId);
         } catch(NotFoundException e) {
             // Likely adding a new space, so no existing properties yet.
-            originalProperties = new HashMap<String, String>();
+            originalProperties = new HashMap<>();
         }
 
         // Set creation date
@@ -367,10 +348,11 @@ public class S3StorageProvider extends StorageProviderBase {
         }
         spaceProperties.put(PROPERTIES_SPACE_CREATED, creationDate);
 
+        // Store properties
         String bucketName = getBucketName(spaceId);
-        ByteArrayInputStream is = storeProperties(spaceProperties);
-        addContent(spaceId, bucketName + SPACE_PROPERTIES_SUFFIX, "text/xml",
-                   null, is.available(), null, is);
+        BucketTaggingConfiguration tagConfig = new BucketTaggingConfiguration()
+            .withTagSets(new TagSet(spaceProperties));
+        s3Client.setBucketTaggingConfiguration(bucketName, tagConfig);
     }
 
     /**
@@ -690,7 +672,7 @@ public class S3StorageProvider extends StorageProviderBase {
             throw new StorageException(err, NO_RETRY);
         }
 
-        Map<String, String> contentProperties = new HashMap<String, String>();
+        Map<String, String> contentProperties = new HashMap<>();
 
         // Set the user properties
         Map<String, String> userProperties = objMetadata.getUserMetadata();

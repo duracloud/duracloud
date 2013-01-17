@@ -9,6 +9,7 @@ package org.duracloud.rackspacestorage;
 
 import com.rackspacecloud.client.cloudfiles.FilesClient;
 import org.duracloud.openstackstorage.OpenStackStorageProvider;
+import org.jclouds.openstack.swift.SwiftClient;
 
 /**
  * Provides content storage backed by Rackspace's Cloud Files service.
@@ -29,8 +30,9 @@ public class RackspaceStorageProvider extends OpenStackStorageProvider {
         super(username, apiAccessKey, null);
     }
 
-    public RackspaceStorageProvider(FilesClient filesClient) {
-        super(filesClient);
+    public RackspaceStorageProvider(FilesClient filesClient,
+                                    SwiftClient swiftClient) {
+        super(filesClient, swiftClient);
     }
 
     @Override

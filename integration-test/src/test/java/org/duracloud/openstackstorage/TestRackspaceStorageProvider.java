@@ -177,11 +177,6 @@ public class TestRackspaceStorageProvider {
             rackspaceProvider.getSpaceContents(SPACE_ID, null);
         assertNotNull(spaceContents);
         assertEquals(3, count(spaceContents));
-        // Ensure that space properties is not included in contents list
-        spaceContents = rackspaceProvider.getSpaceContents(SPACE_ID, null);
-        String containerName = rackspaceProvider.getContainerName(SPACE_ID);
-        String spaceMetaSuffix = RackspaceStorageProvider.SPACE_PROPERTIES_SUFFIX;
-        assertFalse(contains(spaceContents, containerName + spaceMetaSuffix));
 
         // test getSpaceContentsChunked() maxLimit
         log.debug("Test getSpaceContentsChunked() maxLimit");

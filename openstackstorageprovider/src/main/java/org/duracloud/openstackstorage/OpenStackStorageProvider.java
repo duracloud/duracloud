@@ -25,10 +25,14 @@ import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.duracloud.storage.util.StorageProviderUtil;
+import org.jclouds.ContextBuilder;
+import org.jclouds.openstack.swift.SwiftApiMetadata;
+import org.jclouds.openstack.swift.SwiftAsyncClient;
+import org.jclouds.openstack.swift.SwiftClient;
+import org.jclouds.rest.RestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -43,8 +47,6 @@ import java.util.TimeZone;
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
 import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
-import static org.duracloud.storage.util.StorageProviderUtil.loadProperties;
-import static org.duracloud.storage.util.StorageProviderUtil.storeProperties;
 
 /**
  * Provides content storage access to OpenStack storage providers.
@@ -56,6 +58,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
     private final Logger log = LoggerFactory.getLogger(OpenStackStorageProvider.class);
 
     private FilesClient filesClient = null;
+    private SwiftClient swiftClient = null;
 
     public OpenStackStorageProvider(String username,
                                     String apiAccessKey,
@@ -69,6 +72,15 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             if (!filesClient.login()) {
                 throw new Exception("Login to " + getProviderName() + " failed");
             }
+
+            String trimmedAuthUrl = // JClouds expects authURL with no version
+                authUrl.substring(0, authUrl.lastIndexOf("/"));
+            RestContext<SwiftClient, SwiftAsyncClient> context =
+                ContextBuilder.newBuilder(new SwiftApiMetadata())
+                              .endpoint(trimmedAuthUrl)
+                              .credentials(username, apiAccessKey)
+                              .build(SwiftApiMetadata.CONTEXT_TOKEN);
+            swiftClient = context.getApi();
         } catch (Exception e) {
             String err = "Could not connect to " + getProviderName() +
                 " due to error: " + e.getMessage();
@@ -80,8 +92,10 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         this(username, apiAccessKey, null);
     }
 
-    public OpenStackStorageProvider(FilesClient filesClient) {
+    public OpenStackStorageProvider(FilesClient filesClient,
+                                    SwiftClient swiftClient) {
         this.filesClient = filesClient;
+        this.swiftClient = swiftClient;
     }
 
     public abstract String getAuthUrl();
@@ -147,26 +161,12 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        String bucketName = getContainerName(spaceId);
-        String bucketProperties = bucketName + SPACE_PROPERTIES_SUFFIX;
-
         if(maxResults <= 0) {
             maxResults = StorageProvider.DEFAULT_MAX_RESULTS;
         }
 
-        // Queries for maxResults +1 to account for the possibility of needing
-        // to remove the space properties but still maintain a full result
-        // set (size == maxResults).
         List<String> spaceContents =
-            getCompleteSpaceContents(spaceId, prefix, maxResults + 1, marker);
-
-        if(spaceContents.contains(bucketProperties)) {
-            // Remove space properties
-            spaceContents.remove(bucketProperties);
-        } else if(spaceContents.size() > maxResults) {
-            // Remove extra content item
-            spaceContents.remove(spaceContents.size()-1);
-        }
+            getCompleteSpaceContents(spaceId, prefix, maxResults, marker);
 
         return spaceContents;
     }
@@ -321,19 +321,12 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         }
 
         String containerName = getContainerName(spaceId);
-        ByteArrayInputStream is = storeProperties(spaceProperties);
-        addContent(spaceId,
-                   containerName + SPACE_PROPERTIES_SUFFIX,
-                   "text/xml",
-                   null,
-                   is.available(),
-                   null,
-                   is);
+        swiftClient.setContainerMetadata(containerName, spaceProperties);
     }
 
     private String formattedDate(Date created) {
-        RFC822_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
-        return RFC822_DATE_FORMAT.format(created);
+        ISO8601_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
+        return ISO8601_DATE_FORMAT.format(created);
     }
 
     private void createContainer(String spaceId) {
@@ -368,14 +361,6 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             "Could not delete " + getProviderName() + " container with name " +
                 containerName + " due to error: ");
 
-        String bucketProperties =
-            getContainerName(spaceId) + SPACE_PROPERTIES_SUFFIX;
-        try {
-            deleteContent(spaceId, bucketProperties);
-        } catch(NotFoundException e) {
-            // Properties has already been removed. Continue deleting space.
-        }
-
         try {
             filesClient.deleteContainer(containerName);
         } catch (FilesNotFoundException e) {
@@ -407,22 +392,19 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        // Space properties is stored as a content item
         String containerName = getContainerName(spaceId);
-        InputStream is =
-                getContent(spaceId, containerName + SPACE_PROPERTIES_SUFFIX);
-        Map<String, String> spaceProperties = loadProperties(is);
+        Map<String, String> containerMetadata =
+            swiftClient.getContainerMetadata(containerName).getMetadata();
 
+        Map<String, String> spaceProperties = new HashMap<>();
+        spaceProperties.putAll(containerMetadata);
+
+        // Add count and size properties
         FilesContainerInfo containerInfo = getContainerInfo(containerName);
-
-        final int sysPropertiesObjectCount = 1;
-        int totalObjectCount = containerInfo.getObjectCount();
-        int visibleObjectCount = totalObjectCount - sysPropertiesObjectCount;
         spaceProperties.put(PROPERTIES_SPACE_COUNT,
-                          String.valueOf(visibleObjectCount));
-
-        spaceProperties.put(PROPERTIES_SPACE_SIZE, String.valueOf(containerInfo
-                .getTotalSize()));
+                            String.valueOf(containerInfo.getObjectCount()));
+        spaceProperties.put(PROPERTIES_SPACE_SIZE,
+                            String.valueOf(containerInfo.getTotalSize()));
 
         return spaceProperties;
     }
@@ -463,7 +445,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         Date created = null;
         try {
-            created =  RFC822_DATE_FORMAT.parse(dateText);
+            created =  ISO8601_DATE_FORMAT.parse(dateText);
         } catch (ParseException e) {
             log.warn("Unable to parse date: '" + dateText + "'");
         }

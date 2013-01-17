@@ -10,6 +10,8 @@ package org.duracloud.sdscstorage;
 import com.rackspacecloud.client.cloudfiles.FilesClient;
 import junit.framework.Assert;
 import org.easymock.EasyMock;
+import org.jclouds.openstack.swift.SwiftClient;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,11 +22,25 @@ import org.junit.Test;
 public class SDSCStorageProviderTest {
 
     private SDSCStorageProvider provider;
+    private FilesClient filesClient;
+    private SwiftClient swiftClient;
 
     @Before
     public void setup() {
-        FilesClient filesClient = EasyMock.createMock(FilesClient.class);
-        provider = new SDSCStorageProvider(filesClient);
+        filesClient = EasyMock.createMock("FilesClient", FilesClient.class);
+        swiftClient = EasyMock.createMock("SwiftClient", SwiftClient.class);
+        provider = new SDSCStorageProvider(filesClient, swiftClient);
+
+        replayMocks();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        EasyMock.verify(filesClient, swiftClient);
+    }
+
+    private void replayMocks() {
+        EasyMock.replay(filesClient, swiftClient);
     }
 
     @Test

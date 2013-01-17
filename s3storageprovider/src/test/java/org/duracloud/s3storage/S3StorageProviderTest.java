@@ -10,13 +10,20 @@ package org.duracloud.s3storage;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
+import com.amazonaws.services.s3.model.TagSet;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -28,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,6 +269,134 @@ public class S3StorageProviderTest {
         String resultEtag = provider.doesContentExist("bucketname", "contentId");
         assertNotNull(resultEtag);
         assertEquals(etag, resultEtag);
+    }
+
+    @Test
+    public void testGetSpaceContentsChunked() throws Exception {
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        String spaceId = "space-id";
+        String prefix = null;
+        long maxResults = 2;
+        String marker = null;
+
+        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
+                .andReturn(true);
+
+        ObjectListing objectListing =
+            EasyMock.createMock("ObjectListing", ObjectListing.class);
+        setUpListObjects(objectListing, 1);
+        EasyMock.replay(s3Client, objectListing);
+
+        S3StorageProvider provider = getProvider();
+        List<String> contentIds = provider.getSpaceContentsChunked(spaceId,
+                                                                   prefix,
+                                                                   maxResults,
+                                                                   marker);
+        Assert.assertNotNull(contentIds);
+        Assert.assertEquals("item0", contentIds.get(0));
+
+        EasyMock.verify(s3Client, objectListing);
+    }
+
+    private void setUpListObjects(ObjectListing objectListing, int numItems) {
+        List<S3ObjectSummary> objectSummaries = new ArrayList<>();
+        for(int i=0; i<numItems; i++) {
+            S3ObjectSummary summary = new S3ObjectSummary();
+            summary.setKey("item" + i);
+            objectSummaries.add(summary);
+        }
+
+        EasyMock.expect(
+            s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
+                .andReturn(objectListing);
+        EasyMock.expect(objectListing.getObjectSummaries())
+                .andReturn(objectSummaries);
+    }
+
+    private S3StorageProvider getProvider() {
+        Map<String, String> options = new HashMap<>();
+        return new S3StorageProvider(s3Client, "accessKey", options);
+    }
+
+    @Test
+    public void testGetAllSpaceProperties() throws Exception {
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        String spaceId = "space-id";
+
+        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
+                .andReturn(true)
+                .anyTimes();
+
+        Map<String, String> bucketTags = new HashMap<>();
+        bucketTags.put("tag-one", "tag-one-value");
+        BucketTaggingConfiguration tagConfig =
+            new BucketTaggingConfiguration().withTagSets(new TagSet(bucketTags));
+        EasyMock.expect(
+            s3Client.getBucketTaggingConfiguration(EasyMock.isA(String.class)))
+                .andReturn(tagConfig);
+
+        ObjectListing objectListing =
+            EasyMock.createMock("ObjectListing", ObjectListing.class);
+        setUpListObjects(objectListing, 1);
+        setUpListObjects(objectListing, 0);
+
+        EasyMock.replay(s3Client, objectListing);
+
+        S3StorageProvider provider = getProvider();
+        Map<String, String> spaceProps = provider.getAllSpaceProperties(spaceId);
+        Assert.assertNotNull(spaceProps);
+        Assert.assertEquals("tag-one-value", spaceProps.get("tag-one"));
+        Assert.assertEquals(String.valueOf(1),
+                            spaceProps.get(
+                                StorageProvider.PROPERTIES_SPACE_COUNT));
+
+        EasyMock.verify(s3Client, objectListing);
+    }
+
+    @Test
+    public void testDoSetSpaceProperties() {
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        String spaceId = "space-id";
+
+        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
+            .andReturn(true).anyTimes();
+
+        // Add props as tags
+        EasyMock.expect(
+            s3Client.getBucketTaggingConfiguration(EasyMock.isA(String.class)))
+                .andThrow(new NotFoundException(spaceId));
+        Capture<BucketTaggingConfiguration> tagConfigCap = new Capture<>();
+        s3Client.setBucketTaggingConfiguration(EasyMock.isA(String.class),
+                                               EasyMock.capture(tagConfigCap));
+        EasyMock.expectLastCall();
+
+        S3StorageProvider provider = getProvider();
+
+        Bucket bucket = new Bucket();
+        bucket.setName(provider.getBucketName(spaceId));
+        bucket.setCreationDate(new Date());
+        List<Bucket> buckets = new ArrayList<>();
+        buckets.add(bucket);
+        EasyMock.expect(s3Client.listBuckets())
+                .andReturn(buckets);
+
+        EasyMock.replay(s3Client);
+
+        Map<String, String> spaceProps = new HashMap<>();
+        spaceProps.put("one", "two");
+        provider.doSetSpaceProperties(spaceId, spaceProps);
+
+        BucketTaggingConfiguration tagConfig = tagConfigCap.getValue();
+        Assert.assertNotNull(tagConfig);
+        Map<String, String> props =
+            tagConfig.getAllTagSets().get(0).getAllTags();
+        Assert.assertNotNull(props);
+        Assert.assertEquals(2, props.size());
+        Assert.assertEquals("two", props.get("one"));
+        Assert.assertNotNull(
+            props.get(StorageProvider.PROPERTIES_SPACE_CREATED));
+
+        EasyMock.verify(s3Client);
     }
 
 }

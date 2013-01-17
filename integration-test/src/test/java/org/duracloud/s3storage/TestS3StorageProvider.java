@@ -157,7 +157,7 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
         assertNotNull(cProperties.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM));
         // Make sure date is in RFC-822 format
         String lastModified = cProperties.get(StorageProvider.PROPERTIES_CONTENT_MODIFIED);
-        StorageProvider.RFC822_DATE_FORMAT.parse(lastModified);
+        StorageProvider.ISO8601_DATE_FORMAT.parse(lastModified);
 
         // Check content access
         log.debug("Check content access");
@@ -178,10 +178,6 @@ public class TestS3StorageProvider extends S3ProviderTestBase {
             s3Provider.getSpaceContents(spaceId, null);
         assertNotNull(spaceContents);
         assertEquals(3, count(spaceContents));
-        // Ensure that space properties is not included in contents list
-        spaceContents = s3Provider.getSpaceContents(spaceId, null);
-        String spaceMetaSuffix = S3StorageProvider.SPACE_PROPERTIES_SUFFIX;
-        assertFalse(contains(spaceContents, bucketName + spaceMetaSuffix));
 
         // test getSpaceContentsChunked() maxLimit
         log.debug("Test getSpaceContentsChunked() maxLimit");

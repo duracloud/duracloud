@@ -11,6 +11,7 @@ import com.rackspacecloud.client.cloudfiles.FilesClient;
 import com.rackspacecloud.client.cloudfiles.FilesObjectMetaData;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
+import org.jclouds.openstack.swift.SwiftClient;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,15 +27,21 @@ import java.util.Map;
 public class RackspaceStorageProviderTest {
 
     private FilesClient filesClient;
+    private SwiftClient swiftClient;
 
     @Before
     public void setUp() throws Exception {
         filesClient = EasyMock.createMock("FilesClient", FilesClient.class);
+        swiftClient = EasyMock.createMock("SwiftClient", SwiftClient.class);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(filesClient);
+        EasyMock.verify(filesClient, swiftClient);
+    }
+
+    private void replayMocks() {
+        EasyMock.replay(filesClient, swiftClient);
     }
 
     @Test
@@ -49,8 +56,8 @@ public class RackspaceStorageProviderTest {
                                      destSpaceId,
                                      destContentId,
                                      expectedMD5);
-        RackspaceStorageProvider provider = new RackspaceStorageProvider(
-            filesClient);
+        RackspaceStorageProvider provider =
+            new RackspaceStorageProvider(filesClient, swiftClient);
 
         String md5 = provider.copyContent(srcSpaceId,
                                           srcContentId,
@@ -87,6 +94,6 @@ public class RackspaceStorageProviderTest {
                                                EasyMock.eq(destContentId)))
             .andReturn(expectedMD5);
 
-        EasyMock.replay(filesClient);
+        replayMocks();
     }
 }
