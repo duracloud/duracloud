@@ -2770,28 +2770,6 @@ $(function(){
                 
                 
             }
-            
-            this._loadHistoryPanel(space);
-
-            var mp = this._loadPropertiesPane(space.extendedProperties, readOnly);
-
-            
-            $(mp).bind("dc-add", function(evt, future){
-                    var value = future.value;
-                    that._addSpaceProperties(space.spaceId, value.name, value.value, future);
-                }).bind("dc-remove", function(evt, future){
-                    that._removeSpaceProperties(space.spaceId, future.value.name,future);
-                });
-            
-            var tag = that._loadTagPane(space.properties.tags, readOnly);
-
-            $(tag).bind("dc-add", function(evt, future){
-                var value = future.value[0];
-                that._addSpaceTag(space.spaceId, value, future);
-            }).bind("dc-remove", function(evt, future){
-                var value = future.value;
-                that._removeSpaceTag(space.spaceId, value, future);
-            });
         },
 
         _loadHistoryPanel: function(options){

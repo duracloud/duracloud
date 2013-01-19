@@ -264,36 +264,6 @@ public class SpaceController extends  AbstractRestController<Space> {
         request.getSession().getServletContext().removeAttribute(key);
     }
 
-    // FIXME: This method should be removed, as updating space
-    //        properties is no longer a valid action. It is being left in
-    //        place for now to aid in selecting and removing the necessary
-    //        UI components. -bb
-    @Override
-    protected ModelAndView put(HttpServletRequest request,
-                               HttpServletResponse response,
-                               Space space,
-                               BindException errors) throws Exception {
-
-        String spaceId = space.getSpaceId();
-        ContentStore contentStore = getContentStore(space);
-
-        String method = request.getParameter("method");
-        Map<String, String> properties =
-            contentStore.getSpaceProperties(spaceId);
-        PropertiesUtils.handle(method,
-                               "space [" + spaceId + "]",
-                               properties,
-                               request);
-
-        //contentStore.setSpaceProperties(spaceId, properties);
-
-        Space newSpace = new Space();
-        populateSpace(newSpace,
-                      contentStore.getSpace(spaceId, null, 0, null),
-                      contentStore);
-        return createModel(newSpace);
-    }
-
 	private Authentication getAuthentication() {
 	    return (Authentication)SecurityContextHolder.getContext().getAuthentication();
     }
