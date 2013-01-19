@@ -461,7 +461,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             msg.append("No ").append(PROPERTIES_SPACE_CREATED).append(" found ");
             msg.append("for spaceId: ").append(spaceId);
             log.error(msg.toString());
-            throw new StorageException(msg.toString());
+            creationTime = ISO8601_DATE_FORMAT.format(new Date());
         }
 
         return creationTime;
