@@ -447,7 +447,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return null;
     }
 
-    private void wait(int seconds) {
+    protected void wait(int seconds) {
         try {
             Thread.sleep(1000 * seconds);
         } catch(InterruptedException e) {

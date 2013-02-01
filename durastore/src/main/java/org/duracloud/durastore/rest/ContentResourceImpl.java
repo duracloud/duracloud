@@ -9,13 +9,15 @@ package org.duracloud.durastore.rest;
 
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
-import org.duracloud.storage.provider.BrokeredStorageProvider;
-import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.durastore.error.ResourceStateException;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.error.StorageStateException;
+import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +60,11 @@ public class ContentResourceImpl implements ContentResource {
                                                 spaceID,
                                                 contentID,
                                                 e);
+        } catch (StorageStateException e) {
+            throw new ResourceStateException("get content",
+                                             spaceID,
+                                             contentID,
+                                             e);
         } catch (StorageException e) {
             throw new ResourceException("get content", spaceID, contentID, e);
         }
@@ -117,6 +124,11 @@ public class ContentResourceImpl implements ContentResource {
                                                 spaceID,
                                                 contentID,
                                                 e);
+        } catch (StorageStateException e) {
+            throw new ResourceStateException("update properties for content",
+                                             spaceID,
+                                             contentID,
+                                             e);
         } catch (StorageException e) {
             throw new ResourceException("update properties for content",
                                         spaceID,
@@ -252,6 +264,15 @@ public class ContentResourceImpl implements ContentResource {
                                                 destSpaceID,
                                                 destContentID,
                                                 e);
+        } catch (StorageStateException e) {
+            throw new ResourceStateException("copy content",
+                                             srcStorage.getTargetType().name(),
+                                             srcSpaceID,
+                                             srcContentID,
+                                             destStorage.getTargetType().name(),
+                                             destSpaceID,
+                                             destContentID,
+                                             e);
         } catch (StorageException e) {
             throw new ResourceException("copy content",
                                         srcStorage.getTargetType().name(),
@@ -283,6 +304,13 @@ public class ContentResourceImpl implements ContentResource {
                                                 destSpaceID,
                                                 destContentID,
                                                 e);
+        } catch (StorageStateException e) {
+            throw new ResourceStateException("copy content",
+                                             srcSpaceID,
+                                             srcContentID,
+                                             destSpaceID,
+                                             destContentID,
+                                             e);
         } catch (StorageException e) {
             throw new ResourceException("copy content",
                                         srcSpaceID,

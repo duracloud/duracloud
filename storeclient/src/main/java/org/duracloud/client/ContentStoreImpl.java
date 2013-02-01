@@ -16,6 +16,7 @@ import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.domain.Content;
 import org.duracloud.domain.Space;
+import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
@@ -661,6 +662,8 @@ public class ContentStoreImpl implements ContentStore{
             } else if (responseCode == HttpStatus.SC_FORBIDDEN) {
                 throw new UnauthorizedException(
                     "User is not authorized to perform the requested function");
+            } else if (responseCode == HttpStatus.SC_CONFLICT) {
+                throw new ContentStateException(errMsg);
             } else {
                 throw new ContentStoreException(errMsg);
             }

@@ -13,6 +13,7 @@ import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
+import org.duracloud.durastore.error.ResourceStateException;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -39,6 +40,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
@@ -89,6 +91,9 @@ public class ContentRest extends BaseRest {
 
         } catch (ResourceNotFoundException e) {
             return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceStateException e) {
+            return responseBad(msg.toString(), e, CONFLICT);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -294,6 +299,9 @@ public class ContentRest extends BaseRest {
         } catch (ResourceNotFoundException e) {
             return responseBad(msg.toString(), e, NOT_FOUND);
 
+        } catch (ResourceStateException e) {
+            return responseBad(msg.toString(), e, CONFLICT);
+
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
 
@@ -464,6 +472,9 @@ public class ContentRest extends BaseRest {
 
         } catch (ResourceNotFoundException e) {
             return responseBad(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceStateException e) {
+            return responseBad(msg.toString(), e, CONFLICT);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);

@@ -8,11 +8,13 @@
 package org.duracloud.glacierstorage;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.error.StorageStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +30,8 @@ import java.util.Map;
  * Date: Dec 6, 2012
  */
 public class GlacierStorageProvider extends S3StorageProvider {
+
+    protected static final String INVALID_OBJECT_STATE = "InvalidObjectState";
 
     private final Logger log =
         LoggerFactory.getLogger(GlacierStorageProvider.class);
@@ -91,6 +95,7 @@ public class GlacierStorageProvider extends S3StorageProvider {
                 success = true;
             } catch (NotFoundException e) {
                 success = false;
+                wait(loops);
             }
         }
 
@@ -115,7 +120,7 @@ public class GlacierStorageProvider extends S3StorageProvider {
                                      destSpaceId,
                                      destContentId);
         } catch (StorageException e) {
-            // TODO: Handle attempts to copy archived content
+            checkStorageState(e);
             throw e;
         }
     }
@@ -131,7 +136,7 @@ public class GlacierStorageProvider extends S3StorageProvider {
         try {
             return super.getContent(spaceId, contentId);
         } catch (StorageException e) {
-            // TODO: Handle attempts to retrieve archived content
+            checkStorageState(e);
             throw e;
         }
     }
@@ -150,8 +155,27 @@ public class GlacierStorageProvider extends S3StorageProvider {
                                        contentId,
                                        contentProperties);
         } catch (StorageException e) {
-            // TODO: Handle attempts to set properties on archived content
+            checkStorageState(e);
             throw e; 
+        }
+    }
+
+    /**
+     * Recognize and handle exceptions due to content which resides in Glacier
+     * but has not been retrieved for access.
+     */
+    private void checkStorageState(StorageException e) {
+        if(e.getCause() instanceof AmazonS3Exception) {
+            String errorCode =
+                ((AmazonS3Exception)e.getCause()).getErrorCode();
+            if(INVALID_OBJECT_STATE.equals(errorCode)) {
+                String message = "The storage state of this content item " +
+                    "does not allow for this action to be taken. To resolve " +
+                    "this issue: 1. Request that this content item be " +
+                    "retrieved from offline storage 2. Wait (retrieval may " +
+                    "take up to 5 hours) 3. Retry this request";
+                throw new StorageStateException(message, e);
+            }
         }
     }
 
