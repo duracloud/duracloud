@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.glaciertask.GlacierTaskProvider;
 import org.duracloud.s3task.S3TaskProvider;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
@@ -58,6 +59,8 @@ public class TaskProviderFactory extends ProviderFactoryBase {
         TaskProvider taskProvider = null;
         if (type.equals(StorageProviderType.AMAZON_S3)) {
             taskProvider = new S3TaskProvider(username, password);
+        } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
+            taskProvider = new GlacierTaskProvider(username, password);
         } else {
             throw new TaskException("No TaskProvider is available for " + type);
         }

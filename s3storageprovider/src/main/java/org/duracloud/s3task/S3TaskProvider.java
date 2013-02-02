@@ -20,15 +20,9 @@ import org.duracloud.s3task.streaming.AddStreamingItemTaskRunner;
 import org.duracloud.s3task.streaming.DeleteStreamingTaskRunner;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
-import org.duracloud.storage.error.UnsupportedTaskException;
-import org.duracloud.storage.provider.TaskProvider;
-import org.duracloud.storage.provider.TaskRunner;
+import org.duracloud.storage.provider.TaskProviderBase;
 import org.jets3t.service.CloudFrontService;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Handles tasks specific to content stored in Amazon S3 
@@ -36,13 +30,11 @@ import java.util.List;
  * @author: Bill Branan
  * Date: May 20, 2010
  */
-public class S3TaskProvider implements TaskProvider {
-
-    private final Logger log = LoggerFactory.getLogger(S3TaskProvider.class);
-
-    private List<TaskRunner> taskList = new ArrayList<TaskRunner>();
+public class S3TaskProvider extends TaskProviderBase {
 
     public S3TaskProvider(String accessKey, String secretKey) {
+        log = LoggerFactory.getLogger(S3TaskProvider.class);
+
         S3StorageProvider s3Provider =
             new S3StorageProvider(accessKey, secretKey);
         CloudFrontService cfService =
@@ -75,25 +67,4 @@ public class S3TaskProvider implements TaskProvider {
         taskList.add(new SetReducedStorageTaskRunner(s3Provider, s3Client));
     }
 
-    public List<String> getSupportedTasks() {
-        log.debug("getSupportedTasks()");
-
-        List<String> supportedTasks = new ArrayList<String>();
-        for(TaskRunner runner : taskList) {
-            supportedTasks.add(runner.getName());
-        }
-        return supportedTasks;
-    }
-
-    public String performTask(String taskName, String taskParameters) {
-        log.debug("performTask(" + taskName + ", " + taskParameters + ")");
-
-        for(TaskRunner runner : taskList) {
-            if(runner.getName().equals(taskName)) {
-                return runner.performTask(taskParameters);
-            }
-        }
-        throw new UnsupportedTaskException(taskName);
-    }
-    
 }
