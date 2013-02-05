@@ -10,6 +10,7 @@ package org.duracloud.client;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -21,7 +22,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -417,6 +420,27 @@ public class ContentStoreImplTest {
             response);
 
         replayMocks();
+    }
+
+    @Test
+    public void testGetSupportedTasks() throws Exception {
+        List<String> supportedtaskList = new ArrayList<>();
+        supportedtaskList.add("task1");
+        String xml = SerializationUtil.serializeList(supportedtaskList);
+
+        String fullURL = baseURL + "/task" + "?storeID=" + storeId;
+        RestHttpHelper.HttpResponse response = EasyMock.createMock(
+            "HttpResponse",
+            RestHttpHelper.HttpResponse.class);
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseBody()).andReturn(xml);
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+
+        EasyMock.replay(response);
+        replayMocks();
+
+        List<String> taskList = contentStore.getSupportedTasks();
+        Assert.assertEquals(supportedtaskList, taskList);
     }
 
 }

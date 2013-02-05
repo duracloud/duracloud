@@ -31,6 +31,9 @@
     <intercept-url pattern="/task" method="GET" access="ROLE_ADMIN"/>
     <intercept-url pattern="/task" method="POST" access="ROLE_ADMIN"/>
 
+    <!-- limit access to the Glacier content restore capability -->
+    <intercept-url pattern="/task/restore-content" method="POST" access="ROLE_ROOT"/>
+
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
 
