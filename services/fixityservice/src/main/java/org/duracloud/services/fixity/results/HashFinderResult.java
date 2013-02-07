@@ -18,7 +18,8 @@ import java.util.Collection;
  */
 public class HashFinderResult implements ServiceResult {
 
-    private static final Logger log = LoggerFactory.getLogger(HashFinderResult.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(HashFinderResult.class);
 
     private String spaceId;
     private String contentId;
@@ -44,11 +45,6 @@ public class HashFinderResult implements ServiceResult {
         results.append(DELIM);
         results.append(hash);
         return results.toString();
-    }
-
-    @Override
-    public String getHeader() {
-        return HEADER;
     }
 
     @Override

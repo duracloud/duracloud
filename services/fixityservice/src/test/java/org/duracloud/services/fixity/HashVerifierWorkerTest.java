@@ -14,7 +14,6 @@ import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.domain.ContentLocation;
 import org.duracloud.services.fixity.domain.ContentLocationPair;
-import org.duracloud.services.fixity.results.HashFinderResult;
 import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.easymock.EasyMock;
 import org.junit.Assert;
@@ -55,7 +54,7 @@ public class HashVerifierWorkerTest {
     private Map<String, String> expectedStatusInvalid;
 
     private File workDir = new File("target/test-hash-verifier");
-    private String header = new HashFinderResult(true, "", "", "").getHeader();
+    private String header = "header";
 
     private final String newline = System.getProperty("line.separator");
     private static final int NUM_ENTRIES = 25;

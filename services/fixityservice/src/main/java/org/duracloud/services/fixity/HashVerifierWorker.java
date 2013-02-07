@@ -7,15 +7,6 @@
  */
 package org.duracloud.services.fixity;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
@@ -33,6 +24,15 @@ import org.duracloud.services.fixity.results.ServiceResultListener;
 import org.duracloud.services.fixity.util.FixityManifestVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * @author Andrew Woods
@@ -153,8 +153,6 @@ public class HashVerifierWorker implements Runnable {
 
     private void sendResult(boolean success, String text, Collection<ServiceResultItem> subResults) {
         resultListener.processServiceResult(new HashVerifierResult(success,
-                                                                   this.workItemLocationA,
-                                                                   this.workItemLocationB,
                                                                    text,
                                                                    subResults));
     }

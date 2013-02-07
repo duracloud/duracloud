@@ -70,6 +70,9 @@ public class FixityServiceTest {
     public void setUp() throws Exception {
         fixity = new FixityService();
 
+        store = EasyMock.createMock("ContentStore",
+                                    ContentStore.class);
+
         if (!workDir.exists()) {
             Assert.assertTrue(workDir.getCanonicalPath(), workDir.mkdir());
         }
@@ -351,9 +354,6 @@ public class FixityServiceTest {
 
     private ContentStore createMockContentStore(Mode mode)
         throws ContentStoreException {
-        store = EasyMock.createMock("ContentStore",
-                                    ContentStore.class);
-
         switch (mode) {
             case GENERATE_SPACE: // used by testStop
                 EasyMock.expect(store.getSpaceContents(targetSpaceId))
@@ -443,6 +443,29 @@ public class FixityServiceTest {
 
     private InputStream getContentStream(String text) {
         return new AutoCloseInputStream(new ByteArrayInputStream(text.getBytes()));
+    }
+
+    @Test
+    public void testGetHashingHeader() {
+        String header = fixity.getHashingHeader();
+        Assert.assertEquals("space-id" + DELIM + "content-id" + DELIM + "MD5",
+                            header);
+
+        EasyMock.replay(store);
+    }
+
+    @Test
+    public void testGetComparingHeader() {
+        String header = fixity.getComparingHeader(spaceIdA,
+                                                  contentIdA,
+                                                  spaceIdB,
+                                                  contentIdB);
+        String expected = "space-id" + DELIM + "content-id" + DELIM + "0:" +
+                          spaceIdA + "/" + contentIdA + DELIM + "1:" +
+                          spaceIdB + "/" + contentIdB + DELIM + "status";
+        Assert.assertEquals(expected, header);
+
+        EasyMock.replay(store);
     }
 
 }

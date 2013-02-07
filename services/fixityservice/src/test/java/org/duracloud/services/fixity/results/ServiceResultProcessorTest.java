@@ -7,6 +7,7 @@
  */
 package org.duracloud.services.fixity.results;
 
+import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.services.fixity.status.StatusListener;
@@ -33,6 +34,8 @@ public class ServiceResultProcessorTest {
 
     private ServiceResultProcessor processor;
     private StatusListener statusListener;
+
+    private String header = "header-value";
 
     private String outputSpaceId = "output-space-id";
     private String outputContentId = "output-content-id";
@@ -126,7 +129,7 @@ public class ServiceResultProcessorTest {
     }
 
     @Test
-    public void testSetTotalWorkItems() throws ContentStoreException {
+    public void testSetTotalWorkItems() throws Exception {
         long numItems = 0;
         int numErrors = 1;
         doTestSetTotalWorkItems(numItems, numErrors);
@@ -141,7 +144,7 @@ public class ServiceResultProcessorTest {
     }
 
     private void doTestSetTotalWorkItems(long numItems, int numErrors)
-        throws ContentStoreException {
+        throws Exception {
         statusListener = createMockListener(numErrors);
         processor = createProcessor(statusListener);
 
@@ -161,10 +164,11 @@ public class ServiceResultProcessorTest {
     }
 
     private ServiceResultProcessor createProcessor(StatusListener listener)
-        throws ContentStoreException {
+        throws Exception {
         ContentStore contentStore = createContentStore();
         ServiceResultProcessor processor =
             new ServiceResultProcessor(contentStore,
+                                       header,
                                        listener,
                                        outputSpaceId,
                                        outputContentId,
@@ -173,7 +177,8 @@ public class ServiceResultProcessorTest {
                                        "previous status blah",
                                        workDir);
         File file = new File(workDir, outputContentId);
-        Assert.assertFalse(file.exists()); // File is created lazily
+        Assert.assertTrue(file.exists());
+        Assert.assertTrue(FileUtils.readFileToString(file).startsWith(header));
 
         return processor;
     }
@@ -221,7 +226,7 @@ public class ServiceResultProcessorTest {
         String line;
         while ((line = reader.readLine()) != null) {
             if (i == -1) {
-                Assert.assertEquals(result.getHeader(), line);
+                Assert.assertEquals(header, line);
             } else {
                 StringBuilder expected = new StringBuilder(SPACE_PREFIX);
                 expected.append(i);

@@ -20,12 +20,7 @@ public interface ServiceResult {
 
     public static final char DELIM = '\t';
 
-    public static final String HEADER =
-        "space-id" + DELIM + "content-id" + DELIM + "MD5";
-
     public String getEntry();
-
-    public String getHeader();
 
     public boolean isSuccess();
     

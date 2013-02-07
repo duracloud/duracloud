@@ -219,6 +219,7 @@ public class FixityService extends BaseService implements ComputeService, Manage
                                 CountDownLatch doneHashing) {
         ServiceResultProcessor resultListener = new ServiceResultProcessor(
             contentStore,
+            getHashingHeader(),
             this,
             serviceOptions.getOutputSpaceId(),
             serviceOptions.getOutputContentId(),
@@ -255,8 +256,25 @@ public class FixityService extends BaseService implements ComputeService, Manage
             previousPhaseStatus = workManager.getProcessingStatus();
         }
 
+        // Build result file header
+        String spaceA = serviceOptions.getProvidedListingSpaceIdA();
+        String contentA = serviceOptions.getProvidedListingContentIdA();
+        String spaceB = serviceOptions.getProvidedListingSpaceIdB();
+        if(null == spaceB) {
+            spaceB = serviceOptions.getOutputSpaceId();
+        }
+        String contentB = serviceOptions.getProvidedListingContentIdB();
+        if(null == contentB) {
+            contentB = serviceOptions.getOutputContentId();
+        }
+
+        String comparingHeader =
+            getComparingHeader(spaceA, contentA, spaceB, contentB);
+
+        // Set up result file writer
         ServiceResultListener resultListener = new ServiceResultProcessor(
             contentStore,
+            comparingHeader,
             this,
             serviceOptions.getOutputSpaceId(),
             serviceOptions.getReportContentId(),
@@ -268,7 +286,8 @@ public class FixityService extends BaseService implements ComputeService, Manage
         if(previousPhaseStatus != null){
             resultListener.setTotalWorkItems(previousPhaseStatus.getTotal());
         }
-        
+
+        // Set up and run work manager
         ServiceWorkerFactory workerFactory = new HashVerifierWorkerFactory(
             contentStore,
             workDir,
@@ -612,6 +631,20 @@ public class FixityService extends BaseService implements ComputeService, Manage
             password = "password-null";
         }
         return password;
+    }
+
+    protected String getHashingHeader() {
+        return "space-id" + DELIM + "content-id" + DELIM + "MD5";
+    }
+
+    protected String getComparingHeader(String spaceIdA,
+                                      String contentIdA,
+                                      String spaceIdB,
+                                      String contentIdB) {
+        String locA = spaceIdA + "/" + contentIdA;
+        String locB = spaceIdB + "/" + contentIdB;
+        return "space-id" + DELIM + "content-id" + DELIM +
+               "0:" + locA + DELIM + "1:" + locB + DELIM + "status";
     }
 
 }

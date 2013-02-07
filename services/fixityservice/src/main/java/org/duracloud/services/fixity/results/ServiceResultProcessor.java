@@ -36,6 +36,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
     private static final String newline = System.getProperty("line.separator");
     private ContentStore contentStore;
     private StatusListener statusListener;
+    private String header;
     private String outputSpaceId;
     private String outputContentId;
     private String errorContentId;
@@ -54,6 +55,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
     
 
     public ServiceResultProcessor(ContentStore contentStore,
+                                  String header,
                                   StatusListener statusListener,
                                   String outputSpaceId,
                                   String outputContentId,
@@ -61,6 +63,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
                                   String phase,
                                   File workDir) {
         this(contentStore,
+             header,
              statusListener,
              outputSpaceId,
              outputContentId,
@@ -71,6 +74,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
     }
 
     public ServiceResultProcessor(ContentStore contentStore,
+                                  String header,
                                   StatusListener statusListener,
                                   String outputSpaceId,
                                   String outputContentId,
@@ -80,6 +84,7 @@ public class ServiceResultProcessor implements ServiceResultListener {
                                   File workDir) {
         this.contentStore = contentStore;
         this.statusListener = statusListener;
+        this.header = header;
         this.outputSpaceId = outputSpaceId;
         this.outputContentId = outputContentId;
         this.errorContentId = errorContentId;
@@ -89,6 +94,11 @@ public class ServiceResultProcessor implements ServiceResultListener {
         this.state = State.IN_PROGRESS;
 
         this.resultsFile = createFile(workDir, outputContentId);
+
+        // Write out the result file. This ensures an output is produced
+        // even if there are no content items in the space to process.
+        startFile(this.resultsFile, this.header);
+        storeFile(this.resultsFile, outputSpaceId, outputContentId);
 
         if(errorContentId != null){
             this.errorsFile = createFile(workDir, errorContentId);
@@ -125,12 +135,10 @@ public class ServiceResultProcessor implements ServiceResultListener {
         if (items != null && items.size() > 0) {
             for (ServiceResultItem sr : items) {
                 countSuccessesAndLogFailures(sr.isSuccess(),
-                                             result.getHeader(),
                                              sr.getEntry());
             }
         } else {
             countSuccessesAndLogFailures(result.isSuccess(),
-                                         result.getHeader(),
                                          result.getEntry());
         }
 
@@ -150,13 +158,13 @@ public class ServiceResultProcessor implements ServiceResultListener {
         return false;
     }
 
-    private void countSuccessesAndLogFailures(boolean success, String header, String entry) {
+    private void countSuccessesAndLogFailures(boolean success, String entry) {
         if (success) {
             successfulResults++;
         } else {
             unsuccessfulResults++;
             if(errorsFile != null){
-                writeToLocalFile(errorsFile, header, entry);
+                writeToLocalFile(errorsFile, entry);
             }
         }
     }
@@ -181,12 +189,12 @@ public class ServiceResultProcessor implements ServiceResultListener {
     }
 
     private void writeToLocalFile(File file, ServiceResult result) {
-        writeToLocalFile(file, result.getHeader(), result.getEntry());
+        writeToLocalFile(file, result.getEntry());
     }
 
-    private void writeToLocalFile(File file, String header, String entry) {
+    private void writeToLocalFile(File file, String entry) {
         if (!file.exists()) {
-            startFile(file, header);
+            startFile(file, this.header);
         }
         write(file, entry);
     }
