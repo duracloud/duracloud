@@ -168,8 +168,6 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
 
         worker.retrieveToFile(localFile);
         assertTrue(localFile.exists());
-        String fileValue = FileUtils.readFileToString(localFile);
-        assertEquals(fileValue, contentValue);
 
         // Test timestamps
         BasicFileAttributes fileAttributes =
@@ -177,6 +175,10 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         assertEquals(testTime, fileAttributes.creationTime().toMillis());
         assertEquals(testTime, fileAttributes.lastAccessTime().toMillis());
         assertEquals(testTime, fileAttributes.lastModifiedTime().toMillis());
+
+        // Test file value
+        String fileValue = FileUtils.readFileToString(localFile);
+        assertEquals(fileValue, contentValue);
 
         // Test failure
         worker = createBrokenRetrievalWorker(true);
@@ -199,16 +201,16 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         ContentStream content =
             new ContentStream(null, null, time1, time2, time3);
 
-        long now = System.currentTimeMillis();
         File localFile = new File(tempDir, "timestamp-test");
         FileUtils.writeStringToFile(localFile, contentValue);
 
         // Check that initial timestamps are current
         BasicFileAttributes fileAttributes =
             Files.readAttributes(localFile.toPath(), BasicFileAttributes.class);
-        assertTrue(fileAttributes.creationTime().toMillis() - now >= 0);
-        assertTrue(fileAttributes.lastAccessTime().toMillis() - now >= 0);
-        assertTrue(fileAttributes.lastModifiedTime().toMillis() - now >= 0);
+        long now = System.currentTimeMillis();
+        assertTrue(isTimeClose(fileAttributes.creationTime().toMillis(), now));
+        assertTrue(isTimeClose(fileAttributes.lastAccessTime().toMillis(),now));
+        assertTrue(isTimeClose(fileAttributes.lastModifiedTime().toMillis(), now));
 
         RetrievalWorker worker = createRetrievalWorker(true);
         worker.applyTimestamps(content, localFile);
@@ -220,12 +222,18 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         long lastAccessTime = fileAttributes.lastAccessTime().toMillis();
         long lastModifiedTime = fileAttributes.lastModifiedTime().toMillis();
 
-        assertFalse(creationTime - now >= 0);
-        assertFalse(lastAccessTime - now >= 0);
-        assertFalse(lastModifiedTime - now >= 0);
-        assertEquals(testTime + 100000, creationTime);
+        assertFalse(isTimeClose(creationTime, now));
+        assertFalse(isTimeClose(lastAccessTime, now));
+        assertFalse(isTimeClose(lastModifiedTime, now));
+        assertTrue(testTime + 100000 == creationTime || // windows
+                   testTime + 300000 == creationTime);  // linux
         assertEquals(testTime + 200000, lastAccessTime);
         assertEquals(testTime + 300000, lastModifiedTime);
+    }
+
+    // Determines if two time values (in millis) are within 10 minutes of each other
+    private boolean isTimeClose(long time1, long time2) {
+        return Math.abs(time1 - time2) < 600000;
     }
 
     private RetrievalWorker createRetrievalWorker(boolean overwrite) {
