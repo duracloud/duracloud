@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.retrieval.source.ContentStream;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.slf4j.Logger;
@@ -22,6 +23,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileTime;
+import java.text.ParseException;
+import java.util.Date;
 
 /**
  * Handles the retrieving of a single file from DuraCloud.
@@ -42,6 +49,7 @@ public class RetrievalWorker implements Runnable {
     private boolean overwrite;
     private OutputWriter outWriter;
     private boolean createSpaceDir;
+    private boolean applyTimestamps;
     private int attempts;
 
     private StatusManager statusManager;
@@ -54,13 +62,15 @@ public class RetrievalWorker implements Runnable {
                            File contentDir,
                            boolean overwrite,
                            OutputWriter outWriter,
-                           boolean createSpaceDir) {
+                           boolean createSpaceDir,
+                           boolean applyTimestamps) {
         this.contentItem = contentItem;
         this.source = source;
         this.contentDir = contentDir;
         this.overwrite = overwrite;
         this.outWriter = outWriter;
         this.createSpaceDir = createSpaceDir;
+        this.applyTimestamps = applyTimestamps;
         this.statusManager = StatusManager.getInstance();
         this.attempts = 0;
     }
@@ -194,6 +204,58 @@ public class RetrievalWorker implements Runnable {
             throw new IOException("Calculated checksum value for retrieved " +
                                   "file does not match properties checksum.");
         }
+
+        // Set time stamps
+        if(applyTimestamps) {
+            applyTimestamps(content, localFile);
+        }
+    }
+
+    /*
+     * Applies timestamps which are found in the content item's properties
+     * to the retrieved file
+     */
+    protected void applyTimestamps(ContentStream content, File localFile) {
+        FileTime createTime =
+            convertDateToFileTime(content.getDateCreated());
+        FileTime lastAccessTime =
+            convertDateToFileTime(content.getDateLastAccessed());
+        FileTime lastModTime =
+            convertDateToFileTime(content.getDateLastModified());
+
+        BasicFileAttributeView fileAttributeView =
+            Files.getFileAttributeView(localFile.toPath(),
+                                       BasicFileAttributeView.class,
+                                       LinkOption.NOFOLLOW_LINKS);
+        // If any time value is null, that value is left unchanged
+        try {
+            fileAttributeView.setTimes(lastModTime, lastAccessTime, createTime);
+        } catch(IOException e) {
+            logger.error("Error setting timestamps for local file " +
+                         localFile.getAbsolutePath() + ": " + e.getMessage(),
+                         e);
+        }
+    }
+
+    /*
+     * Converts a date in LONG string format to a FileTime object
+     */
+    private FileTime convertDateToFileTime(String strDate) {
+        FileTime time = null;
+        if(null != strDate) {
+            Date date = null;
+            try {
+                date = DateUtil.convertToDate(strDate,
+                                              DateUtil.DateFormat.LONG_FORMAT);
+            } catch(ParseException e) {
+                date = null;
+            }
+
+            if(null != date) {
+                time = FileTime.fromMillis(date.getTime());
+            }
+        }
+        return time;
     }
 
     protected void noChangeNeeded(String localFilePath) {

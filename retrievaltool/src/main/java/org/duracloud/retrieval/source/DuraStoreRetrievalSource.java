@@ -96,9 +96,18 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     @Override
     public ContentStream getSourceContent(ContentItem contentItem) {
         Content content = doGetContent(contentItem);
-        String checksum =
-            content.getProperties().get(ContentStore.CONTENT_CHECKSUM);
-        return new ContentStream(content.getStream(), checksum);
+
+        Map<String, String> props = content.getProperties();
+        String checksum = props.get(ContentStore.CONTENT_CHECKSUM);
+        String dateCreated = props.get(ContentStore.CONTENT_FILE_CREATED);
+        String dateLastAccessed = props.get(ContentStore.CONTENT_FILE_ACCESSED);
+        String dateLastModified = props.get(ContentStore.CONTENT_FILE_MODIFIED);
+
+        return new ContentStream(content.getStream(),
+                                 checksum,
+                                 dateCreated,
+                                 dateLastAccessed,
+                                 dateLastModified);
     }
 
     protected Content doGetContent(ContentItem contentItem) {

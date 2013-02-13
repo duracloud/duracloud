@@ -122,6 +122,15 @@ public class RetrievalToolConfigParser {
                       DEFAULT_NUM_THREADS + ")");
         numThreads.setRequired(false);
         cmdOptions.addOption(numThreads);
+
+       Option disableTimestamps =
+           new Option("d", "disable-timestamps", false,
+                      "indicates that timestamp information found as content " +
+                      "item properties in DuraCloud should not be applied to " +
+                      "local files as they are retrieved (optional, not set " +
+                      "by default)");
+        disableTimestamps.setRequired(false);
+        cmdOptions.addOption(disableTimestamps);
     }
 
     /**
@@ -230,6 +239,12 @@ public class RetrievalToolConfigParser {
             }
         } else {
             config.setNumThreads(DEFAULT_NUM_THREADS);
+        }
+
+        if(cmd.hasOption("d")) {
+            config.setApplyTimestamps(false);
+        } else {
+            config.setApplyTimestamps(true);
         }
 
         return config;

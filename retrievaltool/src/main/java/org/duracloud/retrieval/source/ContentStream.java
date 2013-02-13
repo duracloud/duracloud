@@ -17,10 +17,20 @@ public class ContentStream {
 
     private InputStream stream;
     private String checksum;
+    private String dateCreated;
+    private String dateLastAccessed;
+    private String dateLastModified;
 
-    public ContentStream(InputStream stream, String checksum) {
+    public ContentStream(InputStream stream,
+                         String checksum,
+                         String dateCreated,
+                         String dateLastAccessed,
+                         String dateLastModified) {
         this.stream = stream;
         this.checksum = checksum;
+        this.dateCreated = dateCreated;
+        this.dateLastAccessed = dateLastAccessed;
+        this.dateLastModified = dateLastModified;
     }
 
     public InputStream getStream() {
@@ -30,4 +40,17 @@ public class ContentStream {
     public String getChecksum() {
         return checksum;
     }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
+    public String getDateLastAccessed() {
+        return dateLastAccessed;
+    }
+
+    public String getDateLastModified() {
+        return dateLastModified;
+    }
+
 }

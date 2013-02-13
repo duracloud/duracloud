@@ -55,6 +55,18 @@ public interface ContentStore {
     public static final String CONTENT_MODIFIED =
             StorageProvider.PROPERTIES_CONTENT_MODIFIED;
 
+    /** Original content file properties: Creation date */
+    public static final String CONTENT_FILE_CREATED =
+        StorageProvider.PROPERTIES_CONTENT_FILE_CREATED;
+
+    /** Original content file properties: Last accessed date */
+    public static final String CONTENT_FILE_ACCESSED =
+        StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED;
+
+    /** Original content file properties: Last modified date */
+    public static final String CONTENT_FILE_MODIFIED =
+        StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED;
+
     /**
      * Gets the base URL pointing to the DuraCloud DuraStore REST API
      */

@@ -42,6 +42,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         argsMap.remove("-a");
         argsMap.remove("-o");
         argsMap.remove("-t");
+        argsMap.remove("-d");
 
         // Process configs, make sure optional params are set to defaults
         retConfig = retConfigParser.processOptions(mapToArray(argsMap));
@@ -51,6 +52,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
                      retConfig.getNumThreads());
         assertEquals(false, retConfig.isAllSpaces());
         assertEquals(false, retConfig.isOverwrite());
+        assertEquals(true, retConfig.isApplyTimestamps());
 
         // Make sure error is thrown on missing required params
         for(String arg : argsMap.keySet()) {
@@ -79,6 +81,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         argsMap.put("-w", tempDir.getAbsolutePath());
         argsMap.put("-o", "");
         argsMap.put("-t", "5");
+        argsMap.put("-d", "");
         return argsMap;
     }
 

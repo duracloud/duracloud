@@ -39,7 +39,7 @@ public class RetrievalManagerTest extends RetrievalTestBase {
 
         RetrievalManager retManager =
             new RetrievalManager(source, tempDir, tempDir,
-                                 false, 1, outWriter, true);
+                                 false, 1, outWriter, true, false);
 
         retManager.run();
 
@@ -78,7 +78,8 @@ public class RetrievalManagerTest extends RetrievalTestBase {
         @Override
         public ContentStream getSourceContent(ContentItem contentItem) {
             InputStream stream = getStream(contentItem.getContentId());
-            return new ContentStream(stream, getChecksum(stream));
+            return new ContentStream(stream, getChecksum(stream),
+                                     null, null, null);
         }
 
         private InputStream getStream(String contentId) {

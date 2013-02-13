@@ -7,10 +7,11 @@
  */
 package org.duracloud.storage.util;
 
-import static org.duracloud.common.util.IOUtil.readStringFromStream;
-import static org.duracloud.common.util.SerializationUtil.deserializeMap;
-import static org.duracloud.common.util.SerializationUtil.serializeMap;
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,11 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.duracloud.common.util.IOUtil.readStringFromStream;
+import static org.duracloud.common.util.SerializationUtil.deserializeMap;
+import static org.duracloud.common.util.SerializationUtil.serializeMap;
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
 
 /**
  * Provides utility methods for Storage Providers
@@ -202,12 +202,15 @@ public class StorageProviderUtil {
     }
     
     /**
-     * Generates a map of all client-side default content properties to be added with new content.
+     * Generates a map of all client-side default content properties to be
+     * added with new content.
+     * 
      * @param absolutePath
      * @param creator
      * @return
      */
-    public static Map<String,String> createContentProperties(String absolutePath, String creator){
+    public static Map<String,String> createContentProperties(String absolutePath,
+                                                             String creator){
 
         Map<String, String> props = new HashMap<String, String>();
         if(creator != null && creator.trim().length() > 0){
@@ -219,16 +222,23 @@ public class StorageProviderUtil {
         try{
             Path path = FileSystems.getDefault().getPath(absolutePath);
             
-            BasicFileAttributes bfa = Files.readAttributes(path, BasicFileAttributes.class);
+            BasicFileAttributes bfa =
+                Files.readAttributes(path, BasicFileAttributes.class);
             
-            String creationDate = DateUtil.convertToStringLong(bfa.creationTime().toMillis());
-            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_CREATED, creationDate);
+            String creationDate =
+                DateUtil.convertToStringLong(bfa.creationTime().toMillis());
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_CREATED,
+                      creationDate);
 
-            String lastAccessed = DateUtil.convertToStringLong(bfa.lastAccessTime().toMillis());
-            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED, lastAccessed);
+            String lastAccessed =
+                DateUtil.convertToStringLong(bfa.lastAccessTime().toMillis());
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_LAST_ACCESSED,
+                      lastAccessed);
 
-            String modified = DateUtil.convertToStringLong(bfa.lastModifiedTime().toMillis());
-            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED, modified);
+            String modified =
+                DateUtil.convertToStringLong(bfa.lastModifiedTime().toMillis());
+            props.put(StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED,
+                      modified);
 
         }catch(IOException ex){
             log.error("Failed to read basic file attributes from "

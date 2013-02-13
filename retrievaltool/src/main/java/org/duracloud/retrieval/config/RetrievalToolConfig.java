@@ -32,6 +32,7 @@ public class RetrievalToolConfig implements Serializable {
     private boolean overwrite;
     private int numThreads;
     private String version;
+    private boolean applyTimestamps;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
@@ -68,6 +69,8 @@ public class RetrievalToolConfig implements Serializable {
         config.append(getWorkDir().getAbsolutePath()).append("\n");
         config.append("Retrieval Tool Overwrite Local Files: ");
         config.append(isOverwrite()).append("\n");
+        config.append("Retrieval Tool Retain File Time Stamps: ");
+        config.append(isApplyTimestamps()).append("\n");
 
         config.append("--------------------------------------\n");
 
@@ -172,6 +175,14 @@ public class RetrievalToolConfig implements Serializable {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public boolean isApplyTimestamps() {
+        return applyTimestamps;
+    }
+
+    public void setApplyTimestamps(boolean applyTimestamps) {
+        this.applyTimestamps = applyTimestamps;
     }
 
 }
