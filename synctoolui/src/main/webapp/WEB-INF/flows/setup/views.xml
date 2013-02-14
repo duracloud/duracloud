@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+  "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+  "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+  <definition name="wizard-panel" template="/WEB-INF/jsp/template/wizard-panel.jsp">
+    <put-attribute name="panelTitle" cascade="true" />
+    <put-attribute name="panelMessage" cascade="true" />
+    <put-attribute name="panelContent" cascade="true" />
+  </definition>
+
+
+
+  <definition name="setup-wizard" extends="app-base">
+    <put-attribute name="subHeader" cascade="true" value="">
+    </put-attribute>
+    <put-attribute name="content" cascade="true">
+      <definition extends="wizard-panel">
+        <put-attribute name="panelTitle" cascade="true" />
+        <put-attribute name="panelMessage" cascade="true" />
+        <put-attribute name="panelContent" cascade="true" />
+      </definition>
+    </put-attribute>
+  </definition>
+
+  <definition name="/setup/welcome" template="/WEB-INF/jsp/setup/welcome.jsp" />
+  <definition name="/setup/credentials" template="/WEB-INF/jsp/setup/credentials.jsp" />
+  <definition name="/setup/space" template="/WEB-INF/jsp/setup/space.jsp" />
+  <definition name="/setup/directory" template="/WEB-INF/jsp/setup/directory.jsp" />
+  <definition name="/setup/directories" template="/WEB-INF/jsp/setup/directories.jsp" />
+  <definition name="/setup/finish" template="/WEB-INF/jsp/setup/finish.jsp" />
+
+</tiles-definitions>

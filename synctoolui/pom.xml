@@ -1,0 +1,486 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.duracloud</groupId>
+  <artifactId>synctoolui</artifactId>
+  <packaging>war</packaging>
+  <version>2.3.0-SNAPSHOT</version>
+  <name>Sync Tool UI</name>
+
+  <parent>
+    <artifactId>duracloud</artifactId>
+    <groupId>org.duracloud</groupId>
+    <version>2.3.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <properties>
+    <unitTests>**/*Test.class</unitTests>
+    <seleniumTests>**/Test*.class</seleniumTests>
+    <skipITs>true</skipITs>
+    <skipUTs>false</skipUTs>
+    <jetty.port>8888</jetty.port>
+    <glassfish-jsp-2.1.version>2.1.v20100127</glassfish-jsp-2.1.version>
+    <activemq.version>5.7.0</activemq.version>
+    <org.springframework.version>3.1.2.RELEASE</org.springframework.version>
+    <org.springframework.webflow.version>2.3.0.RELEASE</org.springframework.webflow.version>
+    <tiles.version>2.2.2</tiles.version>
+    <jetty.version>8.1.4.v20120524</jetty.version>
+  </properties>
+  
+  <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+
+    <plugins>
+
+      <!-- Turns off the enforcer to allow the SyncTool log4j dependencies -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.0-beta-1</version>
+        <executions>
+          <execution>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Turns off the tomcat deployment plugin -->
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>tomcat-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>tomcat-deploy</id>
+              <phase>none</phase>
+            </execution>
+          </executions>
+      </plugin>
+
+      <!-- jsps need to be precompiled. otherwise the executable jar 
+      will choke on machines that are running on a JRE rather than JDK -->
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-jspc-maven-plugin</artifactId>
+        <version>${jetty.version}</version>
+        <executions>
+          <execution>
+            <id>jspc</id>
+            <goals>
+              <goal>jspc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+         
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <webXml>${basedir}/target/web.xml</webXml>
+          <warSourceExcludes>**/*.jsp</warSourceExcludes>
+          <webResources>
+            <resource>
+              <directory>src/main/webapp</directory>
+              <includes>
+                <include>**/*.jsp</include>
+              </includes>
+              <filtering>true</filtering>
+            </resource>
+          </webResources>
+          <overlays>
+            <overlay>
+              <groupId>org.duracloud</groupId>
+              <artifactId>jquery-war</artifactId>
+              <type>war</type>
+            </overlay>
+            <overlay>
+              <groupId>org.duracloud</groupId>
+              <artifactId>jquery-ui-war</artifactId>
+              <type>war</type>
+            </overlay>
+          </overlays>
+        </configuration>
+      </plugin>
+
+     <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+        </configuration>
+        <executions>
+          <execution>
+            <!-- This execution 'default-test' overrides the built-in default execution for the test phase. 
+                 Thus unit tests aren't run when you running integration tests. 
+                 It comes in handy when trying to debug a single integration test as you only need to attach 
+                 your debugger once. -->
+            <id>default-test</id>
+            <configuration>
+              <skipTests>${skipUTs}</skipTests>
+              <excludes>
+                <exclude>${seleniumTests}</exclude>
+              </excludes>
+              <includes>
+                <include>${unitTests}</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>integrationtest</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skipTests>${skipITs}</skipTests>
+              <excludes>
+                <exclude>${unitTests}</exclude>
+              </excludes>
+              <includes>
+                <include>${seleniumTests}</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <configuration>
+          <scanIntervalSeconds>10</scanIntervalSeconds>
+          <systemProperties>
+            <systemProperty>
+              <name>jetty.port</name>
+              <value>${jetty.port}</value>
+            </systemProperty>
+          </systemProperties>
+          <webApp>
+           <contextPath>/${project.artifactId}</contextPath>
+          </webApp>
+          <webAppConfig>
+            <unpackOverlays>true</unpackOverlays>
+          </webAppConfig>
+          <stopKey>foo</stopKey>
+          <stopPort>9999</stopPort>
+        </configuration>
+        <executions>
+          <execution>
+            <id>start-jetty</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+            <configuration>
+              <skip>${skipITs}</skip>
+              <scanIntervalSeconds>0</scanIntervalSeconds>
+              <daemon>true</daemon>
+              <systemProperties>
+                <systemProperty>
+                  <name>jetty.port</name>
+                  <value>${jetty.port}</value>
+                </systemProperty>
+                <systemProperty>
+                  <name>jsse.enableSNIExtension</name>
+                  <value>false</value>
+                </systemProperty>
+              </systemProperties>
+            </configuration>
+          </execution>
+          <execution>
+            <id>stop-jetty</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>org.duracloud.syncui.SyncUIDriver</mainClass>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>org.duracloud.syncui.SyncUIDriver</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>selenium-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>xvfb</id>
+             <phase>pre-integration-test</phase>
+            <goals>
+              <goal>xvfb</goal>
+            </goals>
+            <configuration>
+               <skip>${skipITs}</skip>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start-server</goal>
+            </goals>
+            <configuration>
+              <background>true</background>
+              <skip>${skipITs}</skip>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>buildnumber-maven-plugin</artifactId>
+          <version>1.1</version>
+          <executions>
+              <execution>
+                  <phase>generate-resources</phase>
+                  <goals>
+                      <goal>create</goal>
+                  </goals>
+              </execution>
+          </executions>
+          <configuration>
+              <doCheck>false</doCheck>
+              <doUpdate>false</doUpdate>
+              <shortRevisionLength>5</shortRevisionLength>
+          </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>jquery-war</artifactId>
+      <type>war</type>
+      <version>1.7.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>jquery-ui-war</artifactId>
+      <type>war</type>
+      <version>1.8.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-jsp</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${org.springframework.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${org.springframework.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${org.springframework.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.webflow</groupId>
+      <artifactId>spring-webflow</artifactId>
+      <version>${org.springframework.webflow.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-api</artifactId>
+      <version>${tiles.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-core</artifactId>
+      <version>${tiles.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-template</artifactId>
+      <version>${tiles.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-servlet</artifactId>
+      <version>${tiles.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-jsp</artifactId>
+      <version>${tiles.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>1.0.0.GA</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>4.1.0.Final</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>      
+      
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+    </dependency>      
+
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>2.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>synctool</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storeclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.4.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>2.19.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>selenium-maven-plugin</artifactId>
+      <version>2.3</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+    </dependency>
+      
+  </dependencies>
+ </project>

@@ -1,0 +1,65 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+  version="3.0">
+  <display-name>Sync UI Web Application</display-name>
+  
+  <!--  The context loader listener uses annotation based configuration and is currently responsible
+        for loading all components.  The contextConfigLocation below points to a package 
+        containing @Configuration annotations which in turn specify the component scan path.-->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+ 
+  
+  <context-param>
+    <param-name>contextClass</param-name>
+    <param-value> 
+         org.springframework.web.context.support.AnnotationConfigWebApplicationContext 
+      </param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>org.duracloud.syncui.config</param-value>
+  </context-param>
+ <filter>  
+     <filter-name>default</filter-name>  
+     <filter-class>org.duracloud.common.servlet.DefaultFilter</filter-class>  
+ </filter>  
+
+ <filter>  
+     <filter-name>setupCheckFilter</filter-name>  
+     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>  
+ </filter>  
+
+ <filter-mapping>  
+     <filter-name>default</filter-name>  
+     <url-pattern>/static/*</url-pattern>  
+ </filter-mapping>
+
+ <filter-mapping>  
+     <filter-name>setupCheckFilter</filter-name>  
+     <url-pattern>/*</url-pattern>  
+ </filter-mapping>
+
+  <servlet>
+    <servlet-name>sync</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet
+    </servlet-class>
+    <!-- since no contextConfigLocation is specified here as an init param, a dummy
+    placeholder must live at WEB-INF/sync-servlet.xml.  If at some point we want to
+    have the servlet initialize a context for web components, the annotation based config context
+    class (AnnotationConfigWebApplicationContext) would go here. NB: it is important that the 
+    component scan packages do not overlap with those specified in @Configuration annotated classes
+    specified in the contextConfigLocation package above. Otherwise, you may get multiple instances of a 
+    "singleton" which can cause havoc for state holding singletons. 
+     -->    
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>sync</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

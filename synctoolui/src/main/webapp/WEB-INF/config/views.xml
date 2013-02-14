@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+
+<tiles-definitions >
+  
+  <definition name="page-base" template="/WEB-INF/jsp/template/page-base.jsp">
+    <put-attribute name="head-extension" value=""></put-attribute>  
+
+    <put-attribute name="body"></put-attribute>  
+  </definition>
+ 
+   <definition name="basic-panel" template="/WEB-INF/jsp/template/basic-panel.jsp">
+    <put-attribute name="panelTitle"  />
+    <put-attribute name="panelContent" />
+  </definition>
+
+ 
+  <definition name="app-base" extends="page-base">
+
+    <put-attribute name="body">
+
+      <definition template="/WEB-INF/jsp/template/app-base.jsp">
+        <put-attribute name="subHeader" cascade="true">
+          <definition template="/WEB-INF/jsp/include/primary-tabs.jsp">
+            <put-attribute name="primaryTab" cascade="true" />
+          </definition>
+        </put-attribute>
+        <put-attribute name="content" cascade="true" />
+      </definition>
+    </put-attribute>  
+  </definition>
+
+    
+ <!-- global views -->
+  <definition name="login" template="/WEB-INF/jsp/login.jsp" />
+  <definition name="exception" template="/WEB-INF/jsp/exception.jsp" />
+  <definition name="status"  template="/WEB-INF/jsp/status.jsp" />
+  <definition name="log"  template="/WEB-INF/jsp/log.jsp" />
+  <definition name="errors"  template="/WEB-INF/jsp/errors.jsp" />
+  <definition name="configuration"  template="/WEB-INF/jsp/configuration.jsp" />
+  <definition name="log"  template="/WEB-INF/jsp/log.jsp" />
+  <definition name="jqueryFileTree"  template="/WEB-INF/jsp/jqueryFileTree.jsp" />
+  <definition name="directory"  template="/WEB-INF/jsp/directory.jsp" />
+  <definition name="success"  template="/WEB-INF/jsp/success.jsp" />
+  
+</tiles-definitions>

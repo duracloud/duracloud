@@ -1,0 +1,14 @@
+######################################
+# SYNC-UI - Desktop Webapp
+#####################################
+
+1. To build and run the application run:
+
+ mvn clean jetty:run
+
+2. View the application at: http://localhost:8888/synctoolui
+
+3. To run the selenium tests, run: 
+
+mvn integration-test -Pprofile-selenium
+

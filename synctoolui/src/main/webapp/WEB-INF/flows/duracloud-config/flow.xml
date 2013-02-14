@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+  <view-state id="enterDuracloudCredentials" view="/duracloud-config/credentials"
+    model="duracloudCredentialsForm">
+    <on-entry>
+      <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm" />
+    </on-entry>
+    <transition on="next" to="isSpaceAvailable" />
+    <transition on="cancel" to="end" validate="false" />
+  </view-state>
+
+
+  <decision-state id="isSpaceAvailable">
+    <on-entry>
+  <evaluate expression="contentStoreFactory.create(flowScope.duracloudCredentialsForm)"
+    result="requestScope.contentStore" />
+      <evaluate expression="spacesFilter.filter(contentStore.getSpaces())" result="flowScope.spaces" />
+    </on-entry>
+    <if test="flowScope.spaces.size() > 0" then="selectSpace" else="noSpaceAvailableError" />
+  </decision-state>
+
+  <view-state id="noSpaceAvailableError" view="/duracloud-config/no-space-error">
+    <transition on="cancel" to="end" />
+  </view-state>
+
+  <view-state id="selectSpace" view="/duracloud-config/space" model="spaceForm">
+    <on-entry>
+      <set name="flowScope.spaceForm" value="spaceForm" />
+    </on-entry>
+    <transition on="next" to="finish" />
+    <transition on="cancel" to="end" />
+  </view-state>
+
+
+  <view-state id="finish" view="/duracloud-config/finish">
+    <on-entry>
+      <evaluate
+        expression="saveDuracloudConfiguration.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm)" />
+    </on-entry>
+    <transition on="end" to="end"/>
+  </view-state>
+
+
+  <end-state id="end">
+    <output name="message" value="flowScope.message" />
+  </end-state>
+</flow>
