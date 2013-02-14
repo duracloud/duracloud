@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%><%-- Status
+<%-- Copyright (c) 2009-2013 DuraSpace. All rights reserved.--%><%-- Status
 Page: displays configuration information for the synchronization process.
 --%><%-- Author: Daniel Bernstein --%><%@include
 file="../include/libraries.jsp"%>
@@ -11,13 +11,11 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelTitle"
-   cascade="true">Enter Your Duracloud Account Info</tiles:putAttribute>
+   cascade="true">Enter Your DuraCloud Account Info</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelMessage"
    cascade="true"> </tiles:putAttribute>
-
-
 
   <tiles:putAttribute
    name="panelContent"
@@ -61,7 +59,6 @@ file="../include/libraries.jsp"%>
     <form:form
      method="POST"
      modelAttribute="duracloudCredentialsForm">
-
 
       <fieldset>
         <ol>

@@ -18,7 +18,7 @@
     </a>
   </li>
 
-
+  <%-- Uncomment when log tab has been implemented
   <li class='<c:if test="${primaryTab == 'log'}">selected</c:if>'>
     <a
      href="${pageContext.request.contextPath}/log">
@@ -26,7 +26,7 @@
        code="log" />
     </a>
   </li>
-
+  --%>
 
 </ul>
 

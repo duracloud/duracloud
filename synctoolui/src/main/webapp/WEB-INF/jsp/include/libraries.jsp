@@ -1,4 +1,4 @@
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%>
+<%-- Copyright (c) 2009-2013 DuraSpace. All rights reserved.--%>
 <%-- A convenient place for tag libraries.  A reference is added to each page. --%>
 <%-- Author: Daniel Bernstein --%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>

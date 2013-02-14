@@ -1,4 +1,4 @@
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%>
+<%-- Copyright (c) 2009-2013 DuraSpace. All rights reserved.--%>
 <%-- Status Page: displays state and progress information for the synchronization process. --%>
 <%-- Author: Daniel Bernstein --%>
 

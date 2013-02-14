@@ -1,4 +1,4 @@
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%>
+<%-- Copyright (c) 2009-2013 DuraSpace. All rights reserved.--%>
 <%-- Template base for all pages --%>
 <%-- Author: Daniel Bernstein --%>
 
@@ -7,7 +7,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <jsp:directive.page contentType="text/html; charset=utf-8" />
 <head>
-<title>Sync</title>
+<title>DuraCloud Sync</title>
 <link
   rel="stylesheet"
   type="text/css"

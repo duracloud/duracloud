@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%><%-- Status
+<%-- Copyright (c) 2009-2013 DuraSpace. All rights reserved.--%><%-- Status
 Page: displays configuration information for the synchronization process.
 --%><%-- Author: Daniel Bernstein --%><%@include
 file="../include/libraries.jsp"%>
@@ -24,13 +24,13 @@ file="../include/libraries.jsp"%>
     <div class="welcome">
       <h1> 
         Welcome to the <br/>
-        Duracloud for Research<br/>
-        Sync Tool
+        DuraCloud <br/>
+        Sync Tool UI
       </h1>
       <p>
-      Once set up, this application will automatically backup your vital 
-      digital files to multiple cloud storage providers, thus ensuring
-      your data is always accessible and secure.
+      Once set up, this application will automatically back up your vital
+      digital files to DuraCloud, thus ensuring your data remains
+      accessible and secure.
       </p>      
     </div>
     <form
