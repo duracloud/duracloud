@@ -45,7 +45,7 @@ public class SyncUIDriver {
             final JDialog dialog = new JDialog();
             dialog.setSize(new java.awt.Dimension(400, 75));
             dialog.setModalityType(ModalityType.MODELESS);
-            dialog.setTitle("UpSync Utility");
+            dialog.setTitle("DuraCloud Sync");
             dialog.setLocationRelativeTo(null);
 
             JPanel panel = new JPanel();
@@ -103,8 +103,6 @@ public class SyncUIDriver {
                     label.setText("Launching browser...");
                     launchBrowser();
                     dialog.setVisible(false);
-
-
                 }
 
             }).start();
@@ -119,7 +117,7 @@ public class SyncUIDriver {
     }
 
     private static String getContextPath() {
-        return System.getProperty("sync.contextPath", "/sync");
+        return System.getProperty("sync.contextPath", "/synctoolui");
     }
 
     private static int getPort() {
@@ -180,7 +178,7 @@ public class SyncUIDriver {
                 exit.addActionListener(exitListener);
                 popup.add(exit);
 
-                trayIcon = new TrayIcon(image, "UpSync", popup);
+                trayIcon = new TrayIcon(image, "DuraCloud Sync", popup);
 
                 ActionListener actionListener = new ActionListener() {
                     public void actionPerformed(ActionEvent e) {

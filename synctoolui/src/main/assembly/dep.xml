@@ -32,7 +32,7 @@
         <exclude>org.apache.tiles:*</exclude>
         <exclude>org.hibernate:*</exclude>
         <exclude>cglib:*</exclude>
-        <exclude>org.duracloud:*</exclude>
+        <!--<exclude>org.duracloud:*</exclude>-->
         <exclude>org.thoughtworks.xstream:*</exclude>
         <exclude>xalan:*</exclude>
         <exclude>javax.validation:*</exclude>
