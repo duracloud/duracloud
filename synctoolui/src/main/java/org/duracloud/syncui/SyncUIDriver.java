@@ -41,7 +41,6 @@ public class SyncUIDriver {
 
     public static void main(String[] args) throws Exception {
         try {
-
             final JDialog dialog = new JDialog();
             dialog.setSize(new java.awt.Dimension(400, 75));
             dialog.setModalityType(ModalityType.MODELESS);
@@ -117,7 +116,7 @@ public class SyncUIDriver {
     }
 
     private static String getContextPath() {
-        return System.getProperty("sync.contextPath", "/synctoolui");
+        return System.getProperty("sync.contextPath", "/sync");
     }
 
     private static int getPort() {

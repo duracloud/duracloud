@@ -150,7 +150,7 @@
             </systemProperty>
           </systemProperties>
           <webApp>
-           <contextPath>/${project.artifactId}</contextPath>
+           <contextPath>/sync</contextPath>
           </webApp>
           <webAppConfig>
             <unpackOverlays>true</unpackOverlays>
@@ -210,11 +210,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.3</version>
         <configuration>
-          <descriptors>
-            <descriptor>src/main/assembly/dep.xml</descriptor>
-          </descriptors>
+          <finalName>duracloud-sync-${project.version}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
           <archive>
             <manifest>
               <mainClass>org.duracloud.syncui.SyncUIDriver</mainClass>

@@ -6,7 +6,7 @@
 
  mvn clean jetty:run
 
-2. View the application at: http://localhost:8888/synctoolui
+2. View the application at: http://localhost:8888/sync
 
 3. To run the selenium tests, run: 
 

@@ -42,7 +42,7 @@ public abstract class BaseSeleniumTest {
     private static String DEFAULT_PORT = "8888";
 
     protected String getAppRoot() {
-        return "/synctoolui";
+        return "/sync";
     }
 
     private String getPort() throws Exception {
