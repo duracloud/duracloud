@@ -7,6 +7,18 @@
  */
 package org.duracloud.duradmin.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.EncodeUtil;
@@ -17,6 +29,7 @@ import org.duracloud.duradmin.domain.ContentProperties;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.duradmin.security.RootAuthentication;
+import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.serviceapi.ServicesManager;
@@ -24,16 +37,6 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides utility methods for spaces.
@@ -155,18 +158,36 @@ public class SpaceUtil {
     
 	public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
 			throws ContentStoreException, IOException {
-		Content c = store.getContent(spaceId, contentId);
-		Map<String,String> m = store.getContentProperties(spaceId, contentId);
-		response.setContentType(m.get(ContentStore.CONTENT_MIMETYPE));
-		response.setContentLength(Integer.parseInt(m.get(ContentStore.CONTENT_SIZE)));
-		InputStream is = c.getStream();
-		byte[] buf = new byte[1024];
-		int read = -1;
-		while((read = is.read(buf)) > 0){
-			response.getOutputStream().write(buf, 0, read);
-		}
-		response.flushBuffer();
-		response.getOutputStream().close();
+	    try{
+	        Content c = store.getContent(spaceId, contentId);
+	        Map<String,String> m = store.getContentProperties(spaceId, contentId);
+	        response.setContentType(m.get(ContentStore.CONTENT_MIMETYPE));
+	        response.setContentLength(Integer.parseInt(m.get(ContentStore.CONTENT_SIZE)));
+	        InputStream is = c.getStream();
+	        byte[] buf = new byte[1024];
+	        int read = -1;
+	        while((read = is.read(buf)) > 0){
+	            response.getOutputStream().write(buf, 0, read);
+	        }
+	        response.flushBuffer();
+	        
+	    }catch (ContentStoreException ex) {
+	        if(ex.getCause() instanceof ContentStateException){
+	            response.reset();
+	            response.setStatus(HttpStatus.SC_CONFLICT);
+                String message =
+                    "The requested content item is currently in long-term storage" +
+                    " with limited retrieval capability. Please contact " +
+                    "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
+                    "for assistance in retrieving this content item.";
+	            response.getOutputStream().write(message.getBytes());
+	        } else {
+	            throw ex;
+	        }
+	    } finally {
+	           response.getOutputStream().close();
+	    }
+	    
 	}
 
     
