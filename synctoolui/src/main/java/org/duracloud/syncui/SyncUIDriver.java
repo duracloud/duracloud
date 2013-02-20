@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.ProtectionDomain;
 
@@ -41,6 +42,21 @@ public class SyncUIDriver {
         LoggerFactory.getLogger(org.duracloud.syncui.SyncUIDriver.class);
 
     public static void main(String[] args) throws Exception {
+        String url = "http://localhost:" + SyncUIConfig.getPort() +
+                     SyncUIConfig.getContextPath();
+        HttpClient client = new HttpClient();
+
+        if(isAppRunning(url, client)) {
+            log.info("Sync Application already running, launching browser...");
+            launchBrowser(url);
+        } else {
+            log.info("Sync Application not yet running, launching server...");
+            launchServer(url, client);
+        }
+    }
+
+    private static void launchServer(final String url,
+                                     final HttpClient client) {
         try {
             final JDialog dialog = new JDialog();
             dialog.setSize(new java.awt.Dimension(400, 75));
@@ -75,36 +91,25 @@ public class SyncUIDriver {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    createSysTray();
+                    createSysTray(url);
 
-                    String url = getUrl();
-                    HttpClient client = new HttpClient();
                     while (true) {
-                        try {
+                        if (progress.getValue() < 100) {
+                            progress.setValue(progress.getValue() + 3);
+                        }
 
-                            if (progress.getValue() < 100) {
-                                progress.setValue(progress.getValue() + 3);
-                            }
-
-                            Thread.sleep(2000);
-
-                            GetMethod get = new GetMethod(url);
-                            int response = client.executeMethod(get);
-                            log.debug("response from {}: {}", url, response);
-                            if (response == 200)
-                                break;
-                        } catch (Exception e) {
-                            log.error(e.getMessage(), e);
+                        sleep(2000);
+                        if(isAppRunning(url, client)) {
+                            break;
                         }
                     }
 
                     progress.setValue(100);
 
                     label.setText("Launching browser...");
-                    launchBrowser();
+                    launchBrowser(url);
                     dialog.setVisible(false);
                 }
-
             }).start();
 
             srv.start();
@@ -116,7 +121,28 @@ public class SyncUIDriver {
         }
     }
 
-    private static void createSysTray() {
+    private static boolean isAppRunning(String url, HttpClient client) {
+        GetMethod get = new GetMethod(url);
+        int response = 0;
+        try {
+            response = client.executeMethod(get);
+        } catch(IOException e) {
+            log.debug("Attempt to connect to synctool app at url " + url +
+                      " failed due to: " + e.getMessage());
+            response = 0;
+        }
+        log.debug("Response from {}: {}", url, response);
+        return response == 200;
+    }
+
+    private static void sleep(int millis) {
+        try {
+            Thread.sleep(2000);
+        } catch(InterruptedException e) {
+        }
+    }
+
+    private static void createSysTray(final String url) {
         final TrayIcon trayIcon;
         try {
 
@@ -161,7 +187,7 @@ public class SyncUIDriver {
                 view.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent event) {
-                        launchBrowser();
+                        launchBrowser(url);
                     }
                 });
                 popup.add(view);
@@ -199,7 +225,7 @@ public class SyncUIDriver {
 
     }
 
-    private static void launchBrowser() {
+    private static void launchBrowser(final String url) {
         if (!java.awt.Desktop.isDesktopSupported()) {
             log.warn("Desktop is not supported. Unable to open");
 
@@ -210,7 +236,7 @@ public class SyncUIDriver {
             } else {
                 java.net.URI uri;
                 try {
-                    uri = new java.net.URI(getUrl());
+                    uri = new java.net.URI(url);
                     desktop.browse(uri);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -219,8 +245,4 @@ public class SyncUIDriver {
         }
     }
 
-    private static String getUrl() {
-        return "http://localhost:" + SyncUIConfig.getPort() +
-               SyncUIConfig.getContextPath();
-    }
 }
