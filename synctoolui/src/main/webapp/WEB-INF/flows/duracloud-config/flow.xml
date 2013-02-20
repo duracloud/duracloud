@@ -3,11 +3,16 @@
   xsi:schemaLocation="http://www.springframework.org/schema/webflow
         http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
+  <input name="duracloudCredentialsForm" required="true" />
+  <input name="spaceForm" required="true" />
+  
+  <on-start>
+      <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm" />
+      <set name="flowScope.spaceForm" value="spaceForm" />
+  </on-start>
+
   <view-state id="enterDuracloudCredentials" view="/duracloud-config/credentials"
     model="duracloudCredentialsForm">
-    <on-entry>
-      <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm" />
-    </on-entry>
     <transition on="next" to="isSpaceAvailable" />
     <transition on="cancel" to="end" validate="false" />
   </view-state>
@@ -27,9 +32,6 @@
   </view-state>
 
   <view-state id="selectSpace" view="/duracloud-config/space" model="spaceForm">
-    <on-entry>
-      <set name="flowScope.spaceForm" value="spaceForm" />
-    </on-entry>
     <transition on="next" to="finish" />
     <transition on="cancel" to="end" />
   </view-state>
