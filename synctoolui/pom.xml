@@ -110,7 +110,7 @@
                  your debugger once. -->
             <id>default-test</id>
             <configuration>
-              <skipTests>${skipUTs}</skipTests>
+              <skipTests>${skipTests}</skipTests>
               <excludes>
                 <exclude>${seleniumTests}</exclude>
               </excludes>
