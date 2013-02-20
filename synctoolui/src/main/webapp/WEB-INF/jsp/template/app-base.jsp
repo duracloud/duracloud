@@ -2,7 +2,7 @@
 <%@include file="../include/libraries.jsp"%>
 <div>
   <div id="header">
-    <div id="logo">SYNC</div>
+    <div id="logo">SYNC TOOL</div>
     <tiles:insertAttribute name="subHeader" />
   </div>
 

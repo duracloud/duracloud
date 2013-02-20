@@ -66,13 +66,6 @@ public class InitController {
                 this.syncConfigurationManager.setConfigXmlPath(configXmlLocation);
             }
 
-            String workingDirectory =
-                properties.getProperty("workingDirectory");
-
-            if (!StringUtils.isBlank(workingDirectory)) {
-                this.syncConfigurationManager.setWorkingDirectory(workingDirectory);
-            }
-
             this.syncConfigurationManager.persistDuracloudConfiguration(properties.getProperty("username"),
                                                                         properties.getProperty("password"),
                                                                         properties.getProperty("host"),

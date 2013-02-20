@@ -1,11 +1,17 @@
 ######################################
-# SYNC-UI - Desktop Webapp
+# DuraCloud Sync Tool
 #####################################
 
 1. To build and run the application run:
 
  mvn clean jetty:run
 
+ OR
+
+ mvn clean install
+ cd target
+ java -jar duracloud-synctool-<version>.jar
+ 
 2. View the application at: http://localhost:8888/sync
 
 3. To run the selenium tests, run: 

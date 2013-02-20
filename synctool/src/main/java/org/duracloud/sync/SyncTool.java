@@ -18,7 +18,6 @@ import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
-import org.duracloud.sync.util.LogUtil;
 import org.duracloud.sync.util.StoreClientUtil;
 import org.duracloud.sync.walker.DeleteChecker;
 import org.duracloud.sync.walker.DirWalker;
@@ -64,7 +63,6 @@ public class SyncTool {
     private SyncEndpoint syncEndpoint;
     private DirWalker dirWalker;
     private DeleteChecker deleteChecker;
-    private LogUtil logUtil;
     private String version;
 
     public SyncTool() {
@@ -79,13 +77,7 @@ public class SyncTool {
      */
     protected void setSyncConfig(SyncToolConfig syncConfig) {
         this.syncConfig = syncConfig;
-    }
-
-    private void processCommandLineArgs(String[] args) {
-        SyncToolConfigParser syncConfigParser = new SyncToolConfigParser();
-        SyncToolConfig syncConfig = syncConfigParser.processCommandLine(args);
-        syncConfig.setVersion(version);
-        setSyncConfig(syncConfig);
+        this.syncConfig.setVersion(version);
     }
 
     /**
@@ -136,11 +128,6 @@ public class SyncTool {
             }
         }
         return false;
-    }
-
-    private void setupLogging(){
-        logUtil = new LogUtil();
-        logUtil.setupLogger(syncConfig.getWorkDir());
     }
 
     private void startSyncManager() {
@@ -220,10 +207,6 @@ public class SyncTool {
                 } else if(input.equalsIgnoreCase("status") ||
                           input.equalsIgnoreCase("s")) {
                     System.out.println(statusManager.getPrintableStatus());
-                } else if(input.startsWith("l ")) {
-                    logUtil.setLogLevel(input.substring(2));
-                    System.out.println("Log level set to " +
-                                       logUtil.getLogLevel());
                 } else {
                     System.out.println(getPrintableHelp());
                 }
@@ -287,9 +270,7 @@ public class SyncTool {
         }
     }
 
-    public void runSyncTool(String[] args) {
-        processCommandLineArgs(args);
-        setupLogging();
+    public void runSyncTool() {
         logger.info("Starting Sync Tool version " + version);
         System.out.print("\nStarting up the Sync Tool ...");
         startSyncManager();
@@ -345,16 +326,8 @@ public class SyncTool {
         help.append("x - Exits the Sync Tool\n");
         help.append("c - Prints the Sync Tool configuration\n");
         help.append("s - Prints the Sync Tool status\n");
-        help.append("l <Level> - Changes the log level to <Level> (may ");
-        help.append("be any of DEBUG, INFO, WARN, ERROR)\n");
-        help.append("Location of logs: " + logUtil.getLogLocation() + "\n");
-        help.append("--------------------------------------\n");
+        help.append("\n--------------------------------------\n");
         
         return help.toString();
-    }
-
-    public static void main(String[] args) throws Exception {
-        SyncTool syncTool = new SyncTool();
-        syncTool.runSyncTool(args);
     }
 }

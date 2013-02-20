@@ -54,8 +54,6 @@ public interface SyncConfigurationManager {
 
     public void persistDirectoryConfigs(DirectoryConfigs configs);
 
-    public void setWorkingDirectory(String workingDirectory);
-
     public void setConfigXmlPath(String configXml);
     
     public void persist();

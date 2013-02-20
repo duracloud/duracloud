@@ -215,7 +215,7 @@
           <appendAssemblyId>false</appendAssemblyId>
           <archive>
             <manifest>
-              <mainClass>org.duracloud.syncui.SyncUIDriver</mainClass>
+              <mainClass>org.duracloud.syncui.SyncSelector</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -438,16 +438,6 @@
       <groupId>org.duracloud</groupId>
       <artifactId>synctool</artifactId>
       <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>

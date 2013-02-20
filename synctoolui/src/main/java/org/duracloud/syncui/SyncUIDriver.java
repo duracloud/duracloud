@@ -9,6 +9,7 @@ package org.duracloud.syncui;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.duracloud.syncui.config.SyncUIConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -57,8 +58,8 @@ public class SyncUIDriver {
             dialog.add(panel);
             dialog.setVisible(true);
 
-            port = getPort();
-            contextPath = getContextPath();
+            port = SyncUIConfig.getPort();
+            contextPath = SyncUIConfig.getContextPath();
             Server srv = new Server(port);
 
             ProtectionDomain protectionDomain =
@@ -113,14 +114,6 @@ public class SyncUIDriver {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static String getContextPath() {
-        return System.getProperty("sync.contextPath", "/sync");
-    }
-
-    private static int getPort() {
-        return Integer.parseInt(System.getProperty("sync.port", "8888"));
     }
 
     private static void createSysTray() {
@@ -227,6 +220,7 @@ public class SyncUIDriver {
     }
 
     private static String getUrl() {
-        return "http://localhost:" + getPort() + getContextPath();
+        return "http://localhost:" + SyncUIConfig.getPort() +
+               SyncUIConfig.getContextPath();
     }
 }

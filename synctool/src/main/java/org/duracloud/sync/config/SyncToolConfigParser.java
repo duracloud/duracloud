@@ -15,8 +15,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -34,9 +32,6 @@ import java.util.List;
  * Date: Mar 15, 2010
  */
 public class SyncToolConfigParser {
-
-    private final Logger logger =
-        LoggerFactory.getLogger(SyncToolConfigParser.class);
 
     protected static final long GIGABYTE = 1073741824;
 
@@ -102,7 +97,7 @@ public class SyncToolConfigParser {
            new Option("w", "work-dir", true,
                       "the state of the sync tool is persisted to " +
                       "this directory");
-       workDirOption.setRequired(true);
+       workDirOption.setRequired(false);
        cmdOptions.addOption(workDirOption);
 
        Option contentDirs =
@@ -260,17 +255,24 @@ public class SyncToolConfigParser {
             config.setPort(DEFAULT_PORT);
         }
 
-        File workDir = new File(cmd.getOptionValue("w"));
-        if(workDir.exists()) {
-            if(!workDir.isDirectory()) {
-                throw new ParseException("Work Dir parameter must provide " +
-                                         "the path to a directory.");
+        if(cmd.hasOption("w")) {
+            File workDir = new File(cmd.getOptionValue("w"));
+            if(workDir.exists()) {
+                if(!workDir.isDirectory()) {
+                    throw new ParseException("Work Dir parameter must provide " +
+                                             "the path to a directory. " +
+                                             "(optional, set to duracloud-" +
+                                             "sync-work directory in user's " +
+                                             "home directory by default)");
+                }
+            } else {
+                workDir.mkdirs();
             }
+            workDir.setWritable(true);
+            config.setWorkDir(workDir);
         } else {
-            workDir.mkdirs();
+            config.setWorkDir(null);
         }
-        workDir.setWritable(true);
-        config.setWorkDir(workDir);
 
         String[] contentDirPaths = cmd.getOptionValues("c");
         List<File> contentDirs = new ArrayList<File>();
@@ -347,7 +349,6 @@ public class SyncToolConfigParser {
                 throw new ParseException("Exclude parameter must provide the " +
                                          "path to a valid file.");
             }
-            workDir.setWritable(true);
             config.setExcludeList(excludeFile);
         }
 

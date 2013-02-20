@@ -70,6 +70,7 @@ public class SyncToolConfigParserTest {
         argsMap.remove("-d");
         argsMap.remove("-l");
         argsMap.remove("-x");
+        argsMap.remove("-w");
 
         // Process configs, make sure optional params are set to defaults
         syncConfig =
@@ -86,6 +87,7 @@ public class SyncToolConfigParserTest {
         assertEquals(false, syncConfig.syncDeletes());
         assertEquals(false, syncConfig.isCleanStart());
         assertEquals(false, syncConfig.exitOnCompletion());
+        assertNull(syncConfig.getWorkDir());
 
         // Make sure error is thrown on missing required params
         for(String arg : argsMap.keySet()) {

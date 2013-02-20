@@ -25,7 +25,7 @@ file="../include/libraries.jsp"%>
       <h1> 
         Welcome to the <br/>
         DuraCloud <br/>
-        Sync Tool UI
+        Sync Tool
       </h1>
       <p>
       Once set up, this application will automatically back up your vital

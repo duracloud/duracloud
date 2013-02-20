@@ -10,6 +10,7 @@ package org.duracloud.syncui.service;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.sync.config.SyncToolConfig;
+import org.duracloud.syncui.config.SyncUIConfig;
 import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
@@ -35,20 +36,11 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     private SyncToolConfig syncToolConfig;
     private String configXmlPath;
 
-    private static final String DEFAULT_WORKING_DIRECTORY =
-        System.getProperty("java.io.tmpdir")
-            + File.separator + ".sync-work";
-
-    private static final String DEFAULT_CONFIG_XML_PATH =
-        System.getProperty("user.home") + File.separator + ".sync-config";
-
     public SyncConfigurationManagerImpl() {
-        String configPath =
-            System.getProperty("sync.config", DEFAULT_CONFIG_XML_PATH);
+        String configPath = SyncUIConfig.getConfigPath();
         setConfigXmlPath(configPath);
 
         initializeSyncToolConfig();
-
     }
 
     private void persistSyncToolConfig() throws RuntimeException {
@@ -72,8 +64,6 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         }
 
     }
-    
-    
 
     private void initializeDefaultValues() {
         this.syncToolConfig.setContext("durastore");
@@ -81,7 +71,6 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setSyncDeletes(false);
         List<File> dirs = new ArrayList<File>();
         this.syncToolConfig.setContentDirs(dirs);
-        setWorkingDirectory(DEFAULT_WORKING_DIRECTORY);
     }
 
     private String getSyncToolConfigXmlPath() {
@@ -160,16 +149,6 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     }
 
     @Override
-    public void setWorkingDirectory(String workingDirectory) {
-        File file = new File(workingDirectory);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        this.syncToolConfig.setWorkDir(file);
-        log.info("working directory set to {}", file);
-    }
-
-    @Override
     public void setConfigXmlPath(String configXml) {
         if(this.configXmlPath != configXml){
             this.configXmlPath = configXml;
@@ -185,12 +164,12 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     }
 
     File getWorkDirectory() {
-        return this.syncToolConfig.getWorkDir();
+        return SyncUIConfig.getWorkDir();
     }
 
     @Override
     public void purgeWorkDirectory() {
-        File workDir = this.syncToolConfig.getWorkDir();
+        File workDir = SyncUIConfig.getWorkDir();
         if(workDir != null && workDir.exists()){
            for(File file : workDir.listFiles()){
                file.delete();
