@@ -79,10 +79,6 @@
             <div class="body">
               <table>
                 <tr>
-                  <td><spring:message code="username"/></td>
-                  <td>${duracloudConfiguration.username}</td>
-                </tr>
-                <tr>
                   <td><spring:message code="host"/></td>
                   <td>${duracloudConfiguration.host}</td>
                 </tr>
@@ -92,6 +88,10 @@
                     <td>${duracloudConfiguration.port}</td>
                   </tr>
                 </c:if>
+                <tr>
+                  <td><spring:message code="username"/></td>
+                  <td>${duracloudConfiguration.username}</td>
+                </tr>
                 <tr>
                   <td><spring:message code="spaceId"/></td>
                   <td>${duracloudConfiguration.spaceId}</td>

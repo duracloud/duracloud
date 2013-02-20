@@ -131,4 +131,11 @@ $(function() {
 
             });
 
+    
+    $("#advancedLink").live("click",function(){
+        $("#advancedPanel").slideDown();
+        $(this).fadeOut();
+    }); 
+    
+
 });

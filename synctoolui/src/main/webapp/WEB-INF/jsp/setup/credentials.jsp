@@ -65,6 +65,39 @@ file="../include/libraries.jsp"%>
           <li>
             <form:label
              cssErrorClass="error"
+             path="host">
+              <spring:message
+               code="host" /> /<spring:message
+               code="port" />
+            </form:label>
+            <div class="fieldgroup">
+              <form:input
+                cssErrorClass="error"
+                path="host" 
+                placeholder="e.g. myinstance.duracloud.org"
+                />
+                
+                <c:if test="${empty duracloudCredentialsForm.port}">
+                  <a href="#" id="advancedLink">Advanced</a>
+                </c:if>
+                
+                <div id="advancedPanel" style="${empty duracloudCredentialsForm.port ?'display:none' : ''}" >
+                 <form:input
+                   cssErrorClass="error"
+                   path="port"
+                   id="port"
+                   placeholder="default: 443"
+                    />
+                </div>
+            <form:errors
+             path="host"
+             cssClass="error"
+             element="div" />
+             </div>
+             
+          <li style="margin-top:5px">
+            <form:label
+             cssErrorClass="error"
              path="username">
               <spring:message
                code="username" />
@@ -97,42 +130,17 @@ file="../include/libraries.jsp"%>
             <div class="fieldgroup">
               <form:password
                cssErrorClass="error"
-               path="password" />
+               path="password" 
+               showPassword="true"
+               />
   
               <form:errors
                path="password"
                cssClass="error"
                element="div" />
              </div>
-          </li>
-
-          <li>
-            <form:label
-             cssErrorClass="error"
-             path="host">
-              <spring:message
-               code="host" /> /<spring:message
-               code="port" />
-            </form:label>
-            <div class="fieldgroup">
-              <form:input
-                cssErrorClass="error"
-                path="host" 
-                placeholder="e.g. myinstance.duracloud.org"
-                />
-
-             <form:input
-               cssErrorClass="error"
-               path="port"
-               id="port"
-               placeholder="optional, e.g. 443"
-                />
-
-            <form:errors
-             path="host"
-             cssClass="error"
-             element="div" />
-             </div>
+          </li>             
+             
           </li>
         </ol>
       </fieldset>
@@ -156,6 +164,7 @@ file="../include/libraries.jsp"%>
         </button>
       </fieldset>
     </form:form>
+    
   </tiles:putAttribute>
 </tiles:insertDefinition>
 
