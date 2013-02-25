@@ -1,1 +1,5 @@
-Please see https://wiki.duraspace.org/x/5YQ9AQ for instructions on building from source.
+For instructions on building DuraCloud from source, please see: 
+https://wiki.duraspace.org/display/DURACLOUDDOC/Building+DuraCloud+Software+from+Source.
+
+If you would prefer to deploy DuraCloud from binaries, please see:
+https://wiki.duraspace.org/display/DURACLOUDDOC/Deploying+DuraCloud+from+Binaries
