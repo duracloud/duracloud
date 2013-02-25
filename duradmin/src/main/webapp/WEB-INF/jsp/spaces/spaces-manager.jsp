@@ -145,6 +145,11 @@
               <div
                 id="header-content-list"
                 class="header-section clearfix">
+
+                <button class="float-r get-synctool-button">
+                  <i class="pre download"></i>Get Sync Tool
+                </button>
+
                 <a class="float-r  button featured bulk-add-content-item"><i
                   class="pre plus"></i>Add Items</a>
                 <%--
