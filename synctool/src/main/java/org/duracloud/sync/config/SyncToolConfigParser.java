@@ -96,7 +96,8 @@ public class SyncToolConfigParser {
        Option workDirOption =
            new Option("w", "work-dir", true,
                       "the state of the sync tool is persisted to " +
-                      "this directory");
+                      "this directory (optional, default value is " +
+                      "duracloud-sync-work directory in user home)");
        workDirOption.setRequired(false);
        cmdOptions.addOption(workDirOption);
 
