@@ -7,16 +7,15 @@
  */
 package org.duracloud.syncui.service;
 
+import com.thoughtworks.xstream.XStream;
+import org.duracloud.sync.config.SyncToolConfig;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-
-import org.duracloud.sync.config.SyncToolConfig;
-
-import com.thoughtworks.xstream.XStream;
 
 public class SyncToolConfigSerializer {
 
@@ -33,6 +32,7 @@ public class SyncToolConfigSerializer {
         XStream xstream = new XStream();
         configure(xstream);
         SyncToolConfig c = (SyncToolConfig)xstream.fromXML(fis);
+        fis.close();
         return c;
     }
     private static void configure(XStream xstream){
@@ -48,6 +48,7 @@ public class SyncToolConfigSerializer {
         
         Writer w = new FileWriter(file);
         xstream.toXML(syncToolConfig, w);
+        w.close();
     }
 
 }

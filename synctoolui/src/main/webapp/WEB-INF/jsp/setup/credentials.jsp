@@ -67,35 +67,32 @@ file="../include/libraries.jsp"%>
              cssErrorClass="error"
              path="host">
               <spring:message
-               code="host" /> /<spring:message
-               code="port" />
+               code="host" /> 
             </form:label>
             <div class="fieldgroup">
               <form:input
                 cssErrorClass="error"
                 path="host" 
                 placeholder="e.g. myinstance.duracloud.org"
+                autofocus="true" 
                 />
                 
-                <c:if test="${empty duracloudCredentialsForm.port}">
-                  <a href="#" id="advancedLink">Advanced</a>
-                </c:if>
-                
-                <div id="advancedPanel" style="${empty duracloudCredentialsForm.port ?'display:none' : ''}" >
-                 <form:input
+                 <form:hidden
+                   
                    cssErrorClass="error"
                    path="port"
                    id="port"
                    placeholder="default: 443"
                     />
-                </div>
+                    
+                
             <form:errors
              path="host"
              cssClass="error"
              element="div" />
              </div>
              
-          <li style="margin-top:5px">
+          <li>
             <form:label
              cssErrorClass="error"
              path="username">
@@ -107,7 +104,6 @@ file="../include/libraries.jsp"%>
               <form:input
                cssErrorClass="error"
                path="username"
-               autofocus="true" 
                placeholder="Your DuraCloud username here"
                />
   

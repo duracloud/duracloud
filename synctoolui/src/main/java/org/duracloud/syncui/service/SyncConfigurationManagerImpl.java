@@ -8,6 +8,7 @@
 package org.duracloud.syncui.service;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.syncui.config.SyncUIConfig;
@@ -86,12 +87,8 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setUsername(username);
         this.syncToolConfig.setPassword(password);
         this.syncToolConfig.setHost(host);
-        if (!StringUtils.isBlank(port)) {
-            this.syncToolConfig.setPort(Integer.parseInt(port));
-        } else {
-            this.syncToolConfig.setPort(443);
-        }
-
+        this.syncToolConfig.setPort(Integer.parseInt(port));
+        
         this.syncToolConfig.setSpaceId(spaceId);
         persistSyncToolConfig();
 
@@ -169,11 +166,12 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public void purgeWorkDirectory() {
-        File workDir = SyncUIConfig.getWorkDir();
-        if(workDir != null && workDir.exists()){
-           for(File file : workDir.listFiles()){
-               file.delete();
-           }
+        try {
+            FileUtils.cleanDirectory(SyncUIConfig.getWorkDir());
+        } catch(IOException e) {
+            log.error("Unable to clean work directory due to: " +
+                      e.getMessage());
         }
     }
+
 }

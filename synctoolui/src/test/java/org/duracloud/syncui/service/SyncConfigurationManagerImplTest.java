@@ -50,7 +50,7 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     public void testPersistDuracloudConfiguration() {
 
         String username = "username", password = "password", host =
-            "host.duracloud.org", spaceId = "test-space-id", port = "";
+            "host.duracloud.org", spaceId = "test-space-id", port = "8080";
 
         this.syncConfigurationManager.persistDuracloudConfiguration(username,
                                                                     password,

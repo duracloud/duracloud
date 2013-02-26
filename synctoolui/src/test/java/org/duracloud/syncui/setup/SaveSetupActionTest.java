@@ -43,7 +43,7 @@ public class SaveSetupActionTest extends AbstractTest {
         cred.setHost(host);
         space.setSpaceId(spaceId);
         
-        scm.persistDuracloudConfiguration(username, password, host, null, spaceId);
+        scm.persistDuracloudConfiguration(username, password, host, cred.getPort(), spaceId);
         EasyMock.expectLastCall();
         
         scm.persistDirectoryConfigs(configs);

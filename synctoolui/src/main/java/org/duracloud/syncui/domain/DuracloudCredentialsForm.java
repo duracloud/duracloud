@@ -29,21 +29,24 @@ public class DuracloudCredentialsForm implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
+    @NotNull (message="*Required field.")
     private String username;
-    @NotNull
+    @NotNull (message="*Required field.")
     private String password;
-    @NotNull
+    @NotNull (message="*Required field.")
     private String host;
+    @NotNull
     private String port;
 
-    public DuracloudCredentialsForm() {}
+    public DuracloudCredentialsForm() {
+        this.port = System.getProperty("duracloud.defaultport", "443");
+    }
 
     public DuracloudCredentialsForm(DuracloudConfiguration config) {
         this.username = config.getUsername();
         this.password = config.getPassword();
         this.host = config.getHost();
-        this.port = config.getPort() == 443 ? null : config.getPort()+"";
+        this.port = config.getPort()+"";
     }
 
     public String getUsername() {

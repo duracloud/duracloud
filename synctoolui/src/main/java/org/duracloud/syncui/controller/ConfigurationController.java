@@ -58,9 +58,7 @@ public class ConfigurationController {
 
     @ModelAttribute("duracloudCredentialsForm")
     public DuracloudCredentialsForm duracloudCredentials(){
-        DuracloudConfiguration c =  this.syncConfigurationManager.retrieveDuracloudConfiguration();
-        DuracloudCredentialsForm form = new DuracloudCredentialsForm(c);
-        return form;
+        return  new DuracloudCredentialsForm();
     }
 
     @RequestMapping(value = { "" })

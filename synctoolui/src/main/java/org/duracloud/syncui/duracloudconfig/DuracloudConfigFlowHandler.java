@@ -57,11 +57,7 @@ public class DuracloudConfigFlowHandler extends AbstractFlowHandler {
         }
         DuracloudConfiguration config =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
-        DuracloudCredentialsForm cf = new DuracloudCredentialsForm();
-        cf.setHost(config.getHost());
-        cf.setPort(config.getPort() != 443 ? config.getPort()+"" : null);
-        cf.setUsername(config.getUsername());
-        cf.setPassword(config.getPassword());
+        DuracloudCredentialsForm cf = new DuracloudCredentialsForm(config);
         
         map.put("duracloudCredentialsForm", cf);
         
