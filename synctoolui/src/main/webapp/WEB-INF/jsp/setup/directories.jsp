@@ -60,12 +60,14 @@
         </tbody>
       </table>
       <fieldset class="button-bar">
+        <c:if test="${not empty directoryConfigs}">
         <button
           id="next"
           type="submit"
           name="_eventId_save">
           <spring:message code="next" />
         </button>
+        </c:if>
         <button
           id="cancel"
           type="submit"
