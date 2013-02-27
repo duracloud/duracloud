@@ -329,6 +329,7 @@ public class S3StorageProviderTest {
 
         Map<String, String> bucketTags = new HashMap<>();
         bucketTags.put("tag-one", "tag-one-value");
+        bucketTags.put("tag-two", "tagtwo+test.com");
         BucketTaggingConfiguration tagConfig =
             new BucketTaggingConfiguration().withTagSets(new TagSet(bucketTags));
         EasyMock.expect(
@@ -346,6 +347,7 @@ public class S3StorageProviderTest {
         Map<String, String> spaceProps = provider.getAllSpaceProperties(spaceId);
         Assert.assertNotNull(spaceProps);
         Assert.assertEquals("tag-one-value", spaceProps.get("tag-one"));
+        Assert.assertEquals("tagtwo@test.com", spaceProps.get("tag-two"));
         Assert.assertEquals(String.valueOf(1),
                             spaceProps.get(
                                 StorageProvider.PROPERTIES_SPACE_COUNT));
@@ -383,7 +385,8 @@ public class S3StorageProviderTest {
         EasyMock.replay(s3Client);
 
         Map<String, String> spaceProps = new HashMap<>();
-        spaceProps.put("one", "two");
+        spaceProps.put("one", "one-value");
+        spaceProps.put("two", "two@value.com");
         provider.doSetSpaceProperties(spaceId, spaceProps);
 
         BucketTaggingConfiguration tagConfig = tagConfigCap.getValue();
@@ -391,8 +394,9 @@ public class S3StorageProviderTest {
         Map<String, String> props =
             tagConfig.getAllTagSets().get(0).getAllTags();
         Assert.assertNotNull(props);
-        Assert.assertEquals(2, props.size());
-        Assert.assertEquals("two", props.get("one"));
+        Assert.assertEquals(3, props.size());
+        Assert.assertEquals("one-value", props.get("one"));
+        Assert.assertEquals("two+value.com", props.get("two"));
         Assert.assertNotNull(
             props.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 

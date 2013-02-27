@@ -25,6 +25,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
@@ -258,6 +259,9 @@ public class S3StorageProvider extends StorageProviderBase {
             }
         }
 
+        // Handle @ symbol (change from +), to allow for email usernames in ACLs
+        spaceProperties = replaceInMapValues(spaceProperties, "+", "@");
+
         // Add space count
         spaceProperties.put(PROPERTIES_SPACE_COUNT,
                             getSpaceCount(spaceId, MAX_ITEM_COUNT));
@@ -348,11 +352,31 @@ public class S3StorageProvider extends StorageProviderBase {
         }
         spaceProperties.put(PROPERTIES_SPACE_CREATED, creationDate);
 
+        // Handle @ symbol (change to +), to allow for email usernames in ACLs
+        spaceProperties = replaceInMapValues(spaceProperties, "@", "+");
+
         // Store properties
         String bucketName = getBucketName(spaceId);
         BucketTaggingConfiguration tagConfig = new BucketTaggingConfiguration()
             .withTagSets(new TagSet(spaceProperties));
         s3Client.setBucketTaggingConfiguration(bucketName, tagConfig);
+    }
+
+    /*
+     * Performs a replaceAll of one string value for another in all the values
+     * of a map.
+     */
+    private Map<String, String> replaceInMapValues(Map<String, String> map,
+                                                   String oldVal,
+                                                   String newVal) {
+        for(String key : map.keySet()) {
+            String value = map.get(key);
+            if(value.contains(oldVal)) {
+                value = StringUtils.replace(value, oldVal, newVal);
+                map.put(key, value);
+            }
+        }
+        return map;
     }
 
     /**
