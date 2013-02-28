@@ -2776,6 +2776,8 @@ $(function(){
                 
                 
             }
+
+            this._loadHistoryPanel(space);
         },
 
         _loadHistoryPanel: function(options){
