@@ -254,7 +254,8 @@
               <ul class="tabs">
                 <li class='<c:if test="${statusTab == 'queued'}">selected</c:if>'><a href="?statusTab=queued">Queued for Synchronization</a>
                   (${queueSize})</li>
-                <li id="errors-tab" class='<c:if test="${statusTab == 'errors'}">selected</c:if>'><a href="?statusTab=errors">Errors</a></li>
+                <li id="errors-tab" class='<c:if test="${statusTab == 'errors'}">selected</c:if>'><a href="?statusTab=errors">Errors</a>
+                  (${syncProcessStats.errorCount})</li>
               </ul>
             </div>
             <div class="body">

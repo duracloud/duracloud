@@ -234,9 +234,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private SyncProcessStats getProcessStatsImpl() {
         int queueSize = ChangedList.getInstance().getListSize();
+        int errorSize = StatusManager.getInstance().getFailed().size();
         return new SyncProcessStats(this.syncStartedDate,
                                     null,
-                                    0,
+                                    errorSize,
                                     0,
                                     0,
                                     queueSize);
