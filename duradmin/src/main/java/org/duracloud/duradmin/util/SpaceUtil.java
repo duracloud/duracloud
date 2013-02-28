@@ -7,17 +7,6 @@
  */
 package org.duracloud.duradmin.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
@@ -37,6 +26,17 @@ import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides utility methods for spaces.
@@ -158,6 +158,7 @@ public class SpaceUtil {
     
 	public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
 			throws ContentStoreException, IOException {
+        OutputStream outStream = response.getOutputStream();
 	    try{
 	        Content c = store.getContent(spaceId, contentId);
 	        Map<String,String> m = store.getContentProperties(spaceId, contentId);
@@ -167,10 +168,10 @@ public class SpaceUtil {
 	        byte[] buf = new byte[1024];
 	        int read = -1;
 	        while((read = is.read(buf)) > 0){
-	            response.getOutputStream().write(buf, 0, read);
+	            outStream.write(buf, 0, read);
 	        }
 	        response.flushBuffer();
-	        
+	        outStream.close();
 	    }catch (ContentStoreException ex) {
 	        if(ex.getCause() instanceof ContentStateException){
 	            response.reset();
@@ -180,14 +181,12 @@ public class SpaceUtil {
                     " with limited retrieval capability. Please contact " +
                     "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
                     "for assistance in retrieving this content item.";
-	            response.getOutputStream().write(message.getBytes());
+                outStream.write(message.getBytes());
+                outStream.close();
 	        } else {
 	            throw ex;
 	        }
-	    } finally {
-	           response.getOutputStream().close();
-	    }
-	    
+        }
 	}
 
     
