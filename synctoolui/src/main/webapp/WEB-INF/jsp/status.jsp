@@ -79,7 +79,7 @@
                   </li>
                   
                   
-                  
+                 <%-- 
                   <li>
                     <button
                       id="pause"
@@ -102,7 +102,7 @@
                       <spring:message code="resume" />
                     </button>
                   </li>
-
+		  --%>
                 </ul>
               </form>
 
