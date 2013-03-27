@@ -7,7 +7,6 @@
  */
 package org.duracloud.sync.mgmt;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,8 +69,8 @@ public class StatusManager {
         succeeded++;
         inWork--;
         this.recentlyCompleted.add(0,summary);
-        if (this.recentlyCompleted.size() > 100) {
-            this.recentlyCompleted = this.recentlyCompleted.subList(0, 100);
+        while (this.recentlyCompleted.size() > 100) {
+            this.recentlyCompleted.remove(this.recentlyCompleted.size() - 1);
         }
     }
 
