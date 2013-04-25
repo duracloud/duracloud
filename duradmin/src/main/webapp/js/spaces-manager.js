@@ -1385,7 +1385,10 @@ $(function(){
                             spaceId:spaceId});
                         HistoryManager.pushState(newState);
                     }else{
-                        HistoryManager.pushState({storeId: that._storeId, multi:true});
+                        newState = that._createUniqueStateObject({
+                                            storeId: that._storeId, 
+                                            multi:true});
+                        HistoryManager.pushState(newState);
                     }
                 }
             }catch(err){
