@@ -309,6 +309,11 @@
                   <div id="errors">
                   <c:choose>
                     <c:when test="${not empty failures}">
+                        <div>
+                          <form method="POST">
+                            <button type="submit" name="clear-failures">Clear Errors</button>
+                          </form>
+                        </div>
                         <table>
                           <thead>
                             <tr>

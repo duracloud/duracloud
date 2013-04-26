@@ -99,6 +99,13 @@ public class StatusController {
             this.syncProcessManager.stop();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
+    
+    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "clear-failures" })
+    public View
+        clearErrors() {
+        this.syncProcessManager.clearFailures();
+        return redirectTo(STATUS_MAPPING + "?statusTab=errors");
+    }
 
     @ModelAttribute
     public SyncProcessStats syncProcessStats() {

@@ -475,4 +475,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     public List<File> getQueuedFiles() {
         return ChangedList.getInstance().peek(10);
     }
+    
+    @Override
+    public void clearFailures() {
+        StatusManager.getInstance().clearFailed();
+    }
 }

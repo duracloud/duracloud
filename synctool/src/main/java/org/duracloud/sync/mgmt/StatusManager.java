@@ -14,6 +14,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Singleton class which tracks the status of the sync queue
  *
@@ -21,7 +24,7 @@ import java.util.List;
  * Date: Apr 2, 2010
  */
 public class StatusManager {
-
+    private Logger log = LoggerFactory.getLogger(StatusManager.class);
     private static final DateFormat DATE_FORMAT =
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -98,6 +101,14 @@ public class StatusManager {
     public void setVersion(String version) {
         this.version = version;
     }
+    
+    public void clearFailed() {
+        log.info("clearing failed list");
+        if(this.failed != null){
+            this.failed.clear();
+        }
+    }
+
 
     public String getPrintableStatus() {
         StringBuilder status = new StringBuilder();
@@ -117,5 +128,6 @@ public class StatusManager {
         status.append("--------------------------------------\n");
         return status.toString();
     }
+
 
 }

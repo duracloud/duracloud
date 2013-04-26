@@ -57,6 +57,11 @@ public interface SyncProcessManager extends SyncProcess{
      */
     void clearError();
 
+    /**
+     * 
+     */
+    void clearFailures();
+
     List<SyncSummary> getFailures();
 
     List<SyncSummary> getRecentlyCompleted();
