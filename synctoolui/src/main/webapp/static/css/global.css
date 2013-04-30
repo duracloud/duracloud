@@ -204,6 +204,20 @@ div.header > .button-bar {
   float:right;
   
 }
+
+.button-bar label  {
+  white-space: nowrap;
+  color: black;
+  background-color: #ddd;
+  text-align: center;
+  font-size: 12px;
+  margin-right: 20px;
+
+}
+
+.button-bar form {
+  display:inline;
+}
 div.section {
 	border-radius: 5px;
 }

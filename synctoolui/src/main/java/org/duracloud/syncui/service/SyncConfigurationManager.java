@@ -60,4 +60,7 @@ public interface SyncConfigurationManager {
 
     public void purgeWorkDirectory();
     
+    public void setSyncDeletes(boolean flag);
+    
+    public boolean isSyncDeletes();
 }

@@ -16,6 +16,7 @@ import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.ui.ExtendedModelMap;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 /**
@@ -39,7 +40,7 @@ public class ConfigurationControllerTest extends AbstractTest {
     @Test
     public void testGet() {
         replay();
-        Assert.assertNotNull(configurationController.get());
+        Assert.assertNotNull(configurationController.get(new ExtendedModelMap()));
     }
     
     @Test

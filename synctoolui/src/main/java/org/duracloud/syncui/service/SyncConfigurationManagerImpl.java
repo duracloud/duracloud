@@ -173,5 +173,16 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
                       e.getMessage());
         }
     }
+    
+    @Override
+    public boolean isSyncDeletes() {
+        return this.syncToolConfig.syncDeletes();
+    }
+    
+    @Override
+    public void setSyncDeletes(boolean flag) {
+        this.syncToolConfig.setSyncDeletes(flag);
+        
+    }
 
 }

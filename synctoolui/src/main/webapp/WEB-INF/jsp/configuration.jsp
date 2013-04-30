@@ -22,6 +22,22 @@
               </span>
               <ul class="button-bar">
                 <li>
+                    <form method="post" action="${pageContext.request.contextPath}/configuration/advanced">
+                    
+                    <label title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud." >
+                    
+                    <input type="checkbox" id="syncDeletes" name="syncDeletes" value="true"
+                      <c:if test="${syncDeletes}">
+                        checked 
+                      </c:if>
+                    />
+                    Sync Deletes
+
+                  </label>
+                  </form>
+                    
+                </li>
+                <li>
                   <a id="add" class="button">Add</a>
                 </li>
               </ul>

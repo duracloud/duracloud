@@ -106,6 +106,9 @@ $(function() {
 
             });
 
+    $("#syncDeletes").change(function(){
+        $(this).closest("form").submit();
+    });
     
     $("#advancedLink").live("click",function(){
         $("#advancedPanel").slideDown();

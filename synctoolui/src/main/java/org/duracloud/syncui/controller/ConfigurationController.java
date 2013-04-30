@@ -21,9 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
@@ -73,9 +75,10 @@ public class ConfigurationController {
         return syncProcessManager.getProcessState();
     }
 
-    @RequestMapping(value = { "" })
-    public String get() {
+    @RequestMapping(value = { "" }, method= RequestMethod.GET)
+    public String get(Model model) {
         log.debug("accessing configuration page");
+        model.addAttribute("syncDeletes", this.syncConfigurationManager.isSyncDeletes());
         return "configuration";
     }
 
@@ -91,6 +94,17 @@ public class ConfigurationController {
         directoryConfigs.removePath(path);
         this.syncConfigurationManager.persistDirectoryConfigs(directoryConfigs);
 
+        return createConfigUpdatedRedirectView(redirectAttributes);
+    }
+
+    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST)
+    public View updateSyncDeletes(
+                                @RequestParam(defaultValue = "false") String syncDeletes,
+                                RedirectAttributes redirectAttributes) {
+
+        log.debug("updating sync deletes to : {}", syncDeletes);
+        
+        this.syncConfigurationManager.setSyncDeletes(Boolean.valueOf(syncDeletes));
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
