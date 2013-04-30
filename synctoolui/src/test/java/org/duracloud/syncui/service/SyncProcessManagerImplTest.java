@@ -197,6 +197,35 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     }
 
     @Test
+    public void testRestart() throws SyncProcessException, ContentStoreException {
+        setupStart(2);
+        this.syncConfigurationManager.purgeWorkDirectory();
+        EasyMock.expectLastCall();
+
+        replay();
+
+        TestSyncStateListener listener0 =
+            new TestSyncStateListener(SyncProcessState.RUNNING);
+        TestSyncStateListener listener1 =
+            new TestSyncStateListener(SyncProcessState.STOPPED);
+        TestSyncStateListener listener2 =
+            new TestSyncStateListener(SyncProcessState.RUNNING);
+
+        syncProcessManagerImpl.addSyncStateChangeListener(listener0);
+        syncProcessManagerImpl.start();
+        Assert.assertTrue(listener0.success());
+
+        syncProcessManagerImpl.addSyncStateChangeListener(listener1);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener2);
+        syncProcessManagerImpl.restart();
+
+        Assert.assertTrue(listener1.success());
+        Assert.assertTrue(listener2.success());
+
+    }
+
+    
+    @Test
     public void testPaused() throws SyncProcessException, ContentStoreException {
         setupStart();
         replay();

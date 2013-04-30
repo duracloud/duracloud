@@ -7,11 +7,11 @@ file="../include/libraries.jsp"%>
  name="setup-wizard"
  flush="true">
   <tiles:putAttribute
-   name="title">Setup</tiles:putAttribute>
+   name="title">Sync Configuration Wizard</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelTitle"
-   cascade="true">DuraCloud Sync Setup</tiles:putAttribute>
+   cascade="true">Sync Configuration Wizard</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelMessage"
@@ -23,6 +23,7 @@ file="../include/libraries.jsp"%>
     <h1>
       Your settings have been successfully saved.
     </h1>
+    
    </div>
    
    </tiles:putAttribute>
@@ -30,18 +31,43 @@ file="../include/libraries.jsp"%>
   <tiles:putAttribute
    name="panelContent"
    cascade="true">
-    <form
+   <c:set var="syncRunning" value="${syncState.name() == 'RUNNING'}"/>
+    <c:if test="${syncRunning}">
+    <p>
+      In order for the sync tool to pick up the latest
+      changes you must restart.
+    </p> 
+    </c:if>
+    <form:form
      method="POST">
       <fieldset
        class="button-bar">
+         <c:if test="${syncRunning}">
+          <button
+           id="restart"
+           type="submit"
+           name="_eventId_restart">
+            Restart now
+          </button>
+         </c:if>
+ 
         <button
          id="end"
          type="submit"
          name="_eventId_end">
-          Done
+         <c:choose>
+           <c:when test="${syncRunning}">
+            Start later
+           </c:when>
+           <c:otherwise>
+            Done
+           </c:otherwise>
+         </c:choose>          
         </button>
+ 
+        
       </fieldset>
-    </form>
+    </form:form>
   </tiles:putAttribute>
 </tiles:insertDefinition>
 

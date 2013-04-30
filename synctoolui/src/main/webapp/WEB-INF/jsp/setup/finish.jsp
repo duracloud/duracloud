@@ -11,7 +11,7 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelTitle"
-   cascade="true">DuraCloud Sync Setup</tiles:putAttribute>
+   cascade="true">Sync Setup</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelMessage"

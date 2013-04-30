@@ -99,7 +99,14 @@ public class StatusController {
             this.syncProcessManager.stop();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
-    
+
+    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "restart" })
+    public View
+        restart() {
+            this.syncProcessManager.restart();
+        return redirectTo(StatusController.STATUS_MAPPING);
+    }
+
     @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "clear-failures" })
     public View
         clearErrors() {

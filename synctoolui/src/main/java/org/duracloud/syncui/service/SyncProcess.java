@@ -44,6 +44,11 @@ public interface SyncProcess {
     public void pause();
 
     /**
+     * Equivalent to a stop and a restart.
+     */
+    public void restart();
+
+    /**
      * Returns an enum designating the runtime state of the sync process
      * 
      * @return

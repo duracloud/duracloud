@@ -18,6 +18,7 @@ Page: displays configuration information for the synchronization process.
 </div>
 <form:form
   method="POST"
+  action="${action}"
   modelAttribute="directoryConfigForm">
   <form:hidden
     id="directoryPath"

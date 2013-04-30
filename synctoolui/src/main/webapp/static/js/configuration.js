@@ -38,42 +38,17 @@ $(function() {
 
                                 // attach cancel button listener
                                 addCancelButtonHandler(dialog);
+                                
+                                $("#add", dialog).click(function(e){
+                                    if($("#directoryPath").val() == ''){
+                                        alert("You must select a directory or file.");
+                                        e.preventDefault();
+                                        setTimeout(function(){
+                                            $("button",dialog).removeAttr("disabled", "disabled");
+                                        },2);
 
-                                // attach add button listener
-                                $("#add", dialog)
-                                        .click(
-                                                function(e) {
-                                                    var jqxhr = $
-                                                            .post(
-                                                                    addDirectoryUrl,
-                                                                    $(
-                                                                            "#directoryConfigForm")
-                                                                            .serialize())
-                                                            .done(
-                                                                    function() {
-                                                                        if (jqxhr.responseText
-                                                                                .indexOf("success") < 0) {
-                                                                            // recursively
-                                                                            // call
-                                                                            // load
-                                                                            // content
-                                                                            // on
-                                                                            // result
-                                                                            // if
-                                                                            // unsuccessful.
-                                                                            loadContent(
-                                                                                    jqxhr,
-                                                                                    dialog);
-                                                                        } else {
-                                                                            window.location
-                                                                                    .reload();
-                                                                        }
-                                                                        return false;
-                                                                    });
-
-                                                    e.preventDefault();
-                                                    return false;
-                                                });
+                                    }
+                                });
                             };
 
                             var jqxhr = $.get(addDirectoryUrl).done(function() {

@@ -16,6 +16,7 @@ import org.duracloud.syncui.domain.SpaceForm;
 import org.duracloud.syncui.service.SyncConfigurationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.FlowExecutionOutcome;
@@ -45,7 +46,11 @@ public class DuracloudConfigFlowHandler extends AbstractFlowHandler {
     public String handleExecutionOutcome(FlowExecutionOutcome outcome,
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
-        return "contextRelative:/";
+        String path = "/";
+        if("restart".equals(outcome.getOutput().get("action"))){
+            path+="status";
+        }
+        return "contextRelative:"+path;
     }
     
     @Override

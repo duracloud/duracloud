@@ -43,7 +43,7 @@ import java.util.concurrent.CountDownLatch;
  * 
  * @author Daniel Bernstein
  */
-@Component
+@Component("syncProcessManager")
 public class SyncProcessManagerImpl implements SyncProcessManager {
     private static final int CHANGE_LIST_MONITOR_FREQUENCY = 5000;
     private static Logger log =
@@ -113,6 +113,11 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     public void pause() {
         this.currentState.pause();
     }
+    
+    @Override
+    public void restart() {
+       this.currentState.restart();   
+    }
 
     @Override
     public SyncProcessState getProcessState() {
@@ -138,7 +143,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void fireStateChanged(SyncProcessState state) {
         SyncStateChangedEvent event = new SyncStateChangedEvent(state);
-        for (SyncStateChangeListener listener : listeners) {
+        List<SyncStateChangeListener> copy = new ArrayList<>(listeners);
+        for (SyncStateChangeListener listener : copy) {
             listener.stateChanged(event);
         }
     }
@@ -308,7 +314,6 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
                 syncConfigurationManager.purgeWorkDirectory();
                 resetChangeList();
-
                 changeState(stoppedState);
             }
         };
@@ -359,6 +364,11 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
         @Override
         public void pause() {
+            //do nothing by default
+        }
+        
+        @Override 
+        public void restart(){
             //do nothing by default
         }
 
@@ -423,6 +433,28 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         @Override
         public void pause() {
             pauseImpl();
+        }
+        
+        @Override
+        public void restart() {
+            //register stopped listener
+            addSyncStateChangeListener(new SyncStateChangeListener() {
+                @Override
+                public void stateChanged(SyncStateChangedEvent event) {
+                    if(event.getProcessState().equals(SyncProcessState.STOPPED)){
+                        try {
+                            removeSyncStateChangeListener(this);
+                            startImpl();
+                        } catch (SyncProcessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            
+            //invoke stop
+            stopImpl();
+            
         }
 
         @Override

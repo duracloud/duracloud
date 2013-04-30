@@ -495,3 +495,53 @@ div.green-check {
 #directories td:last-child{
   text-align: right;
 }
+
+/*user feedback classes*/
+.message-holder {
+	position: fixed;
+	z-index: 10; 
+	width:500px;
+	height:1px;
+	overflow: visible;
+	position:fixed;
+	left:50%;
+	margin-left:-250px;
+}
+
+.message-holder a {
+	font-size: 12px;
+	color: #555;
+	margin-left: 10px;	
+}
+
+.message {
+    border-radius: 10px;
+	padding:10px;
+	font-size:1.0em;
+	margin-top:10px;
+	margin-button:10px;
+	margin-left:auto;
+	margin-right:auto;
+	min-width:200px;
+	max-width:500px;
+	opacity:0.75;
+}
+
+.message-holder .info {
+	border:1px solid #0F0;
+	background-color: #AFA;
+	color: #050;
+}
+
+.message-holder .error {
+	border:1px solid #F00;
+	background-color: #FAA;
+	color: #500;
+}
+
+.message-holder .warning {
+	border:1px solid #FF0;
+	background-color: #FFA;
+	color: #550;
+}
+

@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <%@include file="../include/libraries.jsp"%>
 <div>
+  <div class="message-holder">
+    <c:if test="${not empty messageInclude}">
+      <div class="message info">
+        <jsp:include page="../include/message/${messageInclude}.jsp"/>
+        <a id="close-link" href="#">close</a>
+        <script>
+          $("#close-link").click(function() {
+              $(".message-holder").fadeOut();
+          });
+          
+          setTimeout(function(){
+              $(".message-holder").fadeOut();
+          }, 7000);
+        </script>
+      </div>
+    </c:if>
+  </div>
+
   <div id="header">
     <div id="logo">SYNC TOOL</div>
     <tiles:insertAttribute name="subHeader" />

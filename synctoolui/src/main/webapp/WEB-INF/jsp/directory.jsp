@@ -10,7 +10,11 @@
 
   <tiles:putAttribute
    name="panelContent">
-    <jsp:include page="/WEB-INF/jsp/include/directoryForm.jsp" />
+    <jsp:include page="/WEB-INF/jsp/include/directoryForm.jsp">
+      <jsp:param
+        name="action"
+        value="${pageContext.request.contextPath}/configuration/add" />
+    </jsp:include>
   </tiles:putAttribute>
 </tiles:insertDefinition>
 

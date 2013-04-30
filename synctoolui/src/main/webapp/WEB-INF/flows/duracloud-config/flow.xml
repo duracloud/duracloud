@@ -41,12 +41,22 @@
     <on-entry>
       <evaluate
         expression="saveDuracloudConfiguration.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm)" />
+      <evaluate expression="syncProcessManager.getProcessState()" result="flowScope.syncState"/>
     </on-entry>
     <transition on="end" to="end"/>
+    <transition on="restart" to="restart"/>
   </view-state>
 
+  <end-state id="restart">
+    <on-entry>
+      <evaluate expression="syncProcessManager.restart()" />
+    </on-entry>
+    <output name="action" value="'action'" />
+  </end-state>    
 
   <end-state id="end">
     <output name="message" value="flowScope.message" />
   </end-state>
+
+
 </flow>

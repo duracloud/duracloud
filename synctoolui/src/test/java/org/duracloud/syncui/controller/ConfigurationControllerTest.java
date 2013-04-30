@@ -7,14 +7,16 @@
  */
 package org.duracloud.syncui.controller;
 
+import org.duracloud.syncui.AbstractTest;
+import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.service.SyncConfigurationManager;
-import org.duracloud.syncui.AbstractTest;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 /**
  * 
@@ -25,14 +27,13 @@ public class ConfigurationControllerTest extends AbstractTest {
 
     private ConfigurationController configurationController; 
     private SyncConfigurationManager syncConfigurationManager;
-
     @Before
     @Override
     public void setup() {
         super.setup();
 
         this.syncConfigurationManager = createMock(SyncConfigurationManager.class);
-        this.configurationController = new ConfigurationController(syncConfigurationManager);
+        this.configurationController = new ConfigurationController(syncConfigurationManager, null);
     }
     
     @Test
@@ -51,6 +52,26 @@ public class ConfigurationControllerTest extends AbstractTest {
         f.setDirectoryPath(testPath);
         this.syncConfigurationManager.persistDirectoryConfigs(configs);
         replay();
-        Assert.assertNotNull(configurationController.removeDirectory(f));
+        Assert.assertNotNull(configurationController.removeDirectory(f, new RedirectAttributesModelMap()));
     }
+    
+    @Test
+    public void testGetAdd() {
+        replay();
+        Assert.assertNotNull(configurationController.getAdd());
+    }
+    
+    @Test
+    public void testAdd() {
+        String testPath = "testPath";
+        DirectoryConfigs configs = createMock(DirectoryConfigs.class);
+        EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs()).andReturn(configs);
+        EasyMock.expect(configs.add(EasyMock.isA(DirectoryConfig.class))).andReturn(true);
+        DirectoryConfigForm f = new DirectoryConfigForm();
+        f.setDirectoryPath(testPath);
+        this.syncConfigurationManager.persistDirectoryConfigs(configs);
+        replay();
+        Assert.assertNotNull(configurationController.add(f, new RedirectAttributesModelMap()));
+    }
+
 }
