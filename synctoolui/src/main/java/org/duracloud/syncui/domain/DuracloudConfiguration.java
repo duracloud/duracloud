@@ -20,6 +20,8 @@ public class DuracloudConfiguration {
     private int port;
     private String spaceId;
 
+    public static final String DEFAULT_PORT =  System.getProperty("duracloud.defaultport", "443");
+
     public DuracloudConfiguration(
         String username, String password, String host, int port, String spaceId) {
         super();
@@ -44,6 +46,10 @@ public class DuracloudConfiguration {
     }
     public String getPassword() {
         return password;
+    }
+
+    public boolean isDefaultPort(){
+        return DuracloudConfiguration.DEFAULT_PORT.equals(this.port);
     }
 
 }

@@ -98,7 +98,7 @@
                   <td><spring:message code="host"/></td>
                   <td>${duracloudConfiguration.host}</td>
                 </tr>
-                <c:if test="${!empty port}">
+                <c:if test="${not duracloudConfiguration.defaultPort}">
                   <tr>
                     <td><spring:message code="port"/></td>
                     <td>${duracloudConfiguration.port}</td>

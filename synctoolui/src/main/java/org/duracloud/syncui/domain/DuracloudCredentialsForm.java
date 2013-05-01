@@ -37,9 +37,10 @@ public class DuracloudCredentialsForm implements Serializable {
     private String host;
     @NotNull
     private String port;
-
+    
+    
     public DuracloudCredentialsForm() {
-        this.port = System.getProperty("duracloud.defaultport", "443");
+        this.port = DuracloudConfiguration.DEFAULT_PORT;
     }
 
     public DuracloudCredentialsForm(DuracloudConfiguration config) {
@@ -49,6 +50,10 @@ public class DuracloudCredentialsForm implements Serializable {
         this.port = config.getPort()+"";
     }
 
+    public boolean isDefaultPort(){
+        return DuracloudConfiguration.DEFAULT_PORT.equals(this.port);
+    }
+    
     public String getUsername() {
         return username;
     }

@@ -77,21 +77,44 @@ file="../include/libraries.jsp"%>
                 autofocus="true" 
                 />
                 
-                 <form:hidden
-                   
-                   cssErrorClass="error"
-                   path="port"
-                   id="port"
-                   placeholder="default: 443"
-                    />
-                    
-                
             <form:errors
              path="host"
              cssClass="error"
              element="div" />
+             
+             <c:if test="${duracloudCredentialsForm.defaultPort}">
+             <a href="#" id="advanced">
+              Advanced
+             </a>
+             </c:if>             
+            
              </div>
              
+          </li>  
+          
+          <li id="portListItem" style="display:${duracloudCredentialsForm.defaultPort ? 'none' : ''}">
+            <form:label
+             cssErrorClass="error"
+             path="port">
+              <spring:message
+               code="port" /> 
+            </form:label>
+            <div class="fieldgroup">
+              <form:input
+                cssErrorClass="error"
+                path="port" 
+                placeholder=""
+                autofocus="true" 
+                />
+                
+            <form:errors
+             path="port"
+             cssClass="error"
+             element="div" />
+             </div>
+          
+          
+          </li>
           <li>
             <form:label
              cssErrorClass="error"

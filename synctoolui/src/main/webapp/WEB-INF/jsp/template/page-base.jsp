@@ -21,6 +21,7 @@
 <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jqueryFileTree.js"></script>
+ 
 <link
   rel="stylesheet"
   type="text/css"
@@ -42,6 +43,13 @@
                 },1);
             });
         });
+        
+        //I put this here because it is used both in the setup and duracloud-config wizards.
+        $("#advanced").live("click",function(e){
+            $(this).fadeOut();
+            $("#portListItem").slideDown();
+        });
+
       </script>
 
 </body>
