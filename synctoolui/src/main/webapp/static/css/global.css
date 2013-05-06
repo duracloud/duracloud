@@ -215,6 +215,10 @@ div.header > .button-bar {
 
 }
 
+.button-bar label  input[type='checkbox']{
+  min-width:0px; 
+}
+
 .button-bar form {
   display:inline;
 }
