@@ -170,6 +170,14 @@ public class SyncToolConfigParser {
        excludeOption.setRequired(false);
        cmdOptions.addOption(excludeOption);
 
+
+       Option prependSourcePath =
+           new Option("P", "prepend-content-id-with-source-path", false,
+                      "indicates that the sync tool should prepend the path " +
+                      "of the source file to destination content id.");
+       prependSourcePath.setRequired(false);
+       cmdOptions.addOption(prependSourcePath);
+
        // Options to use Backup Config
        configFileOptions = new Options();
 
@@ -351,6 +359,10 @@ public class SyncToolConfigParser {
                                          "path to a valid file.");
             }
             config.setExcludeList(excludeFile);
+        }
+
+        if(cmd.hasOption("P")) {
+            config.setPrependSourcePath(true);
         }
 
         return config;

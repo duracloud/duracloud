@@ -36,15 +36,18 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private String username;
     private String spaceId;
     private boolean syncDeletes;
+    private boolean prependSourcePath;
 
     public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String username,
                                  String spaceId,
-                                 boolean syncDeletes) {
+                                 boolean syncDeletes,
+                                 boolean prependSourcePath) {
         this.contentStore = contentStore;
         this.username = username;
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
+        this.prependSourcePath = prependSourcePath;
         ensureSpaceExists();
     }
     
@@ -189,15 +192,23 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     }
 
     /*
-     * Determines the content ID of a file: the path of the file relative to
-     * the watched directory. If the watched directory is null, the content ID
-     * is simply the name of the file.
+     * Determines the content ID of a file: the path of the file relative to the
+     * watched directory. If the watched directory is null, the content ID is
+     * simply the name of the file. If the prependSourcePath option is true, the
+     * content id will be prepended with the full filesystem path of the file.
      */
     protected String getContentId(MonitoredFile syncFile, File watchDir) {
         String contentId = syncFile.getName();
-        if(null != watchDir) {
-            URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
-            contentId = relativeFileURI.getPath();
+
+        if (prependSourcePath) {
+            contentId = syncFile.getAbsolutePath();
+        } else {
+
+            if (null != watchDir) {
+                URI relativeFileURI =
+                    watchDir.toURI().relativize(syncFile.toURI());
+                contentId = relativeFileURI.getPath();
+            }
         }
         return contentId;
     }

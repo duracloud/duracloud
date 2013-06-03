@@ -10,8 +10,6 @@ package org.duracloud.sync.endpoint;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -77,7 +75,7 @@ public class DuraStoreSyncEndpointTest {
 
     private void setEndpoint() {
         endpoint =
-            new DuraStoreSyncEndpoint(contentStore, username, spaceId, false);
+            new DuraStoreSyncEndpoint(contentStore, username, spaceId, false,false);
     }
 
     @Test
