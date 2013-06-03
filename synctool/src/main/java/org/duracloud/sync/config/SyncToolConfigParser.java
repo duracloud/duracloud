@@ -43,6 +43,8 @@ public class SyncToolConfigParser {
     protected static final int DEFAULT_NUM_THREADS = 3;
     protected static final int DEFAULT_MAX_FILE_SIZE = 1; // 1 GB
     protected static final String context = "durastore";
+    private static final String PASSWORD_ENV_VARIABLE_NAME =
+        "DURACLOUD_SYNC_TOOL_PASSWORD";
 
     private Options cmdOptions;
     private Options configFileOptions;
@@ -74,10 +76,16 @@ public class SyncToolConfigParser {
        usernameOption.setRequired(true);
        cmdOptions.addOption(usernameOption);
 
-       Option passwordOption =
-           new Option("p", "password", true,
-                      "the password necessary to perform writes to DuraStore");
-       passwordOption.setRequired(true);
+        Option passwordOption =
+            new Option("p",
+                       "password",
+                       true,
+                       "the password necessary to perform writes to DuraStore; NB: "
+                           + "if no password is specified in the command line the sync tool will look"
+                           + "for an environmental variable named "
+                           + PASSWORD_ENV_VARIABLE_NAME
+                           + " containing the password.");
+       passwordOption.setRequired(false);
        cmdOptions.addOption(passwordOption);
 
         Option storeIdOption =
@@ -246,7 +254,20 @@ public class SyncToolConfigParser {
         config.setContext(context);
         config.setHost(cmd.getOptionValue("h"));
         config.setUsername(cmd.getOptionValue("u"));
-        config.setPassword(cmd.getOptionValue("p"));
+        
+        if (null != cmd.getOptionValue("p")) {
+            config.setPassword(cmd.getOptionValue("p"));
+        } else {
+            String password = getPasswordEnvVariable();
+            if (password == null) {
+                printHelp("You must either specify a password in the command "+ 
+                          "line or specify the " +
+                          PASSWORD_ENV_VARIABLE_NAME + 
+                          " environmental variable.");
+            }
+            
+            config.setPassword(password);
+        }
         config.setSpaceId(cmd.getOptionValue("s"));
 
         if(cmd.hasOption("i")) {
@@ -366,6 +387,10 @@ public class SyncToolConfigParser {
         }
 
         return config;
+    }
+
+    protected String getPasswordEnvVariable() {
+        return System.getenv(PASSWORD_ENV_VARIABLE_NAME);
     }
 
     private void printHelp(String message) {

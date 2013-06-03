@@ -33,7 +33,8 @@ public class SyncToolConfigParserTest {
 
     @Before
     public void setUp() throws Exception {
-        syncConfigParser = new SyncToolConfigParser();
+        syncConfigParser = createSyncToolParser();
+        
         tempDir = new File(System.getProperty("java.io.tmpdir"));
     }
 
@@ -60,7 +61,7 @@ public class SyncToolConfigParserTest {
         SyncToolConfig syncConfig =
             syncConfigParser.processStandardOptions(mapToArray(argsMap));
         checkStandardOptions(argsMap, syncConfig);
-
+        
         // Remove optional params
         argsMap.remove("-f");
         argsMap.remove("-r");
@@ -120,7 +121,6 @@ public class SyncToolConfigParserTest {
         argsMap.put("-c", tempDir.getAbsolutePath());
         argsMap.put("-t", "5");
         argsMap.put("-u", "user");
-        argsMap.put("-p", "pass");
         argsMap.put("-s", "mySpace");
         argsMap.put("-m", "2");
         argsMap.put("-d", "");
@@ -144,7 +144,6 @@ public class SyncToolConfigParserTest {
         assertEquals(argsMap.get("-t"),
                      String.valueOf(syncConfig.getNumThreads()));
         assertEquals(argsMap.get("-u"), syncConfig.getUsername());
-        assertEquals(argsMap.get("-p"), syncConfig.getPassword());
         assertEquals(argsMap.get("-s"), syncConfig.getSpaceId());
         assertEquals(argsMap.get("-m"),
                      String.valueOf(syncConfig.getMaxFileSize() /
@@ -270,10 +269,18 @@ public class SyncToolConfigParserTest {
         argsMap.put("-g", backupFile.getAbsolutePath());
 
         // Process using config file
-        syncConfigParser = new SyncToolConfigParser();
+        syncConfigParser = createSyncToolParser();
         syncConfig =
             syncConfigParser.processConfigFileOptions(mapToArray(argsMap));
         checkStandardOptions(getArgsMap(), syncConfig);
+    }
+
+    private SyncToolConfigParser createSyncToolParser() {
+        return new SyncToolConfigParser(){
+            protected String getPasswordEnvVariable() {
+                return "password";
+            }
+        };
     }
 
 }
