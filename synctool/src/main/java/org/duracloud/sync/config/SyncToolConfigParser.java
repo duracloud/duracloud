@@ -44,7 +44,7 @@ public class SyncToolConfigParser {
     protected static final int DEFAULT_MAX_FILE_SIZE = 1; // 1 GB
     protected static final String context = "durastore";
     private static final String PASSWORD_ENV_VARIABLE_NAME =
-        "DURACLOUD_SYNC_TOOL_PASSWORD";
+        "DURACLOUD_PASSWORD";
 
     private Options cmdOptions;
     private Options configFileOptions;
