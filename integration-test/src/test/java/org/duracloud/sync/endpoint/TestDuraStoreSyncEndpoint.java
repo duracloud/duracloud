@@ -22,14 +22,14 @@ public class TestDuraStoreSyncEndpoint extends DuraStoreSyncTestBase {
             new DuraStoreSyncEndpoint(getContentStore(),
                                       username,
                                       SyncIntegrationTestBase.spaceId,
-                                      true);
+                                      true, false);
         testSync(endpoint);
 
         endpoint =
             new DuraStoreSyncEndpoint(getContentStore(),
                                       username,
                                       SyncIntegrationTestBase.spaceId,
-                                      false);
+                                      false,false);
         testSyncNoDeletes(endpoint);
     }
     

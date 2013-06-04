@@ -28,7 +28,8 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
                                            username,
                                            SyncIntegrationTestBase.spaceId,
                                            true,
-                                           maxFileSize);
+                                           maxFileSize,
+                                           false);
         testSync(endpoint);
 
         // Test chunking
@@ -54,7 +55,8 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
                                            username,
                                            SyncIntegrationTestBase.spaceId,
                                            false,
-                                           maxFileSize);
+                                           maxFileSize,
+                                           false);
         testSyncNoDeletes(endpoint);
     }
 
