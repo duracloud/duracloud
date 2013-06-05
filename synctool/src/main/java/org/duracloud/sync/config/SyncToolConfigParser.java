@@ -179,12 +179,13 @@ public class SyncToolConfigParser {
        cmdOptions.addOption(excludeOption);
 
 
-       Option prependSourcePath =
-           new Option("P", "prepend-content-id-with-source-path", false,
-                      "indicates that the sync tool should prepend the path " +
-                      "of the source file to destination content id.");
-       prependSourcePath.setRequired(false);
-       cmdOptions.addOption(prependSourcePath);
+       Option prependTopLevelDirToContentId =
+           new Option("P", "prepend-top-level-dir", false,
+                      "Indicates that the sync tool should prepend the content dir  " +
+                      "to the destination content id. For example given a file named 'x.txt' " + 
+                          "in content directory '/Users/bob', the content id would be '/bob/x'.");
+       prependTopLevelDirToContentId.setRequired(false);
+       cmdOptions.addOption(prependTopLevelDirToContentId);
 
        // Options to use Backup Config
        configFileOptions = new Options();
@@ -383,7 +384,7 @@ public class SyncToolConfigParser {
         }
 
         if(cmd.hasOption("P")) {
-            config.setPrependSourcePath(true);
+            config.setPrependTopLevelDirToContentId(true);
         }
 
         return config;

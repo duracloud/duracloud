@@ -36,7 +36,7 @@ public class SyncToolConfig implements Serializable {
     private boolean exitOnCompletion;
     private File excludeList;
     private String version;
-    private boolean prependSourcePath;
+    private boolean prependTopLevelDirToContentId;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
@@ -86,7 +86,7 @@ public class SyncToolConfig implements Serializable {
         config.append("SyncTool Exit on Completion: ");
         config.append(exitOnCompletion()).append("\n");
         config.append("Prepend Source Path to Destination: ");
-        config.append(isPrependSourcePath()).append("\n");
+        config.append(isPrependTopLevelDirToContentId()).append("\n");
         config.append("--------------------------------------\n");
 
         return config.toString();
@@ -224,12 +224,12 @@ public class SyncToolConfig implements Serializable {
         this.version = version;
     }
 
-    public void setPrependSourcePath(boolean flag) {
-        this.prependSourcePath = flag;
+    public void setPrependTopLevelDirToContentId(boolean flag) {
+        this.prependTopLevelDirToContentId = flag;
     }
     
-    public boolean isPrependSourcePath() {
-        return prependSourcePath;
+    public boolean isPrependTopLevelDirToContentId() {
+        return prependTopLevelDirToContentId;
     }
 
 }
