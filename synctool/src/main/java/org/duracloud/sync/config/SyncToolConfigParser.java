@@ -180,7 +180,7 @@ public class SyncToolConfigParser {
 
 
        Option prependTopLevelDirToContentId =
-           new Option("P", "prepend-top-level-dir", false,
+           new Option("k", "keep-top-level-dir", false,
                       "Indicates that the sync tool should prepend the content dir  " +
                       "to the destination content id. For example given a file named 'x.txt' " + 
                           "in content directory '/Users/bob', the content id would be '/bob/x'.");
@@ -383,7 +383,7 @@ public class SyncToolConfigParser {
             config.setExcludeList(excludeFile);
         }
 
-        if(cmd.hasOption("P")) {
+        if(cmd.hasOption("k")) {
             config.setPrependTopLevelDirToContentId(true);
         }
 
