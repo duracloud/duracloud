@@ -29,11 +29,19 @@
                     <distributionFileList>
                         <distributionFile>
                             <includeFiles></includeFiles>
-                            <origin>${basedir}/target/duracloud-sync-${project.version}.jar</origin>
+                            <origin>${project.build.directory}/duracloud-sync-${project.version}.jar</origin>
                         </distributionFile>
                         <distributionFile>
                             <includeFiles></includeFiles>
                             <origin>${basedir}/src/main/install/duracloud-logo.png</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <includeFiles></includeFiles>
+                            <origin>${basedir}/src/main/install/duracloud-icon.png</origin>
+                        </distributionFile>
+                        <distributionFile>
+                            <includeFiles></includeFiles>
+                            <origin>${basedir}/src/main/install/duracloud.ico</origin>
                         </distributionFile>
                     </distributionFileList>
                     <shortcutList>
@@ -196,6 +204,39 @@
     <outputDirectory>${project.build.directory}/installers</outputDirectory>
     <saveRelativePaths>0</saveRelativePaths>
     <vendor>Duraspace, Inc.</vendor>
+    <windowsExecutableIcon>${project.build.directory}/install/duracloud.ico</windowsExecutableIcon>
+    <finalPageActionList>
+        <runProgram>
+            <progressText>Launch Application</progressText>
+            <programArguments>${installdir}/${product_shortname}.app</programArguments>
+            <program>open</program>
+                <ruleList>
+        <platformTest>
+            <type>osx</type>
+        </platformTest>
+    </ruleList>
+        </runProgram>
+        <runProgram>
+            <progressText>Launch Application</progressText>
+            <program>${installdir}/${product_shortname}.exe</program>
+            <programArguments></programArguments>
+                <ruleList>
+        <platformTest>
+            <type>windows</type>
+        </platformTest>
+    </ruleList>
+        </runProgram>
+        <runProgram>
+            <progressText>Launch Application</progressText>
+            <program>${installdir}/${product_shortname}</program>
+            <programArguments></programArguments>
+                <ruleList>
+        <platformTest>
+            <type>linux</type>
+        </platformTest>
+    </ruleList>
+        </runProgram>
+    </finalPageActionList>    
     <parameterList>
         <directoryParameter>
             <name>installdir</name>
