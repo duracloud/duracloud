@@ -196,7 +196,7 @@ public class SyncUIDriver {
                 exit.addActionListener(exitListener);
                 popup.add(exit);
 
-                trayIcon = new TrayIcon(image, "DuraCloud Sync", popup);
+                trayIcon = new TrayIcon(image, "DuraCloud Sync Tool", popup);
 
                 ActionListener actionListener = new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
