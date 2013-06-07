@@ -9,6 +9,10 @@
   <on-start>
       <set name="flowScope.duracloudCredentialsForm" value="duracloudCredentialsForm" />
       <set name="flowScope.spaceForm" value="spaceForm" />
+      <!-- the credentials form is associated with the space form because the space
+      form needs the credentials to perform a check the writability of the space.
+       -->
+      <evaluate expression="spaceForm.setCredentialsForm(duracloudCredentialsForm)"/>
   </on-start>
 
   <view-state id="enterDuracloudCredentials" view="/duracloud-config/credentials"
