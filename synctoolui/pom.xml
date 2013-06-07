@@ -231,21 +231,21 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.3</version>
-        <configuration>
-          <finalName>duracloud-sync-${project.version}</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-          <archive>
-            <manifest>
-              <mainClass>org.duracloud.syncui.SyncSelector</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <configuration>
+              <finalName>duracloud-sync-${project.version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <archive>
+                <manifest>
+                  <mainClass>org.duracloud.syncui.SyncSelector</mainClass>
+                </manifest>
+              </archive>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -521,6 +521,8 @@
                     <argument>build</argument>
                     <argument>${project.build.directory}/install/installbuilder.xml</argument>
                     <argument>windows</argument>
+                    <argument>--license</argument>
+                    <argument>${basedir}/../licenses/installbuilder-license.xml</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -556,6 +558,42 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.3</version>
+            <executions>
+              <execution>
+                <id>pacakge</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <finalName>duracloud-sync-${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <archive>
+                    <manifest>
+                      <mainClass>org.duracloud.syncui.SyncSelector</mainClass>
+                    </manifest>
+                  </archive>
+                </configuration>
+              </execution>
+              <execution>
+                <id>install</id>
+                <phase>install</phase> 
+                <goals>
+                  <goal>single</goal> 
+                </goals>
+                <configuration>
+                    <descriptors>
+                      <descriptor>src/main/install/zip.xml</descriptor>
+                    </descriptors>
+                    <finalName>duracloud-sync-${project.version}-osx-installer</finalName>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          
         </plugins>
       </build>
     </profile>

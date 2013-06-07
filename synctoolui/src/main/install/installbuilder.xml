@@ -201,10 +201,11 @@
     <enableDebugger>1</enableDebugger>
     <enableRollback>1</enableRollback>
     <enableTimestamp>1</enableTimestamp>
-    <outputDirectory>${project.build.directory}/installers</outputDirectory>
+    <outputDirectory>${project.build.directory}</outputDirectory>
     <saveRelativePaths>0</saveRelativePaths>
     <vendor>Duraspace, Inc.</vendor>
-    <windowsExecutableIcon>${project.build.directory}/install/duracloud.ico</windowsExecutableIcon>
+    <windowsExecutableIcon>${basedir}/src/main/install/duracloud.ico</windowsExecutableIcon>
+    <osxApplicationBundleIcon>${basedir}/src/main/install/duracloud-sync.icns</osxApplicationBundleIcon>
     <finalPageActionList>
         <runProgram>
             <progressText>Launch Application</progressText>
