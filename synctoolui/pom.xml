@@ -521,8 +521,6 @@
                     <argument>build</argument>
                     <argument>${project.build.directory}/install/installbuilder.xml</argument>
                     <argument>windows</argument>
-                    <argument>--license</argument>
-                    <argument>${basedir}/../licenses/installbuilder-license.xml</argument>
                   </arguments>
                 </configuration>
               </execution>
