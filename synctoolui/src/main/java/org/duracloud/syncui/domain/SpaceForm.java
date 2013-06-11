@@ -7,10 +7,9 @@
  */
 package org.duracloud.syncui.domain;
 
-import java.io.Serializable;
-
-import org.duracloud.syncui.validation.SpaceWritable;
 import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
 
 /**
  * This class backs the space selection form.
@@ -18,27 +17,17 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component("spaceForm")
-@SpaceWritable
 public class SpaceForm implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
     private String spaceId;
-    private DuracloudCredentialsForm credentialsForm;
-    
+
     public String getSpaceId() {
         return spaceId;
     }
 
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
-    }
-
-    public DuracloudCredentialsForm getCredentialsForm() {
-        return this.credentialsForm;
-    }
-    
-    public void setCredentialsForm(DuracloudCredentialsForm credentialsForm) {
-        this.credentialsForm = credentialsForm;
     }
 }
