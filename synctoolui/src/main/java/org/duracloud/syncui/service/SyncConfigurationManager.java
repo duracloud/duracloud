@@ -63,4 +63,8 @@ public interface SyncConfigurationManager {
     public void setSyncDeletes(boolean flag);
     
     public boolean isSyncDeletes();
+
+    public void setPrependTopLevelDirectory(Boolean valueOf);
+    
+    public boolean isPrependTopLevelDirectory();
 }

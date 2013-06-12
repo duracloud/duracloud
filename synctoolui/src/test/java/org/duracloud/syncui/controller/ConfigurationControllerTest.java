@@ -40,6 +40,7 @@ public class ConfigurationControllerTest extends AbstractTest {
     @Test
     public void testGet() {
         EasyMock.expect(syncConfigurationManager.isSyncDeletes()).andReturn(false);
+        EasyMock.expect(syncConfigurationManager.isPrependTopLevelDirectory()).andReturn(false);
         
         replay();
         Assert.assertNotNull(configurationController.get(new ExtendedModelMap()));

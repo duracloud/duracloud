@@ -79,6 +79,7 @@ public class ConfigurationController {
     public String get(Model model) {
         log.debug("accessing configuration page");
         model.addAttribute("syncDeletes", this.syncConfigurationManager.isSyncDeletes());
+        model.addAttribute("prependTopLevelDir", this.syncConfigurationManager.isPrependTopLevelDirectory());
         return "configuration";
     }
 
@@ -97,7 +98,7 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST)
+    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST, params={"syncDeletes"})
     public View updateSyncDeletes(
                                 @RequestParam(defaultValue = "false") String syncDeletes,
                                 RedirectAttributes redirectAttributes) {
@@ -105,6 +106,17 @@ public class ConfigurationController {
         log.debug("updating sync deletes to : {}", syncDeletes);
         
         this.syncConfigurationManager.setSyncDeletes(Boolean.valueOf(syncDeletes));
+        return createConfigUpdatedRedirectView(redirectAttributes);
+    }
+
+    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST, params={"prependTopLevelDir"})
+    public View updateTopLevelDir(
+                                @RequestParam(defaultValue = "false") String prependTopLevelDir,
+                                RedirectAttributes redirectAttributes) {
+
+        log.debug("updating top level dir to : {}", prependTopLevelDir);
+        
+        this.syncConfigurationManager.setPrependTopLevelDirectory(Boolean.valueOf(prependTopLevelDir));
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 

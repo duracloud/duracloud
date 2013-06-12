@@ -184,5 +184,15 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setSyncDeletes(flag);
         
     }
+    
+    @Override
+    public boolean isPrependTopLevelDirectory() {
+        return this.syncToolConfig.isPrependTopLevelDirToContentId();
+    }
+    
+    @Override
+    public void setPrependTopLevelDirectory(Boolean flag) {
+        this.syncToolConfig.setPrependTopLevelDirToContentId(flag);
+    }
 
 }

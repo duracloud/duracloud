@@ -106,7 +106,7 @@ $(function() {
 
             });
 
-    $("#syncDeletes").change(function(){
+    $("#syncDeletes, #prependTopLevelDir").change(function(){
         $(this).closest("form").submit();
     });
 });

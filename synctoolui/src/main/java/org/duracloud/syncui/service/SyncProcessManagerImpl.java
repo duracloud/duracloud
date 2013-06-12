@@ -201,7 +201,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                                dc.getSpaceId(),
                                                false,
                                                1073741824, // 1GB chunk size
-                                               false); //FIXME add ability to prepend filesystem paths to content id via synctoolui. 
+                                               this.syncConfigurationManager.isPrependTopLevelDirectory()); //FIXME add ability to prepend filesystem paths to content id via synctoolui. 
             DirectoryConfigs directories =
                 this.syncConfigurationManager.retrieveDirectoryConfigs();
             List<File> dirs = directories.toFileList();
