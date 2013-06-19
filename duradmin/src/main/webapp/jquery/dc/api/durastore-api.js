@@ -247,14 +247,15 @@ var dc;
 	 * @param Object future an object implementing a success and failure method.
 	 */
 	dc.store.AddContentItem = function(form, future){
-		future.begin();
-		$(form).ajaxSubmit({
+
+        $(form).ajaxSubmit({
 			iframe: true,
 			dataType: 'json',
-			success: function(data){
-				dc.checkSession(data);
+			success: function(){
+				dc.checkSession();
 				future.success(data);
 		    },
+		    
 		    error: function(xhr, status, errorThrown){
 		    	future.failure(status,xhr);
 		    },

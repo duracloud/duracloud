@@ -26,16 +26,11 @@
 	<!-- 3rd party jquery plugins start-->
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery.layout.js"></script>
-	<!-- 
-	<script type="text/javascript"
-		src="${pageContext.request.contextPath}/jquery/plugins/jquery.layout/jquery.layout-1.3.0.rc29.15.js"></script>
-	 -->
-	
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery.ba-throttle-debounce.js"></script>
-	<script type="text/javascript"
-		src="${pageContext.request.contextPath}/jquery/plugins/jquery.form.js"></script>
-	<script type="text/javascript"
+    <script type="text/javascript"
+		src="${pageContext.request.contextPath}/jquery/plugins/jquery.form.min.js"></script>
+    <script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery-validate/jquery.validate.js"></script>
 
     <link rel="stylesheet"

@@ -13,7 +13,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.IOUtil;
-import org.duracloud.controller.UploadTask;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,7 @@ import java.util.Map;
 /**
  * @author Daniel Bernstein
  */
-public class ContentItemUploadTask implements UploadTask, Comparable, ProgressListener {
+public class ContentItemUploadTask implements Comparable, ProgressListener {
     Logger log = LoggerFactory.getLogger(ContentItemUploadTask.class);
 
     private ContentItem contentItem;
@@ -38,7 +37,6 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
 
     private String username;
     private Date startDate = null;
-    private UploadTask.State state = null;
     private InputStream stream = null;
 
     public ContentItemUploadTask(ContentItem contentItem,
@@ -48,7 +46,6 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
         this.stream = stream;
         this.contentItem = contentItem;
         this.contentStore = contentStore;
-        this.state = State.INITIALIZED;
         this.username = username;
         this.totalBytes = -1;
         log.info("new task created for {} by {}", contentItem, username);
@@ -60,7 +57,6 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
         try {
             log.info("executing file upload: {}", contentItem);
             startDate = new Date();
-            state = State.RUNNING;
 
             tmpFile = IOUtil.writeStreamToFile(this.stream);
             tmpStream = IOUtil.getFileStream(tmpFile);
@@ -72,27 +68,18 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
                                     contentItem.getContentMimetype(),
                                     null,
                                     null);
-            state = State.SUCCESS;
             log.info("file upload completed successfully: {}", contentItem);
 
         } catch (Exception ex) {
             log.error(
-                "failed to upload content item: {}, bytesRead={}, totalBytes={}, state={}, message: {}",
+                "failed to upload content item: {}, bytesRead={}, totalBytes={},  message: {}",
                 new Object[]{contentItem,
                              this.bytesRead,
                              this.totalBytes,
-                             this.state.name(),
                              ex.getMessage()});
 
-            if (this.state == State.CANCELLED) {
-                log.debug(
-                    "This upload was previously cancelled - the closing of the input stream is the likely cause of the exception");
-
-            } else {
                 ex.printStackTrace();
-                state = State.FAILURE;
                 throw ex;
-            }
 
         } finally {
             FileUtils.deleteQuietly(tmpFile);
@@ -114,36 +101,18 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
             this.contentItem.getContentId();
     }
 
-    public void cancel() {
-        if (state == State.RUNNING) {
-            state = State.CANCELLED;
-            try {
-                stream.close();
-                
-            } catch (IOException e) {
-                log.error(
-                    "failed to close item input stream of content item in upload process.",
-                    e);
-            }
-        }
-    }
 
     public Map<String, String> getProperties() {
         Map<String, String> map = new HashMap<String, String>();
         map.put("bytesRead", String.valueOf(this.bytesRead));
         map.put("totalBytes", String.valueOf(this.totalBytes));
-        map.put("state", String.valueOf(this.state.toString().toLowerCase()));
         map.put("contentId", this.contentItem.getContentId());
         map.put("spaceId", this.contentItem.getSpaceId());
         map.put("storeId", this.contentItem.getStoreId());
         return map;
     }
 
-    public State getState() {
-        return this.state;
-    }
 
-    @Override
     public Date getStartDate() {
         return this.startDate;
     }
@@ -154,7 +123,6 @@ public class ContentItemUploadTask implements UploadTask, Comparable, ProgressLi
         return this.getStartDate().compareTo(other.getStartDate());
     }
 
-    @Override
     public String getUsername() {
         return this.username;
     }

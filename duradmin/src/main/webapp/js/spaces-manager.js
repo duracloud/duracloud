@@ -1845,6 +1845,49 @@ $(function(){
                 window.location = "http://docs.duraspace.org/duracloud/${project.version}/downloads/duracloud-sync-${project.version}.jar?attachment=true";
                 window.open("https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Sync+Tool", "_blank");
             });
+            
+            
+            var uploadviewer = $("#upload-viewer");
+            uploadviewer.dialog({
+                autoOpen: false,
+                show: 'blind',
+                hide: 'blind',
+                resizable: false,
+                height: 425,
+                closeOnEscape:true,
+                modal: true,
+                width:500,
+                buttons: {
+                    'Close': function(evt) {
+                        uploadviewer.dialog("close");
+                    },
+                    
+                },
+                close: function() {},
+                open: function(e){
+                    var dialog = $(this).dialog;
+                    uploadviewer.uploader({
+                        clickContent: function(contentItem){
+                            HistoryManager.pushState(contentItem);
+                            uploadviewer.dialog("close");
+                        }
+                    });
+                    
+                    uploadviewer.uploader("space", space);
+                }
+                    
+            });
+
+            
+            $(".add-content-item-button")
+                .unbind("click")
+                .unbind("dragover")
+                .bind("dragover", function(){
+                    uploadviewer.dialog("open");
+                }).click(function(){
+                    uploadviewer.dialog("open");
+                });
+            
 
         },
     }));

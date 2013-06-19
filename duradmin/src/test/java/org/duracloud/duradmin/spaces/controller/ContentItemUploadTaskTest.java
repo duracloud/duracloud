@@ -7,19 +7,17 @@
  */
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.InputStream;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
-import org.duracloud.controller.UploadTask;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.error.ContentStoreException;
 import org.easymock.EasyMock;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.InputStream;
-import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -75,14 +73,8 @@ public class ContentItemUploadTaskTest {
                                          stream,
                                          username);
 
-        UploadTask.State state = task.getState();
-        Assert.assertNotNull(state);
-        Assert.assertEquals(UploadTask.State.INITIALIZED, state);
 
         task.execute();
 
-        state = task.getState();
-        Assert.assertNotNull(state);
-        Assert.assertEquals(UploadTask.State.SUCCESS, state);
     }
 }

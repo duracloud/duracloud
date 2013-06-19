@@ -94,9 +94,10 @@
               <type>zip</type>
               <targetPath>${jquery.plugin.target.path}</targetPath>
               <includes>
-                <include>jquery.form.js</include>
+                <include>jquery.form.min.js</include>
               </includes>
             </overlay>
+            
             <overlay>
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.layout</artifactId>
@@ -147,8 +148,7 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
+<!--  <plugin>
         <groupId>org.codehaus.mojo.webstart</groupId>
         <artifactId>webstart-maven-plugin</artifactId>
         <version>1.0-beta-2</version>
@@ -197,7 +197,8 @@
           </sign>
         </configuration>
       </plugin>
-
+ -->
+     
     </plugins>
   </build>
   <dependencies>
@@ -469,7 +470,7 @@
       <groupId>org.duracloud</groupId>
       <artifactId>jquery.form</artifactId>
       <type>zip</type>
-      <version>2.47</version>
+      <version>20130616</version>
     </dependency>
     <dependency>
       <groupId>org.duracloud</groupId>

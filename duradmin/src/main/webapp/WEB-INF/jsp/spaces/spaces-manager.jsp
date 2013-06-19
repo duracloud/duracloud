@@ -58,6 +58,10 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.flyoutselect.js"></script>
     <script
       type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.uploader.js"></script>
+
+    <script
+      type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/api/dc.util.paralleltasks.js"></script>
 
     <script
@@ -77,6 +81,18 @@
     <script
       type="text/javascript"
       src="${pageContext.request.contextPath}/js/spaces-manager.js"></script>
+
+    <style>
+      .fail {
+        background: #c00;
+        padding: 2px;
+        color: #fff;
+      }
+      
+      .hidden {
+        display: none !important;
+      }
+</style>
 
   </tiles:putAttribute>
   <tiles:putAttribute name="body">
@@ -150,14 +166,7 @@
                   <i class="pre download"></i>Get Sync Tool
                 </button>
 
-                <a class="float-r  button featured bulk-add-content-item"><i
-                  class="pre plus"></i>Add Items</a>
-                <%--
-                <!--TODO Remove all support for adding single content item upload 
-                     once we're sure we're comfortable relying on the upload tool.
-                -->
-                <button class="float-r add-content-item-button"><i class="pre plus"></i>Add One Item</button>
-                --%>
+                <button class="float-r add-content-item-button"><i class="pre plus"></i>Upload</button>
 
                 <button class="float-r refresh-space-button">
                   <i class="pre refresh"></i>Refresh
@@ -564,22 +573,63 @@
       <tiles:putAttribute name="main-footer">
 
         <div id="status-holder">
-          <%--
-                  <!-- TODO Remove me when we are satisfied 
-                       that we really don't want the single file upload capability-->
-                  <a id="view-uploads">
-                    <span id="upload-status-label">Upload Status:</span> 
-                  </a>
-			    --%>
-        </div>
-        <%--
-                  <!--TODO Remove me as above-->
-                  <div id="upload-viewer" style="display:none">
-                    <h1>Uploads</h1>
-                    <div id="upload-list-wrapper"></div>
-                  </div>
-				--%>
 
+        </div>
+        <div id="upload-viewer" style="display:none">
+          <h1>Uploads</h1>
+            <div class="hint status">
+              <p></p>
+            </div>
+            <div id="upload-progress-panel" style="display:none">
+              <progress
+                id="uploadprogress"
+                min="0"
+                max="100"
+                value="0">0</progress>
+            </div>
+          <div id="file-chooser-form">
+            <form id="single-upload-form" method="POST" enctype="multipart/form-data" action="${pageContext.request.contextPath}/spaces/content/upload">
+              <div class="form-fields">
+               <input type="hidden" name="spaceId" id="spaceId" value=""/>
+               <input type="hidden" name="storeId" id="storeId" value=""/>
+
+               <fieldset>
+                <ul>
+                  <li class="row clearfix">
+                      <label for="contentId">Content ID</label>  
+                      <input class="field" type="text" name="contentId" placeholder="optional content id"/>
+                  </li>
+                  <li class="row clearfix">
+                     <label for="file">File</label>  
+                     <input  id="file" name="file" type="file" class="field"/>                          
+                  </li>
+  
+                  <li>
+                   <button type="submit">Upload Single File</button>
+                  </li>
+                </ul>
+               </fieldset>
+              </div>
+            </form>
+          </div>
+          <div id="upload-list-wrapper">
+              <div id="dnd-upload">
+                <div id="drop-target">
+                  <span>
+                    Optionally drop files here
+                  </span>
+                </div> 
+
+              </div>
+
+            <form enctype="multipart/form-data">
+              <div id="drop-preview">
+
+              </div>
+            </form>
+
+          </div>
+        </div>
       </tiles:putAttribute>
     </tiles:insertDefinition>
   </tiles:putAttribute>

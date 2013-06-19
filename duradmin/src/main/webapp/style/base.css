@@ -817,13 +817,17 @@ span.label,
 	margin:10px 0;
 }
 
-.detail-pane .mime-type-image-holder
+.mime-type-image-holder
 {
 	background:url(../images/icons_mimetypes.png) no-repeat;
 	background-position:-40px 0;
 	height:40px;
-	margin-right:10px;
 	width:40px;
+}
+
+.detail-pane .mime-type-image-holder
+{
+	margin-right:10px;
 }
 
 .mime-type-application { background-position:-80px 0 !important; }
@@ -1294,3 +1298,4 @@ table.dc-acls td:last-child {
 button#enable-streaming {
 	margin-top:10px;
 }
+
