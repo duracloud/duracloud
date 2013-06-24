@@ -80,6 +80,20 @@
                     <destination>${installdir}</destination>
                     <name>programfileslinux</name>
                     <platforms>linux</platforms>
+                    <actionList>
+                        <renameFile>
+                            <destination>${installdir}/${product_shortname}.desktop</destination>
+                            <origin>${installdir}/linux.desktop</origin>
+                        </renameFile>
+                        
+                    </actionList>
+                    <distributionFileList>
+                        <distributionFile>
+                            <includeFiles></includeFiles>
+                            <origin>${project.build.directory}/install/linux.desktop</origin>
+                        </distributionFile>
+                    </distributionFileList>
+
                 </folder>
                 <folder>
                     <description>Program Files</description>
@@ -92,6 +106,11 @@
                     <destination>${installdir}</destination>
                     <name>programfilesosx</name>
                     <platforms>osx</platforms>
+                    <distributionFileList>
+                        <distributionFile>
+                            <origin>${basedir}/src/main/install/osx-launch-agent.plist</origin>
+                        </distributionFile>
+                    </distributionFileList>
                 </folder>
             </folderList>
             <startMenuShortcutList>
@@ -115,61 +134,76 @@
                     <windowsIcon></windowsIcon>
                     <windowsPath>${installdir}/</windowsPath>
                 </startMenuShortcut>
+                <startMenuShortcut>
+                    <comment>${product_fullname}</comment>
+                    <name>${product_fullname}</name>
+                    <runAsAdmin>0</runAsAdmin>
+                    <runInTerminal>0</runInTerminal>
+                    <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsIcon></windowsIcon>
+                    <windowsPath>${installdir}/</windowsPath>
+                </startMenuShortcut>
             </startMenuShortcutList>
         </component>
     </componentList>
-<preInstallationActionList>
-    <autodetectJava>
-        <abortOnError>0</abortOnError>
-        <customErrorMessage>This program requires Java 1.7.0 or above.  Click next and you will be taken to the java downloads page.</customErrorMessage>
-        <explanation>Checking for valid java version...</explanation>
-        <promptUser>0</promptUser>
-        <selectionOrder>newest</selectionOrder>
-        <validVersionList>
-            <validVersion>
-                <bitness></bitness>
-                <maxVersion></maxVersion>
-                <minVersion>1.7.0</minVersion>
-                <requireJDK>0</requireJDK>
-                <vendor></vendor>
-            </validVersion>
-        </validVersionList>
-    </autodetectJava>
-    <launchBrowser>
-      <url>http://java.com/en/download/index.jsp</url>
-    <ruleList>
-        <compareValues>
-            <logic>equals</logic>
-            <value1>${java_autodetected}</value1>
-            <value2>0</value2>
-        </compareValues>
-    </ruleList>
-    </launchBrowser>
-    <showInfo>
-        <text>Once you have finished downloading and installing java, click "OK" to continue with the Sync Tool installation.</text>
-    <ruleList>
-        <compareValues>
-            <logic>equals</logic>
-            <value1>${java_autodetected}</value1>
-            <value2>0</value2>
-        </compareValues>
-    </ruleList>
-    </showInfo>
-    <autodetectJava>
-        <promptUser>0</promptUser>
-        <validVersionList>
-            <validVersion>
-                <bitness></bitness>
-                <maxVersion></maxVersion>
-                <minVersion>1.7.0</minVersion>
-                <requireJDK>0</requireJDK>
-                <vendor></vendor>
-            </validVersion>
-        </validVersionList>
-    </autodetectJava>
-</preInstallationActionList>
-
+    <preInstallationActionList>
+        <autodetectJava>
+            <abortOnError>0</abortOnError>
+            <customErrorMessage>This program requires Java 1.7.0 or above.  Click next and you will be taken to the java downloads page.</customErrorMessage>
+            <explanation>Checking for valid java version...</explanation>
+            <promptUser>0</promptUser>
+            <selectionOrder>newest</selectionOrder>
+            <validVersionList>
+                <validVersion>
+                    <bitness></bitness>
+                    <maxVersion></maxVersion>
+                    <minVersion>1.7.0</minVersion>
+                    <requireJDK>0</requireJDK>
+                    <vendor></vendor>
+                </validVersion>
+            </validVersionList>
+        </autodetectJava>
+        <launchBrowser>
+          <url>http://java.com/en/download/index.jsp</url>
+        <ruleList>
+            <compareValues>
+                <logic>equals</logic>
+                <value1>${java_autodetected}</value1>
+                <value2>0</value2>
+            </compareValues>
+        </ruleList>
+        </launchBrowser>
+        <showInfo>
+            <text>Once you have finished downloading and installing java, click "OK" to continue with the Sync Tool installation.</text>
+        <ruleList>
+            <compareValues>
+                <logic>equals</logic>
+                <value1>${java_autodetected}</value1>
+                <value2>0</value2>
+            </compareValues>
+        </ruleList>
+        </showInfo>
+        <autodetectJava>
+            <promptUser>0</promptUser>
+            <validVersionList>
+                <validVersion>
+                    <bitness></bitness>
+                    <maxVersion></maxVersion>
+                    <minVersion>1.7.0</minVersion>
+                    <requireJDK>0</requireJDK>
+                    <vendor></vendor>
+                </validVersion>
+            </validVersionList>
+        </autodetectJava>
+    </preInstallationActionList>
     <postInstallationActionList>
+        <showQuestion>
+            <default>yes</default>
+            <text>Would you like to the application to startup automatically when your computer starts up?</text>
+            <variable>automatic_restart</variable>
+        </showQuestion>    
+
         <createJavaLaunchers>
             <destination>${installdir}</destination>
             <javaLauncherList>
@@ -197,11 +231,98 @@
                 </javaLauncher>
             </javaLauncherList>
         </createJavaLaunchers>
+        <renameFile>
+            <destination>${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist</destination>
+            <origin>${installdir}/osx-launch-agent.plist</origin>
+            <ruleList>
+                <platformTest>
+                    <type>osx</type>
+                </platformTest>
+                <compareValues>
+                    <logic>equals</logic>
+                    <value1>${automatic_restart}</value1>
+                    <value2>yes</value2>
+                </compareValues>
+            </ruleList>
+        </renameFile>
+        <createShortcuts>
+            <destination>${windows_folder_startup}/</destination>
+            <shortcutList>
+                <shortcut>
+                    <comment>Launches ${product_fullname}</comment>
+                    <name>${product_fullname}</name>
+                    ￼<runAsAdmin>1</runAsAdmin>
+                    <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
+                    <windowsExecArgs></windowsExecArgs>
+                    <windowsPath>${installdir}</windowsPath>
+                </shortcut>
+            </shortcutList>
+            <ruleList>
+                <compareValues>
+                    <logic>equals</logic>
+                    <value1>${automatic_restart}</value1>
+                    <value2>yes</value2>
+                </compareValues>
+            </ruleList>
+            
+        </createShortcuts>     
+        <addUnixDesktopStartUpItem>
+            <name>${product_fullname}</name>
+            <program>${installdir}/${product_shortname}.sh</program>
+            <ruleList>
+                <compareValues>
+                    <logic>equals</logic>
+                    <value1>${automatic_restart}</value1>
+                    <value2>yes</value2>
+                </compareValues>
+            </ruleList>
+        </addUnixDesktopStartUpItem>  
+        <iniFileSet>
+          <file>${installdir}/${product_shortname}.desktop</file>
+          <section>Desktop Entry</section>
+          <key>Name</key>
+          <value>${product_fullname}</value>
+          <ruleList>
+              <platformTest>
+                  <type>linux</type>
+              </platformTest>
+          </ruleList>
+        </iniFileSet>        
+
+        <substitute>
+            <files>${installdir}/${product_shortname}.desktop</files>
+            <type>exact</type>
+            <substitutionList>
+                <substitution>
+                    <pattern>product_fullname</pattern>
+                    <value>${product_fullname}</value>
+                </substitution>
+                <substitution>
+                    <pattern>product_shortname</pattern>
+                    <value>${product_shortname}</value>
+                </substitution>
+                <substitution>
+                    <pattern>installdir</pattern>
+                    <value>${installdir}</value>
+                </substitution>
+            </substitutionList>
+        </substitute>
     </postInstallationActionList>
+    <preUninstallationActionList>
+      <addFilesToUninstaller>
+        <files>${installerdir}/</files>
+      </addFilesToUninstaller>
+      <addFilesToUninstaller>
+        <files>
+          ${windows_folder_startup}/${product_fullname} 
+          ${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist
+        </files>
+      </addFilesToUninstaller>
+    </preUninstallationActionList>
     <enableDebugger>1</enableDebugger>
     <enableRollback>1</enableRollback>
     <enableTimestamp>1</enableTimestamp>
-    <outputDirectory>${project.build.directory}</outputDirectory>
+    <outputDirectory>../</outputDirectory>
     <saveRelativePaths>0</saveRelativePaths>
     <vendor>Duraspace, Inc.</vendor>
     <windowsExecutableIcon>${basedir}/src/main/install/duracloud.ico</windowsExecutableIcon>
@@ -212,30 +333,31 @@
             <programArguments>${installdir}/${product_shortname}.app</programArguments>
             <program>open</program>
                 <ruleList>
-        <platformTest>
-            <type>osx</type>
-        </platformTest>
-    </ruleList>
+                  <platformTest>
+                      <type>osx</type>
+                  </platformTest>
+                </ruleList>
         </runProgram>
         <runProgram>
             <progressText>Launch Application</progressText>
             <program>${installdir}/${product_shortname}.exe</program>
             <programArguments></programArguments>
-                <ruleList>
-        <platformTest>
-            <type>windows</type>
-        </platformTest>
-    </ruleList>
+              <ruleList>
+                  <platformTest>
+                      <type>windows</type>
+                  </platformTest>
+              </ruleList>
         </runProgram>
+
         <runProgram>
             <progressText>Launch Application</progressText>
             <program>${installdir}/${product_shortname}</program>
             <programArguments></programArguments>
-                <ruleList>
-        <platformTest>
-            <type>linux</type>
-        </platformTest>
-    </ruleList>
+            <ruleList>
+              <platformTest>
+                  <type>linux</type>
+              </platformTest>
+          </ruleList>
         </runProgram>
     </finalPageActionList>    
     <parameterList>

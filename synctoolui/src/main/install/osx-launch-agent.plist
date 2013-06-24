@@ -1,0 +1,12 @@
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>org.duracloud.synctoolui</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/synctoolui/synctoolui.app/Contents/MacOS/installbuilder.sh</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>

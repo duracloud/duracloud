@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=0.9.4
+Name=product_fullname
+Comment=product_fullname
+Icon=installdir/logo.png
+Exec=installdir/product_shortname
+Terminal=false
