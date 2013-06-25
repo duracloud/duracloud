@@ -8,6 +8,8 @@
 package org.duracloud.sync.config;
 
 import org.apache.commons.cli.ParseException;
+import org.duracloud.common.util.ConsolePrompt;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +32,7 @@ public class SyncToolConfigParserTest {
 
     SyncToolConfigParser syncConfigParser;
     File tempDir;
+    private String expectedPassword = "password";
 
     @Before
     public void setUp() throws Exception {
@@ -51,6 +54,21 @@ public class SyncToolConfigParserTest {
         if(prevBackupFile.exists()) {
             prevBackupFile.delete();
         }
+    }
+
+    @Test
+    public void testPasswordPrompt() throws Exception {
+        syncConfigParser = new SyncToolConfigParser() {
+            protected ConsolePrompt getConsole() {
+                ConsolePrompt console = EasyMock.createMock(ConsolePrompt.class);
+                char[] charPass = {'p','r','o','m','p','t','P','a','s','s','w','o','r','d'};
+                EasyMock.expect(console.readPassword("DuraCloud password: ")).andReturn(charPass);
+                EasyMock.replay(console);
+                return console;
+            }
+        };
+        expectedPassword = "promptPassword";
+        testStandardOptions();
     }
 
     @Test
@@ -88,6 +106,7 @@ public class SyncToolConfigParserTest {
         assertEquals(false, syncConfig.syncDeletes());
         assertEquals(false, syncConfig.isCleanStart());
         assertEquals(false, syncConfig.exitOnCompletion());
+        assertEquals(expectedPassword, syncConfig.getPassword());
         assertNull(syncConfig.getWorkDir());
 
         // Make sure error is thrown on missing required params

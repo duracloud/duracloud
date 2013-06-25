@@ -15,6 +15,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
+import org.duracloud.common.util.CommandLineToolUtil;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,7 +32,7 @@ import java.util.List;
  * @author: Bill Branan
  * Date: Mar 15, 2010
  */
-public class SyncToolConfigParser {
+public class SyncToolConfigParser extends CommandLineToolUtil {
 
     protected static final long GIGABYTE = 1073741824;
 
@@ -43,9 +44,7 @@ public class SyncToolConfigParser {
     protected static final int DEFAULT_NUM_THREADS = 3;
     protected static final int DEFAULT_MAX_FILE_SIZE = 1; // 1 GB
     protected static final String context = "durastore";
-    private static final String PASSWORD_ENV_VARIABLE_NAME =
-        "DURACLOUD_PASSWORD";
-
+    
     private Options cmdOptions;
     private Options configFileOptions;
 
@@ -258,17 +257,21 @@ public class SyncToolConfigParser {
         
         if (null != cmd.getOptionValue("p")) {
             config.setPassword(cmd.getOptionValue("p"));
+        } else if (null != getPasswordEnvVariable()) {
+            config.setPassword(getPasswordEnvVariable());
         } else {
-            String password = getPasswordEnvVariable();
-            if (password == null) {
+            console = getConsole();
+            if (null == console) {
                 printHelp("You must either specify a password in the command "+ 
                           "line or specify the " +
                           PASSWORD_ENV_VARIABLE_NAME + 
                           " environmental variable.");
+            } else {
+                char[] password = console.readPassword("DuraCloud password: ");
+                config.setPassword(new String(password));
             }
-            
-            config.setPassword(password);
         }
+        
         config.setSpaceId(cmd.getOptionValue("s"));
 
         if(cmd.hasOption("i")) {
@@ -388,10 +391,6 @@ public class SyncToolConfigParser {
         }
 
         return config;
-    }
-
-    protected String getPasswordEnvVariable() {
-        return System.getenv(PASSWORD_ENV_VARIABLE_NAME);
     }
 
     private void printHelp(String message) {

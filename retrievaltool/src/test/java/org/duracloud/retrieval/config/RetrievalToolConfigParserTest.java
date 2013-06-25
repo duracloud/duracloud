@@ -8,7 +8,9 @@
 package org.duracloud.retrieval.config;
 
 import org.apache.commons.cli.ParseException;
+import org.duracloud.common.util.ConsolePrompt;
 import org.duracloud.retrieval.RetrievalTestBase;
+import org.easymock.EasyMock;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -25,11 +27,31 @@ import static junit.framework.Assert.fail;
 public class RetrievalToolConfigParserTest extends RetrievalTestBase {
 
     @Test
-    public void testStandardOptions() throws Exception {
-        RetrievalToolConfigParser retConfigParser =
-            new RetrievalToolConfigParser();
+    public void testPasswordEnvVariable() throws Exception {
+        RetrievalToolConfigParser envRetConfigParser = new RetrievalToolConfigParser() {
+            protected String getPasswordEnvVariable() {
+                return "envPassword";
+            }
+        };
+        testStandardOptions(envRetConfigParser, "envPassword");
+    }
 
-        HashMap<String, String> argsMap = getArgsMap();
+	@Test
+    public void testPasswordPrompt() throws Exception {
+        RetrievalToolConfigParser promptRetConfigParser = new RetrievalToolConfigParser() {
+            protected ConsolePrompt getConsole() {
+                ConsolePrompt console = EasyMock.createMock(ConsolePrompt.class);
+                char[] charPass = {'p','r','o','m','p','t','P','a','s','s','w','o','r','d'};
+                EasyMock.expect(console.readPassword("DuraCloud password: ")).andReturn(charPass);
+                EasyMock.replay(console);
+                return console;
+            }
+        };
+        testStandardOptions(promptRetConfigParser, "promptPassword");
+    }
+
+    public void testStandardOptions(RetrievalToolConfigParser retConfigParser, String expectedPassword) throws Exception {
+    	HashMap<String, String> argsMap = getArgsMap();
 
         // Process configs, make sure values match
         RetrievalToolConfig retConfig =
@@ -53,6 +75,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         assertEquals(false, retConfig.isAllSpaces());
         assertEquals(false, retConfig.isOverwrite());
         assertEquals(true, retConfig.isApplyTimestamps());
+        assertEquals(expectedPassword, retConfig.getPassword());
 
         // Make sure error is thrown on missing required params
         for(String arg : argsMap.keySet()) {
@@ -73,7 +96,6 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         argsMap.put("-h", "localhost");
         argsMap.put("-r", "8088");
         argsMap.put("-u", "user");
-        argsMap.put("-p", "pass");
         argsMap.put("-i", "0");
         argsMap.put("-s", "space1 space2 space3");
         argsMap.put("-a", "");
@@ -90,7 +112,6 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         assertEquals(argsMap.get("-h"), retConfig.getHost());
         assertEquals(argsMap.get("-r"), String.valueOf(retConfig.getPort()));
         assertEquals(argsMap.get("-u"), retConfig.getUsername());
-        assertEquals(argsMap.get("-p"), retConfig.getPassword());
         assertEquals(argsMap.get("-i"), retConfig.getStoreId());
 
         String spaces = "";
