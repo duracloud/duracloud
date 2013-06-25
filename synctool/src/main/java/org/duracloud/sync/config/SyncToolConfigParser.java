@@ -16,6 +16,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.common.util.CommandLineToolUtil;
+import org.duracloud.common.util.ConsolePrompt;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -32,7 +33,7 @@ import java.util.List;
  * @author: Bill Branan
  * Date: Mar 15, 2010
  */
-public class SyncToolConfigParser extends CommandLineToolUtil {
+public class SyncToolConfigParser {
 
     protected static final long GIGABYTE = 1073741824;
 
@@ -48,10 +49,14 @@ public class SyncToolConfigParser extends CommandLineToolUtil {
     private Options cmdOptions;
     private Options configFileOptions;
 
+    private CommandLineToolUtil cmdLineUtil;
+
     /**
      * Creates a parser for command line configuration options.
      */
     public SyncToolConfigParser() {
+        cmdLineUtil = new CommandLineToolUtil();
+
        // Command Line Options
        cmdOptions = new Options();
 
@@ -79,11 +84,12 @@ public class SyncToolConfigParser extends CommandLineToolUtil {
             new Option("p",
                        "password",
                        true,
-                       "the password necessary to perform writes to DuraStore; NB: "
-                           + "if no password is specified in the command line the sync tool will look"
-                           + "for an environmental variable named "
-                           + PASSWORD_ENV_VARIABLE_NAME
-                           + " containing the password.");
+                       "the password necessary to perform writes to DuraStore; NOTICE: "
+                           + "if no password is specified in the command line the sync tool will "
+                           + "look for an environment variable named "
+                           + CommandLineToolUtil.PASSWORD_ENV_VARIABLE_NAME
+                           + " containing the password.  Finally, if this environment variable "
+                           + "does not exist the user will be prompted for the password.");
        passwordOption.setRequired(false);
        cmdOptions.addOption(passwordOption);
 
@@ -260,18 +266,18 @@ public class SyncToolConfigParser extends CommandLineToolUtil {
         } else if (null != getPasswordEnvVariable()) {
             config.setPassword(getPasswordEnvVariable());
         } else {
-            console = getConsole();
+            ConsolePrompt console = getConsole();
             if (null == console) {
                 printHelp("You must either specify a password in the command "+ 
                           "line or specify the " +
-                          PASSWORD_ENV_VARIABLE_NAME + 
+                          CommandLineToolUtil.PASSWORD_ENV_VARIABLE_NAME + 
                           " environmental variable.");
             } else {
                 char[] password = console.readPassword("DuraCloud password: ");
                 config.setPassword(new String(password));
             }
         }
-        
+
         config.setSpaceId(cmd.getOptionValue("s"));
 
         if(cmd.hasOption("i")) {
@@ -471,5 +477,13 @@ public class SyncToolConfigParser extends CommandLineToolUtil {
         } else {
             return null;
         }
+    }
+
+    protected String getPasswordEnvVariable() {
+        return cmdLineUtil.getPasswordEnvVariable();
+    }
+
+    protected ConsolePrompt getConsole() {
+        return cmdLineUtil.getConsole();
     }
 }

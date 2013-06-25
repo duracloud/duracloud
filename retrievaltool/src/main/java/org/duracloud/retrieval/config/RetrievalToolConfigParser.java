@@ -15,6 +15,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.duracloud.common.util.CommandLineToolUtil;
+import org.duracloud.common.util.ConsolePrompt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import java.util.List;
  * @author: Bill Branan
  * Date: Oct 12, 2010
  */
-public class RetrievalToolConfigParser extends CommandLineToolUtil {
+public class RetrievalToolConfigParser {
 
     private final Logger logger =
         LoggerFactory.getLogger(RetrievalToolConfigParser.class);
@@ -39,10 +40,14 @@ public class RetrievalToolConfigParser extends CommandLineToolUtil {
     
     private Options cmdOptions;
 
+    private CommandLineToolUtil cmdLineUtil;
+
     /**
      * Creates a parser for command line configuration options.
      */
     public RetrievalToolConfigParser() {
+        cmdLineUtil = new CommandLineToolUtil();
+
        // Command Line Options
        cmdOptions = new Options();
 
@@ -68,11 +73,12 @@ public class RetrievalToolConfigParser extends CommandLineToolUtil {
 
        Option passwordOption =
            new Option("p", "password", true,
-        		      "the password necessary to perform writes to DuraStore; NB: "
+        		      "the password necessary to perform writes to DuraStore; NOTICE: "
                            + "if no password is specified in the command line the retrieval tool will "
-                           + "look for an environmental variable named "
-                           + PASSWORD_ENV_VARIABLE_NAME
-                           + " containing the password.");
+                           + "look for an environment variable named "
+                           + CommandLineToolUtil.PASSWORD_ENV_VARIABLE_NAME
+                           + " containing the password.  Finally, if this environment variable "
+                           + "does not exist the user will be prompted for the password.");
        passwordOption.setRequired(false);
        cmdOptions.addOption(passwordOption);
 
@@ -172,11 +178,11 @@ public class RetrievalToolConfigParser extends CommandLineToolUtil {
         } else if (null != getPasswordEnvVariable()) {
             config.setPassword(getPasswordEnvVariable());
         } else {
-            console = getConsole();
+            ConsolePrompt console = getConsole();
             if (null == console) {
                 printHelp("You must either specify a password in the command "+ 
                           "line or specify the " +
-                          PASSWORD_ENV_VARIABLE_NAME + 
+                          CommandLineToolUtil.PASSWORD_ENV_VARIABLE_NAME + 
                           " environmental variable.");
             } else {
                 char[] password = console.readPassword("DuraCloud password: ");
@@ -280,6 +286,14 @@ public class RetrievalToolConfigParser extends CommandLineToolUtil {
         formatter.printHelp("Running Retrieval Tool",
                             cmdOptions);
         System.exit(1);
+    }
+
+    protected String getPasswordEnvVariable() {
+        return cmdLineUtil.getPasswordEnvVariable();
+    }
+
+    protected ConsolePrompt getConsole() {
+        return cmdLineUtil.getConsole();
     }
 
 }
