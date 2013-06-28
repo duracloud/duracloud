@@ -142,6 +142,17 @@ public class RetrievalToolConfigParser {
                       "by default)");
         disableTimestamps.setRequired(false);
         cmdOptions.addOption(disableTimestamps);
+
+        Option listOnly = 
+            new Option("l", "list-only", false,
+                       "indicates that the retrieval tool should create a file " +
+                       "listing the contents of the specified space rather than " +
+                       "downloading the actual content files.  The list file " +
+                       "will be placed in the specified content directory. " +
+                       "One list file will be created for each specified space." +
+                       "(optional, not set by default)");
+        listOnly.setRequired(false);
+        cmdOptions.addOption(listOnly);
     }
 
     /**
@@ -272,6 +283,12 @@ public class RetrievalToolConfigParser {
             config.setApplyTimestamps(false);
         } else {
             config.setApplyTimestamps(true);
+        }
+
+        if(cmd.hasOption("l")) {
+            config.setListOnly(true);
+        } else {
+            config.setListOnly(false);
         }
 
         return config;

@@ -9,11 +9,13 @@ package org.duracloud.retrieval;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ApplicationConfig;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.retrieval.config.RetrievalToolConfig;
 import org.duracloud.retrieval.config.RetrievalToolConfigParser;
 import org.duracloud.retrieval.mgmt.CSVFileOutputWriter;
 import org.duracloud.retrieval.mgmt.OutputWriter;
 import org.duracloud.retrieval.mgmt.RetrievalManager;
+import org.duracloud.retrieval.mgmt.SpaceListManager;
 import org.duracloud.retrieval.mgmt.StatusManager;
 import org.duracloud.retrieval.source.DuraStoreStitchingRetrievalSource;
 import org.duracloud.retrieval.source.RetrievalSource;
@@ -23,18 +25,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * Starting point for the Retrieval Tool. The purpose of this tool is to
- * retrieve content files from DuraCloud. When the Retrieval Tool is started, it
+ * retrieve content files or content listings from DuraCloud. When the Retrieval
+ * Tool is started and the '-l' or '--list-only' option is not specified, it
  * will connect to DuraCloud and proceed to copy files from the provided list
  * of spaces to the local file system under the content directory. Any files
  * which already exist locally will be compared (via checksum) with the file in
  * DuraCloud. If the files are different the local file will either be renamed
  * or overwritten, depending on whether the overwrite flag is set.
+ * If the '-l' or '--list-only' option is specified the the Retrieval Tool will
+ * create a text file, in the content directory, for each space provided and
+ * list each content ID in the space, one content ID per line.
  *
  * Once all files have been transferred to the local system the Retrieval Tool
  * will exit. This tool (currently) provides no ongoing synchronization between
@@ -86,22 +93,14 @@ public class RetrievalTool {
         logUtil.setupLogger(workDir);
     }
 
-    private void startRetrievalManager() {
-        StoreClientUtil clientUtil = new StoreClientUtil();
-        ContentStore contentStore =
-            clientUtil.createContentStore(retConfig.getHost(),
-                                          retConfig.getPort(),
-                                          retConfig.getContext(),
-                                          retConfig.getUsername(),
-                                          retConfig.getPassword(),
-                                          retConfig.getStoreId());
+    private void startRetrievalManager(ContentStore contentStore) {
         retSource =
             new DuraStoreStitchingRetrievalSource(contentStore,
                                          retConfig.getSpaces(),
                                          retConfig.isAllSpaces());
 
         outWriter = new CSVFileOutputWriter(retConfig.getWorkDir());
-        boolean createSpaceDir = retConfig.getSpaces().size() > 1;
+        boolean createSpaceDir = isCreateSpaceDir();
         boolean applyTimestamps = retConfig.isApplyTimestamps() ;
         retManager = new RetrievalManager(retSource,
                                           retConfig.getContentDir(),
@@ -112,8 +111,15 @@ public class RetrievalTool {
                                           createSpaceDir,
                                           applyTimestamps);
 
-        executor = Executors.newFixedThreadPool(1);
         executor.execute(retManager);
+    }
+
+    private boolean isCreateSpaceDir() {
+        boolean createDir = retConfig.isAllSpaces();
+        if(! createDir) {
+            createDir = retConfig.getSpaces().size() > 1;
+        }
+        return createDir;
     }
 
     private void waitForExit() {
@@ -146,19 +152,60 @@ public class RetrievalTool {
         }
     }
 
+    private void startSpaceListManager(ContentStore contentStore)
+        throws ContentStoreException {
+        List<String> spaces = null;
+        if(retConfig.isAllSpaces()) {
+            spaces = contentStore.getSpaces();
+        } else {
+            spaces = retConfig.getSpaces();
+        }
+        SpaceListManager spaceListManager = new SpaceListManager(contentStore,
+                                                                 retConfig.getContentDir(),
+                                                                 spaces,
+                                                                 retConfig.isOverwrite(),
+                                                                 retConfig.getNumThreads());
+        executor.execute(spaceListManager);
+        while(!spaceListManager.isComplete()) {
+            sleep(1000);
+        }
+        executor.shutdown();
+    }
+
     public void runRetrievalTool(RetrievalToolConfig retConfig) {
         this.retConfig = retConfig;
         setupLogging();
         logger.info("Starting Retrieval Tool version " + version);
         System.out.print("\nStarting up the Retrieval Tool ...");
-        startRetrievalManager();
-        System.out.println("... Startup Complete");
-
         System.out.println(retConfig.getPrintableConfig());
-        System.out.println("The Retrieval Tool will exit when processing " +
+
+        StoreClientUtil clientUtil = new StoreClientUtil();
+        ContentStore contentStore =
+            clientUtil.createContentStore(retConfig.getHost(),
+                                          retConfig.getPort(),
+                                          retConfig.getContext(),
+                                          retConfig.getUsername(),
+                                          retConfig.getPassword(),
+                                          retConfig.getStoreId());
+
+        executor = Executors.newFixedThreadPool(1);
+        if(retConfig.isListOnly()) {
+            try {
+                startSpaceListManager(contentStore);
+            } catch(ContentStoreException cse) {
+                String error = "Error: could not retrieve list of spaces.\n" +
+                               "Error Message: " + cse.getMessage();
+                System.err.println(error);
+                logger.error(error, cse);
+            }
+        } else {
+            startRetrievalManager(contentStore);
+            System.out.println("... Startup Complete");
+            System.out.println("The Retrieval Tool will exit when processing " +
                            "is complete. Status will be printed every " +
                            "10 minutes.\n");
-        waitForExit();
+            waitForExit();
+        }
     }
 
     public static void main(String[] args) throws Exception {

@@ -33,6 +33,7 @@ public class RetrievalToolConfig implements Serializable {
     private int numThreads;
     private String version;
     private boolean applyTimestamps;
+    private boolean listOnly;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
@@ -71,6 +72,8 @@ public class RetrievalToolConfig implements Serializable {
         config.append(isOverwrite()).append("\n");
         config.append("Retrieval Tool Retain File Time Stamps: ");
         config.append(isApplyTimestamps()).append("\n");
+        config.append("Retrieval Tool List Content Only: ");
+        config.append(isListOnly()).append("\n");
 
         config.append("--------------------------------------\n");
 
@@ -183,6 +186,14 @@ public class RetrievalToolConfig implements Serializable {
 
     public void setApplyTimestamps(boolean applyTimestamps) {
         this.applyTimestamps = applyTimestamps;
+    }
+
+    public boolean isListOnly() {
+        return listOnly;
+    }
+
+    public void setListOnly(boolean listOnly) {
+        this.listOnly = listOnly;
     }
 
 }

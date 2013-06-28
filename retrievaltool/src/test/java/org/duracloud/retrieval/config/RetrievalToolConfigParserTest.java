@@ -65,6 +65,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         argsMap.remove("-o");
         argsMap.remove("-t");
         argsMap.remove("-d");
+        argsMap.remove("-l");
 
         // Process configs, make sure optional params are set to defaults
         retConfig = retConfigParser.processOptions(mapToArray(argsMap));
@@ -75,6 +76,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         assertEquals(false, retConfig.isAllSpaces());
         assertEquals(false, retConfig.isOverwrite());
         assertEquals(true, retConfig.isApplyTimestamps());
+        assertEquals(false, retConfig.isListOnly());
         assertEquals(expectedPassword, retConfig.getPassword());
 
         // Make sure error is thrown on missing required params
