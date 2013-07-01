@@ -18,7 +18,7 @@
   type="text/css"
   href="http://yui.yahooapis.com/3.5.1/build/cssgrids/grids-min.css"/>
 <link rel="shortcut icon" href="${pageContext.request.contextPath}/static/favicon.ico" />
-<script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jquery-ui.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/static/js/jqueryFileTree.js"></script>
  
