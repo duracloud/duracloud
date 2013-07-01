@@ -7,6 +7,15 @@
  */
 package org.duracloud.syncui.service;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import javax.annotation.PostConstruct;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
@@ -28,13 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * The SyncProcessManagerImpl is an implementation of the SyncProcessManager
@@ -82,6 +84,23 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             new SyncProcessStateTransitionValidator();
 
         this.contentStoreManagerFactory = contentStoreManagerFactory;
+    }
+    
+    @PostConstruct
+    public void init(){
+      automaticallyRestartIfAppropriate();
+    }
+
+    protected void automaticallyRestartIfAppropriate() {
+        RuntimeStateMemento m = RuntimeStateMemento.get();
+        if (this.syncConfigurationManager.isConfigurationComplete()
+            && SyncProcessState.RUNNING.equals(m.getSyncProcessState())) {
+            try {
+                start();
+            } catch (SyncProcessException e) {
+                log.error("failed to automatically restart the sync process");
+            }
+        }
     }
 
     @Override
@@ -156,9 +175,17 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             syncProcessStateTransitionValidator.validate(current, incoming);
         if (validStateChange) {
             this.currentState = state;
+            persistState(this.currentState);
             fireStateChanged(this.currentState.getProcessState());
         }
     }
+
+    private void persistState(InternalState currentState) {
+        RuntimeStateMemento state = RuntimeStateMemento.get();
+        state.setSyncProcessState(currentState.getProcessState());
+        RuntimeStateMemento.persist(state);
+    }
+
 
     private void startImpl() throws SyncProcessException {
         changeState(startingState);
