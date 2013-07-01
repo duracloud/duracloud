@@ -23,10 +23,9 @@
               <ul class="button-bar">
                 <li>
                     <form method="post" action="${pageContext.request.contextPath}/configuration/advanced">
-                    
+                    <input type="hidden" id="prependTopLevelDir" name="prependTopLevelDir"/>
                     <label id="prependTopLevelDirLabel" title="Check this box if you want the watch directory to be included in the content id." >
-                    
-                    <input type="checkbox" id="prependTopLevelDir" name="prependTopLevelDir" value="true"
+                    <input type="checkbox" id="prependTopLevelDirCheckbox" name="prependTopLevelDirCheckbox" value="true"
                       <c:if test="${prependTopLevelDir}">
                         checked 
                       </c:if>
@@ -40,10 +39,9 @@
 
                 <li>
                     <form method="post" action="${pageContext.request.contextPath}/configuration/advanced">
-                    
+                    <input type="hidden" name="syncDeletes"/>
                     <label  title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud." >
-                    
-                    <input type="checkbox" id="syncDeletes" name="syncDeletes" value="true"
+                    <input type="checkbox" id="syncDeletesCheckbox" name="syncDeletesCheckbox" 
                       <c:if test="${syncDeletes}">
                         checked 
                       </c:if>

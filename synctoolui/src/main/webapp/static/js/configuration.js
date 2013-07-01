@@ -106,7 +106,9 @@ $(function() {
 
             });
 
-    $("#syncDeletes, #prependTopLevelDir").change(function(){
+    $("#syncDeletesCheckbox, #prependTopLevelDirCheckbox").change(function(e){
+        $(this).closest("form").find("input[type='hidden']")
+               .val($(e.target).is(":checked"));
         $(this).closest("form").submit();
     });
 });
