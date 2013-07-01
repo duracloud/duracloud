@@ -182,9 +182,7 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     @Test
     public void testStop() throws SyncProcessException, ContentStoreException {
         setupStart();
-        this.syncConfigurationManager.purgeWorkDirectory();
-        EasyMock.expectLastCall();
-
+        
         replay();
 
         TestSyncStateListener listener0 =
@@ -202,7 +200,6 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     @Test
     public void testRestart() throws SyncProcessException, ContentStoreException {
         setupStart(2);
-        this.syncConfigurationManager.purgeWorkDirectory();
         EasyMock.expectLastCall();
 
         replay();

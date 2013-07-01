@@ -309,12 +309,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                     try {
                         sleep(3000);
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
 
-                syncConfigurationManager.purgeWorkDirectory();
                 resetChangeList();
                 changeState(stoppedState);
             }
