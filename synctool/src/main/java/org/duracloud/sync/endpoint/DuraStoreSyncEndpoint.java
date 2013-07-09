@@ -7,19 +7,23 @@
  */
 package org.duracloud.sync.endpoint;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.duracloud.client.ContentStore;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.NotFoundException;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.duracloud.sync.config.SyncToolConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Endpoint which pushes files to DuraCloud.
@@ -37,18 +41,43 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private String spaceId;
     private boolean syncDeletes;
     private boolean prependTopLevelDirToContentId;
-
+    private boolean syncUpdates;
+    private boolean renameUpdates;
+    private String updateSuffix;
+    private static final DateFormat DATE_FORMAT= new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+    
     public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String username,
                                  String spaceId,
                                  boolean syncDeletes,
-                                 boolean prependTopLevelDirToContentId) {
+                                 boolean prependTopLevelDirToContentId,
+                                 boolean syncUpdates, 
+                                 boolean renameUpdates, 
+                                 String updateSuffix) {
         this.contentStore = contentStore;
         this.username = username;
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
         this.prependTopLevelDirToContentId = prependTopLevelDirToContentId;
+        this.syncUpdates = syncUpdates;
+        this.renameUpdates = renameUpdates;
+        this.updateSuffix = updateSuffix;
         ensureSpaceExists();
+    }
+    
+    public DuraStoreSyncEndpoint(ContentStore contentStore,
+                                      String username,
+                                      String spaceId,
+                                      boolean syncDeletes,
+                                      boolean prependTopLevelDirToContentId) {
+        this(contentStore,
+             username,
+             spaceId,
+             syncDeletes,
+             prependTopLevelDirToContentId,
+             true,
+             false,
+             SyncToolConfig.DEFAULT_UPDATE_SUFFIX);
     }
     
     protected String getUsername(){
@@ -118,9 +147,24 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                             "file in DuraCloud, no update needed.",
                             syncFile.getAbsolutePath());
                     } else {
-                        logger.debug("Local file {} changed, updating DuraCloud.",
-                                     syncFile.getAbsolutePath());
-                        addUpdateContent(contentId, syncFile);
+                        if(syncUpdates){
+                            logger.debug("Local file {} changed, updating DuraCloud.",
+                                         syncFile.getAbsolutePath());
+                            if(renameUpdates){
+                                logger.debug("Renaming updates enabled:  update to {} to prevent overwrites for local file {}",
+                                             contentId, syncFile.getAbsolutePath());
+
+                                String timeStamp = DATE_FORMAT.format(new Date(System.currentTimeMillis()));
+                                contentId = "." + contentId + this.updateSuffix.replace("${timestamp}", timeStamp);
+                                
+                            }
+
+                            addUpdateContent(contentId, syncFile);
+                        }else{
+                            logger.debug("Local file {} changed, but sync updates options ",
+                                         syncFile.getAbsolutePath());
+
+                        }
                     }
                 } else { // File was added
                     logger.debug("Local file {} added, moving to DuraCloud.",
@@ -186,7 +230,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
             }
         }
     }
-
+    
     protected Map<String, String> createProps(String absolutePath, String username) {
         return StorageProviderUtil.createContentProperties(absolutePath, username);
     }

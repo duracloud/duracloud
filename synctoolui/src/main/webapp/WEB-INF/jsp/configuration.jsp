@@ -13,84 +13,6 @@
 
     <div class="yui3-g">
       <div
-        id="watched-directories"
-        class="yui3-u-1-2 ">
-        <div class="content">
-          <div class="section top">
-            <div class="header">
-              <span> <spring:message code="watchedDirectories" />
-              </span>
-              <ul class="button-bar">
-                <li>
-                    <form method="post" action="${pageContext.request.contextPath}/configuration/advanced">
-                    <input type="hidden" id="prependTopLevelDir" name="prependTopLevelDir"/>
-                    <label id="prependTopLevelDirLabel" title="Check this box if you want the watch directory to be included in the content id." >
-                    <input type="checkbox" id="prependTopLevelDirCheckbox" name="prependTopLevelDirCheckbox" value="true"
-                      <c:if test="${prependTopLevelDir}">
-                        checked 
-                      </c:if>
-                    />
-                    Include watch directory in id
-
-                  </label>
-                  </form>
-                    
-                </li>
-
-                <li>
-                    <form method="post" action="${pageContext.request.contextPath}/configuration/advanced">
-                    <input type="hidden" name="syncDeletes"/>
-                    <label  title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud." >
-                    <input type="checkbox" id="syncDeletesCheckbox" name="syncDeletesCheckbox" 
-                      <c:if test="${syncDeletes}">
-                        checked 
-                      </c:if>
-                    />
-                    Sync Deletes
-
-                  </label>
-                  </form>
-                    
-                </li>
-                <li>
-                  <a id="add" class="button">Add</a>
-                </li>
-              </ul>
-              
-            </div>
-            <div class="body">
-              <table id="directories" >
-                <tbody>
-                  <c:choose>
-                    <c:when test="${not empty directoryConfigs}">
-                      <c:forEach
-                        items="${directoryConfigs}"
-                        var="dc">
-                        <tr>
-                          <td>${dc.directoryPath}</td>
-                          <td>
-                            <c:if test="${directoryConfigs.size() > 1}">
-                              <form action="configuration/remove" method="post">
-                                <input type="hidden" name="directoryPath" value = "${dc.directoryPath}"/>
-                                <button id="${dc.file.name}-remove" class="trash" type="submit" title="remove">Remove</button>
-                              </form>
-                            </c:if>
-                          </td>
-                        </tr>
-                      </c:forEach>
-                    </c:when>
-                    <c:otherwise>
-                      <p>There are no configured directories at this time.</p>
-                    </c:otherwise>
-                  </c:choose>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-            <div
         id="duracloud-configuration"
         class="yui3-u-1-2 ">
         <div class="content">
@@ -131,7 +53,108 @@
             </div>
           </div>
         </div>
+      </div>    
+      <div
+        id="options"
+        class="yui3-u-1-2 ">
+        <div class="content">
+          <div class="section top">
+            <div class="header">
+              <span> <spring:message code="options" text="Policies" /></span>
+              <ul class="button-bar">
+              </ul>
+              
+            </div>
+            <div class="body">
+              <form:form method="post" modelAttribute="advancedForm"  action="${pageContext.request.contextPath}/configuration/advanced">
+                  
+                  <fieldset>
+                    <ul>
+                    <li>
+                    <label  title="Check this box if you want the watch directory to be included in the content id." >
+                    <form:checkbox 
+                      path="prependTopLevelDir"/>
+                      Include watch directory in DuraCloud content id                
+                    </label>
+                    </li>
+                    <li>
+                    <label title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud.">
+                    <form:checkbox 
+                        path="syncDeletes" 
+                        />
+                        Sync deletes
+                        </label>
+                     </li>
+                     </ul>
+                  </fieldset>
+                  <fieldset>
+                    <legend>Update Policy</legend>
+                    <ul>
+                      <li>
+                        <label> <form:radiobutton path="updatePolicy" value="OVERWRITE"/>Overwrite existing content</label>
+                      </li>
+                      <li>
+                        <label><form:radiobutton path="updatePolicy" value="NONE"/>Do not sync updates</label>
+                      </li>                     
+                      <li>
+                        <label><form:radiobutton path="updatePolicy" value="PRESERVE"/>Update but do not overwrite (preserve original in cloud)</label>
+                      </li> 
+                    </ul>
+                    </fieldset>
+              </form:form>
+            </div>
+          </div>
+        </div>
       </div>
+
+      
+      <div
+        id="watched-directories"
+        class="yui3-u-1 ">
+        <div class="content">
+          <div class="section top">
+            <div class="header">
+              <span> <spring:message code="watchedDirectories" />
+              </span>
+              <ul class="button-bar">
+                <li>
+                  <a id="add" class="button">Add</a>
+                </li>
+              </ul>
+              
+            </div>
+            <div class="body">
+              <table id="directories" >
+                <tbody>
+                  <c:choose>
+                    <c:when test="${not empty directoryConfigs}">
+                      <c:forEach
+                        items="${directoryConfigs}"
+                        var="dc">
+                        <tr>
+                          <td>${dc.directoryPath}</td>
+                          <td>
+                            <c:if test="${directoryConfigs.size() > 1}">
+                              <form action="configuration/remove" method="post">
+                                <input type="hidden" name="directoryPath" value = "${dc.directoryPath}"/>
+                                <button id="${dc.file.name}-remove" class="trash" type="submit" title="remove">Remove</button>
+                              </form>
+                            </c:if>
+                          </td>
+                        </tr>
+                      </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                      <p>There are no configured directories at this time.</p>
+                    </c:otherwise>
+                  </c:choose>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>      
+
     </div>
     
     <script src="${pageContext.request.contextPath}/static/js/configuration.js"></script>

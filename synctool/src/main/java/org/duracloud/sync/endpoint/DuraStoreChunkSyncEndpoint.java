@@ -18,6 +18,7 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.stitch.FileStitcher;
 import org.duracloud.stitch.datasource.impl.DuraStoreDataSource;
 import org.duracloud.stitch.impl.FileStitcherImpl;
+import org.duracloud.sync.config.SyncToolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,35 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                                       boolean syncDeletes,
                                       long maxFileSize,
                                       boolean prependTopLevelDirToContentId) {
-        super(contentStore, username, spaceId, syncDeletes, prependTopLevelDirToContentId);
+        this(contentStore,
+             username,
+             spaceId,
+             syncDeletes,
+             maxFileSize,
+             prependTopLevelDirToContentId,
+             true,
+             false,
+             SyncToolConfig.DEFAULT_UPDATE_SUFFIX);
+    }
+    
+    public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
+                                      String username,
+                                      String spaceId,
+                                      boolean syncDeletes,
+                                      long maxFileSize,
+                                      boolean prependTopLevelDirToContentId, 
+                                      boolean syncUpdates, 
+                                      boolean renameUpdates, 
+                                      String updateSuffix) {
+        
+        super(contentStore,
+              username,
+              spaceId,
+              syncDeletes,
+              prependTopLevelDirToContentId,
+              syncUpdates,
+              renameUpdates,
+              updateSuffix);
 
         if (maxFileSize % 1024 != 0) {
             throw new RuntimeException("Max file size must be factor of 1024");

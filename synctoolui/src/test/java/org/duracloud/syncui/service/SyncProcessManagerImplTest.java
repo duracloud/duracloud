@@ -118,6 +118,15 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         EasyMock.expect(this.syncConfigurationManager.isPrependTopLevelDirectory())
         .andReturn(false).times(times);
 
+        EasyMock.expect(this.syncConfigurationManager.isSyncUpdates())
+        .andReturn(true).times(times);
+
+        EasyMock.expect(this.syncConfigurationManager.isRenameUpdates())
+        .andReturn(false).times(times);
+
+        EasyMock.expect(this.syncConfigurationManager.getUpdateSuffix())
+        .andReturn(null).times(times);
+
         
         DuracloudConfiguration dc = createMock(DuracloudConfiguration.class);
         EasyMock.expect(dc.getUsername()).andReturn("testusername").times(times);

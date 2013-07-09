@@ -15,6 +15,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.util.CommandLineToolUtil;
 import org.duracloud.common.util.ConsolePrompt;
 
@@ -145,6 +146,27 @@ public class SyncToolConfigParser {
                       DEFAULT_MAX_FILE_SIZE + ")");
         maxFileSize.setRequired(false);
         cmdOptions.addOption(maxFileSize);
+
+
+         Option renameUpdates =
+             new Option("n", "rename-updates", true,
+                        "indicates that updates should be synced to the cloud and renamed. " +
+                        "Specify an optional suffix to override default " +
+                        "( \"" + SyncToolConfig.DEFAULT_UPDATE_SUFFIX + "\"); " + 
+                        "To prevent updates altogether, see option -o");
+         renameUpdates.setRequired(false);
+         renameUpdates.setArgName("suffix");
+         renameUpdates.setOptionalArg(true);
+         cmdOptions.addOption(renameUpdates);
+
+         Option syncUpdates =
+             new Option("o", "no-update", false,
+                        "indicates that changed files should not be updated; " +
+                        "to perform updates without overwriting, see option -n.");
+         syncUpdates.setRequired(false);
+         cmdOptions.addOption(syncUpdates);
+
+
 
        Option syncDeletes =
            new Option("d", "sync-deletes", false,
@@ -365,6 +387,22 @@ public class SyncToolConfigParser {
             config.setMaxFileSize(DEFAULT_MAX_FILE_SIZE * GIGABYTE);
         }
 
+        if(cmd.hasOption("o") && cmd.hasOption("n")){
+            throw new ParseException("Options -o and -n are mutually exclusive.");
+        }
+            
+        if(cmd.hasOption("o")){
+            config.setSyncUpdates(false);
+        }
+
+        if(cmd.hasOption("n")){
+            config.setRenameUpdates(true);
+            String suffix = cmd.getOptionValue("n");
+            if(StringUtils.isNotBlank(suffix)){
+                config.setUpdateSuffix(suffix);
+            }
+        }
+        
         if(cmd.hasOption("d")) {
             config.setSyncDeletes(true);
         } else {

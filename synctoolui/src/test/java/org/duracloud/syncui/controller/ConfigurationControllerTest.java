@@ -8,6 +8,8 @@
 package org.duracloud.syncui.controller;
 
 import org.duracloud.syncui.AbstractTest;
+import org.duracloud.syncui.controller.ConfigurationController.AdvancedForm;
+import org.duracloud.syncui.controller.ConfigurationController.UpdatePolicy;
 import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
@@ -39,8 +41,6 @@ public class ConfigurationControllerTest extends AbstractTest {
     
     @Test
     public void testGet() {
-        EasyMock.expect(syncConfigurationManager.isSyncDeletes()).andReturn(false);
-        EasyMock.expect(syncConfigurationManager.isPrependTopLevelDirectory()).andReturn(false);
         
         replay();
         Assert.assertNotNull(configurationController.get(new ExtendedModelMap()));
@@ -76,6 +76,24 @@ public class ConfigurationControllerTest extends AbstractTest {
         this.syncConfigurationManager.persistDirectoryConfigs(configs);
         replay();
         Assert.assertNotNull(configurationController.add(f, new RedirectAttributesModelMap()));
+    }
+    
+    @Test
+    public void testUpdateOptions (){
+        AdvancedForm f = createMock(AdvancedForm.class);
+        EasyMock.expect(f.isPrependTopLevelDir()).andReturn(true);
+        EasyMock.expect(f.isSyncDeletes()).andReturn(true);
+        EasyMock.expect(f.getUpdatePolicy()).andReturn(UpdatePolicy.PRESERVE.name());
+        syncConfigurationManager.setSyncDeletes(EasyMock.anyBoolean());
+        EasyMock.expectLastCall();
+        syncConfigurationManager.setPrependTopLevelDirectory(EasyMock.anyBoolean());
+        EasyMock.expectLastCall();
+        syncConfigurationManager.setRenameUpdates(true);
+        EasyMock.expectLastCall();
+        syncConfigurationManager.setSyncUpdates(true);
+        EasyMock.expectLastCall();
+        replay();
+        configurationController.updateOptions(f, new RedirectAttributesModelMap());
     }
 
 }

@@ -228,7 +228,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                                dc.getSpaceId(),
                                                false,
                                                1073741824, // 1GB chunk size
-                                               this.syncConfigurationManager.isPrependTopLevelDirectory()); 
+                                               this.syncConfigurationManager.isPrependTopLevelDirectory(),
+                                               this.syncConfigurationManager.isSyncUpdates(),
+                                               this.syncConfigurationManager.isRenameUpdates(),
+                                               this.syncConfigurationManager.getUpdateSuffix());
             
             DirectoryConfigs directories =
                 this.syncConfigurationManager.retrieveDirectoryConfigs();

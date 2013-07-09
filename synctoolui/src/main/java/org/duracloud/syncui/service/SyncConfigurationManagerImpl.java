@@ -195,4 +195,28 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setPrependTopLevelDirToContentId(flag);
     }
 
+    @Override
+    public String getUpdateSuffix() {
+        return this.syncToolConfig.getUpdateSuffix();
+    } 
+    
+    @Override
+    public void setSyncUpdates(boolean b) {
+        this.syncToolConfig.setSyncUpdates(b);
+    }
+    
+    @Override
+    public boolean isSyncUpdates() {
+        return this.syncToolConfig.isSyncUpdates();
+    }
+
+    @Override
+    public void setRenameUpdates(boolean b) {
+        this.syncToolConfig.setRenameUpdates(b);
+    }
+
+    @Override
+    public boolean isRenameUpdates() {
+        return this.syncToolConfig.isRenameUpdates();
+    }
 }

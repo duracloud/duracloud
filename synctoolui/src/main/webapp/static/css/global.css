@@ -86,10 +86,11 @@ thead  ul{
 
 fieldset {
   border:0;
+  margin-bottom: 10px;
 }
+
 fieldset li {
   height: 40px; 
-  
   position: relative;
 }
 
@@ -567,6 +568,22 @@ div.green-check {
   font-size:10px !important;
 }
 
-#prependTopLevelDirLabel {
-  width:175px;
+#options label{
+  width:100% ! important;
+  text-align: left;
+}
+
+#options [type=radio] {
+  margin-left:20px;
+  padding: 10px;
+}
+
+#options fieldset {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+#options fieldset li {
+  height: 25px; 
+  position: relative;
 }

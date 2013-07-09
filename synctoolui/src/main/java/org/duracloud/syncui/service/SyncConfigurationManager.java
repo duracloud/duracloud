@@ -67,4 +67,14 @@ public interface SyncConfigurationManager {
     public void setPrependTopLevelDirectory(Boolean valueOf);
     
     public boolean isPrependTopLevelDirectory();
+
+    public boolean isSyncUpdates();
+
+    public String getUpdateSuffix();
+
+    public boolean isRenameUpdates();
+
+    public void setSyncUpdates(boolean b);
+
+    public void setRenameUpdates(boolean b);
 }

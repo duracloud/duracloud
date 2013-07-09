@@ -75,11 +75,18 @@ public class ConfigurationController {
         return syncProcessManager.getProcessState();
     }
 
+    @ModelAttribute("advancedForm")
+    public AdvancedForm advancedForm(){
+        AdvancedForm f = new AdvancedForm();
+        f.setSyncDeletes(this.syncConfigurationManager.isSyncDeletes());
+        f.setPrependTopLevelDir(this.syncConfigurationManager.isPrependTopLevelDirectory());
+        f.setUpdatePolicy(UpdatePolicyHelper.get(this.syncConfigurationManager).name());
+        return f;
+    }
+    
     @RequestMapping(value = { "" }, method= RequestMethod.GET)
     public String get(Model model) {
         log.debug("accessing configuration page");
-        model.addAttribute("syncDeletes", this.syncConfigurationManager.isSyncDeletes());
-        model.addAttribute("prependTopLevelDir", this.syncConfigurationManager.isPrependTopLevelDirectory());
         return "configuration";
     }
 
@@ -98,28 +105,25 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
-    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST, params={"syncDeletes"})
-    public View updateSyncDeletes(
-                                @RequestParam(defaultValue = "false") String syncDeletes,
+    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST)
+    public View updateOptions(
+                                AdvancedForm form,
                                 RedirectAttributes redirectAttributes) {
 
+        boolean syncDeletes = form.isSyncDeletes();
         log.debug("updating sync deletes to : {}", syncDeletes);
+        this.syncConfigurationManager.setSyncDeletes(syncDeletes);
+
+        boolean prepend = form.isPrependTopLevelDir();
+        log.debug("updating top level dir to : {}", prepend);
+        this.syncConfigurationManager.setPrependTopLevelDirectory(prepend);
         
-        this.syncConfigurationManager.setSyncDeletes(Boolean.valueOf(syncDeletes));
+        String up = form.getUpdatePolicy();
+        log.debug("modifying update policy to  {}", up);
+        UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
-
-    @RequestMapping(value = { "/advanced" }, method = RequestMethod.POST, params={"prependTopLevelDir"})
-    public View updateTopLevelDir(
-                                @RequestParam(defaultValue = "false") String prependTopLevelDir,
-                                RedirectAttributes redirectAttributes) {
-
-        log.debug("updating top level dir to : {}", prependTopLevelDir);
-        
-        this.syncConfigurationManager.setPrependTopLevelDirectory(Boolean.valueOf(prependTopLevelDir));
-        return createConfigUpdatedRedirectView(redirectAttributes);
-    }
-
+ 
     @ModelAttribute("directoryConfigForm")
     public DirectoryConfigForm directoryConfigForm() {
         return new DirectoryConfigForm();
@@ -155,4 +159,69 @@ public class ConfigurationController {
         return view;
     }
 
+    public static enum UpdatePolicy {
+        NONE,
+        PRESERVE,
+        OVERWRITE;
+    }
+    
+    public static class AdvancedForm {
+        private String updatePolicy;
+        private boolean syncDeletes;
+        private boolean prependTopLevelDir;
+
+        public boolean isPrependTopLevelDir() {
+            return prependTopLevelDir;
+        }
+        
+        public void setPrependTopLevelDir(boolean prependTopLevelDir) {
+            this.prependTopLevelDir = prependTopLevelDir;
+        }
+        
+        public boolean isSyncDeletes() {
+            return syncDeletes;
+        }
+        
+        public void setSyncDeletes(boolean syncDeletes) {
+            this.syncDeletes = syncDeletes;
+        }
+        
+        public void setUpdatePolicy(String updatePolicy) {
+            this.updatePolicy = updatePolicy;
+        }
+        
+        public String getUpdatePolicy() {
+            return updatePolicy;
+        }
+    }
+    
+    private static class UpdatePolicyHelper {
+        public static void set(SyncConfigurationManager scm, UpdatePolicy up){
+            if(UpdatePolicy.NONE.equals(up)){
+                scm.setSyncUpdates(false);
+                scm.setRenameUpdates(false);
+            }else if(UpdatePolicy.PRESERVE.equals(up)){
+                scm.setSyncUpdates(true);
+                scm.setRenameUpdates(true);
+            }else if(UpdatePolicy.OVERWRITE.equals(up)){
+                scm.setSyncUpdates(true);
+                scm.setRenameUpdates(false);
+            }else{
+                throw new IllegalArgumentException("unknown update policy: " + up);
+            }
+        }
+        
+        public static UpdatePolicy get(SyncConfigurationManager scm){
+            if(!scm.isSyncUpdates()){
+                return UpdatePolicy.NONE;
+            }else {
+                if(!scm.isRenameUpdates()){
+                    return UpdatePolicy.OVERWRITE; 
+                }else{
+                    return UpdatePolicy.PRESERVE;
+                }
+            }
+        }
+
+    }
 }

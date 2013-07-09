@@ -100,7 +100,7 @@ public class DuraStoreChunkSyncEndpointTest {
                                                   spaceId,
                                                   syncDeletes,
                                                   maxFileSize,
-                                                  false);
+                                                  false, true, false,null);
     }
 
     @Test

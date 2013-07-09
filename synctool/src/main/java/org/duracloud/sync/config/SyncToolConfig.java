@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class SyncToolConfig implements Serializable {
 
+    public static final String DEFAULT_UPDATE_SUFFIX = ".updated-${timestamp}";
     private String host;
     private int port;
     private String context;
@@ -37,6 +38,9 @@ public class SyncToolConfig implements Serializable {
     private File excludeList;
     private String version;
     private boolean prependTopLevelDirToContentId;
+    private boolean syncUpdates = true;
+    private boolean renameUpdates = true;
+    private String updateSuffix = DEFAULT_UPDATE_SUFFIX;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
@@ -87,6 +91,13 @@ public class SyncToolConfig implements Serializable {
         config.append(exitOnCompletion()).append("\n");
         config.append("Prepend Source Path to Destination: ");
         config.append(isPrependTopLevelDirToContentId()).append("\n");
+        config.append("Sync Updates: ");
+        config.append(isSyncUpdates()).append("\n");
+        config.append("Rename Updates: ");
+        config.append(isRenameUpdates()).append("\n");
+        config.append("Rename updates suffix: ");
+        config.append(getUpdateSuffix()).append("\n");
+
         config.append("--------------------------------------\n");
 
         return config.toString();
@@ -230,6 +241,30 @@ public class SyncToolConfig implements Serializable {
     
     public boolean isPrependTopLevelDirToContentId() {
         return prependTopLevelDirToContentId;
+    }
+
+    public boolean isSyncUpdates() {
+        return syncUpdates;
+    }
+
+    public void setSyncUpdates(boolean syncUpdates) {
+        this.syncUpdates = syncUpdates;
+    }
+
+    public boolean isRenameUpdates() {
+        return renameUpdates;
+    }
+
+    public void setRenameUpdates(boolean renameUpdates) {
+        this.renameUpdates = renameUpdates;
+    }
+
+    public String getUpdateSuffix() {
+        return updateSuffix;
+    }
+
+    public void setUpdateSuffix(String updateSuffix) {
+        this.updateSuffix = updateSuffix;
     }
 
 }

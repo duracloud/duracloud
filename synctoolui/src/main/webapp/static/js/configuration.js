@@ -106,9 +106,7 @@ $(function() {
 
             });
 
-    $("#syncDeletesCheckbox, #prependTopLevelDirCheckbox").change(function(e){
-        $(this).closest("form").find("input[type='hidden']")
-               .val($(e.target).is(":checked"));
+    $("#options input").change(function(e){
         $(this).closest("form").submit();
     });
 });
