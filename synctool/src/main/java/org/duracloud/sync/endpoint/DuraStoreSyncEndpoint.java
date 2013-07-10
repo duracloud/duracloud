@@ -155,7 +155,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                              contentId, syncFile.getAbsolutePath());
 
                                 String timeStamp = DATE_FORMAT.format(new Date(System.currentTimeMillis()));
-                                contentId = "." + contentId + this.updateSuffix.replace("${timestamp}", timeStamp);
+                                contentId +=  this.updateSuffix.replace("${timestamp}", timeStamp);
                                 
                             }
 
