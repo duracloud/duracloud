@@ -15,7 +15,6 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
@@ -76,10 +75,9 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
      * @param username of principal for whom details are sought
      * @return UserDetails for arg username
      * @throws UsernameNotFoundException if username not found
-     * @throws DataAccessException       if system error while retrieving info
      */
     public UserDetails loadUserByUsername(String username)
-        throws UsernameNotFoundException, DataAccessException {
+        throws UsernameNotFoundException {
         UserDetails userDetails = usersTable.get(username);
         if (null == userDetails) {
             throw new UsernameNotFoundException(username);
