@@ -8,6 +8,7 @@
 package org.duracloud.sync.mgmt;
 
 import org.duracloud.sync.SyncTestBase;
+import org.duracloud.sync.endpoint.EndPointListener;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.junit.Before;
@@ -64,6 +65,12 @@ public class SyncManagerTest extends SyncTestBase {
         public Iterator<String> getFilesList() {
             return null;
         }
+        
+        @Override
+        public void addEndPointListener(EndPointListener listener) {}
+
+        @Override
+        public void removeEndPointListener(EndPointListener listener) {}
     }
 
     @Test

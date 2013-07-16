@@ -43,4 +43,17 @@ public interface SyncEndpoint {
      */
     public Iterator<String> getFilesList();
     
+
+    /**
+     * Registers a listener
+     * @param listener
+     */
+    public void addEndPointListener(EndPointListener listener);
+
+    /**
+     * Unregisters a listener
+     * @param listener
+     */
+    public void removeEndPointListener(EndPointListener listener);
+
 }

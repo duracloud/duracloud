@@ -50,6 +50,7 @@ public class DuraStoreChunkSyncEndpointTest {
     @Before
     public void setUp() throws Exception {
         contentStore = EasyMock.createMock("ContentStore", ContentStore.class);
+        EasyMock.expect(contentStore.getStoreId()).andReturn("0");
         syncDeletes = false;
     }
 

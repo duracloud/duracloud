@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class SyncToolConfig implements Serializable {
 
-    public static final String DEFAULT_UPDATE_SUFFIX = ".updated-${timestamp}";
+    public static final String DEFAULT_UPDATE_SUFFIX = ".orig";
     private String host;
     private int port;
     private String context;

@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
@@ -44,6 +45,9 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private boolean syncUpdates;
     private boolean renameUpdates;
     private String updateSuffix;
+    private String storeId;
+    EventListenerSupport<EndPointListener> listenerList;
+    
     private static final DateFormat DATE_FORMAT= new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
     
     public DuraStoreSyncEndpoint(ContentStore contentStore,
@@ -56,12 +60,16 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                  String updateSuffix) {
         this.contentStore = contentStore;
         this.username = username;
+        this.storeId = this.contentStore.getStoreId();
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
         this.prependTopLevelDirToContentId = prependTopLevelDirToContentId;
         this.syncUpdates = syncUpdates;
         this.renameUpdates = renameUpdates;
         this.updateSuffix = updateSuffix;
+        this.listenerList =
+            new EventListenerSupport<EndPointListener>(EndPointListener.class);
+
         ensureSpaceExists();
     }
     
@@ -131,9 +139,10 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
 
     public boolean syncFile(MonitoredFile syncFile, File watchDir) {
         String contentId = getContentId(syncFile, watchDir);
-        logger.info("Syncing file " + syncFile.getAbsolutePath() +
-                    " to DuraCloud with ID " + contentId);
+        String absPath = syncFile.getAbsolutePath();
 
+        logger.info("Syncing file " + absPath +
+                    " to DuraCloud with ID " + contentId);
         Map<String, String> contentProperties = getContentProperties(spaceId,
                                                                      contentId);
         boolean dcFileExists = (null != contentProperties);
@@ -145,49 +154,78 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                     if(dcChecksum.equals(syncFile.getChecksum())) {
                         logger.debug("Checksum for local file {} matches " +
                             "file in DuraCloud, no update needed.",
-                            syncFile.getAbsolutePath());
+                            absPath);
                     } else {
                         if(syncUpdates){
                             logger.debug("Local file {} changed, updating DuraCloud.",
-                                         syncFile.getAbsolutePath());
+                                         absPath);
                             if(renameUpdates){
                                 logger.debug("Renaming updates enabled:  update to {} to prevent overwrites for local file {}",
-                                             contentId, syncFile.getAbsolutePath());
+                                             contentId, absPath);
 
-                                String timeStamp = DATE_FORMAT.format(new Date(System.currentTimeMillis()));
-                                contentId +=  this.updateSuffix.replace("${timestamp}", timeStamp);
-                                
+                                //create backup of original using current timestamp in backup content id.
+                                //I'm using current timestamp since original timestamp is just a date without timestamp info.
+                                //Plus I think it is more intuitive to have the timestamp reflect the moment when the backup
+                                //file was created. -dbernstein
+                                Date creationDate = new Date();
+                                String timeStamp = DATE_FORMAT.format(creationDate);
+                                String backupContentId = contentId +  this.updateSuffix + "." +timeStamp;
+                                this.contentStore.copyContent(this.spaceId,
+                                                              contentId,
+                                                              this.spaceId,
+                                                              backupContentId);
+                                this.listenerList.fire()
+                                                 .contentBackedUp(this.storeId,
+                                                                  this.spaceId,
+                                                                  contentId,
+                                                                  backupContentId,
+                                                                  absPath);
                             }
 
                             addUpdateContent(contentId, syncFile);
+
+                            this.listenerList.fire()
+                                             .contentUpdated(this.storeId,
+                                                                 this.spaceId,
+                                                                 contentId, absPath);
+                            
                         }else{
                             logger.debug("Local file {} changed, but sync updates options ",
-                                         syncFile.getAbsolutePath());
+                                         absPath);
 
                         }
                     }
                 } else { // File was added
                     logger.debug("Local file {} added, moving to DuraCloud.",
-                                 syncFile.getAbsolutePath());
+                                 absPath);
                     addUpdateContent(contentId, syncFile);
+                    this.listenerList.fire()
+                                     .contentAdded(this.storeId,
+                                                   this.spaceId,
+                                                   contentId,
+                                                   absPath);
+                    
                 }
             } else { // File was deleted
                 if(dcFileExists) {
                     if(syncDeletes) {
                         logger.debug("Local file {} deleted, " +
                                      "removing from DuraCloud.",
-                                     syncFile.getAbsolutePath());
+                                     absPath);
                         deleteContent(spaceId, contentId);
+                        this.listenerList.fire()
+                                         .contentDeleted(this.storeId, this.spaceId, contentId, absPath);
+
                     } else {
                         logger.debug("Ignoring delete of file {}",
-                                     syncFile.getAbsolutePath());
+                                     absPath);
                     }
                 }
             }
         } catch(ContentStoreException e) {
             throw new RuntimeException(e);
         }
-
+        
         return true;
     }
 
@@ -273,5 +311,15 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
 
     protected String getSpaceId() {
         return spaceId;
+    }
+    
+    @Override
+    public void addEndPointListener(EndPointListener listener) {
+        this.listenerList.addListener(listener);
+    }
+    
+    @Override
+    public void removeEndPointListener(EndPointListener listener) {
+        this.listenerList.removeListener(listener);
     }
 }

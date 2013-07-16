@@ -13,6 +13,7 @@ import org.duracloud.sync.backup.SyncBackupManager;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.config.SyncToolConfigParser;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
+import org.duracloud.sync.endpoint.EndPointLogger;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.StatusManager;
@@ -151,12 +152,15 @@ public class SyncTool {
                                            syncConfig.isRenameUpdates(),
                                            syncConfig.getUpdateSuffix());
         
+        this.syncEndpoint.addEndPointListener(new EndPointLogger());
+        
         syncManager = new SyncManager(syncConfig.getContentDirs(),
                                       syncEndpoint,
                                       syncConfig.getNumThreads(),
                                       syncConfig.getPollFrequency());
         syncManager.beginSync();
     }
+
 
     private long startSyncBackupManager(boolean restart) {
         syncBackupManager =

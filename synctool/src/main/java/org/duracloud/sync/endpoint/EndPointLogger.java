@@ -1,0 +1,66 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
+package org.duracloud.sync.endpoint;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * This class monitors and logs evnet point events.
+ * @author Daniel Bernstein
+ *
+ */
+public class EndPointLogger implements EndPointListener {
+    private Logger log = LoggerFactory.getLogger("history-log");
+    
+    @Override
+    public void contentBackedUp(String storeId,
+                                String spaceId,
+                                String contentId,
+                                String backupContentId,
+                                String localFilePath) {
+        log.info(format(new String[] {
+            "BACKUP", storeId, spaceId, contentId, localFilePath,
+            "back up copy: " + backupContentId }));
+    }
+
+    private String format(String[] objects) {
+        return StringUtils.join(objects, "\t");
+    }
+
+    @Override
+    public void contentAdded(String storeId,
+                             String spaceId,
+                             String contentId,
+                             String localFilePath) {
+        log.info(format(new String[] {
+            "ADDED", storeId, spaceId, contentId, localFilePath}));
+    }
+
+    @Override
+    public void contentUpdated(String storeId,
+                               String spaceId,
+                               String contentId,
+                               String localFilePath) {
+        log.info(format(new String[] {
+            "UPDATED", storeId, spaceId, contentId, localFilePath}));
+    }
+
+    @Override
+    public void contentDeleted(String storeId,
+                               String spaceId,
+                               String contentId,
+                               String localFilePath) {
+        log.info(format(new String[] { 
+            "DELETED",
+            storeId, spaceId, contentId, localFilePath}));
+    }
+
+}

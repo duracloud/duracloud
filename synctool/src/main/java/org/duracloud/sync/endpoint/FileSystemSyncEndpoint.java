@@ -128,4 +128,16 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
     private String getRelativeFilePath(File file) {
         return syncToDir.toURI().relativize(file.toURI()).getPath();
     }
+    
+    @Override
+    public void addEndPointListener(EndPointListener listener) {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    @Override
+    public void removeEndPointListener(EndPointListener listener) {
+        // TODO Auto-generated method stub
+        
+    }
 }

@@ -45,6 +45,12 @@ public class DuraStoreSyncEndpointTest {
             .expect(contentStore.getSpaceContents(EasyMock.isA(String.class)))
             .andReturn(new ArrayList<String>().iterator())
             .anyTimes();
+        
+        EasyMock
+        .expect(contentStore.getStoreId())
+        .andReturn("0")
+        .times(1);
+
     }
 
     @After
