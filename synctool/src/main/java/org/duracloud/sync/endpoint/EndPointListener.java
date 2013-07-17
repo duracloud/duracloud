@@ -61,4 +61,16 @@ public interface EndPointListener {
                         String spaceId,
                         String contentId,
                         String localFilePath);
+
+    /**
+     * 
+     * @param storeId
+     * @param spaceId
+     * @param contentId
+     * @param absPath
+     */
+    void contentUpdateIgnored(String storeId,
+                        String spaceId,
+                        String contentId,
+                        String absPath);
 }

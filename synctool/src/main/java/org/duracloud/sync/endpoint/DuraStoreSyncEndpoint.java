@@ -192,6 +192,11 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                         }else{
                             logger.debug("Local file {} changed, but sync updates options ",
                                          absPath);
+                            this.listenerList.fire()
+                                             .contentUpdateIgnored(this.storeId,
+                                                             this.spaceId,
+                                                             contentId, 
+                                                             absPath);
 
                         }
                     }

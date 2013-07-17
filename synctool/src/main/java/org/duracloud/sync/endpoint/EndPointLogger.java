@@ -62,5 +62,15 @@ public class EndPointLogger implements EndPointListener {
             "DELETED",
             storeId, spaceId, contentId, localFilePath}));
     }
-
+    
+    @Override
+    public void contentUpdateIgnored(String storeId,
+                               String spaceId,
+                               String contentId,
+                               String localFilePath) {
+        log.info(format(new String[] { 
+            "UPDATE_IGNORED",
+            storeId, spaceId, contentId, localFilePath,
+            "local content changed but was not uploaded" }));
+    }
 }
