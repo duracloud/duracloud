@@ -101,6 +101,7 @@ public class SyncProcessManagerImplTest extends AbstractTest {
 
         EasyMock.expect(contentStoreManager.getPrimaryContentStore())
                 .andReturn(contentStore).times(times);
+        EasyMock.expect(this.contentStore.getStoreId()).andReturn("0").anyTimes();
 
         EasyMock.expect(this.contentStore.getSpaceContents(EasyMock.isA(String.class)))
                 .andAnswer(new IAnswer<Iterator<String>>() {
