@@ -7,14 +7,22 @@
  */
 package org.duracloud.client;
 
+import org.duracloud.common.util.WaitUtil;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.error.ContentStoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
+ * Iterates over the content list in a DuraCloud space. Handles the chunked
+ * nature of long item lists internally, allowing the caller to simply
+ * call next() to iterate through the entire content listing, regardless
+ * of its length.
+ *
  * @author: Bill Branan
  * Date: Dec 23, 2009
  */
@@ -27,6 +35,10 @@ public class ContentIterator implements Iterator<String> {
     private int index;
     private List<String> contentList;
     private long maxResults;
+    private int maxRetries;
+
+    private final Logger log =
+        LoggerFactory.getLogger(ContentIterator.class);
 
     public ContentIterator(ContentStore store,
                            String spaceId,
@@ -43,7 +55,14 @@ public class ContentIterator implements Iterator<String> {
         this.spaceId = spaceId;
         this.prefix = prefix;
         this.maxResults = maxResults;
-        contentList = buildContentList(null);
+        this.maxRetries = 7;
+        contentList = retryBuildContentList(null);
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        if(maxRetries >= 0) {
+            this.maxRetries = maxRetries;
+        }
     }
 
     public boolean hasNext() {
@@ -76,17 +95,32 @@ public class ContentIterator implements Iterator<String> {
     private void updateList() {
         String lastItem = contentList.get(contentList.size()-1);
         try {
-            contentList = buildContentList(lastItem);
+            contentList = retryBuildContentList(lastItem);
         } catch(ContentStoreException e) {
             throw new RuntimeException(e);
         }
         index = 0;
     }
 
+    private List<String> retryBuildContentList(String lastItem)
+        throws ContentStoreException {
+        ContentStoreException lastException = null;
+        for(int i=0; i<=maxRetries; i++) {
+            try {
+                return buildContentList(lastItem);
+            } catch (ContentStoreException e) {
+                lastException = e;
+                log.warn(e.getMessage());
+                WaitUtil.wait(i);
+            }
+        }
+        throw lastException;
+    }
+
     private List<String> buildContentList(String lastItem)
         throws ContentStoreException {
         return store.getSpace(spaceId, prefix, maxResults, lastItem)
-            .getContentIds();
+                    .getContentIds();
     }
 
 }

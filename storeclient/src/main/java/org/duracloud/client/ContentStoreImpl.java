@@ -11,6 +11,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.SerializationUtil;
+import org.duracloud.common.util.WaitUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
@@ -28,6 +29,8 @@ import org.duracloud.storage.util.IdUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -57,8 +60,14 @@ public class ContentStoreImpl implements ContentStore{
 
     private static final String HEADER_PREFIX = "x-dura-meta-";
 
+    private int maxRetries = 3;
+
+    private final Logger log =
+        LoggerFactory.getLogger(ContentStoreImpl.class);
+
     /**
-     * Creates a ContentStore
+     * Creates a ContentStore. This ContentStore uses the default number of
+     * retries when a failure occurs (3).
      *
      * @param baseURL a {@link java.lang.String} object.
      * @param type a {@link org.duracloud.storage.domain.StorageProviderType} object.
@@ -74,6 +83,19 @@ public class ContentStoreImpl implements ContentStore{
         this.restHelper = restHelper;
     }
 
+    /**
+     * Creates a ContentStore with a specific number of retries.
+     */
+    public ContentStoreImpl(String baseURL,
+                            StorageProviderType type,
+                            String storeId,
+                            RestHttpHelper restHelper,
+                            int maxRetries) {
+        this(baseURL, type, storeId, restHelper);
+        if(maxRetries >= 0) {
+            this.maxRetries = maxRetries;
+        }
+    }
 
     public String getBaseURL() {
         return baseURL;
@@ -82,6 +104,7 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getStoreId() {
         return storeId;
     }
@@ -89,6 +112,7 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getStorageProviderType() {
         return type.name();
     }
@@ -165,9 +189,52 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     /**
+     * An interface which defines a single method which will be retried on error
+     */
+    protected interface Retryable {
+        Object retry() throws ContentStoreException;
+    }
+
+    /**
+     * Provides a way to execute a variety of methods and allow a retry to
+     * occur on method failure.
+     *
+     * This method, along with the Retryable interface is an implementation
+     * of the command pattern.
+     *
+     * @param retryable
+     * @throws ContentStoreException
+     */
+    protected <T extends Object> T execute(Retryable retryable)
+        throws ContentStoreException {
+        ContentStoreException lastException = null;
+        for(int i=0; i<=maxRetries; i++) {
+            try {
+                return (T)retryable.retry();
+            } catch (ContentStoreException e) {
+                lastException = e;
+                log.warn(e.getMessage());
+                WaitUtil.wait(i);
+            }
+        }
+        throw lastException;
+    }
+
+    /**
      * {@inheritDoc}
      */
+    @Override
     public List<String> getSpaces() throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public List<String> retry() throws ContentStoreException {
+                // The actual method being executed
+                return doGetSpaces();
+            }
+        });
+    }
+
+    private List<String> doGetSpaces() throws ContentStoreException {
         String task = "get spaces";
         String url = buildURL("/spaces");
         url = addStoreIdQueryParameter(url);
@@ -203,6 +270,7 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
+    @Override
     public Iterator<String> getSpaceContents(String spaceId)
         throws ContentStoreException {
         return getSpaceContents(spaceId, null);
@@ -211,18 +279,42 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public Iterator<String> getSpaceContents(String spaceId, String prefix)
+    @Override
+    public Iterator<String> getSpaceContents(final String spaceId,
+                                             final String prefix)
         throws ContentStoreException {
-        return new ContentIterator(this, spaceId, prefix);
+        final ContentStore store = this;
+        return execute(new Retryable() {
+            @Override
+            public Iterator<String> retry() throws ContentStoreException {
+                // The actual method being executed
+                return new ContentIterator(store, spaceId, prefix);
+            }
+        });
     }
 
     /**
      * {@inheritDoc}
      */
-    public Space getSpace(String spaceId,
-                          String prefix,
-                          long maxResults,
-                          String marker)
+    @Override
+    public Space getSpace(final String spaceId,
+                          final String prefix,
+                          final long maxResults,
+                          final String marker)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public Space retry() throws ContentStoreException {
+                // The actual method being executed
+                return doGetSpace(spaceId, prefix, maxResults, marker);
+            }
+        });
+    }
+
+    private Space doGetSpace(String spaceId,
+                             String prefix,
+                             long maxResults,
+                             String marker)
         throws ContentStoreException {
         String task = "get space";
         String url = buildSpaceURL(spaceId, prefix, maxResults, marker);
@@ -263,8 +355,21 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void createSpace(String spaceId)
-            throws ContentStoreException {
+    @Override
+    public void createSpace(final String spaceId)
+        throws ContentStoreException {
+        execute(new Retryable() {
+            @Override
+            public Boolean retry() throws ContentStoreException {
+                // The actual method being executed
+                doCreateSpace(spaceId);
+                return true;
+            }
+        });
+    }
+
+    private void doCreateSpace(String spaceId)
+        throws ContentStoreException {
         validateSpaceId(spaceId);
         String task = "create space";
         String url = buildSpaceURL(spaceId);
@@ -283,7 +388,19 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void deleteSpace(String spaceId) throws ContentStoreException {
+    @Override
+    public void deleteSpace(final String spaceId) throws ContentStoreException {
+        execute(new Retryable() {
+            @Override
+            public Boolean retry() throws ContentStoreException {
+                // The actual method being executed
+                doDeleteSpace(spaceId);
+                return true;
+            }
+        });
+    }
+
+    private void doDeleteSpace(String spaceId) throws ContentStoreException {
         String task = "delete space";
         String url = buildSpaceURL(spaceId);
         try {
@@ -301,8 +418,20 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getSpaceProperties(String spaceId)
-            throws ContentStoreException {
+    @Override
+    public Map<String, String> getSpaceProperties(final String spaceId)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public Map<String, String> retry() throws ContentStoreException {
+                // The actual method being executed
+                return doGetSpaceProperties(spaceId);
+            }
+        });
+    }
+    
+    private Map<String, String> doGetSpaceProperties(String spaceId)
+        throws ContentStoreException {
         String task = "get space properties";
         String url = buildSpaceURL(spaceId);
         try {
@@ -318,8 +447,22 @@ public class ContentStoreImpl implements ContentStore{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Map<String, AclType> getSpaceACLs(String spaceId)
+    public Map<String, AclType> getSpaceACLs(final String spaceId)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public Map<String, AclType> retry() throws ContentStoreException {
+                // The actual method being executed
+                return doGetSpaceACLs(spaceId);
+            }
+        });
+    }
+
+    private Map<String, AclType> doGetSpaceACLs(String spaceId)
         throws ContentStoreException {
         String task = "get space ACLs";
         String url = buildAclURL(spaceId);
@@ -339,8 +482,8 @@ public class ContentStoreImpl implements ContentStore{
 
     private Map<String, AclType> doGetSpaceACLs(HttpResponse response) {
         Map<String, AclType> acls = new HashMap<String, AclType>();
-        Map<String, String> aclProps = extractPropertiesFromHeaders(response,
-                                                                    PROPERTIES_SPACE_ACL);
+        Map<String, String> aclProps =
+            extractPropertiesFromHeaders(response, PROPERTIES_SPACE_ACL);
         for (String key : aclProps.keySet()) {
             String val = aclProps.get(key);
             acls.put(key, AclType.valueOf(val));
@@ -348,8 +491,24 @@ public class ContentStoreImpl implements ContentStore{
         return acls;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs)
+    public void setSpaceACLs(final String spaceId,
+                             final Map<String, AclType> spaceACLs)
+        throws ContentStoreException {
+        execute(new Retryable() {
+            @Override
+            public Boolean retry() throws ContentStoreException {
+                // The actual method being executed
+                doSetSpaceACLs(spaceId, spaceACLs);
+                return true;
+            }
+        });
+    }
+
+    private void doSetSpaceACLs(String spaceId, Map<String, AclType> spaceACLs)
         throws ContentStoreException {
         String task = "set space ACLs";
         String url = buildAclURL(spaceId);
@@ -382,14 +541,38 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public String addContent(String spaceId,
-                             String contentId,
-                             InputStream content,
-                             long contentSize,
-                             String contentMimeType,
-                             String contentChecksum,
-                             Map<String, String> contentProperties)
-            throws ContentStoreException {
+    @Override
+    public String addContent(final String spaceId,
+                             final String contentId,
+                             final InputStream content,
+                             final long contentSize,
+                             final String contentMimeType,
+                             final String contentChecksum,
+                             final Map<String, String> contentProperties)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public String retry() throws ContentStoreException {
+                // The actual method being executed
+                return doAddContent(spaceId,
+                                    contentId,
+                                    content,
+                                    contentSize,
+                                    contentMimeType,
+                                    contentChecksum,
+                                    contentProperties);
+            }
+        });
+    }
+
+    private String doAddContent(String spaceId,
+                                String contentId,
+                                InputStream content,
+                                long contentSize,
+                                String contentMimeType,
+                                String contentChecksum,
+                                Map<String, String> contentProperties)
+        throws ContentStoreException {
         validateContentId(contentId);
         String task = "add content";
         String url = buildContentURL(spaceId, contentId);
@@ -434,12 +617,34 @@ public class ContentStoreImpl implements ContentStore{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String copyContent(String srcSpaceId,
-                              String srcContentId,
-                              String destStoreId,
-                              String destSpaceId,
-                              String destContentId)
+    public String copyContent(final String srcSpaceId,
+                              final String srcContentId,
+                              final String destStoreId,
+                              final String destSpaceId,
+                              final String destContentId)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public String retry() throws ContentStoreException {
+                // The actual method being executed
+                return doCopyContent(srcSpaceId,
+                                     srcContentId,
+                                     destStoreId,
+                                     destSpaceId,
+                                     destContentId);
+            }
+        });
+    }
+
+    private String doCopyContent(String srcSpaceId,
+                                 String srcContentId,
+                                 String destStoreId,
+                                 String destSpaceId,
+                                 String destContentId)
         throws ContentStoreException {
         validateStoreId(destStoreId);
         validateSpaceId(srcSpaceId);
@@ -501,7 +706,10 @@ public class ContentStoreImpl implements ContentStore{
                                             e);
         }
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String copyContent(String srcSpaceId,
                               String srcContentId,
@@ -514,7 +722,10 @@ public class ContentStoreImpl implements ContentStore{
                            destSpaceId,
                            destContentId);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String moveContent(String srcSpaceId,
                               String srcContentId,
@@ -528,6 +739,9 @@ public class ContentStoreImpl implements ContentStore{
                            destContentId);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String moveContent(String srcSpaceId, 
                               String srcContentId, 
@@ -549,8 +763,20 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public Content getContent(String spaceId, String contentId)
-            throws ContentStoreException {
+    @Override
+    public Content getContent(final String spaceId, final String contentId)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public Content retry() throws ContentStoreException {
+                // The actual method being executed
+                return doGetContent(spaceId, contentId);
+            }
+        });
+    }
+
+    private Content doGetContent(String spaceId, String contentId)
+        throws ContentStoreException {
         String task = "get content";
         String url = buildContentURL(spaceId, contentId);
         try {
@@ -575,8 +801,21 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void deleteContent(String spaceId, String contentId)
-            throws ContentStoreException {
+    @Override
+    public void deleteContent(final String spaceId, final String contentId)
+        throws ContentStoreException {
+        execute(new Retryable() {
+            @Override
+            public Boolean retry() throws ContentStoreException {
+                // The actual method being executed
+                doDeleteContent(spaceId, contentId);
+                return true;
+            }
+        });
+    }
+
+    private void doDeleteContent(String spaceId, String contentId)
+        throws ContentStoreException {
         String task = "delete content";
         String url = buildContentURL(spaceId, contentId);
         try {
@@ -594,10 +833,25 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public void setContentProperties(String spaceId,
-                                     String contentId,
-                                     Map<String, String> contentProperties)
-            throws ContentStoreException {
+    @Override
+    public void setContentProperties(final String spaceId,
+                                     final String contentId,
+                                     final Map<String, String> contentProperties)
+        throws ContentStoreException {
+        execute(new Retryable() {
+            @Override
+            public Boolean retry() throws ContentStoreException {
+                // The actual method being executed
+                doSetContentProperties(spaceId, contentId, contentProperties);
+                return true;
+            }
+        });
+    }
+
+    private void doSetContentProperties(String spaceId,
+                                        String contentId,
+                                        Map<String, String> contentProperties)
+        throws ContentStoreException {
         String task = "update content properties";
         String url = buildContentURL(spaceId, contentId);
         Map<String, String> headers =
@@ -619,9 +873,22 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public Map<String, String> getContentProperties(String spaceId,
-                                                    String contentId)
-            throws ContentStoreException {
+    @Override
+    public Map<String, String> getContentProperties(final String spaceId,
+                                                    final String contentId)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public Map<String, String> retry() throws ContentStoreException {
+                // The actual method being executed
+                return doGetContentProperties(spaceId, contentId);
+            }
+        });
+    }
+
+    private Map<String, String> doGetContentProperties(String spaceId,
+                                                       String contentId)
+        throws ContentStoreException {
         String task = "get properties";
         String url = buildContentURL(spaceId, contentId);
         try {
@@ -639,7 +906,7 @@ public class ContentStoreImpl implements ContentStore{
     }
 
     private void checkResponse(HttpResponse response, int expectedCode)
-            throws ContentStoreException {
+        throws ContentStoreException {
         if (response == null) {
             throw new ContentStoreException("Response content was null.");
         }
@@ -730,7 +997,6 @@ public class ContentStoreImpl implements ContentStore{
         return map2;
     }
 
-
     public void validateStoreId(String storeId) throws InvalidIdException {
         try {
             IdUtil.validateStoreId(storeId);
@@ -739,11 +1005,10 @@ public class ContentStoreImpl implements ContentStore{
         }
     }
 
-
-    
     /**
      * {@inheritDoc}
      */
+    @Override
     public void validateSpaceId(String spaceId) throws InvalidIdException {
         try {
             IdUtil.validateSpaceId(spaceId);
@@ -755,6 +1020,7 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
+    @Override
     public void validateContentId(String contentId) throws InvalidIdException {
         try {
             IdUtil.validateContentId(contentId);
@@ -766,8 +1032,18 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public List<String> getSupportedTasks()
-        throws ContentStoreException {
+    @Override
+    public List<String> getSupportedTasks() throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public List<String> retry() throws ContentStoreException {
+                // The actual method being executed
+                return doGetSupportedTasks();
+            }
+        });
+    }
+
+    private List<String> doGetSupportedTasks() throws ContentStoreException {
         String url = buildTaskURL();
         try {
             HttpResponse response = restHelper.get(url);
@@ -786,7 +1062,20 @@ public class ContentStoreImpl implements ContentStore{
     /**
      * {@inheritDoc}
      */
-    public String performTask(String taskName, String taskParameters)
+    @Override
+    public String performTask(final String taskName,
+                              final String taskParameters)
+        throws ContentStoreException {
+        return execute(new Retryable() {
+            @Override
+            public String retry() throws ContentStoreException {
+                // The actual method being executed
+                return doPerformTask(taskName, taskParameters);
+            }
+        });
+    }
+
+    private String doPerformTask(String taskName, String taskParameters)
         throws ContentStoreException {
         String url = buildTaskURL(taskName);
         try {
@@ -803,7 +1092,5 @@ public class ContentStoreImpl implements ContentStore{
                                             taskName + e.getMessage(), e);
         }
     }
-
-
 
 }

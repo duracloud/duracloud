@@ -31,4 +31,6 @@ public interface StorageProviderFactory {
     public StorageProvider getStorageProvider(String storageAccountId)
         throws StorageException;
 
+    public void expireStorageProvider(String storageAccountId);
+
 }

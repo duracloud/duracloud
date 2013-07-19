@@ -66,6 +66,7 @@ public class SpaceResource {
                 spacesElem.addContent(spaceElem);
             }
         } catch (StorageException e) {
+            storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("Error attempting to build spaces XML",
                                         e);
         }
@@ -94,6 +95,7 @@ public class SpaceResource {
                                                 spaceID,
                                                 e);
         } catch (StorageException e) {
+            storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("retrieve space properties for",
                                         spaceID,
                                         e);
@@ -119,6 +121,7 @@ public class SpaceResource {
                                                 spaceID,
                                                 e);
         } catch (StorageException e) {
+            storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("retrieve space ACLs for", spaceID, e);
         }
     }
@@ -162,6 +165,7 @@ public class SpaceResource {
                                                 spaceID,
                                                 e);
         } catch (StorageException e) {
+            storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("build space XML for", spaceID, e);
         }
 
@@ -190,6 +194,7 @@ public class SpaceResource {
             waitForSpaceCreation(storage, spaceID);
             updateSpaceACLs(spaceID, userACLs, storeID);
         } catch (StorageException e) {
+            storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("add space", spaceID, e);
         }
     }
@@ -246,6 +251,7 @@ public class SpaceResource {
                                                 spaceID,
                                                 e);
         } catch (StorageException e) {
+            storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("update space ACLs for", spaceID, e);
         }
     }
@@ -265,6 +271,7 @@ public class SpaceResource {
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("delete space", spaceID, e);
         } catch (StorageException e) {
+            storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("delete space", spaceID, e);
         }
     }

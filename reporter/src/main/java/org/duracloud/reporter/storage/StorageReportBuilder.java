@@ -97,6 +97,15 @@ public class StorageReportBuilder implements Runnable {
             log.error(errMsg);
             reportHandler.addToErrorLog(errMsg);
             status = Status.ERROR;
+        } catch(Exception e) {
+            stopTime = System.currentTimeMillis();
+            String errMsg = "Unable to complete metrics collection due to: " +
+                            "exception of type " + e.getClass() +
+                            " with message: " + e.getMessage();
+            error = errMsg;
+            log.error(errMsg, e);
+            reportHandler.addToErrorLog(errMsg);
+            status = Status.ERROR;
         }
     }
 

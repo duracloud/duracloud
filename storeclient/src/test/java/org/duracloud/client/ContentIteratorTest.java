@@ -7,15 +7,15 @@
  */
 package org.duracloud.client;
 
-import static junit.framework.Assert.assertNotNull;
-
 import org.duracloud.domain.Space;
-import org.duracloud.storage.error.StorageException;
+import org.duracloud.error.ContentStoreException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * @author: Bill Branan
@@ -57,9 +57,13 @@ public class ContentIteratorTest {
         public Space getSpace(String spaceId,
                               String prefix,
                               long maxResults,
-                              String marker) throws StorageException {
+                              String marker) throws ContentStoreException {
+            // Throw in the occasional exception to test retry capability
+            if(System.currentTimeMillis() % 9 == 0) {
+                throw new ContentStoreException("Expected randomized error");
+            }
 
-            List<String> items = new ArrayList<String>();
+            List<String> items = new ArrayList<>();
 
             int index = marker == null ? 0 : contentItems.indexOf(marker) + 1;
             int limit = (int) Math.min(index + maxResults, contentItems.size());

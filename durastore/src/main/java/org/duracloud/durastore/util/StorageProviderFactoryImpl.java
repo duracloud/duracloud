@@ -185,4 +185,15 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
         return brokeredProvider;
     }
 
+    /**
+     * Removes a particular storage provider from the cache, which will
+     * require that the connection be recreated on the next call.
+     *
+     * @param storageAccountId - the ID of the storage provider account
+     */
+    @Override
+    public void expireStorageProvider(String storageAccountId) {
+        storageProviders.remove(storageAccountId);
+    }
+
 }
