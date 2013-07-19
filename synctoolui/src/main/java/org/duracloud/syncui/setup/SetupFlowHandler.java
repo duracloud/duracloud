@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Component;
+import org.springframework.webflow.core.FlowException;
 import org.springframework.webflow.execution.FlowExecutionOutcome;
 import org.springframework.webflow.mvc.servlet.AbstractFlowHandler;
 
@@ -32,5 +33,13 @@ public class SetupFlowHandler extends AbstractFlowHandler {
                                          HttpServletRequest request,
                                          HttpServletResponse response) {
         return "contextRelative:/";
+    }
+    
+    @Override
+    public String handleException(FlowException e,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response) {
+        e.printStackTrace();
+        return null;
     }
 }

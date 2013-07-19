@@ -206,7 +206,7 @@
                   <p>There are no active uploads at this time.</p>
                 </c:otherwise>
               </c:choose>
-              <h4>Recent Activity</h4>
+              <h4>Recent Activity <a style="font-size:12px" href="${pageContext.request.contextPath}/log?download" class="button">Export Activity Log</a></h4>
               <div id="recent-activity">
                   <c:choose>
                       <c:when test="${not empty recentlyCompleted}">

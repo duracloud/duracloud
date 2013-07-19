@@ -7,6 +7,15 @@
  */
 package org.duracloud.syncui.controller;
 
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.duracloud.syncui.AbstractTest;
+import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,21 +26,44 @@ import org.junit.Test;
  * @author Daniel Bernstein
  *
  */
-public class LogControllerTest {
-
+public class LogControllerTest extends AbstractTest {
+    private SyncConfigurationManager syncConfigurationManager;
     @Before
-    public void setUp() throws Exception {
+    @Override
+    public void setup()  {
+        super.setup();
+
+        syncConfigurationManager = createMock(SyncConfigurationManager.class);
+
     }
 
     @After
-    public void tearDown() throws Exception {
+    @Override
+    public void tearDown()  {
+        super.tearDown();
     }
 
     @Test
-    public void testStatus() {
-        LogController c = new LogController();
+    public void testGet() {
+        replay();
+        LogController c = new LogController(syncConfigurationManager);
         String s = c.get();
         Assert.assertNotNull(s);
+    }
+    
+    public void testDownload() throws IOException{
+        HttpServletResponse response = createMock(HttpServletResponse.class);
+        response.setHeader(EasyMock.isA(String.class), EasyMock.isA(String.class));
+        EasyMock.expectLastCall();
+        PrintWriter pw = createMock(PrintWriter.class);
+        pw.write(EasyMock.isA(String.class));
+        EasyMock.expectLastCall();
+        EasyMock.expect(response.getWriter()).andReturn(pw);
+        replay();
+        LogController c = new LogController(syncConfigurationManager);
+        String s = c.download(response);
+        Assert.assertNotNull(s);
+        
     }
 
 }

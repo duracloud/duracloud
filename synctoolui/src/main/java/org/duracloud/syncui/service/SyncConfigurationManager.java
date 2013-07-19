@@ -7,6 +7,8 @@
  */
 package org.duracloud.syncui.service;
 
+import java.io.File;
+
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 
@@ -77,4 +79,6 @@ public interface SyncConfigurationManager {
     public void setSyncUpdates(boolean b);
 
     public void setRenameUpdates(boolean b);
+
+    public File getWorkDirectory();
 }

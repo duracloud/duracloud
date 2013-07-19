@@ -21,6 +21,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
+import org.duracloud.sync.endpoint.EndPointLogger;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
@@ -232,6 +233,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                                this.syncConfigurationManager.isSyncUpdates(),
                                                this.syncConfigurationManager.isRenameUpdates(),
                                                this.syncConfigurationManager.getUpdateSuffix());
+
+            
+            syncEndpoint.addEndPointListener(new EndPointLogger());
             
             DirectoryConfigs directories =
                 this.syncConfigurationManager.retrieveDirectoryConfigs();

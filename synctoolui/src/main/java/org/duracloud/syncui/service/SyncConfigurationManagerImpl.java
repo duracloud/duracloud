@@ -160,7 +160,8 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         persistSyncToolConfig();
     }
 
-    File getWorkDirectory() {
+    @Override
+    public File getWorkDirectory() {
         return SyncUIConfig.getWorkDir();
     }
 
@@ -219,4 +220,5 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     public boolean isRenameUpdates() {
         return this.syncToolConfig.isRenameUpdates();
     }
+    
 }
