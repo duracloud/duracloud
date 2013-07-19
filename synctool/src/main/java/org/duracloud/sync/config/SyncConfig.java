@@ -31,6 +31,9 @@ public class SyncConfig {
         if(null == workDir) {
             workDir = new File(System.getProperty(SYNC_WORK_PROP,
                                                   DEFAULT_WORK_DIR));
+            //if not set logback will write to sync.work_UNDEFINED directory
+	    //see further src/main/resources/logback.xml
+            System.setProperty(SYNC_WORK_PROP, workDir.getAbsolutePath());
         }
         if (!workDir.exists()) {
             workDir.mkdirs();
