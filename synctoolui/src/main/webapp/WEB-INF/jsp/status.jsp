@@ -116,10 +116,10 @@
                 class="yui3-g  ${fn:toLowerCase(syncProcessState)} <c:if test="${ currentError != null }">error</c:if>">
 
                 <div class="yui3-u-1-2  state"></div>
-                <div class="yui3-u-1-2">
+                <div class="yui3-u-1-2" >
                   <c:choose>
                     <c:when test="${currentError != null }">
-                      ${currentError.detail}                    
+                     <c:out value="${currentError.detail}"/>                    
                     </c:when>
                     <c:when test="${syncProcessState == 'RUNNING' && queueSize == 0 && empty monitoredFiles }">
                       <spring:message code="waiting" />

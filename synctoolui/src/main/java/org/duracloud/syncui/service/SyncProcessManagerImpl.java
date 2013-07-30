@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
@@ -252,10 +253,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                            false);
             dirMonitor.startMonitor();
         } catch (ContentStoreException e) {
-            String message = "unable to get primary content store.";
+            String message =  StringUtils.abbreviate(e.getMessage(),100);
             handleStartupException(message, e);
         } catch (Exception e){
-            String message = "Unexpected error: " + e.getMessage();
+            String message = StringUtils.abbreviate(e.getMessage(),100);
             handleStartupException(message, e);
         }
     }
@@ -263,7 +264,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private void handleStartupException(String message, Exception e)
         throws SyncProcessException {
         log.error(message, e);
-        setError(new SyncProcessError(e.getMessage()));
+        setError(new SyncProcessError(message));
         shutdownSyncProcess();
         changeState(stoppingState);
         changeState(stoppedState);

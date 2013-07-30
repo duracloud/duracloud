@@ -458,8 +458,8 @@ div.green-check {
 
 #status-indicator.error {
   background-color: #dc0c11;
-  border: 1px solid #f3c1c3
-  color: #f3c1c3;
+  border: 1px solid #f3c1c3;
+  color: #ddd;
 }
 
 
