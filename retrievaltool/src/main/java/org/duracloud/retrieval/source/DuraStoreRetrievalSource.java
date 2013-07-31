@@ -27,10 +27,10 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     private final Logger logger =
         LoggerFactory.getLogger(DuraStoreRetrievalSource.class);
 
-    private ContentStore contentStore = null;
-    private Iterator<String> spaceIds = null;
-    private String currentSpaceId = null;
-    private Iterator<String> currentContentList = null;
+    protected ContentStore contentStore = null;
+    protected Iterator<String> spaceIds = null;
+    protected String currentSpaceId = null;
+    protected Iterator<String> currentContentList = null;
 
     public DuraStoreRetrievalSource(ContentStore store,
                                     List<String> spaces,
@@ -65,7 +65,7 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
         }
     }
 
-    private void getNextSpace() {
+    protected void getNextSpace() {
         if(spaceIds.hasNext()) {
             currentSpaceId = spaceIds.next();
             try {

@@ -103,7 +103,7 @@ public class DuraStoreStitchingRetrievalSource extends DuraStoreRetrievalSource 
         }
     }
 
-    private Content doGetContentFromManifest(ContentItem item) {
+    protected Content doGetContentFromManifest(ContentItem item) {
         try {
             return stitcher.getContentFromManifest(item.getSpaceId(),
                                                    item.getContentId());

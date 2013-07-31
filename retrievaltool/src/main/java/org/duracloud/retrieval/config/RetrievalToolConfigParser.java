@@ -153,6 +153,15 @@ public class RetrievalToolConfigParser {
                        "(optional, not set by default)");
         listOnly.setRequired(false);
         cmdOptions.addOption(listOnly);
+
+        Option listFile =
+            new Option("f", "list-file", true,
+                       "retrieve specific contents using content IDs in the " +
+                       "specified file.  The specified file should contain " +
+                       "one content ID per line.  This option can only " +
+                       "operate on one space at a time.");
+        listFile.setRequired(false);
+        cmdOptions.addOption(listFile);
     }
 
     /**
@@ -289,6 +298,24 @@ public class RetrievalToolConfigParser {
             config.setListOnly(true);
         } else {
             config.setListOnly(false);
+        }
+
+        if(cmd.hasOption("f")) {
+            if(config.getSpaces().size() > 1 || config.isAllSpaces()) {
+                throw new ParseException("The 'list-file' option (-f) can " +
+                                         "only operate on one space at a time.");
+            } else if(config.isListOnly()) {
+                throw new ParseException("The 'list-file' option (-f) can " +
+                        "not be used at the same time with the 'list-only' option (-l).");
+            } else {
+                File listFile = new File(cmd.getOptionValue("f"));
+                if(listFile.exists()) {
+                    config.setListFile(listFile);
+                } else {
+                    throw new ParseException("The specified 'list-file' containing " +
+                                             "content IDs to retrieve does not exist.");
+                }
+            }
         }
 
         return config;

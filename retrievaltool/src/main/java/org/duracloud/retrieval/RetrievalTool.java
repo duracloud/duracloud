@@ -8,15 +8,13 @@
 package org.duracloud.retrieval;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.retrieval.config.RetrievalToolConfig;
 import org.duracloud.retrieval.config.RetrievalToolConfigParser;
-import org.duracloud.retrieval.mgmt.CSVFileOutputWriter;
-import org.duracloud.retrieval.mgmt.OutputWriter;
-import org.duracloud.retrieval.mgmt.RetrievalManager;
-import org.duracloud.retrieval.mgmt.SpaceListManager;
-import org.duracloud.retrieval.mgmt.StatusManager;
+import org.duracloud.retrieval.mgmt.*;
+import org.duracloud.retrieval.source.DuraStoreSpecifiedRetrievalSource;
 import org.duracloud.retrieval.source.DuraStoreStitchingRetrievalSource;
 import org.duracloud.retrieval.source.RetrievalSource;
 import org.duracloud.retrieval.util.LogUtil;
@@ -24,7 +22,8 @@ import org.duracloud.retrieval.util.StoreClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -94,11 +93,7 @@ public class RetrievalTool {
     }
 
     private void startRetrievalManager(ContentStore contentStore) {
-        retSource =
-            new DuraStoreStitchingRetrievalSource(contentStore,
-                                         retConfig.getSpaces(),
-                                         retConfig.isAllSpaces());
-
+        retSource = getRetrievalSource(contentStore);
         outWriter = new CSVFileOutputWriter(retConfig.getWorkDir());
         boolean createSpaceDir = isCreateSpaceDir();
         boolean applyTimestamps = retConfig.isApplyTimestamps() ;
@@ -112,6 +107,39 @@ public class RetrievalTool {
                                           applyTimestamps);
 
         executor.execute(retManager);
+    }
+
+    private RetrievalSource getRetrievalSource(ContentStore contentStore) {
+        if(retSource == null) {
+            if(retConfig.getListFile() != null) {
+                try {
+                    List<String> specifiedIds = new ArrayList<String>();
+                    BufferedReader br = new BufferedReader(new FileReader(retConfig.getListFile()));
+                    String line = null;
+                    while((line=br.readLine()) != null) {
+                        specifiedIds.add(line);
+                    }
+
+                    retSource = new DuraStoreSpecifiedRetrievalSource(
+                        contentStore,
+                        retConfig.getSpaces(),  // this list should only contain 1 space ID, length 1
+                        specifiedIds.iterator());
+                } catch(FileNotFoundException fnfe) {
+                    String error = "Error: file of content IDs specified using '-f' option does not exist.\n" +
+                                   "Error Message: " + fnfe.getMessage();
+                    throw new DuraCloudRuntimeException(error, fnfe);
+                } catch(IOException ioe) {
+                    String error = "Error: problem reading file of content IDs specified using '-f' option.\n" +
+                            "Error Message: " + ioe.getMessage();
+                    throw new DuraCloudRuntimeException(error, ioe);
+                }
+            } else {
+                retSource = new DuraStoreStitchingRetrievalSource(contentStore,
+                                retConfig.getSpaces(),
+                                retConfig.isAllSpaces());
+            }
+        }
+        return retSource;
     }
 
     private boolean isCreateSpaceDir() {
@@ -172,7 +200,7 @@ public class RetrievalTool {
         executor.shutdown();
     }
 
-    public void runRetrievalTool(RetrievalToolConfig retConfig) {
+    public void runRetrievalTool(RetrievalToolConfig retConfig) throws Exception {
         this.retConfig = retConfig;
         setupLogging();
         logger.info("Starting Retrieval Tool version " + version);
@@ -190,14 +218,7 @@ public class RetrievalTool {
 
         executor = Executors.newFixedThreadPool(1);
         if(retConfig.isListOnly()) {
-            try {
-                startSpaceListManager(contentStore);
-            } catch(ContentStoreException cse) {
-                String error = "Error: could not retrieve list of spaces.\n" +
-                               "Error Message: " + cse.getMessage();
-                System.err.println(error);
-                logger.error(error, cse);
-            }
+            startSpaceListManager(contentStore);
         } else {
             startRetrievalManager(contentStore);
             System.out.println("... Startup Complete");

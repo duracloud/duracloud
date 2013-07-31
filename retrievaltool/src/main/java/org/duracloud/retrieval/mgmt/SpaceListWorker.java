@@ -7,6 +7,7 @@
  */
 package org.duracloud.retrieval.mgmt;
 
+import org.duracloud.chunk.util.ChunkUtil;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.DateUtil;
 import org.slf4j.Logger;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
 
@@ -33,6 +33,7 @@ public class SpaceListWorker implements Runnable {
     private File contentDir;
     private File outputFile;
     private boolean overwrite;
+    private ChunkUtil chunkUtil;
     
     /**
      * Creates a Space List Worker to handle retrieving a list of space contents
@@ -45,6 +46,7 @@ public class SpaceListWorker implements Runnable {
         this.spaceId = spaceId;
         this.contentDir = contentDir;
         this.overwrite = overwrite;
+        this.chunkUtil = new ChunkUtil();
     }
 
     public void run() {
@@ -74,7 +76,11 @@ public class SpaceListWorker implements Runnable {
             Iterator<String> contentIterator = contentStore.getSpaceContents(spaceId);
             while(contentIterator.hasNext()) {
                 String contentId = contentIterator.next();
-                writer.write(contentId + "\n");
+                if(!chunkUtil.isChunk(contentId) && !chunkUtil.isChunkManifest(contentId)) {
+                    writer.write(contentId + "\n");
+                } else if(chunkUtil.isChunkManifest(contentId)) {
+                    writer.write(chunkUtil.preChunkedContentId(contentId) + "\n");
+                }
             }
             
             writer.flush();
