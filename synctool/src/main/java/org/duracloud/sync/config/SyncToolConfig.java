@@ -39,7 +39,7 @@ public class SyncToolConfig implements Serializable {
     private String version;
     private boolean prependTopLevelDirToContentId;
     private boolean syncUpdates = true;
-    private boolean renameUpdates = true;
+    private boolean renameUpdates = false;
     private String updateSuffix = DEFAULT_UPDATE_SUFFIX;
 
     public String getPrintableConfig() {
