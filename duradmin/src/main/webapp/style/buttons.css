@@ -303,3 +303,16 @@ button#recount {
 {
 	margin-left:10px;
 }
+
+#gettools {
+  border-radius: 5px;
+  background-color: #5b5;
+  padding: 5px;
+  font-weight: bold;
+}
+
+#gettools a {
+  color: #fff;
+  text-decoration:none;
+}
+

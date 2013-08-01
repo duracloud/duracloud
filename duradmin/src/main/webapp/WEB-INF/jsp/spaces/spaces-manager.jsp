@@ -162,9 +162,9 @@
                 id="header-content-list"
                 class="header-section clearfix">
 
-                <button class="float-r get-synctool-button">
-                  <i class="pre download"></i>Get Sync Tool
-                </button>
+                <a class="float-r button get-tools" href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Downloads">
+                  <i class="pre download"></i>Get Sync Tools
+                </a>
 
                 <button class="float-r add-content-item-button"><i class="pre plus"></i>Upload</button>
 
