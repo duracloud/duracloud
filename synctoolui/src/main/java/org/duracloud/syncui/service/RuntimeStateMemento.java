@@ -1,17 +1,13 @@
 package org.duracloud.syncui.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
+import com.thoughtworks.xstream.XStream;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.duracloud.syncui.config.SyncUIConfig;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.XStream;
+import java.io.*;
 
 /**
  * Represents the persistent runtime state of the process.
@@ -43,13 +39,13 @@ public class RuntimeStateMemento {
     }
     
     public static RuntimeStateMemento get() {
-        try {
-            File stateFile = getStateFile();
+        File stateFile = getStateFile();
+        try (InputStream is = new FileInputStream(stateFile)) {
             if(stateFile.exists()){
                 log.debug("retrieving state from {}", stateFile.getAbsolutePath());
                 XStream xstream = new XStream();
-                FileInputStream fis = new FileInputStream(stateFile);
-                return (RuntimeStateMemento)xstream.fromXML(fis);
+                //FileInputStream fis = new FileInputStream(stateFile);
+                return (RuntimeStateMemento)xstream.fromXML(is);
             }else{
                 log.debug("not state file found at {}: creating new memento", stateFile.getAbsolutePath());
                 return new RuntimeStateMemento();
@@ -64,11 +60,10 @@ public class RuntimeStateMemento {
     }
     
     public static void persist(RuntimeStateMemento state) {
-        try {
-            File stateFile = RuntimeStateMemento.getStateFile();
-            new XStream().toXML(state, new FileOutputStream(stateFile));
+        File stateFile = RuntimeStateMemento.getStateFile();
+        try (OutputStream os = new FileOutputStream(stateFile)) {
+            new XStream().toXML(state, os);
             log.debug("successfully saved {} to {}",state, stateFile.getAbsolutePath());
-
         } catch (IOException e) {
             //should never happen
             log.error("Failed to persist internal state: should never happen", e);
