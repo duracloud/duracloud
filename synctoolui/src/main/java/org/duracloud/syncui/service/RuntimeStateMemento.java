@@ -40,22 +40,22 @@ public class RuntimeStateMemento {
     
     public static RuntimeStateMemento get() {
         File stateFile = getStateFile();
-        try (InputStream is = new FileInputStream(stateFile)) {
-            if(stateFile.exists()){
+        if(stateFile.exists()){
+            try (InputStream is = new FileInputStream(stateFile)) {
                 log.debug("retrieving state from {}", stateFile.getAbsolutePath());
                 XStream xstream = new XStream();
                 //FileInputStream fis = new FileInputStream(stateFile);
                 return (RuntimeStateMemento)xstream.fromXML(is);
-            }else{
-                log.debug("not state file found at {}: creating new memento", stateFile.getAbsolutePath());
-                return new RuntimeStateMemento();
+            } catch (IOException e) {
+                //should never happen
+                log.error("Failed to persist internal state: should never happen", e);
+                e.printStackTrace();
+                System.exit(1);
+                return null;
             }
-        } catch (IOException e) {
-            //should never happen
-            log.error("Failed to persist internal state: should never happen", e);
-            e.printStackTrace();
-            System.exit(1);
-            return null;
+        }else{
+            log.debug("not state file found at {}: creating new memento", stateFile.getAbsolutePath());
+            return new RuntimeStateMemento();
         }
     }
     
