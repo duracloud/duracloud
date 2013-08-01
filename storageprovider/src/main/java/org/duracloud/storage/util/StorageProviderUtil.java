@@ -248,4 +248,25 @@ public class StorageProviderUtil {
         
         return props; 
     }
+    
+    /**
+     * Returns a new map with the calculated properties removed. If null, null
+     * is returned.
+     * 
+     * @param contentProperties
+     * @return
+     */
+    public static Map<String, String>
+        removeCalculatedProperties(Map<String, String> contentProperties) {
+        if (contentProperties != null) {
+            contentProperties = new HashMap<>(contentProperties);
+            // Remove calculated properties
+            contentProperties.remove(StorageProvider.PROPERTIES_CONTENT_MD5);
+            contentProperties.remove(StorageProvider.PROPERTIES_CONTENT_CHECKSUM);
+            contentProperties.remove(StorageProvider.PROPERTIES_CONTENT_MODIFIED);
+            contentProperties.remove(StorageProvider.PROPERTIES_CONTENT_SIZE);
+        }
+        return contentProperties;
+
+    }
 }

@@ -12,9 +12,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
-import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -178,5 +181,75 @@ public class ContentResourceImplTest {
                                                        map.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM),
                                                        is))
                 .andReturn(expectedMd5);
+    }
+    
+    @Test
+    public void testDuracloud757() throws ResourceException, InvalidIdException{
+        
+        EasyMock.expect(storageProviderFactory.getStorageProvider(EasyMock.isA(String.class)))
+        .andReturn(storageProvider);
+
+        InputStream is = createEmptyInputStream();
+        
+        String customPropName = "name", customPropValue = "value";
+        
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, "12345");
+        map.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "1000");
+        map.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, "text/plain");
+        map.put(StorageProvider.PROPERTIES_CONTENT_MODIFIED, "2013-10-01");
+        map.put(customPropName, customPropValue);
+
+        
+        EasyMock.expect(storageProvider.getContentProperties(EasyMock.isA(String.class),
+                                                             EasyMock.isA(String.class)))
+                .andReturn(map);
+        String mimetype = "application/pdf";
+        String checksum = "23456";
+        int size = 1001;
+        String storeId = "1";
+        Map<String, String> props = new HashMap<String, String>();
+        props.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, "12345");
+        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "1000");
+        Capture<Map<String,String>> userProps = new Capture<>();
+        Capture<String> finalMimeType = new Capture<>();
+
+        EasyMock.expect(this.storageProvider.addContent(EasyMock.isA(String.class),
+                                                        EasyMock.isA(String.class),
+                                                        EasyMock.capture(finalMimeType),
+                                                        EasyMock.capture(userProps),
+                                                        EasyMock.anyLong(),
+                                                        EasyMock.isA(String.class),
+                                                        EasyMock.isA(InputStream.class)))
+                .andReturn("testContent");
+
+        replayMocks();
+        this.contentResource = new ContentResourceImpl(storageProviderFactory);
+
+        this.contentResource.addContent("testSpace",
+                                        "testContent",
+                                        is,
+                                        mimetype,
+                                        props,
+                                        size,
+                                        checksum,
+                                        storeId);
+
+        Map<String,String> p = userProps.getValue();
+        Assert.assertTrue(p.containsKey(customPropName));
+        Assert.assertEquals(customPropValue, p.get(customPropName));
+        Assert.assertEquals(mimetype, finalMimeType.getValue());
+        Assert.assertFalse(p.containsKey(StorageProvider.PROPERTIES_CONTENT_CHECKSUM));
+        Assert.assertFalse(p.containsKey(StorageProvider.PROPERTIES_CONTENT_SIZE));
+    }
+
+    protected InputStream createEmptyInputStream() {
+        InputStream is = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+        };
+        return is;
     }
 }

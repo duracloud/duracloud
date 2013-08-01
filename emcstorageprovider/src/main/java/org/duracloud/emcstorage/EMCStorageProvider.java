@@ -511,6 +511,11 @@ public class EMCStorageProvider extends StorageProviderBase {
                                                                   contentId,
                                                                   mimeType);
 
+        if(userProperties != null){
+            userProperties = new HashMap<>(userProperties);
+            removeCalculatedProperties(userProperties);
+        }
+        
         if(userProperties != null) {
             Set<String> keys = userProperties.keySet();
             for (String key : keys) {
@@ -639,6 +644,8 @@ public class EMCStorageProvider extends StorageProviderBase {
         log.debug("setContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
+
+        contentProperties = removeCalculatedProperties(contentProperties);
 
         // Determine mimetype
         String contentMimeType =

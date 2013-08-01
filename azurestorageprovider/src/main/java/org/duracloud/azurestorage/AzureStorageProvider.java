@@ -424,6 +424,8 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
+        userProperties = removeCalculatedProperties(userProperties);
+
         if (contentMimeType == null || contentMimeType.equals("")) {
             contentMimeType = DEFAULT_MIMETYPE;
         }
@@ -652,10 +654,7 @@ public class AzureStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        // Remove calculated properties
-        contentProperties.remove(PROPERTIES_CONTENT_CHECKSUM);
-        contentProperties.remove(PROPERTIES_CONTENT_MODIFIED);
-        contentProperties.remove(PROPERTIES_CONTENT_SIZE);
+        contentProperties = removeCalculatedProperties(contentProperties);
 
         updateContentProperties(spaceId, contentId, contentProperties);
     }

@@ -7,6 +7,10 @@
  */
 package org.duracloud.durastore.rest;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.durastore.error.ResourceStateException;
@@ -18,11 +22,9 @@ import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
 import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Provides interaction with content
@@ -160,7 +162,33 @@ public class ContentResourceImpl implements ContentResource {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
-
+            
+                
+            try {
+                // overlay new properties on top of older extended properties
+                // so that old tags and custom properties are preserved.
+                // c.f. https://jira.duraspace.org/browse/DURACLOUD-757
+                Map<String, String> oldUserProperties =
+                    storage.getContentProperties(spaceID, contentID);
+                //remove all non extended properties
+                if (userProperties != null) {
+                    oldUserProperties.putAll(userProperties);
+                    //use old mimetype if none specified.
+                    String oldMimetype =
+                        oldUserProperties.remove(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
+                    if(contentMimeType == null || contentMimeType.trim() == ""){
+                        contentMimeType = oldMimetype;
+                    } 
+                    
+                    oldUserProperties = StorageProviderUtil.removeCalculatedProperties(oldUserProperties);
+                }
+                
+                userProperties = oldUserProperties;
+            } catch (NotFoundException ex) {
+                // do nothing - no properties to update
+                // since file did not previous exist.
+            }
+               
             return storage.addContent(spaceID,
                                       contentID,
                                       contentMimeType,

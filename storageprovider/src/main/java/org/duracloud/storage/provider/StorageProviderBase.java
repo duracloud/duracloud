@@ -10,6 +10,7 @@ package org.duracloud.storage.provider;
 import org.duracloud.common.model.AclType;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -327,5 +328,9 @@ public abstract class StorageProviderBase implements StorageProvider {
 
     public SpaceDeleteWorker getSpaceDeleteWorker(String spaceId) {
         return new SpaceDeleteWorker(spaceId);
+    }
+    
+    protected Map<String,String> removeCalculatedProperties (Map<String,String> properties){
+        return StorageProviderUtil.removeCalculatedProperties(properties);
     }
 }

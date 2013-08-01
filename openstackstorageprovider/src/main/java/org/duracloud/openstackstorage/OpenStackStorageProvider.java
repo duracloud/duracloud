@@ -490,6 +490,8 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         properties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
 
         if(userProperties != null) {
+            userProperties = removeCalculatedProperties(userProperties);
+            
             for (String key : userProperties.keySet()) {
                 if (log.isDebugEnabled()) {
                     log.debug("[" + key + "|" + userProperties.get(key) + "]");
@@ -697,9 +699,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         throwIfContentNotExist(spaceId, contentId);        
 
         // Remove calculated properties
-        contentProperties.remove(PROPERTIES_CONTENT_CHECKSUM);
-        contentProperties.remove(PROPERTIES_CONTENT_MODIFIED);
-        contentProperties.remove(PROPERTIES_CONTENT_SIZE);
+        contentProperties = removeCalculatedProperties(contentProperties);
 
         // Set mimetype
         String contentMimeType =

@@ -7,6 +7,29 @@
  */
 package org.duracloud.s3storage;
 
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.duracloud.common.stream.ChecksumInputStream;
+import org.duracloud.storage.domain.ContentIterator;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.provider.StorageProviderBase;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
@@ -25,28 +48,6 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
-import org.apache.commons.lang.StringUtils;
-import org.duracloud.common.stream.ChecksumInputStream;
-import org.duracloud.storage.domain.ContentIterator;
-import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProviderBase;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
 
 /**
  * Provides content storage backed by Amazon's Simple Storage Service.
@@ -398,6 +399,8 @@ public class S3StorageProvider extends StorageProviderBase {
         ChecksumInputStream wrappedContent =
             new ChecksumInputStream(content, contentChecksum);
 
+        userProperties = removeCalculatedProperties(userProperties);
+
         if(contentMimeType == null || contentMimeType.equals("")) {
             contentMimeType = DEFAULT_MIMETYPE;
         }
@@ -585,20 +588,8 @@ public class S3StorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        // Remove calculated properties
-        contentProperties.remove(PROPERTIES_CONTENT_MD5);
-        contentProperties.remove(PROPERTIES_CONTENT_CHECKSUM);
-        contentProperties.remove(PROPERTIES_CONTENT_MODIFIED);
-        contentProperties.remove(PROPERTIES_CONTENT_SIZE);
-        contentProperties.remove(Headers.CONTENT_LENGTH);
-        contentProperties.remove(Headers.LAST_MODIFIED);
-        contentProperties.remove(Headers.DATE);
-        contentProperties.remove(Headers.ETAG);
-        contentProperties.remove(Headers.CONTENT_LENGTH.toLowerCase());
-        contentProperties.remove(Headers.LAST_MODIFIED.toLowerCase());
-        contentProperties.remove(Headers.DATE.toLowerCase());
-        contentProperties.remove(Headers.ETAG.toLowerCase());
-
+        contentProperties = removeCalculatedProperties(contentProperties);
+ 
         // Determine mimetype, from properties list or existing value
         String mimeType = contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
         if (mimeType == null || mimeType.equals("")) {
@@ -627,6 +618,23 @@ public class S3StorageProvider extends StorageProviderBase {
         }
 
         updateObjectProperties(bucketName, contentId, objMetadata);
+    }
+
+    @Override
+    protected Map<String, String> removeCalculatedProperties(Map<String, String> contentProperties) {
+        contentProperties = super.removeCalculatedProperties(contentProperties);
+        if(contentProperties != null){
+            contentProperties.remove(Headers.CONTENT_LENGTH);
+            contentProperties.remove(Headers.LAST_MODIFIED);
+            contentProperties.remove(Headers.DATE);
+            contentProperties.remove(Headers.ETAG);
+            contentProperties.remove(Headers.CONTENT_LENGTH.toLowerCase());
+            contentProperties.remove(Headers.LAST_MODIFIED.toLowerCase());
+            contentProperties.remove(Headers.DATE.toLowerCase());
+            contentProperties.remove(Headers.ETAG.toLowerCase());
+        }
+        
+        return contentProperties;
     }
 
     private void throwIfContentNotExist(String bucketName, String contentId) {
