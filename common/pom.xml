@@ -110,6 +110,23 @@
       <artifactId>spring-core</artifactId>
     </dependency>
 
+    <!-- JAXB -->
+
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-asl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-xc</artifactId>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
