@@ -39,11 +39,8 @@ public abstract class BaseStorageClassTaskRunner implements TaskRunner {
                                        "set storage class");
         }
 
+        // Will throw if bucket does not exist
         String bucketName = s3Provider.getBucketName(spaceId);
-        if(!s3Client.doesBucketExist(bucketName)){
-            throw new RuntimeException("Bucket with name: " + bucketName +
-                                       " does not exist in S3!");
-        }
 
         Iterator<String> contentItems =
             s3Provider.getSpaceContents(spaceId, null);

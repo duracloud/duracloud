@@ -88,6 +88,7 @@ public class AddStreamingItemTaskRunner extends BaseStreamingTaskRunner  {
         log.info("Performing " + TASK_NAME + " task on " +
                  spaceId + "/" + contentId);
 
+        // Will throw if bucket does not exist
         String bucketName = s3Provider.getBucketName(spaceId);
         String oaIdentityId;
         String results;

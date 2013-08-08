@@ -20,14 +20,15 @@ public class S3ProviderUtilTest {
     public void testGetBucketName() throws Exception {
         String accessKey = "abc";
 
-        String bucketName = S3ProviderUtil.getBucketName(accessKey, "xyz");
+        String bucketName = S3ProviderUtil.createNewBucketName(accessKey, "xyz");
         assertEquals("abc.xyz", bucketName);
 
-        bucketName = S3ProviderUtil.getBucketName(accessKey,
-                                                  "x~!@#$%^&*(){}:;'\"<>,?/|z");
+        bucketName = S3ProviderUtil.createNewBucketName(accessKey,
+                                                        "x~!@#$%^&*(){}:;'\"<>,?/|z");
         assertEquals("abc.x-z", bucketName);
 
-        bucketName = S3ProviderUtil.getBucketName(accessKey, "x--..y..--z-.");
+        bucketName = S3ProviderUtil.createNewBucketName(accessKey,
+                                                        "x--..y..--z-.");
         assertEquals("abc.x-y.z", bucketName);
     }
 }

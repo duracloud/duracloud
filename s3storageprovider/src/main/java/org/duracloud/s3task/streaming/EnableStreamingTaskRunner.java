@@ -55,6 +55,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         String spaceId = getSpaceId(taskParameters);       
         log.info("Performing " + TASK_NAME + " task on space " + spaceId);
 
+        // Will throw if bucket does not exist
         String bucketName = s3Provider.getBucketName(spaceId);
 
         String domainName = null;

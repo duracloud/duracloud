@@ -7,29 +7,6 @@
  */
 package org.duracloud.s3storage;
 
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.duracloud.common.stream.ChecksumInputStream;
-import org.duracloud.storage.domain.ContentIterator;
-import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProviderBase;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
@@ -48,6 +25,28 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
+import org.apache.commons.lang.StringUtils;
+import org.duracloud.common.stream.ChecksumInputStream;
+import org.duracloud.storage.domain.ContentIterator;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.provider.StorageProviderBase;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
 
 /**
  * Provides content storage backed by Amazon's Simple Storage Service.
@@ -138,38 +137,37 @@ public class S3StorageProvider extends StorageProviderBase {
         log.debug("getSpaceContentsChunked(" + spaceId + ", " + prefix + ", " +
                                            maxResults + ", " + marker + ")");
 
-        throwIfSpaceNotExist(spaceId);
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
 
         if(maxResults <= 0) {
             maxResults = StorageProvider.DEFAULT_MAX_RESULTS;
         }
 
-        return getCompleteSpaceContents(spaceId, prefix, maxResults, marker);
+        return getCompleteBucketContents(bucketName, prefix, maxResults, marker);
     }
 
-    private List<String> getCompleteSpaceContents(String spaceId,
-                                                  String prefix,
-                                                  long maxResults,
-                                                  String marker) {
+    private List<String> getCompleteBucketContents(String bucketName,
+                                                   String prefix,
+                                                   long maxResults,
+                                                   String marker) {
         List<String> contentItems = new ArrayList<>();
 
         List<S3ObjectSummary> objects =
-            listObjects(spaceId, prefix, maxResults, marker);
+            listObjects(bucketName, prefix, maxResults, marker);
         for (S3ObjectSummary object : objects) {
             contentItems.add(object.getKey());
         }
         return contentItems;
     }
 
-    private List<S3ObjectSummary> listObjects(String spaceId,
+    private List<S3ObjectSummary> listObjects(String bucketName,
                                               String prefix,
                                               long maxResults,
                                               String marker) {
-        String bucketName = getBucketName(spaceId);
-
         int numResults = new Long(maxResults).intValue();
         ListObjectsRequest request =
-            new ListObjectsRequest(bucketName, prefix, marker, null, numResults);        
+            new ListObjectsRequest(bucketName, prefix, marker, null, numResults);
         try {
             ObjectListing objectListing = s3Client.listObjects(request);
             return objectListing.getObjectSummaries();
@@ -181,8 +179,12 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
     protected boolean spaceExists(String spaceId) {
-        String bucketName = getBucketName(spaceId);
-        return s3Client.doesBucketExist(bucketName);
+        try {
+            getBucketName(spaceId);
+            return true;
+        } catch(NotFoundException e) {
+            return false;
+        }
     }
 
     /**
@@ -213,7 +215,7 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
     private Bucket createBucket(String spaceId) {
-        String bucketName = getBucketName(spaceId);
+        String bucketName = getNewBucketName(spaceId);
         try {
             return s3Client.createBucket(bucketName);
         } catch (AmazonClientException e) {
@@ -221,6 +223,10 @@ public class S3StorageProvider extends StorageProviderBase {
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
+    }
+
+    protected String getNewBucketName(String spaceId) {
+        return S3ProviderUtil.createNewBucketName(accessKeyId, spaceId);
     }
 
      private String formattedDate(Date created) {
@@ -231,6 +237,7 @@ public class S3StorageProvider extends StorageProviderBase {
      * {@inheritDoc}
      */
     public void removeSpace(String spaceId) {
+        // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
 
         try {
@@ -248,12 +255,13 @@ public class S3StorageProvider extends StorageProviderBase {
     protected Map<String, String> getAllSpaceProperties(String spaceId) {
         log.debug("getAllSpaceProperties(" + spaceId + ")");
 
-        throwIfSpaceNotExist(spaceId);
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
 
         // Retrieve space properties from bucket tags
         Map<String, String> spaceProperties = new HashMap<>();
         BucketTaggingConfiguration tagConfig =
-            s3Client.getBucketTaggingConfiguration(getBucketName(spaceId));
+            s3Client.getBucketTaggingConfiguration(bucketName);
         if(null != tagConfig) {
             for(TagSet tagSet : tagConfig.getAllTagSets()) {
                 spaceProperties.putAll(tagSet.getAllTags());
@@ -301,8 +309,7 @@ public class S3StorageProvider extends StorageProviderBase {
         return String.valueOf(count) + suffix;
     }    
 
-    private String getSpaceCreationDate(String spaceId) {
-        String bucketName = getBucketName(spaceId);
+    private String getBucketCreationDate(String bucketName) {
         Date created = null;
         try {
             List<Bucket> buckets = s3Client.listBuckets();
@@ -333,7 +340,8 @@ public class S3StorageProvider extends StorageProviderBase {
                                         Map<String, String> spaceProperties) {
         log.debug("setSpaceProperties(" + spaceId + ")");
 
-        throwIfSpaceNotExist(spaceId);
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
 
         Map<String, String> originalProperties;
         try {
@@ -348,7 +356,7 @@ public class S3StorageProvider extends StorageProviderBase {
         if(creationDate == null) {
             creationDate = spaceProperties.get(PROPERTIES_SPACE_CREATED);
             if(creationDate == null) {
-                creationDate = getSpaceCreationDate(spaceId);
+                creationDate = getBucketCreationDate(bucketName);
             }
         }
         spaceProperties.put(PROPERTIES_SPACE_CREATED, creationDate);
@@ -357,7 +365,6 @@ public class S3StorageProvider extends StorageProviderBase {
         spaceProperties = replaceInMapValues(spaceProperties, "@", "+");
 
         // Store properties
-        String bucketName = getBucketName(spaceId);
         BucketTaggingConfiguration tagConfig = new BucketTaggingConfiguration()
             .withTagSets(new TagSet(spaceProperties));
         s3Client.setBucketTaggingConfiguration(bucketName, tagConfig);
@@ -393,7 +400,8 @@ public class S3StorageProvider extends StorageProviderBase {
         log.debug("addContent("+ spaceId +", "+ contentId +", "+
             contentMimeType +", "+ contentSize +", "+ contentChecksum +")");
 
-        throwIfSpaceNotExist(spaceId);
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
 
         // Wrap the content in order to be able to retrieve a checksum
         ChecksumInputStream wrappedContent =
@@ -420,7 +428,6 @@ public class S3StorageProvider extends StorageProviderBase {
             }
         }
 
-        String bucketName = getBucketName(spaceId);
         PutObjectRequest putRequest = new PutObjectRequest(bucketName,
                                                            contentId,
                                                            wrappedContent,
@@ -492,11 +499,12 @@ public class S3StorageProvider extends StorageProviderBase {
                                destSpaceId,
                                destContentId});
 
+        // Will throw if source bucket does not exist
         String sourceBucketName = getBucketName(sourceSpaceId);
+        // Will throw if destination bucket does not exist
         String destBucketName = getBucketName(destSpaceId);
 
         throwIfContentNotExist(sourceBucketName, sourceContentId);
-        throwIfSpaceNotExist(destSpaceId);
 
         CopyObjectRequest request = new CopyObjectRequest(sourceBucketName,
                                                           sourceContentId,
@@ -536,7 +544,7 @@ public class S3StorageProvider extends StorageProviderBase {
     public InputStream getContent(String spaceId, String contentId) {
         log.debug("getContent(" + spaceId + ", " + contentId + ")");
 
-        throwIfSpaceNotExist(spaceId);
+        // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
 
         try {
@@ -557,16 +565,12 @@ public class S3StorageProvider extends StorageProviderBase {
     public void deleteContent(String spaceId, String contentId) {
         log.debug("deleteContent(" + spaceId + ", " + contentId + ")");
 
+        // Will throw if bucket does not exist
         String bucketName = getBucketName(spaceId);
-        try {
-          // Note that the s3Client does not throw an exception or indicate if
-          // the object to be deleted does not exist. This check is being run
-          // up front to fulfill the DuraCloud contract for this method.
-          throwIfContentNotExist(bucketName, contentId);
-        } catch (NotFoundException e) {
-          throwIfSpaceNotExist(spaceId);
-          throw e;
-        }
+        // Note that the s3Client does not throw an exception or indicate if
+        // the object to be deleted does not exist. This check is being run
+        // up front to fulfill the DuraCloud contract for this method.
+        throwIfContentNotExist(bucketName, contentId);
 
         try {
             s3Client.deleteObject(bucketName, contentId);
@@ -586,7 +590,8 @@ public class S3StorageProvider extends StorageProviderBase {
                                      Map<String, String> contentProperties) {
         log.debug("setContentProperties(" + spaceId + ", " + contentId + ")");
 
-        throwIfSpaceNotExist(spaceId);
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
 
         contentProperties = removeCalculatedProperties(contentProperties);
  
@@ -603,7 +608,6 @@ public class S3StorageProvider extends StorageProviderBase {
         }
 
         // Collect all object properties
-        String bucketName = getBucketName(spaceId);
         ObjectMetadata objMetadata = new ObjectMetadata();
         for (String key : contentProperties.keySet()) {
             if (log.isDebugEnabled()) {
@@ -691,10 +695,10 @@ public class S3StorageProvider extends StorageProviderBase {
                                                     String contentId) {
         log.debug("getContentProperties(" + spaceId + ", " + contentId + ")");
 
-        throwIfSpaceNotExist(spaceId);
+        // Will throw if bucket does not exist
+        String bucketName = getBucketName(spaceId);
 
         // Get the content item from S3
-        String bucketName = getBucketName(spaceId);
         ObjectMetadata objMetadata =
             getObjectDetails(bucketName, contentId, RETRY);
 
@@ -761,13 +765,26 @@ public class S3StorageProvider extends StorageProviderBase {
     }
 
     /**
-     * Converts a DuraCloud spaceId into its corresponding Amazon S3 bucket name
+     * Gets the name of an existing bucket based on a space ID. If no bucket
+     * with this spaceId exists, throws a NotFoundException
      *
      * @param spaceId the space Id to convert into an S3 bucket name
      * @return S3 bucket name of a given DuraCloud space
+     * @throws NotFoundException if no bucket matches this spaceID
      */
     public String getBucketName(String spaceId) {
-        return S3ProviderUtil.getBucketName(accessKeyId, spaceId);
+        // Determine if there is an existing bucket that matches this space ID.
+        // The bucket name may use any access key ID as the prefix, so there is
+        // no way to know the exact bucket name up front.
+        List<Bucket> buckets = listAllBuckets();
+        for(Bucket bucket : buckets){
+            String bucketName = bucket.getName();
+            if(bucketName.matches("[\\w]{20}[.]"+spaceId)) {
+                return bucketName;
+            }
+        }
+        throw new  NotFoundException("No S3 bucket found matching spaceID: " +
+                                     spaceId);
     }
 
     /**
@@ -793,7 +810,9 @@ public class S3StorageProvider extends StorageProviderBase {
      */
     protected boolean isSpace(String bucketName) {
         boolean isSpace = false;
-        if (bucketName.startsWith(accessKeyId.toLowerCase())) {
+        // According to AWS docs, the access key (used in DuraCloud as a
+        // prefix for uniqueness) is a 20 character alphanumeric sequence.
+        if (bucketName.matches("[\\w]{20}[.].*")) {
             isSpace = true;
         }
         return isSpace;

@@ -115,7 +115,8 @@ public class S3ProviderUtil {
      * @param spaceId
      * @return
      */
-    public static String getBucketName(String accessKeyId, String spaceId) {
+    public static String createNewBucketName(String accessKeyId,
+                                             String spaceId) {
         String bucketName = accessKeyId + "." + spaceId;
         bucketName = bucketName.toLowerCase();
         bucketName = bucketName.replaceAll("[^a-z0-9-.]", "-");

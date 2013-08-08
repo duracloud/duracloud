@@ -52,6 +52,10 @@ public class S3StorageProviderTest {
     private AmazonS3Client s3Client;
     private InputStream contentStream;
 
+    // Must be 20 char alphanum (and lowercase, to match bucket naming pattern)
+    private static final String accessKey = "abcdefghijklmnopqrst";
+    private static final String spaceId = "space-id";
+
     @After
     public void tearDown() throws IOException {
         if (null != contentStream) {
@@ -91,12 +95,12 @@ public class S3StorageProviderTest {
 
         Capture<PutObjectRequest> capturedRequest = createS3ClientAddContent();
         S3StorageProvider provider = new S3StorageProvider(s3Client,
-                                                           "accessKey",
+                                                           accessKey,
                                                            options);
 
         String content = "hello";
         contentStream = createStream(content);
-        provider.addContent("spaceId",
+        provider.addContent(spaceId,
                             "contentId",
                             "mime",
                             null,
@@ -115,8 +119,7 @@ public class S3StorageProviderTest {
 
     private Capture<PutObjectRequest> createS3ClientAddContent() {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-            .andReturn(true);
+        addListBucketsMock();
 
         PutObjectResult result = EasyMock.createMock("PutObjectResult",
                                                      PutObjectResult.class);
@@ -131,6 +134,15 @@ public class S3StorageProviderTest {
         return capturedRequest;
     }
 
+    private void addListBucketsMock() {
+        List<Bucket> buckets = new ArrayList<>();
+        buckets.add(new Bucket(accessKey + "." + spaceId));
+        buckets.add(new Bucket(accessKey + ".dest-space-id"));
+        EasyMock.expect(s3Client.listBuckets())
+                .andReturn(buckets)
+                .anyTimes();
+    }
+
     private InputStream createStream(String content) {
         return new ByteArrayInputStream(content.getBytes());
     }
@@ -139,14 +151,13 @@ public class S3StorageProviderTest {
     public void testCopyContent() {
         Capture<CopyObjectRequest> capturedRequest =
             createS3ClientCopyContent();
-        String accessKey = "accessKey";
         S3StorageProvider provider = new S3StorageProvider(s3Client,
                                                            accessKey,
                                                            null);
 
-        String srcSpaceId = "spaceId";
+        String srcSpaceId = "space-id";
         String srcContentId = "contentId";
-        String destSpaceId = "destSpaceId";
+        String destSpaceId = "dest-space-id";
         String destContentId = "destContentId";
         String md5 = provider.copyContent(srcSpaceId,
                                           srcContentId,
@@ -183,12 +194,10 @@ public class S3StorageProviderTest {
     private Capture<CopyObjectRequest> createS3ClientCopyContent() {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
 
+        addListBucketsMock();
         EasyMock.expect(s3Client.getObjectMetadata(EasyMock.isA(String.class),
                                                    EasyMock.isA(String.class)))
             .andReturn(null);
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-            .andReturn(true)
-            .times(2);
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         String checksum = "checksum";
@@ -215,20 +224,20 @@ public class S3StorageProviderTest {
     @Test
     public void testGetSpaceCount1000() {
         MockS3StorageProvider provider = new MockS3StorageProvider();
-        String count = provider.getSpaceCount("spaceId", 1000);
+        String count = provider.getSpaceCount(spaceId, 1000);
         assertEquals("1000+", count);
 
-        count = provider.getSpaceCount("spaceId", 1500);
+        count = provider.getSpaceCount(spaceId, 1500);
         assertEquals("2000+", count);
 
-        count = provider.getSpaceCount("spaceId", 10000);
+        count = provider.getSpaceCount(spaceId, 10000);
         assertEquals("10000+", count);
     }
 
     private class MockS3StorageProvider extends S3StorageProvider {
 
         public MockS3StorageProvider() {
-            super("accessKey", "secretKey");
+            super(accessKey, "secretKey");
         }
 
         @Override
@@ -264,7 +273,7 @@ public class S3StorageProviderTest {
 
         Map<String, String> options = new HashMap<String,String>();
         S3StorageProvider provider =
-            new S3StorageProvider(s3Client, "accessKey", options);
+            new S3StorageProvider(s3Client, accessKey, options);
 
         String resultEtag = provider.doesContentExist("bucketname", "contentId");
         assertNotNull(resultEtag);
@@ -274,13 +283,11 @@ public class S3StorageProviderTest {
     @Test
     public void testGetSpaceContentsChunked() throws Exception {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
-        String spaceId = "space-id";
         String prefix = null;
         long maxResults = 2;
         String marker = null;
 
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-                .andReturn(true);
+        addListBucketsMock();
 
         ObjectListing objectListing =
             EasyMock.createMock("ObjectListing", ObjectListing.class);
@@ -315,17 +322,14 @@ public class S3StorageProviderTest {
 
     private S3StorageProvider getProvider() {
         Map<String, String> options = new HashMap<>();
-        return new S3StorageProvider(s3Client, "accessKey", options);
+        return new S3StorageProvider(s3Client, accessKey, options);
     }
 
     @Test
     public void testGetAllSpaceProperties() throws Exception {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
-        String spaceId = "space-id";
 
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-                .andReturn(true)
-                .anyTimes();
+        addListBucketsMock();
 
         Map<String, String> bucketTags = new HashMap<>();
         bucketTags.put("tag-one", "tag-one-value");
@@ -360,8 +364,7 @@ public class S3StorageProviderTest {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
         String spaceId = "space-id";
 
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-            .andReturn(true).anyTimes();
+        addListBucketsMock();
 
         // Add props as tags
         EasyMock.expect(
@@ -375,12 +378,10 @@ public class S3StorageProviderTest {
         S3StorageProvider provider = getProvider();
 
         Bucket bucket = new Bucket();
-        bucket.setName(provider.getBucketName(spaceId));
+        bucket.setName(provider.getNewBucketName(spaceId));
         bucket.setCreationDate(new Date());
         List<Bucket> buckets = new ArrayList<>();
         buckets.add(bucket);
-        EasyMock.expect(s3Client.listBuckets())
-                .andReturn(buckets);
 
         EasyMock.replay(s3Client);
 

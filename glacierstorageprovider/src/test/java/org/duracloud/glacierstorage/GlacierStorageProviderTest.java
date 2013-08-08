@@ -25,7 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -39,9 +41,12 @@ import static org.junit.Assert.fail;
 public class GlacierStorageProviderTest {
 
     private AmazonS3Client s3Client;
-    private String accessKey = "access-key";
-    private String contentId = "content-id";
-    private String spaceId = "space-id";
+
+    // Must be 20 char alphanum (and lowercase, to match bucket naming pattern)
+    private static final String accessKey = "abcdefghijklmnopqrst";
+
+    private static final String contentId = "content-id";
+    private static final String spaceId = "space-id";
 
     // The exception to be thrown because the content item is in Glacier
     private AmazonS3Exception glacierEx;
@@ -60,14 +65,14 @@ public class GlacierStorageProviderTest {
 
     @Test
     public void testCreateSpace() {
+        List<Bucket> emptyBuckets = new ArrayList<>();
+        EasyMock.expect(s3Client.listBuckets())
+                .andReturn(emptyBuckets);
+        setListBucketsMock();
+
         // Perform the space creation
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-            .andReturn(false);
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-            .andReturn(true)
-            .anyTimes();
         EasyMock.expect(s3Client.createBucket(EasyMock.isA(String.class)))
-            .andReturn(new Bucket());
+                .andReturn(new Bucket());
 
         // Add space properties
         EasyMock.expect(
@@ -99,12 +104,20 @@ public class GlacierStorageProviderTest {
         assertEquals(transition.getStorageClass(), StorageClass.Glacier);
     }
 
+    private void setListBucketsMock() {
+        List<Bucket> buckets = new ArrayList<>();
+        buckets.add(new Bucket(accessKey + "." + spaceId));
+        buckets.add(new Bucket(accessKey + ".dest-space-id"));
+        EasyMock.expect(s3Client.listBuckets())
+                .andReturn(buckets)
+                .anyTimes();
+    }
+
     @Test
     public void testGetContentFail() {
-        // Set up the mocks to throw on the getObject() call
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-                .andReturn(true);
+        setListBucketsMock();
 
+        // Set up the mocks to throw on the getObject() call
         EasyMock.expect(s3Client.getObject(accessKey + "." + spaceId, contentId))
                 .andThrow(glacierEx);
 
@@ -127,11 +140,9 @@ public class GlacierStorageProviderTest {
 
     @Test
     public void testSetContentPropertiesFail() {
-        // Set up the mocks to throw on the setObjectProperties() call
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-                .andReturn(true)
-                .times(2);
+        setListBucketsMock();
 
+        // Set up the mocks to throw on the setObjectProperties() call
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setUserMetadata(new HashMap<String, String>());
         EasyMock.expect(s3Client.getObjectMetadata(accessKey + "." + spaceId,
@@ -166,10 +177,9 @@ public class GlacierStorageProviderTest {
         String destSpaceId = "dest-space-id";
         String destContentId = "dest-content-id";
 
-        // Set up the mocks to throw on the copyContent() call
-        EasyMock.expect(s3Client.doesBucketExist(EasyMock.isA(String.class)))
-                .andReturn(true);
+        setListBucketsMock();
 
+        // Set up the mocks to throw on the copyContent() call
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setUserMetadata(new HashMap<String, String>());
         EasyMock.expect(s3Client.getObjectMetadata(accessKey + "." + spaceId,

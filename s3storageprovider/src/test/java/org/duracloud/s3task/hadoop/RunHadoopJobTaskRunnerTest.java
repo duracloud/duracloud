@@ -77,11 +77,6 @@ public class RunHadoopJobTaskRunnerTest {
     private AmazonS3Client createS3ClientMock() {
         AmazonS3Client mock = EasyMock.createMock(AmazonS3Client.class);
 
-        EasyMock
-            .expect(mock.doesBucketExist(EasyMock.isA(String.class)))
-            .andReturn(true)
-            .times(4);
-
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setHeader("key", "value");
         EasyMock

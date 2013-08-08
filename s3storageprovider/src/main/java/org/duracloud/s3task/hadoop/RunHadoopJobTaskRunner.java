@@ -122,13 +122,8 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
             if (outputSpaceId == null) {
                 throw new RuntimeException("All required parameters not provided");
             }
-            // Verify buckets exist
+            // Get bucket name and verify bucket exists
             String outputBucketName = s3Provider.getBucketName(outputSpaceId);
-            boolean outputExists = s3Client.doesBucketExist(outputBucketName);
-            if(!outputExists) {
-                throw new RuntimeException("Output" +
-                    "bucket must exist in order to run a hadoop job");
-            }
             String outputPath = "s3n://" + outputBucketName + "/";
 
             jarParams.add(TASK_PARAMS.OUTPUT_SPACE_ID.getCliForm());
@@ -177,18 +172,10 @@ public class RunHadoopJobTaskRunner  implements TaskRunner {
             }
         }
 
-        // Verify buckets exist        
+        // Get bucket names and verify buckets exist
         String workBucketName = s3Provider.getBucketName(workSpaceId);
         String sourceBucketName = s3Provider.getBucketName(sourceSpaceId);
         String destBucketName = s3Provider.getBucketName(destSpaceId);
-
-        boolean workExists = s3Client.doesBucketExist(workBucketName);
-        boolean sourceExists = s3Client.doesBucketExist(sourceBucketName);
-        boolean destExists = s3Client.doesBucketExist(destBucketName);
-        if(!workExists || !sourceExists || !destExists) {
-            throw new RuntimeException("Source, Destination, and Work " +
-                "buckets must exist in order to run a hadoop job");
-        }
 
         // Verify jar exists
         ObjectMetadata jarMeta =

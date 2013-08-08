@@ -66,11 +66,6 @@ public class SetStorageClassTestBase {
     private AmazonS3Client createS3ClientMock() {
         AmazonS3Client mock = EasyMock.createMock(AmazonS3Client.class);
 
-        EasyMock
-            .expect(mock.doesBucketExist(EasyMock.isA(String.class)))
-            .andReturn(true)
-            .times(1);
-
         mock.changeObjectStorageClass(EasyMock.isA(String.class),
                                       EasyMock.isA(String.class),
                                       EasyMock.isA(StorageClass.class));
