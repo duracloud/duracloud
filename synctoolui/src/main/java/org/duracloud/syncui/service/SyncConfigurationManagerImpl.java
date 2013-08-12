@@ -183,7 +183,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     @Override
     public void setSyncDeletes(boolean flag) {
         this.syncToolConfig.setSyncDeletes(flag);
-        
+        persistSyncToolConfig();
     }
     
     @Override
@@ -194,6 +194,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     @Override
     public void setPrependTopLevelDirectory(Boolean flag) {
         this.syncToolConfig.setPrependTopLevelDirToContentId(flag);
+        persistSyncToolConfig();
     }
 
     @Override
@@ -204,6 +205,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     @Override
     public void setSyncUpdates(boolean b) {
         this.syncToolConfig.setSyncUpdates(b);
+        persistSyncToolConfig();
     }
     
     @Override
@@ -214,6 +216,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     @Override
     public void setRenameUpdates(boolean b) {
         this.syncToolConfig.setRenameUpdates(b);
+        persistSyncToolConfig();
     }
 
     @Override
