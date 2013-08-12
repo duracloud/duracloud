@@ -249,9 +249,9 @@
             <destination>${windows_folder_startup}/</destination>
             <shortcutList>
                 <shortcut>
-                    <comment>Launches ${product_fullname}</comment>
+                    <comment>${product_fullname}</comment>
                     <name>${product_fullname}</name>
-                    ￼<runAsAdmin>1</runAsAdmin>
+                    <runAsAdmin>0</runAsAdmin>
                     <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
                     <windowsExecArgs></windowsExecArgs>
                     <windowsPath>${installdir}</windowsPath>
