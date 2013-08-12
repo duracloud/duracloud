@@ -200,7 +200,7 @@
     <postInstallationActionList>
         <showQuestion>
             <default>yes</default>
-            <text>Would you like to the application to startup automatically when your computer starts up?</text>
+            <text>Would you like the application to start automatically when your computer starts up?</text>
             <variable>automatic_restart</variable>
         </showQuestion>    
 
