@@ -19,7 +19,7 @@ import java.io.IOException;
  * @author Erik Paulsson
  *         Date: 8/5/13
  */
-public class SDSCStorageProviderTest extends OpenStackStorageProviderTest {
+public class TestSDSCStorageProvider extends TestOpenStackStorageProvider {
 
     @Override
     public void setUp() {

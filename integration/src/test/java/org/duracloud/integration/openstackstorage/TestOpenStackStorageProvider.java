@@ -29,10 +29,10 @@ import static org.duracloud.storage.util.StorageProviderUtil.*;
  * @author Erik Paulsson
  *         Date: 8/5/13
  */
-public abstract class OpenStackStorageProviderTest {
+public abstract class TestOpenStackStorageProvider {
 
     private static final Logger log =
-            LoggerFactory.getLogger(OpenStackStorageProviderTest.class);
+            LoggerFactory.getLogger(TestOpenStackStorageProvider.class);
 
     protected OpenStackStorageProvider storageProvider;
     private final List<String> spaceIds = new ArrayList<String>();

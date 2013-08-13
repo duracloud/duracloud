@@ -19,7 +19,7 @@ import java.io.IOException;
  * @author Erik Paulsson
  *         Date: 8/5/13
  */
-public class RackspaceStorageProviderTest extends OpenStackStorageProviderTest {
+public class TestRackspaceStorageProvider extends TestOpenStackStorageProvider {
 
     @Override
     public void setUp() {
