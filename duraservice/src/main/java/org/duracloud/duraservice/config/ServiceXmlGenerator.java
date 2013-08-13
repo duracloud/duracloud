@@ -33,7 +33,6 @@ public class ServiceXmlGenerator {
         {new FixityServiceInfo(),
          new FixityToolsServiceInfo(),
          new DuplicationServiceInfo(),
-         new J2kServiceInfo(),
          new ImageConversionServiceInfo(),
          new MediaStreamingServiceInfo(),
          new ImageMagickServiceInfo(),
@@ -121,10 +120,9 @@ public class ServiceXmlGenerator {
         results.add(services.get(0));  // fixity
         results.add(services.get(1));  // fixity tools
         results.add(services.get(2));  // duplicate on change
-        results.add(services.get(3));  // j2k
-        results.add(services.get(5));  // media streamer
-        results.add(services.get(7));  // webapp util
-        results.add(services.get(8));  // cloudsync
+        results.add(services.get(4));  // media streamer
+        results.add(services.get(6));  // webapp util
+        results.add(services.get(7));  // cloudsync
 
         return results;
     }
@@ -136,10 +134,9 @@ public class ServiceXmlGenerator {
         results.add(services.get(0));  // fixity
         results.add(services.get(1));  // fixity tools
         results.add(services.get(2));  // duplicate on change
-        results.add(services.get(3));  // j2k
-        results.add(services.get(5));  // media streamer
-        results.add(services.get(7));  // webapp util
-        results.add(services.get(8));  // cloudsync
+        results.add(services.get(4));  // media streamer
+        results.add(services.get(6));  // webapp util
+        results.add(services.get(7));  // cloudsync
 
         return results;
     }
