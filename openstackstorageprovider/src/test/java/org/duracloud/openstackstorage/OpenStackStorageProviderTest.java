@@ -7,14 +7,16 @@
  */
 package org.duracloud.openstackstorage;
 
-import com.rackspacecloud.client.cloudfiles.FilesClient;
-import com.rackspacecloud.client.cloudfiles.FilesContainerInfo;
-import com.rackspacecloud.client.cloudfiles.FilesObject;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.jclouds.blobstore.domain.PageSet;
+import org.jclouds.blobstore.domain.internal.PageSetImpl;
 import org.jclouds.openstack.swift.SwiftClient;
 import org.jclouds.openstack.swift.domain.ContainerMetadata;
+import org.jclouds.openstack.swift.domain.ObjectInfo;
+import org.jclouds.openstack.swift.domain.internal.ObjectInfoImpl;
+import org.jclouds.openstack.swift.options.ListContainerOptions;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,42 +34,42 @@ import java.util.Map;
 public class OpenStackStorageProviderTest {
 
     private OpenStackStorageProvider provider;
-    private FilesClient filesClient;
     private SwiftClient swiftClient;
     private String spaceId = "space-id";
 
     @Before
     public void setUp() throws Exception {
-        filesClient = EasyMock.createMock("FilesClient", FilesClient.class);
         swiftClient = EasyMock.createMock("SwiftClient", SwiftClient.class);
-        provider = new OpenStackTestProvider(filesClient, swiftClient);
+        provider = new OpenStackTestProvider(swiftClient);
 
-        EasyMock.expect(filesClient.containerExists(EasyMock.isA(String.class)))
-                .andReturn(true)
-                .anyTimes();
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(filesClient, swiftClient);
+        EasyMock.verify(swiftClient);
     }
 
     private void replayMocks() {
-        EasyMock.replay(filesClient, swiftClient);
+        EasyMock.replay(swiftClient);
     }
 
     @Test
     public void testGetSpaceContentsChunked() throws Exception {
         String prefix = null;
-        long maxResults = 2;
+        Long maxResults = 2L;
         String marker = null;
 
-        List<FilesObject> filesObjectList = new ArrayList<>();
-        EasyMock.expect(filesClient.listObjects(spaceId,
-                                                prefix,
-                                                new Long(maxResults).intValue(),
-                                                marker))
-                .andReturn(filesObjectList);
+        EasyMock.expect(swiftClient.containerExists(spaceId)).andReturn(true);
+
+        List<ObjectInfo> objects = new ArrayList<ObjectInfo>();
+        objects.add(ObjectInfoImpl.builder().container(spaceId)
+                .name("test-content").build());
+        PageSet<ObjectInfo> filesObjectInfo = new PageSetImpl<ObjectInfo>(objects, null);
+        ListContainerOptions containerOptions =
+                ListContainerOptions.Builder.maxResults(maxResults.intValue());
+        EasyMock.expect(swiftClient.listObjects(spaceId,
+                containerOptions))
+                .andReturn(filesObjectInfo);
 
         replayMocks();
 
@@ -80,6 +82,8 @@ public class OpenStackStorageProviderTest {
 
     @Test
     public void testSetSpaceProperties() {
+        EasyMock.expect(swiftClient.containerExists(spaceId)).andReturn(true);
+
         Map<String, String> spaceProps = new HashMap<>();
         spaceProps.put("one", "two");
         spaceProps.put(StorageProvider.PROPERTIES_SPACE_CREATED, "2020-20-20");
@@ -103,9 +107,16 @@ public class OpenStackStorageProviderTest {
 
     @Test
     public void testGetAllSpaceProperties() throws Exception {
+        EasyMock.expect(swiftClient.containerExists(spaceId)).andReturn(true);
+
+        long spaceObjectCount = 5L;
+        long spaceTotalSize = 500;
         ContainerMetadata mockMetadata =
             EasyMock.createMock("ContainerMetadata", ContainerMetadata.class);
-
+        EasyMock.expect(mockMetadata.getCount())
+                .andReturn(spaceObjectCount);
+        EasyMock.expect(mockMetadata.getBytes())
+                .andReturn(spaceTotalSize);
         Map<String, String> containerMetadata = new HashMap<>();
         containerMetadata.put("one", "two");
         EasyMock.expect(mockMetadata.getMetadata())
@@ -113,20 +124,8 @@ public class OpenStackStorageProviderTest {
         EasyMock.expect(swiftClient.getContainerMetadata(spaceId))
                 .andReturn(mockMetadata);
 
-        FilesContainerInfo containerInfo =
-            EasyMock.createMock("FilesContainerInfo", FilesContainerInfo.class);
-
-        int spaceObjectCount = 5;
-        long spaceTotalSize = 500;
-        EasyMock.expect(filesClient.getContainerInfo(spaceId))
-                .andReturn(containerInfo);
-        EasyMock.expect(containerInfo.getObjectCount())
-                .andReturn(spaceObjectCount);
-        EasyMock.expect(containerInfo.getTotalSize())
-                .andReturn(spaceTotalSize);
-
         replayMocks();
-        EasyMock.replay(mockMetadata, containerInfo);
+        EasyMock.replay(mockMetadata);
 
         Map<String, String> spaceProps =
             provider.getAllSpaceProperties(spaceId);
@@ -139,16 +138,15 @@ public class OpenStackStorageProviderTest {
                             spaceProps.get(
                                 StorageProvider.PROPERTIES_SPACE_SIZE));
 
-        EasyMock.verify(mockMetadata, containerInfo);
+        EasyMock.verify(mockMetadata);
     }
 
     /*
      * Implementation of OpenStackStorageProvider to permit testing
      */
     public class OpenStackTestProvider extends OpenStackStorageProvider {
-        public OpenStackTestProvider(FilesClient filesClient,
-                                     SwiftClient swiftClient) {
-            super(filesClient, swiftClient);
+        public OpenStackTestProvider(SwiftClient swiftClient) {
+            super(swiftClient);
         }
 
         @Override

@@ -7,10 +7,6 @@
  */
 package org.duracloud.sdscstorage;
 
-import com.rackspacecloud.client.cloudfiles.FilesClient;
-import com.rackspacecloud.client.cloudfiles.FilesContainer;
-import com.rackspacecloud.client.cloudfiles.FilesException;
-import com.rackspacecloud.client.cloudfiles.FilesObject;
 import junit.framework.Assert;
 import org.duracloud.common.model.SimpleCredential;
 import org.duracloud.common.test.StorageProviderCredential;
@@ -31,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,14 +63,6 @@ public class SDSCStorageProviderClientTestNotRun {
 
     private SDSCStorageProvider getFreshStorageProvider() {
         return new SDSCStorageProvider(username, password);
-    }
-
-    private FilesClient getFreshFilesClient() throws Exception {
-        FilesClient filesClient = new FilesClient(username, password, authUrl);
-        if (!filesClient.login()) {
-            throw new Exception("FilesClient login failed!");
-        }
-        return filesClient;
     }
 
     private SwiftClient getFreshSwiftClient() {
@@ -140,85 +127,6 @@ public class SDSCStorageProviderClientTestNotRun {
                 }
             }
             printCount(spaceCount, contentCount, errorCount);
-        }
-    }
-
-    @Test
-    public void testFilesClient() throws Exception {
-        log.info("STARTING FILES CLIENT ITERATION TEST");
-
-        int iterationCompletedCount = 0;
-        for(int i=0; i<plannedAttempts; i++) {
-            try {
-                iterateThroughContentFilesClient(getFreshFilesClient());
-                iterationCompletedCount++;
-            } catch(Exception e) {
-                log.error("Iteration failure on attempt: " + i +
-                          ". Error message: " + e.getMessage());
-            }
-        }
-        log.info("Files Client iteration attempts: " + plannedAttempts +
-                     "; Iterations completed: " + iterationCompletedCount);
-
-        log.info("FILES CLIENT ITERATION TEST COMPLETE");
-    }
-
-    private void iterateThroughContentFilesClient(FilesClient filesClient) {
-        long spaceCount = 0;
-        long contentCount = 0;
-        long errorCount = 0;
-
-        // Get the list of containers
-        try {
-            List<FilesContainer> containers = filesClient.listContainers();
-
-            // Loop through each contaner
-            for (FilesContainer container : containers) {
-                spaceCount++;
-                String containerId = container.getName();
-
-                String marker = null;
-                try {
-                    List<FilesObject> contentItems =
-                        filesClient.listObjects(containerId, null, 1000, marker);
-
-                    // Loop through each content item
-                    while(null != contentItems && contentItems.size() > 0) {
-                        for(FilesObject contentItem : contentItems) {
-                            String contentId = contentItem.getName();
-                            contentCount++;
-                            try {
-                                // Get the metadata for the content item
-                                filesClient.getObjectMetaData(containerId, contentId);
-                            } catch(FilesException e) {
-                                errorCount++;
-                                log.error("Exception getting content: " +
-                                           e.getMessage() + ", " +
-                                           e.getHttpStatusLine() +
-                                           ". Root Cause: " + getRootCause(e));
-                            } catch(Exception e) {
-                                errorCount++;
-                                log.error("Exception getting content: " +
-                                              e.getMessage() +
-                                              ". Root Cause: " +
-                                              getRootCause(e));
-                            }
-                            marker = contentId;
-                        }
-                        // Get the next set of items
-                        contentItems =
-                            filesClient.listObjects(containerId, null, 1000, marker);
-                    }
-                } catch(Exception e) {
-                    errorCount++;
-                    log.error(
-                        "Exception getting object list: " + e.getMessage());
-                }
-                printCount(spaceCount, contentCount, errorCount);
-            }
-        } catch(Exception e) {
-            errorCount++;
-            log.error("Exception getting container list: " + e.getMessage());
         }
     }
 

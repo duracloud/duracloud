@@ -7,18 +7,17 @@
  */
 package org.duracloud.rackspacestorage;
 
-import com.rackspacecloud.client.cloudfiles.FilesClient;
-import com.rackspacecloud.client.cloudfiles.FilesObjectMetaData;
-import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.common.util.ChecksumUtil;
 import org.easymock.EasyMock;
 import org.jclouds.openstack.swift.SwiftClient;
+import org.jclouds.openstack.swift.domain.MutableObjectInfoWithMetadata;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Andrew Woods
@@ -26,23 +25,21 @@ import java.util.Map;
  */
 public class RackspaceStorageProviderTest {
 
-    private FilesClient filesClient;
     private SwiftClient swiftClient;
 
     @Before
     public void setUp() throws Exception {
-        filesClient = EasyMock.createMock("FilesClient", FilesClient.class);
         swiftClient = EasyMock.createMock("SwiftClient", SwiftClient.class);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(filesClient, swiftClient);
+        EasyMock.verify( swiftClient);
     }
 
-    private void replayMocks() {
-        EasyMock.replay(filesClient, swiftClient);
-    }
+//    private void replayMocks() {
+//        EasyMock.replay(swiftClient);
+//    }
 
     @Test
     public void testCopyContent() throws Exception {
@@ -50,14 +47,15 @@ public class RackspaceStorageProviderTest {
         String srcContentId = "contentId";
         String destSpaceId = "destSpaceId";
         String destContentId = "destContentId";
-        String expectedMD5 = "md5";
+        String expectedMD5 = "abc123";//"abcdef123456789";
+
         createFilesClientCopyContent(srcSpaceId,
                                      srcContentId,
                                      destSpaceId,
                                      destContentId,
                                      expectedMD5);
         RackspaceStorageProvider provider =
-            new RackspaceStorageProvider(filesClient, swiftClient);
+            new RackspaceStorageProvider(swiftClient);
 
         String md5 = provider.copyContent(srcSpaceId,
                                           srcContentId,
@@ -74,26 +72,32 @@ public class RackspaceStorageProviderTest {
                                               String destContentId,
                                               String expectedMD5)
         throws Exception {
-        FilesObjectMetaData metadata = new FilesObjectMetaData("", "", "");
 
-        Map<String, String> props = new HashMap<String, String>();
-        props.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, expectedMD5);
-        metadata.setMetaData(props);
-
-        EasyMock.expect(filesClient.getObjectMetaData(EasyMock.isA(String.class),
-                                                      EasyMock.isA(String.class)))
-            .andReturn(metadata)
+        byte[] expectedMD5Hash = ChecksumUtil.hexStringToByteArray(expectedMD5);
+        MutableObjectInfoWithMetadata objectInfoWithMetadata =
+                EasyMock.createMock(MutableObjectInfoWithMetadata.class);
+        EasyMock.expect(objectInfoWithMetadata.getHash()).andReturn(expectedMD5Hash).times(2);
+        EasyMock.expect(objectInfoWithMetadata.getLastModified()).andReturn(new Date());
+        EasyMock.expect(objectInfoWithMetadata.getBytes()).andReturn(12L);
+        EasyMock.expect(objectInfoWithMetadata.getMetadata()).andReturn(new HashMap<String, String>());
+        EasyMock.expect(swiftClient.getObjectInfo(EasyMock.isA(String.class),
+                EasyMock.isA(String.class)))
+            .andReturn(objectInfoWithMetadata)
             .times(2);
-        EasyMock.expect(filesClient.containerExists(EasyMock.isA(String.class)))
+
+        EasyMock.expect(swiftClient.objectExists(
+                EasyMock.isA(String.class), EasyMock.isA(String.class)))
+                .andReturn(true);
+        EasyMock.expect(swiftClient.containerExists(EasyMock.isA(String.class)))
             .andReturn(true)
             .times(2);
 
-        EasyMock.expect(filesClient.copyObject(EasyMock.eq(srcSpaceId),
-                                               EasyMock.eq(srcContentId),
-                                               EasyMock.eq(destSpaceId),
-                                               EasyMock.eq(destContentId)))
-            .andReturn(expectedMD5);
+        EasyMock.expect(swiftClient.copyObject(EasyMock.eq(srcSpaceId),
+                EasyMock.eq(srcContentId),
+                EasyMock.eq(destSpaceId),
+                EasyMock.eq(destContentId)))
+                .andReturn(true);
 
-        replayMocks();
+        EasyMock.replay(swiftClient, objectInfoWithMetadata);
     }
 }

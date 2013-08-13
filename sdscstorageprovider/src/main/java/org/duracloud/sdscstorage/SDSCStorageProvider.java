@@ -7,7 +7,6 @@
  */
 package org.duracloud.sdscstorage;
 
-import com.rackspacecloud.client.cloudfiles.FilesClient;
 import org.duracloud.openstackstorage.OpenStackStorageProvider;
 import org.jclouds.openstack.swift.SwiftClient;
 import org.slf4j.Logger;
@@ -24,16 +23,15 @@ public class SDSCStorageProvider extends OpenStackStorageProvider {
     private final Logger log =
         LoggerFactory.getLogger(SDSCStorageProvider.class);
 
-    private static String authUrl = "https://duracloud.auth.cloud.sdsc.edu/auth/v1.0";
+    private static final String authUrl = "https://duracloud.auth.cloud.sdsc.edu/auth/v1.0";
 
     public SDSCStorageProvider(String username, String apiAccessKey) {
         super(username, apiAccessKey, authUrl);
         log.debug("constructed SDSCStorageProvider: {}, {}", username, authUrl);
     }
 
-    public SDSCStorageProvider(FilesClient filesClient,
-                               SwiftClient swiftClient) {
-        super(filesClient, swiftClient);
+    public SDSCStorageProvider(SwiftClient swiftClient) {
+        super(swiftClient);
     }
 
     @Override

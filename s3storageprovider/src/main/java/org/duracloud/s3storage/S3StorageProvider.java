@@ -27,6 +27,7 @@ import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.stream.ChecksumInputStream;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.NotFoundException;
@@ -229,8 +230,8 @@ public class S3StorageProvider extends StorageProviderBase {
         return S3ProviderUtil.createNewBucketName(accessKeyId, spaceId);
     }
 
-     private String formattedDate(Date created) {
-        return ISO8601_DATE_FORMAT.format(created);
+     private String formattedDate(Date date) {
+         return DateUtil.convertToString(date.getTime());
     }
 
     /**

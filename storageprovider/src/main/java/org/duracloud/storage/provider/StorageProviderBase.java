@@ -275,6 +275,22 @@ public abstract class StorageProviderBase implements StorageProvider {
         new Thread(deleteThread).start();
     }
 
+    /**
+     * This method is only intended to be used by tests!
+     * @param spaceId
+     */
+    public void deleteSpaceSync(String spaceId) {
+        log.debug("deleteSpaceSync(" + spaceId + ")");
+        throwIfSpaceNotExist(spaceId);
+
+        Map<String, String> allProps = getAllSpaceProperties(spaceId);
+        allProps.put("is-delete", "true");
+        doSetSpaceProperties(spaceId, allProps);
+
+        SpaceDeleteWorker deleteWorker = getSpaceDeleteWorker(spaceId);
+        deleteWorker.run();
+    }
+
     protected class SpaceDeleteWorker implements Runnable {
         protected final Logger log =
             LoggerFactory.getLogger(SpaceDeleteWorker.class);
@@ -287,6 +303,7 @@ public abstract class StorageProviderBase implements StorageProvider {
 
         @Override
         public void run() {
+            log.debug("SpaceDeleteWorker started!");
             Iterator<String> contents = getSpaceContents(spaceId, null);
             int count = 0;
 
@@ -323,6 +340,7 @@ public abstract class StorageProviderBase implements StorageProvider {
                 log.debug("removeSpace(" + spaceId + ")");
                 removeSpace(spaceId);
             }
+            log.debug("SpaceDeleteWorker ended!");
         }
     }
 

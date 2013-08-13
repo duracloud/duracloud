@@ -20,24 +20,15 @@ import org.duracloud.storage.provider.ProbedStorageProvider;
  */
 public class ProbedRackspaceStorageProvider
         extends ProbedStorageProvider {
-
-    private ProbedFilesClient probedCore;
+    private static final String authUrl= "https://auth.api.rackspacecloud.com/v1.0";
+    private ProbedSwiftClient probedCore;
 
     public ProbedRackspaceStorageProvider(String username, String apiAccessKey)
             throws StorageException {
-        try {
-            probedCore = new ProbedFilesClient(username, apiAccessKey);
-            if (!probedCore.login()) {
-                throw new Exception("Login to Rackspace failed");
-            }
-        } catch (Exception e) {
-            String err =
-                    "Could not create connection to Rackspace due to error: "
-                            + e.getMessage();
-            throw new StorageException(err, e);
-        }
-
-        setStorageProvider(new RackspaceStorageProvider(probedCore, null));
+        String trimmedAuthUrl = // JClouds expects authURL with no version
+                authUrl.substring(0, authUrl.lastIndexOf("/"));
+        probedCore = new ProbedSwiftClient(username, apiAccessKey, trimmedAuthUrl);
+        setStorageProvider(new RackspaceStorageProvider(probedCore));
     }
 
     @Override

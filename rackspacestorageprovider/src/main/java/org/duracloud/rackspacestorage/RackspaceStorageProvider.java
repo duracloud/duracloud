@@ -7,7 +7,6 @@
  */
 package org.duracloud.rackspacestorage;
 
-import com.rackspacecloud.client.cloudfiles.FilesClient;
 import org.duracloud.openstackstorage.OpenStackStorageProvider;
 import org.jclouds.openstack.swift.SwiftClient;
 
@@ -18,7 +17,7 @@ import org.jclouds.openstack.swift.SwiftClient;
  */
 public class RackspaceStorageProvider extends OpenStackStorageProvider {
 
-    private static String authUrl= "https://auth.api.rackspacecloud.com/v1.0";
+    private static final String authUrl= "https://auth.api.rackspacecloud.com/v1.0";
 
     public RackspaceStorageProvider(String username,
                                     String apiAccessKey,
@@ -30,9 +29,8 @@ public class RackspaceStorageProvider extends OpenStackStorageProvider {
         super(username, apiAccessKey, null);
     }
 
-    public RackspaceStorageProvider(FilesClient filesClient,
-                                    SwiftClient swiftClient) {
-        super(filesClient, swiftClient);
+    public RackspaceStorageProvider(SwiftClient swiftClient) {
+        super(swiftClient);
     }
 
     @Override

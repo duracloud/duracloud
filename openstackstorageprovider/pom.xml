@@ -53,12 +53,6 @@
       <artifactId>httpcore</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>rackspace-java-cloudfiles</artifactId>
-      <version>1.9.1</version>
-    </dependency>
-
   <dependency>
     <groupId>org.jclouds</groupId>
     <artifactId>jclouds-allblobstore</artifactId>

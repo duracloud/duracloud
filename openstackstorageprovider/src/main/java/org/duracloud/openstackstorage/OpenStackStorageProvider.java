@@ -7,18 +7,11 @@
  */
 package org.duracloud.openstackstorage;
 
-import com.rackspacecloud.client.cloudfiles.FilesAuthorizationException;
-import com.rackspacecloud.client.cloudfiles.FilesClient;
-import com.rackspacecloud.client.cloudfiles.FilesContainer;
-import com.rackspacecloud.client.cloudfiles.FilesContainerInfo;
-import com.rackspacecloud.client.cloudfiles.FilesContainerNotEmptyException;
-import com.rackspacecloud.client.cloudfiles.FilesException;
-import com.rackspacecloud.client.cloudfiles.FilesInvalidNameException;
-import com.rackspacecloud.client.cloudfiles.FilesNotFoundException;
-import com.rackspacecloud.client.cloudfiles.FilesObject;
-import com.rackspacecloud.client.cloudfiles.FilesObjectMetaData;
-import org.apache.http.HttpException;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.net.URLCodec;
 import org.duracloud.common.stream.ChecksumInputStream;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
@@ -26,23 +19,24 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.duracloud.storage.util.StorageProviderUtil;
 import org.jclouds.ContextBuilder;
+import org.jclouds.blobstore.ContainerNotFoundException;
+import org.jclouds.blobstore.domain.PageSet;
+import org.jclouds.openstack.swift.CopyObjectException;
 import org.jclouds.openstack.swift.SwiftApiMetadata;
 import org.jclouds.openstack.swift.SwiftAsyncClient;
 import org.jclouds.openstack.swift.SwiftClient;
+import org.jclouds.openstack.swift.domain.ContainerMetadata;
+import org.jclouds.openstack.swift.domain.MutableObjectInfoWithMetadata;
+import org.jclouds.openstack.swift.domain.ObjectInfo;
+import org.jclouds.openstack.swift.domain.SwiftObject;
+import org.jclouds.openstack.swift.options.CreateContainerOptions;
+import org.jclouds.openstack.swift.options.ListContainerOptions;
 import org.jclouds.rest.RestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.duracloud.storage.error.StorageException.NO_RETRY;
 import static org.duracloud.storage.error.StorageException.RETRY;
@@ -55,9 +49,8 @@ import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
  */
 public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
-    private final Logger log = LoggerFactory.getLogger(OpenStackStorageProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenStackStorageProvider.class);
 
-    private FilesClient filesClient = null;
     private SwiftClient swiftClient = null;
 
     public OpenStackStorageProvider(String username,
@@ -68,22 +61,18 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         }
 
         try {
-            filesClient = new FilesClient(username, apiAccessKey, authUrl);
-            if (!filesClient.login()) {
-                throw new Exception("Login to " + getProviderName() + " failed");
-            }
-
             String trimmedAuthUrl = // JClouds expects authURL with no version
-                authUrl.substring(0, authUrl.lastIndexOf("/"));
+                    authUrl.substring(0, authUrl.lastIndexOf("/"));
+
             RestContext<SwiftClient, SwiftAsyncClient> context =
-                ContextBuilder.newBuilder(new SwiftApiMetadata())
-                              .endpoint(trimmedAuthUrl)
-                              .credentials(username, apiAccessKey)
-                              .build(SwiftApiMetadata.CONTEXT_TOKEN);
+                    ContextBuilder.newBuilder(new SwiftApiMetadata())
+                            .endpoint(trimmedAuthUrl)
+                            .credentials(username, apiAccessKey)
+                            .build(SwiftApiMetadata.CONTEXT_TOKEN);
             swiftClient = context.getApi();
         } catch (Exception e) {
             String err = "Could not connect to " + getProviderName() +
-                " due to error: " + e.getMessage();
+                    " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }
@@ -92,9 +81,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         this(username, apiAccessKey, null);
     }
 
-    public OpenStackStorageProvider(FilesClient filesClient,
-                                    SwiftClient swiftClient) {
-        this.filesClient = filesClient;
+    public OpenStackStorageProvider(SwiftClient swiftClient) {
         this.swiftClient = swiftClient;
     }
 
@@ -107,35 +94,14 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
     public Iterator<String> getSpaces() {
         log.debug("getSpace()");
 
-        List<FilesContainer> containers = listContainers();
+        Set<ContainerMetadata> containers =
+                swiftClient.listContainers(ListContainerOptions.NONE);
         List<String> spaces = new ArrayList<String>();
-        for (FilesContainer container : containers) {
+        for (ContainerMetadata container : containers) {
             String containerName = container.getName();
             spaces.add(containerName);
         }
         return spaces.iterator();
-    }
-
-    private List<FilesContainer> listContainers() {
-        StringBuilder err = new StringBuilder(
-            "Could not retrieve list of " + getProviderName() +
-                " containers due to error: ");
-        try {
-            return filesClient.listContainers();
-
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (FilesException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        }
     }
 
     /**
@@ -143,7 +109,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
      */
     public Iterator<String> getSpaceContents(String spaceId,
                                              String prefix) {
-        log.debug("getSpaceContents(" + spaceId + ", " + prefix);        
+        log.debug("getSpaceContents(" + spaceId + ", " + prefix);
 
         throwIfSpaceNotExist(spaceId);
         return new ContentIterator(this, spaceId, prefix);
@@ -157,7 +123,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                                                 long maxResults,
                                                 String marker) {
         log.debug("getSpaceContentsChunked(" + spaceId + ", " + prefix + ", " +
-                                           maxResults + ", " + marker + ")");
+                maxResults + ", " + marker + ")");
 
         throwIfSpaceNotExist(spaceId);
 
@@ -166,7 +132,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         }
 
         List<String> spaceContents =
-            getCompleteSpaceContents(spaceId, prefix, maxResults, marker);
+                getCompleteSpaceContents(spaceId, prefix, maxResults, marker);
 
         return spaceContents;
     }
@@ -177,109 +143,52 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                                                   String marker) {
         String containerName = getContainerName(spaceId);
 
-        List<FilesObject> objects = listObjects(containerName,
-                                                prefix,
-                                                maxResults,
-                                                marker);
+        PageSet<ObjectInfo> objects = listObjects(containerName,
+                prefix,
+                maxResults,
+                marker);
         List<String> contentItems = new ArrayList<String>();
-        for (FilesObject object : objects) {
+        for (ObjectInfo object : objects) {
             contentItems.add(object.getName());
         }
         return contentItems;
     }
 
-    private List<FilesObject> listObjects(String containerName,
-                                          String prefix,
-                                          long maxResults,
-                                          String marker) {
-        StringBuilder err = new StringBuilder(
-            "Could not get contents of " + getProviderName() + " container " +
-                containerName + " due to error: ");
-        try {
-            int limit = new Long(maxResults).intValue();
-            if (prefix != null) {
-                return listObjectsStartingWith(containerName,
-                                               prefix,
-                                               limit,
-                                               marker);
-            } else {
-                return filesClient.listObjects(containerName,
-                                               null,
-                                               limit,
-                                               marker);
-            }
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        }
-    }
-
-    /*
-     * The listObjectsStartingWith() call has a particularly high failure rate,
-     * this method handles the call with a built in retry (up to 10 attempts).
-     * TODO: Call listObjectsStartingWith() directly once it no longer fails regularly
-     */
-    private List<FilesObject> listObjectsStartingWith(String containerName,
-                                                      String prefix,
-                                                      int limit,
-                                                      String marker)
-        throws IOException, FilesException {
-        int retryLimit = 10;
-        int retries = 0;
-        List<FilesObject> objectList = null;
-        while(objectList == null) {
-            try {
-                objectList = filesClient.listObjectsStartingWith(containerName,
-                                                                 prefix,
-                                                                 null,
-                                                                 limit,
-                                                                 marker);
-            } catch(IOException e) {
-                log.error("Error listing objects.", e);
-                objectList = null;                
-                if(retries < retryLimit) {
-                    retries++;
-                } else {
-                    throw e;
-                }
-            } catch (FilesException e) {
-                log.error("Error listing objects.", e);
-                objectList = null;
-                if (retries < retryLimit) {
-                    retries++;
-                } else {
-                    throw e;
-                }
-            }
-        }
-        return objectList;
+    private PageSet<ObjectInfo> listObjects(String containerName,
+                                            String prefix,
+                                            long maxResults,
+                                            String marker) {
+        int limit = new Long(maxResults).intValue();
+        ListContainerOptions containerOptions = ListContainerOptions.Builder.maxResults(limit);
+        if(marker != null) containerOptions.afterMarker(marker);
+        if(prefix != null) containerOptions.withPrefix(prefix);
+        return swiftClient.listObjects(containerName,
+                containerOptions);
     }
 
     private void throwIfContentNotExist(String spaceId, String contentId) {
-        // Attempt to get content properties, which throws if content does not exist
-        getObjectProperties(spaceId, contentId);
+        log.debug("throwIfContentNotExist({}, {})", spaceId, contentId);
+        String containerName = getContainerName(spaceId);
+        boolean exists = false;
+        try {
+            exists = swiftClient.objectExists(containerName, contentId);
+        } catch (ContainerNotFoundException e) {
+            log.debug("object does not exist: {}, {}", containerName, contentId);
+            String errMsg = createNotFoundMsg(containerName, contentId);
+            throw new NotFoundException(errMsg, e);
+        }
+
+        if(! exists) {
+            log.debug("object does not exist: {}, {}", containerName, contentId);
+            String errMsg = createNotFoundMsg(containerName, contentId);
+            throw new NotFoundException(errMsg);
+        }
+        log.debug("object does exist: {}, {}", containerName, contentId);
     }
 
     protected boolean spaceExists(String spaceId) {
         String containerName = getContainerName(spaceId);
-        try {
-            return filesClient.containerExists(containerName);
-        } catch (IOException e) {
-            log.warn(e.getClass() + ", msg: " + e.getMessage());
-            return false;
-        } catch (HttpException e) {
-            log.warn(e.getClass() + ", msg: " + e.getMessage());
-            return false;
-        }
+        return swiftClient.containerExists(containerName);
     }
 
     /**
@@ -289,23 +198,18 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         log.debug("getCreateSpace(" + spaceId + ")");
         throwIfSpaceExists(spaceId);
 
-        createContainer(spaceId);
-
         // Add space properties
         // Note: According to Rackspace support (ticket #13597) there are no
-        // dates recorded for containers, so store our own created date        
+        // dates recorded for containers, so store our own created date
         Map<String, String> spaceProperties = new HashMap<String, String>();
-        Date created = new Date(System.currentTimeMillis());
-        spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
+        spaceProperties.put(PROPERTIES_SPACE_CREATED,
+                DateUtil.convertToString(System.currentTimeMillis()));
 
-        try {
-            setNewSpaceProperties(spaceId, spaceProperties);
+        CreateContainerOptions createContainerOptions =
+                CreateContainerOptions.Builder.withMetadata(spaceProperties);
 
-        } catch (StorageException e) {
-            removeSpace(spaceId);
-            String err = "Unable to create space due to: " + e.getMessage();
-            throw new StorageException(err, e, RETRY);
-        }
+        String containerName = getContainerName(spaceId);
+        swiftClient.createContainer(containerName, createContainerOptions);
     }
 
     protected void doSetSpaceProperties(String spaceId,
@@ -315,41 +219,13 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         throwIfSpaceNotExist(spaceId);
 
         // Ensure that space created date is included in the new properties
-        Date created = getCreationDate(spaceId, spaceProperties);
+        String created = getCreationTimestamp(spaceId, spaceProperties);
         if (created != null) {
-            spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
+            spaceProperties.put(PROPERTIES_SPACE_CREATED, created);
         }
 
         String containerName = getContainerName(spaceId);
         swiftClient.setContainerMetadata(containerName, spaceProperties);
-    }
-
-    private String formattedDate(Date created) {
-        ISO8601_DATE_FORMAT.setTimeZone(TimeZone.getDefault());
-        return ISO8601_DATE_FORMAT.format(created);
-    }
-
-    private void createContainer(String spaceId) {
-        String containerName = getContainerName(spaceId);
-
-        StringBuilder err = new StringBuilder(
-            "Could not create " + getProviderName() + " container with name " +
-                containerName + " due to error: ");
-        try {
-            filesClient.createContainer(containerName);
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        }
     }
 
     /**
@@ -357,30 +233,12 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
      */
     public void removeSpace(String spaceId) {
         String containerName = getContainerName(spaceId);
-        StringBuilder err = new StringBuilder(
-            "Could not delete " + getProviderName() + " container with name " +
-                containerName + " due to error: ");
-
-        try {
-            filesClient.deleteContainer(containerName);
-        } catch (FilesNotFoundException e) {
-            err.append(e.getMessage());
-            throw new NotFoundException(err.toString(), e);
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesInvalidNameException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (FilesContainerNotEmptyException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
+        boolean successful = swiftClient.deleteContainerIfEmpty(containerName);
+        if(!successful) {
+            StringBuilder err = new StringBuilder(
+                    "Could not delete " + getProviderName() + " container with name " +
+                            containerName + " due to error: container not empty");
+            throw new StorageException(err.toString(), NO_RETRY);
         }
     }
 
@@ -393,68 +251,30 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         throwIfSpaceNotExist(spaceId);
 
         String containerName = getContainerName(spaceId);
-        Map<String, String> containerMetadata =
-            swiftClient.getContainerMetadata(containerName).getMetadata();
+        ContainerMetadata containerMetadata = swiftClient.getContainerMetadata(containerName);
+        Map<String, String> metadata = containerMetadata.getMetadata();
 
         Map<String, String> spaceProperties = new HashMap<>();
-        spaceProperties.putAll(containerMetadata);
+        spaceProperties.putAll(metadata);
 
         // Add count and size properties
-        FilesContainerInfo containerInfo = getContainerInfo(containerName);
         spaceProperties.put(PROPERTIES_SPACE_COUNT,
-                            String.valueOf(containerInfo.getObjectCount()));
+                String.valueOf(containerMetadata.getCount()));
         spaceProperties.put(PROPERTIES_SPACE_SIZE,
-                            String.valueOf(containerInfo.getTotalSize()));
+                String.valueOf(containerMetadata.getBytes()));
 
         return spaceProperties;
     }
 
-    private FilesContainerInfo getContainerInfo(String containerName) {
-        StringBuilder err = new StringBuilder(
-            "Could not retrieve properties " + "from " + getProviderName() +
-                " container " + containerName + " due to error: ");
-
-        try {
-            return filesClient.getContainerInfo(containerName);
-        } catch (FilesNotFoundException e) {
-            err.append(e.getMessage());
-            throw new NotFoundException(err.toString(), e);
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        }
-    }
-
-    private Date getCreationDate(String spaceId,
-                                 Map<String, String> spaceProperties) {
-        String dateText;
+    private String getCreationTimestamp(String spaceId,
+                                        Map<String, String> spaceProperties) {
+        String creationTime = null;
         if (!spaceProperties.containsKey(PROPERTIES_SPACE_CREATED)) {
-            dateText = getCreationTimestamp(spaceId);
+            Map<String, String> spaceMd = getAllSpaceProperties(spaceId);
+            creationTime = spaceMd.get(PROPERTIES_SPACE_CREATED);
         } else {
-            dateText = spaceProperties.get(PROPERTIES_SPACE_CREATED);
+            creationTime = spaceProperties.get(PROPERTIES_SPACE_CREATED);
         }
-
-        Date created = null;
-        try {
-            created =  ISO8601_DATE_FORMAT.parse(dateText);
-        } catch (ParseException e) {
-            log.warn("Unable to parse date: '" + dateText + "'");
-        }
-        return created;
-    }
-
-    private String getCreationTimestamp(String spaceId) {
-        Map<String, String> spaceMd = getAllSpaceProperties(spaceId);
-        String creationTime = spaceMd.get(PROPERTIES_SPACE_CREATED);
 
         if (creationTime == null) {
             StringBuffer msg = new StringBuffer("Error: ");
@@ -463,7 +283,6 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             log.error(msg.toString());
             creationTime = ISO8601_DATE_FORMAT.format(new Date());
         }
-
         return creationTime;
     }
 
@@ -478,70 +297,50 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                              String contentChecksum,
                              InputStream content) {
         log.debug("addContent("+ spaceId +", "+ contentId +", "+
-            contentMimeType +", "+ contentSize +", "+ contentChecksum +")");
+                contentMimeType +", "+ contentSize +", "+ contentChecksum +")");
 
         throwIfSpaceNotExist(spaceId);
 
         if(contentMimeType == null || contentMimeType.equals("")) {
             contentMimeType = DEFAULT_MIMETYPE;
-        }        
+        }
 
         Map<String, String> properties = new HashMap<String, String>();
         properties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
 
         if(userProperties != null) {
             userProperties = removeCalculatedProperties(userProperties);
-            
+
             for (String key : userProperties.keySet()) {
                 if (log.isDebugEnabled()) {
                     log.debug("[" + key + "|" + userProperties.get(key) + "]");
                 }
                 properties.put(getSpaceFree(key),
-                               userProperties.get(key));
+                        userProperties.get(key));
             }
         }
 
         // Wrap the content in order to be able to retrieve a checksum
         ChecksumInputStream wrappedContent =
-            new ChecksumInputStream(content, contentChecksum);
+                new ChecksumInputStream(content, contentChecksum);
 
-        String providerChecksum = storeStreamedObject(contentId,
-                                                      contentMimeType,
-                                                      spaceId,
-                                                      properties,
-                                                      wrappedContent);
+        String containerName = getContainerName(spaceId);
+
+        SwiftObject swiftObject = swiftClient.newSwiftObject();
+        MutableObjectInfoWithMetadata objectInfoMetadata = swiftObject.getInfo();
+        objectInfoMetadata.setName(contentId);
+//        if(contentSize > 0) {   ****************  THIS BROKE THINGS ON SDSC  ********************
+//            objectInfoMetadata.setBytes(contentSize);
+//        }
+        objectInfoMetadata.setContentType(contentMimeType);  // This doesn't seem to do anything, set in metadata!
+        objectInfoMetadata.getMetadata().putAll(properties);
+        swiftObject.setPayload(wrappedContent);
+
+        String providerChecksum = swiftClient.putObject(containerName, swiftObject);
 
         // Compare checksum
         String checksum = wrappedContent.getMD5();
         return compareChecksum(providerChecksum, spaceId, contentId, checksum);
-    }
-
-    private String storeStreamedObject(String contentId, String contentMimeType,
-                                     String spaceId,
-                                     Map<String, String> properties,
-                                     ChecksumInputStream wrappedContent) {
-        String containerName = getContainerName(spaceId);
-        StringBuilder err = new StringBuilder(
-            "Could not add content " + contentId + " with type " +
-                contentMimeType + " to " + getProviderName() + " container " +
-                containerName + " due to error: ");
-
-        try {
-            return filesClient.storeStreamedObject(containerName,
-                                            wrappedContent,
-                                            contentMimeType,
-                                            contentId,
-                                            properties);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (FilesException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        }
     }
 
     @Override
@@ -550,48 +349,58 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                               String destSpaceId,
                               String destContentId) {
         log.debug("copyContent({}, {}, {}, {})",
-                  new Object[]{sourceSpaceId,
-                               sourceContentId,
-                               destSpaceId,
-                               destContentId});
+                new Object[]{sourceSpaceId,
+                        sourceContentId,
+                        destSpaceId,
+                        destContentId});
 
         throwIfContentNotExist(sourceSpaceId, sourceContentId);
         throwIfSpaceNotExist(destSpaceId);
 
-        String md5 = doCopyContent(sourceSpaceId,
-                                   sourceContentId,
-                                   destSpaceId,
-                                   destContentId);
-
-        return StorageProviderUtil.compareChecksum(this,
-                                                   sourceSpaceId,
-                                                   sourceContentId,
-                                                   md5);
+        if(doCopyContent(sourceSpaceId,
+                sourceContentId,
+                destSpaceId,
+                destContentId)) {
+            MutableObjectInfoWithMetadata objectInfoWithMetadata =
+                    getObjectProperties(destSpaceId, destContentId);
+            byte[] hash = objectInfoWithMetadata.getHash();
+            String md5 = null;
+            if(hash != null) {
+                md5 = ChecksumUtil.checksumBytesToString(hash);
+            }
+            return StorageProviderUtil.compareChecksum(this,
+                    sourceSpaceId,
+                    sourceContentId,
+                    md5);
+        } else {
+            throw new StorageException("failed to copy object - " +
+                    "srcSpaceId: " +sourceSpaceId+ ", " +
+                    "sourceContentId: " +sourceContentId+ ", " +
+                    "destSpaceId: " +destSpaceId+ ", " +
+                    "destContentId: " +destContentId);
+        }
     }
 
-    private String doCopyContent(String sourceSpaceId,
-                                 String sourceContentId,
-                                 String destSpaceId,
-                                 String destContentId) {
-        StringBuilder err = new StringBuilder("Could not copy content from: ");
-        err.append(sourceSpaceId);
-        err.append(" / ");
-        err.append(sourceContentId);
-        err.append(", to: ");
-        err.append(destSpaceId);
-        err.append(" / ");
-        err.append(destContentId);
-        err.append(", due to error: ");
+    private boolean doCopyContent(String sourceSpaceId,
+                                  String sourceContentId,
+                                  String destSpaceId,
+                                  String destContentId) {
         try {
-            return filesClient.copyObject(sourceSpaceId,
-                                          sourceContentId,
-                                          destSpaceId,
-                                          destContentId);
+            return swiftClient.copyObject(sourceSpaceId,
+                    sourceContentId,
+                    destSpaceId,
+                    destContentId);
 
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (IOException e) {
+        } catch (CopyObjectException e) {
+            StringBuilder err = new StringBuilder("Could not copy content from: ");
+            err.append(sourceSpaceId);
+            err.append(" / ");
+            err.append(sourceContentId);
+            err.append(", to: ");
+            err.append(destSpaceId);
+            err.append(" / ");
+            err.append(destContentId);
+            err.append(", due to error: ");
             err.append(e.getMessage());
             throw new StorageException(err.toString(), e, RETRY);
         }
@@ -604,39 +413,15 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         log.debug("getContent(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
-
         String containerName = getContainerName(spaceId);
-
-        StringBuilder err = new StringBuilder(
-            "Could not retrieve content " + contentId + " from " +
-                getProviderName() + " container " + containerName +
-                " due to error: ");
-        try {
-            InputStream content =
-                filesClient.getObjectAsStream(containerName, contentId);
-
-            if(content == null) {        
-                String errMsg = createNotFoundMsg(spaceId, contentId);
-                throw new NotFoundException(errMsg);
-            }
-
-            return content;
-        } catch (FilesNotFoundException e) {
-            err.append(e.getMessage());
-            throw new NotFoundException(err.toString(), e);            
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesInvalidNameException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
+        SwiftObject swiftObject = swiftClient.getObject(containerName, contentId);
+        if(swiftObject == null) {
+            String errMsg = createNotFoundMsg(spaceId, contentId);
+            throw new NotFoundException(errMsg);
         }
+        InputStream content = swiftObject.getPayload().getInput();
+        return content;
+
     }
 
     private String createNotFoundMsg(String spaceId,
@@ -653,38 +438,15 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
      * {@inheritDoc}
      */
     public void deleteContent(String spaceId, String contentId) {
-        log.debug("deleteContent(" + spaceId + ", " + contentId + ")");
+        log.debug("deleteContent({}, {})", spaceId, contentId);
 
-        throwIfSpaceNotExist(spaceId);
+        throwIfContentNotExist(spaceId, contentId);
 
-        deleteObject(contentId, spaceId);
-    }
+        log.debug("after check exist: {}, {}", spaceId, contentId);
 
-    private void deleteObject(String contentId,
-                              String spaceId) {
         String containerName = getContainerName(spaceId);
-        StringBuilder err =
-            new StringBuilder("Could not delete content " + contentId +
-                                  " from " + getProviderName() + " container " +
-                                  containerName + " due to error: ");
-        try {
-            filesClient.deleteObject(containerName, contentId);
-        } catch (FilesNotFoundException e) {
-            err.append(e.getMessage());
-            throw new NotFoundException(err.toString(), e);
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        }
+        log.debug("before swiftClient.removeObject({}, {})", spaceId, contentId);
+        swiftClient.removeObject(containerName, contentId);
     }
 
     /**
@@ -696,20 +458,18 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         log.debug("setContentProperties(" + spaceId + ", " + contentId + ")");
 
         throwIfSpaceNotExist(spaceId);
-        throwIfContentNotExist(spaceId, contentId);        
+        throwIfContentNotExist(spaceId, contentId);
 
         // Remove calculated properties
         contentProperties = removeCalculatedProperties(contentProperties);
 
         // Set mimetype
         String contentMimeType =
-            contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
+                contentProperties.remove(PROPERTIES_CONTENT_MIMETYPE);
         if(contentMimeType == null || contentMimeType.equals("")) {
-            contentMimeType = getObjectProperties(spaceId, contentId).getMimeType();
+            contentMimeType = getContentProperties(spaceId, contentId)
+                    .get(PROPERTIES_CONTENT_MIMETYPE);
         }
-        // Note: It is not currently possible to set MIME type on a
-        // Rackspace object directly, so setting a custom field instead.
-        contentProperties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
 
         Map<String, String> newContentProperties = new HashMap<String, String>();
         for (String key : contentProperties.keySet()) {
@@ -717,39 +477,22 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                 log.debug("[" + key + "|" + contentProperties.get(key) + "]");
             }
             newContentProperties.put(getSpaceFree(key),
-                                     contentProperties.get(key));
+                    contentProperties.get(key));
         }
-        
-        updateContentProperties(spaceId, contentId, newContentProperties);
-    }
 
-    private void updateContentProperties(String spaceId,
-                                         String contentId,
-                                         Map<String, String> contentProperties) {
+        // Set Content-Type
+        if (contentMimeType != null && !contentMimeType.equals("")) {
+            newContentProperties.put(PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
+        }
+
         String containerName = getContainerName(spaceId);
-
-        StringBuilder err = new StringBuilder(
-            "Could not update properties for content " + contentId + " in " +
-                getProviderName() + " container " + containerName +
-                " due to error: ");
-
-        try {
-            filesClient.updateObjectMetadata(containerName,
-                                             contentId,
-                                             contentProperties);
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            throwIfContentNotExist(spaceId, contentId);
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesInvalidNameException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
+        log.debug("Calling swiftClient.setObjectInfo for spaceId: {} and contentId: {}",
+                spaceId, contentId);
+        if(! swiftClient.setObjectInfo(containerName,
+                contentId,
+                newContentProperties)) {
+            String errMsg = createNotFoundMsg(spaceId, contentId);
+            throw new StorageException("Error setting content properties");
         }
     }
 
@@ -762,33 +505,36 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
 
-        FilesObjectMetaData properties = getObjectProperties(spaceId, contentId);
-        if (properties == null) {
-            String err = "No properties is available for item " + contentId +
-                " in " + getProviderName() + " space " + spaceId;
+        MutableObjectInfoWithMetadata objectInfoWithMetadata =
+                getObjectProperties(spaceId, contentId);
+        if (objectInfoWithMetadata == null) {
+            String err = "No properties are available for item " + contentId +
+                    " in " + getProviderName() + " space " + spaceId;
             throw new StorageException(err, RETRY);
         }
 
-        Map<String, String> propertiesMap = properties.getMetaData();
+        Map<String, String> propertiesMap = objectInfoWithMetadata.getMetadata();
 
         // Set expected property values
 
         // MIMETYPE
         // PROPERTIES_CONTENT_MIMETYPE value is set directly by add/update content
         // SIZE
-        String contentLength = properties.getContentLength();
+        Long contentLength = objectInfoWithMetadata.getBytes();
         if (contentLength != null) {
-            propertiesMap.put(PROPERTIES_CONTENT_SIZE, contentLength);
+            propertiesMap.put(PROPERTIES_CONTENT_SIZE, contentLength.toString());
         }
         // CHECKSUM
-        String checksum = properties.getETag();
-        if (checksum != null) {
+        byte[] hash = objectInfoWithMetadata.getHash();
+        if (hash != null) {
+            String checksum = ChecksumUtil.checksumBytesToString(hash);
             propertiesMap.put(PROPERTIES_CONTENT_CHECKSUM, checksum);
         }
         // MODIFIED DATE
-        String modified = properties.getLastModified();
+        Date modified = objectInfoWithMetadata.getLastModified();
         if (modified != null) {
-            propertiesMap.put(PROPERTIES_CONTENT_MODIFIED, modified);
+            String formatted = DateUtil.convertToString(modified.getTime());
+            propertiesMap.put(PROPERTIES_CONTENT_MODIFIED, formatted);
         }
 
         // Normalize properties keys to lowercase.
@@ -803,41 +549,18 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         return resultMap;
     }
 
-    private FilesObjectMetaData getObjectProperties(String spaceId,
-                                                    String contentId) {
+    private MutableObjectInfoWithMetadata getObjectProperties(String spaceId,
+                                                              String contentId) {
         String containerName = getContainerName(spaceId);
+        MutableObjectInfoWithMetadata objectInfoWithMetadata =
+                swiftClient.getObjectInfo(containerName, contentId);
 
-        StringBuilder err = new StringBuilder(
-            "Could not retrieve properties for content " + contentId +
-                " from " + getProviderName() + " container " + containerName +
-                " due to error: ");
-
-        try {
-            FilesObjectMetaData properties =
-                filesClient.getObjectMetaData(containerName, contentId);
-
-            if(properties == null) {
-                String errMsg = createNotFoundMsg(spaceId, contentId);
-                throw new NotFoundException(errMsg);
-            }
-
-            return properties;
-        } catch (FilesNotFoundException e) {
-            err.append(e.getMessage());
-            throw new NotFoundException(err.toString(), e);            
-        } catch (FilesAuthorizationException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (IOException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
-        } catch (FilesInvalidNameException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, NO_RETRY);
-        } catch (HttpException e) {
-            err.append(e.getMessage());
-            throw new StorageException(err.toString(), e, RETRY);
+        if(objectInfoWithMetadata == null) {
+            String errMsg = createNotFoundMsg(spaceId, contentId);
+            throw new NotFoundException(errMsg);
         }
+
+        return objectInfoWithMetadata;
     }
 
     /**
@@ -855,13 +578,29 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         containerName = containerName.replaceAll("/", "-");
         containerName = containerName.replaceAll("[?]", "-");
         containerName = containerName.replaceAll("[-]+", "-");
-        containerName = FilesClient.sanitizeForURI(containerName);
+        containerName = sanitizeForURI(containerName);
 
         if (containerName.length() > 63) {
             containerName = containerName.substring(0, 63);
         }
 
         return containerName;
+    }
+
+    /**
+     * Encode any unicode characters that will cause us problems.
+     *
+     * @param str
+     * @return The string encoded for a URI
+     */
+    public static String sanitizeForURI(String str) {
+        URLCodec codec = new URLCodec();
+        try {
+            return codec.encode(str).replaceAll("\\+", "%20");
+        } catch (EncoderException ee) {
+            log.warn("Error trying to encode string for URI", ee);
+            return str;
+        }
     }
 
     /**
