@@ -63,6 +63,7 @@
         <module>common-db</module>
         <module>common-rest</module>
         <module>common-xml</module>
+        <module>common-json</module>
         <module>common-notification</module>
         <module>serviceconfig</module>
         <module>storageprovider</module>
