@@ -16,6 +16,35 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
+    <profiles>
+        <profile>
+            <!--Allows for skipping integration tests-->
+            <id>skipIntTests</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>skipIntTests</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>integrationtest</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.duracloud</groupId>
