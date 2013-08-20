@@ -630,10 +630,12 @@ public class S3StorageProvider extends StorageProviderBase {
         contentProperties = super.removeCalculatedProperties(contentProperties);
         if(contentProperties != null){
             contentProperties.remove(Headers.CONTENT_LENGTH);
+            contentProperties.remove(Headers.CONTENT_TYPE);  // Content-Type is set on ObjectMetadata object
             contentProperties.remove(Headers.LAST_MODIFIED);
             contentProperties.remove(Headers.DATE);
             contentProperties.remove(Headers.ETAG);
             contentProperties.remove(Headers.CONTENT_LENGTH.toLowerCase());
+            contentProperties.remove(Headers.CONTENT_TYPE.toLowerCase());
             contentProperties.remove(Headers.LAST_MODIFIED.toLowerCase());
             contentProperties.remove(Headers.DATE.toLowerCase());
             contentProperties.remove(Headers.ETAG.toLowerCase());
