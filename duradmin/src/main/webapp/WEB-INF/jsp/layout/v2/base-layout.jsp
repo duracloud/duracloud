@@ -32,9 +32,9 @@
         style="margin-top: 10px;">
         <li id="gettools"><a
           target="_blank"
-          class="get-tools"
-          href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Downloads">
-            Get Sync Tools</a></li>
+          class="icon-link"
+          href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Downloads"><i
+            class="pre gettools"></i>Get Sync Tools</a></li>
         <li id="help"><a
           target="_blank"
           class="icon-link"
