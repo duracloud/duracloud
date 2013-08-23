@@ -324,7 +324,7 @@
     <enableTimestamp>1</enableTimestamp>
     <outputDirectory>../</outputDirectory>
     <saveRelativePaths>0</saveRelativePaths>
-    <vendor>Duraspace, Inc.</vendor>
+    <vendor>DuraSpace</vendor>
     <windowsExecutableIcon>${basedir}/src/main/install/duracloud.ico</windowsExecutableIcon>
     <osxApplicationBundleIcon>${basedir}/src/main/install/duracloud-sync.icns</osxApplicationBundleIcon>
     <finalPageActionList>
