@@ -228,18 +228,6 @@ body > #page-header
 	line-height:24px;
 }
 
-.list-header .button,
-.list-header .button span
-{
-	background-image:url(../images/btn_featured_L2.gif);
-}
-
-#spaces-list-view .list-header .button,
-#content-item-list-view .list-header .button
-{
-	/*width:140px;*/
-}
-
 #spaces-list-view .list-header .button span,
 #content-item-list-view .list-header .button span
 {
