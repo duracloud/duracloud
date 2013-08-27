@@ -20,16 +20,28 @@ import java.util.Map;
 public interface ContentStoreManager extends Securable {
 
     /**
-     * <p>getContentStores</p>
+     * Gets all available content stores.
+     * Each content store uses the default number of retries (3) on call failure.
      *
      * @return a map of content stores to content store IDs
      * @throws ContentStoreException if the content store list cannot be retrieved
      */
     public Map<String, ContentStore> getContentStores()
         throws ContentStoreException;
-    
+
     /**
-     * <p>getContentStore</p>
+     * Gets all available content stores.
+     *
+     * @param maxRetries number of retries to perform if a content store call fails
+     * @return a map of content stores to content store IDs
+     * @throws ContentStoreException if the content store list cannot be retrieved
+     */
+    public Map<String, ContentStore> getContentStores(int maxRetries)
+        throws ContentStoreException;
+
+    /**
+     * Gets a specific content store based on ID.
+     * Content store uses the default number of retries (3) on call failure.
      *
      * @param storeID the ID of a particular content store
      * @return the ContentStore mapped to storeID
@@ -37,9 +49,21 @@ public interface ContentStoreManager extends Securable {
      */
     public ContentStore getContentStore(String storeID)
         throws ContentStoreException;
-    
+
     /**
-     * <p>getPrimaryContentStore</p>
+     * Gets a specific content store based on ID.
+     *
+     * @param storeID the ID of a particular content store
+     * @param maxRetries number of retries to perform if a content store call fails
+     * @return the ContentStore mapped to storeID
+     * @throws ContentStoreException if the content store cannot be retrieved
+     */
+    public ContentStore getContentStore(String storeID, int maxRetries)
+        throws ContentStoreException;
+
+    /**
+     * Gets the primary content store.
+     * Content store uses the default number of retries (3) on call failure.
      *
      * @return the primary ContentStore
      * @throws if the content store cannot be retrieved
@@ -48,16 +72,38 @@ public interface ContentStoreManager extends Securable {
         throws ContentStoreException;
 
     /**
+     * Gets the primary content store.
+     *
+     * @param maxRetries number of retries to perform if a content store call fails
+     * @return the primary ContentStore
+     * @throws if the content store cannot be retrieved
+     */
+    public ContentStore getPrimaryContentStore(int maxRetries)
+        throws ContentStoreException;
+
+    /**
      * Provides access to the primary content store without requiring login().
      * Only certain ContentStore activities are permitted to anonymous users,
      * primarily getting content from open spaces.
      *
-     * <p>getPrimaryContentStoreAsAnonymous</p>
+     * Content store uses the default number of retries (3) on call failure.
      *
      * @return the primary ContentStore
      * @throws if the content store cannot be retrieved
      */
     public ContentStore getPrimaryContentStoreAsAnonymous()
+        throws ContentStoreException;
+
+    /**
+     * Provides access to the primary content store without requiring login().
+     * Only certain ContentStore activities are permitted to anonymous users,
+     * primarily getting content from open spaces.
+     *
+     * @param maxRetries number of retries to perform if a content store call fails
+     * @return the primary ContentStore
+     * @throws if the content store cannot be retrieved
+     */
+    public ContentStore getPrimaryContentStoreAsAnonymous(int maxRetries)
         throws ContentStoreException;
 
     /**
@@ -69,4 +115,5 @@ public interface ContentStoreManager extends Securable {
      */
     public void reinitialize(String host, String port, String context)
         throws ContentStoreException;
+
 }

@@ -87,7 +87,16 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
     /**
      * {@inheritDoc}
      */
-    public Map<String, ContentStore> getContentStores() throws ContentStoreException {
+    public Map<String, ContentStore> getContentStores()
+        throws ContentStoreException {
+        return getContentStores(-1); // Use default retries
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, ContentStore> getContentStores(int maxRetries)
+        throws ContentStoreException {
         log.debug("getContentStores()");
         StorageAccountManager acctManager = getStorageAccounts();
         Map<String, StorageAccount> accounts = acctManager.getStorageAccounts();
@@ -97,7 +106,7 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         while (acctIDs.hasNext()) {
             String acctID = acctIDs.next();
             StorageAccount acct = accounts.get(acctID);
-            contentStores.put(acctID, newContentStoreImpl(acct));
+            contentStores.put(acctID, newContentStoreImpl(acct, maxRetries));
         }
         return contentStores;
     }
@@ -105,27 +114,52 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
     /**
      * {@inheritDoc}
      */
-    public ContentStore getContentStore(String storeID) throws ContentStoreException {
+    public ContentStore getContentStore(String storeID)
+        throws ContentStoreException {
+        return getContentStore(storeID, -1); // Use default retries
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ContentStore getContentStore(String storeID, int maxRetries)
+        throws ContentStoreException {
         StorageAccountManager acctManager = getStorageAccounts();
         StorageAccount acct = acctManager.getStorageAccount(storeID);
-        return newContentStoreImpl(acct);
+        return newContentStoreImpl(acct, maxRetries);
     }
 
     /**
      * {@inheritDoc}
      */
     public ContentStore getPrimaryContentStore() throws ContentStoreException {
-        StorageAccountManager acctManager = getStorageAccounts();
-        StorageAccount acct = acctManager.getPrimaryStorageAccount();
-        return newContentStoreImpl(acct);
+        return getPrimaryContentStore(-1); // Use default retries
     }
 
     /**
      * {@inheritDoc}
      */
-    public ContentStore getPrimaryContentStoreAsAnonymous() 
+    public ContentStore getPrimaryContentStore(int maxRetries)
         throws ContentStoreException {
-        return newAnonymousContentStoreImpl();
+        StorageAccountManager acctManager = getStorageAccounts();
+        StorageAccount acct = acctManager.getPrimaryStorageAccount();
+        return newContentStoreImpl(acct, maxRetries);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ContentStore getPrimaryContentStoreAsAnonymous()
+        throws ContentStoreException {
+        return getPrimaryContentStore(-1); // Use default retries
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ContentStore getPrimaryContentStoreAsAnonymous(int maxRetries)
+        throws ContentStoreException {
+        return newAnonymousContentStoreImpl(maxRetries);
     }
 
     public void login(Credential appCred) {
@@ -172,11 +206,28 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
                                     getRestHelper());
     }
 
+    protected ContentStore newContentStoreImpl(StorageAccount acct,
+                                               int maxRetries) {
+        return new ContentStoreImpl(baseURL,
+                                    acct.getType(),
+                                    acct.getId(),
+                                    getRestHelper(),
+                                    maxRetries);
+    }
+
     private ContentStore newAnonymousContentStoreImpl() {
         return new ContentStoreImpl(baseURL,
                                     StorageProviderType.UNKNOWN,
                                     null,
                                     getRestHelper());
+    }
+
+    private ContentStore newAnonymousContentStoreImpl(int maxRetries) {
+        return new ContentStoreImpl(baseURL,
+                                    StorageProviderType.UNKNOWN,
+                                    null,
+                                    getRestHelper(),
+                                    maxRetries);
     }
 
     protected String getBaseURL() {
