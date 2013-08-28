@@ -81,12 +81,9 @@ public class ConfigurationControllerTest extends AbstractTest {
     @Test
     public void testUpdateOptions (){
         AdvancedForm f = createMock(AdvancedForm.class);
-        EasyMock.expect(f.isPrependTopLevelDir()).andReturn(true);
         EasyMock.expect(f.isSyncDeletes()).andReturn(true);
         EasyMock.expect(f.getUpdatePolicy()).andReturn(UpdatePolicy.PRESERVE.name());
         syncConfigurationManager.setSyncDeletes(EasyMock.anyBoolean());
-        EasyMock.expectLastCall();
-        syncConfigurationManager.setPrependTopLevelDirectory(EasyMock.anyBoolean());
         EasyMock.expectLastCall();
         syncConfigurationManager.setRenameUpdates(true);
         EasyMock.expectLastCall();

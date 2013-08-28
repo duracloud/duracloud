@@ -79,7 +79,6 @@ public class ConfigurationController {
     public AdvancedForm advancedForm(){
         AdvancedForm f = new AdvancedForm();
         f.setSyncDeletes(this.syncConfigurationManager.isSyncDeletes());
-        f.setPrependTopLevelDir(this.syncConfigurationManager.isPrependTopLevelDirectory());
         f.setUpdatePolicy(UpdatePolicyHelper.get(this.syncConfigurationManager).name());
         return f;
     }
@@ -114,10 +113,6 @@ public class ConfigurationController {
         log.debug("updating sync deletes to : {}", syncDeletes);
         this.syncConfigurationManager.setSyncDeletes(syncDeletes);
 
-        boolean prepend = form.isPrependTopLevelDir();
-        log.debug("updating top level dir to : {}", prepend);
-        this.syncConfigurationManager.setPrependTopLevelDirectory(prepend);
-        
         String up = form.getUpdatePolicy();
         log.debug("modifying update policy to  {}", up);
         UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
@@ -168,16 +163,7 @@ public class ConfigurationController {
     public static class AdvancedForm {
         private String updatePolicy;
         private boolean syncDeletes;
-        private boolean prependTopLevelDir;
 
-        public boolean isPrependTopLevelDir() {
-            return prependTopLevelDir;
-        }
-        
-        public void setPrependTopLevelDir(boolean prependTopLevelDir) {
-            this.prependTopLevelDir = prependTopLevelDir;
-        }
-        
         public boolean isSyncDeletes() {
             return syncDeletes;
         }

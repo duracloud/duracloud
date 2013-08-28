@@ -147,7 +147,6 @@ public class SyncTool {
                                            syncConfig.getSpaceId(),
                                            syncConfig.syncDeletes(),
                                            syncConfig.getMaxFileSize(),
-                                           syncConfig.isPrependTopLevelDirToContentId(),
                                            syncConfig.isSyncUpdates(),
                                            syncConfig.isRenameUpdates(),
                                            syncConfig.getUpdateSuffix());

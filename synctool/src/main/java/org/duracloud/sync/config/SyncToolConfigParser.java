@@ -153,7 +153,8 @@ public class SyncToolConfigParser {
                         "indicates that updates should be synced to the cloud and renamed. " +
                         "Specify an optional suffix to override default " +
                         "( \"" + SyncToolConfig.DEFAULT_UPDATE_SUFFIX + "\"); " + 
-                        "To prevent updates altogether, see option -o");
+                        "To prevent updates altogether, see option -o. " +
+                        "(optional, not set by default)");
          renameUpdates.setRequired(false);
          renameUpdates.setArgName("suffix");
          renameUpdates.setOptionalArg(true);
@@ -162,11 +163,10 @@ public class SyncToolConfigParser {
          Option syncUpdates =
              new Option("o", "no-update", false,
                         "indicates that changed files should not be updated; " +
-                        "to perform updates without overwriting, see option -n.");
+                        "to perform updates without overwriting, see option -n. " +
+                        "(optional, not set by default)");
          syncUpdates.setRequired(false);
          cmdOptions.addOption(syncUpdates);
-
-
 
        Option syncDeletes =
            new Option("d", "sync-deletes", false,
@@ -204,15 +204,6 @@ public class SyncToolConfigParser {
                       "directory name rule per line)");
        excludeOption.setRequired(false);
        cmdOptions.addOption(excludeOption);
-
-
-       Option prependTopLevelDirToContentId =
-           new Option("k", "keep-top-level-dir", false,
-                      "Indicates that the sync tool should prepend the content dir  " +
-                      "to the destination content id. For example given a file named 'x.txt' " + 
-                          "in content directory '/Users/bob', the content id would be '/bob/x'.");
-       prependTopLevelDirToContentId.setRequired(false);
-       cmdOptions.addOption(prependTopLevelDirToContentId);
 
        // Options to use Backup Config
        configFileOptions = new Options();
@@ -428,10 +419,6 @@ public class SyncToolConfigParser {
                                          "path to a valid file.");
             }
             config.setExcludeList(excludeFile);
-        }
-
-        if(cmd.hasOption("k")) {
-            config.setPrependTopLevelDirToContentId(true);
         }
 
         return config;

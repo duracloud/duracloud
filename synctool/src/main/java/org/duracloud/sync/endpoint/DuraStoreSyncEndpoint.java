@@ -7,6 +7,15 @@
  */
 package org.duracloud.sync.endpoint;
 
+import org.apache.commons.lang3.event.EventListenerSupport;
+import org.duracloud.client.ContentStore;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.NotFoundException;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.duracloud.sync.config.SyncToolConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,15 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.lang3.event.EventListenerSupport;
-import org.duracloud.client.ContentStore;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.duracloud.sync.config.SyncToolConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Endpoint which pushes files to DuraCloud.
@@ -41,20 +41,19 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private String username;
     private String spaceId;
     private boolean syncDeletes;
-    private boolean prependTopLevelDirToContentId;
     private boolean syncUpdates;
     private boolean renameUpdates;
     private String updateSuffix;
     private String storeId;
     EventListenerSupport<EndPointListener> listenerList;
     
-    private static final DateFormat DATE_FORMAT= new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+    private static final DateFormat DATE_FORMAT =
+        new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
     
     public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String username,
                                  String spaceId,
                                  boolean syncDeletes,
-                                 boolean prependTopLevelDirToContentId,
                                  boolean syncUpdates, 
                                  boolean renameUpdates, 
                                  String updateSuffix) {
@@ -63,7 +62,6 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         this.storeId = this.contentStore.getStoreId();
         this.spaceId = spaceId;
         this.syncDeletes = syncDeletes;
-        this.prependTopLevelDirToContentId = prependTopLevelDirToContentId;
         this.syncUpdates = syncUpdates;
         this.renameUpdates = renameUpdates;
         this.updateSuffix = updateSuffix;
@@ -74,15 +72,13 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     }
     
     public DuraStoreSyncEndpoint(ContentStore contentStore,
-                                      String username,
-                                      String spaceId,
-                                      boolean syncDeletes,
-                                      boolean prependTopLevelDirToContentId) {
+                                 String username,
+                                 String spaceId,
+                                 boolean syncDeletes) {
         this(contentStore,
              username,
              spaceId,
              syncDeletes,
-             prependTopLevelDirToContentId,
              true,
              false,
              SyncToolConfig.DEFAULT_UPDATE_SUFFIX);
@@ -279,22 +275,15 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     }
 
     /*
-     * Determines the content ID of a file: the path of the file relative to the
-     * watched directory. If the watched directory is null, the content ID is
-     * simply the name of the file. If the prependTopLevelDirToContentId option is true, the
-     * content id will include the watchdir preceded by a slash.
+     * Determines the content ID of a file: the path of the file relative to
+     * the watched directory. If the watched directory is null, the content ID
+     * is simply the name of the file.
      */
     protected String getContentId(MonitoredFile syncFile, File watchDir) {
         String contentId = syncFile.getName();
-
-        if (null != watchDir) {
-            URI relativeFileURI =
-                watchDir.toURI().relativize(syncFile.toURI());
+        if(null != watchDir) {
+            URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
             contentId = relativeFileURI.getPath();
-
-            if(prependTopLevelDirToContentId){
-                contentId = "/" + watchDir.getName() + "/"+contentId;
-            }
         }
         return contentId;
     }

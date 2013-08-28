@@ -116,8 +116,6 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         dconfigs.add(new DirectoryConfig(directory.getAbsolutePath()));
         EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
                 .andReturn(dconfigs).times(times);
-        EasyMock.expect(this.syncConfigurationManager.isPrependTopLevelDirectory())
-        .andReturn(false).times(times);
 
         EasyMock.expect(this.syncConfigurationManager.isSyncUpdates())
         .andReturn(true).times(times);

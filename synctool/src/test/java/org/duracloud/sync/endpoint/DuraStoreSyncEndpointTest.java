@@ -81,7 +81,7 @@ public class DuraStoreSyncEndpointTest {
 
     private void setEndpoint() {
         endpoint =
-            new DuraStoreSyncEndpoint(contentStore, username, spaceId, false,false, true, false, null);
+            new DuraStoreSyncEndpoint(contentStore, username, spaceId, false, true, false, null);
     }
 
     @Test

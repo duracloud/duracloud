@@ -187,17 +187,6 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     }
     
     @Override
-    public boolean isPrependTopLevelDirectory() {
-        return this.syncToolConfig.isPrependTopLevelDirToContentId();
-    }
-    
-    @Override
-    public void setPrependTopLevelDirectory(Boolean flag) {
-        this.syncToolConfig.setPrependTopLevelDirToContentId(flag);
-        persistSyncToolConfig();
-    }
-
-    @Override
     public String getUpdateSuffix() {
         return this.syncToolConfig.getUpdateSuffix();
     } 

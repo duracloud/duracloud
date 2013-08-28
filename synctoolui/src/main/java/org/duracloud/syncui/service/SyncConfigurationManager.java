@@ -66,10 +66,6 @@ public interface SyncConfigurationManager {
     
     public boolean isSyncDeletes();
 
-    public void setPrependTopLevelDirectory(Boolean valueOf);
-    
-    public boolean isPrependTopLevelDirectory();
-
     public boolean isSyncUpdates();
 
     public String getUpdateSuffix();

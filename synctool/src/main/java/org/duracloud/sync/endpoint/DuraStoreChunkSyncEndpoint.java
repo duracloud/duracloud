@@ -41,14 +41,12 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                                       String username,
                                       String spaceId,
                                       boolean syncDeletes,
-                                      long maxFileSize,
-                                      boolean prependTopLevelDirToContentId) {
+                                      long maxFileSize) {
         this(contentStore,
              username,
              spaceId,
              syncDeletes,
              maxFileSize,
-             prependTopLevelDirToContentId,
              true,
              false,
              SyncToolConfig.DEFAULT_UPDATE_SUFFIX);
@@ -59,16 +57,13 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                                       String spaceId,
                                       boolean syncDeletes,
                                       long maxFileSize,
-                                      boolean prependTopLevelDirToContentId, 
                                       boolean syncUpdates, 
                                       boolean renameUpdates, 
                                       String updateSuffix) {
-        
         super(contentStore,
               username,
               spaceId,
               syncDeletes,
-              prependTopLevelDirToContentId,
               syncUpdates,
               renameUpdates,
               updateSuffix);

@@ -71,13 +71,6 @@
                   <fieldset>
                     <ul>
                     <li>
-                    <label  title="Check this box if you want the watch directory to be included in the content id." >
-                    <form:checkbox 
-                      path="prependTopLevelDir"/>
-                      Include watch directory in DuraCloud content id                
-                    </label>
-                    </li>
-                    <li>
                     <label title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud.">
                     <form:checkbox 
                         path="syncDeletes" 
