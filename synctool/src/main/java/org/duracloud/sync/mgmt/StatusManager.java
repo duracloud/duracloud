@@ -7,15 +7,13 @@
  */
 package org.duracloud.sync.mgmt;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
+import org.duracloud.common.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Singleton class which tracks the status of the sync queue
@@ -25,8 +23,6 @@ import org.slf4j.LoggerFactory;
  */
 public class StatusManager {
     private Logger log = LoggerFactory.getLogger(StatusManager.class);
-    private static final DateFormat DATE_FORMAT =
-        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     private long inWork;
     private long succeeded;
@@ -51,7 +47,7 @@ public class StatusManager {
     protected StatusManager() {
         succeeded = 0;
         failed = new ArrayList<SyncSummary>();
-        startTime = DATE_FORMAT.format(new Date());
+        startTime = DateUtil.nowLong();
         changedList = ChangedList.getInstance();
         recentlyCompleted = new LinkedList<SyncSummary>();
     }
@@ -113,11 +109,11 @@ public class StatusManager {
     public String getPrintableStatus() {
         StringBuilder status = new StringBuilder();
 
-        status.append("\n---------------------------------------\n");
+        status.append("\n-------------------------------------------\n");
         status.append(" Sync Tool " + version + " - Status");
-        status.append("\n--------------------------------------\n");
+        status.append("\n-------------------------------------------\n");
         status.append("Start Time: " + startTime + "\n");
-        status.append("Current Time: " + DATE_FORMAT.format(new Date()) + "\n");
+        status.append("Current Time: " + DateUtil.nowVerbose() + "\n");
         status.append("Sync Queue Size: " + getQueueSize() + "\n");
         status.append("Syncs In Process: " + getInWork() + "\n");
         status.append("Successful Syncs: " + getSucceeded() + "\n");
@@ -125,9 +121,8 @@ public class StatusManager {
         for(SyncSummary failedFile : getFailed()) {
             status.append("  " + failedFile.getFile().getAbsolutePath() + "\n");    
         }
-        status.append("--------------------------------------\n");
+        status.append("-------------------------------------------\n");
         return status.toString();
     }
-
 
 }

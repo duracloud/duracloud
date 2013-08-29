@@ -9,6 +9,7 @@ package org.duracloud.sync.endpoint;
 
 import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.storage.util.StorageProviderUtil;
@@ -20,9 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -46,10 +44,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private String updateSuffix;
     private String storeId;
     EventListenerSupport<EndPointListener> listenerList;
-    
-    private static final DateFormat DATE_FORMAT =
-        new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-    
+
     public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String username,
                                  String spaceId,
@@ -65,8 +60,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         this.syncUpdates = syncUpdates;
         this.renameUpdates = renameUpdates;
         this.updateSuffix = updateSuffix;
-        this.listenerList =
-            new EventListenerSupport<EndPointListener>(EndPointListener.class);
+        this.listenerList = new EventListenerSupport<>(EndPointListener.class);
 
         ensureSpaceExists();
     }
@@ -163,8 +157,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                 //I'm using current timestamp since original timestamp is just a date without timestamp info.
                                 //Plus I think it is more intuitive to have the timestamp reflect the moment when the backup
                                 //file was created. -dbernstein
-                                Date creationDate = new Date();
-                                String timeStamp = DATE_FORMAT.format(creationDate);
+                                String timeStamp = DateUtil.nowPlain();
                                 String backupContentId = contentId +  this.updateSuffix + "." +timeStamp;
                                 this.contentStore.copyContent(this.spaceId,
                                                               contentId,

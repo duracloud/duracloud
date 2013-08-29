@@ -326,15 +326,15 @@ public class SyncTool {
     public String getPrintableHelp() {
         StringBuilder help = new StringBuilder();
 
-        help.append("\n--------------------------------------\n");
+        help.append("\n-------------------------------------------\n");
         help.append(" Sync Tool " + version + " - Help");
-        help.append("\n--------------------------------------\n");
+        help.append("\n-------------------------------------------\n");
 
         help.append("The following commands are available:\n");
         help.append("x - Exits the Sync Tool\n");
         help.append("c - Prints the Sync Tool configuration\n");
         help.append("s - Prints the Sync Tool status\n");
-        help.append("\n--------------------------------------\n");
+        help.append("-------------------------------------------\n");
         
         return help.toString();
     }

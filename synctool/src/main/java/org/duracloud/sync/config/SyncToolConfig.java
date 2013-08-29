@@ -44,9 +44,9 @@ public class SyncToolConfig implements Serializable {
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
 
-        config.append("\n--------------------------------------\n");
+        config.append("\n-------------------------------------------\n");
         config.append(" Sync Tool " + version + " - Configuration");
-        config.append("\n--------------------------------------\n");
+        config.append("\n-------------------------------------------\n");
 
         config.append("Content Directories:\n");
         for(File dir : getContentDirs()) {
@@ -92,10 +92,13 @@ public class SyncToolConfig implements Serializable {
         config.append(isSyncUpdates()).append("\n");
         config.append("Rename Updates: ");
         config.append(isRenameUpdates()).append("\n");
-        config.append("Rename updates suffix: ");
-        config.append(getUpdateSuffix()).append("\n");
 
-        config.append("--------------------------------------\n");
+        if(isRenameUpdates()) {
+          config.append("Rename Updates suffix: ");
+          config.append(getUpdateSuffix()).append("\n");
+        }
+
+        config.append("-------------------------------------------\n");
 
         return config.toString();
     }
