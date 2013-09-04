@@ -241,6 +241,11 @@ progress:after {
 	white-space:normal;
 }
 
+.form-fields label.error
+{
+    width:97%;
+}
+
 .form-fields .field
 {
 	display:inline-block;

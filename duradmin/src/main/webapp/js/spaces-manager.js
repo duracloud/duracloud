@@ -28,8 +28,8 @@ $(function(){
 
         $.validator
         .addMethod("startswith", function(value, element) { 
-          return  /^[a-z0-9]/.test(value); 
-        }, "Invalid");
+          return  /^[a-z]/.test(value); 
+        }, "Must start with lowercase letters");
 
         $.validator
             .addMethod("endswith", function(value, element) { 

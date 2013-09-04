@@ -351,9 +351,9 @@
               <li>Must be between 3 and 42 characters long</li>
               <li>Includes ONLY lowercase letters, numbers, periods, and
                 dashes</li>
+              <li>Must start with a lowercase letter</li>
               <li>Does NOT include spaces or underscores</li>
-              <li>Does NOT start or end with a dash</li>
-              <li>Is NOT formatted as an IP address (e.g. 1.1.1.1)</li>
+              <li>Does NOT end with a dash</li>
               <li>Does NOT combine periods and dashes as '..' '-.' or '.-'</li>
               <li>Does NOT immediately follow the last period with a number</li>
               <li>Is NOT a reserved name: init, stores, spaces, security,
