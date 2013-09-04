@@ -30,6 +30,7 @@ import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
+import org.duracloud.sync.walker.DeleteChecker;
 import org.duracloud.sync.walker.DirWalker;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
@@ -68,7 +69,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private SyncManager syncManager;
     private DirWalker dirWalker;
     private DirectoryUpdateMonitor dirMonitor;
-
+    private DeleteChecker deleteChecker;
     private SyncProcessError error;
 
     private ContentStoreManagerFactory contentStoreManagerFactory;
@@ -224,11 +225,12 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             String username = dc.getUsername();
             csm.login(new Credential(username, dc.getPassword()));
             ContentStore contentStore = csm.getPrimaryContentStore();
+            boolean syncDeletes = this.syncConfigurationManager.isSyncDeletes();
             SyncEndpoint syncEndpoint =
                 new DuraStoreChunkSyncEndpoint(contentStore,
                                                username,
                                                dc.getSpaceId(),
-                                               false,
+                                               syncDeletes,
                                                1073741824, // 1GB chunk size
                                                this.syncConfigurationManager.isSyncUpdates(),
                                                this.syncConfigurationManager.isRenameUpdates(),
@@ -249,8 +251,15 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             dirMonitor =
                 new DirectoryUpdateMonitor(dirs,
                                            CHANGE_LIST_MONITOR_FREQUENCY,
-                                           false);
+                                           syncDeletes);
             dirMonitor.startMonitor();
+            
+            if(syncDeletes) {
+                deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
+                                                    dirs);
+            }
+
+
         } catch (ContentStoreException e) {
             String message =  StringUtils.abbreviate(e.getMessage(),100);
             handleStartupException(message, e);
@@ -295,6 +304,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             log.warn("stop monitor failed: " + ex.getMessage());
         }
         
+        if(this.deleteChecker != null){
+            this.deleteChecker.stop();
+        }
+
         if(this.dirWalker != null){
             this.dirWalker.stopWalk();
         }

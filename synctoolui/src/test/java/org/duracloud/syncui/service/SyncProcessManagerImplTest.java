@@ -107,16 +107,18 @@ public class SyncProcessManagerImplTest extends AbstractTest {
                 .andAnswer(new IAnswer<Iterator<String>>() {
                     @Override
                     public Iterator<String> answer() throws Throwable {
-                        return Arrays.asList(new String[] {
-                            "testFile1", "testFile2" }).iterator();
+                        return Arrays.asList(new String[] {}).iterator();
                     }
-                }).times(times);
+                }).anyTimes();
 
         DirectoryConfigs dconfigs = new DirectoryConfigs();
         dconfigs.add(new DirectoryConfig(directory.getAbsolutePath()));
         EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
                 .andReturn(dconfigs).times(times);
 
+        EasyMock.expect(this.syncConfigurationManager.isSyncDeletes())
+        .andReturn(true).times(times);
+        
         EasyMock.expect(this.syncConfigurationManager.isSyncUpdates())
         .andReturn(true).times(times);
 

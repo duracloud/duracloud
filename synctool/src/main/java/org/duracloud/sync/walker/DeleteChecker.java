@@ -27,7 +27,8 @@ public class DeleteChecker implements Runnable {
     private Iterator<String> filesList;
     private List<File> syncDirs;
     private boolean complete = false;
-
+    private boolean stopped = false;
+    
     /**
      * Creates a delete checker
      *
@@ -52,7 +53,7 @@ public class DeleteChecker implements Runnable {
         logger.info("Running Delete Checker");
         ChangedList changedList = ChangedList.getInstance();
 
-        while (filesList.hasNext()) {
+        while (filesList.hasNext() && !stopped) {
             String fileToCheck = filesList.next();
             logger.debug("Checking: " + fileToCheck);
 
@@ -78,6 +79,10 @@ public class DeleteChecker implements Runnable {
 
     public boolean checkComplete() {
         return complete;
+    }
+    
+    public void stop() {
+        this.stopped = true;
     }
 
     public static DeleteChecker start(Iterator<String> filesList,
