@@ -587,3 +587,8 @@ div.green-check {
   height: 25px; 
   position: relative;
 }
+
+#download-log {
+  font-size:12px; 
+  float:right;
+}
