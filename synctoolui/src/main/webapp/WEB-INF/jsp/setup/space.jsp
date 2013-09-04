@@ -16,13 +16,26 @@ file="../include/libraries.jsp"%>
   <tiles:putAttribute
    name="panelMessage"
    cascade="true">
-    Select a destination space for your content.
+    <p>Select a destination space for your content.</p>
    
    </tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelContent"
    cascade="true">
+
+      <spring:hasBindErrors name="spaceForm">
+        <c:if test="${fn:length(errors.allErrors) > 0}">
+            <ul class="global-errors">
+              <c:forEach
+                items="${errors.allErrors}"
+                var="errorMessage">
+                  <li><c:out value="${errorMessage.defaultMessage}" /></li>
+              </c:forEach>
+            </ul>
+          </c:if>
+      </spring:hasBindErrors>
+
     <form:form
      method="POST"
      modelAttribute="spaceForm">
@@ -30,22 +43,15 @@ file="../include/libraries.jsp"%>
         <ol>
           <li>
             <form:label
-             cssErrorClass="error"
              path="spaceId">
               <spring:message
                code="spaceId" />
             </form:label>
 
             <form:select
-             cssErrorClass="error"
              path="spaceId"
              items="${spaces}"
              autofocus="true"/>
-
-            <form:errors
-             path="spaceId"
-             cssClass="error"
-             element="div" />
           </li>
         </ol>
       </fieldset>

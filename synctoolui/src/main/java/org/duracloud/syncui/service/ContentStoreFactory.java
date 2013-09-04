@@ -30,6 +30,11 @@ public class ContentStoreFactory {
 
     public ContentStore create(DuracloudCredentialsForm dcf)
         throws ContentStoreException {
+        return create(dcf, true);
+    }
+
+    public ContentStore create(DuracloudCredentialsForm dcf, boolean retry)
+        throws ContentStoreException {
         String username = dcf.getUsername();
         String host = dcf.getHost();
         String port = dcf.getPort();
@@ -39,7 +44,13 @@ public class ContentStoreFactory {
         csm.login(credential);
         log.debug("logged into {}:{} as {}", new Object[] {
             host, port, username });
-        ContentStore primary = csm.getPrimaryContentStore();
+
+        ContentStore primary;
+        if(retry) {
+            primary = csm.getPrimaryContentStore();
+        } else {
+            primary = csm.getPrimaryContentStore(0);
+        }
         log.debug("retrieved primary content store");
         return primary;
     }

@@ -33,10 +33,14 @@
   <view-state id="selectSpace" view="/setup/space" model="spaceForm">
     <on-entry>
       <set name="flowScope.spaceForm" value="spaceForm" />
+      <!-- the credentials form is associated with the space form because the space
+      form needs the credentials to perform a check the writability of the space.
+       -->
+      <evaluate expression="spaceForm.setCredentialsForm(flowScope.duracloudCredentialsForm)"/>
     </on-entry>
     <transition on="previous" to="duracloudCredentialsForm" />
     <transition on="next" to="isNoDirectoryConfigured" />
-    <transition on="cancel" to="end" />
+    <transition on="cancel" to="end" validate="false"/>
   </view-state>
 
   <decision-state id="isNoDirectoryConfigured">
