@@ -233,18 +233,23 @@ $.widget("ui.uploader", {
               that._progress.html(100);
               var data = $.parseJSON(xhr.responseText);
               var results = data.results;
-              that._status("Upload successful! Click on any item label below to see the content details.", true);
-              that._progressPanel.hide();
-              that._dropPreview.find("button").remove();
-              that._dropPreview.prepend(
-                      $("<button>Upload more files</button>")
-                          .click(function(e){
-                              e.preventDefault();
-                              that._reset();    
-                          }
-                      )
-                  );
-              that._success(results);
+              if(data.exception){
+                  that._status("Upload failed: " + data.exception.message, false);
+                  
+              }else{
+                  that._status("Upload successful! Click on any item label below to see the content details.", true);
+                  that._progressPanel.hide();
+                  that._dropPreview.find("button").remove();
+                  that._dropPreview.prepend(
+                          $("<button>Upload more files</button>")
+                              .click(function(e){
+                                  e.preventDefault();
+                                  that._reset();    
+                              }
+                          )
+                      );
+                  that._success(results);
+              }
             };
 
             xhr.upload.onprogress = function (event) {
