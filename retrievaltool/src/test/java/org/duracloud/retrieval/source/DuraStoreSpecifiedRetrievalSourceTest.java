@@ -42,6 +42,7 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
         spaces = new ArrayList<String>();
         spaces.add(spaceId0);
         store = EasyMock.createMock("ContentStore", ContentStore.class);
+        EasyMock.expect(store.getSpaces()).andReturn(spaces).times(1);
 
         specifiedContentIds = new ArrayList<String>();
         specifiedContentIds.add(BASIC.getContentId(0));
@@ -74,6 +75,7 @@ public class DuraStoreSpecifiedRetrievalSourceTest {
         // this should cause DuraCloudRuntimeException when
         // constructing DuraStoreSpecifiedRetrievalSource
         spaces.add(spaceId1);
+        replayMocks();
 
         retrievalSource = new DuraStoreSpecifiedRetrievalSource(store,
                 spaces,

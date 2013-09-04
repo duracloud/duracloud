@@ -7,13 +7,16 @@
  */
 package org.duracloud.retrieval.source;
 
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +49,25 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
         }
 
         if(spaces != null && spaces.size() > 0) {
-            spaceIds = spaces.iterator();
+            try {
+                // check if provided spaces exist
+                List<String> spaceList = store.getSpaces();
+                List<String> nonExistantSpaces = new ArrayList<String>();
+                for(String space: spaces) {
+                    if(! spaceList.contains(space)) {
+                        nonExistantSpaces.add(space);
+                    }
+                }
+                if(! nonExistantSpaces.isEmpty()) {
+                    String error = "The following provided spaces do not exist: " +
+                            StringUtils.join(nonExistantSpaces, ", ");
+                    throw new DuraCloudRuntimeException(error);
+                }
+
+                spaceIds = spaces.iterator();
+            } catch(ContentStoreException cse) {
+                throw new DuraCloudRuntimeException("Error retrieving spaces list", cse);
+            }
         } else {
             throw new RuntimeException("Spaces list is empty, there is " +
                                        "no content to retrieve");

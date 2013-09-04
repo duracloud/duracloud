@@ -63,6 +63,7 @@ public class DuraStoreStitchingRetrievalSourceTest {
         streams = new ArrayList<InputStream>();
 
         store = EasyMock.createMock("ContentStore", ContentStore.class);
+        EasyMock.expect(store.getSpaces()).andReturn(spaces).times(1);
     }
 
     @After

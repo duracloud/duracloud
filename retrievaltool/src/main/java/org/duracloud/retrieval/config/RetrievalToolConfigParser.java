@@ -301,7 +301,8 @@ public class RetrievalToolConfigParser {
         }
 
         if(cmd.hasOption("f")) {
-            if(config.getSpaces().size() > 1 || config.isAllSpaces()) {
+            if((config.getSpaces() != null && config.getSpaces().size() > 1) ||
+                    config.isAllSpaces()) {
                 throw new ParseException("The 'list-file' option (-f) can " +
                                          "only operate on one space at a time.");
             } else if(config.isListOnly()) {
