@@ -1939,6 +1939,7 @@ $(function(){
        },
        
        _loadPropertiesPane: function(extendedProperties, /*bool*/ readOnly){
+           $("#extended-properties", this.element).remove();
            var viewerPane = this._createPropertiesPane(extendedProperties, readOnly);
            this._appendToCenter(viewerPane);
            return viewerPane;
@@ -1948,6 +1949,7 @@ $(function(){
            var viewerPane = $.fn.create("div")
                            .propertiesviewer({title: "Properties", readOnly: readOnly})
                            .propertiesviewer("load",extendedProperties);
+           viewerPane.attr("id", "extended-properties");
            return viewerPane;
        },
 
@@ -1955,10 +1957,12 @@ $(function(){
            var viewerPane = $.fn.create("div")
                            .tagsviewer({title: "Tags", readOnly: readOnly})
                            .tagsviewer("load",tags);
+           viewerPane.attr("id", "tags");
            return viewerPane;
        },
 
        _loadTagPane: function(tags, /*bool*/readOnly){
+           $("#tags", this.element).remove();
            var viewerPane = this._createTagPane(tags,readOnly);
            this._appendToCenter(viewerPane);
            return viewerPane;
