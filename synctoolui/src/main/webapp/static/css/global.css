@@ -105,7 +105,7 @@ label {
 .fieldgroup {
   margin-left: 120px;
 }
-input {
+input[type="text"] {
   min-width: 200px;
 }
 
@@ -581,6 +581,10 @@ div.green-check {
 #options fieldset {
   border: 1px solid #ccc;
   margin-bottom: 10px;
+}
+
+#options fieldset.button-bar {
+  border: 0px none;
 }
 
 #options fieldset li {

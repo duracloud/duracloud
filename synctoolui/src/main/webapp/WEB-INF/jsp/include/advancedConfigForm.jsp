@@ -6,6 +6,7 @@
 
 
 <fieldset>
+  <legend>Deletion Policy</legend>
   <ul>
     <li><label
       title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud.">

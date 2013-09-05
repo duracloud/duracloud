@@ -45,10 +45,6 @@ file="../include/libraries.jsp"%>
                 autofocus="true" 
                 />
                 
-            <form:errors
-             path="host"
-             cssClass="error"
-             element="div" />
              
              <c:if test="${duracloudCredentialsForm.defaultPort}">
              <a href="#" id="advanced">
@@ -56,6 +52,10 @@ file="../include/libraries.jsp"%>
              </a>
              </c:if>             
             
+            <form:errors
+             path="host"
+             cssClass="error"
+             element="div" />
              </div>
              
           </li>  

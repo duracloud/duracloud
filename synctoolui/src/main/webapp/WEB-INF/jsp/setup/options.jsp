@@ -11,7 +11,7 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelTitle"
-   cascade="true">Select Space</tiles:putAttribute>
+   cascade="true">Set Sync Policies</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelMessage"
