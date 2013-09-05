@@ -66,34 +66,11 @@
               
             </div>
             <div class="body">
-              <form:form method="post" modelAttribute="advancedForm"  action="${pageContext.request.contextPath}/configuration/advanced">
-                  
-                  <fieldset>
-                    <ul>
-                    <li>
-                    <label title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud.">
-                    <form:checkbox 
-                        path="syncDeletes" 
-                        />
-                        Sync deletes
-                        </label>
-                     </li>
-                     </ul>
-                  </fieldset>
-                  <fieldset>
-                    <legend>Update Policy</legend>
-                    <ul>
-                      <li>
-                        <label> <form:radiobutton path="updatePolicy" value="OVERWRITE"/>Overwrite existing content</label>
-                      </li>
-                      <li>
-                        <label><form:radiobutton path="updatePolicy" value="NONE"/>Do not sync updates</label>
-                      </li>                     
-                      <li>
-                        <label><form:radiobutton path="updatePolicy" value="PRESERVE"/>Update but do not overwrite (preserve original in cloud)</label>
-                      </li> 
-                    </ul>
-                    </fieldset>
+              <form:form
+                method="post"
+                modelAttribute="advancedForm"
+                action="${pageContext.request.contextPath}/configuration/advanced">
+                <jsp:include page="./include/advancedConfigForm.jsp"/>
               </form:form>
             </div>
           </div>

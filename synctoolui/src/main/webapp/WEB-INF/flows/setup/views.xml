@@ -28,6 +28,7 @@
   <definition name="/setup/space" template="/WEB-INF/jsp/setup/space.jsp" />
   <definition name="/setup/directory" template="/WEB-INF/jsp/setup/directory.jsp" />
   <definition name="/setup/directories" template="/WEB-INF/jsp/setup/directories.jsp" />
+  <definition name="/setup/options" template="/WEB-INF/jsp/setup/options.jsp" />
   <definition name="/setup/finish" template="/WEB-INF/jsp/setup/finish.jsp" />
 
 </tiles-definitions>

@@ -7,6 +7,8 @@
  */
 package org.duracloud.syncui.setup;
 
+import org.duracloud.syncui.controller.ConfigurationController.UpdatePolicy;
+import org.duracloud.syncui.domain.AdvancedForm;
 import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
@@ -45,13 +47,24 @@ public class SaveSetupActionTest extends AbstractTest {
         
         scm.persistDuracloudConfiguration(username, password, host, cred.getPort(), spaceId);
         EasyMock.expectLastCall();
-        
         scm.persistDirectoryConfigs(configs);
+
+
+        AdvancedForm advanced = new AdvancedForm();
+        advanced.setSyncDeletes(false);
+        scm.setSyncDeletes(advanced.isSyncDeletes());
         EasyMock.expectLastCall();
+
+        advanced.setUpdatePolicy(UpdatePolicy.OVERWRITE.name());
+        scm.setSyncUpdates(true);
+        EasyMock.expectLastCall();
+        scm.setRenameUpdates(false);
+        EasyMock.expectLastCall();
+        
         SaveSetupAction sc = new SaveSetupAction(scm);
         replay();
 
-        String result = sc.execute(cred, space, configs);
+        String result = sc.execute(cred, space, configs, advanced);
 
         Assert.assertEquals("success", result);
 

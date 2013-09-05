@@ -8,8 +8,8 @@
 package org.duracloud.syncui.controller;
 
 import org.duracloud.syncui.AbstractTest;
-import org.duracloud.syncui.controller.ConfigurationController.AdvancedForm;
 import org.duracloud.syncui.controller.ConfigurationController.UpdatePolicy;
+import org.duracloud.syncui.domain.AdvancedForm;
 import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;

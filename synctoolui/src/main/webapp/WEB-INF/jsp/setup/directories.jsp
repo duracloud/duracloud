@@ -64,7 +64,7 @@
         <button
           id="next"
           type="submit"
-          name="_eventId_save">
+          name="_eventId_next">
           <spring:message code="next" />
         </button>
         </c:if>

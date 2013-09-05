@@ -68,14 +68,23 @@
   <view-state id="directoryConfigsList" view="/setup/directories">
     <transition on="add" to="configureDirectory" />
     <transition on="previous" to="selectSpace" />
-    <transition on="save" to="saveSetup" />
+    <transition on="next" to="configureOptions" />
+    <transition on="cancel" to="end" />
+  </view-state>
+
+  <view-state id="configureOptions" view="/setup/options" model="advancedForm">
+    <on-entry>
+      <set name="flowScope.advancedForm" value="advancedForm"/>
+    </on-entry>
+  
+    <transition on="previous" to="directoryConfigsList" />
+    <transition on="next" to="saveSetup" />
     <transition on="cancel" to="end" />
   </view-state>
 
   <action-state id="saveSetup">
     <evaluate
-
-      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs)" />
+      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs,  flowScope.advancedForm)" />
     <transition to="finish" />
   </action-state>
 

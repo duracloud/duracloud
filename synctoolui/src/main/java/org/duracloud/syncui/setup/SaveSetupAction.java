@@ -7,10 +7,13 @@
  */
 package org.duracloud.syncui.setup;
 
+import org.duracloud.syncui.controller.ConfigurationController.UpdatePolicy;
+import org.duracloud.syncui.domain.AdvancedForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
 import org.duracloud.syncui.domain.SpaceForm;
 import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.duracloud.syncui.util.UpdatePolicyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +39,8 @@ public class SaveSetupAction {
 
     public String execute(DuracloudCredentialsForm credentials,
                           SpaceForm spaceForm,
-                          DirectoryConfigs configs) {
+                          DirectoryConfigs configs,
+                          AdvancedForm advancedForm) {
         syncConfigurationManager.persistDuracloudConfiguration(credentials.getUsername(),
                                                                credentials.getPassword(),
                                                                credentials.getHost(),
@@ -44,6 +48,11 @@ public class SaveSetupAction {
                                                                spaceForm.getSpaceId());
         syncConfigurationManager.persistDirectoryConfigs(configs);
 
+        syncConfigurationManager.setSyncDeletes(advancedForm.isSyncDeletes());
+        String up = advancedForm.getUpdatePolicy();
+        log.debug("setting update policy to  {}", up);
+        UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
+        
         log.info("successfully saved setup.");
         return "success";
     }

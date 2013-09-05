@@ -9,6 +9,7 @@ package org.duracloud.syncui.controller;
 
 import javax.validation.Valid;
 
+import org.duracloud.syncui.domain.AdvancedForm;
 import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
@@ -17,6 +18,7 @@ import org.duracloud.syncui.domain.DuracloudCredentialsForm;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.service.SyncConfigurationManager;
 import org.duracloud.syncui.service.SyncProcessManager;
+import org.duracloud.syncui.util.UpdatePolicyHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,56 +160,5 @@ public class ConfigurationController {
         NONE,
         PRESERVE,
         OVERWRITE;
-    }
-    
-    public static class AdvancedForm {
-        private String updatePolicy;
-        private boolean syncDeletes;
-
-        public boolean isSyncDeletes() {
-            return syncDeletes;
-        }
-        
-        public void setSyncDeletes(boolean syncDeletes) {
-            this.syncDeletes = syncDeletes;
-        }
-        
-        public void setUpdatePolicy(String updatePolicy) {
-            this.updatePolicy = updatePolicy;
-        }
-        
-        public String getUpdatePolicy() {
-            return updatePolicy;
-        }
-    }
-    
-    private static class UpdatePolicyHelper {
-        public static void set(SyncConfigurationManager scm, UpdatePolicy up){
-            if(UpdatePolicy.NONE.equals(up)){
-                scm.setSyncUpdates(false);
-                scm.setRenameUpdates(false);
-            }else if(UpdatePolicy.PRESERVE.equals(up)){
-                scm.setSyncUpdates(true);
-                scm.setRenameUpdates(true);
-            }else if(UpdatePolicy.OVERWRITE.equals(up)){
-                scm.setSyncUpdates(true);
-                scm.setRenameUpdates(false);
-            }else{
-                throw new IllegalArgumentException("unknown update policy: " + up);
-            }
-        }
-        
-        public static UpdatePolicy get(SyncConfigurationManager scm){
-            if(!scm.isSyncUpdates()){
-                return UpdatePolicy.NONE;
-            }else {
-                if(!scm.isRenameUpdates()){
-                    return UpdatePolicy.OVERWRITE; 
-                }else{
-                    return UpdatePolicy.PRESERVE;
-                }
-            }
-        }
-
     }
 }
