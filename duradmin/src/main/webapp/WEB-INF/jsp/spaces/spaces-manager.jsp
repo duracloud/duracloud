@@ -576,7 +576,7 @@
 
         </div>
         <div id="upload-viewer" style="display:none">
-          <h1>Uploads</h1>
+          <h1>Upload</h1>
             <div class="hint status">
               <p></p>
             </div>
@@ -589,31 +589,40 @@
             </div>
           <div id="file-chooser-form">
             <form id="single-upload-form" method="POST" enctype="multipart/form-data" action="${pageContext.request.contextPath}/spaces/content/upload">
-              <div class="form-fields">
+              <div id="single-upload-1" class="form-fields" style="display:none">
                <input type="hidden" name="spaceId" id="spaceId" value=""/>
                <input type="hidden" name="storeId" id="storeId" value=""/>
 
-               <fieldset>
-                <ul>
-                  <li class="row clearfix">
-                      <label for="contentId">Content ID</label>  
-                      <input class="field" type="text" name="contentId" placeholder="optional content id"/>
-                  </li>
-                  <li class="row clearfix">
-                     <label for="file">File</label>  
-                     <input  id="file" name="file" type="file" class="field"/>                          
-                  </li>
-  
+               <ul>
                   <li>
-                   <button type="submit">Upload Single File</button>
+                   <button type="submit">Upload</button>
+                  </li>
+
+                  <li class="clearfix">
+                     <label>File Name</label>
+                     <input id="path" type="text" readonly="readonly" class="field" size="35"/>
+                  </li>
+                  <li class="clearfix">
+                      <label for="contentId">DuraCloud ID</label>
+                      <input  id="contentId" type="text" name="contentId" placeholder="optional content id" size="35"/>
                   </li>
                 </ul>
-               </fieldset>
               </div>
+              <div id="single-upload-2" class="form-fields">
+                     <input  id="file" name="file" type="file" class="field" />
+              </div>
+              
+
             </form>
           </div>
+
+
           <div id="upload-list-wrapper">
               <div id="dnd-upload">
+                <div id="upload-option-divider">
+                   OR 
+                </div>
+
                 <div id="drop-target">
                   <span>
                     Optionally drop files here
@@ -634,6 +643,4 @@
     </tiles:insertDefinition>
   </tiles:putAttribute>
 </tiles:insertDefinition>
-
-
 

@@ -23,7 +23,7 @@
      -->
     <bean name="javascriptJsonView" class="org.springframework.web.servlet.view.json.JsonView">
 	    <property name="encoding"><value>UTF-8</value></property>
-	    <property name="contentType"><value>text/javascript</value></property>
+	    <property name="contentType"><value>text/plain</value></property>
 	    <property name="jsonWriter"><ref bean="jsonlibJsonWriter"/></property>
     	<property name="jsonErrors">
 	    	<list>

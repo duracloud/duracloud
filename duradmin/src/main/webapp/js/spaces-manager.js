@@ -61,7 +61,17 @@ $(function(){
     })();
 
     $.fx.speeds._default = 10;
-	/**
+    
+    
+    /**
+     * Disable default drag and drop functionality
+     */
+    $(document.body).bind("dragover drop", function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    /**
 	 * This singleton class listens to changes in the history and delegates the event's data to a list of 
 	 * handler functions.  The handlers are called sequentially in the order they were added. 
 	 * Once a handler returns true, the rest of the handlers are ignored.
@@ -1801,7 +1811,7 @@ $(function(){
         },
         
         _load: function(space){
-    
+            var that = this;
             this._spaceId = space.spaceId;
             this._storeId = space.storeId;
             var list,listView, readOnly = this._isReadOnly(space); 
@@ -1853,7 +1863,7 @@ $(function(){
                 show: 'blind',
                 hide: 'blind',
                 resizable: false,
-                height: 425,
+                height: 500,
                 closeOnEscape:true,
                 modal: true,
                 width:500,
@@ -1870,6 +1880,11 @@ $(function(){
                         clickContent: function(contentItem){
                             HistoryManager.pushState(contentItem);
                             uploadviewer.dialog("close");
+                        },
+                        contentUploaded: function(contentItems){
+                            $.each(contentItems, function(i,contentItem){
+                                that._addContentItemToList(contentItem, readOnly);
+                            });
                         }
                     });
                     

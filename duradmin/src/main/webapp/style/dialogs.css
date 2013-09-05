@@ -149,17 +149,65 @@
 	height:430px;
 	overflow:auto;
 }
+
+#upload-viewer label:after{
+ content: ':';
+}
+
 #upload-list-wrapper
 {
 	padding-right:10px;
 }
 
+
+.upload-thumbnail {
+  margin-top: 10px; 
+  height:50px;
+}
 .upload-item 
 {
 	border-bottom:1px solid #555;
 	margin-bottom:5px;
 	padding:10px 0;
 	
+}
+
+#upload-option-divider {
+  color: green;
+  font-weight: bold;
+  font-size: 30px;
+  text-align: center;
+  margin: 20px 0px 40px 0px;
+}
+
+#single-upload-1 label {
+    width: 102px;
+}
+
+#single-upload-1  input {
+    width: 350px;
+}
+
+#single-upload-2 {
+  margin-top: 20px;
+  text-align:center;
+}
+
+button#upload-another {
+  margin-bottom:10px;
+}
+
+#drop-preview label {
+    width: 102px;
+}
+
+#drop-preview input {
+    width: 235px;
+}
+
+#drop-preview button.trashbutton {
+    margin-top: -3px;
+    margin-left: 5px;
 }
 
 .upload-item > * {
@@ -170,10 +218,6 @@
   color:#eee;
 }
 
-#file-chooser-form {
-  border-bottom: 3px solid #ccc;
-  padding-bottom: 10px; 
-}
 
 #drop-target {
   border: 5px dashed #ccc;
