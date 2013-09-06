@@ -5,7 +5,7 @@
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
   <version>3.0.0-SNAPSHOT</version>
-  <name>DuraCloud Sync Tool UI</name>
+  <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
@@ -15,6 +15,7 @@
   </parent>
 
   <properties>
+    <alternateArtifactId>duracloudsync</alternateArtifactId>
     <unitTests>**/*Test.class</unitTests>
     <seleniumTests>**/Test*.class</seleniumTests>
     <skipITs>true</skipITs>
@@ -238,7 +239,7 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <finalName>duracloud-sync-${project.version}</finalName>
+              <finalName>${alternateArtifactId}-${project.version}</finalName>
               <appendAssemblyId>false</appendAssemblyId>
               <archive>
                 <manifest>
@@ -567,7 +568,7 @@
                   <goal>single</goal>
                 </goals>
                 <configuration>
-                  <finalName>duracloud-sync-${project.version}</finalName>
+                  <finalName>${alternateArtifactId}-${project.version}</finalName>
                   <appendAssemblyId>false</appendAssemblyId>
                   <archive>
                     <manifest>
@@ -586,7 +587,7 @@
                     <descriptors>
                       <descriptor>src/main/install/zip.xml</descriptor>
                     </descriptors>
-                    <finalName>duracloud-sync-${project.version}-osx-installer</finalName>
+                    <finalName>${alternateArtifactId}-${project.version}-osx</finalName>
                 </configuration>
               </execution>
             </executions>

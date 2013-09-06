@@ -1,5 +1,5 @@
 <project>
-    <shortName>${project.artifactId}</shortName>
+    <shortName>${alternateArtifactId}</shortName>
     <fullName>${project.name}</fullName>
     <version>${project.version}</version>
     <readmeFile>${project.build.directory}/install/README</readmeFile>
@@ -23,13 +23,13 @@
                     <actionList>
                         <renameFile>
                             <destination>${installdir}/${product_shortname}.jar</destination>
-                            <origin>${installdir}/duracloud-sync-${project.version}.jar</origin>
+                            <origin>${installdir}/${product_shortname}-${project.version}.jar</origin>
                         </renameFile>
                     </actionList>
                     <distributionFileList>
                         <distributionFile>
                             <includeFiles></includeFiles>
-                            <origin>${project.build.directory}/duracloud-sync-${project.version}.jar</origin>
+                            <origin>${project.build.directory}/${product_shortname}-${project.version}.jar</origin>
                         </distributionFile>
                         <distributionFile>
                             <includeFiles></includeFiles>
@@ -134,17 +134,19 @@
                     <windowsIcon></windowsIcon>
                     <windowsPath>${installdir}/</windowsPath>
                 </startMenuShortcut>
-                <startMenuShortcut>
-                    <comment>${product_fullname}</comment>
-                    <name>${product_fullname}</name>
-                    <runAsAdmin>0</runAsAdmin>
-                    <runInTerminal>0</runInTerminal>
-                    <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
-                    <windowsExecArgs></windowsExecArgs>
-                    <windowsIcon></windowsIcon>
-                    <windowsPath>${installdir}/</windowsPath>
-                </startMenuShortcut>
             </startMenuShortcutList>
+            <desktopShortcutList>
+               <shortcut>
+                  <icon></icon>
+                  <comment>Launch ${product_fullName}</comment>
+                  <name>Launch ${product_fullName}</name>
+                  <runInTerminal>0</runInTerminal>
+                  <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
+                  <windowsPath>${installdir}/</windowsPath>
+                  <windowsExecArgs></windowsExecArgs>
+                  <windowsIcon></windowsIcon>
+               </shortcut>
+            </desktopShortcutList>
         </component>
     </componentList>
     <preInstallationActionList>
