@@ -13,8 +13,10 @@ import org.duracloud.common.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Iterator;
 
@@ -71,20 +73,21 @@ public class SpaceListWorker implements Runnable {
 
             System.out.println("Writing space '" + spaceId + "' listing to: " +
                                outputFile.getAbsolutePath());
-            Writer writer = new FileWriter(outputFile);
-            
             Iterator<String> contentIterator = contentStore.getSpaceContents(spaceId);
-            while(contentIterator.hasNext()) {
-                String contentId = contentIterator.next();
-                if(!chunkUtil.isChunk(contentId) && !chunkUtil.isChunkManifest(contentId)) {
-                    writer.write(contentId + "\n");
-                } else if(chunkUtil.isChunkManifest(contentId)) {
-                    writer.write(chunkUtil.preChunkedContentId(contentId) + "\n");
+            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(outputFile), "UTF-8"));) {
+                while(contentIterator.hasNext()) {
+                    String contentId = contentIterator.next();
+                    if(!chunkUtil.isChunk(contentId) &&
+                       !chunkUtil.isChunkManifest(contentId)) {
+                        writer.write(contentId + System.lineSeparator());
+                    } else if(chunkUtil.isChunkManifest(contentId)) {
+                        writer.write(chunkUtil.preChunkedContentId(contentId) +
+                                     System.lineSeparator());
+                    }
                 }
             }
-            
-            writer.flush();
-            writer.close();
+
         } catch(Exception e) {
             String error = "Failed to retrieve content listing for space: '" +
                        spaceId + "'.  Error message: " + e.getMessage();
