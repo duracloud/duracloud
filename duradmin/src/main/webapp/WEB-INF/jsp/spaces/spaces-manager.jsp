@@ -596,6 +596,7 @@
                <ul>
                   <li>
                    <button type="submit">Upload</button>
+                   <button class="cancel">Cancel</button>
                   </li>
 
                   <li class="clearfix">

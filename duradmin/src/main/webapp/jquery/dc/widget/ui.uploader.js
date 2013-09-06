@@ -87,6 +87,13 @@ $.widget("ui.uploader", {
                               $("#single-upload-1").show();
                               var filename = singleUploadForm.find('#file').val().replace(/C:\\fakepath\\/i, '');
                               singleUploadForm.find("#path,#contentId").val(filename);
+
+                              $(".cancel", singleUploadForm)
+                              .unbind() 
+                              .click(function(e){
+                                  e.preventDefault();
+                                  that._reset();
+                              });
                               
                               $("#dnd-upload", that.element).hide();
                               that._status("The 'DuraCloud ID' field indicates the identifier a file will be known by in DuraCloud. You may update this if you wish, then click 'Upload' to start the transfer process.");
@@ -152,6 +159,15 @@ $.widget("ui.uploader", {
 
         _previewfile: function (file,index, onload) {
             var that = this;
+            if(!file.type){
+                if(!confirm(
+                        "It looks like \"" + file.name + "\" may be a directory. " +
+                        "Directory uploads are not supported through this dialog. " +
+                        "\nTo upload directories, consider using the DuraCloud Sync Tool. " +
+                        "\n\nTo skip this item, click 'Cancel'.")){
+                    return;
+                }
+            }
             var item = $("<div class='upload-item form-fields'></div>").addClass("clearfix");
             item.css("vertical-align","middle");
             var ul = $("<ul></ul>");
@@ -178,11 +194,25 @@ $.widget("ui.uploader", {
               }else{
                   image = "<div  class='upload-thumbnail mime-type-image-holder float-l mime-type-generic'></div>"
               }
+              
               item.prepend(image);
+              that._dropPreview.append(item);
               onload(index);
             };
-            that._dropPreview.append(item);
-            reader.readAsDataURL(file);
+            
+            var unableToReadError =  function(err){
+              alert("Unable to load '"+file.name+"\" due to " + err +". Ignoring this file...");  
+            };
+            
+            reader.onerror = unableToReadError;
+            
+            try{
+                reader.readAsDataURL(file);
+            }catch(err) {
+                console.log("unable to read as data url: file="+file.name);
+                unableToReadError(err);
+            }
+
         },
         
         space: function(/*space object*/space){
