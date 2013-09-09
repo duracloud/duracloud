@@ -729,7 +729,7 @@ public class S3StorageProvider extends StorageProviderBase {
 
         // Set SIZE
         long contentLength = objMetadata.getContentLength();
-        if (contentLength > 0) {
+        if (contentLength >= 0) {
             String size = String.valueOf(contentLength);
             contentProperties.put(PROPERTIES_CONTENT_SIZE, size);
             contentProperties.put(Headers.CONTENT_LENGTH, size);
