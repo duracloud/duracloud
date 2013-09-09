@@ -15,7 +15,10 @@
     	$(function(){
 			var skipRefresh = false;
     	    var refresh = function(){
-    			var x = $.get(window.location) 
+    			var x = $.ajax({
+    			    url: window.location,
+    			    cache: false,
+    			  }) 
 				 .done(function(){
 				     if(!skipRefresh){
 					     var body = $(x.responseText, "body");
