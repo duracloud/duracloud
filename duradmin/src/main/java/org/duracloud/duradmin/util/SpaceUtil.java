@@ -163,16 +163,21 @@ public class SpaceUtil {
 	        Content c = store.getContent(spaceId, contentId);
 	        Map<String,String> m = store.getContentProperties(spaceId, contentId);
 	        response.setContentType(m.get(ContentStore.CONTENT_MIMETYPE));
-	        response.setContentLength(Integer.parseInt(m.get(ContentStore.CONTENT_SIZE)));
+
+	        String contentLength = m.get(ContentStore.CONTENT_SIZE);
+	        if(contentLength != null){
+	            response.setContentLength(Integer.parseInt(contentLength));
+	        }
 	        InputStream is = c.getStream();
 	        byte[] buf = new byte[1024];
 	        int read = -1;
 	        while((read = is.read(buf)) > 0){
 	            outStream.write(buf, 0, read);
 	        }
+	        
 	        response.flushBuffer();
 	        outStream.close();
-	    }catch (ContentStoreException ex) {
+	    }catch (Exception ex) {
 	        if(ex.getCause() instanceof ContentStateException){
 	            response.reset();
 	            response.setStatus(HttpStatus.SC_CONFLICT);
