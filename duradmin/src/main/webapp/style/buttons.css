@@ -279,7 +279,7 @@ span.off i,
 .arw-down-blue { background:url(../images/icon_sm_arw_blue.gif) no-repeat top right; }
 .arw-down-liteblue { background-image:url(../images/icon_sm_arw_cyan.gif); }
 .arw-down-green { background:url(../images/icon_sm_arw_green.gif) no-repeat top right; }
-.outer .gettools { background-image:url(../images/icon_sm_down_blue.gif); }
+.outer .getstarted { background-image:url(../images/icon_sm_start_blue.gif); }
 .outer .help { background-image:url(../images/icon_sm_help_blue.gif); }
 .outer .logoff { background-image:url(../images/icon_sm_logoff_blue.gif); }
 .data-table { background-image:url(../images/icon_sm_table.png); }

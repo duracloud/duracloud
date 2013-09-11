@@ -30,11 +30,11 @@
       <ul
         class="horizontal-list"
         style="margin-top: 10px;">
-        <li id="gettools"><a
+        <li id="getstarted"><a
           target="_blank"
           class="icon-link"
-          href="https://wiki.duraspace.org/display/DURACLOUD/DuraCloud+Downloads"><i
-            class="pre gettools"></i>Get Sync Tools</a></li>
+          href="https://wiki.duraspace.org/display/DURACLOUDDOC/Getting+Started+with+DuraCloud"><i
+            class="pre getstarted"></i>Getting Started</a></li>
         <li id="help"><a
           target="_blank"
           class="icon-link"

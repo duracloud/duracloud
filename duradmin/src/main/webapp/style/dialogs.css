@@ -159,6 +159,16 @@
 	padding-right:10px;
 }
 
+.ui-dialog-buttonpane .dialog-info {
+  float:left;   
+  padding:10px;
+  display:inline;
+  font-size: 14px;
+}
+
+.dialog-info a{
+  color: #ccc !important;
+}
 
 .upload-thumbnail {
   margin-top: 10px; 

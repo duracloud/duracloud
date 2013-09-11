@@ -1528,7 +1528,6 @@ $(function(){
             
             this._initContentItemList();
 
-            this._initBulkUploadButton();
             //handle enter key behavior on filter.
             $(this.element).find(".dc-item-list-filter").bindEnterKey(function(evt){
                 that._reloadContents(that._spaceId, null, function(space){that._load(space);});
@@ -1554,35 +1553,6 @@ $(function(){
             return contentItems;
         },
 
-        _initBulkUploadButton: function(){
-          
-          //open bulk upload tool window only if it is not already open
-            //otherwise simply activate it.
-            var uploadWindows = {};
-                currentWindow = null, 
-                windowName = null;
-                
-            $('.bulk-add-content-item',this.element).click(
-                function(evt){
-                    var link = $(evt.target),
-                        windowName = link.attr("href"),
-                        currentWindow = uploadWindows[windowName];
-                    
-                    if( currentWindow && !currentWindow.closed ){
-                        $(currentWindow).focus();
-                    }else{
-                        currentWindow = window.open(
-                            link.attr("href"),
-                            windowName,
-                            "menubar=0,resizable=0,width=850,height=400");
-                    
-                        uploadWindows[windowName] = currentWindow;
-                    }
-                    evt.stopPropagation();
-                    return false;
-                }
-            );
-        },
         _initContentItemList: function(){
             var that = this;
             this._getList().selectablelist({selectable: true});
@@ -1825,10 +1795,6 @@ $(function(){
                 .find("button,input,a")
                 .fadeIn();
     
-            $(".bulk-add-content-item", listView)
-                .attr("href", "/duradmin/spaces/bulk-upload?storeId="+space.storeId + "&spaceId=" + escape(space.spaceId))
-                .attr("target", "bulk-upload-" + escape(space.spaceId));
-                
             var refreshButton = $(".refresh-space-button",listView); 
             refreshButton.unbind("click");
             refreshButton.click(function(){
@@ -1839,7 +1805,7 @@ $(function(){
             this._updateNavigationControls(space);
     
             if(readOnly){
-                $(".add-content-item-button, .bulk-add-content-item", listView)
+                $(".add-content-item-button", listView)
                     .hide();
             }
             
@@ -1850,12 +1816,6 @@ $(function(){
                 cb.makeVisible();
             }
 
-            var synctool = $(".get-synctool-button", this.element);
-            synctool.unbind("click").click(function() {
-                window.location = "http://docs.duraspace.org/duracloud/${project.version}/downloads/duracloud-sync-${project.version}.jar?attachment=true";
-                window.open("https://wiki.duraspace.org/display/DURACLOUDDOC/DuraCloud+Sync+Tool", "_blank");
-            });
-            
             
             var uploadviewer = $("#upload-viewer");
             uploadviewer.dialog({
@@ -1876,7 +1836,7 @@ $(function(){
                 close: function() {},
                 open: function(e){
                     var dialog = $(this).dialog;
-                    uploadviewer.uploader({
+                        uploadviewer.uploader({
                         clickContent: function(contentItem){
                             HistoryManager.pushState(contentItem);
                             uploadviewer.dialog("close");
@@ -1889,6 +1849,17 @@ $(function(){
                     });
                     
                     uploadviewer.uploader("space", space);
+
+                 
+                    //this little bit of nastiness is necessary 
+                    //since 1) this version of jquery doesn't support initialization events
+                    //and 2) there is no support for defining non-buttons in the standard
+                    //dialog api.
+                    var buttonPane = uploadviewer.parent()
+                                .find(".ui-dialog-buttonpane");
+
+                    buttonPane.find(".dialog-info").remove();
+                    buttonPane.prepend("<div class='dialog-info'><a href='https://wiki.duraspace.org/display/DURACLOUDDOC/How+to+Automatically+Upload+Files+and+Directories+to+DuraCloud' target='_NEW'>Want to make uploads automatic?</a></div>")
                 }
                     
             });
