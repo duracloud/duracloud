@@ -28,17 +28,26 @@ public class SyncConfig {
     }
 
     public static File getWorkDir() {
+        // Determine the work dir. If a value was provided by the user, it
+        // will be used, otherwise a default work dir in the user home is used.
         if(null == workDir) {
             workDir = new File(System.getProperty(SYNC_WORK_PROP,
                                                   DEFAULT_WORK_DIR));
-            //if not set logback will write to sync.work_UNDEFINED directory
-	    //see further src/main/resources/logback.xml
-            System.setProperty(SYNC_WORK_PROP, workDir.getAbsolutePath());
         }
         if (!workDir.exists()) {
             workDir.mkdirs();
             workDir.setWritable(true);
         }
+
+        // Sets the sync.work system property, so that the logs will be created
+        // in the correct location. The logback.xml file expects sync.work to
+        // be defined.
+        // Note: It is very important that no instance of Logger is used prior
+        // to this property being set. Doing so will cause the logs to be
+        // written to a sync.work_IS_UNDEFINED directory rather than the
+        // preferred work directory.
+        System.setProperty(SYNC_WORK_PROP, workDir.getAbsolutePath());
+
         return workDir;
     }
 

@@ -21,12 +21,8 @@ import org.duracloud.syncui.config.SyncUIConfig;
 public class SyncSelector {
 
     public static void main(String[] args) throws Exception {
-        // Set up default work dir path
-        String workDirPath = System.getProperty(SyncUIConfig.SYNC_WORK_PROP);
-        if(null == workDirPath) {
-            System.setProperty(SyncUIConfig.SYNC_WORK_PROP,
-                               SyncUIConfig.DEFAULT_WORK_DIR);
-        }
+        // Ensure that work dir is initialized
+        SyncUIConfig.getWorkDir();
 
         // Determine which tool to execute
         if(args.length > 0) {

@@ -260,11 +260,22 @@ public class SyncToolConfigParser {
     private SyncToolConfig processAndBackup(String[] args)
         throws ParseException {
         SyncToolConfig config = processStandardOptions(args);
+
+        // Make sure work dir is set
+        SyncConfig.setWorkDir(config.getWorkDir());
+        config.setWorkDir(SyncConfig.getWorkDir());
+
         backupConfig(config.getWorkDir(), args);
         return config;
     }
 
     protected SyncToolConfig processStandardOptions(String[] args)
+        throws ParseException {
+        return processStandardOptions(args, true);
+    }
+
+    protected SyncToolConfig processStandardOptions(String[] args,
+                                                    boolean requirePassword)
         throws ParseException {
         CommandLineParser parser = new PosixParser();
         CommandLine cmd = parser.parse(cmdOptions, args);
@@ -278,7 +289,7 @@ public class SyncToolConfigParser {
             config.setPassword(cmd.getOptionValue("p"));
         } else if (null != getPasswordEnvVariable()) {
             config.setPassword(getPasswordEnvVariable());
-        } else {
+        } else if (requirePassword) {
             ConsolePrompt console = getConsole();
             if (null == console) {
                 printHelp("You must either specify a password in the command "+ 
@@ -495,7 +506,7 @@ public class SyncToolConfigParser {
         if(prevConfigBackupFile.exists()) {
             String[] prevConfigArgs = retrieveConfig(prevConfigBackupFile);
             try {
-                return processStandardOptions(prevConfigArgs);
+                return processStandardOptions(prevConfigArgs, false);
             } catch (ParseException e) {
                 return null;
             }          
