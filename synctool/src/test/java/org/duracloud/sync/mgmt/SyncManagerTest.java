@@ -11,6 +11,7 @@ import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.endpoint.EndPointListener;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
+import org.duracloud.sync.endpoint.SyncResultType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,6 +65,14 @@ public class SyncManagerTest extends SyncTestBase {
 
         public Iterator<String> getFilesList() {
             return null;
+        }
+        
+        @Override
+        public SyncResultType
+            syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
+                                            File watchDir) {
+            handledFiles++;
+            return SyncResultType.ADDED;
         }
         
         @Override

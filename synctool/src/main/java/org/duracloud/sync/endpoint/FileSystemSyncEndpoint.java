@@ -91,6 +91,13 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
         }
         return success;
     }
+    
+    @Override
+    public SyncResultType
+        syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
+                                        File watchDir) {
+        throw new UnsupportedOperationException();
+    }
 
     private synchronized void createParentDir(File parentDir) {
         parentDir.mkdir();

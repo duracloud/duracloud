@@ -56,4 +56,14 @@ public interface SyncEndpoint {
      */
     public void removeEndPointListener(EndPointListener listener);
 
+    /**
+     * An alternate form of the syncFile method that returns a more nuanced result.
+     * @param monitoredFile
+     * @param watchDir
+     * @return
+     */
+    public SyncResultType
+        syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
+                                        File watchDir);
+
 }

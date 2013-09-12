@@ -26,12 +26,12 @@ public class EndPointLogger implements EndPointListener {
                                 String contentId,
                                 String backupContentId,
                                 String localFilePath) {
-        log.info(format(new String[] {
-            "BACKUP", storeId, spaceId, contentId, localFilePath,
+        log.info(format(new Object[] {
+            SyncResultType.BACKED_UP, storeId, spaceId, contentId, localFilePath,
             "back up copy: " + backupContentId }));
     }
 
-    private String format(String[] objects) {
+    private String format(Object[] objects) {
         return StringUtils.join(objects, "\t");
     }
 
@@ -40,8 +40,8 @@ public class EndPointLogger implements EndPointListener {
                              String spaceId,
                              String contentId,
                              String localFilePath) {
-        log.info(format(new String[] {
-            "ADDED", storeId, spaceId, contentId, localFilePath}));
+        log.info(format(new Object[] {
+            SyncResultType.ADDED, storeId, spaceId, contentId, localFilePath}));
     }
 
     @Override
@@ -49,8 +49,8 @@ public class EndPointLogger implements EndPointListener {
                                String spaceId,
                                String contentId,
                                String localFilePath) {
-        log.info(format(new String[] {
-            "UPDATED", storeId, spaceId, contentId, localFilePath}));
+        log.info(format(new Object[] {
+            SyncResultType.UPDATED, storeId, spaceId, contentId, localFilePath}));
     }
 
     @Override
@@ -58,8 +58,8 @@ public class EndPointLogger implements EndPointListener {
                                String spaceId,
                                String contentId,
                                String localFilePath) {
-        log.info(format(new String[] { 
-            "DELETED",
+        log.info(format(new Object[] { 
+            SyncResultType.DELETED,
             storeId, spaceId, contentId, localFilePath}));
     }
     
@@ -68,8 +68,8 @@ public class EndPointLogger implements EndPointListener {
                                String spaceId,
                                String contentId,
                                String localFilePath) {
-        log.info(format(new String[] { 
-            "UPDATE_IGNORED",
+        log.info(format(new Object[] { 
+            SyncResultType.UPDATE_IGNORED,
             storeId, spaceId, contentId, localFilePath,
             "local content changed but was not uploaded" }));
     }

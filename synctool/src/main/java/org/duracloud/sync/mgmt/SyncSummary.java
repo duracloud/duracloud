@@ -7,37 +7,45 @@
  */
 package org.duracloud.sync.mgmt;
 
-import java.io.File;
-import java.util.Date;
-
+import org.duracloud.sync.endpoint.SyncResultType;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
+import java.io.File;
+import java.util.Date;
+
 /**
  * A class that describes a completed sync operation.
- * 
+ *
  * @author Daniel Bernstein
- * 
+ *
  */
 public class SyncSummary {
     public static enum Status {
         SUCCESS, FAILURE
     }
 
-    private File file;
+    private String filename;
+    private String absolutePath;
+    private long length;
     private Date start;
     private Date stop;
-    private Status status;
     private String message;
-    
-    public SyncSummary(
-        File file, Date start, Date stop, Status status, String message) {
+    private SyncResultType type;
+
+    public SyncSummary(File file,
+                       Date start,
+                       Date stop,
+                       SyncResultType type,
+                       String message) {
         super();
-        this.file = file;
+        this.filename = file.getName();
+        this.absolutePath = file.getAbsolutePath();
+        this.length = file.length();
+        this.type = type;
         this.start = start;
         this.stop = stop;
-        this.status = status;
         this.message = message;
     }
 
@@ -55,12 +63,8 @@ public class SyncSummary {
         .toFormatter();
 
       Period period = new Period(duration);
-      
+
       return daysHoursMinutes.print(period);
-    }
-    
-    public File getFile() {
-        return file;
     }
 
     public Date getStart() {
@@ -71,12 +75,24 @@ public class SyncSummary {
         return stop;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
     public String getMessage() {
         return message;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public String getAbsolutePath() {
+        return absolutePath;
+    }
+
+    public long getLength() {
+        return length;
+    }
+
+    public SyncResultType getType() {
+        return type;
     }
 
 }

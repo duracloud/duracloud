@@ -12,6 +12,7 @@ import static junit.framework.Assert.assertEquals;
 import java.io.File;
 import java.util.Date;
 
+import org.duracloud.sync.endpoint.SyncResultType;
 import org.duracloud.sync.mgmt.SyncSummary.Status;
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class StatusManagerTest {
             status.successfulCompletion(new SyncSummary(new File("test"),
                                                         new Date(),
                                                         new Date(),
-                                                        Status.SUCCESS,
+                                                        SyncResultType.ADDED,
                                                         "success"));
         }
 
@@ -52,7 +53,7 @@ public class StatusManagerTest {
             status.failedCompletion(new SyncSummary(new File("test"),
                                                         new Date(),
                                                         new Date(),
-                                                        Status.FAILURE,
+                                                        SyncResultType.FAILED,
                                                         "failure"));
         }
 

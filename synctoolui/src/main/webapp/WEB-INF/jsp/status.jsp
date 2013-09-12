@@ -219,7 +219,8 @@
                         <table>
                           <thead>
                             <tr>
-                              <th>File (hover over name for full path)</th>
+                              <th>File (hover for full path)</th>
+                              <th>Action</th>
                               <th>Size</th>
                               <th>Duration</th>
                               <th>Completed</th>
@@ -230,8 +231,11 @@
                               items="${recentlyCompleted}"
                               var="summary">
                               <tr>
-                                <td title="${summary.file.absolutePath}">${summary.file.name}</td>
-                                <td>${fileSizeFormatter.format(summary.file.length())}</td>
+                                <td title="${summary.absolutePath}">${summary.filename}</td>
+                                <td title="${summary.type.name()}">
+                                  ${summary.type.abbreviation}
+                                </td>
+                                <td>${fileSizeFormatter.format(summary.length)}</td>
                                 <td>${summary.durationAsString}</td>
                                 <td><fmt:formatDate
                                     value="${summary.stop}"
@@ -332,7 +336,7 @@
                               items="${failures}"
                               var="summary">
                               <tr>
-                                <td>${summary.file.absolutePath}</td>
+                                <td>${summary.absolutePath}</td>
                                 <td>${summary.message}</td>
                               </tr>
                             </c:forEach>

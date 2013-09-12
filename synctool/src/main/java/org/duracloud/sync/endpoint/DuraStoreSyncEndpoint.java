@@ -127,7 +127,17 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         }
     }
 
+    @Override
     public boolean syncFile(MonitoredFile syncFile, File watchDir) {
+        SyncResultType result =
+            syncFileAndReturnDetailedResult(syncFile, watchDir);
+        return (result != SyncResultType.FAILED);
+    }
+    
+    @Override
+    public SyncResultType syncFileAndReturnDetailedResult(MonitoredFile syncFile,
+                                                          File watchDir) {
+        SyncResultType result = SyncResultType.ALREADY_IN_SYNC;
         String contentId = getContentId(syncFile, watchDir);
         String absPath = syncFile.getAbsolutePath();
 
@@ -177,7 +187,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                              .contentUpdated(this.storeId,
                                                                  this.spaceId,
                                                                  contentId, absPath);
-                            
+                            result = SyncResultType.UPDATED;
                         }else{
                             logger.debug("Local file {} changed, but sync updates options ",
                                          absPath);
@@ -186,7 +196,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                                              this.spaceId,
                                                              contentId, 
                                                              absPath);
-
+                            result = SyncResultType.UPDATE_IGNORED;
                         }
                     }
                 } else { // File was added
@@ -198,6 +208,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                                    this.spaceId,
                                                    contentId,
                                                    absPath);
+                    result =  SyncResultType.ADDED;
                     
                 }
             } else { // File was deleted
@@ -209,7 +220,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                         deleteContent(spaceId, contentId);
                         this.listenerList.fire()
                                          .contentDeleted(this.storeId, this.spaceId, contentId, absPath);
-
+                        result = SyncResultType.DELETED;
                     } else {
                         logger.debug("Ignoring delete of file {}",
                                      absPath);
@@ -220,7 +231,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
             throw new RuntimeException(e);
         }
         
-        return true;
+        return result;
     }
 
     protected Map<String, String> getContentProperties(String spaceId,

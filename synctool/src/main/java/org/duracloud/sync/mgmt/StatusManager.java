@@ -119,7 +119,7 @@ public class StatusManager {
         status.append("Successful Syncs: " + getSucceeded() + "\n");
         status.append("Failed Syncs: " + getFailed().size() + "\n");
         for(SyncSummary failedFile : getFailed()) {
-            status.append("  " + failedFile.getFile().getAbsolutePath() + "\n");    
+            status.append("  " + failedFile.getAbsolutePath() + "\n");    
         }
         status.append("-------------------------------------------\n");
         return status.toString();

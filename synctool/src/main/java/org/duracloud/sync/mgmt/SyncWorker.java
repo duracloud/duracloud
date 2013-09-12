@@ -10,6 +10,7 @@ package org.duracloud.sync.mgmt;
 import java.io.File;
 import java.util.Date;
 
+import org.duracloud.sync.endpoint.SyncResultType;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.slf4j.Logger;
@@ -55,26 +56,29 @@ public class SyncWorker implements Runnable {
     }
 
     public void run() {
-        boolean success;
+        SyncResultType result;
         start = new Date();
+        
         try {
-            success = syncEndpoint.syncFile(monitoredFile, watchDir);
+            result = syncEndpoint.syncFileAndReturnDetailedResult(monitoredFile, watchDir);
             stop = new Date();
         } catch (Exception e) {
             logger.error("Exception syncing file "
                              + syncFile.getFile().getAbsolutePath() + " was "
                              + e.getMessage(),
                          e);
-            success = false;
+            result = SyncResultType.FAILED;
         }
 
-        if (success) {
+        if (result != SyncResultType.FAILED) {
+            File file = syncFile.getFile();
             SyncSummary summary =
-                new SyncSummary(syncFile.getFile(),
+                new SyncSummary(file,
                                 start,
                                 stop,
-                                SyncSummary.Status.SUCCESS,
+                                result,
                                 "");
+            
             statusManager.successfulCompletion(summary);
         } else {
             retryOnFailure();
@@ -102,7 +106,7 @@ public class SyncWorker implements Runnable {
                 new SyncSummary(syncFile.getFile(),
                                 start,
                                 stop,
-                                SyncSummary.Status.FAILURE,
+                                SyncResultType.FAILED,
                                 "Failed after " + syncAttempts + " attempts.");
 
             statusManager.failedCompletion(summary);
