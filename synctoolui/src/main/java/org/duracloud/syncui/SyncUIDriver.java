@@ -117,7 +117,7 @@ public class SyncUIDriver {
             srv.join();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error launching server: " + e.getMessage(), e);
         }
     }
 
@@ -155,23 +155,23 @@ public class SyncUIDriver {
                 MouseListener mouseListener = new MouseListener() {
 
                     public void mouseClicked(MouseEvent e) {
-                        System.out.println("Tray Icon - Mouse clicked!");
+                        log.debug("Tray Icon - Mouse clicked!");
                     }
 
                     public void mouseEntered(MouseEvent e) {
-                        System.out.println("Tray Icon - Mouse entered!");
+                        log.debug("Tray Icon - Mouse entered!");
                     }
 
                     public void mouseExited(MouseEvent e) {
-                        System.out.println("Tray Icon - Mouse exited!");
+                        log.debug("Tray Icon - Mouse exited!");
                     }
 
                     public void mousePressed(MouseEvent e) {
-                        System.out.println("Tray Icon - Mouse pressed!");
+                        log.debug("Tray Icon - Mouse pressed!");
                     }
 
                     public void mouseReleased(MouseEvent e) {
-                        System.out.println("Tray Icon - Mouse released!");
+                        log.debug("Tray Icon - Mouse released!");
                     }
                 };
 
@@ -213,7 +213,7 @@ public class SyncUIDriver {
                 try {
                     tray.add(trayIcon);
                 } catch (AWTException e) {
-                    System.err.println("TrayIcon could not be added.");
+                    log.error("TrayIcon could not be added.");
                 }
             } else {
                 log.warn("System Tray is not supported.");

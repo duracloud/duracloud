@@ -113,8 +113,7 @@ public class TestSetupWizard extends BaseSeleniumTest {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+            throw new RuntimeException(e1);
         }
     }
 }

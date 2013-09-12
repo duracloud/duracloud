@@ -63,8 +63,7 @@ public class StatusController {
         try {
             this.syncProcessManager.start();
         } catch (SyncProcessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         return redirectTo(STATUS_MAPPING);
     }
@@ -88,7 +87,7 @@ public class StatusController {
         try {
             this.syncProcessManager.resume();
         } catch (SyncProcessException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         return redirectTo(STATUS_MAPPING);
     }

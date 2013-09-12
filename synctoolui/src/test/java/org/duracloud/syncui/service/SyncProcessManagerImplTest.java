@@ -7,30 +7,30 @@
  */
 package org.duracloud.syncui.service;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.mgmt.SyncSummary;
+import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.SyncProcessStats;
-import org.duracloud.syncui.AbstractTest;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -62,7 +62,6 @@ public class SyncProcessManagerImplTest extends AbstractTest {
             try {
                 return latch.await(20000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 return false;
             }
         }

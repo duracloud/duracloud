@@ -7,12 +7,12 @@
  */
 package org.duracloud.syncui;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A abstract base test class to facilitate writing clean test classes.
@@ -62,8 +62,7 @@ public abstract class AbstractTest {
         try {
             Thread.sleep(20000);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
     

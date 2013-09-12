@@ -7,13 +7,15 @@
  */
 package org.duracloud.syncui.setup;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.webflow.core.FlowException;
 import org.springframework.webflow.execution.FlowExecutionOutcome;
 import org.springframework.webflow.mvc.servlet.AbstractFlowHandler;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 
@@ -22,7 +24,11 @@ import org.springframework.webflow.mvc.servlet.AbstractFlowHandler;
  */
 @Component(SetupFlowHandler.FLOW_ID)
 public class SetupFlowHandler extends AbstractFlowHandler {
+
+    private static Logger log = LoggerFactory.getLogger(SetupFlowHandler.class);
+
     public static final String FLOW_ID = "setup";
+
     @Override
     public String getFlowId() {
         return FLOW_ID;
@@ -39,7 +45,7 @@ public class SetupFlowHandler extends AbstractFlowHandler {
     public String handleException(FlowException e,
                                   HttpServletRequest request,
                                   HttpServletResponse response) {
-        e.printStackTrace();
+        log.error(e.getMessage(), e);
         return null;
     }
 }

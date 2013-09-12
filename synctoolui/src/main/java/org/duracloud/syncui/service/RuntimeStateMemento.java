@@ -15,7 +15,8 @@ import java.io.*;
  *
  */
 public class RuntimeStateMemento {
-    private static Logger log = LoggerFactory.getLogger(RuntimeStateMemento.class);
+    private static Logger log =
+        LoggerFactory.getLogger(RuntimeStateMemento.class);
     private SyncProcessState syncProcessState;
 
     public SyncProcessState getSyncProcessState() {
@@ -42,19 +43,21 @@ public class RuntimeStateMemento {
         File stateFile = getStateFile();
         if(stateFile.exists()){
             try (InputStream is = new FileInputStream(stateFile)) {
-                log.debug("retrieving state from {}", stateFile.getAbsolutePath());
+                log.debug("retrieving state from {}",
+                          stateFile.getAbsolutePath());
                 XStream xstream = new XStream();
                 //FileInputStream fis = new FileInputStream(stateFile);
                 return (RuntimeStateMemento)xstream.fromXML(is);
             } catch (IOException e) {
                 //should never happen
-                log.error("Failed to persist internal state: should never happen", e);
-                e.printStackTrace();
+                log.error("Failed to persist internal state: " +
+                          "should never happen", e);
                 System.exit(1);
                 return null;
             }
         }else{
-            log.debug("not state file found at {}: creating new memento", stateFile.getAbsolutePath());
+            log.debug("not state file found at {}: creating new memento",
+                      stateFile.getAbsolutePath());
             return new RuntimeStateMemento();
         }
     }
@@ -63,11 +66,13 @@ public class RuntimeStateMemento {
         File stateFile = RuntimeStateMemento.getStateFile();
         try (OutputStream os = new FileOutputStream(stateFile)) {
             new XStream().toXML(state, os);
-            log.debug("successfully saved {} to {}",state, stateFile.getAbsolutePath());
+            log.debug("successfully saved {} to {}",
+                      state,
+                      stateFile.getAbsolutePath());
         } catch (IOException e) {
             //should never happen
-            log.error("Failed to persist internal state: should never happen", e);
-            e.printStackTrace();
+            log.error("Failed to persist internal state: " +
+                      "should never happen", e);
             System.exit(1);
         }
     }
