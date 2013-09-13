@@ -15,4 +15,9 @@ public class SyncProcessException extends Exception {
     public SyncProcessException(String message, Throwable t) {
         super(message, t);
     }
+
+    public SyncProcessException(String message) {
+        super(message);
+    }
+
 }

@@ -137,7 +137,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
             || StringUtils.isBlank(c.getPassword())
             || StringUtils.isBlank(c.getHost())
             || StringUtils.isBlank(c.getSpaceId())
-            || CollectionUtils.isEmpty(c.getContentDirs())) {
+            ) {
             return false;
 
         }

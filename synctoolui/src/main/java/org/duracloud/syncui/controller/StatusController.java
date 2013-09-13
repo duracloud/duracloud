@@ -11,6 +11,7 @@ import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.SyncProcessStats;
+import org.duracloud.syncui.service.SyncConfigurationManager;
 import org.duracloud.syncui.service.SyncProcessError;
 import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
@@ -44,16 +45,24 @@ public class StatusController {
     private static Logger log = LoggerFactory.getLogger(StatusController.class);
 
     private SyncProcessManager syncProcessManager;
+    private SyncConfigurationManager syncConfigurationManager;
 
     @Autowired
-    public StatusController(SyncProcessManager syncProcessManager) {
+    public StatusController(SyncProcessManager syncProcessManager,
+                            SyncConfigurationManager syncConfigurationManager) {
         this.syncProcessManager = syncProcessManager;
+        this.syncConfigurationManager = syncConfigurationManager;
     }
 
     @RequestMapping(value = { "" })
-    public String get(@RequestParam(required=false, defaultValue="queued") String statusTab, Model model) {
+    public String
+        get(@RequestParam(required = false, defaultValue = "queued") String statusTab,
+            Model model) {
         log.debug("accessing status page");
         model.addAttribute("statusTab", statusTab);
+        model.addAttribute("watchList",
+                           this.syncConfigurationManager.retrieveDirectoryConfigs()
+                                                        .toFileList());
         return "status";
     }
 

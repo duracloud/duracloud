@@ -205,6 +205,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                     changeState(runningState);
                 } catch (SyncProcessException e) {
                     log.error("start failed: " + e.getMessage(), e);
+                    changeState(stoppingState);
+                    changeState(stoppedState);
                 }
             }
         }).start();
@@ -216,6 +218,15 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     }
     
     private void startSyncProcess() throws SyncProcessException {
+        DirectoryConfigs directories =
+            this.syncConfigurationManager.retrieveDirectoryConfigs();
+        
+        if(directories.isEmpty()){
+            throw new SyncProcessException("unable to start because "+ 
+                                           "no watch directories are configured.");
+        }
+        List<File> dirs = directories.toFileList();
+
         DuracloudConfiguration dc =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
 
@@ -237,10 +248,6 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
             
             syncEndpoint.addEndPointListener(new EndPointLogger());
-            
-            DirectoryConfigs directories =
-                this.syncConfigurationManager.retrieveDirectoryConfigs();
-            List<File> dirs = directories.toFileList();
             
             syncManager = new SyncManager(dirs, syncEndpoint, 3, // threads
                                           CHANGE_LIST_MONITOR_FREQUENCY); // change list poll frequency

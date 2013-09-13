@@ -7,9 +7,11 @@
  */
 package org.duracloud.syncui.controller;
 
+import org.duracloud.syncui.AbstractTest;
+import org.duracloud.syncui.domain.DirectoryConfigs;
+import org.duracloud.syncui.service.SyncConfigurationManager;
 import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
-import org.duracloud.syncui.AbstractTest;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,17 +27,22 @@ import org.springframework.web.servlet.View;
 public class StatusControllerTest extends AbstractTest {
 
     private SyncProcessManager syncProcessManager;
+    private SyncConfigurationManager syncConfigurationManager;
+
     private StatusController statusController;
     @Before
     @Override
     public void setup() {
         super.setup();
         syncProcessManager = createMock(SyncProcessManager.class);
-        statusController = new StatusController(syncProcessManager);
+        syncConfigurationManager = createMock(SyncConfigurationManager.class);
+        statusController = new StatusController(syncProcessManager, syncConfigurationManager);
     }
     
     @Test
     public void testStatus() {
+        EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
+                .andReturn(new DirectoryConfigs());
         replay();
         
         String s = statusController.get("queued", new ExtendedModelMap());

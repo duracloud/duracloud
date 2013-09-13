@@ -74,7 +74,7 @@
                       id="start"
                       type="submit"
                       name="start"
-                      <c:if test="${syncProcessState != 'STOPPED' }">
+                      <c:if test="${syncProcessState != 'STOPPED' || empty watchList}">
                         disabled="disabled"
                       </c:if>>
                       <spring:message code="start" />
@@ -128,11 +128,18 @@
                       <spring:message code="waiting" />
                     </c:when>
                     <c:otherwise>
-                      <spring:message code="${fn:toLowerCase(syncProcessState)}"/>
+                      <c:choose>
+                        <c:when test="${syncProcessState == 'STOPPED' && empty watchList }">
+                          <span class="error">You must configure at least one watch directory or file.</span> 
+                          <a href="${pageContext.request.contextPath}/configuration">Configure</a>
+                        </c:when>
+                        <c:otherwise>
+                          <spring:message code="${fn:toLowerCase(syncProcessState)}"/>
+                        </c:otherwise>
+                      </c:choose>
+
                     </c:otherwise>
                   </c:choose>
-                  
-                   
                 </div>
               </div>
               <table>

@@ -104,18 +104,17 @@
                         <tr>
                           <td>${dc.directoryPath}</td>
                           <td>
-                            <c:if test="${directoryConfigs.size() > 1}">
-                              <form action="configuration/remove" method="post">
-                                <input type="hidden" name="directoryPath" value = "${dc.directoryPath}"/>
-                                <button id="${dc.file.name}-remove" class="trash" type="submit" title="remove">Remove</button>
-                              </form>
-                            </c:if>
+                            <form action="configuration/remove" method="post">
+                              <input type="hidden" name="directoryPath" value = "${dc.directoryPath}"/>
+                              <button id="${dc.file.name}-remove" class="trash" type="submit" title="remove">Remove</button>
+                            </form>
                           </td>
                         </tr>
                       </c:forEach>
                     </c:when>
                     <c:otherwise>
-                      <p>There are no configured directories at this time.</p>
+                      <p class="error">There are no configured directories at this time. Please be aware that 
+                      you must configure <em>at least one file or directory</em> in order sync content to DuraCloud.</p>
                     </c:otherwise>
                   </c:choose>
                 </tbody>
