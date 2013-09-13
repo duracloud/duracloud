@@ -97,7 +97,7 @@ public class CompletedPanel extends JPanel {
         if(null != failed && failed.size() > 0) {
             failedLabel.setText(failed.size() + " files failed to upload");
             for(SyncSummary summary : failed) {
-                failedItems += (summary.getFile().getAbsolutePath() + "\n");
+                failedItems += (summary.getAbsolutePath() + "\n");
             }
             failedButton.setVisible(true);
         }
