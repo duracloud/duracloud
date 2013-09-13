@@ -232,14 +232,22 @@
                               var="summary">
                               <tr>
                                 <td title="${summary.absolutePath}">${summary.filename}</td>
-                                <td title="${summary.type.name()}">
-                                  ${summary.type.abbreviation}
+                                
+                                <c:set var="summarytype" value="${fn:toLowerCase(summary.type.name())}"/>
+                                <spring:message var="tooltip" code="result.tooltip.${summarytype}"/>
+
+                                <td title="${tooltip}">
+                                    <spring:message code="result.${summarytype}"/>
                                 </td>
-                                <td>${fileSizeFormatter.format(summary.length)}</td>
+                                <td>
+                                  <c:if test="${summarytype != 'deleted' }">
+                                    ${fileSizeFormatter.format(summary.length)}
+                                  </c:if>
+                                </td>
                                 <td>${summary.durationAsString}</td>
                                 <td><fmt:formatDate
                                     value="${summary.stop}"
-                                    pattern="MM/dd/yyyy HH:mm a z" /></td>
+                                    pattern="MM/dd/yy hh:mm a" /></td>
                               </tr>
                             </c:forEach>
                           </tbody>
