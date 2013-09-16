@@ -359,9 +359,8 @@ public class SpaceRest extends BaseRest {
     private Response responseBad(String msg,
                                  Exception e,
                                  Response.Status status) {
+        log.error("Error while " + msg, e);
         String text = e.getMessage() == null ? "null" : e.getMessage();
-        log.error("Error while " + msg + ": " + text);
-        log.debug("Error details: {}", ExceptionUtil.getStackTraceAsString(e));
         return Response.status(status).entity(text).build();
     }
 

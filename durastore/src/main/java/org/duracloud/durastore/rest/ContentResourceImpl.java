@@ -67,7 +67,7 @@ public class ContentResourceImpl implements ContentResource {
                                              spaceID,
                                              contentID,
                                              e);
-        } catch (StorageException e) {
+        } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("get content", spaceID, contentID, e);
         }
@@ -94,7 +94,7 @@ public class ContentResourceImpl implements ContentResource {
                                                 spaceID,
                                                 contentID,
                                                 e);
-        } catch (StorageException e) {
+        } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("get properties for content",
                                         spaceID,
@@ -133,7 +133,7 @@ public class ContentResourceImpl implements ContentResource {
                                              spaceID,
                                              contentID,
                                              e);
-        } catch (StorageException e) {
+        } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("update properties for content",
                                         spaceID,
@@ -201,7 +201,7 @@ public class ContentResourceImpl implements ContentResource {
                                                 spaceID,
                                                 contentID,
                                                 e);
-        } catch (StorageException e) {
+        } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("add content", spaceID, contentID, e);
         }
@@ -310,7 +310,7 @@ public class ContentResourceImpl implements ContentResource {
                                              destSpaceID,
                                              destContentID,
                                              e);
-        } catch (StorageException e) {
+        } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(srcStoreID);
             storageProviderFactory.expireStorageProvider(destStoreID);
             throw new ResourceException("copy content",
@@ -351,7 +351,7 @@ public class ContentResourceImpl implements ContentResource {
                                              destSpaceID,
                                              destContentID,
                                              e);
-        } catch (StorageException e) {
+        } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("copy content",
                                         srcSpaceID,
@@ -383,7 +383,7 @@ public class ContentResourceImpl implements ContentResource {
                                                 spaceID,
                                                 contentID,
                                                 e);
-        } catch (StorageException e) {
+        } catch (Exception e) {
             storageProviderFactory.expireStorageProvider(storeID);
             throw new ResourceException("delete content", spaceID, contentID, e);
         }

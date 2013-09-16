@@ -193,6 +193,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
      */
     @Override
     public void expireStorageProvider(String storageAccountId) {
+        log.info("Expiring storage provider connection!  Storage account id: {}", storageAccountId);
         storageProviders.remove(storageAccountId);
     }
 
