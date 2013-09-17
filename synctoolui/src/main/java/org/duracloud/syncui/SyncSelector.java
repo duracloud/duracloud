@@ -10,6 +10,10 @@ package org.duracloud.syncui;
 import org.duracloud.sync.SyncToolInitializer;
 import org.duracloud.syncui.config.SyncUIConfig;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 /**
  * Runs the sync application in either the command line mode or GUI mode. If
  * command line parameters are present, command line mode is selected, otherwise
@@ -28,8 +32,21 @@ public class SyncSelector {
         if(args.length > 0) {
             SyncToolInitializer.main(args);
         } else {
+            disableStdErr();
             SyncUIDriver.main(args);
         }
+    }
+
+    /*
+     * Ensures that nothing is written to system.err.
+     */
+    private static void disableStdErr() {
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int arg0) throws IOException {
+                // this method intentionally left blank
+            }
+        }));
     }
 
 }

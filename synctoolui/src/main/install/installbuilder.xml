@@ -7,6 +7,7 @@
     <logoImage>${basedir}/src/main/install/duracloud-logo.png</logoImage>
     <leftImage>${basedir}/src/main/install/duracloud-logo.png</leftImage>
     <splashImage>${basedir}/src/main/install/duracloud-logo.png</splashImage>
+    <productDisplayIcon>${installdir}/duracloud-sync.ico</productDisplayIcon>
     <componentList>
         <component>
             <name>default</name>
@@ -41,7 +42,7 @@
                         </distributionFile>
                         <distributionFile>
                             <includeFiles></includeFiles>
-                            <origin>${basedir}/src/main/install/duracloud.ico</origin>
+                            <origin>${basedir}/src/main/install/duracloud-sync.ico</origin>
                         </distributionFile>
                     </distributionFileList>
                     <shortcutList>
@@ -56,7 +57,7 @@
                             <runInTerminal>0</runInTerminal>
                             <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
                             <windowsExecArgs></windowsExecArgs>
-                            <windowsIcon></windowsIcon>
+                            <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
                             <windowsPath>${installdir}</windowsPath>
                         </shortcut>
                         <shortcut>
@@ -70,7 +71,7 @@
                             <runInTerminal>0</runInTerminal>
                             <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
                             <windowsExecArgs></windowsExecArgs>
-                            <windowsIcon></windowsIcon>
+                            <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
                             <windowsPath>${installdir}</windowsPath>
                         </shortcut>
                     </shortcutList>
@@ -121,7 +122,7 @@
                     <runInTerminal>0</runInTerminal>
                     <windowsExec>${installdir}/${uninstallerName}.exe</windowsExec>
                     <windowsExecArgs></windowsExecArgs>
-                    <windowsIcon></windowsIcon>
+                    <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
                     <windowsPath>${installdir}/</windowsPath>
                 </startMenuShortcut>
                 <startMenuShortcut>
@@ -131,7 +132,7 @@
                     <runInTerminal>0</runInTerminal>
                     <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
                     <windowsExecArgs></windowsExecArgs>
-                    <windowsIcon></windowsIcon>
+                    <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
                     <windowsPath>${installdir}/</windowsPath>
                 </startMenuShortcut>
             </startMenuShortcutList>
@@ -144,7 +145,7 @@
                   <windowsExec>${installdir}/${product_shortname}.exe</windowsExec>
                   <windowsPath>${installdir}/</windowsPath>
                   <windowsExecArgs></windowsExecArgs>
-                  <windowsIcon></windowsIcon>
+                  <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
                </shortcut>
             </desktopShortcutList>
         </component>
@@ -311,15 +312,49 @@
         </substitute>
     </postInstallationActionList>
     <preUninstallationActionList>
-      <addFilesToUninstaller>
-        <files>${installerdir}/</files>
-      </addFilesToUninstaller>
-      <addFilesToUninstaller>
+      <runProgram>
+        <program>taskkill</program>
+        <programArguments>/f /t /im ${product_shortname}.exe</programArguments>
+        <ruleList>
+          <platformTest>
+              <type>windows</type>
+          </platformTest>
+        </ruleList>
+      </runProgram>
+      
+      <runProgram>
+        <program>pkill</program>
+        <programArguments>-9 -f ${product_shortname}</programArguments>
+        <ruleList>
+          <ruleGroup ruleEvaluationLogic="or">
+            <ruleList>
+              <platformTest type="osx"/>
+              <platformTest type="linux"/>
+            </ruleList>
+          </ruleGroup>
+        </ruleList>
+      </runProgram>
+      <deleteFile path="${user_home_directory}/duracloud-sync-work/"/>
+      <deleteFile path="${user_home_directory}/duracloud-sync-work/"/>
+      <deleteFile path="${installdir}/${product_shortname}*"/>
+      <deleteFile path="${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist">
+        <ruleList>
+          <platformTest>
+            <type>osx</type>
+          </platformTest>
+        </ruleList>
+     </deleteFile>
+     <addFilesToUninstaller>
         <files>
-          ${windows_folder_startup}/${product_fullname} 
-          ${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist
+          ${windows_folder_startup}/${product_fullname}
         </files>
+        <ruleList>
+          <platformTest>
+            <type>windows</type>
+          </platformTest>
+        </ruleList>
       </addFilesToUninstaller>
+
     </preUninstallationActionList>
     <enableDebugger>1</enableDebugger>
     <enableRollback>1</enableRollback>
@@ -327,7 +362,7 @@
     <outputDirectory>../</outputDirectory>
     <saveRelativePaths>0</saveRelativePaths>
     <vendor>DuraSpace</vendor>
-    <windowsExecutableIcon>${basedir}/src/main/install/duracloud.ico</windowsExecutableIcon>
+    <windowsExecutableIcon>${basedir}/src/main/install/duracloud-sync.ico</windowsExecutableIcon>
     <osxApplicationBundleIcon>${basedir}/src/main/install/duracloud-sync.icns</osxApplicationBundleIcon>
     <finalPageActionList>
         <runProgram>
