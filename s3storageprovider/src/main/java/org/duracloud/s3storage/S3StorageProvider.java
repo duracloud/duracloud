@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,6 +103,9 @@ public class S3StorageProvider extends StorageProviderBase {
                 spaces.add(getSpaceId(bucketName));
             }
         }
+
+        // sort after the bucket prefix has been stripped off
+        Collections.sort(spaces);
 
         return spaces.iterator();
     }
