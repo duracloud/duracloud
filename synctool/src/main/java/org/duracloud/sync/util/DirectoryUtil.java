@@ -30,8 +30,13 @@ public class DirectoryUtil {
     }
 
     private static class FileComparator implements Comparator<File> {
-      public int compare(File file1, File file2) {
-        return FileUtils.isFileNewer(file1, file2) ? -1 : 1;
-      }
+        public int compare(File file1, File file2) {
+            if(file1.lastModified() == file2.lastModified()) {
+                return 0;
+            } else {
+                return FileUtils.isFileNewer(file1, file2) ? -1 : 1;
+            }
+        }
     }
+
 }
