@@ -157,9 +157,13 @@ $.widget("ui.uploader", {
             
         },
 
+        _isFile: function(file){
+            return file.type || file.name.match(/[.][0-9a-zA-Z]*/g);
+        },
+        
         _previewfile: function (file,index, onload) {
             var that = this;
-            if(!file.type){
+            if(!that._isFile(file)){
                 if(!confirm(
                         "It looks like \"" + file.name + "\" may be a directory. " +
                         "Directory uploads are not supported through this dialog. " +
