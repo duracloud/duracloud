@@ -141,7 +141,7 @@ public class ServiceXmlGeneratorTest {
         verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
 
         String ver = getVersion();
-        String dependencyServiceId = "6";
+        String dependencyServiceId = "5";
         String dependencyContentId = "imagemagickservice-" + ver + ".zip";
         verifyDependencies(serviceInfo,
                            dependencyServiceId,
@@ -196,7 +196,7 @@ public class ServiceXmlGeneratorTest {
         verifyDurastoreCredential(systemConfigs);
 
         String ver = getVersion();
-        String dependencyServiceId = "7";
+        String dependencyServiceId = "6";
         String dependencyContentId = "webapputilservice-" + ver + ".zip";
         verifyDependencies(serviceInfo,
                            dependencyServiceId,

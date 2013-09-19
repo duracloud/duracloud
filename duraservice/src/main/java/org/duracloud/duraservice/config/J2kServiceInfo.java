@@ -56,7 +56,7 @@ public class J2kServiceInfo extends AbstractServiceInfo {
 
         // service dependencies
         Map<String, String> dependencies = new HashMap<String, String>();
-        dependencies.put("7", "webapputilservice-" + version + ".zip");
+        dependencies.put("6", "webapputilservice-" + version + ".zip");
         j2kService.setDependencies(dependencies);
 
         return j2kService;
