@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>2.4.0</version>
   <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>2.4.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -541,7 +541,7 @@
                 <configuration>
                   <tasks>
                        <copy todir="${project.build.directory}/install" overwrite="true">
-                          <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx"/>
+                          <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx" />
                        </copy>    
                   </tasks>
                 </configuration>
@@ -579,7 +579,7 @@
                 <!-- the osx installer without jre must be run in the verify phase
                      in order to prevent it from being packed with the jre since
                      installbuilder does not optionally allow inclusion of files
-                     using the <include/> directive.
+                     using the <include /> directive.
                      
                      So I've placed a dummy java.xml file in src/main/install which 
                      satisfies installbuilder.xml but prevents jre from being packaged
