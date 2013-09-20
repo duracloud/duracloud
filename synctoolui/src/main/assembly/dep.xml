@@ -35,6 +35,7 @@
         <exclude>org.thoughtworks.xstream:*</exclude>
         <exclude>xalan:*</exclude>
         <exclude>javax.validation:*</exclude>
+        <exclude>com.bitrock.installbuilder:jre</exclude>
       </excludes>
       <unpack>true</unpack>
       <!-- I added the exclusion below because jetty unpacking routine was blowing up

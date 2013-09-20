@@ -148,8 +148,29 @@
                   <windowsIcon>${installdir}/duracloud-sync.ico</windowsIcon>
                </shortcut>
             </desktopShortcutList>
+            
         </component>
+        <include file="${project.build.directory}/install/java.xml"/>
+        
     </componentList>
+
+    <preBuildActionList>
+      <actionGroup>
+        <actionList>
+          <setInstallerVariable>
+            <name>java_install_jre</name>
+            <value>${java_install_jre}</value>
+          </setInstallerVariable>   
+
+          <setInstallerVariable name="project.installerFilename"
+            value="${product_shortname}-${product_version}-${platform_name}-with-jre-installer.${platform_exec_suffix}" />
+        </actionList>
+        <ruleList>
+          <isTrue value="${java_install_jre}"/>
+          </ruleList>
+      </actionGroup>
+    </preBuildActionList>
+    
     <preInstallationActionList>
         <autodetectJava>
             <abortOnError>0</abortOnError>
@@ -166,26 +187,39 @@
                     <vendor></vendor>
                 </validVersion>
             </validVersionList>
+            <ruleList>
+              <isFalse value="${java_install_jre}"/>
+            </ruleList>
         </autodetectJava>
         <launchBrowser>
           <url>http://java.com/en/download/index.jsp</url>
-        <ruleList>
-            <compareValues>
-                <logic>equals</logic>
-                <value1>${java_autodetected}</value1>
-                <value2>0</value2>
-            </compareValues>
+          <ruleList>
+            <ruleGroup ruleEvaluationLogic="and">
+              <ruleList>
+                <isFalse value="${java_install_jre}"/>
+                <compareValues>
+                  <logic>equals</logic>
+                  <value1>${java_autodetected}</value1>
+                  <value2>0</value2>
+                </compareValues>
+            </ruleList>
+          </ruleGroup>
         </ruleList>
         </launchBrowser>
         <showInfo>
             <text>Once you have finished downloading and installing java, click "OK" to continue with the Sync Tool installation.</text>
-        <ruleList>
-            <compareValues>
-                <logic>equals</logic>
-                <value1>${java_autodetected}</value1>
-                <value2>0</value2>
-            </compareValues>
-        </ruleList>
+          <ruleList>
+            <ruleGroup ruleEvaluationLogic="and">
+              <ruleList>
+                <isFalse value="${java_install_jre}"/>
+                <compareValues>
+                  <logic>equals</logic>
+                  <value1>${java_autodetected}</value1>
+                  <value2>0</value2>
+                </compareValues>
+              </ruleList>
+            </ruleGroup>
+          </ruleList>
         </showInfo>
         <autodetectJava>
             <promptUser>0</promptUser>
@@ -198,6 +232,9 @@
                     <vendor></vendor>
                 </validVersion>
             </validVersionList>
+            <ruleList>
+              <isFalse value="${java_install_jre}"/>
+            </ruleList>
         </autodetectJava>
     </preInstallationActionList>
     <postInstallationActionList>
@@ -217,7 +254,7 @@
                     <classpath></classpath>
                     <jarFile>${installdir}/${product_shortname}.jar</jarFile>
                     <mainClass></mainClass>
-                    <preferredJavaBinary></preferredJavaBinary>
+                    <preferredJavaBinary>${installdir}/java/bin/java</preferredJavaBinary>
                     <runInConsole>0</runInConsole>
                     <vmParameters></vmParameters>
                     <windowsResourceFileVersion>1.0.0.0</windowsResourceFileVersion>
@@ -314,6 +351,16 @@
     <preUninstallationActionList>
       <runProgram>
         <program>taskkill</program>
+        <programArguments>/t /im ${product_shortname}.exe</programArguments>
+        <ruleList>
+          <platformTest>
+              <type>windows</type>
+          </platformTest>
+        </ruleList>
+      </runProgram>
+      <!--  run it a second time with force (/f) in order to prevent the error dialog from displaying -->
+      <runProgram>
+        <program>taskkill</program>
         <programArguments>/f /t /im ${product_shortname}.exe</programArguments>
         <ruleList>
           <platformTest>
@@ -334,7 +381,6 @@
           </ruleGroup>
         </ruleList>
       </runProgram>
-      <deleteFile path="${user_home_directory}/duracloud-sync-work/"/>
       <deleteFile path="${user_home_directory}/duracloud-sync-work/"/>
       <deleteFile path="${installdir}/${product_shortname}*"/>
       <deleteFile path="${user_home_directory}/Library/LaunchAgents/org.duracloud.${product_shortname}.plist">
@@ -412,5 +458,20 @@
             <width>30</width>
         </directoryParameter>
     </parameterList>
+    
+    <initializationActionList>
+    <setInstallerVariable>
+      <name>java_launcher_jar</name>
+      <value>${product_shortname}.jar</value>
+    </setInstallerVariable>
+    <setInstallerVariable>
+      <name>java_launcher_binary_name</name>
+      <value>${product_shortname}.${platform_exec_suffix}</value>
+    </setInstallerVariable>
+    <setInstallerVariable>
+      <name>java_install_jre</name>
+      <value>${java_install_jre}</value>
+    </setInstallerVariable>   
+  </initializationActionList>
 </project>
 

@@ -30,6 +30,7 @@
     <jetty.version>8.1.4.v20120524</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
     <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 8.5.2/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
+    <jre.unpack.dir>${project.build.directory}/jre</jre.unpack.dir>
   </properties>
   
   <build>
@@ -497,7 +498,13 @@
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
     </dependency>
-      
+     
+    <dependency>
+      <groupId>com.bitrock.installbuilder</groupId>
+      <artifactId>jre</artifactId>
+      <version>1.7.0_40-osx</version>
+      <type>zip</type>
+    </dependency> 
   </dependencies>
   
   <profiles>
@@ -505,6 +512,46 @@
       <id>installers</id>
       <build>
         <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-dependency-plugin</artifactId>
+              <version>2.2</version>
+              <executions>
+                <execution>
+                  <id>unpack</id>
+                  <phase>package<!-- or any other valid maven phase --></phase>
+                  <goals>
+                    <goal>unpack-dependencies</goal>
+                  </goals>
+                  <configuration>
+                    <includeGroupIds>com.bitrock.installbuilder</includeGroupIds>
+                    <includeArtifactIds>jre</includeArtifactIds>
+                    <outputDirectory>
+                       ${jre.unpack.dir}
+                    </outputDirectory>
+                  </configuration>
+                </execution>
+              </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>install</phase>
+                <configuration>
+                  <tasks>
+                       <copy todir="${project.build.directory}/install" overwrite="true">
+                          <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx"/>
+                       </copy>    
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>          
+
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
@@ -522,11 +569,39 @@
                     <argument>build</argument>
                     <argument>${project.build.directory}/install/installbuilder.xml</argument>
                     <argument>windows</argument>
+                    <argument>--setvars</argument>
+                    <argument>java_install_jre=0</argument>
                   </arguments>
                 </configuration>
               </execution>
               <execution>
                 <id>osx</id>
+                <!-- the osx installer without jre must be run in the verify phase
+                     in order to prevent it from being packed with the jre since
+                     installbuilder does not optionally allow inclusion of files
+                     using the <include/> directive.
+                     
+                     So I've placed a dummy java.xml file in src/main/install which 
+                     satisfies installbuilder.xml but prevents jre from being packaged
+                     
+                      -->
+                <phase>verify</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>${installbuilder.executable.path}</executable>
+                  <arguments>
+                    <argument>build</argument>
+                    <argument>${project.build.directory}/install/installbuilder.xml</argument>
+                    <argument>osx</argument>
+                    <argument>--setvars</argument>
+                    <argument>java_install_jre=0</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>osx-with-jre</id>
               <phase>install</phase>
                 <goals>
                   <goal>exec</goal>
@@ -537,6 +612,8 @@
                     <argument>build</argument>
                     <argument>${project.build.directory}/install/installbuilder.xml</argument>
                     <argument>osx</argument>
+                    <argument>--setvars</argument>
+                    <argument>java_install_jre=1</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -552,6 +629,8 @@
                     <argument>build</argument>
                     <argument>${project.build.directory}/install/installbuilder.xml</argument>
                     <argument>linux</argument>
+                    <argument>--setvars</argument>
+                    <argument>java_install_jre=0</argument>
                   </arguments>
                 </configuration>
               </execution>
@@ -585,14 +664,26 @@
                 </goals>
                 <configuration>
                     <descriptors>
-                      <descriptor>src/main/install/zip.xml</descriptor>
+                      <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
                     </descriptors>
-                    <finalName>${alternateArtifactId}-${project.version}-osx</finalName>
+                    <finalName>${alternateArtifactId}-${project.version}</finalName>
+                </configuration>
+              </execution>
+              <execution>
+                <id>install-with-jre</id>
+                <phase>install</phase> 
+                <goals>
+                  <goal>single</goal> 
+                </goals>
+                <configuration>
+                    <descriptors>
+                      <descriptor>src/main/install/osx-with-jre-installer-zip.xml</descriptor>
+                    </descriptors>
+                    <finalName>${alternateArtifactId}-${project.version}</finalName>
                 </configuration>
               </execution>
             </executions>
           </plugin>
-          
         </plugins>
       </build>
     </profile>
