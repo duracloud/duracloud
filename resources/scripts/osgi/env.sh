@@ -1,4 +1,4 @@
 #!/bin/sh
 
-PROJECT_VERSION=2.1.2
+PROJECT_VERSION=2.1.3
 
