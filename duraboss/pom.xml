@@ -3,14 +3,14 @@
     <groupId>org.duracloud</groupId>
     <artifactId>duraboss</artifactId>
     <packaging>war</packaging>
-    <version>2.4.0</version>
+    <version>2.4.1</version>
     <name>DuraCloud DuraBoss</name>
     <url>http://localhost:8080/${artifactId}</url>
 
     <parent>
         <groupId>org.duracloud</groupId>
         <artifactId>duracloud</artifactId>
-        <version>2.4.0</version>
+        <version>2.4.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
