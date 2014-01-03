@@ -7,6 +7,23 @@
  */
 package org.duracloud.openstackstorage;
 
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.net.URLCodec;
 import org.duracloud.common.stream.ChecksumInputStream;
@@ -31,16 +48,15 @@ import org.jclouds.openstack.swift.domain.ObjectInfo;
 import org.jclouds.openstack.swift.domain.SwiftObject;
 import org.jclouds.openstack.swift.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.options.ListContainerOptions;
+import org.jclouds.enterprise.config.EnterpriseConfigurationModule;
 import org.jclouds.rest.RestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.util.*;
-
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.inject.Module;
 
 /**
  * Provides content storage access to OpenStack storage providers.
@@ -64,10 +80,14 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             String trimmedAuthUrl = // JClouds expects authURL with no version
                     authUrl.substring(0, authUrl.lastIndexOf("/"));
 
+            ListeningExecutorService useExecutor = createThreadPool();
+            ListeningExecutorService ioExecutor = createThreadPool();
+            
             RestContext<SwiftClient, SwiftAsyncClient> context =
                     ContextBuilder.newBuilder(new SwiftApiMetadata())
                             .endpoint(trimmedAuthUrl)
                             .credentials(username, apiAccessKey)
+                            .modules(ImmutableSet.<Module>of(new EnterpriseConfigurationModule(useExecutor,ioExecutor)))
                             .build(SwiftApiMetadata.CONTEXT_TOKEN);
             swiftClient = context.getApi();
         } catch (Exception e) {
@@ -75,6 +95,15 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                     " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
+    }
+
+    protected ListeningExecutorService createThreadPool() {
+        return MoreExecutors.listeningDecorator(
+                    new ThreadPoolExecutor(0,
+                                           Integer.MAX_VALUE,
+                                           5L,
+                                           TimeUnit.SECONDS,
+                                           new SynchronousQueue<Runnable>()));
     }
 
     public OpenStackStorageProvider(String username, String apiAccessKey) {
