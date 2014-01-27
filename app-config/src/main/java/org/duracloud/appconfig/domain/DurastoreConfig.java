@@ -97,21 +97,6 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         } else if (suffix.equalsIgnoreCase(storageClassKey)) {
             acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), value);
 
-        } else if (suffix.equalsIgnoreCase(zoneKey)) {
-            acct.setOption(StorageAccount.OPTS.ZONE.name(), value);
-
-        } else if (suffix.equalsIgnoreCase(hostKey)) {
-            acct.setOption(StorageAccount.OPTS.HOST.name(), value);
-
-        } else if (suffix.equalsIgnoreCase(portKey)) {
-            acct.setOption(StorageAccount.OPTS.PORT.name(), value);
-
-        } else if (suffix.equalsIgnoreCase(baseDirectoryKey)) {
-            acct.setOption(StorageAccount.OPTS.BASE_DIRECTORY.name(), value);
-
-        } else if (suffix.equalsIgnoreCase(resourceKey)) {
-            acct.setOption(StorageAccount.OPTS.RESOURCE.name(), value);
-
         } else {
             String msg = "unknown acct key: " + key + " (" + value + ")";
             log.error(msg);

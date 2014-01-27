@@ -22,12 +22,6 @@ public interface StorageAccount {
     public enum OPTS {
         // S3 below
         STORAGE_CLASS,
-        // iRODS below
-        ZONE,
-        PORT,
-        HOST,
-        BASE_DIRECTORY,
-        RESOURCE;
     }
 
     public String getId();

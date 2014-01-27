@@ -247,20 +247,6 @@
 
         <dependency>
             <groupId>org.duracloud</groupId>
-            <artifactId>azurestorageprovider</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>emcstorageprovider</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
             <artifactId>synctool</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

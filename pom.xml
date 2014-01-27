@@ -77,10 +77,6 @@
         <module>openstackstorageprovider</module>
         <module>sdscstorageprovider</module>
         <module>rackspacestorageprovider</module>
-        <module>hpstorageprovider</module>
-        <module>emcstorageprovider</module>
-        <module>azurestorageprovider</module>
-        <module>irodsstorageprovider</module>
         <module>durastore</module>
         <module>hellowebapp</module>
         <module>services</module>

@@ -8,8 +8,6 @@
 package org.duracloud.durastore.storage;
 
 import org.duracloud.common.model.Credential;
-import org.duracloud.durastore.storage.probe.ProbedAzureStorageProvider;
-import org.duracloud.durastore.storage.probe.ProbedEMCStorageProvider;
 import org.duracloud.durastore.storage.probe.ProbedRackspaceStorageProvider;
 import org.duracloud.durastore.storage.probe.ProbedS3StorageProvider;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -68,12 +66,8 @@ public class TestStorageProviders {
                 StorageProvider provider = null;
                 if (StorageProviderType.AMAZON_S3.equals(providerType)) {
                     provider = new ProbedS3StorageProvider(user, pass);
-                } else if (StorageProviderType.EMC.equals(providerType)) {
-                    provider = new ProbedEMCStorageProvider(user, pass);
                 } else if (StorageProviderType.RACKSPACE.equals(providerType)) {
                     provider = new ProbedRackspaceStorageProvider(user, pass);
-                } else if (StorageProviderType.MICROSOFT_AZURE.equals(providerType)) {
-                    provider = new ProbedAzureStorageProvider(user, pass);
                 } else {
                     StringBuffer sb = new StringBuffer("NOT TESTING ");
                     sb.append("storage-provider: '" + providerType + "'");

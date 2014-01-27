@@ -271,19 +271,9 @@ body > #page-header
     background:url(../images/rackspace.png) no-repeat;
 }
 
-.microsoft_azure-logo
-{
-    background:url(../images/azure.png) no-repeat;
-}
-
 .sdsc-logo
 {
     background:url(../images/sdsc.png) no-repeat;
-}
-
-.hp-logo
-{
-    background:url(../images/hp.png) no-repeat;
 }
 
 .ui-layout-resizer

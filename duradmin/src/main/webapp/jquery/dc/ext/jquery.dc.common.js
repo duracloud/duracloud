@@ -287,7 +287,6 @@ $(function(){
 		var spNameMap = {};
 		spNameMap["AMAZON_S3"] = "Amazon S3";
 		spNameMap["RACKSPACE"] = "Rackspace";
-		spNameMap["MICROSOFT_AZURE"] = "MS Azure";
 		dc.STORAGE_PROVIDER_KEY_MAP = spNameMap;
 
 		

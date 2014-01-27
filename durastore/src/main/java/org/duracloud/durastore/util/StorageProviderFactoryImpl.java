@@ -7,14 +7,10 @@
  */
 package org.duracloud.durastore.util;
 
-import org.duracloud.azurestorage.AzureStorageProvider;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
 import org.duracloud.durastore.test.MockVerifyDeleteStorageProvider;
-import org.duracloud.emcstorage.EMCStorageProvider;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
-import org.duracloud.hpstorage.HPStorageProvider;
-import org.duracloud.irodsstorage.IrodsStorageProvider;
 import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.sdscstorage.SDSCStorageProvider;
@@ -150,22 +146,10 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                                                     account.getOptions());
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             storageProvider = new GlacierStorageProvider(username, password);
-        } else if (type.equals(StorageProviderType.MICROSOFT_AZURE)) {
-            storageProvider = new AzureStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.RACKSPACE)) {
             storageProvider = new RackspaceStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.SDSC)) {
             storageProvider = new SDSCStorageProvider(username, password);
-        } else if (type.equals(StorageProviderType.HP)) {
-            storageProvider = new HPStorageProvider(username, password);
-        } else if (type.equals(StorageProviderType.EMC)) {
-            storageProvider = new EMCStorageProvider(username, password);
-
-        } else if (type.equals(StorageProviderType.IRODS)) {
-            storageProvider = new IrodsStorageProvider(username,
-                                                       password,
-                                                       account.getOptions());
-
         } else if (type.equals(StorageProviderType.TEST_RETRY)) {
             storageProvider = new MockRetryStorageProvider();
         } else if (type.equals(StorageProviderType.TEST_VERIFY_CREATE)) {

@@ -13,13 +13,14 @@ import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.unittestdb.domain.ResourceType;
 import org.junit.After;
 import org.junit.Assert;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class TestPasswordRepositoryDBImpl {
 
@@ -50,7 +51,7 @@ public class TestPasswordRepositoryDBImpl {
 
     @Before
     public void setUp() throws Exception {
-        resource = getResource(StorageProviderType.EMC);
+        resource = getResource(StorageProviderType.SDSC);
 
         repo = new PasswordRepositoryDBImpl();
         repo.setDataSource(dbUtil.getDataSource());
@@ -84,16 +85,13 @@ public class TestPasswordRepositoryDBImpl {
         repo.insertPassword(getResource(StorageProviderType.AMAZON_S3),
                             username + 0,
                             bootPassword + 0);
-        repo.insertPassword(getResource(StorageProviderType.MICROSOFT_AZURE),
-                            username + 1,
-                            bootPassword + 1);
         repo.insertPassword(getResource(StorageProviderType.RACKSPACE),
                             username + 2,
                             bootPassword + 2);
-        verifyTableSize(3);
+        verifyTableSize(2);
 
         repo.insertPassword(resource, username, password);
-        verifyTableSize(4);
+        verifyTableSize(3);
 
         Credential cred = repo.findCredentialByResourceType(resource);
         assertNotNull(cred);
@@ -127,13 +125,10 @@ public class TestPasswordRepositoryDBImpl {
         repo.insertPassword(getResource(StorageProviderType.AMAZON_S3),
                             username + 0,
                             bootPassword + 0);
-        repo.insertPassword(getResource(StorageProviderType.MICROSOFT_AZURE),
-                            username + 1,
-                            bootPassword + 1);
         repo.insertPassword(getResource(StorageProviderType.RACKSPACE),
                             username + 2,
                             bootPassword + 2);
-        verifyTableSize(3);
+        verifyTableSize(2);
 
         Credential cred = null;
         try {
