@@ -181,14 +181,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.duracloud.services</groupId>
-      <artifactId>amazonmapreduce-servicescommon</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-
     <!-- Spring -->
     <dependency>
       <groupId>org.springframework</groupId>

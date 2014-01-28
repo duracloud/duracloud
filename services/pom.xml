@@ -20,6 +20,8 @@
   <modules>
     <module>poms</module>
     <module>provision</module>
+    <module>tomcatconfig</module>
+    <module>helloservice</module>
     <module>servicescommon</module>    
     <module>computeservice</module>
     <module>computelistenerservice</module>
