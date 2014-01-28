@@ -36,7 +36,7 @@ import java.util.Properties;
 public class ServiceXmlGeneratorTest {
 
     private static final String PROJECT_VERSION_PROP = "PROJECT_VERSION";
-    private static final int NUM_SERVICES = 8;
+    private static final int NUM_SERVICES = 3;
 
     @Test
     public void testBuildServiceList() {
@@ -48,37 +48,15 @@ public class ServiceXmlGeneratorTest {
 
         Assert.assertEquals(NUM_SERVICES, serviceInfos.size());
 
-        boolean foundDuplication = false;
-        boolean foundImagemagick = false;
-        boolean foundWebapputil = false;
-        boolean foundImageconversion = false;
         boolean foundMediaStreaming = false;
         boolean foundFixity = false;
         boolean foundFixityTools = false;
-        boolean foundCloudSync = false;
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             String contentId = serviceInfo.getContentId();
             Assert.assertNotNull(contentId);
 
-            if (contentId.equals("duplicationservice-" + ver + ".zip")) {
-                foundDuplication = true;
-                verifyDuplication(serviceInfo);
-
-            } else if (contentId.equals("imagemagickservice-" + ver + ".zip")) {
-                foundImagemagick = true;
-                verifyImagemagick(serviceInfo);
-
-            } else if (contentId.equals("webapputilservice-" + ver + ".zip")) {
-                foundWebapputil = true;
-                verifyWebapputil(serviceInfo);
-
-            } else if (contentId.equals(
-                "imageconversionservice-" + ver + ".zip")) {
-                foundImageconversion = true;
-                verifyImageconversion(serviceInfo);
-
-            } else if (contentId.equals(
+            if (contentId.equals(
                 "mediastreamingservice-" + ver + ".zip")) {
                 foundMediaStreaming = true;
                 verifyMediaStreaming(serviceInfo);
@@ -93,59 +71,14 @@ public class ServiceXmlGeneratorTest {
                 foundFixityTools = true;
                 verifyFixityTools(serviceInfo);
 
-            } else if (contentId.equals(
-                "cloudsyncservice-" + ver + ".zip")) {
-                foundCloudSync = true;
-                verifyCloudSync(serviceInfo);
-
             } else {
                 Assert.fail("unexpected contentId: " + contentId);
             }
         }
 
-        Assert.assertTrue(foundDuplication);
-        Assert.assertTrue(foundImagemagick);
-        Assert.assertTrue(foundWebapputil);
-        Assert.assertTrue(foundImageconversion);
         Assert.assertTrue(foundMediaStreaming);
         Assert.assertTrue(foundFixity);
         Assert.assertTrue(foundFixityTools);
-        Assert.assertTrue(foundCloudSync);
-    }
-
-    private void verifyDuplication(ServiceInfo serviceInfo) {
-        int numUserConfigs = 2;
-        int numSystemConfigs = 7;
-        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
-
-        List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
-        setsModesConfigs.add(Arrays.asList(2));
-        verifyServiceModes(setsModesConfigs, serviceInfo);
-    }
-
-    private void verifyImagemagick(ServiceInfo serviceInfo) {
-        Assert.assertTrue(serviceInfo.isSystemService());
-        Map<String, String> dependencies = serviceInfo.getDependencies();
-        Assert.assertNull(dependencies);
-    }
-
-    private void verifyWebapputil(ServiceInfo serviceInfo) {
-        Assert.assertTrue(serviceInfo.isSystemService());
-        Map<String, String> dependencies = serviceInfo.getDependencies();
-        Assert.assertNull(dependencies);
-    }
-
-    private void verifyImageconversion(ServiceInfo serviceInfo) {
-        int numUserConfigs = 6;
-        int numSystemConfigs = 7;
-        verifyServiceInfo(numUserConfigs, numSystemConfigs, serviceInfo);
-
-        String ver = getVersion();
-        String dependencyServiceId = "5";
-        String dependencyContentId = "imagemagickservice-" + ver + ".zip";
-        verifyDependencies(serviceInfo,
-                           dependencyServiceId,
-                           dependencyContentId);
     }
 
     private void verifyDependencies(ServiceInfo serviceInfo,
@@ -186,21 +119,6 @@ public class ServiceXmlGeneratorTest {
         List<List<Integer>> setsModesConfigs = new ArrayList<List<Integer>>();
         setsModesConfigs.add(Arrays.asList(1, 2, 2));
         verifyServiceModes(setsModesConfigs, serviceInfo);
-    }
-
-    private void verifyCloudSync(ServiceInfo serviceInfo) {
-        List<SystemConfig> systemConfigs = serviceInfo.getSystemConfigs();
-        Assert.assertNotNull(systemConfigs);
-        Assert.assertEquals(5, systemConfigs.size());
-
-        verifyDurastoreCredential(systemConfigs);
-
-        String ver = getVersion();
-        String dependencyServiceId = "6";
-        String dependencyContentId = "webapputilservice-" + ver + ".zip";
-        verifyDependencies(serviceInfo,
-                           dependencyServiceId,
-                           dependencyContentId);
     }
 
     private void verifyServiceInfo(int numUserConfigs,
@@ -324,12 +242,7 @@ public class ServiceXmlGeneratorTest {
 
         verifyService(services.get(0), "fixityservice-", 0);
         verifyService(services.get(1), "bitintegritytoolsservice-", 1);
-        verifyService(services.get(2), "duplicationservice-", 2);
-        verifyService(services.get(3), "imageconversionservice-", 3);
-        verifyService(services.get(4), "mediastreamingservice-", 4);
-        verifyService(services.get(5), "imagemagickservice-", 5);
-        verifyService(services.get(6), "webapputilservice-", 6);
-        verifyService(services.get(7), "cloudsyncservice-", 7);
+        verifyService(services.get(2), "mediastreamingservice-", 2);
     }
 
     private void verifyServiceXmlProfessional(File xmlFile)
@@ -337,15 +250,12 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> services = getServicesFromXml(xmlFile);
         Assert.assertNotNull(services);
 
-        int count = 6;
+        int count = 3;
         Assert.assertEquals(xmlFile.getName(), count, services.size());
 
         verifyService(services.get(0), "fixityservice-", 0);
         verifyService(services.get(1), "bitintegritytoolsservice-", 1);
-        verifyService(services.get(2), "duplicationservice-", 2);
-        verifyService(services.get(3), "mediastreamingservice-", 4);
-        verifyService(services.get(4), "webapputilservice-", 6);
-        verifyService(services.get(5), "cloudsyncservice-", 7);
+        verifyService(services.get(2), "mediastreamingservice-", 2);
     }
 
     private void verifyServiceXmlTrial(File xmlFile)
@@ -353,15 +263,12 @@ public class ServiceXmlGeneratorTest {
         List<ServiceInfo> services = getServicesFromXml(xmlFile);
         Assert.assertNotNull(services);
 
-        int count = 6;
+        int count = 3;
         Assert.assertEquals(xmlFile.getName(), count, services.size());
 
         verifyService(services.get(0), "fixityservice-", 0);
         verifyService(services.get(1), "bitintegritytoolsservice-", 1);
-        verifyService(services.get(2), "duplicationservice-", 2);
-        verifyService(services.get(3), "mediastreamingservice-", 4);
-        verifyService(services.get(4), "webapputilservice-", 6);
-        verifyService(services.get(5), "cloudsyncservice-", 7);
+        verifyService(services.get(2), "mediastreamingservice-", 2);
     }
 
     private void verifyService(ServiceInfo service, String prefix, int id) {

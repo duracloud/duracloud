@@ -16,13 +16,8 @@
   </parent>
 
   <modules>
-    <module>osgi-test-hellowebappwrapper</module>
-    <module>osgi-test-j2kservice</module>
     <module>osgi-test-mediastreamingservice</module>
-    <module>osgi-test-replicationservice</module>
-    <module>osgi-test-scriptservice</module>
     <module>osgi-test-servicesutil</module>
-    <module>osgi-test-webapputilservice</module>
     <module>osgi-test-fixityservice</module>
   </modules>
 

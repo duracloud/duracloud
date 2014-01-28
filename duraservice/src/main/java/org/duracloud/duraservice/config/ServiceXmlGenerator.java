@@ -32,12 +32,7 @@ public class ServiceXmlGenerator {
     private AbstractServiceInfo[] serviceInfos =
         {new FixityServiceInfo(),
          new FixityToolsServiceInfo(),
-         new DuplicationServiceInfo(),
-         new ImageConversionServiceInfo(),
-         new MediaStreamingServiceInfo(),
-         new ImageMagickServiceInfo(),
-         new WebappUtilServiceInfo(),
-         new CloudSyncServiceInfo()};
+         new MediaStreamingServiceInfo()};
 
     private String version;
 
@@ -119,10 +114,7 @@ public class ServiceXmlGenerator {
         List<ServiceInfo> services = getServices();
         results.add(services.get(0));  // fixity
         results.add(services.get(1));  // fixity tools
-        results.add(services.get(2));  // duplicate on change
-        results.add(services.get(4));  // media streamer
-        results.add(services.get(6));  // webapp util
-        results.add(services.get(7));  // cloudsync
+        results.add(services.get(2));  // media streamer
 
         return results;
     }
@@ -133,10 +125,7 @@ public class ServiceXmlGenerator {
         List<ServiceInfo> services = getServices();
         results.add(services.get(0));  // fixity
         results.add(services.get(1));  // fixity tools
-        results.add(services.get(2));  // duplicate on change
-        results.add(services.get(4));  // media streamer
-        results.add(services.get(6));  // webapp util
-        results.add(services.get(7));  // cloudsync
+        results.add(services.get(2));  // media streamer
 
         return results;
     }

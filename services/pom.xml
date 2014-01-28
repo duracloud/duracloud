@@ -23,26 +23,11 @@
     <module>servicescommon</module>    
     <module>computeservice</module>
     <module>computelistenerservice</module>
-    <module>helloservice</module>    
-    <module>duplicationservice</module>
-    <module>tomcatconfig</module>
     <module>servicesutil</module>
     <module>servicesadmin</module>
-    <module>webapputilservice</module>
-    <module>hellowebappwrapper</module>
-    <module>scriptservice</module>
-    <module>j2kservice</module>
-    <module>cloudsyncservice</module>
-    <module>imagemagickservice</module>
-    <module>imageconversionservice</module>
     <module>mediastreamingservice</module>
     <module>fixityservice</module>
     <module>bitintegritytoolsservice</module>
-    <module>hadoop</module>
-    <module>amazonmapreduce-servicescommon</module>
-    <module>bulkimageconversionservice</module>
-    <module>amazonfixityservice</module>
-    <module>replication-on-demand-service</module>
     <module>osgi-test</module>
   </modules>
 
