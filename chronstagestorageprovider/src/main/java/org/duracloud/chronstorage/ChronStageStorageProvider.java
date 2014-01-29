@@ -31,14 +31,14 @@ public class ChronStageStorageProvider extends S3StorageProvider {
     }
 
     public ChronStageStorageProvider(String accessKey,
-                                      String secretKey,
-                                      Map<String, String> options) {
+                                     String secretKey,
+                                     Map<String, String> options) {
         super(accessKey, secretKey, options);
     }
 
     public ChronStageStorageProvider(AmazonS3Client s3Client,
-                                      String accessKey,
-                                      Map<String, String> options) {
+                                     String accessKey,
+                                     Map<String, String> options) {
          super(s3Client, accessKey, options);
     }
 
