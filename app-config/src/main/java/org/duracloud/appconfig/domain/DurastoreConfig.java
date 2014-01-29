@@ -33,11 +33,6 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
     protected static final String storageAccountKey = "storage-acct";
     protected static final String storageClassKey = "storage-class";
-    protected static final String zoneKey = "zone";
-    protected static final String portKey = "port";
-    protected static final String hostKey = "host";
-    protected static final String baseDirectoryKey = "base-directory";
-    protected static final String resourceKey = "resource";
     protected static final String ownerIdKey = "owner-id";
     protected static final String isPrimaryKey = "is-primary";
     protected static final String idKey = "id";

@@ -276,6 +276,11 @@ body > #page-header
     background:url(../images/sdsc.png) no-repeat;
 }
 
+.chron_stage-logo
+{
+    background:url(../images/chronopolis.png) no-repeat;
+}
+
 .ui-layout-resizer
 { 
 	background-color:#4b4b4b;

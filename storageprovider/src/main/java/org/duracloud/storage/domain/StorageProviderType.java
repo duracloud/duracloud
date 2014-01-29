@@ -12,6 +12,7 @@ public enum StorageProviderType {
     AMAZON_GLACIER("amazon-glacier"),
     RACKSPACE("rackspace"),
     SDSC("sdsc"),
+    CHRON_STAGE("chron-stage"),
     UNKNOWN("unknown"),
     TEST_RETRY("test-retry"),
     TEST_VERIFY_CREATE("test-verify-create"),
@@ -30,7 +31,7 @@ public enum StorageProviderType {
                 return pType;
             }
         }
-        return UNKNOWN;
+        return StorageProviderType.UNKNOWN;
     }
 
     @Override

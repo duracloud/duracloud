@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.chronstorage.ChronStageStorageProvider;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
 import org.duracloud.durastore.test.MockVerifyDeleteStorageProvider;
@@ -150,6 +151,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new RackspaceStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.SDSC)) {
             storageProvider = new SDSCStorageProvider(username, password);
+        } else if (type.equals(StorageProviderType.CHRON_STAGE)) {
+            storageProvider = new ChronStageStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.TEST_RETRY)) {
             storageProvider = new MockRetryStorageProvider();
         } else if (type.equals(StorageProviderType.TEST_VERIFY_CREATE)) {
