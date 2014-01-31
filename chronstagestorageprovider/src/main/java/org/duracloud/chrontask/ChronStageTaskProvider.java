@@ -8,6 +8,7 @@
 package org.duracloud.chrontask;
 
 import org.duracloud.chronstorage.ChronStageStorageProvider;
+import org.duracloud.chrontask.snapshot.SnapshotTaskRunner;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
 

@@ -33,5 +33,11 @@
       <version>${project.version}</version>
     </dependency>  
 
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-json</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
   </dependencies>
 </project>
