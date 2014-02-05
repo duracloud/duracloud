@@ -51,6 +51,8 @@ public class RetrievalWorker implements Runnable {
     private boolean createSpaceDir;
     private boolean applyTimestamps;
     private int attempts;
+    private File localFile;
+    private String remoteChecksum;
 
     private StatusManager statusManager;
 
@@ -80,20 +82,22 @@ public class RetrievalWorker implements Runnable {
         retrieveFile();
     }
 
-    protected void retrieveFile() {
+    public String retrieveFile() {
         attempts++;
         File localFile = getLocalFile();
+        String checksum = null;
         try {
             if(localFile.exists()) { // File already exists
                 if(checksumsMatch(localFile)) {
                     noChangeNeeded(localFile.getAbsolutePath());
+                    checksum = getRemoteChecksum();
                 } else { // Different file in DuraStore
                     if(overwrite) {
                         deleteFile(localFile);
                     } else {
                         renameFile(localFile);
                     }
-                    retrieveToFile(localFile);
+                    checksum = retrieveToFile(localFile);
                     succeed(localFile.getAbsolutePath());
                 }
             } else { // File does not exist
@@ -102,7 +106,7 @@ public class RetrievalWorker implements Runnable {
                     parentDir.mkdirs();
                     parentDir.setWritable(true);
                 }
-                retrieveToFile(localFile);
+                checksum = retrieveToFile(localFile);
                 succeed(localFile.getAbsolutePath());
             }
         } catch(Exception e) {
@@ -115,45 +119,51 @@ public class RetrievalWorker implements Runnable {
                 fail(e.getMessage());
             }
         }
+        return checksum;
     }
 
     /*
      * Gets the local storage file for the content item
      */
-    protected File getLocalFile() {
-        ChunkUtil util = new ChunkUtil();
-        String contentId = contentItem.getContentId();
-        if (util.isChunkManifest(contentId)) {
-            contentId = util.preChunkedContentId(contentId);
-        }
+    public File getLocalFile() {
+        if(this.localFile == null) {
+            ChunkUtil util = new ChunkUtil();
+            String contentId = contentItem.getContentId();
+            if (util.isChunkManifest(contentId)) {
+                contentId = util.preChunkedContentId(contentId);
+            }
 
-        File localFile;
-        if(createSpaceDir) {
-            File spaceDir = new File(contentDir, contentItem.getSpaceId());
-            localFile = new File(spaceDir, contentId);
-        } else {
-            localFile = new File(contentDir, contentId);
+            if(createSpaceDir) {
+                File spaceDir = new File(contentDir, contentItem.getSpaceId());
+                this.localFile = new File(spaceDir, contentId);
+            } else {
+                this.localFile = new File(contentDir, contentId);
+            }
         }
-        return localFile;
+        return this.localFile;
     }
 
     /*
      * Checks to see if the checksums of the local file and remote file match
      */
     protected boolean checksumsMatch(File localFile) throws IOException {
-       return checksumsMatch(localFile, null); 
+        String localChecksum = getChecksum(localFile);
+        String remoteChecksum = getRemoteChecksum();
+        return localChecksum.equals(remoteChecksum);
     }
 
-    private boolean checksumsMatch(File localFile, String remoteChecksum)
-        throws IOException {
+    private String getRemoteChecksum() {
+        if(remoteChecksum == null) {
+            remoteChecksum = source.getSourceChecksum(contentItem);
+        }
+        return remoteChecksum;
+    }
+
+    protected String getChecksum(File localFile) throws IOException {
         ChecksumUtil checksumUtil =
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String localChecksum = checksumUtil.generateChecksum(localFile);
-
-        if(remoteChecksum == null || remoteChecksum.equals("")) {
-            remoteChecksum = source.getSourceChecksum(contentItem);
-        }
-        return localChecksum.equals(remoteChecksum);
+        return localChecksum;
     }
 
     /*
@@ -181,8 +191,11 @@ public class RetrievalWorker implements Runnable {
 
     /*
      * Transfers the remote file stream to the local file
+     * @returns the checksum of the File upon successful retrieval.  Successful
+     * retrieval means the checksum of the local file and remote file match,
+     * otherwise an IOException is thrown.
      */
-    protected void retrieveToFile(File localFile) throws IOException {
+    protected String retrieveToFile(File localFile) throws IOException {
         ContentStream content = source.getSourceContent(contentItem);
 
         InputStream inStream = content.getStream();
@@ -199,7 +212,12 @@ public class RetrievalWorker implements Runnable {
             }
         }
 
-        if(!checksumsMatch(localFile, content.getChecksum())) {
+        String localChecksum = getChecksum(localFile);
+        String remoteChecksum = content.getChecksum();
+        if(remoteChecksum == null || "".equals(remoteChecksum)) {
+            remoteChecksum = source.getSourceChecksum(contentItem);
+        }
+        if(! localChecksum.equals(remoteChecksum)) {
             deleteFile(localFile);
             throw new IOException("Calculated checksum value for retrieved " +
                                   "file does not match properties checksum.");
@@ -209,6 +227,7 @@ public class RetrievalWorker implements Runnable {
         if(applyTimestamps) {
             applyTimestamps(content, localFile);
         }
+        return localChecksum;
     }
 
     /*

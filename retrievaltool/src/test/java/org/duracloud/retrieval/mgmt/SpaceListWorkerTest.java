@@ -140,7 +140,7 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
             line = br.readLine();
             assertNotNull(expectedLine);
             assertNotNull(line);
-            assertEquals(line, expectedLine);
+            assertEquals(expectedLine, line);
         }
         line = br.readLine();
         assertNull(line);  // no more lines in file
