@@ -7,7 +7,10 @@
  */
 package org.duracloud.retrieval.source;
 
+import org.duracloud.client.ContentStore;
+
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -16,41 +19,36 @@ import java.io.InputStream;
 public class ContentStream {
 
     private InputStream stream;
-    private String checksum;
-    private String dateCreated;
-    private String dateLastAccessed;
-    private String dateLastModified;
+    private Map<String, String> properties;
 
     public ContentStream(InputStream stream,
-                         String checksum,
-                         String dateCreated,
-                         String dateLastAccessed,
-                         String dateLastModified) {
+                         Map<String, String> properties) {
         this.stream = stream;
-        this.checksum = checksum;
-        this.dateCreated = dateCreated;
-        this.dateLastAccessed = dateLastAccessed;
-        this.dateLastModified = dateLastModified;
+        this.properties = properties;
     }
 
     public InputStream getStream() {
         return stream;
     }
 
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
     public String getChecksum() {
-        return checksum;
+        return getProperties().get(ContentStore.CONTENT_CHECKSUM);
     }
 
     public String getDateCreated() {
-        return dateCreated;
+        return getProperties().get(ContentStore.CONTENT_FILE_CREATED);
     }
 
     public String getDateLastAccessed() {
-        return dateLastAccessed;
+        return getProperties().get(ContentStore.CONTENT_FILE_ACCESSED);
     }
 
     public String getDateLastModified() {
-        return dateLastModified;
+        return getProperties().get(ContentStore.CONTENT_FILE_MODIFIED);
     }
 
 }

@@ -101,34 +101,30 @@ public class DuraStoreRetrievalSource implements RetrievalSource {
     }
 
     @Override
-    public String getSourceChecksum(ContentItem contentItem) {
+    public Map<String,String> getSourceProperties(ContentItem contentItem) {
         try {
             Map<String, String> properties =
                 contentStore.getContentProperties(contentItem.getSpaceId(),
                                                   contentItem.getContentId());
-            return properties.get(ContentStore.CONTENT_CHECKSUM);
+            return properties;
         } catch(ContentStoreException e) {
             throw new RuntimeException("Unable to get checksum for " +
-                                       contentItem.toString() + " due to: " +
-                                       e.getMessage());
+                                           contentItem.toString() + " due to: " +
+                                           e.getMessage());
         }
+    }
+
+    @Override
+    public String getSourceChecksum(ContentItem contentItem) {
+        return getSourceProperties(contentItem).
+            get(ContentStore.CONTENT_CHECKSUM);
     }
 
     @Override
     public ContentStream getSourceContent(ContentItem contentItem) {
         Content content = doGetContent(contentItem);
-
-        Map<String, String> props = content.getProperties();
-        String checksum = props.get(ContentStore.CONTENT_CHECKSUM);
-        String dateCreated = props.get(ContentStore.CONTENT_FILE_CREATED);
-        String dateLastAccessed = props.get(ContentStore.CONTENT_FILE_ACCESSED);
-        String dateLastModified = props.get(ContentStore.CONTENT_FILE_MODIFIED);
-
         return new ContentStream(content.getStream(),
-                                 checksum,
-                                 dateCreated,
-                                 dateLastAccessed,
-                                 dateLastModified);
+                                 content.getProperties());
     }
 
     protected Content doGetContent(ContentItem contentItem) {

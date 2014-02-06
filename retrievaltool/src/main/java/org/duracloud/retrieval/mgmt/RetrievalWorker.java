@@ -10,6 +10,7 @@ package org.duracloud.retrieval.mgmt;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.util.ChunkUtil;
+import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
@@ -29,6 +30,7 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Handles the retrieving of a single file from DuraCloud.
@@ -52,7 +54,7 @@ public class RetrievalWorker implements Runnable {
     private boolean applyTimestamps;
     private int attempts;
     private File localFile;
-    private String remoteChecksum;
+    private ContentStream contentStream;
 
     private StatusManager statusManager;
 
@@ -82,22 +84,23 @@ public class RetrievalWorker implements Runnable {
         retrieveFile();
     }
 
-    public String retrieveFile() {
+    public Map<String,String> retrieveFile() {
         attempts++;
         File localFile = getLocalFile();
-        String checksum = null;
+        Map<String,String> props = null;
         try {
             if(localFile.exists()) { // File already exists
-                if(checksumsMatch(localFile)) {
+                props = getContentProperties();
+                if(checksumsMatch(localFile,
+                                  props.get(ContentStore.CONTENT_CHECKSUM))) {
                     noChangeNeeded(localFile.getAbsolutePath());
-                    checksum = getRemoteChecksum();
                 } else { // Different file in DuraStore
                     if(overwrite) {
                         deleteFile(localFile);
                     } else {
                         renameFile(localFile);
                     }
-                    checksum = retrieveToFile(localFile);
+                    props = retrieveToFile(localFile);
                     succeed(localFile.getAbsolutePath());
                 }
             } else { // File does not exist
@@ -106,7 +109,7 @@ public class RetrievalWorker implements Runnable {
                     parentDir.mkdirs();
                     parentDir.setWritable(true);
                 }
-                checksum = retrieveToFile(localFile);
+                props = retrieveToFile(localFile);
                 succeed(localFile.getAbsolutePath());
             }
         } catch(Exception e) {
@@ -119,7 +122,7 @@ public class RetrievalWorker implements Runnable {
                 fail(e.getMessage());
             }
         }
-        return checksum;
+        return props;
     }
 
     /*
@@ -143,20 +146,24 @@ public class RetrievalWorker implements Runnable {
         return this.localFile;
     }
 
+    protected boolean checksumsMatch(File localFile) throws IOException {
+        return checksumsMatch(localFile, null);
+    }
+
     /*
      * Checks to see if the checksums of the local file and remote file match
      */
-    protected boolean checksumsMatch(File localFile) throws IOException {
-        String localChecksum = getChecksum(localFile);
-        String remoteChecksum = getRemoteChecksum();
-        return localChecksum.equals(remoteChecksum);
-    }
-
-    private String getRemoteChecksum() {
-        if(remoteChecksum == null) {
-            remoteChecksum = source.getSourceChecksum(contentItem);
+    protected boolean checksumsMatch(File localFile, String remoteChecksum)
+            throws IOException {
+        if(remoteChecksum == null || "".equals(remoteChecksum)) {
+            if(contentStream != null) {
+                remoteChecksum = contentStream.getChecksum();
+            } else {
+                remoteChecksum = source.getSourceChecksum(contentItem);
+            }
         }
-        return remoteChecksum;
+        String localChecksum = getChecksum(localFile);
+        return localChecksum.equals(remoteChecksum);
     }
 
     protected String getChecksum(File localFile) throws IOException {
@@ -189,16 +196,26 @@ public class RetrievalWorker implements Runnable {
         localFile.delete();
     }
 
+    protected Map<String,String> getContentProperties() {
+        Map<String,String> properties = null;
+        if(contentStream != null) {
+            properties = contentStream.getProperties();
+        } else {
+            properties = source.getSourceProperties(contentItem);
+        }
+        return properties;
+    }
+
     /*
      * Transfers the remote file stream to the local file
      * @returns the checksum of the File upon successful retrieval.  Successful
      * retrieval means the checksum of the local file and remote file match,
      * otherwise an IOException is thrown.
      */
-    protected String retrieveToFile(File localFile) throws IOException {
-        ContentStream content = source.getSourceContent(contentItem);
+    protected Map<String, String> retrieveToFile(File localFile) throws IOException {
+        contentStream = source.getSourceContent(contentItem);
 
-        InputStream inStream = content.getStream();
+        InputStream inStream = contentStream.getStream();
         OutputStream outStream = new FileOutputStream(localFile);
         try {
             IOUtils.copyLarge(inStream, outStream);
@@ -212,12 +229,7 @@ public class RetrievalWorker implements Runnable {
             }
         }
 
-        String localChecksum = getChecksum(localFile);
-        String remoteChecksum = content.getChecksum();
-        if(remoteChecksum == null || "".equals(remoteChecksum)) {
-            remoteChecksum = source.getSourceChecksum(contentItem);
-        }
-        if(! localChecksum.equals(remoteChecksum)) {
+        if(! checksumsMatch(localFile, contentStream.getChecksum())) {
             deleteFile(localFile);
             throw new IOException("Calculated checksum value for retrieved " +
                                   "file does not match properties checksum.");
@@ -225,9 +237,9 @@ public class RetrievalWorker implements Runnable {
 
         // Set time stamps
         if(applyTimestamps) {
-            applyTimestamps(content, localFile);
+            applyTimestamps(contentStream, localFile);
         }
-        return localChecksum;
+        return contentStream.getProperties();
     }
 
     /*

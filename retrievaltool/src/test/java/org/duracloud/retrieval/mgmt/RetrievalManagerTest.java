@@ -7,6 +7,7 @@
  */
 package org.duracloud.retrieval.mgmt;
 
+import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.retrieval.RetrievalTestBase;
@@ -19,6 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -71,6 +74,14 @@ public class RetrievalManagerTest extends RetrievalTestBase {
         }
 
         @Override
+        public Map<String,String> getSourceProperties(ContentItem contentItem) {
+            InputStream stream = getStream(contentItem.getContentId());
+            Map<String,String> props = new HashMap<>();
+            props.put(ContentStore.CONTENT_CHECKSUM, getChecksum(stream));
+            return props;
+        }
+
+        @Override
         public String getSourceChecksum(ContentItem contentItem) {
             return getChecksum(getStream(contentItem.getContentId()));
         }
@@ -78,8 +89,7 @@ public class RetrievalManagerTest extends RetrievalTestBase {
         @Override
         public ContentStream getSourceContent(ContentItem contentItem) {
             InputStream stream = getStream(contentItem.getContentId());
-            return new ContentStream(stream, getChecksum(stream),
-                                     null, null, null);
+            return new ContentStream(stream, getSourceProperties(contentItem));
         }
 
         private InputStream getStream(String contentId) {

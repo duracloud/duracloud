@@ -8,6 +8,7 @@
 package org.duracloud.retrieval.mgmt;
 
 import org.apache.commons.io.FileUtils;
+import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.ContentItem;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
@@ -22,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -198,8 +201,13 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         String time1 = DateUtil.convertToStringLong(testTime + 100000);
         String time2 = DateUtil.convertToStringLong(testTime + 200000);
         String time3 = DateUtil.convertToStringLong(testTime + 300000);
+        Map<String,String> props = new HashMap<>();
+        props.put(ContentStore.CONTENT_FILE_CREATED, time1);
+        props.put(ContentStore.CONTENT_FILE_ACCESSED, time2);
+        props.put(ContentStore.CONTENT_FILE_MODIFIED, time3);
+
         ContentStream content =
-            new ContentStream(null, null, time1, time2, time3);
+            new ContentStream(null, props);
 
         File localFile = new File(tempDir, "timestamp-test");
         FileUtils.writeStringToFile(localFile, contentValue);
@@ -273,22 +281,33 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         }
 
         @Override
-        public String getSourceChecksum(ContentItem contentItem) {
+        public Map<String,String> getSourceProperties(ContentItem contentItem) {
             ChecksumUtil checksumUtil =
                 new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
             InputStream valueStream =
                 new ByteArrayInputStream(contentValue.getBytes());
-            return checksumUtil.generateChecksum(valueStream);
+            String checksum = checksumUtil.generateChecksum(valueStream);
+
+            Map<String,String> props = new HashMap<>();
+            props.put(ContentStore.CONTENT_CHECKSUM, checksum);
+            String time = DateUtil.convertToStringLong(testTime);
+            props.put(ContentStore.CONTENT_FILE_CREATED, time);
+            props.put(ContentStore.CONTENT_FILE_ACCESSED, time);
+            props.put(ContentStore.CONTENT_FILE_MODIFIED, time);
+            return props;
+        }
+
+        @Override
+        public String getSourceChecksum(ContentItem contentItem) {
+            return getSourceProperties(contentItem).
+                get(ContentStore.CONTENT_CHECKSUM);
         }
 
         @Override
         public ContentStream getSourceContent(ContentItem contentItem) {
             InputStream stream =
                 new ByteArrayInputStream(contentValue.getBytes());
-
-            String time = DateUtil.convertToStringLong(testTime);
-            return new ContentStream(stream, getSourceChecksum(contentItem),
-                                     time, time, time);
+            return new ContentStream(stream, getSourceProperties(contentItem));
         }
     }
 
@@ -301,8 +320,10 @@ public class RetrievalWorkerTest extends RetrievalTestBase {
         public ContentStream getSourceContent(ContentItem contentItem) {
             InputStream stream =
                 new ByteArrayInputStream(contentValue.getBytes());
-            return new ContentStream(stream, "invalid-checksum",
-                                     null, null, null);
+            Map<String,String> props = new HashMap<>();
+            props.put(ContentStore.CONTENT_CHECKSUM,
+                      "invalid-checksum");
+            return new ContentStream(stream, props);
         }
     }
 

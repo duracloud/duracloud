@@ -9,6 +9,8 @@ package org.duracloud.retrieval.source;
 
 import org.duracloud.common.model.ContentItem;
 
+import java.util.Map;
+
 /**
  * @author: Bill Branan
  * Date: Oct 12, 2010
@@ -23,6 +25,14 @@ public interface RetrievalSource {
      * @return the next content item to be processed
      */
     public ContentItem getNextContentItem();
+
+    /**
+     * Retrieves the Duracloud properties for the specified ContentItem.
+     *
+     * @param contentItem the file whose properties to retrieve
+     * @return the Map of Duracloud properties
+     */
+    public Map<String,String> getSourceProperties(ContentItem contentItem);
 
     /**
      * Provides the checksum of the specified source file based on the file's
