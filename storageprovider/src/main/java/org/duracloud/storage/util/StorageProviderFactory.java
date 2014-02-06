@@ -20,7 +20,9 @@ import java.util.List;
  */
 public interface StorageProviderFactory {
 
-    public void initialize(InputStream accountXml);
+    public void initialize(InputStream accountXml,
+                           String instanceHost,
+                           String instancePort);
 
     public boolean isInitialized();
 

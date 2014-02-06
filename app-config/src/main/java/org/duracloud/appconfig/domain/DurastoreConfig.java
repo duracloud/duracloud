@@ -39,6 +39,10 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String providerTypeKey = "provider-type";
     protected static final String usernameKey = "username";
     protected static final String passwordKey = "password";
+    protected static final String bridgeHostKey = "bridge-host";
+    protected static final String bridgePortKey = "bridge-port";
+    protected static final String bridgeUserKey = "bridge-user";
+    protected static final String bridgePassKey = "bridge-pass";
 
     private Map<String, StorageAccount> storageAccounts =
         new HashMap<String, StorageAccount>();
@@ -91,6 +95,18 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
         } else if (suffix.equalsIgnoreCase(storageClassKey)) {
             acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(bridgeHostKey)) {
+            acct.setOption(StorageAccount.OPTS.BRIDGE_HOST.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(bridgePortKey)) {
+            acct.setOption(StorageAccount.OPTS.BRIDGE_PORT.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(bridgeUserKey)) {
+            acct.setOption(StorageAccount.OPTS.BRIDGE_USER.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(bridgePassKey)) {
+            acct.setOption(StorageAccount.OPTS.BRIDGE_PASS.name(), value);
 
         } else {
             String msg = "unknown acct key: " + key + " (" + value + ")";

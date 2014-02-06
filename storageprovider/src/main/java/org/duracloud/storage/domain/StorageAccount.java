@@ -22,6 +22,11 @@ public interface StorageAccount {
     public enum OPTS {
         // S3 below
         STORAGE_CLASS,
+        // Chronopolis below
+        BRIDGE_HOST,
+        BRIDGE_PORT,
+        BRIDGE_USER,
+        BRIDGE_PASS;
     }
 
     public String getId();

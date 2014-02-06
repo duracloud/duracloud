@@ -63,9 +63,11 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     }
 
     @Override
-    public void initialize(InputStream accountXml)
+    public void initialize(InputStream accountXml,
+                           String instanceHost,
+                           String instancePort)
             throws StorageException {
-        super.initialize(accountXml);
+        super.initialize(accountXml, instanceHost, instancePort);
         initializeStorageProviders();
     }
 

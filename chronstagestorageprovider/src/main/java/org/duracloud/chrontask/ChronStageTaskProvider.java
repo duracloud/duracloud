@@ -18,13 +18,28 @@ import org.slf4j.LoggerFactory;
  */
 public class ChronStageTaskProvider extends TaskProviderBase {
 
-    public ChronStageTaskProvider(String accessKey, String secretKey) {
+    public ChronStageTaskProvider(String accessKey,
+                                  String secretKey,
+                                  String dcHost,
+                                  String dcPort,
+                                  String dcStoreId,
+                                  String bridgeHost,
+                                  String bridgePort,
+                                  String bridgeUser,
+                                  String bridgePass) {
         log = LoggerFactory.getLogger(ChronStageTaskProvider.class);
 
         ChronStageStorageProvider chronStageProvider =
             new ChronStageStorageProvider(accessKey, secretKey);
 
-        taskList.add(new SnapshotTaskRunner(chronStageProvider));
+        taskList.add(new SnapshotTaskRunner(chronStageProvider,
+                                            dcHost,
+                                            dcPort,
+                                            dcStoreId,
+                                            bridgeHost,
+                                            bridgePort,
+                                            bridgeUser,
+                                            bridgePass));
     }
 
 }

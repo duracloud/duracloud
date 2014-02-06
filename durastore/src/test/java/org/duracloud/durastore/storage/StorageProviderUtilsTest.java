@@ -77,7 +77,7 @@ public class StorageProviderUtilsTest {
             new StorageAccountManager(),
             new StatelessStorageProviderImpl());
 
-        storageProviderFactory.initialize(is);
+        storageProviderFactory.initialize(is, "host", "port");
         StorageProvider storage =
             storageProviderFactory.getStorageProvider();
 

@@ -30,13 +30,16 @@ public class ProviderFactoryBase {
      *
      * @param accountXml A stream containing account information in XML format
      */
-    public void initialize(InputStream accountXml)
+    public void initialize(InputStream accountXml,
+                           String instanceHost,
+                           String instancePort)
             throws StorageException {
         if (accountXml == null) {
             throw new IllegalArgumentException("XML containing account information");
         }
 
         storageAccountManager.initialize(accountXml);
+        storageAccountManager.setEnvironment(instanceHost, instancePort);
     }
 
     /**

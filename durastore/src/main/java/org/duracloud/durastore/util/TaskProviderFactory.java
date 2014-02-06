@@ -63,7 +63,26 @@ public class TaskProviderFactory extends ProviderFactoryBase {
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             taskProvider = new GlacierTaskProvider(username, password);
         } else if (type.equals(StorageProviderType.CHRON_STAGE)) {
-            taskProvider = new ChronStageTaskProvider(username, password);
+            String dcHost = storageAccountManager.getInstanceHost();
+            String dcPort = storageAccountManager.getInstancePort();
+            String bridgeHost =
+                account.getOptions().get(StorageAccount.OPTS.BRIDGE_HOST.name());
+            String bridgePort =
+                account.getOptions().get(StorageAccount.OPTS.BRIDGE_PORT.name());
+            String bridgeUser =
+                account.getOptions().get(StorageAccount.OPTS.BRIDGE_USER.name());
+            String bridgePass =
+                account.getOptions().get(StorageAccount.OPTS.BRIDGE_PASS.name());
+
+            taskProvider = new ChronStageTaskProvider(username,
+                                                      password,
+                                                      dcHost,
+                                                      dcPort,
+                                                      storageAccountId,
+                                                      bridgeHost,
+                                                      bridgePort,
+                                                      bridgeUser,
+                                                      bridgePass);
         } else {
             throw new TaskException("No TaskProvider is available for " + type);
         }

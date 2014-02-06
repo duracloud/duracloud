@@ -52,8 +52,15 @@ public class InitRest extends BaseRest {
 
         RestUtil.RequestContent content = null;
         try {
+            String instanceHost = request.getServerName();
+            String instancePort = String.valueOf(request.getServerPort());
+            log.info("Initializing DuraStore on host: " + instanceHost +
+                     " and port: " + instancePort);
+
             content = restUtil.getRequestContent(request, headers);
-            storageProviderFactory.initialize(content.getContentStream());
+            storageProviderFactory.initialize(content.getContentStream(),
+                                              instanceHost,
+                                              instancePort);
             String responseText = "Initialization Successful";
             return responseOk(msg, responseText);
 

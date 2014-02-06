@@ -44,6 +44,9 @@ public class StorageProviderFactoryTest {
     private StorageAccount acct1;
     private StorageAccount acct2;
 
+    private String instanceHost = "host";
+    private String instancePort = "port";
+
     private List<String> storageAccountIds;
     private StorageProviderFactory factory;
 
@@ -159,11 +162,14 @@ public class StorageProviderFactoryTest {
         mockSAM.initialize(EasyMock.isA(InputStream.class));
         EasyMock.expectLastCall();
 
+        mockSAM.setEnvironment(instanceHost, instancePort);
+        EasyMock.expectLastCall();
+
         InputStream inputStream = EasyMock.createMock("InputSream",
                                                       InputStream.class);
         EasyMock.replay(mockSAM, mockSSP, inputStream);
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP);
-        factory.initialize(inputStream);
+        factory.initialize(inputStream, instanceHost, instancePort);
 
         //Test retrieving from accountManager now that the cache has been cleared
         getProvider();
@@ -181,6 +187,9 @@ public class StorageProviderFactoryTest {
         EasyMock.expect(mockSAM.getStorageAccount(EasyMock.isA(String.class)))
             .andReturn(acct1);
 
+        mockSAM.setEnvironment(instanceHost, instancePort);
+        EasyMock.expectLastCall();
+
         EasyMock.replay(mockSAM, mockSSP);
 
         factory = new StorageProviderFactoryImpl(mockSAM, mockSSP, true);
@@ -188,7 +197,7 @@ public class StorageProviderFactoryTest {
                             InputStream.class);
         EasyMock.replay(inputStream);
         
-        factory.initialize(inputStream);
+        factory.initialize(inputStream, instanceHost, instancePort);
     }
     
     private StorageAccountManager getProvider() {

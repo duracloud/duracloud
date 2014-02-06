@@ -7,8 +7,8 @@
  */
 package org.duracloud.storage.domain;
 
-import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,9 @@ public class StorageAccountManager {
 
     private StorageAccountsDocumentBinding documentBinding =
         new StorageAccountsDocumentBinding();
+
+    private String instanceHost;
+    private String instancePort;
 
     /**
      * Parses xml to construct a listing of available storage accounts.
@@ -59,6 +62,19 @@ public class StorageAccountManager {
         }
 
         close(accountXml);
+    }
+
+    public void setEnvironment(String instanceHost, String instancePort) {
+        this.instanceHost = instanceHost;
+        this.instancePort = instancePort;
+    }
+
+    public String getInstanceHost() {
+        return instanceHost;
+    }
+
+    public String getInstancePort() {
+        return instancePort;
     }
 
     private List<StorageAccount> getAccounts(InputStream accountXml) {

@@ -18,10 +18,13 @@ import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.TaskRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Properties;
 
@@ -34,10 +37,40 @@ public class SnapshotTaskRunner implements TaskRunner {
     private static final String TASK_NAME = "snapshot";
     private static final String SNAPSHOT_USER = "chronopolis";
 
-    private ChronStageStorageProvider chronProvider;
+    private Logger log = LoggerFactory.getLogger(SnapshotTaskRunner.class);
 
-    public SnapshotTaskRunner(ChronStageStorageProvider chronProvider) {
+    private ChronStageStorageProvider chronProvider;
+    private String ownerId;
+    private String dcHost;
+    private String dcPort;
+    private String dcStoreId;
+    private String bridgeAppHost;
+    private String bridgeAppPort;
+    private String bridgeAppUser;
+    private String bridgeAppPass;
+
+    public SnapshotTaskRunner(ChronStageStorageProvider chronProvider,
+                              String dcHost,
+                              String dcPort,
+                              String dcStoreId,
+                              String bridgeAppHost,
+                              String bridgeAppPort,
+                              String bridgeAppUser,
+                              String bridgeAppPass) {
         this.chronProvider = chronProvider;
+        this.dcHost = dcHost;
+        this.dcPort = dcPort;
+        this.dcStoreId = dcStoreId;
+        this.bridgeAppHost = bridgeAppHost;
+        this.bridgeAppPort = bridgeAppPort;
+        this.bridgeAppUser = bridgeAppUser;
+        this.bridgeAppPass = bridgeAppPass;
+
+        this.ownerId = getOwnerId(dcHost);
+    }
+
+    protected String getOwnerId(String host) {
+        return host.split("\\.")[0];
     }
 
     @Override
@@ -47,13 +80,11 @@ public class SnapshotTaskRunner implements TaskRunner {
 
     @Override
     public String performTask(String taskParameters) {
-        // TODO: Get access to these values
-        String dcHost = "";
-        String ownerId = "";
-        String storeId = "";
-        String bridgeAppHost = "";
-        String bridgeAppUser = "";
-        String bridgeAppPass = "";
+        log.info("Performing Chronopolis SNAPSHOT task with parameters, " +
+                 "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
+                 "OwnerID: {} Bridge Host: {} Bridge Port: {} Bridge User: {}",
+                 new Object[] {dcHost, dcPort, dcStoreId, ownerId,
+                               bridgeAppHost, bridgeAppPort, bridgeAppUser});
 
         // Get input params
         SnapshotTaskParameters taskParams = parseTaskParams(taskParameters);
@@ -61,13 +92,13 @@ public class SnapshotTaskRunner implements TaskRunner {
         Map<String, String> snapshotProps = taskParams.getSnapshotProperties();
 
         // Generate snapshot ID
-        String snapshotId = ownerId + "-" + storeId + "-" + spaceId +
+        String snapshotId = ownerId + "-" + dcStoreId + "-" + spaceId +
                             "-"+ DateUtil.nowPlain();
 
         // Pull together all snapshot properties
         snapshotProps.put("duracloud-host", dcHost);
         snapshotProps.put("duracloud-space-id", spaceId);
-        snapshotProps.put("duracloud-store-id", storeId);
+        snapshotProps.put("duracloud-store-id", dcStoreId);
         snapshotProps.put("snapshot-id", snapshotId);
         snapshotProps.put("owner-id", ownerId);
 
@@ -83,9 +114,9 @@ public class SnapshotTaskRunner implements TaskRunner {
         chronProvider.setSpaceACLs(spaceId, spaceACLs);
 
         // Create URL to call bridge app
-        // format: host/storeId/spaceId/snapshotId
-        String snapshotURL = "http://"+ bridgeAppHost + "/snapshot/" + dcHost +
-                             "/" + storeId + "/" + spaceId + "/" + snapshotId;
+        String snapshotURL = buildSnapshotURL(spaceId, snapshotId);
+
+        log.info("Making Chronopolis SNAPSHOT call to URL: {}", snapshotURL);
 
         // Make call to DPN bridge ingest app to kick off transfer
         RestHttpHelper restHelper =
@@ -98,7 +129,20 @@ public class SnapshotTaskRunner implements TaskRunner {
                                     "Error reported: " + e.getMessage(), e);
         }
 
+        log.info("Chronopolis SNAPSHOT with ID {} completed successfully ",
+                 snapshotId);
+
         return buildTaskResult(snapshotId);
+    }
+
+    /*
+     * Create URL to call bridge app
+     * path format: dcHost/dcPort/storeId/spaceId/snapshotId
+     */
+    protected String buildSnapshotURL(String spaceId, String snapshotId) {
+        return MessageFormat.format("http://{0}:{1}/snapshot/{2}/{3}/{4}/{5}/{6}",
+                                    bridgeAppHost, bridgeAppPort, dcHost, dcPort,
+                                    dcStoreId, spaceId, snapshotId);
     }
 
     /**
