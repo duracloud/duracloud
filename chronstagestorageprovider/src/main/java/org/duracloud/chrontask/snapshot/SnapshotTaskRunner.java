@@ -17,6 +17,7 @@ import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.storage.error.TaskException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,8 @@ public class SnapshotTaskRunner implements TaskRunner {
 
         // Give snapshot user read permissions on space
         Map<String, AclType> spaceACLs = chronProvider.getSpaceACLs(spaceId);
-        spaceACLs.put(SNAPSHOT_USER, AclType.READ);
+        spaceACLs.put(StorageProvider.PROPERTIES_SPACE_ACL + SNAPSHOT_USER,
+                      AclType.READ);
         chronProvider.setSpaceACLs(spaceId, spaceACLs);
 
         // Create URL to call bridge app
