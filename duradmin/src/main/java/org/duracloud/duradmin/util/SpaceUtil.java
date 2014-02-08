@@ -7,8 +7,21 @@
  */
 package org.duracloud.duradmin.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.domain.Content;
@@ -20,23 +33,14 @@ import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.duradmin.security.RootAuthentication;
 import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.NotFoundException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.serviceapi.ServicesManager;
+import org.duracloud.storage.domain.StorageProviderType;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides utility methods for spaces.
@@ -56,7 +60,10 @@ public class SpaceUtil {
         space.setContents(cloudSpace.getContentIds());
         Map<String,AclType> spaceAcls = contentStore.getSpaceACLs(cloudSpace.getId());
         space.setAcls(toAclList(spaceAcls));
-        AclType callerAcl = resolveCallerAcl(spaceAcls,  authentication);
+        AclType callerAcl = resolveCallerAcl(space.getSpaceId(), 
+                                             contentStore, 
+                                             spaceAcls,  
+                                             authentication);
 
         String aclName = null;
         if (null != callerAcl) {
@@ -94,7 +101,7 @@ public class SpaceUtil {
         contentItem.setDurastoreURL(formatDurastoreURL(contentItem, store));
         Map<String,AclType> acls = store.getSpaceACLs(spaceId);
         contentItem.setAcls(toAclList(acls));
-        AclType callerAcl = resolveCallerAcl(acls, authentication);
+        AclType callerAcl = resolveCallerAcl(spaceId, store, acls, authentication);
 
         
         String aclName = null;
@@ -195,10 +202,17 @@ public class SpaceUtil {
 	}
 
     
-	public static AclType resolveCallerAcl(Map<String,AclType> acls,
+	public static AclType resolveCallerAcl(String spaceId,ContentStore store, Map<String,AclType> acls,
                                           Authentication authentication)
         throws ContentStoreException {
-        
+	    //if a snapshot is in progress, read only
+	    if(store.getStorageProviderType().equals(StorageProviderType.CHRON_STAGE.name())){
+	        try{
+	            store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
+	            return AclType.READ;
+	        }catch(NotFoundException ex){} //do nothing - no snapshot in progress
+	    }
+	        
         // check authorities
 	    if(isAdmin(authentication)){
 	        return AclType.WRITE;

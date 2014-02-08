@@ -63,7 +63,7 @@ public class SpacesController {
                 String writeableOnlyStr = request.getParameter("writeableOnly");
                 boolean writeableOnly = Boolean.valueOf(writeableOnlyStr);
                 String storeId = request.getParameter("storeId");
-                ContentStore c = contentStoreManager.getContentStore(storeId);
+                ContentStore c = contentStoreManager.getContentStore(storeId, 0);
                 List<String> spaceIds = c.getSpaces();
                 List<Space> spaces = new LinkedList<Space>();
 
@@ -72,7 +72,7 @@ public class SpacesController {
 
                 for (String spaceId : spaceIds) {
                     AclType acl =
-                        SpaceUtil.resolveCallerAcl(c.getSpaceACLs(spaceId), a);
+                        SpaceUtil.resolveCallerAcl(spaceId, c, c.getSpaceACLs(spaceId), a);
                     Space space = new Space();
                     space.setCallerAcl(acl != null ? acl.name() : null);
                     space.setSpaceId(spaceId);
