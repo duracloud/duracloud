@@ -7,12 +7,27 @@
  */
 package org.duracloud.security.vote;
 
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.easymock.IAnswer;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -30,17 +45,6 @@ import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
 
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Andrew Woods
  *         Date: Mar 19, 2010
@@ -55,10 +59,11 @@ public class SpaceWriteAccessVoterTest {
     private final String storeId = "5";
 
     private StorageProviderFactory providerFactory;
+    private StorageProvider provider;
     private UserDetailsService userDetailsService;
     private FilterInvocation resource;
     private HttpServletRequest request;
-
+    private List<StorageAccount> accounts;
 
     @Before
     public void setUp() {
@@ -67,6 +72,8 @@ public class SpaceWriteAccessVoterTest {
         acls.put(PROPERTIES_SPACE_ACL + LOGIN.USER_WRITE.name(), AclType.WRITE);
         acls.put(PROPERTIES_SPACE_ACL + groupWrite, AclType.WRITE);
 
+        accounts = new LinkedList<StorageAccount>();
+
         providerFactory = createStorageProviderFactoryMock();
         userDetailsService = EasyMock.createMock("UserDetailsService",
                                                  UserDetailsService.class);
@@ -74,17 +81,21 @@ public class SpaceWriteAccessVoterTest {
                                        FilterInvocation.class);
         request = EasyMock.createMock("HttpServletRequest",
                                       HttpServletRequest.class);
-
         voter = new SpaceWriteAccessVoter(providerFactory, userDetailsService);
+        
+    }
+
+    protected void expectGetSpaceAcls() {
+        EasyMock.expect(provider.getSpaceACLs(EasyMock.isA(String.class))).andReturn(acls);
     }
 
     @After
     public void tearDown() {
-        EasyMock.verify(userDetailsService, resource, request, providerFactory);
+        EasyMock.verify(userDetailsService, resource, request, providerFactory,provider);
     }
 
     private void replayMocks() {
-        EasyMock.replay(userDetailsService, resource, request, providerFactory);
+        EasyMock.replay(userDetailsService, resource, request, providerFactory,provider);
     }
 
     @Test
@@ -96,6 +107,7 @@ public class SpaceWriteAccessVoterTest {
         createMockInvocation(HttpVerb.PUT, contentId);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        expectGetSpaceAcls();
 
         replayMocks();
 
@@ -111,6 +123,7 @@ public class SpaceWriteAccessVoterTest {
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        addGetQueryStringInvocation(1);
 
         replayMocks();
 
@@ -127,6 +140,7 @@ public class SpaceWriteAccessVoterTest {
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
 
+        addGetQueryStringInvocation(1);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -141,7 +155,7 @@ public class SpaceWriteAccessVoterTest {
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
-
+        addGetQueryStringInvocation(1);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -157,6 +171,7 @@ public class SpaceWriteAccessVoterTest {
         createMockInvocation(HttpVerb.PUT, contentId);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        expectGetSpaceAcls();
 
         replayMocks();
 
@@ -172,7 +187,7 @@ public class SpaceWriteAccessVoterTest {
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
-
+        addGetQueryStringInvocation(1);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -187,7 +202,7 @@ public class SpaceWriteAccessVoterTest {
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
-
+        addGetQueryStringInvocation(1);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -202,7 +217,7 @@ public class SpaceWriteAccessVoterTest {
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
-
+        addGetQueryStringInvocation(1);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -221,6 +236,37 @@ public class SpaceWriteAccessVoterTest {
         LOGIN login = LOGIN.ADMIN;
         int decision = ACCESS_GRANTED;
         doTestAclPUT(login, decision);
+    }
+
+    @Test
+    public void testSnapshotInProgress() {
+        LOGIN login = LOGIN.ADMIN;
+        int expectedDecision = ACCESS_DENIED;
+        boolean securedSpace = true;
+        Authentication caller = registeredUser(login, "none");
+        
+        EasyMock.expect(request.getPathInfo()).andReturn("test").times(1);
+
+        EasyMock.expect(request.getMethod()).andReturn(HttpVerb.POST.name());
+            
+        EasyMock.expect(resource.getHttpRequest()).andReturn(request);
+        addGetQueryStringInvocation(1);
+        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        StorageAccount account =
+            new StorageAccountImpl(storeId,
+                                   "test",
+                                   "test",
+                                   StorageProviderType.CHRON_STAGE);
+        accounts.add(account);
+        
+        EasyMock.expect(provider.getContentProperties(EasyMock.isA(String.class),
+                                                      EasyMock.isA(String.class)))
+                .andReturn(new HashMap<String,String>());
+
+        replayMocks();
+
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(expectedDecision, decision);
     }
 
     private void doTestAclPUT(LOGIN login, int expectedDecision) {
@@ -269,7 +315,7 @@ public class SpaceWriteAccessVoterTest {
         createMockDeleteSpaceInvocation(login);
         createUserDetailsServiceMock(login);
         ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
-
+        addGetQueryStringInvocation(1);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -281,6 +327,8 @@ public class SpaceWriteAccessVoterTest {
         boolean securedSpace = false;
         LOGIN login = LOGIN.USER_READ;
         createUserDetailsServiceMock(login);
+        expectGetSpaceAcls();
+        addGetQueryStringInvocation(1);
         verifyVote(registeredUser(login, "none"), securedSpace, ACCESS_DENIED);
     }
 
@@ -295,6 +343,8 @@ public class SpaceWriteAccessVoterTest {
         boolean securedSpace = true;
         LOGIN login = LOGIN.USER_READ;
         createUserDetailsServiceMock(login);
+        expectGetSpaceAcls();
+        addGetQueryStringInvocation(1);
         verifyVote(registeredUser(login, "none"), securedSpace, ACCESS_DENIED);
     }
 
@@ -303,6 +353,8 @@ public class SpaceWriteAccessVoterTest {
         boolean securedSpace = true;
         LOGIN login = LOGIN.USER_READ;
         createUserDetailsServiceMock(login);
+        addGetQueryStringInvocation(1);
+        expectGetSpaceAcls();
         verifyVote(registeredUser(login, "no"), securedSpace, ACCESS_DENIED);
     }
 
@@ -310,6 +362,14 @@ public class SpaceWriteAccessVoterTest {
     public void testVoteClosedAnonymous() {
         boolean securedSpace = true;
         verifyVote(anonymousUser(), securedSpace, ACCESS_DENIED);
+    }
+
+    @Test
+    public void testVoteRoot() {
+        boolean securedSpace = true;
+        LOGIN login = LOGIN.ROOT;
+        Authentication auth = registeredUser(login, "none");
+        verifyVote(auth, securedSpace, ACCESS_GRANTED);
     }
 
     private void verifyVote(Authentication caller,
@@ -346,6 +406,7 @@ public class SpaceWriteAccessVoterTest {
         return new AnonymousAuthenticationToken("x", user, authorities);
     }
 
+
     private FilterInvocation createMockInvocation(boolean securedSpace,
                                                   LOGIN login,
                                                   HttpVerb method) {
@@ -357,7 +418,6 @@ public class SpaceWriteAccessVoterTest {
         int times;
         if (method.isRead() || login.equals(LOGIN.ADMIN)) {
             times = 1;
-
         } else {
             times = 2;
             EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(2);
@@ -379,7 +439,15 @@ public class SpaceWriteAccessVoterTest {
         }
 
         int times = 1;
-        if (!(caller instanceof AnonymousAuthenticationToken)) {
+        
+        boolean root = false;
+        for(GrantedAuthority a : caller.getAuthorities()){
+            if(a.getAuthority().equals("ROLE_ROOT")){
+                root = true;
+            }
+        }
+        
+        if (!(caller instanceof AnonymousAuthenticationToken) && !root) {
             times = 4;
 
             EasyMock.expect(request.getQueryString()).andReturn(
@@ -407,6 +475,8 @@ public class SpaceWriteAccessVoterTest {
                     .andReturn(HttpVerb.POST.name())
                     .times(4);
         }
+        
+        addGetQueryStringInvocation(1);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }
@@ -432,12 +502,17 @@ public class SpaceWriteAccessVoterTest {
                                                   String contentId) {
         String path = OPEN_SPACE_ID + contentId;
 
-        EasyMock.expect(request.getQueryString()).andReturn(
-            "storeID=" + storeId + "&attachment=true");
+        
+        addGetQueryStringInvocation(2);
         EasyMock.expect(request.getPathInfo()).andReturn(path).times(3);
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(4);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
+    }
+
+    protected void addGetQueryStringInvocation(int times) {
+        EasyMock.expect(request.getQueryString()).andReturn(
+            "storeID=" + storeId + "&attachment=true").times(times);
     }
 
     public ConfigAttributeDefinition getConfigAttribute(boolean securedSpace) {
@@ -467,21 +542,22 @@ public class SpaceWriteAccessVoterTest {
         providerFactory = EasyMock.createMock("StorageProviderFactory",
                                               StorageProviderFactory.class);
 
-        StorageProvider provider = EasyMock.createMock("StorageProvider",
+        provider = EasyMock.createMock("StorageProvider",
                                                        StorageProvider.class);
 
         EasyMock.expect(providerFactory.getStorageProvider(storeId)).andReturn(
             provider).anyTimes();
-        EasyMock.expect(provider.getSpaceACLs(EasyMock.isA(String.class)))
-                .andReturn(acls);
+        
+        EasyMock.expect(providerFactory.getStorageAccounts()).andReturn(accounts).anyTimes();
 
-        EasyMock.replay(provider);
+
         return providerFactory;
     }
 
     private enum LOGIN {
         USER_READ("ROLE_USER"),
         USER_WRITE("ROLE_USER"),
+        ROOT("ROLE_ROOT"),
         ADMIN("ROLE_ADMIN");
 
         private GrantedAuthority[] auths;

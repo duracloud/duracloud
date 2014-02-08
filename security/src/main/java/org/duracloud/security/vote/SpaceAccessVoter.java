@@ -41,13 +41,17 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
 
     private StorageProviderFactory storageProviderFactory;
     private UserDetailsService userDetailsService;
-
+   
+    
     public SpaceAccessVoter(StorageProviderFactory storageProviderFactory,
                             UserDetailsService userDetailsService) {
         this.storageProviderFactory = storageProviderFactory;
         this.userDetailsService = userDetailsService;
     }
 
+    protected StorageProviderFactory getStorageProviderFactory(){
+        return this.storageProviderFactory;
+    }
     protected boolean isOpenResource(HttpServletRequest httpRequest) {
         String spaceId = getSpaceId(httpRequest);
         if (null == spaceId) {
@@ -60,7 +64,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
             || spaceId.equals("init");
     }
 
-    private String getStoreId(HttpServletRequest httpRequest) {
+    protected String getStoreId(HttpServletRequest httpRequest) {
         String storeId = null;
         String query = httpRequest.getQueryString();
         if (null == query) {
@@ -82,7 +86,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
         return storeId;
     }
 
-    private String getSpaceId(HttpServletRequest httpRequest) {
+    protected String getSpaceId(HttpServletRequest httpRequest) {
         String spaceId = httpRequest.getPathInfo();
         if (null == spaceId) {
             return null;
@@ -247,7 +251,7 @@ public abstract class SpaceAccessVoter implements AccessDecisionVoter {
      * This method provides entry-point for alternate implementations of
      * StorageProvider.
      */
-    private StorageProvider getStorageProvider(String storeId) {
+    protected StorageProvider getStorageProvider(String storeId) {
         return storageProviderFactory.getStorageProvider(storeId);
     }
 

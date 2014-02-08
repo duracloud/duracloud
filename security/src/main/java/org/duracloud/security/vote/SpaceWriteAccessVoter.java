@@ -7,21 +7,28 @@
  */
 package org.duracloud.security.vote;
 
+import static org.duracloud.security.vote.VoterUtil.debugText;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
 import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.GrantedAuthority;
 import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
 import org.springframework.security.userdetails.UserDetailsService;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.security.vote.VoterUtil.debugText;
 
 /**
  * This class decides if a caller has WRITE access to a given resource. If the
@@ -84,12 +91,24 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_DENIED;
         }
 
+        // Root users always have access
+        if (isRoot(auth)) {
+            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
+            return ACCESS_GRANTED;
+        }
+
+        if (isSnapshotInProgress(httpRequest)) {
+            log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
+            return ACCESS_DENIED;
+        }
+
         // The Admin always has WRITE access.
         if (isAdmin(auth.getName())) {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
 
+        
         // Since not an Admin, DENY permission to create spaces.
         if (isSpaceCreation(httpRequest)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
@@ -123,6 +142,36 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
         return grant;
+    }
+
+    private boolean isRoot(Authentication auth) {
+        for(GrantedAuthority g : auth.getAuthorities()){
+            if(g.getAuthority().equals("ROLE_ROOT")){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    private boolean isSnapshotInProgress(HttpServletRequest httpRequest) {
+       String storeId = getStoreId(httpRequest);
+       StorageProviderFactory factory = getStorageProviderFactory();
+       for(StorageAccount account : factory.getStorageAccounts()){
+           if(account.getId().equals(storeId)){
+               if(account.getType().equals(StorageProviderType.CHRON_STAGE)){
+                   StorageProvider store = factory.getStorageProvider(storeId);
+                   try{
+                       String spaceId = getSpaceId(httpRequest);
+                       store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
+                       return true;
+                   }catch(NotFoundException ex){}
+                   break;
+               }
+           }
+       }
+       
+       return false;
     }
 
     private boolean isSpaceCreation(HttpServletRequest httpRequest) {
