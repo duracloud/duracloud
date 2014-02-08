@@ -48,6 +48,10 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.acleditor.js"></script>
     <script
       type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.chronopolis.js"></script>
+
+    <script
+      type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.historypanel.js"></script>
     <script
       type="text/javascript"
@@ -442,6 +446,37 @@
         </div>
 
         <div
+          id="chronopolis-dialog"
+          class="dialog"
+          style="display: none; overflow: auto"
+          title="Create Snapshot">
+          <h1 class="dc-dialog-title">Create a snapshot</h1>
+          <p class="hint">By creating a snapshot you essentially "freeze" the current state of this space so that a background
+          process can create a copy of the space as it is right now.  To guarantee that an exact copy is made, the space will be
+          rendered "read only" until the copy process is complete. The copying process can take anywhere from minutes to days 
+          depending on the size of the space's contents. </p>
+          <div class="center">
+            <form id="snapshot-properties-form" onsubmit="return false;">
+              <div
+              id="form-fields"
+              class="form-fields">
+
+              <fieldset>
+                <ul>
+                  <li class="row clearfix"><label for="mimetype">Description</label>
+                  <textarea cols="50" rows="5"
+                    name="description"
+                    id="description"
+                    class="field"></textarea>
+                  </li>
+                </ul>
+              </fieldset> 
+            </div>
+            </form>
+          </div>
+        </div>
+        
+        <div
           id="edit-content-item-dialog"
           class="dialog"
           style="display: none"
@@ -564,6 +599,7 @@
           <p class="hint"></p>
           <div class="center"></div>
         </div>
+
       </tiles:putAttribute>
 
       <tiles:putAttribute name="main-footer">

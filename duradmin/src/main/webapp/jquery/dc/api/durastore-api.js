@@ -389,6 +389,27 @@ var dc;
         });
     };
     
+    
+    dc.store.CreateSnapshot = function(/*serialized form data*/formData){
+        return dc.ajax2({
+            url: "/duradmin/spaces/snapshot", 
+            async: true,
+            dataType: 'json',
+            data: formData,
+            type: "post",
+        });
+    };
+
+    dc.store.GetSnapshotProperties = function(storeId, spaceId){
+        
+        return dc.ajax2({
+            url: "/duradmin/spaces/snapshot?storeId="+ storeId + "&spaceId="+spaceId, 
+            dataType: 'json',
+            async: true,
+            type: "get",
+        });
+    };
+
     /**
      * 
      */

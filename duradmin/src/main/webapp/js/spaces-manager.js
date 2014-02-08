@@ -293,6 +293,7 @@ $(function(){
             return this._hasRole('ROLE_ADMIN');
         },
 
+
         _isRoot: function(){
             return this._hasRole('ROLE_ROOT');
         },
@@ -302,7 +303,7 @@ $(function(){
                     && value != undefined 
                     && value.length != 0;
         },
-        
+
         _deleteContentItem: function(evt, contentItem){
             var that = this;
             evt.stopPropagation();
@@ -726,6 +727,10 @@ $(function(){
                     }
                 }
              });
+            
+            $(document).bind("staleSpace", function(evt,state){
+                that._loadSpace(state);
+            });
         },
         
         _initContentItemListPane: function(){
@@ -1924,6 +1929,15 @@ $(function(){
            return viewerPane;      
        },
        
+       _loadChronopolisPane: function(space, readOnly){
+           var viewerPane =  $.fn.create("div")
+                                 .attr("id", "chronopolis")
+                                 .chronopolis({open: true, space: space, readOnly:readOnly});
+           this._appendToCenter(viewerPane);
+           return viewerPane;      
+       },
+       
+       
        _loadPropertiesPane: function(extendedProperties, /*bool*/ readOnly){
            $("#extended-properties", this.element).remove();
            var viewerPane = this._createPropertiesPane(extendedProperties, readOnly);
@@ -2508,7 +2522,6 @@ $(function(){
               history.historypanel({storeId: this._storeId});
           }
         },
-
     }));
 
     /**
@@ -2629,7 +2642,20 @@ $(function(){
                         true);
                 
             });
-        },                   
+        },     
+        
+        
+        _isChronopolis: function(storeId, storeProviders){
+            var ischron = false;
+            $.each(storeProviders, function(i, provider){
+                if(storeId == provider.id && provider.type == 'chron-stage'){
+                    ischron = true;
+                    return false;
+                }
+            });
+            ischron = true;
+            return ischron; 
+        },
         
         _createThrobberHtml:function(){
            return "<img src='/duradmin/images/wait.gif'/>";    
@@ -2797,7 +2823,12 @@ $(function(){
                 if(this._isPubliclyReadable(space.acls)){
                     makePublicButton.hide();
                 }
+
                 
+                if(this._isChronopolis(space.storeId, storeProviders)){
+                    this._loadChronopolisPane(space, readOnly);
+                }
+
                 this._loadAclPane(space, readOnly);
             }
 
