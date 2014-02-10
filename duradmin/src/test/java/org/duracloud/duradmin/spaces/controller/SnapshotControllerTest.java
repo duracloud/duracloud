@@ -63,6 +63,7 @@ public class SnapshotControllerTest {
                 .andReturn("response");
 
         response.setStatus(202);
+        response.setHeader(EasyMock.isA(String.class), EasyMock.isA(String.class));
         EasyMock.expectLastCall();
         EasyMock.expect(response.getWriter()).andReturn(writer);
         writer.write(EasyMock.isA(String.class));
