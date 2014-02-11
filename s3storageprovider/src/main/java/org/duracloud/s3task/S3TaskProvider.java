@@ -7,9 +7,7 @@
  */
 package org.duracloud.s3task;
 
-import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3task.storage.SetReducedStorageTaskRunner;
 import org.duracloud.s3task.storage.SetStandardStorageTaskRunner;
@@ -29,18 +27,10 @@ import org.slf4j.LoggerFactory;
  */
 public class S3TaskProvider extends TaskProviderBase {
 
-    public S3TaskProvider(String accessKey, String secretKey) {
+    public S3TaskProvider(S3StorageProvider s3Provider,
+                          AmazonS3Client s3Client,
+                          CloudFrontService cfService) {
         log = LoggerFactory.getLogger(S3TaskProvider.class);
-
-        S3StorageProvider s3Provider =
-            new S3StorageProvider(accessKey, secretKey);
-        CloudFrontService cfService =
-            S3ProviderUtil.getCloudFrontService(accessKey, secretKey);
-
-        AmazonS3Client s3Client =
-            S3ProviderUtil.getAmazonS3Client(accessKey, secretKey);
-        AmazonElasticMapReduceClient emrClient =
-            S3ProviderUtil.getAmazonEMRClient(accessKey, secretKey);
 
         taskList.add(new NoopTaskRunner());
         taskList.add(new EnableStreamingTaskRunner(s3Provider,

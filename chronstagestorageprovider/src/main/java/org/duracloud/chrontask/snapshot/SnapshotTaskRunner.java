@@ -7,7 +7,6 @@
  */
 package org.duracloud.chrontask.snapshot;
 
-import org.duracloud.chronstorage.ChronStageStorageProvider;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
@@ -40,7 +39,7 @@ public class SnapshotTaskRunner implements TaskRunner {
 
     private Logger log = LoggerFactory.getLogger(SnapshotTaskRunner.class);
 
-    private ChronStageStorageProvider chronProvider;
+    private StorageProvider chronProvider;
     private String ownerId;
     private String dcHost;
     private String dcPort;
@@ -50,7 +49,7 @@ public class SnapshotTaskRunner implements TaskRunner {
     private String bridgeAppUser;
     private String bridgeAppPass;
 
-    public SnapshotTaskRunner(ChronStageStorageProvider chronProvider,
+    public SnapshotTaskRunner(StorageProvider chronProvider,
                               String dcHost,
                               String dcPort,
                               String dcStoreId,

@@ -52,6 +52,7 @@
 
   <bean id="taskProviderFactory" class="org.duracloud.durastore.util.TaskProviderFactory">
     <constructor-arg ref="storageAcctManager"/>
+    <constructor-arg ref="storageProviderFactory"/>
   </bean>
   
   <bean id="storageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">

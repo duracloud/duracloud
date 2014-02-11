@@ -43,7 +43,7 @@ $.widget("ui.chronopolis",
 			_displayProperties: function(properties, panel){
 			    panel.empty();
 			    panel.removeClass()
-                panel.append("<p class='success'>A snapshot request as been issued.</p>");
+                panel.append("<p class='success'>A snapshot request has been issued.</p>");
 			    var list = [];
 			    
 			    for(i in properties){

@@ -7,8 +7,8 @@
  */
 package org.duracloud.chrontask;
 
-import org.duracloud.chronstorage.ChronStageStorageProvider;
 import org.duracloud.chrontask.snapshot.SnapshotTaskRunner;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ChronStageTaskProvider extends TaskProviderBase {
 
-    public ChronStageTaskProvider(String accessKey,
-                                  String secretKey,
+    public ChronStageTaskProvider(StorageProvider chronStageProvider,
                                   String dcHost,
                                   String dcPort,
                                   String dcStoreId,
@@ -28,9 +27,6 @@ public class ChronStageTaskProvider extends TaskProviderBase {
                                   String bridgeUser,
                                   String bridgePass) {
         log = LoggerFactory.getLogger(ChronStageTaskProvider.class);
-
-        ChronStageStorageProvider chronStageProvider =
-            new ChronStageStorageProvider(accessKey, secretKey);
 
         taskList.add(new SnapshotTaskRunner(chronStageProvider,
                                             dcHost,
