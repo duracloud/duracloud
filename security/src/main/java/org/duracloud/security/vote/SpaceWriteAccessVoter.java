@@ -157,7 +157,17 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
     private boolean isSnapshotInProgress(HttpServletRequest httpRequest) {
        String storeId = getStoreId(httpRequest);
        StorageProviderFactory factory = getStorageProviderFactory();
-       for(StorageAccount account : factory.getStorageAccounts()){
+       List<StorageAccount> accounts = factory.getStorageAccounts();
+       if(storeId == null){
+           for(StorageAccount account : accounts ){
+               if(account.isPrimary()){
+                   storeId = account.getId();
+                   break;
+               }
+           }
+       }
+
+       for(StorageAccount account : accounts){
            if(account.getId().equals(storeId)){
                if(account.getType().equals(StorageProviderType.CHRON_STAGE)){
                    StorageProvider store = factory.getStorageProvider(storeId);
