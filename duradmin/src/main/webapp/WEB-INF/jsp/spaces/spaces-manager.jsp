@@ -451,10 +451,12 @@
           style="display: none; overflow: auto"
           title="Create Snapshot">
           <h1 class="dc-dialog-title">Create a snapshot</h1>
-          <p class="hint">By creating a snapshot you essentially "freeze" the current state of this space so that a background
-          process can create a copy of the space as it is right now.  To guarantee that an exact copy is made, the space will be
-          rendered "read only" until the copy process is complete. The copying process can take anywhere from minutes to days 
-          depending on the size of the space's contents. </p>
+          <p class="hint">This action begins the process of transferring all of
+            the content in this space to Chronopolis for preservation. Once the
+            Create button below is pressed, you will no longer be able to edit
+            the contents of this space. You may optionally include a description
+            of this snapshot, which will be preserved along with the snapshot
+            itself.</p>
           <div class="center">
             <form id="snapshot-properties-form" onsubmit="return false;">
               <div

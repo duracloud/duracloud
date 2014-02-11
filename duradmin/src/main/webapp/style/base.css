@@ -866,7 +866,14 @@ span.label,
  	border:1px solid #00AA00;
 	background-color:#009900;
  }
- 
+
+ .info {
+	background-color:#2e9acc;
+	border-radius: 5px;
+	padding:5px;
+ }
+
+
  .health-check {
  	padding:5px;
  }

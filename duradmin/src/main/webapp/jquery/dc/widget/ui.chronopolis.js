@@ -66,11 +66,11 @@ $.widget("ui.chronopolis",
                         autoOpen: false,
                         show: 'blind',
                         hide: 'blind',
-                        height: 300,
+                        height: 350,
                         resizable: false,
                         closeOnEscape:true,
                         modal: true,
-                        width:500,
+                        width:550,
                         buttons: {
                             'Create': function(){
                                 var data = form.serialize();
@@ -114,9 +114,8 @@ $.widget("ui.chronopolis",
                          d.dialog("open");
 	                 });
 	                 
-			        panel.addClass('warning');
 			        panel.append(btn);
-	                panel.append("<p style='display:inline'>Invoking this feature will render this space read only.");
+	                panel.append("<span class='info'>Invoking this feature will render this space read only.</span>");
 			    }else{
 			        dc.store
 			          .GetSnapshotProperties(s.storeId, s.spaceId)

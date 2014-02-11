@@ -2648,12 +2648,11 @@ $(function(){
         _isChronopolis: function(storeId, storeProviders){
             var ischron = false;
             $.each(storeProviders, function(i, provider){
-                if(storeId == provider.id && provider.type == 'chron-stage'){
+                if(storeId == provider.id && provider.type == 'chron_stage'){
                     ischron = true;
                     return false;
                 }
             });
-            ischron = true;
             return ischron; 
         },
         
