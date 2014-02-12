@@ -7,15 +7,15 @@
  */
 package org.duracloud.s3task;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
-import org.duracloud.common.model.Credential;
 import org.duracloud.s3storage.S3ProviderTestBase;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 
 /**
  * @author: Bill Branan
@@ -27,9 +27,7 @@ public class TestS3TaskProvider extends S3ProviderTestBase {
 
     @Before
     public void setUp() throws Exception {
-        Credential s3Credential = getCredential();
-        taskProvider = new S3TaskProvider(s3Credential.getUsername(), 
-                                          s3Credential.getPassword());
+        taskProvider = new S3TaskProvider(null, null, null);
     }
 
     @Test
