@@ -120,7 +120,9 @@ public class SpaceController extends  AbstractRestController<Space> {
 			ContentStore contentStore = contentStoreManager.getContentStore(space.getStoreId());
 			org.duracloud.domain.Space cloudSpace =
                 contentStore.getSpace(space.getSpaceId(), prefix, 200, marker);
-            populateSpace(space, cloudSpace, contentStore);
+            ContentStore contentStoreWithoutRetries =
+                contentStoreManager.getContentStore(space.getStoreId(),0);
+			populateSpace(space, cloudSpace, contentStoreWithoutRetries);
 			populateSpaceCount(space, request);
 			populateStreamEnabled(space);
             populateBitIntegrityResults(space);

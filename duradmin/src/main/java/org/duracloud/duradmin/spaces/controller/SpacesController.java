@@ -63,16 +63,18 @@ public class SpacesController {
                 String writeableOnlyStr = request.getParameter("writeableOnly");
                 boolean writeableOnly = Boolean.valueOf(writeableOnlyStr);
                 String storeId = request.getParameter("storeId");
-                ContentStore c = contentStoreManager.getContentStore(storeId, 0);
+                ContentStore c = contentStoreManager.getContentStore(storeId);
                 List<String> spaceIds = c.getSpaces();
                 List<Space> spaces = new LinkedList<Space>();
 
                 Authentication a =
                     SecurityContextHolder.getContext().getAuthentication();
+   
+                ContentStore contentStoreWithoutRetries  = contentStoreManager.getContentStore(storeId, 0);
 
                 for (String spaceId : spaceIds) {
                     AclType acl =
-                        SpaceUtil.resolveCallerAcl(spaceId, c, c.getSpaceACLs(spaceId), a);
+                        SpaceUtil.resolveCallerAcl(spaceId, contentStoreWithoutRetries, c.getSpaceACLs(spaceId), a);
                     Space space = new Space();
                     space.setCallerAcl(acl != null ? acl.name() : null);
                     space.setSpaceId(spaceId);
