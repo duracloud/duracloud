@@ -92,14 +92,16 @@ public class SnapshotTaskRunner implements TaskRunner {
         Map<String, String> snapshotProps = taskParams.getSnapshotProperties();
 
         // Generate snapshot ID
+        long now = System.currentTimeMillis();
         String snapshotId = ownerId + "-" + dcStoreId + "-" + spaceId +
-                            "-"+ DateUtil.nowPlain();
+                            "-"+ DateUtil.convertToStringPlain(now);
 
         // Pull together all snapshot properties
         snapshotProps.put("duracloud-host", dcHost);
         snapshotProps.put("duracloud-space-id", spaceId);
         snapshotProps.put("duracloud-store-id", dcStoreId);
         snapshotProps.put("snapshot-id", snapshotId);
+        snapshotProps.put("snapshot-date", DateUtil.convertToStringVerbose(now));
         snapshotProps.put("owner-id", ownerId);
 
         // Store snapshot properties in the snapshot space. This both provides
