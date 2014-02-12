@@ -206,6 +206,11 @@ public class SpaceUtil {
                                           Authentication authentication)
         throws ContentStoreException {
 	    //if a snapshot is in progress, read only
+        // check authorities
+        if(isRoot(authentication)){
+            return AclType.WRITE;
+        }
+        
 	    if(store.getStorageProviderType().equals(StorageProviderType.CHRON_STAGE.name())){
 	        try{
 	            store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
@@ -240,9 +245,17 @@ public class SpaceUtil {
     }
 	
     public static boolean isAdmin(Authentication authentication) {
+        return hasRole(authentication, "ROLE_ADMIN");
+    }
+
+    private static boolean isRoot(Authentication authentication) {
+        return hasRole(authentication, "ROLE_ROOT");
+    }
+
+    protected static boolean hasRole(Authentication authentication, String role) {
         GrantedAuthority[] authorities = authentication.getAuthorities();
         for (GrantedAuthority a : authorities) {
-            if (a.getAuthority().equals("ROLE_ADMIN")) {
+            if (a.getAuthority().equals(role)) {
                 return true;
             }
         }
