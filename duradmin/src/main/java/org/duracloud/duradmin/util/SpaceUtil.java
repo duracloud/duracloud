@@ -60,10 +60,20 @@ public class SpaceUtil {
         space.setContents(cloudSpace.getContentIds());
         Map<String,AclType> spaceAcls = contentStore.getSpaceACLs(cloudSpace.getId());
         space.setAcls(toAclList(spaceAcls));
+
+        if (isAdmin(authentication)
+            && isChronopolis(contentStore)
+            && isSnapshotInProgress(contentStore, space.getSpaceId())) {
+            space.setSnapshotInProgress(true);
+        }
+
+
         AclType callerAcl = resolveCallerAcl(space.getSpaceId(), 
                                              contentStore, 
                                              spaceAcls,  
-                                             authentication);
+                                             authentication,
+                                             space.isSnapshotInProgress());
+        
 
         String aclName = null;
         if (null != callerAcl) {
@@ -201,9 +211,15 @@ public class SpaceUtil {
         }
 	}
 
-    
+    public static AclType resolveCallerAcl(String spaceId,ContentStore store, Map<String,AclType> acls,
+                                           Authentication authentication) 
+                                               throws ContentStoreException {
+        return resolveCallerAcl(spaceId, store, acls, authentication, null);
+    }
+
+	
 	public static AclType resolveCallerAcl(String spaceId,ContentStore store, Map<String,AclType> acls,
-                                          Authentication authentication)
+                                          Authentication authentication, Boolean snapshotInProgress)
         throws ContentStoreException {
 	    //if a snapshot is in progress, read only
         // check authorities
@@ -211,13 +227,16 @@ public class SpaceUtil {
             return AclType.WRITE;
         }
         
-	    if(store.getStorageProviderType().equals(StorageProviderType.CHRON_STAGE.name())){
-	        try{
-	            store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
-	            return AclType.READ;
-	        }catch(NotFoundException ex){} //do nothing - no snapshot in progress
-	    }
-	        
+        if(snapshotInProgress == null){
+            snapshotInProgress = false;
+    	    if(isChronopolis(store)){
+    	        snapshotInProgress = isSnapshotInProgress(store,spaceId);
+    	    }
+        }
+        
+        if(snapshotInProgress){
+            return AclType.READ;
+        }
         // check authorities
 	    if(isAdmin(authentication)){
 	        return AclType.WRITE;
@@ -242,6 +261,20 @@ public class SpaceUtil {
         }
 
         return callerAcl;
+    }
+
+    private static boolean isSnapshotInProgress(ContentStore store,
+                                                String spaceId) throws ContentStoreException {
+        try{
+            store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
+            return true;
+        }catch(NotFoundException ex){
+            return false;
+        } //do nothing - no snapshot in progress
+    }
+
+    protected static boolean isChronopolis(ContentStore store) {
+        return store.getStorageProviderType().equals(StorageProviderType.CHRON_STAGE.name());
     }
 	
     public static boolean isAdmin(Authentication authentication) {

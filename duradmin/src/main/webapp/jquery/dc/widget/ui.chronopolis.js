@@ -37,7 +37,6 @@ $.widget("ui.chronopolis",
 			options: $.extend({}, $.ui.expandopanel.prototype.options, {
 				title: "Chronopolis", 
 			    space: null,
-			    readOnly: false,
 			}),
 			
 			_displayProperties: function(properties, panel){
@@ -59,7 +58,7 @@ $.widget("ui.chronopolis",
                 var form;
 			    var panel = $.fn.create("div");
 			    panel.empty();
-			    if(!this.options.readOnly){
+			    if(!s.snapshotInProgress){
                     var d = $("#chronopolis-dialog");
                     
                     d.dialog({

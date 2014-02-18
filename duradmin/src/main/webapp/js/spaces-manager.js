@@ -1929,10 +1929,10 @@ $(function(){
            return viewerPane;      
        },
        
-       _loadChronopolisPane: function(space, readOnly){
+       _loadChronopolisPane: function(space){
            var viewerPane =  $.fn.create("div")
                                  .attr("id", "chronopolis")
-                                 .chronopolis({open: true, space: space, readOnly:readOnly});
+                                 .chronopolis({open: true, space: space});
            this._appendToCenter(viewerPane);
            return viewerPane;      
        },
@@ -2825,7 +2825,7 @@ $(function(){
 
                 
                 if(this._isChronopolis(space.storeId, storeProviders)){
-                    this._loadChronopolisPane(space, readOnly);
+                    this._loadChronopolisPane(space);
                 }
 
                 this._loadAclPane(space, readOnly);

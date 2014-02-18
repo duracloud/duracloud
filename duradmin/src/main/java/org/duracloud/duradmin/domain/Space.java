@@ -69,6 +69,8 @@ public class Space
 	}
 
 	private Long itemCount = null;
+
+    private boolean snapshotInProgress = false;
     
     public String getAction() {
         return action;
@@ -159,5 +161,12 @@ public class Space
         this.primaryStorageProvider = primaryStorageProvider;
     }
 
+    public void setSnapshotInProgress(boolean snapshotInProgress) {
+        this.snapshotInProgress  = snapshotInProgress;
+    }
+
+    public boolean isSnapshotInProgress() {
+        return snapshotInProgress;
+    }
 
 }
