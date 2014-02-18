@@ -2766,9 +2766,9 @@ $(function(){
 
             var deleteSpaceButton = $(".delete-space-button",this.element);
             deleteSpaceButton.hide();
-            if(this._isAdmin() && !this._isReadOnlyStorageProvider()){
+            if(!readOnly && this._isAdmin()){
                 deleteSpaceButton.show();
-
+               
                 // attach delete button listener
                 deleteSpaceButton.click(function(evt){
                     var deferred = that._deleteSpace(evt,space);
