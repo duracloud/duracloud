@@ -12,6 +12,7 @@ public enum StorageProviderType {
     AMAZON_GLACIER("amazon-glacier"),
     RACKSPACE("rackspace"),
     SDSC("sdsc"),
+    IRODS("irods"),
     CHRON_STAGE("chron-stage"),
     UNKNOWN("unknown"),
     TEST_RETRY("test-retry"),

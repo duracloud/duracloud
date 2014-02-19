@@ -77,6 +77,7 @@
         <module>openstackstorageprovider</module>
         <module>sdscstorageprovider</module>
         <module>rackspacestorageprovider</module>
+        <module>irodsstorageprovider</module>
         <module>chronstagestorageprovider</module>
         <module>durastore</module>
         <module>hellowebapp</module>

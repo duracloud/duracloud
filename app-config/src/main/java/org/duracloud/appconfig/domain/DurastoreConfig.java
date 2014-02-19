@@ -32,13 +32,21 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     public static final String QUALIFIER = "durastore";
 
     protected static final String storageAccountKey = "storage-acct";
-    protected static final String storageClassKey = "storage-class";
     protected static final String ownerIdKey = "owner-id";
     protected static final String isPrimaryKey = "is-primary";
     protected static final String idKey = "id";
     protected static final String providerTypeKey = "provider-type";
     protected static final String usernameKey = "username";
     protected static final String passwordKey = "password";
+    // S3
+    protected static final String storageClassKey = "storage-class";
+    // IRODS
+    protected static final String zoneKey = "zone";
+    protected static final String portKey = "port";
+    protected static final String hostKey = "host";
+    protected static final String baseDirectoryKey = "base-directory";
+    protected static final String resourceKey = "resource";
+    // Chronopolis
     protected static final String bridgeHostKey = "bridge-host";
     protected static final String bridgePortKey = "bridge-port";
     protected static final String bridgeUserKey = "bridge-user";
@@ -95,6 +103,21 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
         } else if (suffix.equalsIgnoreCase(storageClassKey)) {
             acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(zoneKey)) {
+            acct.setOption(StorageAccount.OPTS.ZONE.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(hostKey)) {
+            acct.setOption(StorageAccount.OPTS.HOST.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(portKey)) {
+            acct.setOption(StorageAccount.OPTS.PORT.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(baseDirectoryKey)) {
+            acct.setOption(StorageAccount.OPTS.BASE_DIRECTORY.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(resourceKey)) {
+            acct.setOption(StorageAccount.OPTS.RESOURCE.name(), value);
 
         } else if (suffix.equalsIgnoreCase(bridgeHostKey)) {
             acct.setOption(StorageAccount.OPTS.BRIDGE_HOST.name(), value);
