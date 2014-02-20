@@ -1,0 +1,13 @@
+.classpath
+.idea
+.project
+.settings
+*/target
+*/target/
+*/target/classes/
+*.iml
+*.ipr
+*.iws
+.DS_STORE
+duracloud.home_IS_UNDEFINED
+
