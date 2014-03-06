@@ -107,10 +107,8 @@
         <module>synctool</module>
         <module>synctoolui</module>
         <module>retrievaltool</module>
-      <!--  
         <module>integration-test</module>
         <module>integration</module>
-      -->
     </modules>
 
     <profiles>
