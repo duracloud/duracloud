@@ -12,3 +12,4 @@
 unit-test-db/testUnitDB
 duracloud.home_IS_UNDEFINED
 services/osgi-test/*/src/test/resources/
+synctoolui/overlays/
