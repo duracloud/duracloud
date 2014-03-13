@@ -135,7 +135,15 @@ public class ContentCopyAdviceTest {
         Object[] idObj = new Object[]{null, id, id, id, id, id};
         contentCopyAdvice.afterReturning(id, null, idObj, null);
         ContentCopyMessage capturedMessage = messageCapture.getValue();
-        assertEquals(msg, capturedMessage);
+
+        assertEquals(msg.getStoreId(), capturedMessage.getStoreId());
+        assertEquals(msg.getSrcContentId(), capturedMessage.getSrcContentId());
+        assertEquals(msg.getSrcSpaceId(), capturedMessage.getSrcSpaceId());
+        assertEquals(msg.getContentId(), capturedMessage.getContentId());
+        assertEquals(msg.getSpaceId(), capturedMessage.getSpaceId());
+        assertEquals(msg.getContentMd5(), capturedMessage.getContentMd5());
+        assertEquals(msg.getUsername(), capturedMessage.getUsername());
+        assertEquals(msg.getAction(), capturedMessage.getAction());
 
         EasyMock.verify(jmsTemplate, securityContextUtil);
     }
