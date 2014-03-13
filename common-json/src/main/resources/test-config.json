@@ -1,0 +1,26 @@
+{
+    "providerCredentials": [
+        {
+            "type": "AMAZON_S3",
+            "credential": {
+                "username": "abc",
+                "password": "abc"
+            }
+        },
+        {
+            "type": "RACKSPACE",
+            "credential": {
+                "username": "abc",
+                "password": "abc"
+            }
+        },
+        {
+            "type": "SDSC",
+            "credential": {
+                "username": "abc",
+                "password": "abc"
+            }
+        }
+    ],
+    "queueName": "abc"
+}

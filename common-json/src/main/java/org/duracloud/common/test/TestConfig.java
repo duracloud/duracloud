@@ -25,6 +25,9 @@ public class TestConfig {
     @XmlValue
     private List<StorageProviderCredential> providerCredentials;
 
+    @XmlValue
+    private String queueName;
+
     public TestConfig() {
         providerCredentials = new ArrayList<>();
     }
@@ -41,4 +44,13 @@ public class TestConfig {
         List<StorageProviderCredential> providerCredentials) {
         this.providerCredentials = providerCredentials;
     }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
 }

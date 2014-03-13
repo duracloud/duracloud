@@ -65,6 +65,7 @@
         <module>common-xml</module>
         <module>common-json</module>
         <module>common-notification</module>
+        <module>common-queue</module>
         <module>serviceconfig</module>
         <module>storageprovider</module>
         <module>unit-test-db</module>
@@ -539,7 +540,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.6.0</version>
+                <version>1.7.5</version>
             </dependency>
 
             <dependency>
@@ -551,13 +552,13 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.6.0</version>
+                <version>1.7.5</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>1.6.0</version>
+                <version>1.7.5</version>
             </dependency>
 
             <dependency>
@@ -627,6 +628,12 @@
             </dependency>
 
             <dependency>
+              <groupId>org.apache.commons</groupId>
+              <artifactId>commons-lang3</artifactId>
+              <version>3.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
                 <version>1.2.1</version>
@@ -653,7 +660,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.1</version>
+                <version>4.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -665,7 +672,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>4.1</version>
+                <version>4.2</version>
             </dependency>
 
             <dependency>
@@ -1038,7 +1045,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
-                <version>1.3.26</version>
+                <version>1.6.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

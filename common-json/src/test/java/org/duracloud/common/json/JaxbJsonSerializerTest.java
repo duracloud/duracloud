@@ -38,7 +38,8 @@ public class JaxbJsonSerializerTest {
         sb.append("      \"username\" : \"rack-user\",");
         sb.append("      \"password\" : \"rack-pass\"");
         sb.append("    }");
-        sb.append("  } ]");
+        sb.append("  } ],");
+        sb.append("  \"queueName\": \"queue-name\"");
         sb.append("}");
         jsonTestConfig = sb.toString();
     }
@@ -56,6 +57,7 @@ public class JaxbJsonSerializerTest {
                             credList.get(0).getCredential().getUsername());
         Assert.assertEquals("rack-user",
                             credList.get(1).getCredential().getUsername());
+        Assert.assertEquals("queue-name", desCreds.getQueueName());
   }
 
     @Test
@@ -74,6 +76,7 @@ public class JaxbJsonSerializerTest {
         TestConfig testConfig = new TestConfig();
         testConfig.addProviderCredential(s3Cred);
         testConfig.addProviderCredential(rackCred);
+        testConfig.setQueueName("queue-name");
 
         String json = serializer.serialize(testConfig);
         // Verify that the resulting json matches the expected value, ignoring

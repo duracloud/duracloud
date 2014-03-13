@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true" scan="true">
+  <jmxConfigurator/>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-14p %d{yyyy/MM/dd HH:mm:ss} [%t] (%F:%L\\) [%M(\\)] - %m%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.duracloud.mill" level="DEBUG"/>
+
+  <root level="ERROR">
+    <appender-ref ref="STDOUT"/>
+  </root>
+</configuration>
