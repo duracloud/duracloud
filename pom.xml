@@ -93,6 +93,7 @@
         <module>executor</module>
         <module>executorclient</module>
         <module>auditor</module>
+        <module>auditlogtool</module>
         <module>manifest</module>
         <module>manifestclient</module>
         <module>duraboss</module>
@@ -660,7 +661,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.2</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -672,7 +673,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>4.2</version>
+                <version>4.2.5</version>
             </dependency>
 
             <dependency>
@@ -1045,7 +1046,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
-                <version>1.6.2</version>
+                <version>1.7.3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

@@ -7,6 +7,10 @@
  */
 package org.duracloud.storage.aop;
 
+import java.text.ParseException;
+import java.util.Date;
+
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.bulk.ManifestVerifier;
 import org.duracloud.storage.error.InvalidEventTSVException;
@@ -19,6 +23,7 @@ import org.duracloud.storage.error.InvalidEventTSVException;
  */
 public class ContentMessage {
 
+    private String account;
     private String storeId;
     private String spaceId;
     private String contentId;
@@ -60,6 +65,7 @@ public class ContentMessage {
         sb.append("|username:'" + username + "'");
         sb.append("|action:'" + action + "'");
         sb.append("|datetime:'" + datetime + "'");
+        sb.append("|account:'" + account + "'");
         sb.append("]\n");
         return sb.toString();
     }
@@ -208,7 +214,11 @@ public class ContentMessage {
             that.username != null) {
             return false;
         }
-
+        if (account != null ? !account.equals(that.account) :
+            that.account != null) {
+            return false;
+        }
+        
         return true;
     }
 
@@ -220,6 +230,24 @@ public class ContentMessage {
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (action != null ? action.hashCode() : 0);
         result = 31 * result + (datetime != null ? datetime.hashCode() : 0);
+        result = 31 * result + (account != null ? account.hashCode() : 0);
+
         return result;
+    }
+
+    public Date getDate() {
+        try {
+            return DateUtil.convertToDate(this.datetime, DateUtil.DateFormat.VERBOSE_FORMAT);
+        } catch (ParseException e) {
+            throw new DuraCloudRuntimeException(e);
+        }
+    }
+
+    public String getAccount() {
+        return this.account;
+    }
+    
+    public void setAccount(String account) {
+        this.account = account;
     }
 }

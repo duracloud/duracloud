@@ -9,7 +9,6 @@ package org.duracloud.duraboss.rest;
 
 import org.duracloud.appconfig.domain.DurabossConfig;
 import org.duracloud.appconfig.xml.DurabossInitDocumentBinding;
-import org.duracloud.audit.LocalAuditor;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.client.ServicesManagerImpl;
@@ -57,7 +56,6 @@ public class InitRest extends BaseRest {
     private String reportSpaceId;
     private NotificationManager notificationManager;
     private LocalExecutor executor;
-    private LocalAuditor auditor;
     private LocalManifestGenerator manifestGenerator;
 
     public InitRest(StorageReportResource storageResource,
@@ -68,7 +66,6 @@ public class InitRest extends BaseRest {
                     String reportSpaceId,
                     NotificationManager notificationManager,
                     LocalExecutor executor,
-                    LocalAuditor auditor,
                     LocalManifestGenerator manifestGenerator) {
         this.storageResource = storageResource;
         this.serviceResource = serviceResource;
@@ -78,7 +75,6 @@ public class InitRest extends BaseRest {
         this.reportSpaceId = reportSpaceId;
         this.notificationManager = notificationManager;
         this.executor = executor;
-        this.auditor = auditor;
         this.manifestGenerator = manifestGenerator;
     }
 
@@ -149,10 +145,6 @@ public class InitRest extends BaseRest {
                                 notificationManager);
         }
 
-        // Only initialize the Auditor if it is enabled
-        if (config.isAuditorEnabled()) {
-            auditor.initialize(storeMgr);
-        }
 
         // Always initialize the Manifest Generator.
         manifestGenerator.initialize(storeMgr);

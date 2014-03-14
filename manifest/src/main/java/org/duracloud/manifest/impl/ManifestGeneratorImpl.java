@@ -7,15 +7,22 @@
  */
 package org.duracloud.manifest.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.io.FileCleaningTracker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.duracloud.audit.Auditor;
-import org.duracloud.audit.error.AuditLogNotFoundException;
+import org.duracloud.audit.AuditLogStore;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.util.DateUtil;
-import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.manifest.ManifestFormatter;
@@ -26,18 +33,6 @@ import org.duracloud.storage.aop.ContentMessage;
 import org.duracloud.storage.error.InvalidEventTSVException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class manages the generation of content manifests.
@@ -52,16 +47,13 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
 
     private FileCleaningTracker fileCleaningTracker;
     private ContentStoreManager storeManager;
-    private Auditor auditor;
     private String auditLogSpace;
     private String primaryStoreId;
 
     private Map<String, ContentMessage> events; // contentId -> event
 
-    public ManifestGeneratorImpl(Auditor auditor,
-                                 String auditLogSpace,
+    public ManifestGeneratorImpl(String auditLogSpace,
                                  FileCleaningTracker fileCleaningTracker) {
-        this.auditor = auditor;
         this.auditLogSpace = auditLogSpace;
         this.fileCleaningTracker = fileCleaningTracker;
         this.events = new HashMap<String, ContentMessage>();
@@ -80,30 +72,31 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
                                    FORMAT format,
                                    Date asOfDate)
         throws ManifestArgumentException, ManifestEmptyException {
-
-        List<String> logs;
-        try {
-            logs = getAuditLogs(storeId, spaceId);
-        } catch(ManifestEmptyException e) {
-            if(spaceExists(storeId, spaceId)) {
-                logs = new ArrayList<String>();
-            } else {
-                throw e;
-            }
-        }
-
-        for (String log : logs) {
-            scanLog(log, storeId, asOfDate);
-        }
-
-        // Create the manifest and get a handle to its input stream.
-        File manifest = buildManifest(format);
-        InputStream stream = stream(manifest);
-
-        // Register the temp file to be removed when the stream is out of scope.
-        cleanup(manifest, stream);
-
-        return stream;
+        //FIXME Hook up manifest generator to the new audit log generator.
+        throw new UnsupportedOperationException("manifest generator is in the process of being retooled to work with new auditing system.");
+//        List<String> logs;
+//        try {
+//            logs = getAuditLogs(storeId, spaceId);
+//        } catch(ManifestEmptyException e) {
+//            if(spaceExists(storeId, spaceId)) {
+//                logs = new ArrayList<String>();
+//            } else {
+//                throw e;
+//            }
+//        }
+//
+//        for (String log : logs) {
+//            scanLog(log, storeId, asOfDate);
+//        }
+//
+//        // Create the manifest and get a handle to its input stream.
+//        File manifest = buildManifest(format);
+//        InputStream stream = stream(manifest);
+//
+//        // Register the temp file to be removed when the stream is out of scope.
+//        cleanup(manifest, stream);
+//
+//        return stream;
     }
 
     private void cleanup(File file, Object marker) {
@@ -116,35 +109,35 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
         events.clear();
     }
 
-    private void scanLog(String logContentId, String storeId, Date asOfDate) {
-        Iterator<String> lines = getLogIterator(logContentId);
-        while (lines.hasNext()) {
-            ContentMessage event = getEvent(lines.next());
-
-            log.debug("scanning event: {}", event);
-            if (null != event &&
-                matchesStoreId(event, storeId) &&
-                preceedsDate(event, asOfDate)) {
-
-                switch (ContentMessage.ACTION.valueOf(event.getAction())) {
-                    case INGEST:
-                    case COPY:
-                        events.put(event.getContentId(), event);
-                        break;
-                    case DELETE:
-                        events.remove(event.getContentId());
-                        break;
-                    case ERROR:
-                        log.warn("Corrupted event: " + event);
-                        break;
-                    default:
-                        log.error("Unexpected event: " + event);
-                        break;
-                }
-            }
-        }
-    }
-
+//    private void scanLog(String logContentId, String storeId, Date asOfDate) {
+//        Iterator<String> lines = getLogIterator(logContentId);
+//        while (lines.hasNext()) {
+//            ContentMessage event = getEvent(lines.next());
+//
+//            log.debug("scanning event: {}", event);
+//            if (null != event &&
+//                matchesStoreId(event, storeId) &&
+//                preceedsDate(event, asOfDate)) {
+//
+//                switch (ContentMessage.ACTION.valueOf(event.getAction())) {
+//                    case INGEST:
+//                    case COPY:
+//                        events.put(event.getContentId(), event);
+//                        break;
+//                    case DELETE:
+//                        events.remove(event.getContentId());
+//                        break;
+//                    case ERROR:
+//                        log.warn("Corrupted event: " + event);
+//                        break;
+//                    default:
+//                        log.error("Unexpected event: " + event);
+//                        break;
+//                }
+//            }
+//        }
+//    }
+//
     private ContentMessage getEvent(String line) {
         ContentMessage event = null;
 
@@ -252,55 +245,55 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
         }
     }
 
-    private List<String> getAuditLogs(String storeId,
-                                      String spaceId)
-        throws ManifestEmptyException {
-        try {
-            return auditor.getAuditLogs(spaceId);
+//    private List<String> getAuditLogs(String storeId,
+//                                      String spaceId)
+//        throws ManifestEmptyException {
+//        try {
+//            return auditLogStore.getAuditLogs(spaceId);
+//
+//        } catch (AuditLogNotFoundException e) {
+//            StringBuilder err = new StringBuilder("Audit log not found, ");
+//            err.append(storeId);
+//            err.append(":");
+//            err.append(spaceId);
+//            err.append(", message: ");
+//            err.append(e.getMessage());
+//            log.warn(err.toString());
+//            throw new ManifestEmptyException(err.toString(), e);
+//        }
+//    }
 
-        } catch (AuditLogNotFoundException e) {
-            StringBuilder err = new StringBuilder("Audit log not found, ");
-            err.append(storeId);
-            err.append(":");
-            err.append(spaceId);
-            err.append(", message: ");
-            err.append(e.getMessage());
-            log.warn(err.toString());
-            throw new ManifestEmptyException(err.toString(), e);
-        }
-    }
+//    private Iterator<String> getLogIterator(String logContentId) {
+//        InputStream logStream = getLogStream(logContentId);
+//        Iterator<String> lines;
+//        try {
+//            lines = IOUtils.lineIterator(logStream, null);
+//
+//        } catch (IOException e) {
+//            log.warn("Error getting line iterator for: {}", logContentId, e);
+//            lines = new ArrayList<String>().iterator();
+//        }
+//        return lines;
+//    }
 
-    private Iterator<String> getLogIterator(String logContentId) {
-        InputStream logStream = getLogStream(logContentId);
-        Iterator<String> lines;
-        try {
-            lines = IOUtils.lineIterator(logStream, null);
-
-        } catch (IOException e) {
-            log.warn("Error getting line iterator for: {}", logContentId, e);
-            lines = new ArrayList<String>().iterator();
-        }
-        return lines;
-    }
-
-    private InputStream getLogStream(String logContentId) {
-        Content content;
-        try {
-            content = getContentStore().getContent(auditLogSpace, logContentId);
-
-        } catch (ContentStoreException e) {
-            StringBuilder err = new StringBuilder("Error getting log: ");
-            err.append(auditLogSpace);
-            err.append("//");
-            err.append(logContentId);
-            err.append(", error: ");
-            err.append(e.getMessage());
-            log.error(err.toString());
-
-            throw new ManifestGeneratorException(err.toString(), e);
-        }
-        return content.getStream();
-    }
+//    private InputStream getLogStream(String logContentId) {
+//        Content content;
+//        try {
+//            content = getContentStore().getContent(auditLogSpace, logContentId);
+//
+//        } catch (ContentStoreException e) {
+//            StringBuilder err = new StringBuilder("Error getting log: ");
+//            err.append(auditLogSpace);
+//            err.append("//");
+//            err.append(logContentId);
+//            err.append(", error: ");
+//            err.append(e.getMessage());
+//            log.error(err.toString());
+//
+//            throw new ManifestGeneratorException(err.toString(), e);
+//        }
+//        return content.getStream();
+//    }
 
     private ContentStore getContentStore() throws ContentStoreException {
         return storeManager.getPrimaryContentStore();

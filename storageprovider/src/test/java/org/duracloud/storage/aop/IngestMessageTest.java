@@ -7,6 +7,8 @@
  */
 package org.duracloud.storage.aop;
 
+import org.duracloud.storage.aop.ContentMessage;
+import org.duracloud.storage.aop.IngestMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

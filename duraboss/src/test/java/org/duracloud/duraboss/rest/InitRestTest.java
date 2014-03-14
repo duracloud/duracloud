@@ -7,13 +7,21 @@
  */
 package org.duracloud.duraboss.rest;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Collection;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.NotificationConfig;
-import org.duracloud.audit.LocalAuditor;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.duraboss.rest.report.ServiceReportResource;
@@ -21,7 +29,6 @@ import org.duracloud.duraboss.rest.report.StorageReportResource;
 import org.duracloud.exec.LocalExecutor;
 import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.manifest.ManifestGenerator;
-import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.servicemonitor.ServiceSummarizer;
@@ -31,13 +38,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -55,7 +55,6 @@ public class InitRestTest {
     private SecurityContextUtil securityContextUtil;
     private NotificationManager notificationManager;
     private LocalExecutor executor;
-    private LocalAuditor auditor;
     private LocalManifestGenerator manifestGenerator;
 
     private RestUtil.RequestContent requestContent;
@@ -73,7 +72,6 @@ public class InitRestTest {
         notificationManager = EasyMock.createMock("NotificationManager",
                                                   NotificationManager.class);
         executor = EasyMock.createMock("Executor", LocalExecutor.class);
-        auditor = EasyMock.createMock("Auditor", LocalAuditor.class);
         manifestGenerator = EasyMock.createMock("ManifestGenerator",
                                                 LocalManifestGenerator.class);
         requestContent = EasyMock.createMock("RequestContent",
@@ -86,7 +84,6 @@ public class InitRestTest {
                                 null,
                                 notificationManager,
                                 executor,
-                                auditor,
                                 manifestGenerator);
     }
 
@@ -98,7 +95,6 @@ public class InitRestTest {
                         securityContextUtil,
                         notificationManager,
                         executor,
-                        auditor,
                         manifestGenerator,
                         requestContent);
     }
@@ -112,7 +108,6 @@ public class InitRestTest {
                         securityContextUtil,
                         notificationManager,
                         executor,
-                        auditor,
                         manifestGenerator,
                         requestContent);
     }
@@ -166,9 +161,6 @@ public class InitRestTest {
                             EasyMock.<ServicesManager>anyObject(),
                             EasyMock.<ManifestGenerator>anyObject(),
                             EasyMock.<NotificationManager>anyObject());
-        EasyMock.expectLastCall();
-
-        auditor.initialize(EasyMock.<ContentStoreManager>anyObject());
         EasyMock.expectLastCall();
 
         manifestGenerator.initialize(EasyMock.<ContentStoreManager>anyObject());

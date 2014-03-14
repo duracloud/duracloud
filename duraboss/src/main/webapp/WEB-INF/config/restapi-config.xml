@@ -19,10 +19,6 @@
     <constructor-arg ref="restUtil"/>
   </bean>
 
-  <bean id="auditRest" class="org.duracloud.duraboss.rest.audit.AuditRest" >
-    <constructor-arg ref="auditResource"/>
-  </bean>
-
   <bean id="manifestRest" class="org.duracloud.duraboss.rest.manifest.ManifestRest" >
     <constructor-arg ref="manifestResource"/>
   </bean>
@@ -36,7 +32,6 @@
     <constructor-arg ref="report-space"/>
     <constructor-arg ref="notificationManager"/>
     <constructor-arg ref="executor"/>
-    <constructor-arg ref="auditor"/>
     <constructor-arg ref="manifestGenerator"/>
   </bean>
 
@@ -75,30 +70,6 @@
     </constructor-arg>
   </bean>
 
-  <!--audit-->
-  <bean id="auditResource" class="org.duracloud.duraboss.rest.audit.AuditResource">
-    <constructor-arg ref="auditor"/>
-  </bean>
-
-  <bean id="auditor" class="org.duracloud.audit.impl.AuditorImpl">
-    <constructor-arg ref="auditListener"/>
-    <constructor-arg ref="auditLogStore"/>
-  </bean>
-
-  <bean id="auditLogStore" class="org.duracloud.audit.impl.AuditLogStoreImpl">
-    <constructor-arg ref="auditLogSpace"/>
-    <constructor-arg value="audit/storage-audit-log-"/>
-    <constructor-arg value="10000000"/> <!-- 10-MB -->
-  </bean>
-
-  <bean id="auditLogSpace" class="java.lang.String">
-    <constructor-arg value="x-duracloud-admin"/>
-  </bean>
-
-  <bean id="auditListener" class="org.duracloud.audit.impl.AuditListenerImpl">
-    <constructor-arg ref="auditLogStore"/>
-    <constructor-arg value="60000"/> <!-- 1 minute delay -->
-  </bean>
 
   <!--manifest-->
   <bean id="manifestResource" class="org.duracloud.duraboss.rest.manifest.ManifestResource">
@@ -106,7 +77,6 @@
   </bean>
 
   <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
-    <constructor-arg ref="auditor"/>
     <constructor-arg ref="auditLogSpace"/>
     <constructor-arg ref="fileCleaningTracker"/>
   </bean>

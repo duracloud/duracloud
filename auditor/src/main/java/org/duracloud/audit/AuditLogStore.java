@@ -7,51 +7,32 @@
  */
 package org.duracloud.audit;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.storage.aop.ContentMessage;
-
 import java.util.Iterator;
-import java.util.List;
+
+import org.duracloud.audit.dynamodb.AuditLogItem;
 
 /**
- * This interface defines the contract provided by content stores that manage
- * audit logs.
+ * This interface defines the contract for reading and writing audit logs.
  *
- * @author Andrew Woods
- *         Date: 3/19/12
+ * @author Daniel Bernstein
  */
 public interface AuditLogStore {
 
     /**
-     * This method ingests the underlying ContentStore
-     *
-     * @param contentStore of auditor
+     * This method writes the logItem to the audit log.
+     * @param logItem to be logged
+     * @throws AuditLogWriteFailedException
      */
-    public void initialize(ContentStore contentStore);
-
+    public void write(AuditLogItem logItem) throws AuditLogWriteFailedException;
+    
     /**
-     * This method returns the contentIds of all audit logs associated with
-     * the arg spaceId.
-     *
-     * @param spaceId of space that was audited
-     * @return iterator of contentIds
+     * Returns a list of matching log events 
+     * @param account
+     * @param spaceId 
+     * @param storeId If null, returns log events for all storage providers
+     * @return
      */
-    public Iterator<String> logs(String spaceId);
-
-    /**
-     * This method removes the log with the arg contentId
-     *
-     * @param logContentId of log to remove
-     */
-    public void removeLog(String logContentId);
-
-    /**
-     * This method writes the arg events to the audit log. The spaceId of the
-     * audit log is determined by the arg events. All storage providers that
-     * with the same spaceId will be written to the same audit log.
-     * If not all arg events are on the same spaceId, an exception is thrown.
-     *
-     * @param events to be logged
-     */
-    public void write(List<ContentMessage> events);
+    public Iterator<AuditLogItem> getLogItems(String account,
+                                              String spaceId,
+                                              String storeId);
 }

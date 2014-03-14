@@ -7,6 +7,9 @@
  */
 package org.duracloud.storage.aop;
 
+import org.duracloud.storage.aop.ContentMessage;
+import org.duracloud.storage.aop.ContentMessageConverter;
+import org.duracloud.storage.aop.IngestMessageConverter;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
