@@ -90,9 +90,21 @@ public class ContentCopyAdviceTest {
         Object[] emptyObj = new Object[]{null, null, null, null, null, null};
         contentCopyAdvice.afterReturning(null, null, emptyObj, null);
         ContentCopyMessage capturedMessage = messageCapture.getValue();
-        assertEquals(msg, capturedMessage);
+        checkMessage(msg, capturedMessage);
 
         EasyMock.verify(jmsTemplate, securityContextUtil);
+    }
+
+    private void checkMessage(ContentCopyMessage msg,
+                              ContentCopyMessage capturedMessage) {
+        assertEquals(msg.getStoreId(), capturedMessage.getStoreId());
+        assertEquals(msg.getSrcContentId(), capturedMessage.getSrcContentId());
+        assertEquals(msg.getSrcSpaceId(), capturedMessage.getSrcSpaceId());
+        assertEquals(msg.getContentId(), capturedMessage.getContentId());
+        assertEquals(msg.getSpaceId(), capturedMessage.getSpaceId());
+        assertEquals(msg.getContentMd5(), capturedMessage.getContentMd5());
+        assertEquals(msg.getUsername(), capturedMessage.getUsername());
+        assertEquals(msg.getAction(), capturedMessage.getAction());
     }
 
     @Test
@@ -135,15 +147,7 @@ public class ContentCopyAdviceTest {
         Object[] idObj = new Object[]{null, id, id, id, id, id};
         contentCopyAdvice.afterReturning(id, null, idObj, null);
         ContentCopyMessage capturedMessage = messageCapture.getValue();
-
-        assertEquals(msg.getStoreId(), capturedMessage.getStoreId());
-        assertEquals(msg.getSrcContentId(), capturedMessage.getSrcContentId());
-        assertEquals(msg.getSrcSpaceId(), capturedMessage.getSrcSpaceId());
-        assertEquals(msg.getContentId(), capturedMessage.getContentId());
-        assertEquals(msg.getSpaceId(), capturedMessage.getSpaceId());
-        assertEquals(msg.getContentMd5(), capturedMessage.getContentMd5());
-        assertEquals(msg.getUsername(), capturedMessage.getUsername());
-        assertEquals(msg.getAction(), capturedMessage.getAction());
+        checkMessage(msg, capturedMessage);
 
         EasyMock.verify(jmsTemplate, securityContextUtil);
     }
