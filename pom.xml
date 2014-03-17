@@ -111,6 +111,7 @@
         <module>retrievaltool</module>
         <module>integration-test</module>
         <module>integration</module>
+      <module>content-index-client</module>
     </modules>
 
     <profiles>
@@ -523,7 +524,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.5</version>
+                <version>4.10</version>
                 <exclusions>
                     <exclusion>
                         <groupId>log4j</groupId>
