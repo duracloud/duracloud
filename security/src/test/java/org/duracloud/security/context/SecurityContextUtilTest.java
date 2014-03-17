@@ -62,6 +62,15 @@ public class SecurityContextUtilTest {
     }
 
     @Test
+    public void testGetCurrentUsername() throws Exception {
+        createCurrentUserMock();
+
+        String user = util.getCurrentUsername();
+        Assert.assertNotNull(user);
+        Assert.assertEquals(username, user);
+    }
+
+    @Test
     public void testGetCurrentUser() throws Exception {
         createCurrentUserMock();
 

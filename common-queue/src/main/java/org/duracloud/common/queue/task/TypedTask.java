@@ -7,9 +7,9 @@
  */
 package org.duracloud.common.queue.task;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.Map;
 
 /**
  * Contains the base information necessary to handle tasks.
@@ -66,9 +66,6 @@ public abstract class TypedTask {
         this.contentId = contentId;
     }
     
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);

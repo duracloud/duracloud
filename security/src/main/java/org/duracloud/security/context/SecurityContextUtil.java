@@ -27,6 +27,11 @@ public class SecurityContextUtil {
 
     private final Logger log = LoggerFactory.getLogger(SecurityContextUtil.class);
 
+    public String getCurrentUsername() throws NoUserLoggedInException {
+        DuracloudUserDetails userDetails = getCurrentUserDetails();
+        return userDetails.getUsername();
+    }
+
     public Credential getCurrentUser() throws NoUserLoggedInException {
         DuracloudUserDetails userDetails = getCurrentUserDetails();
         Credential credential = new Credential(userDetails.getUsername(),

@@ -1,0 +1,99 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
+package org.duracloud.audit.task;
+
+import org.duracloud.common.queue.task.Task;
+import org.junit.Test;
+
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
+/**
+ * @author Bill Branan
+ *         Date: 3/14/14
+ */
+public class AuditTaskTest {
+
+    @Test
+    public void testAuditTask() {
+        String action = AuditTask.ActionType.ADD_CONTENT.name();
+        String userId = "user-id";
+        String dateTime = String.valueOf(System.currentTimeMillis());
+        String account = "account";
+        String storeId = "store-id";
+        String spaceId = "space-id";
+        String contentId = "content-id";
+        String contentChecksum = "content-checksum";
+        String contentMimetype = "content-mimetype";
+        String contentSize = "content-size";
+
+        // Create initial AuditTask
+        AuditTask auditTask = new AuditTask();
+        auditTask.setAction(action);
+        auditTask.setUserId(userId);
+        auditTask.setDateTime(dateTime);
+        auditTask.setAccount(account);
+        auditTask.setStoreId(storeId);
+        auditTask.setSpaceId(spaceId);
+        auditTask.setContentId(contentId);
+        auditTask.setContentChecksum(contentChecksum);
+        auditTask.setContentMimetype(contentMimetype);
+        auditTask.setContentSize(contentSize);
+
+        // Test writeTask
+        Task task = auditTask.writeTask();
+        assertEquals(task.getType(), Task.Type.AUDIT);
+
+        Map<String, String> properties = task.getProperties();
+        assertEquals(action, properties.get(AuditTask.ACTION_PROP));
+        assertEquals(userId, properties.get(AuditTask.USER_ID_PROP));
+        assertEquals(dateTime, properties.get(AuditTask.DATE_TIME_PROP));
+        assertEquals(account, properties.get(AuditTask.ACCOUNT_PROP));
+        assertEquals(storeId, properties.get(AuditTask.STORE_ID_PROP));
+        assertEquals(spaceId, properties.get(AuditTask.SPACE_ID_PROP));
+        assertEquals(contentId, properties.get(AuditTask.CONTENT_ID_PROP));
+        assertEquals(contentChecksum,
+                     properties.get(AuditTask.CONTENT_CHECKSUM_PROP));
+        assertEquals(contentMimetype,
+                     properties.get(AuditTask.CONTENT_MIMETYPE_PROP));
+        assertEquals(contentSize,
+                     properties.get(AuditTask.CONTENT_SIZE_PROP));
+
+        // Test readTask
+        AuditTask readAuditTask = new AuditTask();
+        readAuditTask.readTask(task);
+        assertEquals(auditTask.getAction(), readAuditTask.getAction());
+        assertEquals(auditTask.getUserId(), readAuditTask.getUserId());
+        assertEquals(auditTask.getDateTime(), readAuditTask.getDateTime());
+        assertEquals(auditTask.getAccount(), readAuditTask.getAccount());
+        assertEquals(auditTask.getStoreId(), readAuditTask.getStoreId());
+        assertEquals(auditTask.getSpaceId(), readAuditTask.getSpaceId());
+        assertEquals(auditTask.getContentId(), readAuditTask.getContentId());
+        assertEquals(auditTask.getContentChecksum(),
+                     readAuditTask.getContentChecksum());
+        assertEquals(auditTask.getContentMimetype(),
+                     readAuditTask.getContentMimetype());
+        assertEquals(auditTask.getContentSize(),
+                     readAuditTask.getContentSize());
+    }
+
+    @Test
+    public void testSetInvalidActionType() {
+        AuditTask auditTask = new AuditTask();
+        try {
+            auditTask.setAction("unknown-action");
+            fail("Exception expected when attempting to set an invalid action");
+        } catch(IllegalArgumentException e) {
+            assertNotNull(e);
+        }
+    }
+
+}

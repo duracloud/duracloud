@@ -25,7 +25,7 @@ public class Task {
 
     public static final String KEY_TYPE = "type";
     public enum Type {
-        BIT, DUP, NOOP;
+        BIT, DUP, AUDIT, NOOP;
     }
 
     private Type type;
