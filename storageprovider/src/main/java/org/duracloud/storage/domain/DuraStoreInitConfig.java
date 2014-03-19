@@ -10,6 +10,8 @@ package org.duracloud.storage.domain;
 import java.util.List;
 
 /**
+ * Configuration data used to initialize DuraStore
+ *
  * @author Bill Branan
  *         Date: 3/18/14
  */
