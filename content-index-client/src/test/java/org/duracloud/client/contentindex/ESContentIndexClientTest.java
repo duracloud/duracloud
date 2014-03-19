@@ -31,7 +31,6 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
-import static org.duracloud.client.contentindex.ESContentIndexClient.ID_SEPARATOR;
 import static org.duracloud.client.contentindex.ESContentIndexClient.SHARED_INDEX;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
@@ -140,10 +139,8 @@ public class ESContentIndexClientTest {
 
         long count1 = contentIndexClient.getSpaceCount(account1, storeId, space);
         long count2 = contentIndexClient.getSpaceCount(account2, storeId, space);
-        //TODO: uncomment once count bug is fixed in spring-data-elasticsearch
-        // JIRA filed: https://jira.spring.io/browse/DATAES-67
-        //assertEquals(5, count1);
-        //assertEquals(3, count2);
+        assertEquals(5, count1);
+        assertEquals(3, count2);
 
         List<ContentIndexItem> itemsFull1 =
             contentIndexClient.getSpaceContents(account1, storeId, space);
@@ -156,6 +153,7 @@ public class ESContentIndexClientTest {
             assertItemFieldsNotNull(item);
             assertEquals(account1, item.getAccount());
             //TODO: uncomment after sorting is figured out... bug in Spring ES?
+            // JIRA filed: https://jira.spring.io/browse/DATAES-69
 //            System.out.println("#### contentId: " + item.getContentId());
 //            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
 //            idIndex++;
@@ -220,16 +218,10 @@ public class ESContentIndexClientTest {
                                                       int identifier) {
         String contentId = "contentDir1/contentDir2/file" + identifier + ".txt";
         String checksum = "XXXchecksum" + identifier + "XXX";
-        String itemId = account + ID_SEPARATOR + storeId + ID_SEPARATOR +
-            space + ID_SEPARATOR + contentId;
 
-        ContentIndexItem item = new ContentIndexItem();
-        item.setId(itemId);
-        item.setAccount(account);
-        item.setStoreId(storeId);
+        ContentIndexItem item =
+            new ContentIndexItem(account, storeId, space, contentId);
         item.setStoreType(StorageProviderType.AMAZON_S3.getName());
-        item.setSpace(space);
-        item.setContentId(contentId);
         Map props = new HashMap();
         props.put("checksum", checksum);
         item.setProps(props);

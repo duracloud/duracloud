@@ -27,6 +27,8 @@ import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.duracloud.client.contentindex.ContentIndexItem.ID_SEPARATOR;
+
 import static org.elasticsearch.index.query.QueryBuilders.*;
 /**
  * @author Erik Paulsson
@@ -37,7 +39,6 @@ public class ESContentIndexClient implements ContentIndexClient {
     private static Logger log = LoggerFactory
         .getLogger(ESContentIndexClient.class);
 
-    public static final String ID_SEPARATOR = "/";
     public static final String SHARED_INDEX = "dc_multi";
     public static final String TYPE = "content";
 

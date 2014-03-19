@@ -22,6 +22,8 @@ import java.util.Map;
 @Document(indexName="dc_multi", type="content")
 public class ContentIndexItem {
 
+    public static final String ID_SEPARATOR = "/";
+
     @Id
     private String id;
 
@@ -36,10 +38,37 @@ public class ContentIndexItem {
     private Map<String, String> props;
     private List<String> tags;
 
+    /**
+     * Required empty constructor for spring-data-elasticsearch to do the
+     * mapping from JSON document to ContentIndexItem object
+     * Application developers should use the non-empty constructor.
+     */
+    public ContentIndexItem() {}
+
+    public ContentIndexItem(String account, Integer storeId,
+                            String space, String contentId) {
+        this.id = account + ID_SEPARATOR + storeId + ID_SEPARATOR +
+            space + ID_SEPARATOR + contentId;
+        this.account = account;
+        this.storeId = storeId;
+        this.space = space;
+        this.contentId = contentId;
+    }
+
     public String getId() {
         return id;
     }
 
+    /**
+     * Application developers should avoid using this method.  The id for this
+     * object will be automatically generated from the 'account', 'storeId',
+     * 'space', and 'contentId' fields.
+     * Application developers should use the non-empty constructor which will
+     * automatically assign the 'id' field.
+     * This method needs to exist to allow for the mapping / setting of
+     * persistent fields in the datastore to object fields.
+     * @param id
+     */
     public void setId(String id) {
         this.id = id;
     }
