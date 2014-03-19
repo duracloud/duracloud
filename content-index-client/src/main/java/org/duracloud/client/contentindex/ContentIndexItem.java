@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldIndex;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class ContentIndexItem {
     private String storeType;
     private String space;
 
-    @Field(index = FieldIndex.not_analyzed)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed)
     private String contentId;
 
     private Map<String, String> props;

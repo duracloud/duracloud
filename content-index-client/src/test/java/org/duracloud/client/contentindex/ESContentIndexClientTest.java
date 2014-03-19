@@ -77,6 +77,8 @@ public class ESContentIndexClientTest {
         settingsMap.put("discovery.zen.ping.multicast.enabled", "false");
         // disable automatic index creation
         settingsMap.put("action.auto_create_index", "false");
+        // disable automatic type creation
+        settingsMap.put("index.mapper.dynamic", "false");
 
         Settings settings = ImmutableSettings.settingsBuilder()
                                              .put(settingsMap).build();
@@ -106,6 +108,8 @@ public class ESContentIndexClientTest {
         contentIndexClient.addIndex(SHARED_INDEX, false);
         contentIndexClient.addIndex(account1, true);
         contentIndexClient.addIndex(account2, true);
+
+        elasticsearchOperations.putMapping(ContentIndexItem.class);
     }
 
     @Test
@@ -152,11 +156,8 @@ public class ESContentIndexClientTest {
         for(ContentIndexItem item: itemsFull1) {
             assertItemFieldsNotNull(item);
             assertEquals(account1, item.getAccount());
-            //TODO: uncomment after sorting is figured out... bug in Spring ES?
-            // JIRA filed: https://jira.spring.io/browse/DATAES-69
-//            System.out.println("#### contentId: " + item.getContentId());
-//            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-//            idIndex++;
+            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+            idIndex++;
         }
 
         assertEquals(3, itemsFull2.size());
@@ -164,9 +165,8 @@ public class ESContentIndexClientTest {
         for(ContentIndexItem item: itemsFull2) {
             assertItemFieldsNotNull(item);
             assertEquals(account2, item.getAccount());
-            //TODO: uncomment after sorting is figured out... bug in Spring ES?
-//            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-//            idIndex++;
+            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+            idIndex++;
         }
 
         List<ContentIndexItem> itemsId1 =
@@ -178,18 +178,16 @@ public class ESContentIndexClientTest {
         idIndex = 1;
         for(ContentIndexItem item: itemsId1) {
             assertItemFieldsNull(item);
-            //TODO: uncomment after sorting is figured out... bug in Spring ES?
-//            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-//            idIndex++;
+            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+            idIndex++;
         }
 
         assertEquals(3, itemsId2.size());
         idIndex = 1;
         for(ContentIndexItem item: itemsId2) {
             assertItemFieldsNull(item);
-            //TODO: uncomment after sorting is figured out... bug in Spring ES?
-//            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-//            idIndex++;
+            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+            idIndex++;
         }
 
     }
