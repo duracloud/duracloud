@@ -83,8 +83,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                            String instancePort)
             throws StorageException {
         super.initialize(accountXml, instanceHost, instancePort);
-        initializeStorageProviders();
         configureAuditQueue();
+        initializeStorageProviders();
     }
 
     private void initializeStorageProviders() {
