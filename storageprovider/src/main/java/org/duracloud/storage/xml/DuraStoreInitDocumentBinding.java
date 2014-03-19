@@ -98,12 +98,23 @@ public class DuraStoreInitDocumentBinding {
 
         Element audit = new Element("storageAudit");
         AuditConfig auditConfig = duraStoreInitConfig.getAuditConfig();
-        String username = encryptionUtil.encrypt(auditConfig.getAuditUsername());
-        audit.addContent(new Element("auditUsername").setText(username));
-        String password = encryptionUtil.encrypt(auditConfig.getAuditPassword());
-        audit.addContent(new Element("auditPassword").setText(password));
-        audit.addContent(new Element("auditQueue")
-                             .setText(auditConfig.getAuditQueueName()));
+
+        String auditUsername = auditConfig.getAuditUsername();
+        if(null != auditUsername) {
+            String username = encryptionUtil.encrypt(auditUsername);
+            audit.addContent(new Element("auditUsername").setText(username));
+        }
+
+        String auditPassword = auditConfig.getAuditPassword();
+        if(null != auditPassword) {
+            String password = encryptionUtil.encrypt(auditPassword);
+            audit.addContent(new Element("auditPassword").setText(password));
+        }
+
+        String auditQueueName = auditConfig.getAuditQueueName();
+        if(null != auditQueueName) {
+            audit.addContent(new Element("auditQueue").setText(auditQueueName));
+        }
         durastoreConfig.addContent(audit);
 
         Document document = new Document(durastoreConfig);
