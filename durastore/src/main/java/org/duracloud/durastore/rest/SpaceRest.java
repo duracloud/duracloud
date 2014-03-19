@@ -7,13 +7,12 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
-import org.duracloud.common.util.ExceptionUtil;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.storage.error.InvalidIdException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

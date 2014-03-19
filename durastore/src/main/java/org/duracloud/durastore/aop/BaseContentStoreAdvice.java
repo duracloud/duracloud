@@ -7,9 +7,9 @@
  */
 package org.duracloud.durastore.aop;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.storage.aop.ContentMessage;
 import org.slf4j.Logger;
 import org.springframework.aop.AfterReturningAdvice;

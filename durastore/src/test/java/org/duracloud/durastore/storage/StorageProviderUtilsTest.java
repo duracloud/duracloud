@@ -7,8 +7,9 @@
  */
 package org.duracloud.durastore.storage;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.util.EncryptionUtil;
-import org.duracloud.storage.util.StorageProviderFactory;
+import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.util.StorageProviderFactoryImpl;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
@@ -16,6 +17,7 @@ import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProviderImpl;
 import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,6 +40,7 @@ public class StorageProviderUtilsTest {
     @Before
     public void setUp() throws Exception {
         StringBuilder xml = new StringBuilder();
+        xml.append("<durastoreConfig>");
         xml.append("<storageProviderAccounts>");
         xml.append("  <storageAcct ownerId='0' isPrimary='1'>");
         xml.append("    <id>0</id>");
@@ -51,15 +54,25 @@ public class StorageProviderUtilsTest {
         xml.append("    </storageProviderCredential>");
         xml.append("  </storageAcct>");
         xml.append("</storageProviderAccounts>");
+        xml.append("</durastoreConfig>");
         accountXml = xml.toString();
     }
 
     @Test
-    public void testStorageAccountManager() throws Exception {
-        InputStream is = new ByteArrayInputStream(accountXml.getBytes());
+    public void testStorageProviderUtilities() throws Exception {
+        InputStream is = new ByteArrayInputStream(accountXml.getBytes("UTF-8"));
         StorageAccountManager acctManager = new StorageAccountManager();
-        acctManager.initialize(is);
-        assertNotNull(acctManager);
+        StorageProviderFactory storageProviderFactory =
+            new StorageProviderFactoryImpl(acctManager,
+                                           new StatelessStorageProviderImpl(),
+                                           new TestUserUtil());
+
+        storageProviderFactory.initialize(is, "host", "port");
+        StorageProvider storage =
+            storageProviderFactory.getStorageProvider();
+
+        assertNotNull(storage);
+        assertTrue(storage instanceof BrokeredStorageProvider);
 
         StorageAccount primary = acctManager.getPrimaryStorageAccount();
         assertNotNull(primary);
@@ -70,19 +83,11 @@ public class StorageProviderUtilsTest {
         assertEquals(primary.getType(), StorageProviderType.AMAZON_S3);
     }
 
-    @Test
-    public void testStorageProviderUtility() throws Exception {
-        InputStream is = new ByteArrayInputStream(accountXml.getBytes());
-        StorageProviderFactory storageProviderFactory = new StorageProviderFactoryImpl(
-            new StorageAccountManager(),
-            new StatelessStorageProviderImpl());
-
-        storageProviderFactory.initialize(is, "host", "port");
-        StorageProvider storage =
-            storageProviderFactory.getStorageProvider();
-
-        assertNotNull(storage);
-        assertTrue(storage instanceof BrokeredStorageProvider);
+    private class TestUserUtil implements UserUtil {
+        @Override
+        public String getCurrentUsername() throws NoUserLoggedInException {
+            return "user-name";
+        }
     }
 
 }

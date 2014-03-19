@@ -9,10 +9,10 @@ package org.duracloud.duradmin.security;
 
 import java.lang.reflect.Method;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.Securable;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.MethodBeforeAdvice;

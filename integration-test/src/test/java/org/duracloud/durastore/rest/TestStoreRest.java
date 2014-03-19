@@ -12,6 +12,7 @@ import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -86,9 +88,15 @@ public class TestStoreRest extends BaseRestTester {
 
     private StorageAccountManager createStorageAccountManager()
             throws Exception {
-        InputStream is = new ByteArrayInputStream(storesXML.getBytes());
+        InputStream xmlStream =
+            new ByteArrayInputStream(storesXML.getBytes("UTF-8"));
+        StorageAccountsDocumentBinding binding =
+            new StorageAccountsDocumentBinding();
+        List<StorageAccount> accts =
+            binding.createStorageAccountsFromXml(xmlStream);
+
         StorageAccountManager manager = new StorageAccountManager();
-        manager.initialize(is);
+        manager.initialize(accts);
         assertNotNull(manager);
         assertNotNull(manager.getStorageAccountIds());
         return manager;

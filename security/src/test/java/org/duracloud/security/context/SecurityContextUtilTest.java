@@ -7,8 +7,8 @@
  */
 package org.duracloud.security.context;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
-import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.easymock.EasyMock;
 import org.junit.After;

@@ -8,12 +8,9 @@
 package org.duracloud.storage.domain;
 
 import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,24 +28,20 @@ public class StorageAccountManager {
     private String primaryStorageProviderId = null;
     private HashMap<String, StorageAccount> storageAccounts = null;
 
-    private StorageAccountsDocumentBinding documentBinding =
-        new StorageAccountsDocumentBinding();
-
     private String instanceHost;
     private String instancePort;
+    private String accountName;
 
     /**
-     * Parses xml to construct a listing of available storage accounts.
-     * Closes the arg stream upon successful initialization.
+     * Initializes the account manager based on provided accounts
      *
-     * @param accountXml
+     * @param accts
      * @throws StorageException
      */
-    public void initialize(InputStream accountXml)
+    public void initialize(List<StorageAccount> accts)
         throws StorageException {
 
-        List<StorageAccount> accts = getAccounts(accountXml);
-        storageAccounts = new HashMap<String, StorageAccount>();
+        storageAccounts = new HashMap<>();
         for (StorageAccount acct : accts) {
             storageAccounts.put(acct.getId(), acct);
             if (acct.isPrimary()) {
@@ -60,13 +53,12 @@ public class StorageAccountManager {
         if (primaryStorageProviderId == null) {
             primaryStorageProviderId = accts.get(0).getId();
         }
-
-        close(accountXml);
     }
 
     public void setEnvironment(String instanceHost, String instancePort) {
         this.instanceHost = instanceHost;
         this.instancePort = instancePort;
+        this.accountName = instanceHost.split("\\.")[0];
     }
 
     public String getInstanceHost() {
@@ -77,33 +69,8 @@ public class StorageAccountManager {
         return instancePort;
     }
 
-    private List<StorageAccount> getAccounts(InputStream accountXml) {
-        List<StorageAccount> accts = null;
-        try {
-            accts = documentBinding.createStorageAccountsFrom(accountXml);
-
-        } catch (Exception e) {
-            String error = "Unable to build storage account information due " +
-                "to error: " + e.getMessage();
-            log.error(error);
-            throw new StorageException(error, e);
-        }
-
-        if (null == accts || accts.isEmpty()) {
-            String error = "Unable to build storage account information due " +
-                "to invalid input xml.";
-            log.error(error);
-            throw new StorageException(error);
-        }
-        return accts;
-    }
-
-    private void close(InputStream stream) {
-        try {
-            stream.close();
-        } catch (IOException e) {
-            // do nothing
-        }
+    public String getAccountName() {
+        return accountName;
     }
 
     public StorageAccount getPrimaryStorageAccount() {

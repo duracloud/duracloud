@@ -14,10 +14,10 @@ import static org.easymock.EasyMock.replay;
 
 import java.lang.reflect.Method;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.Securable;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;

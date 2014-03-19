@@ -58,6 +58,7 @@
   <bean id="storageProviderFactory" class="org.duracloud.durastore.util.StorageProviderFactoryImpl">
     <constructor-arg ref="statelessStoragePvdr" />
     <constructor-arg ref="storageAcctManager" />
+    <constructor-arg ref="securityContextUtil"/>
     <constructor-arg value="true" />
   </bean>
 

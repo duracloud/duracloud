@@ -5,9 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.security.error;
-
-import org.duracloud.common.error.DuraCloudCheckedException;
+package org.duracloud.common.error;
 
 /**
  * @author Andrew Woods

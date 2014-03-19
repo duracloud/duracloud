@@ -7,8 +7,9 @@
  */
 package org.duracloud.security.context;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
-import org.duracloud.security.error.NoUserLoggedInException;
+import org.duracloud.common.util.UserUtil;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +24,11 @@ import org.springframework.security.context.SecurityContextHolder;
  * @author Andrew Woods
  *         Date: Mar 27, 2010
  */
-public class SecurityContextUtil {
+public class SecurityContextUtil implements UserUtil {
 
     private final Logger log = LoggerFactory.getLogger(SecurityContextUtil.class);
 
+    @Override
     public String getCurrentUsername() throws NoUserLoggedInException {
         DuracloudUserDetails userDetails = getCurrentUserDetails();
         return userDetails.getUsername();

@@ -40,7 +40,7 @@ public class SnapshotTaskRunner implements TaskRunner {
     private Logger log = LoggerFactory.getLogger(SnapshotTaskRunner.class);
 
     private StorageProvider chronProvider;
-    private String ownerId;
+    private String dcAccountName;
     private String dcHost;
     private String dcPort;
     private String dcStoreId;
@@ -53,6 +53,7 @@ public class SnapshotTaskRunner implements TaskRunner {
                               String dcHost,
                               String dcPort,
                               String dcStoreId,
+                              String dcAccountName,
                               String bridgeAppHost,
                               String bridgeAppPort,
                               String bridgeAppUser,
@@ -61,16 +62,11 @@ public class SnapshotTaskRunner implements TaskRunner {
         this.dcHost = dcHost;
         this.dcPort = dcPort;
         this.dcStoreId = dcStoreId;
+        this.dcAccountName = dcAccountName;
         this.bridgeAppHost = bridgeAppHost;
         this.bridgeAppPort = bridgeAppPort;
         this.bridgeAppUser = bridgeAppUser;
         this.bridgeAppPass = bridgeAppPass;
-
-        this.ownerId = getOwnerId(dcHost);
-    }
-
-    protected String getOwnerId(String host) {
-        return host.split("\\.")[0];
     }
 
     @Override
@@ -82,8 +78,8 @@ public class SnapshotTaskRunner implements TaskRunner {
     public String performTask(String taskParameters) {
         log.info("Performing Chronopolis SNAPSHOT task with parameters, " +
                  "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
-                 "OwnerID: {} Bridge Host: {} Bridge Port: {} Bridge User: {}",
-                 new Object[] {dcHost, dcPort, dcStoreId, ownerId,
+                 "Account Name: {} Bridge Host: {} Bridge Port: {} Bridge User: {}",
+                 new Object[] {dcHost, dcPort, dcStoreId, dcAccountName,
                                bridgeAppHost, bridgeAppPort, bridgeAppUser});
 
         // Get input params
@@ -93,7 +89,7 @@ public class SnapshotTaskRunner implements TaskRunner {
 
         // Generate snapshot ID
         long now = System.currentTimeMillis();
-        String snapshotId = ownerId + "-" + dcStoreId + "-" + spaceId +
+        String snapshotId = dcAccountName + "-" + dcStoreId + "-" + spaceId +
                             "-"+ DateUtil.convertToStringPlain(now);
 
         // Pull together all snapshot properties
@@ -102,7 +98,7 @@ public class SnapshotTaskRunner implements TaskRunner {
         snapshotProps.put("duracloud-store-id", dcStoreId);
         snapshotProps.put("snapshot-id", snapshotId);
         snapshotProps.put("snapshot-date", DateUtil.convertToStringVerbose(now));
-        snapshotProps.put("owner-id", ownerId);
+        snapshotProps.put("owner-id", dcAccountName);
 
         // Store snapshot properties in the snapshot space. This both provides
         // access to the properties down stream and effectively sets the space

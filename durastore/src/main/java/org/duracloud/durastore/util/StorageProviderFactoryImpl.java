@@ -7,7 +7,12 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.audit.provider.AuditStorageProvider;
 import org.duracloud.chronstorage.ChronStageStorageProvider;
+import org.duracloud.common.queue.TaskQueue;
+import org.duracloud.common.queue.aws.SQSTaskQueue;
+import org.duracloud.common.queue.noop.NoopTaskQueue;
+import org.duracloud.common.util.UserUtil;
 import org.duracloud.durastore.test.MockRetryStorageProvider;
 import org.duracloud.durastore.test.MockVerifyCreateStorageProvider;
 import org.duracloud.durastore.test.MockVerifyDeleteStorageProvider;
@@ -16,6 +21,7 @@ import org.duracloud.irodsstorage.IrodsStorageProvider;
 import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.sdscstorage.SDSCStorageProvider;
+import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -42,24 +48,32 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StorageProviderFactoryImpl extends ProviderFactoryBase
     implements StorageProviderFactory {
 
-    private Logger log = LoggerFactory.getLogger(StorageProviderFactoryImpl.class);
+    private Logger log =
+        LoggerFactory.getLogger(StorageProviderFactoryImpl.class);
 
     private StatelessStorageProvider statelessProvider;
     private Map<String, StorageProvider> storageProviders;
+    private UserUtil userUtil;
+    private TaskQueue auditQueue;
     private boolean cacheStorageProvidersOnInit = false;
 
     public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
-                                      StatelessStorageProvider statelessStorageProvider) {
-        this(storageAccountManager, statelessStorageProvider, false);
+                                      StatelessStorageProvider statelessStorageProvider,
+                                      UserUtil userUtil) {
+        this(storageAccountManager,
+             statelessStorageProvider,
+             userUtil,
+             false);
     }
 
     public StorageProviderFactoryImpl(StorageAccountManager storageAccountManager,
                                       StatelessStorageProvider statelessStorageProvider,
+                                      UserUtil userUtil,
                                       boolean cacheStorageProvidersOnInit) {
-
         super(storageAccountManager);
         this.statelessProvider = statelessStorageProvider;
-        this.storageProviders = new ConcurrentHashMap<String, StorageProvider>();
+        this.storageProviders = new ConcurrentHashMap<>();
+        this.userUtil = userUtil;
         this.cacheStorageProvidersOnInit = cacheStorageProvidersOnInit;
     }
 
@@ -70,15 +84,40 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             throws StorageException {
         super.initialize(accountXml, instanceHost, instancePort);
         initializeStorageProviders();
+        configureAuditQueue();
     }
 
     private void initializeStorageProviders() {
-        this.storageProviders = new ConcurrentHashMap<String, StorageProvider>();
+        this.storageProviders = new ConcurrentHashMap<>();
         if(this.cacheStorageProvidersOnInit){
             log.info("Caching storage providers on init is enabled: building storage provider cache...");
             Iterator<String> ids = getAccountManager().getStorageAccountIds();
             while(ids.hasNext()){
                 getStorageProvider(ids.next());
+            }
+        }
+    }
+
+    private void configureAuditQueue() {
+        AuditConfig auditConfig = getInitConfig().getAuditConfig();
+        if(null == auditConfig) {
+            // If no audit config defined, turn off auditing
+            this.auditQueue = new NoopTaskQueue();
+        } else {
+            String queueName = auditConfig.getAuditQueueName();
+            if(null == queueName) {
+                // If no queue name is defined, turn off auditing
+                this.auditQueue = new NoopTaskQueue();
+            } else {
+                // If username and pass are provided, push into system props
+                // for the SQS client to pick up
+                String auditUsername = auditConfig.getAuditUsername();
+                String auditPassword = auditConfig.getAuditPassword();
+                if(null != auditUsername && null != auditPassword) {
+                    System.setProperty("aws.accessKeyId", auditUsername);
+                    System.setProperty("aws.secretKey", auditPassword);
+                }
+                this.auditQueue = new SQSTaskQueue(queueName);
             }
         }
     }
@@ -90,7 +129,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
      */
     @Override
     public List<StorageAccount> getStorageAccounts() {
-        List<StorageAccount> accts = new ArrayList<StorageAccount>();
+        List<StorageAccount> accts = new ArrayList<>();
 
         Iterator<String> ids = getAccountManager().getStorageAccountIds();
         while (ids.hasNext()) {
@@ -168,7 +207,13 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new MockVerifyDeleteStorageProvider();
         }
 
-        StorageProvider aclProvider = new ACLStorageProvider(storageProvider);
+        StorageProvider auditProvider =
+            new AuditStorageProvider(storageProvider,
+                                     storageAccountManager.getAccountName(),
+                                     storageAccountId,
+                                     userUtil,
+                                     auditQueue);
+        StorageProvider aclProvider = new ACLStorageProvider(auditProvider);
         StorageProvider brokeredProvider =
             new BrokeredStorageProvider(statelessProvider,
                                         aclProvider,

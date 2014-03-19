@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.xml;
 
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
@@ -53,16 +54,12 @@ public class StorageAccountsDocumentBinding {
     /**
      * This method deserializes the provided xml into a durastore acct config object.
      *
-     * @param xml
+     * @param accounts
      * @return
      */
-    public List<StorageAccount> createStorageAccountsFrom(InputStream xml) {
+    public List<StorageAccount> createStorageAccountsFrom(Element accounts) {
         List<StorageAccount> accts = new ArrayList<StorageAccount>();
         try {
-            SAXBuilder builder = new SAXBuilder();
-            Document doc = builder.build(xml);
-            Element accounts = doc.getRootElement();
-
             Iterator<?> accountList = accounts.getChildren().iterator();
             while (accountList.hasNext()) {
                 Element accountXml = (Element) accountList.next();
@@ -98,19 +95,38 @@ public class StorageAccountsDocumentBinding {
     }
 
     /**
-     * This method serializes the provide durastore acct configuration into xml.
+     * Creates storage accounts listing from XML which includes only the
+     * storage accounts list (not the full DuraStore config. This is used
+     * to parse the response of the GET stores DuraStore REST call.
+     *
+     * @param xml
+     * @return
+     */
+    public List<StorageAccount> createStorageAccountsFromXml(InputStream xml) {
+        try {
+            SAXBuilder builder = new SAXBuilder();
+            Document doc = builder.build(xml);
+            Element root = doc.getRootElement();
+            return createStorageAccountsFrom(root);
+        } catch(Exception e) {
+            String error = "Could not build storage accounts from xml " +
+                           "due to: " + e.getMessage();
+            throw new DuraCloudRuntimeException(error, e);
+        }
+    }
+
+    /**
+     * Converts the provided DuraStore acct configuration into an Xml element,
+     * to be included in a larger Xml document (likely DuraStore config)
      *
      * @param accts
      * @return
      */
-    public String createDocumentFrom(Collection<StorageAccount> accts,
-                                     boolean includeCredentials) {
-        String xml = "";
+    public Element createDocumentFrom(Collection<StorageAccount> accts,
+                                      boolean includeCredentials) {
+        Element storageProviderAccounts = new Element("storageProviderAccounts");
 
         if (null != accts && accts.size() > 0) {
-            Element storageProviderAccounts = new Element(
-                "storageProviderAccounts");
-
             for (StorageAccount acct : accts) {
 
                 StorageAccountProviderBinding providerBinding = providerBindings
@@ -124,12 +140,24 @@ public class StorageAccountsDocumentBinding {
                     log.warn("Unexpected account type: " + acct.getType());
                 }
             }
-
-            Document document = new Document(storageProviderAccounts);
-            XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
-            xml = outputter.outputString(document);
         }
-        return xml;
+        return storageProviderAccounts;
+    }
+
+    /**
+     * Converts the provided DuraStore acct configuration into a stand-alone
+     * XML document. This is used for the DuraStore GET stores REST call.
+     *
+     * @param accts
+     * @return
+     */
+    public String createXmlFrom(Collection<StorageAccount> accts,
+                                boolean includeCredentials) {
+        Element storageProviderAccounts =
+            createDocumentFrom(accts, includeCredentials);
+        Document document = new Document(storageProviderAccounts);
+        XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+        return outputter.outputString(document);
     }
 
 }

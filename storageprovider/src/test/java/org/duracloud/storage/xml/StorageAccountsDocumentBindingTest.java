@@ -11,6 +11,9 @@ import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,8 +51,12 @@ public class StorageAccountsDocumentBindingTest {
     @Test
     public void testCreateStorageAccountsFrom() throws Exception {
         InputStream xml = createXml();
-        List<StorageAccount> accts = documentBinding.createStorageAccountsFrom(
-            xml);
+        SAXBuilder builder = new SAXBuilder();
+        Document doc = builder.build(xml);
+        Element accountsElem = doc.getRootElement();
+
+        List<StorageAccount> accts =
+            documentBinding.createStorageAccountsFrom(accountsElem);
 
         verifyAccounts(accts);
     }
@@ -107,14 +114,12 @@ public class StorageAccountsDocumentBindingTest {
         accts.add(acct1);
 
         boolean includeCredentials = true;
-        String document = documentBinding.createDocumentFrom(accts,
-                                                             includeCredentials);
+        Element accountsElem = documentBinding.createDocumentFrom(accts,
+                                                              includeCredentials);
 
-        Assert.assertNotNull(document);
-        xml = new ByteArrayInputStream(document.getBytes());
-
-        List<StorageAccount> accounts = documentBinding.createStorageAccountsFrom(
-            xml);
+        Assert.assertNotNull(accountsElem);
+        List<StorageAccount> accounts =
+            documentBinding.createStorageAccountsFrom(accountsElem);
         verifyAccounts(accounts);
     }
 

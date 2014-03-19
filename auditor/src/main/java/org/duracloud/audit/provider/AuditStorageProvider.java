@@ -8,10 +8,10 @@
 package org.duracloud.audit.provider;
 
 import org.duracloud.audit.task.AuditTask;
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.queue.TaskQueue;
-import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
+import org.duracloud.common.util.UserUtil;
 import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.InputStream;
@@ -32,18 +32,18 @@ public class AuditStorageProvider implements StorageProvider {
     private StorageProvider target;
     private String account;
     private String storeId;
-    private SecurityContextUtil securityUtil;
+    private UserUtil userUtil;
     private TaskQueue taskQueue;
 
     public AuditStorageProvider(StorageProvider target,
                                 String account,
                                 String storeId,
-                                SecurityContextUtil securityUtil,
+                                UserUtil userUtil,
                                 TaskQueue taskQueue) {
         this.target = target;
         this.account = account;
         this.storeId = storeId;
-        this.securityUtil = securityUtil;
+        this.userUtil = userUtil;
         this.taskQueue = taskQueue;
     }
 
@@ -96,7 +96,7 @@ public class AuditStorageProvider implements StorageProvider {
 
     private String getUserId() {
         try {
-            return securityUtil.getCurrentUsername();
+            return userUtil.getCurrentUsername();
         } catch(NoUserLoggedInException e) {
             return AuditTask.NA;
         }
@@ -215,10 +215,10 @@ public class AuditStorageProvider implements StorageProvider {
     @Override
     public void setContentProperties(String spaceId, String contentId,
                                      Map<String, String> contentProperties) {
-        String action = AuditTask.ActionType.DELETE_SPACE.name();
-        submitAudit(action, spaceId);
+        String action = AuditTask.ActionType.SET_CONTENT_PROPERTIES.name();
+        submitAudit(action, spaceId, contentId);
 
-        target.deleteSpace(spaceId);
+        target.setContentProperties(spaceId, contentId, contentProperties);
     }
 
 }

@@ -17,6 +17,7 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -172,7 +174,8 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
         setRestHelper(new RestHttpHelper());
     }
 
-    private StorageAccountManager getStorageAccounts() throws ContentStoreException {
+    private StorageAccountManager getStorageAccounts()
+        throws ContentStoreException {
         String url = baseURL + "/stores";
         HttpResponse response;
         String error = "Error retrieving content stores. ";
@@ -181,12 +184,19 @@ public class ContentStoreManagerImpl implements ContentStoreManager, Securable {
             if (response.getStatusCode() == HttpStatus.SC_OK) {
                 String storesXML = response.getResponseBody();
                 if (storesXML != null) {
-                    InputStream is = new ByteArrayInputStream(storesXML.getBytes());
-                    StorageAccountManager storageAccountManager = new StorageAccountManager();
-                    storageAccountManager.initialize(is);
+                    InputStream xmlStream =
+                        new ByteArrayInputStream(storesXML.getBytes("UTF-8"));
+                    StorageAccountsDocumentBinding binding =
+                        new StorageAccountsDocumentBinding();
+                    List<StorageAccount> accts =
+                        binding.createStorageAccountsFromXml(xmlStream);
+                    StorageAccountManager storageAccountManager =
+                        new StorageAccountManager();
+                    storageAccountManager.initialize(accts);
                     return storageAccountManager;
                 } else {
-                    throw new StorageException(error + "Response content was null");
+                    throw new StorageException(error +
+                                               "Response content was null");
                 }
             } else {
                 error += "Response code was " + response.getStatusCode() +

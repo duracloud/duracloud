@@ -7,9 +7,9 @@
  */
 package org.duracloud.durastore.util;
 
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;

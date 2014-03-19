@@ -7,13 +7,12 @@
  */
 package org.duracloud.storage.xml.impl;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.EncryptionUtil;
-import org.duracloud.storage.xml.StorageAccountProviderBinding;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.domain.impl.StorageAccountImpl;
+import org.duracloud.storage.xml.StorageAccountProviderBinding;
 import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,9 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
 
     private EncryptionUtil encryptionUtil;
 
+    public StorageAccountProviderSimpleBindingImpl() {
+        encryptionUtil = new EncryptionUtil();
+    }
 
     @Override
     public StorageAccount getAccountFromXml(Element xml) {
@@ -100,8 +102,8 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
             String encPassword = credentials.getChildText("password");
 
             if (null != encUsername && null != encPassword) {
-                username = decrypt(encUsername);
-                password = decrypt(encPassword);
+                username = encryptionUtil.decrypt(encUsername);
+                password = encryptionUtil.decrypt(encPassword);
             }
         }
         return new Credential(username, password);
@@ -146,8 +148,8 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
             Element storageProviderCredential = new Element(
                 "storageProviderCredential");
 
-            String uname = encrypt(acct.getUsername());
-            String pword = encrypt(acct.getPassword());
+            String uname = encryptionUtil.encrypt(acct.getUsername());
+            String pword = encryptionUtil.encrypt(acct.getPassword());
 
             Element username = new Element("username");
             Element password = new Element("password");
@@ -177,33 +179,6 @@ public class StorageAccountProviderSimpleBindingImpl implements StorageAccountPr
         }
 
         return storageAcct;
-    }
-
-    private String encrypt(String text) {
-        try {
-            return getEncryptionUtil().encrypt(text);
-        } catch (Exception e) {
-            throw new DuraCloudRuntimeException(e);
-        }
-    }
-
-    private String decrypt(String text) {
-        try {
-            return getEncryptionUtil().decrypt(text);
-        } catch (Exception e) {
-            throw new DuraCloudRuntimeException(e);
-        }
-    }
-
-    private EncryptionUtil getEncryptionUtil() {
-        if (null == encryptionUtil) {
-            try {
-                encryptionUtil = new EncryptionUtil();
-            } catch (Exception e) {
-                throw new DuraCloudRuntimeException(e);
-            }
-        }
-        return encryptionUtil;
     }
 
 }

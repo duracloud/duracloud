@@ -7,6 +7,8 @@
  */
 package org.duracloud.common.util;
 
+import org.duracloud.common.error.DuraCloudRuntimeException;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -30,33 +32,45 @@ public class EncryptionUtil {
      *
      * @throws Exception
      */
-    public EncryptionUtil() throws Exception {
-        // Create cipher
-        this.cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+    public EncryptionUtil() throws DuraCloudRuntimeException {
+        try {
+            // Create cipher
+            this.cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
 
-        // Create Key
-        DESKeySpec deskey = new DESKeySpec(keyBytes);
-        this.key = new SecretKeySpec(deskey.getKey(), "DES");
+            // Create Key
+            DESKeySpec deskey = new DESKeySpec(keyBytes);
+            this.key = new SecretKeySpec(deskey.getKey(), "DES");
+        } catch(Exception e) {
+            throw new DuraCloudRuntimeException(e);
+        }
     }
 
     /**
      * Provides basic encryption on a String.
      */
-    public String encrypt(String toEncrypt) throws Exception {
-        byte[] input = toEncrypt.getBytes("UTF-8");
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        byte[] cipherText = cipher.doFinal(input);
-        return encodeBytes(cipherText);
+    public String encrypt(String toEncrypt) throws DuraCloudRuntimeException {
+        try {
+            byte[] input = toEncrypt.getBytes("UTF-8");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] cipherText = cipher.doFinal(input);
+            return encodeBytes(cipherText);
+        } catch(Exception e) {
+            throw new DuraCloudRuntimeException(e);
+        }
     }
 
     /**
      * Provides decryption of a String encrypted using encrypt()
      */
-    public String decrypt(String toDecrypt) throws Exception {
-        byte[] input = decodeBytes(toDecrypt);
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] plainText = cipher.doFinal(input);
-        return new String(plainText, "UTF-8");
+    public String decrypt(String toDecrypt) throws DuraCloudRuntimeException {
+        try {
+            byte[] input = decodeBytes(toDecrypt);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            byte[] plainText = cipher.doFinal(input);
+            return new String(plainText, "UTF-8");
+        } catch(Exception e) {
+            throw new DuraCloudRuntimeException(e);
+        }
     }
 
     /**

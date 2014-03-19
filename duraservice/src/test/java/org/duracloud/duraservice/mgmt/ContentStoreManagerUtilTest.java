@@ -9,11 +9,10 @@ package org.duracloud.duraservice.mgmt;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.impl.CachingContentStoreManagerImpl;
+import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.duraservice.domain.Store;
-import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.security.error.NoUserLoggedInException;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;

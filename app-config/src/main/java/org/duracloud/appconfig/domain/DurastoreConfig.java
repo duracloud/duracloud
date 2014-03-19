@@ -7,18 +7,21 @@
  */
 package org.duracloud.appconfig.domain;
 
-import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.storage.domain.AuditConfig;
+import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.domain.impl.StorageAccountImpl;
+import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This class holds the configuration elements for durastore.
@@ -31,6 +34,11 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
     public static final String QUALIFIER = "durastore";
 
+    // Audit
+    protected static final String auditKey = "audit";
+    protected static final String queueKey = "queue";
+
+    // Storage
     protected static final String storageAccountKey = "storage-acct";
     protected static final String ownerIdKey = "owner-id";
     protected static final String isPrimaryKey = "is-primary";
@@ -52,11 +60,13 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String bridgeUserKey = "bridge-user";
     protected static final String bridgePassKey = "bridge-pass";
 
+    private AuditConfig auditConfig = new AuditConfig();
+
     private Map<String, StorageAccount> storageAccounts =
         new HashMap<String, StorageAccount>();
 
-    private StorageAccountsDocumentBinding documentBinding =
-        new StorageAccountsDocumentBinding();
+    private DuraStoreInitDocumentBinding documentBinding =
+        new DuraStoreInitDocumentBinding();
 
     protected String getQualifier() {
         return QUALIFIER;
@@ -67,11 +77,24 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         if (key.startsWith(storageAccountKey)) {
             String suffix = getSuffix(key);
             loadStorageAcct(suffix, value);
-
+        } else if(key.startsWith(auditKey)) {
+            String suffix = getSuffix(key);
+            loadAudit(suffix, value);
         } else {
             String msg = "unknown key: " + key + " (" + value + ")";
             log.error(msg);
             throw new DuraCloudRuntimeException(msg);
+        }
+    }
+
+    private void loadAudit(String key, String value) {
+        String suffix = getSuffix(key);
+        if (suffix.equalsIgnoreCase(usernameKey)) {
+            auditConfig.setAuditUsername(value);
+        } else if (suffix.equalsIgnoreCase(passwordKey)) {
+            auditConfig.setAuditPassword(value);
+        } else if (suffix.equalsIgnoreCase(queueKey)) {
+            auditConfig.setAuditQueueName(value);
         }
     }
 
@@ -140,28 +163,21 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         storageAccounts.put(id, acct);
     }
 
+    public AuditConfig getAuditConfig() {
+        return auditConfig;
+    }
+
     public Collection<StorageAccount> getStorageAccounts() {
         return storageAccounts.values();
     }
 
-    /**
-     * Directly sets storage provider accounts. The list of storage accounts
-     * is cleared prior to the new set being applied, so no accounts included
-     * prior to this call will remain.
-     *
-     * @param storageAccts storage provider accounts to set
-     */
-    public void setStorageAccounts(Set<StorageAccount> storageAccts) {
-        this.storageAccounts = new HashMap<String, StorageAccount>();
-        for(StorageAccount storageAcct : storageAccts) {
-            this.storageAccounts.put(storageAcct.getId(), storageAcct);
-        }
-    }
-
     public String asXml() {
         boolean includeCredentials = true;
-        return documentBinding.createDocumentFrom(getStorageAccounts(),
-                                                  includeCredentials);
+        DuraStoreInitConfig initConfig = new DuraStoreInitConfig();
+        initConfig.setAuditConfig(getAuditConfig());
+        List<StorageAccount> accounts = new ArrayList<>(getStorageAccounts());
+        initConfig.setStorageAccounts(accounts);
+        return documentBinding.createXmlFrom(initConfig, includeCredentials);
     }
 
     public String getInitResource() {

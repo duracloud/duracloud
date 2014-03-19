@@ -36,6 +36,7 @@ public class SnapshotTaskRunnerTest {
     private String dcHost = "instance-host";
     private String dcPort = "instance-port";
     private String dcStoreId = "store-id";
+    private String dcAccountName = "account-name";
     private String bridgeHost = "bridge-host";
     private String bridgePort = "bridge-port";
     private String bridgeUser = "bridge-user";
@@ -46,7 +47,8 @@ public class SnapshotTaskRunnerTest {
         chronProvider = EasyMock.createMock("ChronStageStorageProvider",
                                             ChronStageStorageProvider.class);
         taskRunner = new SnapshotTaskRunner(chronProvider, dcHost, dcPort,
-            dcStoreId, bridgeHost, bridgePort, bridgeUser, bridgePass);
+                                            dcStoreId, dcAccountName, bridgeHost,
+                                            bridgePort, bridgeUser, bridgePass);
     }
 
     private void replayMocks() {
@@ -62,14 +64,6 @@ public class SnapshotTaskRunnerTest {
     public void testGetName() {
         replayMocks();
         assertEquals("snapshot", taskRunner.getName());
-    }
-
-    @Test
-    public void testGetOwner() {
-        replayMocks();
-
-        String ownerId = taskRunner.getOwnerId("check.duracloud.org");
-        assertEquals("check", ownerId);
     }
 
     @Test
