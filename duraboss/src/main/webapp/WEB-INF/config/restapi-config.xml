@@ -81,6 +81,10 @@
     <constructor-arg ref="fileCleaningTracker"/>
   </bean>
 
+  <bean id="auditLogSpace" class="java.lang.String">
+    <constructor-arg value="x-duracloud-admin"/>
+  </bean>
+
   <bean id="fileCleaningTracker" class="org.apache.commons.io.FileCleaningTracker"
         destroy-method="exitWhenFinished"/>
 

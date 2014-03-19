@@ -106,7 +106,10 @@ public class SQSTaskQueue implements TaskQueue {
         Properties props = new Properties();
         props.setProperty(Task.KEY_TYPE, task.getType().name());
         for(String key: task.getProperties().keySet()) {
-            props.setProperty(key, task.getProperty(key));
+            String value = task.getProperty(key);
+            if(null != value) {
+                props.setProperty(key, value);
+            }
         }
         StringWriter sw = new StringWriter();
         String msgBody = null;
