@@ -29,12 +29,6 @@ public class DatabaseUtil {
     
     public static final String DEFAULT_LOCAL_ENDPOINT = "http://localhost:8000";
 
-    private static final String STORE_ID_ATTRIBUTE = "StoreId";
-    private static final String CONTENT_ID_ATTRIBUTE = "ContentId";
-    private static final String ACCOUNT_SPACE_ID_CONTENT_ID_INDEX =
-        "AccountSpaceIdContentIdIndex";
-    private static final String ACCOUNT_SPACE_ID_HASH_ATTRIBUTE =
-        AuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE;
     private static final String STRING_ATTRIBUTE_TYPE = "S";
 
     public static void drop(AmazonDynamoDBClient client) {
@@ -57,9 +51,7 @@ public class DatabaseUtil {
 
         try {
             String hashKeyName = AuditLogItem.ID_ATTRIBUTE;
-            String hashKeyType = STRING_ATTRIBUTE_TYPE;
-            String rangeKeyName = AuditLogItem.ACCOUNT_ATTRIBUTE;
-            String rangeKeyType = STRING_ATTRIBUTE_TYPE;
+            String rangeKeyName = AuditLogItem.TIMESTAMP_ATTRIBUTE;
             long readCapacityUnits = 10;
             long writeCapacityUnits = 5;
             log.info("Creating table " + tableName);
@@ -70,12 +62,12 @@ public class DatabaseUtil {
             ks.add(new KeySchemaElement().withAttributeName(hashKeyName)
                                          .withKeyType(KeyType.HASH));
             attributeDefinitions.add(new AttributeDefinition().withAttributeName(hashKeyName)
-                                                              .withAttributeType(hashKeyType));
+                                                              .withAttributeType(STRING_ATTRIBUTE_TYPE));
 
             ks.add(new KeySchemaElement().withAttributeName(rangeKeyName)
                                          .withKeyType(KeyType.RANGE));
             attributeDefinitions.add(new AttributeDefinition().withAttributeName(rangeKeyName)
-                                                              .withAttributeType(rangeKeyType));
+                                                              .withAttributeType("N"));
 
             // Provide initial provisioned throughput values as Java long data
             // types
@@ -91,28 +83,17 @@ public class DatabaseUtil {
             ArrayList<GlobalSecondaryIndex> globalSecondaryIndexes =
                 new ArrayList<GlobalSecondaryIndex>();
 
-            attributeDefinitions.add(new AttributeDefinition().withAttributeName(ACCOUNT_SPACE_ID_HASH_ATTRIBUTE)
-                                                              .withAttributeType(STRING_ATTRIBUTE_TYPE));
-
-            attributeDefinitions.add(new AttributeDefinition().withAttributeName(STORE_ID_ATTRIBUTE)
-                                                              .withAttributeType(STRING_ATTRIBUTE_TYPE));
-
-            attributeDefinitions.add(new AttributeDefinition().withAttributeName(CONTENT_ID_ATTRIBUTE)
+            attributeDefinitions.add(new AttributeDefinition().withAttributeName(AuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE)
                                                               .withAttributeType(STRING_ATTRIBUTE_TYPE));
 
             request.setAttributeDefinitions(attributeDefinitions);
 
             addGlobalSecondaryIndex(AuditLogItem.ACCOUNT_SPACE_ID_INDEX,
-                                    ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
-                                    STORE_ID_ATTRIBUTE,
+                                    AuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
+                                    AuditLogItem.TIMESTAMP_ATTRIBUTE,
                                     provisionedthroughput,
                                     globalSecondaryIndexes);
 
-            addGlobalSecondaryIndex(ACCOUNT_SPACE_ID_CONTENT_ID_INDEX,
-                                    ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
-                                    CONTENT_ID_ATTRIBUTE,
-                                    provisionedthroughput,
-                                    globalSecondaryIndexes);
 
             request.setGlobalSecondaryIndexes(globalSecondaryIndexes);
 
@@ -139,35 +120,8 @@ public class DatabaseUtil {
                                                                           KeyType.HASH),
                                                      new KeySchemaElement(rangeKey,
                                                                           KeyType.RANGE));
-
         indexes.add(gsi);
 
     }
-
-    /*
-    private static void
-        addLocalIndex(String rangeKeyName,
-                      String rangeKeyType,
-                      String hashKeyName,
-                      String indexName,
-                      ArrayList<AttributeDefinition> attributeDefinitions,
-                      ArrayList<LocalSecondaryIndex> localSecondaryIndexes) {
-        attributeDefinitions.add(new AttributeDefinition().withAttributeName(rangeKeyName)
-                                                          .withAttributeType(rangeKeyType));
-
-        ArrayList<KeySchemaElement> iks = new ArrayList<KeySchemaElement>();
-        iks.add(new KeySchemaElement().withAttributeName(hashKeyName)
-                                      .withKeyType(KeyType.HASH));
-        iks.add(new KeySchemaElement().withAttributeName(rangeKeyName)
-                                      .withKeyType(KeyType.RANGE));
-
-        LocalSecondaryIndex lsi =
-            new LocalSecondaryIndex().withIndexName(indexName)
-                                     .withKeySchema(iks)
-                                     .withProjection(new Projection().withProjectionType(ProjectionType.ALL));
-        localSecondaryIndexes.add(lsi);
-
-    }
-    */
 
 }

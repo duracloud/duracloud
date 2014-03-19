@@ -8,13 +8,12 @@ import com.amazonaws.util.Md5Utils;
 import com.amazonaws.util.StringUtils;
 
 public class KeyUtil {
-
-    public static String calculateAuditLogHashKey(String storeId, String spaceId, String contentId, String datetime) {
+    public static String calculateAuditLogHashKey(String account,String storeId, String spaceId, String contentId) {
         return computeMd5(StringUtils.join("/",
+                                           account,
                                            storeId, 
                                            spaceId,
-                                           contentId,
-                                           datetime));
+                                           contentId));
    }
     private static String computeMd5(String value){
         try {

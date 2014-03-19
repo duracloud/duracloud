@@ -1,7 +1,5 @@
 package org.duracloud.audit.dynamodb;
 
-import java.util.Date;
-
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
@@ -25,11 +23,12 @@ public class AuditLogItem {
     public static final String SPACE_ID_ATTRIBUTE = "SpaceId";
     public static final String ACCOUNT_SPACE_ID_HASH_ATTRIBUTE =
         "AccountSpaceIdHash";
+    public static final String TIMESTAMP_ATTRIBUTE = "TimeStamp";
 
     private String id,accountSpaceIdHash, account, storeId, spaceId, contentId, contentMd5,
         username, action;
 
-    private Date timestamp;
+    private Long timestamp;
 
     public AuditLogItem( String id, 
                             String accountSpaceIdHash,
@@ -40,7 +39,7 @@ public class AuditLogItem {
                             String contentMd5, 
                             String username, 
                             String action, 
-                            Date timestamp) {
+                            long timestamp) {
         setId(id);
         setAccountSpaceIdHash(accountSpaceIdHash);
         setAccount(account);
@@ -60,14 +59,20 @@ public class AuditLogItem {
     public String getId() {
         return id;
     }
+    
+    @DynamoDBRangeKey(attributeName = TIMESTAMP_ATTRIBUTE)
+    @DynamoDBIndexRangeKey(globalSecondaryIndexName = ACCOUNT_SPACE_ID_INDEX)
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-    @DynamoDBRangeKey(attributeName = ACCOUNT_ATTRIBUTE)
+
+    @DynamoDBAttribute(attributeName = ACCOUNT_ATTRIBUTE)
     public String getAccount() {
         return this.account;
     }
 
     @DynamoDBAttribute(attributeName = STORE_ID_ATTRIBUTE)
-    @DynamoDBIndexRangeKey(globalSecondaryIndexName = ACCOUNT_SPACE_ID_INDEX)
     public String getStoreId() {
         return this.storeId;
     }
@@ -104,12 +109,7 @@ public class AuditLogItem {
         return this.accountSpaceIdHash;
     }
  
-    @DynamoDBAttribute(attributeName = "Timestamp")
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 

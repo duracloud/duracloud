@@ -53,32 +53,37 @@ public class DynamoDBAuditLogStoreImplT {
                           int accounts,
                           int stores,
                           int spaces,
-                          int content) throws AuditLogWriteFailedException {
+                          int content,
+                          int dates) throws AuditLogWriteFailedException {
 
         for (int i = 0; i < accounts; i++) {
             String account = "account"+i;
                        
             for (int j = 0; j < stores; j++) {
-                String storeId =  j + "";
+                String storeId =  "store"+j;
 
                 for (int k = 0; k < spaces; k++) {
-                    String spaceId =  "spaceid"+k;
+                    String spaceId =  "space"+k;
                     for (int l = 0; l < content; l++) {
-                        Date timestamp = new Date();
-                        String contentId = "content"+l;
-                        AuditLogItem item =
-                            new AuditLogItem(KeyUtil.calculateAuditLogHashKey(storeId, spaceId, contentId, timestamp + ""),
-                                             KeyUtil.calculateAccountSpaceIdHash(account, spaceId),
-                                             account,
-                                             storeId,
-                                             spaceId,
-                                             contentId,
-                                             contentId + "md5",
-                                             "dbernstein",
-                                             ContentMessage.ACTION.INGEST.name(),
-                                             timestamp);
-                        logStore.write(item);
-
+                        for(int m = 0; m < dates; m++){
+                            //add dates one day apart moving into the past.
+                            Date timestamp =
+                                new Date(System.currentTimeMillis()
+                                    - (24 * 60 * 60 * 1000 * m));
+                            String contentId = "content"+l;
+                            AuditLogItem item =
+                                new AuditLogItem(KeyUtil.calculateAuditLogHashKey(account,storeId, spaceId, contentId),
+                                                 KeyUtil.calculateAccountSpaceIdHash(account, spaceId),
+                                                 account,
+                                                 storeId,
+                                                 spaceId,
+                                                 contentId,
+                                                 contentId + "md5",
+                                                 "dbernstein",
+                                                 ContentMessage.ACTION.INGEST.name(),
+                                                 timestamp.getTime());
+                            logStore.write(item);
+                        }
                     }
                 }
             }
@@ -92,46 +97,46 @@ public class DynamoDBAuditLogStoreImplT {
 
     @Test
     public void testWrite() throws Exception {
-        loadData(client, 1,1,1,1);
+        loadData(client, 1,1,1,1,1);
     }
 
     @Test
-    public void testGetWithNullStoreId() throws Exception {
+    public void testGetLogItemsForContentId() throws Exception {
         int stores = 2;
         int content = 5;
-        loadData(client, 2,stores,3,content);
+        int dates = 2;
+        loadData(client, 2,stores,3,content,dates);
         
-        Iterator<AuditLogItem> it = this.logStore.getLogItems("account0", "spaceid0", null);
+        Iterator<AuditLogItem> it = this.logStore.getLogItems("account0", "store0","space0","content0");
         
         int count = 0;
-        int expectedtotal = stores*content;
+        int expectedtotal = dates;
         
         while(it.hasNext()){
             it.next();
             count++;
         }
 
-        
         Assert.assertEquals(expectedtotal, count);
     }
 
     @Test
-    public void testGetWithStoreId() throws Exception {
+    public void testGetAllSpaceItems() throws Exception {
         int stores = 2;
         int content = 5;
-        loadData(client, 2,stores,3,content);
+        int dates = 2;
+        loadData(client, 2,stores,3,content,dates);
         
-        Iterator<AuditLogItem> it = this.logStore.getLogItems("account0", "spaceid0", "0");
+        Iterator<AuditLogItem> it = this.logStore.getLogItems("account0","space0");
         
         int count = 0;
-        int expectedtotal = content;
+        int expectedtotal = stores*content*dates;
         
         while(it.hasNext()){
             it.next();
             count++;
         }
 
-        
         Assert.assertEquals(expectedtotal, count);
     }
 

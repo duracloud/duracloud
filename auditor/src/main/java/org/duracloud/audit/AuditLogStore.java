@@ -26,13 +26,25 @@ public interface AuditLogStore {
     public void write(AuditLogItem logItem) throws AuditLogWriteFailedException;
     
     /**
-     * Returns a list of matching log events 
+     * Returns a list of matching log events for the specified space across providers
      * @param account
      * @param spaceId 
-     * @param storeId If null, returns log events for all storage providers
      * @return
      */
     public Iterator<AuditLogItem> getLogItems(String account,
+                                              String spaceId);
+    
+    /**
+     * Retrieves log history for a content item.
+     * @param account
+     * @param storeId
+     * @param spaceId
+     * @param contentId
+     * @return
+     */
+    public Iterator<AuditLogItem> getLogItems(String account,
+                                              String storeId,
                                               String spaceId,
-                                              String storeId);
+                                              String contentId);
+
 }

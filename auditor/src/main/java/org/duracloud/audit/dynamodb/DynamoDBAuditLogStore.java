@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.duracloud.audit.AuditLogStore;
 import org.duracloud.audit.AuditLogWriteFailedException;
+import org.duracloud.common.collection.StreamingIterator;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
-import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.amazonaws.services.dynamodbv2.model.Select;
 
 /**
@@ -63,31 +63,42 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
 
     @Override
     public Iterator<AuditLogItem> getLogItems(String account,
-                                              String spaceId,
-                                              String storeId) {
+                                              String spaceId) {
         checkInitialized();
         Map<String, Condition> keyConditions = new HashMap<>();
         keyConditions.put(AuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
                        new Condition().withComparisonOperator(ComparisonOperator.EQ)
                                       .withAttributeValueList(new AttributeValue(KeyUtil.calculateAccountSpaceIdHash(account,
                                                                                                                      spaceId))));
-        if(storeId != null){
-            keyConditions.put(AuditLogItem.STORE_ID_ATTRIBUTE,
-                           new Condition().withComparisonOperator(ComparisonOperator.EQ)
-                                          .withAttributeValueList(new AttributeValue(storeId)));
-        }
 
         QueryRequest request =
             new QueryRequest(AuditLogItem.TABLE_NAME).withIndexName(AuditLogItem.ACCOUNT_SPACE_ID_INDEX)
                                                      .withKeyConditions(keyConditions);
         request.setSelect(Select.ALL_PROJECTED_ATTRIBUTES);
         
-        QueryResult result = client.query(request);
-        //while it looks like marshIntoObjects is deprecated, according the documentation
-        //it is only deprecated  as an extension point for adding custom unmarshalling
-        //see javadoc for details.
-        return mapper.marshallIntoObjects(AuditLogItem.class, result.getItems())
-                     .iterator();
+        return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<>(client,
+                                                                           request,
+                                                                           AuditLogItem.class));
+    }
+    
+    @Override
+    public Iterator<AuditLogItem> getLogItems(String account,
+                                              String storeId,
+                                              String spaceId,
+                                              String contentId) {
+        checkInitialized();
+        Map<String, Condition> keyConditions = new HashMap<>();
+        keyConditions.put(AuditLogItem.ID_ATTRIBUTE,
+                       new Condition().withComparisonOperator(ComparisonOperator.EQ)
+                                      .withAttributeValueList(new AttributeValue(KeyUtil.calculateAuditLogHashKey(account, storeId, spaceId,  contentId))));
+
+        QueryRequest request =
+            new QueryRequest(AuditLogItem.TABLE_NAME).withKeyConditions(keyConditions);
+        request.setSelect(Select.ALL_ATTRIBUTES);
+        
+        return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<>(client,
+                                                                           request,
+                                                                           AuditLogItem.class));
     }
 
     private void checkInitialized() {
