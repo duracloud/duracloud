@@ -29,6 +29,11 @@ public abstract class TypedTask {
     private String spaceId;
     private String contentId;
 
+    /* To be used as the value for variables when that variable doesn't apply
+       to the current action type, such for contentId when the action involves
+       only a space */
+    public static final String NA =  "not-applicable";
+
     /**
      * The unique identifier for the account, ie the account's subdomain.
      * 
@@ -89,11 +94,17 @@ public abstract class TypedTask {
      */
     public Task writeTask() {
         Task task = new Task();
-        task.addProperty(ACCOUNT_PROP, getAccount());
-        task.addProperty(STORE_ID_PROP, getStoreId());
-        task.addProperty(SPACE_ID_PROP, getSpaceId());
-        task.addProperty(CONTENT_ID_PROP, getContentId());
+        addProperty(task, ACCOUNT_PROP, getAccount());
+        addProperty(task, STORE_ID_PROP, getStoreId());
+        addProperty(task, SPACE_ID_PROP, getSpaceId());
+        addProperty(task, CONTENT_ID_PROP, getContentId());
         return task;
+    }
+
+    protected void addProperty(Task task, String propName, String propValue) {
+        if(null != propValue && !propValue.equals(NA)) {
+            task.addProperty(propName, propValue);
+        }
     }
 
 }

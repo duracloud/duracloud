@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 /**
@@ -83,6 +84,77 @@ public class AuditTaskTest {
                      readAuditTask.getContentMimetype());
         assertEquals(auditTask.getContentSize(),
                      readAuditTask.getContentSize());
+    }
+
+    @Test
+    public void testAuditTaskNA() {
+        String action = AuditTask.ActionType.ADD_CONTENT.name();
+
+        // Create initial AuditTask
+        AuditTask auditTask = new AuditTask();
+        auditTask.setAction(action);
+        auditTask.setUserId(AuditTask.NA);
+        auditTask.setDateTime(AuditTask.NA);
+        auditTask.setAccount(AuditTask.NA);
+        auditTask.setStoreId(AuditTask.NA);
+        auditTask.setSpaceId(AuditTask.NA);
+        auditTask.setContentId(AuditTask.NA);
+        auditTask.setContentChecksum(AuditTask.NA);
+        auditTask.setContentMimetype(AuditTask.NA);
+        auditTask.setContentSize(AuditTask.NA);
+
+        // Test writeTask
+        Task task = auditTask.writeTask();
+        assertEquals(task.getType(), Task.Type.AUDIT);
+
+        Map<String, String> properties = task.getProperties();
+        assertEquals(1, properties.size());
+        assertEquals(action, properties.get(AuditTask.ACTION_PROP));
+
+        // Test readTask
+        AuditTask readAuditTask = new AuditTask();
+        readAuditTask.readTask(task);
+        assertEquals(auditTask.getAction(), readAuditTask.getAction());
+        assertNull(readAuditTask.getUserId());
+        assertNull(readAuditTask.getDateTime());
+        assertNull(readAuditTask.getAccount());
+        assertNull(readAuditTask.getStoreId());
+        assertNull(readAuditTask.getSpaceId());
+        assertNull(readAuditTask.getContentId());
+        assertNull(readAuditTask.getContentChecksum());
+        assertNull(readAuditTask.getContentMimetype());
+        assertNull(readAuditTask.getContentSize());
+    }
+
+    @Test
+    public void testAuditTaskNulls() {
+        String action = AuditTask.ActionType.ADD_CONTENT.name();
+
+        // Create initial AuditTask
+        AuditTask auditTask = new AuditTask();
+        auditTask.setAction(action);
+
+        // Test writeTask
+        Task task = auditTask.writeTask();
+        assertEquals(task.getType(), Task.Type.AUDIT);
+
+        Map<String, String> properties = task.getProperties();
+        assertEquals(1, properties.size());
+        assertEquals(action, properties.get(AuditTask.ACTION_PROP));
+
+        // Test readTask
+        AuditTask readAuditTask = new AuditTask();
+        readAuditTask.readTask(task);
+        assertEquals(auditTask.getAction(), readAuditTask.getAction());
+        assertNull(readAuditTask.getUserId());
+        assertNull(readAuditTask.getDateTime());
+        assertNull(readAuditTask.getAccount());
+        assertNull(readAuditTask.getStoreId());
+        assertNull(readAuditTask.getSpaceId());
+        assertNull(readAuditTask.getContentId());
+        assertNull(readAuditTask.getContentChecksum());
+        assertNull(readAuditTask.getContentMimetype());
+        assertNull(readAuditTask.getContentSize());
     }
 
     @Test

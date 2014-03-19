@@ -33,11 +33,6 @@ public class AuditTask extends TypedTask {
         COPY_CONTENT, DELETE_CONTENT, SET_CONTENT_PROPERTIES
     };
 
-    /* To be used as the value for variables when that variable doesn't apply
-       to the current action type, such for contentId when the action involves
-       only a space */
-    public static final String NA =  "not-applicable";
-
     private String action;
     private String userId;
     private String dateTime;
@@ -112,12 +107,12 @@ public class AuditTask extends TypedTask {
     public Task writeTask() {
         Task task = super.writeTask();
         task.setType(Task.Type.AUDIT);
-        task.addProperty(ACTION_PROP, getAction());
-        task.addProperty(USER_ID_PROP, getUserId());
-        task.addProperty(DATE_TIME_PROP, getDateTime());
-        task.addProperty(CONTENT_CHECKSUM_PROP, getContentChecksum());
-        task.addProperty(CONTENT_MIMETYPE_PROP, getContentMimetype());
-        task.addProperty(CONTENT_SIZE_PROP, getContentSize());
+        addProperty(task, ACTION_PROP, getAction());
+        addProperty(task, USER_ID_PROP, getUserId());
+        addProperty(task, DATE_TIME_PROP, getDateTime());
+        addProperty(task, CONTENT_CHECKSUM_PROP, getContentChecksum());
+        addProperty(task, CONTENT_MIMETYPE_PROP, getContentMimetype());
+        addProperty(task, CONTENT_SIZE_PROP, getContentSize());
         return task;
     }
 
