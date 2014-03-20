@@ -155,26 +155,23 @@ public class AuditStorageProvider implements StorageProvider {
 
     @Override
     public void createSpace(String spaceId) {
+        target.createSpace(spaceId);
         String action = AuditTask.ActionType.CREATE_SPACE.name();
         submitAudit(action, spaceId);
-
-        target.createSpace(spaceId);
     }
 
     @Override
     public void deleteSpace(String spaceId) {
+        target.deleteSpace(spaceId);
         String action = AuditTask.ActionType.DELETE_SPACE.name();
         submitAudit(action, spaceId);
-
-        target.deleteSpace(spaceId);
     }
 
     @Override
     public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
+        target.setSpaceACLs(spaceId, spaceACLs);
         String action = AuditTask.ActionType.SET_SPACE_ACLS.name();
         submitAudit(action, spaceId);
-
-        target.setSpaceACLs(spaceId, spaceACLs);
     }
 
     @Override
@@ -185,40 +182,39 @@ public class AuditStorageProvider implements StorageProvider {
                              long contentSize,
                              String contentChecksum,
                              InputStream content) {
+        contentChecksum = target.addContent(spaceId, contentId, contentMimeType,
+                                            userProperties, contentSize,
+                                            contentChecksum, content);
         String action = AuditTask.ActionType.ADD_CONTENT.name();
         submitAudit(action, spaceId, contentId,
                     contentChecksum, contentMimeType, contentSize);
-
-        return target.addContent(spaceId, contentId, contentMimeType,
-                                 userProperties, contentSize,
-                                 contentChecksum, content);
+        return contentChecksum;
     }
 
     @Override
     public String copyContent(String sourceSpaceId, String sourceContentId,
                               String destSpaceId, String destContentId) {
+        String contentChecksum =
+            target.copyContent(sourceSpaceId, sourceContentId,
+                               destSpaceId, destContentId);
         String action = AuditTask.ActionType.COPY_CONTENT.name();
         submitAudit(action, destSpaceId, destContentId);
-
-        return target.copyContent(sourceSpaceId, sourceContentId,
-                                  destSpaceId, destContentId);
+        return contentChecksum;
     }
 
     @Override
     public void deleteContent(String spaceId, String contentId) {
+        target.deleteContent(spaceId, contentId);
         String action = AuditTask.ActionType.DELETE_CONTENT.name();
         submitAudit(action, spaceId, contentId);
-
-        target.deleteContent(spaceId, contentId);
     }
 
     @Override
     public void setContentProperties(String spaceId, String contentId,
                                      Map<String, String> contentProperties) {
+        target.setContentProperties(spaceId, contentId, contentProperties);
         String action = AuditTask.ActionType.SET_CONTENT_PROPERTIES.name();
         submitAudit(action, spaceId, contentId);
-
-        target.setContentProperties(spaceId, contentId, contentProperties);
     }
 
 }

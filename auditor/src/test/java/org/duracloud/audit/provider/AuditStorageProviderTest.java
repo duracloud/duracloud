@@ -198,7 +198,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         EasyMock.expect(
             targetProvider.addContent(spaceId, contentId, contentMimeType, null,
                                       contentSize, contentChecksum, null))
-                .andReturn("");
+                .andReturn(contentChecksum);
         replayAll();
         provider.addContent(spaceId, contentId, contentMimeType, null,
                             contentSize, contentChecksum, null);
