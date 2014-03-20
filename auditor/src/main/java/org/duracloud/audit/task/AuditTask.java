@@ -27,6 +27,8 @@ public class AuditTask extends TypedTask {
     public static final String CONTENT_CHECKSUM_PROP = "content-checksum";
     public static final String CONTENT_MIMETYPE_PROP = "content-mimetype";
     public static final String CONTENT_SIZE_PROP = "content-size";
+    public static final String CONTENT_PROPERTIES_PROP = "content-properties";
+    public static final String SPACE_ACLS_PROP = "space-acls";
 
     public enum ActionType {
         CREATE_SPACE, DELETE_SPACE, SET_SPACE_ACLS, ADD_CONTENT,
@@ -39,6 +41,8 @@ public class AuditTask extends TypedTask {
     private String contentChecksum;
     private String contentMimetype;
     private String contentSize;
+    private String contentProperties;
+    private String spaceACLs;
 
     public String getAction() {
         return action;
@@ -90,6 +94,22 @@ public class AuditTask extends TypedTask {
         this.contentSize = contentSize;
     }
 
+    public String getContentProperties() {
+        return contentProperties;
+    }
+
+    public void setContentProperties(String contentProperties) {
+        this.contentProperties = contentProperties;
+    }
+
+    public String getSpaceACLs() {
+        return spaceACLs;
+    }
+
+    public void setSpaceACLs(String spaceACLs) {
+        this.spaceACLs = spaceACLs;
+    }
+
     @Override
     public void readTask(Task task) {
         super.readTask(task);
@@ -101,6 +121,8 @@ public class AuditTask extends TypedTask {
         setContentChecksum(props.get(CONTENT_CHECKSUM_PROP));
         setContentMimetype(props.get(CONTENT_MIMETYPE_PROP));
         setContentSize(props.get(CONTENT_SIZE_PROP));
+        setContentProperties(props.get(CONTENT_PROPERTIES_PROP));
+        setSpaceACLs(props.get(SPACE_ACLS_PROP));
     }
 
     @Override
@@ -113,6 +135,8 @@ public class AuditTask extends TypedTask {
         addProperty(task, CONTENT_CHECKSUM_PROP, getContentChecksum());
         addProperty(task, CONTENT_MIMETYPE_PROP, getContentMimetype());
         addProperty(task, CONTENT_SIZE_PROP, getContentSize());
+        addProperty(task, CONTENT_PROPERTIES_PROP, getContentProperties());
+        addProperty(task, SPACE_ACLS_PROP, getSpaceACLs());
         return task;
     }
 

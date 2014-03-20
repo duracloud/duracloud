@@ -30,6 +30,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Bill Branan
@@ -181,26 +182,38 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     @Test
     public void testSetSpaceACLs() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Map<String, AclType> spaceAcls = new HashMap<>();
+        spaceAcls.put(user, AclType.WRITE);
 
-        targetProvider.setSpaceACLs(spaceId, null);
+        targetProvider.setSpaceACLs(spaceId, spaceAcls);
         EasyMock.expectLastCall();
         replayAll();
-        provider.setSpaceACLs(spaceId, null);
+        provider.setSpaceACLs(spaceId, spaceAcls);
 
-        verifyAuditTask(auditTaskCapture.getValue(),
-                        AuditTask.ActionType.SET_SPACE_ACLS.name());
+        Map<String, String> taskProps =
+            verifyAuditTask(auditTaskCapture.getValue(),
+                            AuditTask.ActionType.SET_SPACE_ACLS.name());
+        String spaceAclProp = taskProps.get(AuditTask.SPACE_ACLS_PROP);
+        assertNotNull(spaceAclProp);
+        assertTrue(spaceAclProp.contains(user));
+        assertTrue(spaceAclProp.contains(AclType.WRITE.name()));
     }
 
     @Test
     public void testAddContent() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Map<String, String> contentProps = new HashMap<>();
+        String propName = "prop-name";
+        String propValue = "prop-value";
+        contentProps.put(propName, propValue);
 
         EasyMock.expect(
-            targetProvider.addContent(spaceId, contentId, contentMimeType, null,
-                                      contentSize, contentChecksum, null))
+            targetProvider.addContent(spaceId, contentId, contentMimeType,
+                                      contentProps, contentSize,
+                                      contentChecksum, null))
                 .andReturn(contentChecksum);
         replayAll();
-        provider.addContent(spaceId, contentId, contentMimeType, null,
+        provider.addContent(spaceId, contentId, contentMimeType, contentProps,
                             contentSize, contentChecksum, null);
 
         Map<String, String> taskProps =
@@ -213,6 +226,11 @@ public class AuditStorageProviderTest extends EasyMockSupport {
                      taskProps.get(AuditTask.CONTENT_SIZE_PROP));
         assertEquals(contentChecksum,
                      taskProps.get(AuditTask.CONTENT_CHECKSUM_PROP));
+        String contentPropsProp =
+            taskProps.get(AuditTask.CONTENT_PROPERTIES_PROP);
+        assertNotNull(contentPropsProp);
+        assertTrue(contentPropsProp.contains(propName));
+        assertTrue(contentPropsProp.contains(propValue));
     }
 
     @Test
@@ -249,16 +267,25 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     @Test
     public void testSetContentProperties() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Map<String, String> contentProps = new HashMap<>();
+        String propName = "prop-name";
+        String propValue = "prop-value";
+        contentProps.put(propName, propValue);
 
-        targetProvider.setContentProperties(spaceId, contentId, null);
+        targetProvider.setContentProperties(spaceId, contentId, contentProps);
         EasyMock.expectLastCall();
         replayAll();
-        provider.setContentProperties(spaceId, contentId, null);
+        provider.setContentProperties(spaceId, contentId, contentProps);
 
         Map<String, String> taskProps =
             verifyAuditTask(auditTaskCapture.getValue(),
                             AuditTask.ActionType.SET_CONTENT_PROPERTIES.name());
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
+        String contentPropsProp =
+            taskProps.get(AuditTask.CONTENT_PROPERTIES_PROP);
+        assertNotNull(contentPropsProp);
+        assertTrue(contentPropsProp.contains(propName));
+        assertTrue(contentPropsProp.contains(propValue));
     }
 
 }

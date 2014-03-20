@@ -35,6 +35,8 @@ public class AuditTaskTest {
         String contentChecksum = "content-checksum";
         String contentMimetype = "content-mimetype";
         String contentSize = "content-size";
+        String contentProperties = "content-properties";
+        String spaceAcls = "space-acls";
 
         // Create initial AuditTask
         AuditTask auditTask = new AuditTask();
@@ -48,6 +50,8 @@ public class AuditTaskTest {
         auditTask.setContentChecksum(contentChecksum);
         auditTask.setContentMimetype(contentMimetype);
         auditTask.setContentSize(contentSize);
+        auditTask.setContentProperties(contentProperties);
+        auditTask.setSpaceACLs(spaceAcls);
 
         // Test writeTask
         Task task = auditTask.writeTask();
@@ -67,6 +71,9 @@ public class AuditTaskTest {
                      properties.get(AuditTask.CONTENT_MIMETYPE_PROP));
         assertEquals(contentSize,
                      properties.get(AuditTask.CONTENT_SIZE_PROP));
+        assertEquals(contentProperties,
+                     properties.get(AuditTask.CONTENT_PROPERTIES_PROP));
+        assertEquals(spaceAcls, properties.get(AuditTask.SPACE_ACLS_PROP));
 
         // Test readTask
         AuditTask readAuditTask = new AuditTask();
@@ -84,6 +91,9 @@ public class AuditTaskTest {
                      readAuditTask.getContentMimetype());
         assertEquals(auditTask.getContentSize(),
                      readAuditTask.getContentSize());
+        assertEquals(auditTask.getContentProperties(),
+                     readAuditTask.getContentProperties());
+        assertEquals(auditTask.getSpaceACLs(), readAuditTask.getSpaceACLs());
     }
 
     @Test
@@ -102,7 +112,13 @@ public class AuditTaskTest {
         auditTask.setContentChecksum(AuditTask.NA);
         auditTask.setContentMimetype(AuditTask.NA);
         auditTask.setContentSize(AuditTask.NA);
+        auditTask.setContentProperties(AuditTask.NA);
+        auditTask.setSpaceACLs(AuditTask.NA);
 
+        verifyEmptyAuditTask(auditTask, action);
+    }
+
+    private void verifyEmptyAuditTask(AuditTask auditTask, String action) {
         // Test writeTask
         Task task = auditTask.writeTask();
         assertEquals(task.getType(), Task.Type.AUDIT);
@@ -124,6 +140,8 @@ public class AuditTaskTest {
         assertNull(readAuditTask.getContentChecksum());
         assertNull(readAuditTask.getContentMimetype());
         assertNull(readAuditTask.getContentSize());
+        assertNull(readAuditTask.getContentProperties());
+        assertNull(readAuditTask.getSpaceACLs());
     }
 
     @Test
@@ -134,27 +152,7 @@ public class AuditTaskTest {
         AuditTask auditTask = new AuditTask();
         auditTask.setAction(action);
 
-        // Test writeTask
-        Task task = auditTask.writeTask();
-        assertEquals(task.getType(), Task.Type.AUDIT);
-
-        Map<String, String> properties = task.getProperties();
-        assertEquals(1, properties.size());
-        assertEquals(action, properties.get(AuditTask.ACTION_PROP));
-
-        // Test readTask
-        AuditTask readAuditTask = new AuditTask();
-        readAuditTask.readTask(task);
-        assertEquals(auditTask.getAction(), readAuditTask.getAction());
-        assertNull(readAuditTask.getUserId());
-        assertNull(readAuditTask.getDateTime());
-        assertNull(readAuditTask.getAccount());
-        assertNull(readAuditTask.getStoreId());
-        assertNull(readAuditTask.getSpaceId());
-        assertNull(readAuditTask.getContentId());
-        assertNull(readAuditTask.getContentChecksum());
-        assertNull(readAuditTask.getContentMimetype());
-        assertNull(readAuditTask.getContentSize());
+        verifyEmptyAuditTask(auditTask, action);
     }
 
     @Test
