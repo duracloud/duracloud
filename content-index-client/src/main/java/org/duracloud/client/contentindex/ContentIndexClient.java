@@ -33,6 +33,17 @@ public interface ContentIndexClient {
                                                 String contentId);
 
     /**
+     * Search all field values for the provided 'text'
+     * @param text The text to find in any field's value
+     * @param account The account to search, may be null to search across accounts
+     * @param storeId The storeId to search, only used if account supplied.  May be null.
+     * @param space The space to search, may be null to search all spaces.
+     * @return
+     */
+    public List<ContentIndexItem> get(String text, String account,
+                                      Integer storeId, String space);
+
+    /**
      * Saves or updates a ContentIndexItem
      * @param item
      * @return the ID of the ContentIndexItem entity

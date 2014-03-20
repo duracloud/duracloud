@@ -9,15 +9,13 @@ package org.duracloud.client.contentindex;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasAction;
-import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.TermFilterBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.GetQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -28,8 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.duracloud.client.contentindex.ContentIndexItem.ID_SEPARATOR;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryString;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 /**
  * @author Erik Paulsson
  *         Date: 3/11/14
@@ -102,6 +101,52 @@ public class ESContentIndexClient implements ContentIndexClient {
             .build();
         searchQuery.addIndices(account);
         return searchQuery;
+    }
+
+    /**
+     * Search all field values for the provided 'text'
+     * @param text
+     * @param account
+     * @param storeId
+     * @param space
+     * @return
+     */
+    @Override
+    public List<ContentIndexItem> get(String text, String account,
+                                      Integer storeId, String space) {
+        //FilterBuilders.
+        TermFilterBuilder storeIdFilter = null;
+        TermFilterBuilder spaceFilter = null;
+
+        NativeSearchQueryBuilder nsqBuilder = new NativeSearchQueryBuilder()
+            .withQuery(simpleQueryString(text))
+            .withTypes(TYPE);
+        if(account != null) {
+            nsqBuilder.withIndices(account);
+            if(storeId != null) {
+                storeIdFilter = FilterBuilders.termFilter("storeId", storeId);
+            }
+        }
+
+        if(space != null) {
+            spaceFilter = FilterBuilders.termFilter("space", space);
+        }
+
+        if(storeIdFilter != null && spaceFilter != null) {
+            nsqBuilder.withFilter(
+                FilterBuilders.andFilter(storeIdFilter, spaceFilter));
+
+        } else {
+            if(storeIdFilter != null) {
+                nsqBuilder.withFilter(storeIdFilter);
+            } else if(spaceFilter != null) {
+                nsqBuilder.withFilter(spaceFilter);
+            }
+        }
+
+        List<ContentIndexItem> items = elasticSearchOps.queryForList(
+            nsqBuilder.build(), ContentIndexItem.class);
+        return items;
     }
 
     @Override

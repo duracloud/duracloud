@@ -13,6 +13,8 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldIndex;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -122,11 +124,27 @@ public class ContentIndexItem {
         this.props = props;
     }
 
+    public ContentIndexItem addProp(String key, String value) {
+        if(props == null) {
+            props = new HashMap<String, String>();
+        }
+        props.put(key, value);
+        return this;
+    }
+
     public List<String> getTags() {
         return tags;
     }
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public ContentIndexItem addTag(String tag) {
+        if(tags == null) {
+            tags = new ArrayList<String>();
+        }
+        tags.add(tag);
+        return this;
     }
 }

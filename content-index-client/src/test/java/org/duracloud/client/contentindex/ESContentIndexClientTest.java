@@ -46,6 +46,8 @@ public class ESContentIndexClientTest {
     protected String account2 = "account2";
     protected int storeId = 1;
     protected String space = "space1";
+    protected String key1 = "key1", key2 = "key2",
+        value1 = "value1", value2 = "value2";
 
     private static Node node;
     protected static String datadir;
@@ -114,31 +116,34 @@ public class ESContentIndexClientTest {
 
     @Test
     public void testSaveContentIndexItem() {
-        ContentIndexItem item1 = createContentIndexItem(account1, 5);
-        String item1Id = item1.getId();
-        String checksum1 = item1.getProps().get("checksum");
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.addTag(value1);
+        String item5Id = item5.getId();
+        String checksum1 = item5.getProps().get("checksum");
 
-        String returnedId = contentIndexClient.save(item1);
+        String returnedId = contentIndexClient.save(item5);
         assertNotNull(returnedId);
-        assertEquals(item1Id, returnedId);
+        assertEquals(item5Id, returnedId);
 
         ContentIndexItem retrieved = contentIndexClient.get(
-            account1, storeId, space, item1.getContentId());
-        assertFalse(retrieved == item1); // assert not the same object in memory
+            account1, storeId, space, item5.getContentId());
+        assertFalse(retrieved == item5); // assert not the same object in memory
         assertNotNull(retrieved);
         assertEquals(checksum1, retrieved.getProps().get("checksum"));
 
         List<ContentIndexItem> items = new ArrayList();
         items.add(createContentIndexItem(account1, 4));
-        items.add(createContentIndexItem(account1, 3));
+        items.add(createContentIndexItem(account1, 3).addProp(key1, value1));
         items.add(createContentIndexItem(account1, 2));
         items.add(createContentIndexItem(account1, 1));
         contentIndexClient.bulkSave(items);
 
         items = new ArrayList();
-        items.add(createContentIndexItem(account2, 3));
-        items.add(createContentIndexItem(account2, 2));
-        items.add(createContentIndexItem(account2, 1));
+        items.add(createContentIndexItem(account2, 3)
+                      .addProp(key1, value1).addProp(key2, value2));
+        items.add(createContentIndexItem(account2, 2)
+                      .addProp(key1, value1).addTag(value2));
+        items.add(createContentIndexItem(account2, 1).addTag(value1));
         contentIndexClient.bulkSave(items);
 
         long count1 = contentIndexClient.getSpaceCount(account1, storeId, space);
@@ -189,6 +194,22 @@ public class ESContentIndexClientTest {
             assertTrue(item.getContentId().endsWith(idIndex+".txt"));
             idIndex++;
         }
+
+        // both accounts
+        items = contentIndexClient.get(value1, null, null, null);
+        assertEquals(5, items.size());
+        items = contentIndexClient.get(value2, null, null, null);
+        assertEquals(2, items.size());
+
+        // account1
+        items = contentIndexClient.get(value1, account1, null, null);
+        assertEquals(2, items.size());
+        items = contentIndexClient.get(value2, account1, null, null);
+        assertEquals(0, items.size());
+
+        // account2
+        items = contentIndexClient.get(value1, account2, null, null);
+        assertEquals(3, items.size());
 
     }
 
