@@ -24,7 +24,16 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 /**
- * @author Daniel Bernstein Date: 3/11/2014
+ * This "integration" test has been included in the auditor module 
+ * rather than in the integration-test module because it is more a 
+ * unit test than an integration test, but nevertheless because it depends
+ * on the dynamodb local maven plugin to be setup and torn down in the 
+ * pre/post-integration-test phase it must be run in the integration-test phase.
+ * In order to distinguish this kind of intra-module integration test, we use the
+ * "IT" suffix on the test class which is recognized by the maven-failsafe plugin.
+ * 
+ * @author Daniel Bernstein 
+ *         Date: 3/11/2014
  */
 public class DynamoDBAuditLogStoreImplT {
 
@@ -35,7 +44,7 @@ public class DynamoDBAuditLogStoreImplT {
     @Before
     public void setUp() throws Exception {
         String username = "test";
-        String password = username;
+        String password = "password";
 
         client =
             new AmazonDynamoDBClient(new BasicAWSCredentials(username, password));
