@@ -5,8 +5,9 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duradmin.util;
+package org.duracloud.common.util;
 
+import org.duracloud.common.util.TagUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -23,6 +23,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.util.TagUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.Acl;

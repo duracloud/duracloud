@@ -8,6 +8,7 @@
 package org.duracloud.duradmin.util;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.TagUtil;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

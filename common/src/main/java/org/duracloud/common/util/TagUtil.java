@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duradmin.util;
+package org.duracloud.common.util;
 
 import org.springframework.util.StringUtils;
 
@@ -34,7 +34,7 @@ public class TagUtil {
         return result;
     }
 
-    static Set<String> parseTags(String tagsValue) {
+    public static Set<String> parseTags(String tagsValue) {
         Set<String> set = new LinkedHashSet<String>();
         if (StringUtils.hasText(tagsValue)) {
             set.addAll(Arrays.asList(tagsValue.split("[" + DELIMITER + "]")));
