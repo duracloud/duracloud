@@ -3,11 +3,12 @@
 <configuration debug="true" scan="true">
   <jmxConfigurator/>
   <property name="LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore.log" />
+  <property name="READ_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-read.log" />
+  <property name="WRITE_LOG_FILENAME" value="${duracloud.home}/logs/duracloud-durastore-write.log" />
 
   <appender name="DURACLOUD" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <File>${LOG_FILENAME}</File>
-
     <encoder>
       <pattern>%-14p %d{yyyy/MM/dd HH:mm:ss} [%t] (%F:%L\\) [%M(\\)] - %m%n</pattern>
     </encoder>
@@ -19,14 +20,55 @@
       <MaxFileSize>20MB</MaxFileSize>
     </triggeringPolicy>
   </appender>
+
+  <appender name="STORAGE-READ" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${READ_LOG_FILENAME}</File>
+    <encoder>
+      <pattern>%d{yyyy/MM/dd HH:mm:ss} %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${READ_LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+
+  <appender name="STORAGE-WRITE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${WRITE_LOG_FILENAME}</File>
+    <encoder>
+      <pattern>%d{yyyy/MM/dd HH:mm:ss} %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${WRITE_LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%-14p %d{yyyy/MM/dd HH:mm:ss} [%t] (%F:%L\\) [%M(\\)] - %m%n</pattern>
     </encoder>
   </appender>
+
   <logger name="org.duracloud" level="${log.level}">
     <appender-ref ref="DURACLOUD"/>
   </logger>
+
+  <logger name="storage-read" level="INFO">
+    <appender-ref ref="STORAGE-READ"/>
+  </logger>
+
+  <logger name="storage-write" level="INFO">
+    <appender-ref ref="STORAGE-WRITE"/>
+  </logger>
+
   <root level="WARN">
     <appender-ref ref="STDOUT"/>
   </root>

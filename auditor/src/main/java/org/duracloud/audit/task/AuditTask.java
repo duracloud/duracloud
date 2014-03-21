@@ -31,8 +31,13 @@ public class AuditTask extends TypedTask {
     public static final String SPACE_ACLS_PROP = "space-acls";
 
     public enum ActionType {
+        // Write actions
         CREATE_SPACE, DELETE_SPACE, SET_SPACE_ACLS, ADD_CONTENT,
-        COPY_CONTENT, DELETE_CONTENT, SET_CONTENT_PROPERTIES
+        COPY_CONTENT, DELETE_CONTENT, SET_CONTENT_PROPERTIES,
+        // Read actions
+        GET_SPACES, GET_SPACE_CONTENTS, GET_SPACE_CONTENTS_CHUNKED,
+        GET_SPACE_PROPERTIES, GET_SPACE_ACLS, GET_CONTENT,
+        GET_CONTENT_PROPERTIES
     };
 
     private String action;

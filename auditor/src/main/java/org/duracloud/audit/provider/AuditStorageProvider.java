@@ -7,10 +7,13 @@
  */
 package org.duracloud.audit.provider;
 
+import org.duracloud.audit.logger.ReadLogger;
+import org.duracloud.audit.logger.WriteLogger;
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.queue.TaskQueue;
+import org.duracloud.common.queue.task.Task;
 import org.duracloud.common.util.UserUtil;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -34,6 +37,8 @@ public class AuditStorageProvider implements StorageProvider {
     private String storeId;
     private UserUtil userUtil;
     private TaskQueue taskQueue;
+    private ReadLogger readLogger;
+    private WriteLogger writeLogger;
 
     public AuditStorageProvider(StorageProvider target,
                                 String account,
@@ -45,16 +50,30 @@ public class AuditStorageProvider implements StorageProvider {
         this.storeId = storeId;
         this.userUtil = userUtil;
         this.taskQueue = taskQueue;
+
+        this.readLogger = new ReadLogger();
+        this.writeLogger = new WriteLogger();
     }
 
-    private void submitTask(String action,
-                            String spaceId,
-                            String contentId,
-                            String contentChecksum,
-                            String contentMimetype,
-                            String contentSize,
-                            String contentProperties,
-                            String spaceACLs) {
+    /*
+     * Intended to be used for testing
+     */
+    protected void setLoggers(ReadLogger readLogger, WriteLogger writeLogger) {
+        this.readLogger = readLogger;
+        this.writeLogger = writeLogger;
+    }
+
+    /*
+     * Handles write tasks. Write tasks are passed to the task queue and logged.
+     */
+    private void submitWriteTask(String action,
+                                 String spaceId,
+                                 String contentId,
+                                 String contentChecksum,
+                                 String contentMimetype,
+                                 String contentSize,
+                                 String contentProperties,
+                                 String spaceACLs) {
         AuditTask task = new AuditTask();
         task.setAction(action);
         task.setUserId(getUserId());
@@ -69,7 +88,27 @@ public class AuditStorageProvider implements StorageProvider {
         task.setContentSize(contentSize);
         task.setContentProperties(contentProperties);
 
-        taskQueue.put(task.writeTask());
+        Task writeTask = task.writeTask();
+        taskQueue.put(writeTask);
+        writeLogger.log(writeTask);
+    }
+
+    /*
+     * Handles read tasks. Read tasks are only logged (no task queue).
+     */
+    private void submitReadTask(String action,
+                                String spaceId,
+                                String contentId) {
+        AuditTask task = new AuditTask();
+        task.setAction(action);
+        task.setUserId(getUserId());
+        task.setDateTime(String.valueOf(System.currentTimeMillis()));
+        task.setAccount(account);
+        task.setStoreId(storeId);
+        task.setSpaceId(spaceId);
+        task.setContentId(contentId);
+
+        readLogger.log(task.writeTask());
     }
 
     private String getUserId() {
@@ -86,40 +125,70 @@ public class AuditStorageProvider implements StorageProvider {
 
     @Override
     public Iterator<String> getSpaces() {
-        return target.getSpaces();
+        Iterator<String> spaces = target.getSpaces();
+
+        String action = AuditTask.ActionType.GET_SPACES.name();
+        submitReadTask(action, AuditTask.NA, AuditTask.NA);
+        return spaces;
     }
 
     @Override
     public Iterator<String> getSpaceContents(String spaceId, String prefix) {
-        return target.getSpaceContents(spaceId, prefix);
+        Iterator<String> spaceContents =
+            target.getSpaceContents(spaceId, prefix);
+
+        String action = AuditTask.ActionType.GET_SPACE_CONTENTS.name();
+        submitReadTask(action, spaceId, AuditTask.NA);
+        return spaceContents;
     }
 
     @Override
     public List<String> getSpaceContentsChunked(String spaceId, String prefix,
                                                 long maxResults, String marker) {
-        return target.getSpaceContentsChunked(spaceId, prefix,
-                                              maxResults, marker);
+        List<String> spaceContents =
+            target.getSpaceContentsChunked(spaceId, prefix, maxResults, marker);
+
+        String action = AuditTask.ActionType.GET_SPACE_CONTENTS_CHUNKED.name();
+        submitReadTask(action, spaceId, AuditTask.NA);
+        return  spaceContents;
     }
 
     @Override
     public Map<String, String> getSpaceProperties(String spaceId) {
-        return target.getSpaceProperties(spaceId);
+        Map<String, String> spaceProps = target.getSpaceProperties(spaceId);
+
+        String action = AuditTask.ActionType.GET_SPACE_PROPERTIES.name();
+        submitReadTask(action, spaceId, AuditTask.NA);
+        return spaceProps;
     }
 
     @Override
     public Map<String, AclType> getSpaceACLs(String spaceId) {
-        return target.getSpaceACLs(spaceId);
+        Map<String, AclType> spaceAcls = target.getSpaceACLs(spaceId);
+
+        String action = AuditTask.ActionType.GET_SPACE_ACLS.name();
+        submitReadTask(action, spaceId, AuditTask.NA);
+        return spaceAcls;
     }
 
     @Override
     public InputStream getContent(String spaceId, String contentId) {
-        return target.getContent(spaceId, contentId);
+        InputStream content = target.getContent(spaceId, contentId);
+
+        String action = AuditTask.ActionType.GET_CONTENT.name();
+        submitReadTask(action, spaceId, contentId);
+        return content;
     }
 
     @Override
     public Map<String, String> getContentProperties(String spaceId,
                                                     String contentId) {
-        return target.getContentProperties(spaceId, contentId);
+        Map<String, String> contentProps =
+            target.getContentProperties(spaceId, contentId);
+
+        String action = AuditTask.ActionType.GET_CONTENT_PROPERTIES.name();
+        submitReadTask(action, spaceId, contentId);
+        return contentProps;
     }
 
     /*
@@ -132,24 +201,26 @@ public class AuditStorageProvider implements StorageProvider {
         target.createSpace(spaceId);
 
         String action = AuditTask.ActionType.CREATE_SPACE.name();
-        submitTask(action, spaceId, AuditTask.NA, AuditTask.NA,
-                   AuditTask.NA, AuditTask.NA, null, null);
+        submitWriteTask(action, spaceId, AuditTask.NA, AuditTask.NA,
+                        AuditTask.NA, AuditTask.NA, null, null);
     }
 
     @Override
     public void deleteSpace(String spaceId) {
         target.deleteSpace(spaceId);
+
         String action = AuditTask.ActionType.DELETE_SPACE.name();
-        submitTask(action, spaceId, AuditTask.NA, AuditTask.NA,
-                   AuditTask.NA, AuditTask.NA, null, null);
+        submitWriteTask(action, spaceId, AuditTask.NA, AuditTask.NA,
+                        AuditTask.NA, AuditTask.NA, null, null);
     }
 
     @Override
     public void setSpaceACLs(String spaceId, Map<String, AclType> spaceACLs) {
         target.setSpaceACLs(spaceId, spaceACLs);
+
         String action = AuditTask.ActionType.SET_SPACE_ACLS.name();
-        submitTask(action, spaceId, AuditTask.NA, AuditTask.NA,
-                   AuditTask.NA, AuditTask.NA, null, spaceACLs.toString());
+        submitWriteTask(action, spaceId, AuditTask.NA, AuditTask.NA,
+                        AuditTask.NA, AuditTask.NA, null, spaceACLs.toString());
     }
     
     @Override
@@ -165,8 +236,9 @@ public class AuditStorageProvider implements StorageProvider {
                                             contentChecksum, content);
 
         String action = AuditTask.ActionType.ADD_CONTENT.name();
-        submitTask(action, spaceId, contentId, contentChecksum, contentMimeType,
-                   String.valueOf(contentSize), userProperties.toString(), null);
+        submitWriteTask(action, spaceId, contentId, contentChecksum,
+                        contentMimeType, String.valueOf(contentSize),
+                        userProperties.toString(), null);
         return contentChecksum;
     }
 
@@ -176,9 +248,10 @@ public class AuditStorageProvider implements StorageProvider {
         String contentChecksum =
             target.copyContent(sourceSpaceId, sourceContentId,
                                destSpaceId, destContentId);
+
         String action = AuditTask.ActionType.COPY_CONTENT.name();
-        submitTask(action, destSpaceId, destContentId, contentChecksum,
-                   AuditTask.NA, AuditTask.NA, null, null);
+        submitWriteTask(action, destSpaceId, destContentId, contentChecksum,
+                        AuditTask.NA, AuditTask.NA, null, null);
         return contentChecksum;
     }
 
@@ -187,8 +260,8 @@ public class AuditStorageProvider implements StorageProvider {
         target.deleteContent(spaceId, contentId);
 
         String action = AuditTask.ActionType.DELETE_CONTENT.name();
-        submitTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
-                   AuditTask.NA, null, null);
+        submitWriteTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
+                        AuditTask.NA, null, null);
     }
 
     @Override
@@ -197,8 +270,8 @@ public class AuditStorageProvider implements StorageProvider {
         target.setContentProperties(spaceId, contentId, contentProperties);
 
         String action = AuditTask.ActionType.SET_CONTENT_PROPERTIES.name();
-        submitTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
-                   AuditTask.NA, contentProperties.toString(), null);
+        submitWriteTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
+                        AuditTask.NA, contentProperties.toString(), null);
     }
 
 }

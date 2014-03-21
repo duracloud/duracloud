@@ -7,6 +7,8 @@
  */
 package org.duracloud.audit.provider;
 
+import org.duracloud.audit.logger.ReadLogger;
+import org.duracloud.audit.logger.WriteLogger;
 import org.duracloud.audit.task.AuditTask;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.queue.TaskQueue;
@@ -47,6 +49,10 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     private UserUtil userUtil;
     @Mock
     private TaskQueue taskQueue;
+    @Mock
+    private ReadLogger readLogger;
+    @Mock
+    private WriteLogger writeLogger;
 
     private String storeId = "store-id";
     private String account = "account";
@@ -64,6 +70,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     public void setup() {
         provider = new AuditStorageProvider(targetProvider, account, storeId,
                                             userUtil, taskQueue);
+        provider.setLoggers(readLogger, writeLogger);
     }
 
     @After
@@ -74,114 +81,178 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     // Test pass-through methods
 
     @Test
-    public void testGetSpaces() {
+    public void testGetSpaces() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
         EasyMock.expect(targetProvider.getSpaces())
                 .andReturn(new ArrayList<String>().iterator());
         replayAll();
         provider.getSpaces();
+
+        verifyTaskSkipSpaceId(logCapture.getValue(),
+                              AuditTask.ActionType.GET_SPACES.name());
     }
 
     @Test
-    public void testGetSpaceContents() {
+    public void testGetSpaceContents() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
         EasyMock.expect(targetProvider.getSpaceContents(spaceId, prefix))
                 .andReturn(new ArrayList<String>().iterator());
         replayAll();
         provider.getSpaceContents(spaceId, prefix);
+
+        verifyTask(logCapture.getValue(),
+                   AuditTask.ActionType.GET_SPACE_CONTENTS.name());
     }
 
     @Test
-    public void testGetSpaceContentsChunked() {
+    public void testGetSpaceContentsChunked() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
         EasyMock.expect(
             targetProvider.getSpaceContentsChunked(spaceId, prefix,
                                                    maxResults, marker))
                 .andReturn(new ArrayList<String>());
         replayAll();
         provider.getSpaceContentsChunked(spaceId, prefix, maxResults, marker);
+
+        verifyTask(logCapture.getValue(),
+                   AuditTask.ActionType.GET_SPACE_CONTENTS_CHUNKED.name());
     }
 
     @Test
-    public void testGetSpaceProperties() {
+    public void testGetSpaceProperties() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
         EasyMock.expect(targetProvider.getSpaceProperties(spaceId))
                 .andReturn(new HashMap<String, String>());
         replayAll();
         provider.getSpaceProperties(spaceId);
+
+        verifyTask(logCapture.getValue(),
+                   AuditTask.ActionType.GET_SPACE_PROPERTIES.name());
     }
 
     @Test
-    public void testGetSpaceACLs() {
+    public void testGetSpaceACLs() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
         EasyMock.expect(targetProvider.getSpaceACLs(spaceId))
                 .andReturn(new HashMap<String, AclType>());
         replayAll();
         provider.getSpaceACLs(spaceId);
+
+        verifyTask(logCapture.getValue(),
+                   AuditTask.ActionType.GET_SPACE_ACLS.name());
     }
 
     @Test
-    public void testGetContent() {
+    public void testGetContent() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
         EasyMock.expect(targetProvider.getContent(spaceId, contentId))
                 .andReturn(null);
         replayAll();
         provider.getContent(spaceId, contentId);
+
+        Map<String, String> taskProps =
+            verifyTask(logCapture.getValue(),
+                       AuditTask.ActionType.GET_CONTENT.name());
+        assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
     }
 
     @Test
-    public void testGetContentProperties() {
+    public void testGetContentProperties() throws Exception {
+        Capture<Task> logCapture = mockReadLogCall();
+
         EasyMock.expect(targetProvider.getContentProperties(spaceId, contentId))
                 .andReturn(new HashMap<String, String>());
         replayAll();
         provider.getContentProperties(spaceId, contentId);
+
+        Map<String, String> taskProps =
+            verifyTask(logCapture.getValue(),
+                       AuditTask.ActionType.GET_CONTENT_PROPERTIES.name());
+        assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
     }
 
     // Test audit methods
 
-    private Capture<Task> mockAuditCall() throws Exception {
-        EasyMock.expect(userUtil.getCurrentUsername()).andReturn(user);
+    private Capture<Task> mockAuditCall() {
         Capture<Task> auditTaskCapture = new Capture<>();
         taskQueue.put(EasyMock.capture(auditTaskCapture));
         EasyMock.expectLastCall();
         return auditTaskCapture;
     }
 
-    private Map<String, String> verifyAuditTask(Task task, String action) {
+    private Capture<Task> mockReadLogCall() throws Exception {
+        EasyMock.expect(userUtil.getCurrentUsername()).andReturn(user);
+        Capture<Task> logCapture = new Capture<>();
+        readLogger.log(EasyMock.capture(logCapture));
+        EasyMock.expectLastCall();
+        return logCapture;
+    }
+
+    private Capture<Task> mockWriteLogCall() throws Exception {
+        EasyMock.expect(userUtil.getCurrentUsername()).andReturn(user);
+        Capture<Task> logCapture = new Capture<>();
+        writeLogger.log(EasyMock.capture(logCapture));
+        EasyMock.expectLastCall();
+        return logCapture;
+    }
+
+    private Map<String, String> verifyTaskSkipSpaceId(Task task, String action) {
         Map<String, String> taskProps = task.getProperties();
         assertEquals(Task.Type.AUDIT, task.getType());
         assertEquals(account, taskProps.get(AuditTask.ACCOUNT_PROP));
         assertEquals(storeId, taskProps.get(AuditTask.STORE_ID_PROP));
-        assertEquals(spaceId, taskProps.get(AuditTask.SPACE_ID_PROP));
         assertEquals(user, taskProps.get(AuditTask.USER_ID_PROP));
         assertNotNull(taskProps.get(AuditTask.DATE_TIME_PROP));
         assertEquals(action, taskProps.get(AuditTask.ACTION_PROP));
         return taskProps;
     }
 
+    private Map<String, String> verifyTask(Task task, String action) {
+        Map<String, String> taskProps = verifyTaskSkipSpaceId(task, action);
+        assertEquals(spaceId, taskProps.get(AuditTask.SPACE_ID_PROP));
+        return taskProps;
+    }
+
     @Test
     public void testCreateSpace() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Capture<Task> logCapture = mockWriteLogCall();
 
         targetProvider.createSpace(spaceId);
         EasyMock.expectLastCall();
         replayAll();
         provider.createSpace(spaceId);
 
-        verifyAuditTask(auditTaskCapture.getValue(),
-                        AuditTask.ActionType.CREATE_SPACE.name());
+        Task auditTask = auditTaskCapture.getValue();
+        assertEquals(auditTask, logCapture.getValue());
+        verifyTask(auditTask, AuditTask.ActionType.CREATE_SPACE.name());
     }
 
     @Test
     public void testDeleteSpace() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Capture<Task> logCapture = mockWriteLogCall();
 
         targetProvider.deleteSpace(spaceId);
         EasyMock.expectLastCall();
         replayAll();
         provider.deleteSpace(spaceId);
 
-        verifyAuditTask(auditTaskCapture.getValue(),
-                        AuditTask.ActionType.DELETE_SPACE.name());
+        Task auditTask = auditTaskCapture.getValue();
+        assertEquals(auditTask, logCapture.getValue());
+        verifyTask(auditTask, AuditTask.ActionType.DELETE_SPACE.name());
     }
 
     @Test
     public void testSetSpaceACLs() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Capture<Task> logCapture = mockWriteLogCall();
         Map<String, AclType> spaceAcls = new HashMap<>();
         spaceAcls.put(user, AclType.WRITE);
 
@@ -190,9 +261,10 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         replayAll();
         provider.setSpaceACLs(spaceId, spaceAcls);
 
+        Task auditTask = auditTaskCapture.getValue();
+        assertEquals(auditTask, logCapture.getValue());
         Map<String, String> taskProps =
-            verifyAuditTask(auditTaskCapture.getValue(),
-                            AuditTask.ActionType.SET_SPACE_ACLS.name());
+            verifyTask(auditTask, AuditTask.ActionType.SET_SPACE_ACLS.name());
         String spaceAclProp = taskProps.get(AuditTask.SPACE_ACLS_PROP);
         assertNotNull(spaceAclProp);
         assertTrue(spaceAclProp.contains(user));
@@ -202,6 +274,8 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     @Test
     public void testAddContent() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Capture<Task> logCapture = mockWriteLogCall();
+
         Map<String, String> contentProps = new HashMap<>();
         String propName = "prop-name";
         String propValue = "prop-value";
@@ -216,9 +290,10 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         provider.addContent(spaceId, contentId, contentMimeType, contentProps,
                             contentSize, contentChecksum, null);
 
+        Task auditTask = auditTaskCapture.getValue();
+        assertEquals(auditTask, logCapture.getValue());
         Map<String, String> taskProps =
-            verifyAuditTask(auditTaskCapture.getValue(),
-                            AuditTask.ActionType.ADD_CONTENT.name());
+            verifyTask(auditTask, AuditTask.ActionType.ADD_CONTENT.name());
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
         assertEquals(contentMimeType,
                      taskProps.get(AuditTask.CONTENT_MIMETYPE_PROP));
@@ -236,6 +311,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     @Test
     public void testCopyContent() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Capture<Task> logCapture = mockWriteLogCall();
 
         EasyMock.expect(
             targetProvider.copyContent(spaceId, contentId, spaceId, contentId))
@@ -243,30 +319,35 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         replayAll();
         provider.copyContent(spaceId, contentId, spaceId, contentId);
 
+        Task auditTask = auditTaskCapture.getValue();
+        assertEquals(auditTask, logCapture.getValue());
         Map<String, String> taskProps =
-            verifyAuditTask(auditTaskCapture.getValue(),
-                            AuditTask.ActionType.COPY_CONTENT.name());
+            verifyTask(auditTask, AuditTask.ActionType.COPY_CONTENT.name());
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
     }
 
     @Test
     public void testDeleteContent() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Capture<Task> logCapture = mockWriteLogCall();
 
         targetProvider.deleteContent(spaceId, contentId);
         EasyMock.expectLastCall();
         replayAll();
         provider.deleteContent(spaceId, contentId);
 
+        Task auditTask = auditTaskCapture.getValue();
+        assertEquals(auditTask, logCapture.getValue());
         Map<String, String> taskProps =
-            verifyAuditTask(auditTaskCapture.getValue(),
-                            AuditTask.ActionType.DELETE_CONTENT.name());
+            verifyTask(auditTask, AuditTask.ActionType.DELETE_CONTENT.name());
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
     }
 
     @Test
     public void testSetContentProperties() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
+        Capture<Task> logCapture = mockWriteLogCall();
+
         Map<String, String> contentProps = new HashMap<>();
         String propName = "prop-name";
         String propValue = "prop-value";
@@ -277,9 +358,11 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         replayAll();
         provider.setContentProperties(spaceId, contentId, contentProps);
 
+        Task auditTask = auditTaskCapture.getValue();
+        assertEquals(auditTask, logCapture.getValue());
         Map<String, String> taskProps =
-            verifyAuditTask(auditTaskCapture.getValue(),
-                            AuditTask.ActionType.SET_CONTENT_PROPERTIES.name());
+            verifyTask(auditTask,
+                       AuditTask.ActionType.SET_CONTENT_PROPERTIES.name());
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
         String contentPropsProp =
             taskProps.get(AuditTask.CONTENT_PROPERTIES_PROP);
