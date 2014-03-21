@@ -37,6 +37,7 @@ public class AuditTaskTest {
         String contentSize = "content-size";
         String contentProperties = "content-properties";
         String spaceAcls = "space-acls";
+        String storeType = "store-type";
 
         // Create initial AuditTask
         AuditTask auditTask = new AuditTask();
@@ -52,6 +53,7 @@ public class AuditTaskTest {
         auditTask.setContentSize(contentSize);
         auditTask.setContentProperties(contentProperties);
         auditTask.setSpaceACLs(spaceAcls);
+        auditTask.setStoreType(storeType);
 
         // Test writeTask
         Task task = auditTask.writeTask();
@@ -74,6 +76,7 @@ public class AuditTaskTest {
         assertEquals(contentProperties,
                      properties.get(AuditTask.CONTENT_PROPERTIES_PROP));
         assertEquals(spaceAcls, properties.get(AuditTask.SPACE_ACLS_PROP));
+        assertEquals(storeType, properties.get(AuditTask.STORE_TYPE_PROP));
 
         // Test readTask
         AuditTask readAuditTask = new AuditTask();
@@ -94,6 +97,7 @@ public class AuditTaskTest {
         assertEquals(auditTask.getContentProperties(),
                      readAuditTask.getContentProperties());
         assertEquals(auditTask.getSpaceACLs(), readAuditTask.getSpaceACLs());
+        assertEquals(auditTask.getStoreType(), readAuditTask.getStoreType());
     }
 
     @Test
@@ -114,6 +118,7 @@ public class AuditTaskTest {
         auditTask.setContentSize(AuditTask.NA);
         auditTask.setContentProperties(AuditTask.NA);
         auditTask.setSpaceACLs(AuditTask.NA);
+        auditTask.setStoreType(AuditTask.NA);
 
         verifyEmptyAuditTask(auditTask, action);
     }
@@ -142,6 +147,7 @@ public class AuditTaskTest {
         assertNull(readAuditTask.getContentSize());
         assertNull(readAuditTask.getContentProperties());
         assertNull(readAuditTask.getSpaceACLs());
+        assertNull(readAuditTask.getStoreType());
     }
 
     @Test

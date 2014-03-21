@@ -35,6 +35,7 @@ public class AuditStorageProvider implements StorageProvider {
     private StorageProvider target;
     private String account;
     private String storeId;
+    private String storeType;
     private UserUtil userUtil;
     private TaskQueue taskQueue;
     private ReadLogger readLogger;
@@ -43,11 +44,13 @@ public class AuditStorageProvider implements StorageProvider {
     public AuditStorageProvider(StorageProvider target,
                                 String account,
                                 String storeId,
+                                String storeType,
                                 UserUtil userUtil,
                                 TaskQueue taskQueue) {
         this.target = target;
         this.account = account;
         this.storeId = storeId;
+        this.storeType = storeType;
         this.userUtil = userUtil;
         this.taskQueue = taskQueue;
 
@@ -80,6 +83,7 @@ public class AuditStorageProvider implements StorageProvider {
         task.setDateTime(String.valueOf(System.currentTimeMillis()));
         task.setAccount(account);
         task.setStoreId(storeId);
+        task.setStoreType(storeType);
         task.setSpaceId(spaceId);
         task.setSpaceACLs(spaceACLs);
         task.setContentId(contentId);
@@ -105,6 +109,7 @@ public class AuditStorageProvider implements StorageProvider {
         task.setDateTime(String.valueOf(System.currentTimeMillis()));
         task.setAccount(account);
         task.setStoreId(storeId);
+        task.setStoreType(storeType);
         task.setSpaceId(spaceId);
         task.setContentId(contentId);
 

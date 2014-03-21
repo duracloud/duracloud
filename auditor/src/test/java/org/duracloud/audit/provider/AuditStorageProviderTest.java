@@ -55,6 +55,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     private WriteLogger writeLogger;
 
     private String storeId = "store-id";
+    private String storeType = "store-type";
     private String account = "account";
     private String spaceId = "space-id";
     private String prefix = "prefix";
@@ -69,7 +70,7 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     @Before
     public void setup() {
         provider = new AuditStorageProvider(targetProvider, account, storeId,
-                                            userUtil, taskQueue);
+                                            storeType, userUtil, taskQueue);
         provider.setLoggers(readLogger, writeLogger);
     }
 

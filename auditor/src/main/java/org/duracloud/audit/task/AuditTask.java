@@ -29,6 +29,7 @@ public class AuditTask extends TypedTask {
     public static final String CONTENT_SIZE_PROP = "content-size";
     public static final String CONTENT_PROPERTIES_PROP = "content-properties";
     public static final String SPACE_ACLS_PROP = "space-acls";
+    public static final String STORE_TYPE_PROP = "store-type";
 
     public enum ActionType {
         // Write actions
@@ -48,6 +49,7 @@ public class AuditTask extends TypedTask {
     private String contentSize;
     private String contentProperties;
     private String spaceACLs;
+    private String storeType;
 
     public String getAction() {
         return action;
@@ -115,6 +117,14 @@ public class AuditTask extends TypedTask {
         this.spaceACLs = spaceACLs;
     }
 
+    public String getStoreType() {
+        return storeType;
+    }
+
+    public void setStoreType(String storeType) {
+        this.storeType = storeType;
+    }
+
     @Override
     public void readTask(Task task) {
         super.readTask(task);
@@ -128,6 +138,7 @@ public class AuditTask extends TypedTask {
         setContentSize(props.get(CONTENT_SIZE_PROP));
         setContentProperties(props.get(CONTENT_PROPERTIES_PROP));
         setSpaceACLs(props.get(SPACE_ACLS_PROP));
+        setStoreType(props.get(STORE_TYPE_PROP));
     }
 
     @Override
@@ -142,6 +153,7 @@ public class AuditTask extends TypedTask {
         addProperty(task, CONTENT_SIZE_PROP, getContentSize());
         addProperty(task, CONTENT_PROPERTIES_PROP, getContentProperties());
         addProperty(task, SPACE_ACLS_PROP, getSpaceACLs());
+        addProperty(task, STORE_TYPE_PROP, getStoreType());
         return task;
     }
 

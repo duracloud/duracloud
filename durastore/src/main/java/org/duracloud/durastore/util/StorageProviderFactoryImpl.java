@@ -211,6 +211,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             new AuditStorageProvider(storageProvider,
                                      storageAccountManager.getAccountName(),
                                      storageAccountId,
+                                     type.getName(),
                                      userUtil,
                                      auditQueue);
         StorageProvider aclProvider = new ACLStorageProvider(auditProvider);
