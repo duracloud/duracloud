@@ -28,6 +28,7 @@ import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.Select;
+import com.amazonaws.util.json.JSONWriter;
 
 /**
  * A DynamoDB based implementation of the <code>AuditLogStore</code>.
@@ -57,12 +58,15 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                       String spaceId,
                       String contentId,
                       String contentMd5,
+                      String mimetype,
+                      String contentSize,
                       String user,
                       String action,
                       Map<String, String> properties,
                       Date timestamp) throws AuditLogWriteFailedException {
         checkInitialized();
         DynamoDBAuditLogItem item = null;
+        
         try {
             item =
                 new DynamoDBAuditLogItem(KeyUtil.calculateAuditLogHashKey(account,
@@ -76,10 +80,14 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                          spaceId,
                                          contentId,
                                          contentMd5,
+                                         mimetype,
+                                         contentSize,
                                          user,
                                          action,
+                                         properties,
                                          timestamp.getTime());
-
+            
+            
             mapper.save(item);
             log.debug("Item written:  Result: {}", item);
         } catch (AmazonClientException ex) {
@@ -103,9 +111,9 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                                      .withKeyConditions(keyConditions);
         request.setSelect(Select.ALL_PROJECTED_ATTRIBUTES);
         
-        return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<>(client,
+        return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<AuditLogItem>(client,
                                                                            request,
-                                                                           AuditLogItem.class));
+                                                                           DynamoDBAuditLogItem.class));
     }
     
     @Override

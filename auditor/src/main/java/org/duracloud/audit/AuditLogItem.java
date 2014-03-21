@@ -1,5 +1,7 @@
 package org.duracloud.audit;
 
+import java.util.Map;
+
 
 /**
  * An intereface defining a log item.
@@ -38,6 +40,21 @@ public interface AuditLogItem {
      */
     public String getContentMd5();
 
+    /**
+    * @return
+    */
+   public String getMimetype();
+
+   /*
+    * 
+    * @return
+    */
+   public String getContentSize();
+
+   /**
+    * @return
+    */
+   public Map<String,String> getProperties();
     /**
      * 
      * @return

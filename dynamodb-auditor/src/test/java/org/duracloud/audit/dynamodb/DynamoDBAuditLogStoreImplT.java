@@ -83,11 +83,14 @@ public class DynamoDBAuditLogStoreImplT {
                                     - (24 * 60 * 60 * 1000 * m));
                             String contentId = "content"+l;
                             Map<String,String> props = new HashMap<>();
+                            props.put("key", "value");
                             logStore.write(account,
                                            storeId,
                                            spaceId,
                                            contentId,
                                            contentId + "MD5",
+                                           "application/pdf",
+                                           "2000",
                                            "user",
                                            "action",
                                            props,
@@ -122,7 +125,7 @@ public class DynamoDBAuditLogStoreImplT {
         int expectedtotal = dates;
         
         while(it.hasNext()){
-            it.next();
+            verifyItem(it.next());
             count++;
         }
 
@@ -142,11 +145,15 @@ public class DynamoDBAuditLogStoreImplT {
         int expectedtotal = stores*content*dates;
         
         while(it.hasNext()){
-            it.next();
+            verifyItem(it.next());
             count++;
         }
 
         Assert.assertEquals(expectedtotal, count);
+    }
+
+    private void verifyItem(AuditLogItem item) {
+        Assert.assertNotNull(item.getProperties().get("key"));
     }
 
 }

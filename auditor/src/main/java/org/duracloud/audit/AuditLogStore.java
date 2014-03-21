@@ -25,6 +25,8 @@ public interface AuditLogStore {
      * @param spaceId
      * @param contentId
      * @param contentMd5
+     * @param mimetype
+     * @param contentSize
      * @param user
      * @param action
      * @param properties
@@ -36,6 +38,8 @@ public interface AuditLogStore {
                       String spaceId,
                       String contentId,
                       String contentMd5,
+                      String mimetype,
+                      String contentSize,
                       String user,
                       String action,
                       Map<String,String> properties,
