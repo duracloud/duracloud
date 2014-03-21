@@ -8,12 +8,14 @@
 package org.duracloud.audit.dynamodb;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.duracloud.audit.AuditLogItem;
 import org.duracloud.audit.AuditLogWriteFailedException;
-import org.duracloud.storage.aop.ContentMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,18 +82,16 @@ public class DynamoDBAuditLogStoreImplT {
                                 new Date(System.currentTimeMillis()
                                     - (24 * 60 * 60 * 1000 * m));
                             String contentId = "content"+l;
-                            AuditLogItem item =
-                                new AuditLogItem(KeyUtil.calculateAuditLogHashKey(account,storeId, spaceId, contentId),
-                                                 KeyUtil.calculateAccountSpaceIdHash(account, spaceId),
-                                                 account,
-                                                 storeId,
-                                                 spaceId,
-                                                 contentId,
-                                                 contentId + "md5",
-                                                 "dbernstein",
-                                                 ContentMessage.ACTION.INGEST.name(),
-                                                 timestamp.getTime());
-                            logStore.write(item);
+                            Map<String,String> props = new HashMap<>();
+                            logStore.write(account,
+                                           storeId,
+                                           spaceId,
+                                           contentId,
+                                           contentId + "MD5",
+                                           "user",
+                                           "action",
+                                           props,
+                                           timestamp);
                         }
                     }
                 }

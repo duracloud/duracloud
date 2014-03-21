@@ -23,9 +23,9 @@ public class DynamoDBIteratorSource<T> implements IteratorSource<T> {
     private AmazonDynamoDBClient client;
     private QueryRequest request;
     private DynamoDBMapper mapper;
-    private Class<T> clazz;
+    private Class<? extends T> clazz;
     
-    public DynamoDBIteratorSource(AmazonDynamoDBClient client, QueryRequest request, Class<T> clazz) {
+    public DynamoDBIteratorSource(AmazonDynamoDBClient client, QueryRequest request, Class<? extends T> clazz) {
         super();
         this.client = client;
         this.request = request;
@@ -40,7 +40,7 @@ public class DynamoDBIteratorSource<T> implements IteratorSource<T> {
         }
         QueryResult result = this.client.query(this.request);
         if(result.getCount() > 0){
-            List<T> list =  mapper.marshallIntoObjects(clazz, result.getItems());
+            List<? extends T> list =  mapper.marshallIntoObjects(clazz, result.getItems());
             
             Map<String,AttributeValue> lastEvaluatedKey = result.getLastEvaluatedKey();
             if(lastEvaluatedKey != null){
@@ -49,7 +49,7 @@ public class DynamoDBIteratorSource<T> implements IteratorSource<T> {
                 this.request = null;
             }
             
-            return list;
+            return (Collection<T>)list;
             
         }else{
             request = null;

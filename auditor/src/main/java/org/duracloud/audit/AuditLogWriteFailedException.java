@@ -1,6 +1,5 @@
 package org.duracloud.audit;
 
-import org.duracloud.audit.dynamodb.AuditLogItem;
 import org.duracloud.common.error.DuraCloudCheckedException;
 
 import com.amazonaws.AmazonClientException;

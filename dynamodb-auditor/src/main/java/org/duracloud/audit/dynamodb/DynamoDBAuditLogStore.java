@@ -7,10 +7,12 @@
  */
 package org.duracloud.audit.dynamodb;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.duracloud.audit.AuditLogItem;
 import org.duracloud.audit.AuditLogStore;
 import org.duracloud.audit.AuditLogWriteFailedException;
 import org.duracloud.common.collection.StreamingIterator;
@@ -50,14 +52,39 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
     }
 
     @Override
-    public void write(AuditLogItem logItem) throws AuditLogWriteFailedException {
+    public void write(String account,
+                      String storeId,
+                      String spaceId,
+                      String contentId,
+                      String contentMd5,
+                      String user,
+                      String action,
+                      Map<String, String> properties,
+                      Date timestamp) throws AuditLogWriteFailedException {
         checkInitialized();
+        DynamoDBAuditLogItem item = null;
         try {
-            mapper.save(logItem);
-            log.debug("Item written:  Result: {}", logItem);
+            item =
+                new DynamoDBAuditLogItem(KeyUtil.calculateAuditLogHashKey(account,
+                                                                          storeId,
+                                                                          spaceId,
+                                                                          contentId),
+                                         KeyUtil.calculateAccountSpaceIdHash(account,
+                                                                             spaceId),
+                                         account,
+                                         storeId,
+                                         spaceId,
+                                         contentId,
+                                         contentMd5,
+                                         user,
+                                         action,
+                                         timestamp.getTime());
+
+            mapper.save(item);
+            log.debug("Item written:  Result: {}", item);
         } catch (AmazonClientException ex) {
-            log.error("failed to write to db: {}", logItem);
-            throw new AuditLogWriteFailedException(ex, logItem);
+            log.error("failed to write to db: {}", item);
+            throw new AuditLogWriteFailedException(ex, item);
         }
     }
 
@@ -66,13 +93,13 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                               String spaceId) {
         checkInitialized();
         Map<String, Condition> keyConditions = new HashMap<>();
-        keyConditions.put(AuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
+        keyConditions.put(DynamoDBAuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
                        new Condition().withComparisonOperator(ComparisonOperator.EQ)
                                       .withAttributeValueList(new AttributeValue(KeyUtil.calculateAccountSpaceIdHash(account,
                                                                                                                      spaceId))));
 
         QueryRequest request =
-            new QueryRequest(AuditLogItem.TABLE_NAME).withIndexName(AuditLogItem.ACCOUNT_SPACE_ID_INDEX)
+            new QueryRequest(DynamoDBAuditLogItem.TABLE_NAME).withIndexName(DynamoDBAuditLogItem.ACCOUNT_SPACE_ID_INDEX)
                                                      .withKeyConditions(keyConditions);
         request.setSelect(Select.ALL_PROJECTED_ATTRIBUTES);
         
@@ -88,17 +115,17 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                               String contentId) {
         checkInitialized();
         Map<String, Condition> keyConditions = new HashMap<>();
-        keyConditions.put(AuditLogItem.ID_ATTRIBUTE,
+        keyConditions.put(DynamoDBAuditLogItem.ID_ATTRIBUTE,
                        new Condition().withComparisonOperator(ComparisonOperator.EQ)
                                       .withAttributeValueList(new AttributeValue(KeyUtil.calculateAuditLogHashKey(account, storeId, spaceId,  contentId))));
 
         QueryRequest request =
-            new QueryRequest(AuditLogItem.TABLE_NAME).withKeyConditions(keyConditions);
+            new QueryRequest(DynamoDBAuditLogItem.TABLE_NAME).withKeyConditions(keyConditions);
         request.setSelect(Select.ALL_ATTRIBUTES);
         
-        return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<>(client,
+        return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<AuditLogItem>(client,
                                                                            request,
-                                                                           AuditLogItem.class));
+                                                                           DynamoDBAuditLogItem.class));
     }
 
     private void checkInitialized() {

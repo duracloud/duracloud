@@ -1,5 +1,7 @@
 package org.duracloud.audit.dynamodb;
 
+import org.duracloud.audit.AuditLogItem;
+
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
@@ -11,8 +13,8 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
  * @author Daniel Bernstein
  * 
  */
-@DynamoDBTable(tableName = AuditLogItem.TABLE_NAME)
-public class AuditLogItem {
+@DynamoDBTable(tableName = DynamoDBAuditLogItem.TABLE_NAME)
+public class DynamoDBAuditLogItem implements AuditLogItem {
     public static final String STORE_ID_ATTRIBUTE = "StoreId";
     public static final String CONTENT_ID_ATTRIBUTE = "ContentId";
     public static final String TABLE_NAME = "AuditLog";
@@ -30,7 +32,7 @@ public class AuditLogItem {
 
     private Long timestamp;
 
-    public AuditLogItem( String id, 
+    public DynamoDBAuditLogItem( String id, 
                             String accountSpaceIdHash,
                             String account, 
                             String storeId, 
@@ -52,7 +54,7 @@ public class AuditLogItem {
         setTimestamp(timestamp);
     }
 
-    public AuditLogItem() {
+    public DynamoDBAuditLogItem() {
     }
 
     @DynamoDBHashKey(attributeName = ID_ATTRIBUTE)
@@ -68,37 +70,43 @@ public class AuditLogItem {
 
 
     @DynamoDBAttribute(attributeName = ACCOUNT_ATTRIBUTE)
+    @Override
     public String getAccount() {
         return this.account;
     }
 
     @DynamoDBAttribute(attributeName = STORE_ID_ATTRIBUTE)
+    @Override
     public String getStoreId() {
         return this.storeId;
     }
 
     @DynamoDBAttribute(attributeName = SPACE_ID_ATTRIBUTE)
+    @Override
     public String getSpaceId() {
         return this.spaceId;
     }
 
     @DynamoDBAttribute(attributeName = CONTENT_ID_ATTRIBUTE)
+    @Override
     public String getContentId() {
         return contentId;
     }
 
     @DynamoDBAttribute(attributeName = "ContentMd5")
+    @Override
     public String getContentMd5() {
         return contentMd5;
     }
 
     @DynamoDBAttribute(attributeName = "Action")
+    @Override
     public String getAction() {
         return action;
     }
 
-
     @DynamoDBAttribute(attributeName = "Username")
+    @Override
     public String getUsername() {
         return this.username;
     }

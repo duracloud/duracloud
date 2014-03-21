@@ -7,9 +7,9 @@
  */
 package org.duracloud.audit;
 
+import java.util.Date;
 import java.util.Iterator;
-
-import org.duracloud.audit.dynamodb.AuditLogItem;
+import java.util.Map;
 
 /**
  * This interface defines the contract for reading and writing audit logs.
@@ -20,10 +20,26 @@ public interface AuditLogStore {
 
     /**
      * This method writes the logItem to the audit log.
-     * @param logItem to be logged
+     * @param account
+     * @param storeId
+     * @param spaceId
+     * @param contentId
+     * @param contentMd5
+     * @param user
+     * @param action
+     * @param properties
+     * @param timestamp
      * @throws AuditLogWriteFailedException
      */
-    public void write(AuditLogItem logItem) throws AuditLogWriteFailedException;
+    public void write(String account,
+                      String storeId,
+                      String spaceId,
+                      String contentId,
+                      String contentMd5,
+                      String user,
+                      String action,
+                      Map<String,String> properties,
+                      Date timestamp) throws AuditLogWriteFailedException;
     
     /**
      * Returns a list of matching log events for the specified space across providers

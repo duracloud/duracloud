@@ -93,6 +93,7 @@
         <module>executor</module>
         <module>executorclient</module>
         <module>auditor</module>
+        <module>dynamodb-auditor</module>
         <module>auditlogtool</module>
         <module>manifest</module>
         <module>manifestclient</module>

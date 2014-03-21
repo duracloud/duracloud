@@ -35,23 +35,23 @@ public class DatabaseUtil {
         try {
 
             DeleteTableRequest request =
-                new DeleteTableRequest().withTableName(AuditLogItem.TABLE_NAME);
+                new DeleteTableRequest().withTableName(DynamoDBAuditLogItem.TABLE_NAME);
 
             DeleteTableResult result = client.deleteTable(request);
 
             log.info(result.toString());
         } catch (AmazonServiceException ase) {
             System.err.println("Failed to delete table "
-                + AuditLogItem.TABLE_NAME + " " + ase);
+                + DynamoDBAuditLogItem.TABLE_NAME + " " + ase);
         }
     }
 
     public static void create(AmazonDynamoDBClient client) {
-        String tableName = AuditLogItem.TABLE_NAME;
+        String tableName = DynamoDBAuditLogItem.TABLE_NAME;
 
         try {
-            String hashKeyName = AuditLogItem.ID_ATTRIBUTE;
-            String rangeKeyName = AuditLogItem.TIMESTAMP_ATTRIBUTE;
+            String hashKeyName = DynamoDBAuditLogItem.ID_ATTRIBUTE;
+            String rangeKeyName = DynamoDBAuditLogItem.TIMESTAMP_ATTRIBUTE;
             long readCapacityUnits = 10;
             long writeCapacityUnits = 5;
             log.info("Creating table " + tableName);
@@ -83,14 +83,14 @@ public class DatabaseUtil {
             ArrayList<GlobalSecondaryIndex> globalSecondaryIndexes =
                 new ArrayList<GlobalSecondaryIndex>();
 
-            attributeDefinitions.add(new AttributeDefinition().withAttributeName(AuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE)
+            attributeDefinitions.add(new AttributeDefinition().withAttributeName(DynamoDBAuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE)
                                                               .withAttributeType(STRING_ATTRIBUTE_TYPE));
 
             request.setAttributeDefinitions(attributeDefinitions);
 
-            addGlobalSecondaryIndex(AuditLogItem.ACCOUNT_SPACE_ID_INDEX,
-                                    AuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
-                                    AuditLogItem.TIMESTAMP_ATTRIBUTE,
+            addGlobalSecondaryIndex(DynamoDBAuditLogItem.ACCOUNT_SPACE_ID_INDEX,
+                                    DynamoDBAuditLogItem.ACCOUNT_SPACE_ID_HASH_ATTRIBUTE,
+                                    DynamoDBAuditLogItem.TIMESTAMP_ATTRIBUTE,
                                     provisionedthroughput,
                                     globalSecondaryIndexes);
 
