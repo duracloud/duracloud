@@ -74,6 +74,11 @@ public class SQSTaskQueue implements TaskQueue {
         this.queueUrl = getQueueUrl();
         this.visibilityTimeout = getVisibilityTimeout();
     }
+    
+    @Override
+    public String getName() {
+        return this.queueName;
+    }
 
     protected Task marshallTask(Message msg) {
         Properties props = new Properties();

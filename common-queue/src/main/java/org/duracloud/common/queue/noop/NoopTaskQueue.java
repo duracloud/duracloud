@@ -34,6 +34,11 @@ public class NoopTaskQueue implements TaskQueue {
     }
 
     @Override
+    public String getName() {
+        return "noop";
+    }
+    
+    @Override
     public void put(Task task) {
     }
 

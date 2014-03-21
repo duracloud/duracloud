@@ -19,6 +19,12 @@ import java.util.Set;
 public interface TaskQueue {
 
     /**
+     * A name identifying the queue used for logging and analysis purposes.
+     * @return
+     */
+    public String getName();
+    
+    /**
      * puts a task on the queue
      * 
      * @param task

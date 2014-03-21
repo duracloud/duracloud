@@ -34,9 +34,16 @@ public class LocalTaskQueue implements TaskQueue {
     private Logger log = LoggerFactory.getLogger(LocalTaskQueue.class);
     private List<Task> inprocess; 
     private long completedCount = 0;
+    private String name = "local-task-queue-" + System.currentTimeMillis();
     /**
      * 
      */
+    
+    @Override
+    public String getName() {
+      return this.name;
+    }
+    
     public LocalTaskQueue() {
         queue = new LinkedBlockingQueue<>();
         inprocess = new LinkedList<>();
