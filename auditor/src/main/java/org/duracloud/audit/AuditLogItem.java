@@ -1,6 +1,5 @@
 package org.duracloud.audit;
 
-import java.util.Map;
 
 
 /**
@@ -52,10 +51,18 @@ public interface AuditLogItem {
    public String getContentSize();
 
    /**
+    * 
     * @return
     */
-   public Map<String,String> getProperties();
-    /**
+   public String getContentProperties();
+
+   /**
+    * 
+    * @return
+    */
+   public String getSpaceAcls();
+   
+   /**
      * 
      * @return
      */

@@ -1,6 +1,7 @@
 package org.duracloud.audit.dynamodb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +95,12 @@ public class DatabaseUtil {
                                     provisionedthroughput,
                                     globalSecondaryIndexes);
 
+            addGlobalSecondaryIndex(DynamoDBAuditLogItem.ID_TIMESTAMP_INDEX,
+                                    DynamoDBAuditLogItem.ID_ATTRIBUTE,
+                                    DynamoDBAuditLogItem.TIMESTAMP_ATTRIBUTE,
+                                    provisionedthroughput,
+                                    globalSecondaryIndexes);
+
 
             request.setGlobalSecondaryIndexes(globalSecondaryIndexes);
 
@@ -115,7 +122,8 @@ public class DatabaseUtil {
         GlobalSecondaryIndex gsi =
             new GlobalSecondaryIndex().withIndexName(indexName)
                                       .withProvisionedThroughput(provisionedthroughput)
-                                      .withProjection(new Projection().withProjectionType(ProjectionType.ALL))
+                                      .withProjection(new Projection().withProjectionType(ProjectionType.INCLUDE)
+                                                                      .withNonKeyAttributes(Arrays.asList(DynamoDBAuditLogItem.PROJECTED_ATTRIBUTES)))
                                       .withKeySchema(new KeySchemaElement(hashKey,
                                                                           KeyType.HASH),
                                                      new KeySchemaElement(rangeKey,

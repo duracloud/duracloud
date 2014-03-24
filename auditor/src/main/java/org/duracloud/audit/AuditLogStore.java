@@ -30,6 +30,7 @@ public interface AuditLogStore {
      * @param user
      * @param action
      * @param properties
+     * @param spaceAcls
      * @param timestamp
      * @throws AuditLogWriteFailedException
      */
@@ -42,7 +43,8 @@ public interface AuditLogStore {
                       String contentSize,
                       String user,
                       String action,
-                      Map<String,String> properties,
+                      String properties,
+                      String spaceAcls,
                       Date timestamp) throws AuditLogWriteFailedException;
     
     /**

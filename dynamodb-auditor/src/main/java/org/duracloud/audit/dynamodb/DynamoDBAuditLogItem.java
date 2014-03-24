@@ -25,22 +25,41 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
  */
 @DynamoDBTable(tableName = DynamoDBAuditLogItem.TABLE_NAME)
 public class DynamoDBAuditLogItem implements AuditLogItem {
-    public static final String STORE_ID_ATTRIBUTE = "StoreId";
-    public static final String CONTENT_ID_ATTRIBUTE = "ContentId";
-    public static final String TABLE_NAME = "AuditLog";
-    public static final String ACCOUNT_SPACE_ID_INDEX = "AccountSpaceIdIndex";
-    
-    public static final String ID_ATTRIBUTE = "ItemId";
     public static final String ACCOUNT_ATTRIBUTE = "Account";
+    public static final String STORE_ID_ATTRIBUTE = "StoreId";
+    public static final String SPACE_ID_ATTRIBUTE = "SpaceId";
+    public static final String CONTENT_ID_ATTRIBUTE = "ContentId";
+    private static final String CONTENT_MD5_ATTRIBUTE = "ContentMd5";
     public static final String MIMETYPE_ATTRIBUTE = "Mimetype";
     public static final String CONTENT_SIZE_ATTRIBUTE = "ContentSize";
+    private static final String USERNAME_ATTRIBUTE = "Username";
+    private static final String ACTION_ATTRIBUTE = "Action";
+    public static final String CONTENT_PROPERTIES_ATTRIBUTE = "ContentProperties";
+    private static final String SPACE_ACLS_PROPERTY_ATTRIBUTE = "SpaceACLs";
 
-    public static final String SPACE_ID_ATTRIBUTE = "SpaceId";
+    public static final String ID_ATTRIBUTE = "ItemId";
+    public static final String TIMESTAMP_ATTRIBUTE = "TimeStamp";
     public static final String ACCOUNT_SPACE_ID_HASH_ATTRIBUTE =
         "AccountSpaceIdHash";
-    public static final String TIMESTAMP_ATTRIBUTE = "TimeStamp";
-    public static final String PROPERTIES_ATTRIBUTE = "Properties";
 
+    
+    public static final String TABLE_NAME = "AuditLog";
+    public static final String ACCOUNT_SPACE_ID_INDEX = "AccountSpaceIdIndex";
+    public static final String ID_TIMESTAMP_INDEX = "IdTimeStamp";
+    
+    
+    public static String[] PROJECTED_ATTRIBUTES = {
+        ACCOUNT_ATTRIBUTE,
+        STORE_ID_ATTRIBUTE,
+        SPACE_ID_ATTRIBUTE,
+        CONTENT_ID_ATTRIBUTE,
+        CONTENT_MD5_ATTRIBUTE,
+        MIMETYPE_ATTRIBUTE,
+        CONTENT_SIZE_ATTRIBUTE,
+        USERNAME_ATTRIBUTE, 
+        ACTION_ATTRIBUTE
+    };
+    
     private String id;
     private String accountSpaceIdHash;
     private String account;
@@ -52,8 +71,8 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
     private String action;
     private String mimetype;
     private String contentSize;
-    private String propertiesStr; //a json string representation of a Map<String,String>.
-    
+    private String contentProperties; 
+    private String spaceAcls;
     private Long timestamp;
 
     public DynamoDBAuditLogItem( String id, 
@@ -67,7 +86,8 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
                             String contentSize, 
                             String username, 
                             String action, 
-                            Map<String,String> properties,
+                            String contentProperties,
+                            String spaceAcls,
                             long timestamp) {
         setId(id);
         setAccountSpaceIdHash(accountSpaceIdHash);
@@ -80,7 +100,7 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
         setContentSize(contentSize);
         setUsername(username);
         setAction(action);
-        setProperties(properties);
+        setContentProperties(contentProperties);
         setTimestamp(timestamp);
     }
 
@@ -123,7 +143,7 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
         return contentId;
     }
 
-    @DynamoDBAttribute(attributeName = "ContentMd5")
+    @DynamoDBAttribute(attributeName = CONTENT_MD5_ATTRIBUTE)
     @Override
     public String getContentMd5() {
         return contentMd5;
@@ -141,48 +161,30 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
         return this.mimetype;
     }
 
-    @DynamoDBAttribute(attributeName = "Action")
+    @DynamoDBAttribute(attributeName = ACTION_ATTRIBUTE)
     @Override
     public String getAction() {
         return action;
     }
 
-    @DynamoDBAttribute(attributeName = "Username")
+    @DynamoDBAttribute(attributeName = USERNAME_ATTRIBUTE)
     @Override
     public String getUsername() {
         return this.username;
     }
 
-    @DynamoDBAttribute(attributeName = PROPERTIES_ATTRIBUTE)
-    public String getPropertiesStr() {
-        return propertiesStr;
+    @DynamoDBAttribute(attributeName = CONTENT_PROPERTIES_ATTRIBUTE)
+    public String getContentProperties() {
+        return contentProperties;
     }
 
-    @DynamoDBIgnore
-    @Override
-    public Map<String, String> getProperties() {
-        return convertProperties(this.propertiesStr);
-    }
-    
-    private Map<String, String> convertProperties(String properties) {
-        Map<String, String> result = null;
-        if(properties != null){
-            try {
-                result = new ObjectMapper().readValue(properties,
-                                                 HashMap.class);
-            } catch (Exception e) {
-                throw new DuraCloudRuntimeException(e.getMessage(),e);
-            }        
-        }
-        return result;
+    @DynamoDBAttribute(attributeName = SPACE_ACLS_PROPERTY_ATTRIBUTE)
+    public String getSpaceAcls() {
+        return spaceAcls;
     }
 
-    public void setProperties(Map<String,String> properties){
-        try {
-            this.propertiesStr = new ObjectMapper().writeValueAsString(properties);
-        } catch (Exception e) {
-            throw new DuraCloudRuntimeException(e.getMessage(),e);
-        }
+    public void setContentProperties(String contentProperties) {
+        this.contentProperties = contentProperties;
     }
     
     @DynamoDBIndexHashKey(globalSecondaryIndexName = ACCOUNT_SPACE_ID_INDEX, attributeName = ACCOUNT_SPACE_ID_HASH_ATTRIBUTE)
@@ -239,10 +241,4 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
         this.contentSize = contentSize;
     }
 
-
-    public void setPropertiesStr(String propertiesStr) {
-        //verifies that properties are valid json.
-        convertProperties(propertiesStr);
-        this.propertiesStr = propertiesStr;
-    }
 }

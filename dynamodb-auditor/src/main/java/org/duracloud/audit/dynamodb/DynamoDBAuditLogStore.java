@@ -28,7 +28,6 @@ import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.Select;
-import com.amazonaws.util.json.JSONWriter;
 
 /**
  * A DynamoDB based implementation of the <code>AuditLogStore</code>.
@@ -62,7 +61,8 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                       String contentSize,
                       String user,
                       String action,
-                      Map<String, String> properties,
+                      String contentProperties,
+                      String spaceAcls,
                       Date timestamp) throws AuditLogWriteFailedException {
         checkInitialized();
         DynamoDBAuditLogItem item = null;
@@ -84,7 +84,8 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                          contentSize,
                                          user,
                                          action,
-                                         properties,
+                                         contentProperties,
+                                         spaceAcls,
                                          timestamp.getTime());
             
             
@@ -107,8 +108,9 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                                                                                                      spaceId))));
 
         QueryRequest request =
-            new QueryRequest(DynamoDBAuditLogItem.TABLE_NAME).withIndexName(DynamoDBAuditLogItem.ACCOUNT_SPACE_ID_INDEX)
-                                                     .withKeyConditions(keyConditions);
+            new QueryRequest(DynamoDBAuditLogItem.TABLE_NAME)
+                .withIndexName(DynamoDBAuditLogItem.ACCOUNT_SPACE_ID_INDEX)
+                .withKeyConditions(keyConditions);
         request.setSelect(Select.ALL_PROJECTED_ATTRIBUTES);
         
         return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<AuditLogItem>(client,
@@ -128,9 +130,10 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                       .withAttributeValueList(new AttributeValue(KeyUtil.calculateAuditLogHashKey(account, storeId, spaceId,  contentId))));
 
         QueryRequest request =
-            new QueryRequest(DynamoDBAuditLogItem.TABLE_NAME).withKeyConditions(keyConditions);
-        request.setSelect(Select.ALL_ATTRIBUTES);
-        
+            new QueryRequest(DynamoDBAuditLogItem.TABLE_NAME)
+                    .withKeyConditions(keyConditions)
+                    .withIndexName(DynamoDBAuditLogItem.ID_TIMESTAMP_INDEX);
+        request.setSelect(Select.ALL_PROJECTED_ATTRIBUTES);
         return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<AuditLogItem>(client,
                                                                            request,
                                                                            DynamoDBAuditLogItem.class));

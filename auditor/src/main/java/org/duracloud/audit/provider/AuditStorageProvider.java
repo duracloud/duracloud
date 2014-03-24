@@ -75,7 +75,7 @@ public class AuditStorageProvider implements StorageProvider {
                                  String contentChecksum,
                                  String contentMimetype,
                                  String contentSize,
-                                 String contentProperties,
+                                 Map<String,String> contentProperties,
                                  String spaceACLs) {
         AuditTask task = new AuditTask();
         task.setAction(action);
@@ -224,8 +224,14 @@ public class AuditStorageProvider implements StorageProvider {
         target.setSpaceACLs(spaceId, spaceACLs);
 
         String action = AuditTask.ActionType.SET_SPACE_ACLS.name();
-        submitWriteTask(action, spaceId, AuditTask.NA, AuditTask.NA,
-                        AuditTask.NA, AuditTask.NA, null, spaceACLs.toString());
+        submitWriteTask(action,
+                        spaceId,
+                        AuditTask.NA,
+                        AuditTask.NA,
+                        AuditTask.NA,
+                        AuditTask.NA,
+                        null,
+                        spaceACLs == null ? null : spaceACLs.toString());
     }
     
     @Override
@@ -243,7 +249,7 @@ public class AuditStorageProvider implements StorageProvider {
         String action = AuditTask.ActionType.ADD_CONTENT.name();
         submitWriteTask(action, spaceId, contentId, contentChecksum,
                         contentMimeType, String.valueOf(contentSize),
-                        userProperties.toString(), null);
+                        userProperties, null);
         return contentChecksum;
     }
 
@@ -276,7 +282,7 @@ public class AuditStorageProvider implements StorageProvider {
 
         String action = AuditTask.ActionType.SET_CONTENT_PROPERTIES.name();
         submitWriteTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
-                        AuditTask.NA, contentProperties.toString(), null);
+                        AuditTask.NA, contentProperties, null);
     }
 
 }

@@ -33,7 +33,7 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>duraboss-api</artifactId>
+      <artifactId>common-json</artifactId>
       <version>${project.version}</version>
     </dependency>
 

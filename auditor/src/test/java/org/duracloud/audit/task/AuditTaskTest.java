@@ -7,15 +7,17 @@
  */
 package org.duracloud.audit.task;
 
-import org.duracloud.common.queue.task.Task;
-import org.junit.Test;
-
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.duracloud.common.model.AclType;
+import org.duracloud.common.queue.task.Task;
+import org.junit.Test;
 
 /**
  * @author Bill Branan
@@ -35,7 +37,7 @@ public class AuditTaskTest {
         String contentChecksum = "content-checksum";
         String contentMimetype = "content-mimetype";
         String contentSize = "content-size";
-        String contentProperties = "content-properties";
+        Map<String,String> contentProperties = new HashMap<>();
         String spaceAcls = "space-acls";
         String storeType = "store-type";
 
@@ -74,7 +76,8 @@ public class AuditTaskTest {
         assertEquals(contentSize,
                      properties.get(AuditTask.CONTENT_SIZE_PROP));
         assertEquals(contentProperties,
-                     properties.get(AuditTask.CONTENT_PROPERTIES_PROP));
+                     AuditTask.deserializeContentProperties(
+                                           properties.get(AuditTask.CONTENT_PROPERTIES_PROP)));
         assertEquals(spaceAcls, properties.get(AuditTask.SPACE_ACLS_PROP));
         assertEquals(storeType, properties.get(AuditTask.STORE_TYPE_PROP));
 
@@ -116,8 +119,8 @@ public class AuditTaskTest {
         auditTask.setContentChecksum(AuditTask.NA);
         auditTask.setContentMimetype(AuditTask.NA);
         auditTask.setContentSize(AuditTask.NA);
-        auditTask.setContentProperties(AuditTask.NA);
-        auditTask.setSpaceACLs(AuditTask.NA);
+        auditTask.setContentProperties(null);
+        auditTask.setSpaceACLs(null);
         auditTask.setStoreType(AuditTask.NA);
 
         verifyEmptyAuditTask(auditTask, action);

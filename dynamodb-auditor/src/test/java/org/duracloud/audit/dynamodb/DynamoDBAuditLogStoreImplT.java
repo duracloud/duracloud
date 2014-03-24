@@ -82,8 +82,6 @@ public class DynamoDBAuditLogStoreImplT {
                                 new Date(System.currentTimeMillis()
                                     - (24 * 60 * 60 * 1000 * m));
                             String contentId = "content"+l;
-                            Map<String,String> props = new HashMap<>();
-                            props.put("key", "value");
                             logStore.write(account,
                                            storeId,
                                            spaceId,
@@ -93,7 +91,8 @@ public class DynamoDBAuditLogStoreImplT {
                                            "2000",
                                            "user",
                                            "action",
-                                           props,
+                                           "props",
+                                           "acls",
                                            timestamp);
                         }
                     }
@@ -153,7 +152,16 @@ public class DynamoDBAuditLogStoreImplT {
     }
 
     private void verifyItem(AuditLogItem item) {
-        Assert.assertNotNull(item.getProperties().get("key"));
+        Assert.assertNotNull(item.getAccount());
+        Assert.assertNotNull(item.getStoreId());
+        Assert.assertNotNull(item.getSpaceId());
+        Assert.assertNotNull(item.getContentId());
+        Assert.assertNotNull(item.getContentMd5());
+        Assert.assertNotNull(item.getMimetype());
+        Assert.assertNotNull(item.getContentSize());
+        Assert.assertNotNull(item.getContentProperties());
+        Assert.assertNotNull(item.getSpaceAcls());
+
     }
 
 }
