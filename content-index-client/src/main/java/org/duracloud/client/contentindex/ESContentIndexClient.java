@@ -16,6 +16,7 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.GetQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -23,12 +24,14 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.duracloud.client.contentindex.ContentIndexItem.ID_SEPARATOR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryString;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
 /**
  * @author Erik Paulsson
  *         Date: 3/11/14
@@ -39,7 +42,8 @@ public class ESContentIndexClient implements ContentIndexClient {
         .getLogger(ESContentIndexClient.class);
 
     public static final String SHARED_INDEX = "dc_multi";
-    public static final String TYPE = "content";
+    public static final String TYPE_ACCOUNT = "account";
+    public static final String TYPE_CONTENT = "content";
 
     private ElasticsearchOperations elasticSearchOps;
     private Client client;
@@ -51,60 +55,87 @@ public class ESContentIndexClient implements ContentIndexClient {
     }
 
     @Override
-    public List<ContentIndexItem> getSpaceContents(String account, int storeId,
+    public Collection<String> getSpaces(String account, String storeId) {
+        GetQuery q = new GetQuery();
+        q.setId(account);
+        AccountIndexItem item = elasticSearchOps
+            .queryForObject(q, AccountIndexItem.class);
+        return item.getStoreSpaces().get(storeId);
+    }
+
+    @Override
+    public String save(AccountIndexItem item) {
+        IndexQuery indexQuery = createIndexQuery(item);
+        String id = elasticSearchOps.index(indexQuery);
+
+        // refresh the index, to make this item searchable right away, GET by
+        // ID does not require a refresh.  Automatic refreshes are done periodically.
+        // @See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-refresh.html
+        elasticSearchOps.refresh(AccountIndexItem.class, true);
+
+        return id;
+    }
+
+    private IndexQuery createIndexQuery(AccountIndexItem item) {
+        IndexQuery indexQuery = new IndexQuery();
+        indexQuery.setType(TYPE_ACCOUNT);
+        indexQuery.setId(item.getId());
+        indexQuery.setObject(item);
+        return indexQuery;
+    }
+
+    @Override
+    public List<ContentIndexItem> getSpaceContents(String account,
+                                                   String storeId,
                                                    String space) {
         SearchQuery searchQuery = getSortedQueryForSpace(account, storeId,
                                                          space);
-        List<ContentIndexItem> items = elasticSearchOps.queryForList(
-            searchQuery, ContentIndexItem.class);
+        List<ContentIndexItem> items = elasticSearchOps
+            .queryForList(searchQuery, ContentIndexItem.class);
         return items;
     }
 
     @Override
     public List<ContentIndexItem> getSpaceContentIds(String account,
-                                                     int storeId,
+                                                     String storeId,
                                                      String space) {
         SearchQuery searchQuery = getSortedQueryForSpace(account, storeId,
                                                          space);
         searchQuery.addFields("contentId");
-        List<ContentIndexItem> items = elasticSearchOps.queryForList(
-            searchQuery, ContentIndexItem.class);
+        List<ContentIndexItem> items = elasticSearchOps
+            .queryForList(searchQuery, ContentIndexItem.class);
         return items;
     }
 
     @Override
-    public Long getSpaceCount(String account, int storeId, String space) {
+    public Long getSpaceCount(String account, String storeId, String space) {
         SearchQuery searchQuery = getQueryForSpace(account, storeId, space);
-        Long count = elasticSearchOps.count(searchQuery, ContentIndexItem.class);
+        Long count = elasticSearchOps
+            .count(searchQuery, ContentIndexItem.class);
         return count;
     }
 
-    protected SearchQuery getSortedQueryForSpace(String account,
-                                                 int storeId,
+    protected SearchQuery getSortedQueryForSpace(String account, String storeId,
                                                  String space) {
         SearchQuery searchQuery = getQueryForSpace(account, storeId, space);
-        //searchQuery.addSort(new Sort(Sort.Direction.ASC, "contentId"));
-        //searchQuery.addSort((new Sort(new Sort.Order(Sort.Direction.ASC, "contentId"))));
+        searchQuery.addSort(new Sort(Sort.Direction.ASC, "contentId"));
         return searchQuery;
     }
 
-    protected SearchQuery getQueryForSpace(String account,
-                                           int storeId,
+    protected SearchQuery getQueryForSpace(String account, String storeId,
                                            String space) {
         QueryBuilder queryBuilder = boolQuery()
             .must(termQuery("storeId", storeId))
             .must(termQuery("space", space));
         SearchQuery searchQuery = new NativeSearchQueryBuilder()
-            .withQuery(queryBuilder)
-            .withTypes(TYPE)
-            .withSort(new FieldSortBuilder("contentId").ignoreUnmapped(true).order(SortOrder.ASC))
-            .build();
+            .withQuery(queryBuilder).withTypes(TYPE_CONTENT).build();
         searchQuery.addIndices(account);
         return searchQuery;
     }
 
     /**
      * Search all field values for the provided 'text'
+     *
      * @param text
      * @param account
      * @param storeId
@@ -112,54 +143,53 @@ public class ESContentIndexClient implements ContentIndexClient {
      * @return
      */
     @Override
-    public List<ContentIndexItem> get(String text, String account,
-                                      Integer storeId, String space) {
+    public List<ContentIndexItem> getItemWithValue(String text, String account,
+                                                   String storeId,
+                                                   String space) {
         //FilterBuilders.
         TermFilterBuilder storeIdFilter = null;
         TermFilterBuilder spaceFilter = null;
 
         NativeSearchQueryBuilder nsqBuilder = new NativeSearchQueryBuilder()
-            .withQuery(simpleQueryString(text))
-            .withTypes(TYPE);
-        if(account != null) {
+            .withQuery(simpleQueryString(text)).withTypes(TYPE_CONTENT);
+        if (account != null) {
             nsqBuilder.withIndices(account);
-            if(storeId != null) {
+            if (storeId != null) {
                 storeIdFilter = FilterBuilders.termFilter("storeId", storeId);
             }
         }
 
-        if(space != null) {
+        if (space != null) {
             spaceFilter = FilterBuilders.termFilter("space", space);
         }
 
-        if(storeIdFilter != null && spaceFilter != null) {
+        if (storeIdFilter != null && spaceFilter != null) {
             nsqBuilder.withFilter(
                 FilterBuilders.andFilter(storeIdFilter, spaceFilter));
 
         } else {
-            if(storeIdFilter != null) {
+            if (storeIdFilter != null) {
                 nsqBuilder.withFilter(storeIdFilter);
-            } else if(spaceFilter != null) {
+            } else if (spaceFilter != null) {
                 nsqBuilder.withFilter(spaceFilter);
             }
         }
 
-        List<ContentIndexItem> items = elasticSearchOps.queryForList(
-            nsqBuilder.build(), ContentIndexItem.class);
+        List<ContentIndexItem> items = elasticSearchOps
+            .queryForList(nsqBuilder.build(), ContentIndexItem.class);
         return items;
     }
 
     @Override
-    public ContentIndexItem get(String account, int storeId,
-                                                String space,
-                                                String contentId) {
+    public ContentIndexItem get(String account, String storeId, String space,
+                                String contentId) {
         String id = account + ID_SEPARATOR + storeId + ID_SEPARATOR +
             space + ID_SEPARATOR + contentId;
 
         GetQuery q = new GetQuery();
         q.setId(id);
-        ContentIndexItem item = elasticSearchOps.queryForObject(
-            q, ContentIndexItem.class);
+        ContentIndexItem item = elasticSearchOps
+            .queryForObject(q, ContentIndexItem.class);
         return item;
     }
 
@@ -177,9 +207,9 @@ public class ESContentIndexClient implements ContentIndexClient {
 
     @Override
     public void bulkSave(List<ContentIndexItem> items) {
-        if(! items.isEmpty()) {
+        if (!items.isEmpty()) {
             List<IndexQuery> queries = new ArrayList();
-            for(ContentIndexItem item: items) {
+            for (ContentIndexItem item : items) {
                 queries.add(createIndexQuery(item));
             }
             elasticSearchOps.bulkIndex(queries);
@@ -193,7 +223,7 @@ public class ESContentIndexClient implements ContentIndexClient {
     private IndexQuery createIndexQuery(ContentIndexItem item) {
         IndexQuery indexQuery = new IndexQuery();
         indexQuery.setIndexName(item.getAccount());
-        indexQuery.setType(TYPE);
+        indexQuery.setType(TYPE_CONTENT);
         indexQuery.setId(item.getId());
         indexQuery.setObject(item);
         return indexQuery;
@@ -201,7 +231,7 @@ public class ESContentIndexClient implements ContentIndexClient {
 
     @Override
     public void addIndex(String index, boolean isAlias) {
-        if(isAlias) {
+        if (isAlias) {
             AliasAction aliasAction = new AliasAction(AliasAction.Type.ADD);
             aliasAction.alias(index).index(SHARED_INDEX).routing(index)
                        .filter(FilterBuilders.termFilter("account", index));

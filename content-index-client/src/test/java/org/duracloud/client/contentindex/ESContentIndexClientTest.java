@@ -22,9 +22,12 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -40,12 +43,13 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  */
 public class ESContentIndexClientTest {
 
-    ContentIndexClient contentIndexClient;
+    private static ContentIndexClient contentIndexClient;
 
-    protected String account1 = "account1";
-    protected String account2 = "account2";
-    protected int storeId = 1;
-    protected String space = "space1";
+    protected static String account1 = "account1";
+    protected static String account2 = "account2";
+    protected String storeId = "1";
+    protected String spacePrefix = "space";
+    protected String space = spacePrefix + "1";
     protected String key1 = "key1", key2 = "key2",
         value1 = "value1", value2 = "value2";
 
@@ -87,6 +91,18 @@ public class ESContentIndexClientTest {
         node = nodeBuilder().settings(settings).clusterName(nodeName)
             .client(false).node();
         node.start();
+
+        Client client = node.client();
+        ElasticsearchOperations elasticsearchOperations =
+            new ElasticsearchTemplate(client);
+        contentIndexClient = new ESContentIndexClient(elasticsearchOperations,
+                                                      client);
+        contentIndexClient.addIndex(SHARED_INDEX, false);
+        contentIndexClient.addIndex(account1, true);
+        contentIndexClient.addIndex(account2, true);
+
+        elasticsearchOperations.putMapping(ContentIndexItem.class);
+        elasticsearchOperations.putMapping(AccountIndexItem.class);
     }
 
     @AfterClass
@@ -100,18 +116,49 @@ public class ESContentIndexClientTest {
         }
     }
 
-    @Before
-    public void setUp() {
-        Client client = node.client();
-        ElasticsearchOperations elasticsearchOperations =
-            new ElasticsearchTemplate(client);
-        contentIndexClient = new ESContentIndexClient(elasticsearchOperations,
-                                                      client);
-        contentIndexClient.addIndex(SHARED_INDEX, false);
-        contentIndexClient.addIndex(account1, true);
-        contentIndexClient.addIndex(account2, true);
+    @Test
+    public void testAccountItems() {
+        Map<String, Integer> storeSpaceCreate = new HashMap();
+        storeSpaceCreate.put("0", 50);
+        storeSpaceCreate.put("1", 100);
+        AccountIndexItem accountIndexItem =
+            createAccountItem("account1", storeSpaceCreate);
+        contentIndexClient.save(accountIndexItem);
 
-        elasticsearchOperations.putMapping(ContentIndexItem.class);
+        Collection<String> spaces = contentIndexClient.getSpaces("account1", "0");
+        assertEquals(50, spaces.size());
+        checkSpacesOrder(spaces, 0);
+    }
+
+    /**
+     * Checks that spaces are returned in alphanumeric order
+     * @param spaces
+     * @param storeId
+     */
+    protected void checkSpacesOrder(Collection<String> spaces, int storeId) {
+        int i = 1;
+        for(String space: spaces) {
+            assertTrue(space.equals(
+                spacePrefix + storeId + "-" + String.format("%03d", i)));
+            i++;
+        }
+    }
+
+    protected AccountIndexItem createAccountItem(
+            String account,
+            Map<String, Integer> storeSpaces) {
+        AccountIndexItem item = new AccountIndexItem();
+        item.setId(account);
+        Set<String> spaces = new HashSet();
+        for(String storeId: storeSpaces.keySet()) {
+            spaces.clear();
+            int numSpaces = storeSpaces.get(storeId);
+            for(int i = numSpaces; i >= 1; i--) {
+                spaces.add(spacePrefix + storeId + "-" + String.format("%03d", i));
+            }
+            item.addSpaces(storeId, spaces);
+        }
+        return item;
     }
 
     @Test
@@ -196,19 +243,19 @@ public class ESContentIndexClientTest {
         }
 
         // both accounts
-        items = contentIndexClient.get(value1, null, null, null);
+        items = contentIndexClient.getItemWithValue(value1, null, null, null);
         assertEquals(5, items.size());
-        items = contentIndexClient.get(value2, null, null, null);
+        items = contentIndexClient.getItemWithValue(value2, null, null, null);
         assertEquals(2, items.size());
 
         // account1
-        items = contentIndexClient.get(value1, account1, null, null);
+        items = contentIndexClient.getItemWithValue(value1, account1, null, null);
         assertEquals(2, items.size());
-        items = contentIndexClient.get(value2, account1, null, null);
+        items = contentIndexClient.getItemWithValue(value2, account1, null, null);
         assertEquals(0, items.size());
 
         // account2
-        items = contentIndexClient.get(value1, account2, null, null);
+        items = contentIndexClient.getItemWithValue(value1, account2, null, null);
         assertEquals(3, items.size());
 
     }

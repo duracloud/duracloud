@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Erik Paulsson
  *         Date: 3/11/14
  */
-@Document(indexName="dc_multi", type="content")
+@Document(indexName = "dc_multi", type = "content")
 public class ContentIndexItem {
 
     public static final String ID_SEPARATOR = "/";
@@ -31,7 +31,7 @@ public class ContentIndexItem {
     private String id;
 
     private String account;
-    private Integer storeId;
+    private String storeId;
     private String storeType;
     private String space;
 
@@ -46,10 +46,11 @@ public class ContentIndexItem {
      * mapping from JSON document to ContentIndexItem object
      * Application developers should use the non-empty constructor.
      */
-    public ContentIndexItem() {}
+    public ContentIndexItem() {
+    }
 
-    public ContentIndexItem(String account, Integer storeId,
-                            String space, String contentId) {
+    public ContentIndexItem(String account, String storeId, String space,
+                            String contentId) {
         this.id = account + ID_SEPARATOR + storeId + ID_SEPARATOR +
             space + ID_SEPARATOR + contentId;
         this.account = account;
@@ -70,6 +71,7 @@ public class ContentIndexItem {
      * automatically assign the 'id' field.
      * This method needs to exist to allow for the mapping / setting of
      * persistent fields in the datastore to object fields.
+     *
      * @param id
      */
     public void setId(String id) {
@@ -84,11 +86,11 @@ public class ContentIndexItem {
         this.account = account;
     }
 
-    public Integer getStoreId() {
+    public String getStoreId() {
         return storeId;
     }
 
-    public void setStoreId(Integer storeId) {
+    public void setStoreId(String storeId) {
         this.storeId = storeId;
     }
 
@@ -125,7 +127,7 @@ public class ContentIndexItem {
     }
 
     public ContentIndexItem addProp(String key, String value) {
-        if(props == null) {
+        if (props == null) {
             props = new HashMap<String, String>();
         }
         props.put(key, value);
@@ -141,7 +143,7 @@ public class ContentIndexItem {
     }
 
     public ContentIndexItem addTag(String tag) {
-        if(tags == null) {
+        if (tags == null) {
             tags = new ArrayList<String>();
         }
         tags.add(tag);

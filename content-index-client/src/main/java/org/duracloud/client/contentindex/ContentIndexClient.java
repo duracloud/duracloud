@@ -7,6 +7,7 @@
  */
 package org.duracloud.client.contentindex;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,35 +17,38 @@ import java.util.List;
 public interface ContentIndexClient {
 
     public List<ContentIndexItem> getSpaceContents(String account,
-                                                   int storeId,
+                                                   String storeId,
                                                    String space);
 
+    public Collection<String> getSpaces(String account, String storeId);
+
+    public String save(AccountIndexItem item);
+
     public List<ContentIndexItem> getSpaceContentIds(String account,
-                                           int storeId,
-                                           String space);
+                                                     String storeId,
+                                                     String space);
 
-    public Long getSpaceCount(String account,
-                                 int storeId,
-                                 String space);
+    public Long getSpaceCount(String account, String storeId, String space);
 
-    public ContentIndexItem get(String account,
-                                                int storeId,
-                                                String space,
-                                                String contentId);
+    public ContentIndexItem get(String account, String storeId, String space,
+                                String contentId);
 
     /**
      * Search all field values for the provided 'text'
-     * @param text The text to find in any field's value
+     *
+     * @param value   The text to find in any field's value
      * @param account The account to search, may be null to search across accounts
      * @param storeId The storeId to search, only used if account supplied.  May be null.
-     * @param space The space to search, may be null to search all spaces.
+     * @param space   The space to search, may be null to search all spaces.
      * @return
      */
-    public List<ContentIndexItem> get(String text, String account,
-                                      Integer storeId, String space);
+    public List<ContentIndexItem> getItemWithValue(String value, String account,
+                                                   String storeId,
+                                                   String space);
 
     /**
      * Saves or updates a ContentIndexItem
+     *
      * @param item
      * @return the ID of the ContentIndexItem entity
      */
@@ -52,6 +56,7 @@ public interface ContentIndexClient {
 
     /**
      * Save multiple entities to the datastore in a single request.
+     *
      * @param items
      */
     public void bulkSave(List<ContentIndexItem> items);
