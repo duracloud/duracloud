@@ -7,16 +7,15 @@
  */
 package org.duracloud.audit.task;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.common.model.AclType;
 import org.duracloud.common.queue.task.Task;
 import org.duracloud.common.queue.task.TypedTask;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A Task which will be used to capture an action taken on a
@@ -46,12 +45,6 @@ public class AuditTask extends TypedTask {
         GET_SPACE_PROPERTIES, GET_SPACE_ACLS, GET_CONTENT,
         GET_CONTENT_PROPERTIES
     };
-    
-    //This bit of gnarliness (esp. the upcast followed by downcast is necessary to get the commandline compiler to 
-    //compile what eclipse IDE allows)
-    private static JaxbJsonSerializer<Map<String, String>> CONTENT_PROPS_SERIALIZER =
-        new JaxbJsonSerializer<Map<String, String>>((Class<Map<String, String>>)(Object) new HashMap<String, String>().getClass());
-    
 
     private String action;
     private String userId;
@@ -148,32 +141,11 @@ public class AuditTask extends TypedTask {
         setContentChecksum(props.get(CONTENT_CHECKSUM_PROP));
         setContentMimetype(props.get(CONTENT_MIMETYPE_PROP));
         setContentSize(props.get(CONTENT_SIZE_PROP));
-        setContentProperties(deserializeContentProperties(props.get(CONTENT_PROPERTIES_PROP)));
+        Map<String, String> contentProps =
+            deserializeContentProperties(props.get(CONTENT_PROPERTIES_PROP));
+        setContentProperties(contentProps);
         setSpaceACLs(props.get(SPACE_ACLS_PROP));
         setStoreType(props.get(STORE_TYPE_PROP));
-    }
-
-
-    protected static Map<String,String> deserializeContentProperties(String json) {
-        if(StringUtils.isNotBlank(json)){
-            try {
-                return CONTENT_PROPS_SERIALIZER.deserialize(json);
-            } catch (IOException e) {
-                throw new DuraCloudRuntimeException(e);
-            }
-        }
-        return null;
-    }
-
-    protected static String serializeContentProperties(Map<String,String> props) {
-        if(props != null){
-            try {
-                return CONTENT_PROPS_SERIALIZER.serialize(props);
-            } catch (IOException e) {
-                throw new DuraCloudRuntimeException(e);
-            }
-        }
-        return null;
     }
 
     @Override
@@ -186,12 +158,43 @@ public class AuditTask extends TypedTask {
         addProperty(task, CONTENT_CHECKSUM_PROP, getContentChecksum());
         addProperty(task, CONTENT_MIMETYPE_PROP, getContentMimetype());
         addProperty(task, CONTENT_SIZE_PROP, getContentSize());
-        addProperty(task,
-                    CONTENT_PROPERTIES_PROP,
-                    serializeContentProperties(this.contentProperties));
+        String contentProps = serializeContentProperties(getContentProperties());
+        addProperty(task, CONTENT_PROPERTIES_PROP, contentProps);
         addProperty(task, SPACE_ACLS_PROP, this.spaceACLs);
         addProperty(task, STORE_TYPE_PROP, getStoreType());
         return task;
+    }
+
+    protected static Map<String,String> deserializeContentProperties(String json) {
+        if(StringUtils.isNotBlank(json)){
+            try {
+                return getPropsSerializer().deserialize(json);
+            } catch (IOException e) {
+                throw new DuraCloudRuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    protected static String serializeContentProperties(Map<String,String> props) {
+        if(props != null){
+            try {
+                return getPropsSerializer().serialize(props);
+            } catch (IOException e) {
+                throw new DuraCloudRuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    /*
+     * Creates a serializer for properties
+     * Note: The odd string of casts is necessary to make the command-line
+     *       compiler happy.
+     */
+    private static JaxbJsonSerializer<Map<String, String>> getPropsSerializer() {
+        return new JaxbJsonSerializer<>((Class<Map<String, String>>)(Object)
+            new HashMap<String, String>().getClass());
     }
 
 }

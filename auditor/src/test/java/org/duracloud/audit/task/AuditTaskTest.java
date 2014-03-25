@@ -7,17 +7,17 @@
  */
 package org.duracloud.audit.task;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import org.duracloud.common.queue.task.Task;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.queue.task.Task;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Bill Branan
@@ -173,6 +173,23 @@ public class AuditTaskTest {
         } catch(IllegalArgumentException e) {
             assertNotNull(e);
         }
+    }
+
+    @Test
+    public void testPropertySerialization() {
+        Map<String,String> contentProps = new HashMap<>();
+        contentProps.put("key1", "value1");
+        contentProps.put("key2", "value2");
+
+        String serProps =
+            AuditTask.serializeContentProperties(contentProps);
+        String serPropsNoWhitespace = serProps.replaceAll("\\s", "");
+        assertTrue(serPropsNoWhitespace.contains("\"key1\":\"value1\""));
+        assertTrue(serPropsNoWhitespace.contains("\"key2\":\"value2\""));
+
+        Map<String, String> deserProps =
+            AuditTask.deserializeContentProperties(serProps);
+        assertEquals(contentProps, deserProps);
     }
 
 }
