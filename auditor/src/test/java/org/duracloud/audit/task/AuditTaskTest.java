@@ -40,6 +40,8 @@ public class AuditTaskTest {
         Map<String,String> contentProperties = new HashMap<>();
         String spaceAcls = "space-acls";
         String storeType = "store-type";
+        String sourceSpaceId = "source-space-id";
+        String sourceContentId = "source-content-id";
 
         // Create initial AuditTask
         AuditTask auditTask = new AuditTask();
@@ -56,6 +58,8 @@ public class AuditTaskTest {
         auditTask.setContentProperties(contentProperties);
         auditTask.setSpaceACLs(spaceAcls);
         auditTask.setStoreType(storeType);
+        auditTask.setSourceSpaceId(sourceSpaceId);
+        auditTask.setSourceContentId(sourceContentId);
 
         // Test writeTask
         Task task = auditTask.writeTask();
@@ -80,6 +84,10 @@ public class AuditTaskTest {
                                            properties.get(AuditTask.CONTENT_PROPERTIES_PROP)));
         assertEquals(spaceAcls, properties.get(AuditTask.SPACE_ACLS_PROP));
         assertEquals(storeType, properties.get(AuditTask.STORE_TYPE_PROP));
+        assertEquals(sourceSpaceId,
+                     properties.get(AuditTask.SOURCE_SPACE_ID_PROP));
+        assertEquals(sourceContentId,
+                     properties.get(AuditTask.SOURCE_CONTENT_ID_PROP));
 
         // Test readTask
         AuditTask readAuditTask = new AuditTask();
@@ -101,6 +109,10 @@ public class AuditTaskTest {
                      readAuditTask.getContentProperties());
         assertEquals(auditTask.getSpaceACLs(), readAuditTask.getSpaceACLs());
         assertEquals(auditTask.getStoreType(), readAuditTask.getStoreType());
+        assertEquals(auditTask.getSourceSpaceId(),
+                     readAuditTask.getSourceSpaceId());
+        assertEquals(auditTask.getSourceContentId(),
+                     readAuditTask.getSourceContentId());
     }
 
     @Test
@@ -122,6 +134,8 @@ public class AuditTaskTest {
         auditTask.setContentProperties(null);
         auditTask.setSpaceACLs(null);
         auditTask.setStoreType(AuditTask.NA);
+        auditTask.setSourceSpaceId(AuditTask.NA);
+        auditTask.setSourceContentId(AuditTask.NA);
 
         verifyEmptyAuditTask(auditTask, action);
     }
@@ -151,6 +165,8 @@ public class AuditTaskTest {
         assertNull(readAuditTask.getContentProperties());
         assertNull(readAuditTask.getSpaceACLs());
         assertNull(readAuditTask.getStoreType());
+        assertNull(readAuditTask.getSourceSpaceId());
+        assertNull(readAuditTask.getSourceContentId());
     }
 
     @Test

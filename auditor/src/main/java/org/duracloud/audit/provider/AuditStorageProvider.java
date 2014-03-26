@@ -76,7 +76,9 @@ public class AuditStorageProvider implements StorageProvider {
                                  String contentMimetype,
                                  String contentSize,
                                  Map<String,String> contentProperties,
-                                 String spaceACLs) {
+                                 String spaceACLs,
+                                 String sourceSpaceId,
+                                 String sourceContentId) {
         AuditTask task = new AuditTask();
         task.setAction(action);
         task.setUserId(getUserId());
@@ -91,6 +93,8 @@ public class AuditStorageProvider implements StorageProvider {
         task.setContentMimetype(contentMimetype);
         task.setContentSize(contentSize);
         task.setContentProperties(contentProperties);
+        task.setSourceSpaceId(sourceSpaceId);
+        task.setSourceContentId(sourceContentId);
 
         Task writeTask = task.writeTask();
         taskQueue.put(writeTask);
@@ -207,7 +211,8 @@ public class AuditStorageProvider implements StorageProvider {
 
         String action = AuditTask.ActionType.CREATE_SPACE.name();
         submitWriteTask(action, spaceId, AuditTask.NA, AuditTask.NA,
-                        AuditTask.NA, AuditTask.NA, null, null);
+                        AuditTask.NA, AuditTask.NA, null, null, AuditTask.NA,
+                        AuditTask.NA);
     }
 
     @Override
@@ -216,7 +221,8 @@ public class AuditStorageProvider implements StorageProvider {
 
         String action = AuditTask.ActionType.DELETE_SPACE.name();
         submitWriteTask(action, spaceId, AuditTask.NA, AuditTask.NA,
-                        AuditTask.NA, AuditTask.NA, null, null);
+                        AuditTask.NA, AuditTask.NA, null, null, AuditTask.NA,
+                        AuditTask.NA);
     }
 
     @Override
@@ -231,7 +237,9 @@ public class AuditStorageProvider implements StorageProvider {
                         AuditTask.NA,
                         AuditTask.NA,
                         null,
-                        spaceACLs == null ? null : spaceACLs.toString());
+                        spaceACLs == null ? null : spaceACLs.toString(),
+                        AuditTask.NA,
+                        AuditTask.NA);
     }
     
     @Override
@@ -249,7 +257,7 @@ public class AuditStorageProvider implements StorageProvider {
         String action = AuditTask.ActionType.ADD_CONTENT.name();
         submitWriteTask(action, spaceId, contentId, contentChecksum,
                         contentMimeType, String.valueOf(contentSize),
-                        userProperties, null);
+                        userProperties, null, AuditTask.NA, AuditTask.NA);
         return contentChecksum;
     }
 
@@ -262,7 +270,8 @@ public class AuditStorageProvider implements StorageProvider {
 
         String action = AuditTask.ActionType.COPY_CONTENT.name();
         submitWriteTask(action, destSpaceId, destContentId, contentChecksum,
-                        AuditTask.NA, AuditTask.NA, null, null);
+                        AuditTask.NA, AuditTask.NA, null, null, sourceSpaceId,
+                        sourceContentId);
         return contentChecksum;
     }
 
@@ -272,7 +281,7 @@ public class AuditStorageProvider implements StorageProvider {
 
         String action = AuditTask.ActionType.DELETE_CONTENT.name();
         submitWriteTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
-                        AuditTask.NA, null, null);
+                        AuditTask.NA, null, null, AuditTask.NA, AuditTask.NA);
     }
 
     @Override
@@ -282,7 +291,8 @@ public class AuditStorageProvider implements StorageProvider {
 
         String action = AuditTask.ActionType.SET_CONTENT_PROPERTIES.name();
         submitWriteTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
-                        AuditTask.NA, contentProperties, null);
+                        AuditTask.NA, contentProperties, null, AuditTask.NA,
+                        AuditTask.NA);
     }
 
 }

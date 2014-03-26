@@ -66,6 +66,8 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     private String contentMimeType = "content-mime";
     private long contentSize = 0;
     private String contentChecksum = "content-checksum";
+    private String sourceSpaceId = "source-space-id";
+    private String sourceContentId = "source-content-id";
 
     @Before
     public void setup() {
@@ -314,16 +316,22 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         Capture<Task> auditTaskCapture = mockAuditCall();
         Capture<Task> logCapture = mockWriteLogCall();
 
-        EasyMock.expect(
-            targetProvider.copyContent(spaceId, contentId, spaceId, contentId))
+        EasyMock.expect(targetProvider.copyContent(sourceSpaceId,
+                                                   sourceContentId,
+                                                   spaceId,
+                                                   contentId))
                 .andReturn("");
         replayAll();
-        provider.copyContent(spaceId, contentId, spaceId, contentId);
+        provider.copyContent(sourceSpaceId, sourceContentId, spaceId, contentId);
 
         Task auditTask = auditTaskCapture.getValue();
         assertEquals(auditTask, logCapture.getValue());
         Map<String, String> taskProps =
             verifyTask(auditTask, AuditTask.ActionType.COPY_CONTENT.name());
+        assertEquals(sourceSpaceId,
+                     taskProps.get(AuditTask.SOURCE_SPACE_ID_PROP));
+        assertEquals(sourceContentId,
+                     taskProps.get(AuditTask.SOURCE_CONTENT_ID_PROP));
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
     }
 

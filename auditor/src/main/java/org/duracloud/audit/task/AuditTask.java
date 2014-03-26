@@ -35,6 +35,8 @@ public class AuditTask extends TypedTask {
     public static final String CONTENT_PROPERTIES_PROP = "content-properties";
     public static final String SPACE_ACLS_PROP = "space-acls";
     public static final String STORE_TYPE_PROP = "store-type";
+    public static final String SOURCE_SPACE_ID_PROP = "source-space-id";
+    public static final String SOURCE_CONTENT_ID_PROP = "source-content-id";
 
     public enum ActionType {
         // Write actions
@@ -55,6 +57,8 @@ public class AuditTask extends TypedTask {
     private Map<String,String> contentProperties;
     private String spaceACLs;
     private String storeType;
+    private String sourceSpaceId;
+    private String sourceContentId;
 
     public String getAction() {
         return action;
@@ -130,6 +134,22 @@ public class AuditTask extends TypedTask {
         this.storeType = storeType;
     }
 
+    public String getSourceSpaceId() {
+        return sourceSpaceId;
+    }
+
+    public void setSourceSpaceId(String sourceSpaceId) {
+        this.sourceSpaceId = sourceSpaceId;
+    }
+
+    public String getSourceContentId() {
+        return sourceContentId;
+    }
+
+    public void setSourceContentId(String sourceContentId) {
+        this.sourceContentId = sourceContentId;
+    }
+
     @Override
     public void readTask(Task task) {
         super.readTask(task);
@@ -146,6 +166,8 @@ public class AuditTask extends TypedTask {
         setContentProperties(contentProps);
         setSpaceACLs(props.get(SPACE_ACLS_PROP));
         setStoreType(props.get(STORE_TYPE_PROP));
+        setSourceSpaceId(props.get(SOURCE_SPACE_ID_PROP));
+        setSourceContentId(props.get(SOURCE_CONTENT_ID_PROP));
     }
 
     @Override
@@ -162,6 +184,8 @@ public class AuditTask extends TypedTask {
         addProperty(task, CONTENT_PROPERTIES_PROP, contentProps);
         addProperty(task, SPACE_ACLS_PROP, this.spaceACLs);
         addProperty(task, STORE_TYPE_PROP, getStoreType());
+        addProperty(task, SOURCE_SPACE_ID_PROP, getSourceSpaceId());
+        addProperty(task, SOURCE_CONTENT_ID_PROP, getSourceContentId());
         return task;
     }
 
