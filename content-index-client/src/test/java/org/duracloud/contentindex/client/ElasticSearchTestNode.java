@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.contentindex;
+package org.duracloud.contentindex.client;
 
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.client.Client;

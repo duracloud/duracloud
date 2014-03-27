@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.contentindex;
+package org.duracloud.contentindex.client;
 
 import java.util.Collection;
 import java.util.List;

@@ -5,8 +5,12 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.contentindex;
+package org.duracloud.contentindex.client;
 
+import org.duracloud.contentindex.client.AccountIndexItem;
+import org.duracloud.contentindex.client.ContentIndexClient;
+import org.duracloud.contentindex.client.ContentIndexItem;
+import org.duracloud.contentindex.client.ESContentIndexClient;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.io.FileSystemUtils;
@@ -34,7 +38,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
-import static org.duracloud.client.contentindex.ESContentIndexClient.SHARED_INDEX;
+import static org.duracloud.contentindex.client.ESContentIndexClient.SHARED_INDEX;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 /**

@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.client.contentindex;
+package org.duracloud.contentindex.client;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasAction;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.duracloud.client.contentindex.ContentIndexItem.ID_SEPARATOR;
+import static org.duracloud.contentindex.client.ContentIndexItem.ID_SEPARATOR;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryString;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
