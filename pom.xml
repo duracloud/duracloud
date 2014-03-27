@@ -57,6 +57,7 @@
     <modules>
         <module>mavenplugins</module>
         <module>common</module>
+        <module>common-cli</module>
         <module>mimeutil</module>
         <module>notification</module>
         <module>notification-amazon</module>
