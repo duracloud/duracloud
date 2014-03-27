@@ -7,13 +7,20 @@
  */
 package org.duracloud.contentindex.client;
 
+import static org.duracloud.contentindex.client.ContentIndexItem.ID_SEPARATOR;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryString;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasAction;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermFilterBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -22,15 +29,6 @@ import org.springframework.data.elasticsearch.core.query.GetQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.duracloud.contentindex.client.ContentIndexItem.ID_SEPARATOR;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.simpleQueryString;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 /**
  * @author Erik Paulsson

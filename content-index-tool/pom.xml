@@ -60,6 +60,12 @@
   <dependencies>
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>common-cli</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>content-index-client</artifactId>
       <version>${project.version}</version>
     </dependency>
