@@ -63,6 +63,8 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                       String action,
                       String contentProperties,
                       String spaceAcls,
+                      String sourceSpaceId,
+                      String sourceContentId,
                       Date timestamp) throws AuditLogWriteFailedException {
         checkInitialized();
         DynamoDBAuditLogItem item = null;
@@ -86,6 +88,8 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                          action,
                                          contentProperties,
                                          spaceAcls,
+                                         sourceSpaceId,
+                                         sourceContentId,
                                          timestamp.getTime());
             
             

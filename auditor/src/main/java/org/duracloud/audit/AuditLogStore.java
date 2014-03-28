@@ -45,6 +45,8 @@ public interface AuditLogStore {
                       String action,
                       String properties,
                       String spaceAcls,
+                      String sourceSpaceId,
+                      String sourceContentId,
                       Date timestamp) throws AuditLogWriteFailedException;
     
     /**

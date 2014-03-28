@@ -46,6 +46,8 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
     public static final String TABLE_NAME = "AuditLog";
     public static final String ACCOUNT_SPACE_ID_INDEX = "AccountSpaceIdIndex";
     public static final String ID_TIMESTAMP_INDEX = "IdTimeStamp";
+    private static final String SOURCE_SPACE_ID__ATTRIBUTE = "SourceSpaceId";
+    private static final String SOURCE_CONTENT_ID_ATTRIBUTE = "SourceContentId";
     
     
     public static String[] PROJECTED_ATTRIBUTES = {
@@ -73,6 +75,8 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
     private String contentSize;
     private String contentProperties; 
     private String spaceAcls;
+    private String sourceSpaceId;
+    private String sourceContentId;
     private Long timestamp;
 
     public DynamoDBAuditLogItem( String id, 
@@ -88,6 +92,8 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
                             String action, 
                             String contentProperties,
                             String spaceAcls,
+                            String sourceSpaceId,
+                            String sourceContentId,
                             long timestamp) {
         setId(id);
         setAccountSpaceIdHash(accountSpaceIdHash);
@@ -101,6 +107,8 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
         setUsername(username);
         setAction(action);
         setContentProperties(contentProperties);
+        setSourceSpaceId(sourceSpaceId);
+        setSourceContentId(sourceContentId);
         setTimestamp(timestamp);
     }
 
@@ -183,6 +191,18 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
         return spaceAcls;
     }
 
+    @DynamoDBAttribute(attributeName = SOURCE_SPACE_ID__ATTRIBUTE)
+    @Override
+    public String getSourceSpaceId() {
+        return this.sourceSpaceId;
+    }
+
+    @DynamoDBAttribute(attributeName = SOURCE_CONTENT_ID_ATTRIBUTE)
+    @Override
+    public String getSourceContentId() {
+        return this.sourceContentId;
+    }
+
     public void setContentProperties(String contentProperties) {
         this.contentProperties = contentProperties;
     }
@@ -239,6 +259,14 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
     
     public void setContentSize(String contentSize) {
         this.contentSize = contentSize;
+    }
+    
+    public void setSourceSpaceId(String sourceSpaceId) {
+        this.sourceSpaceId = sourceSpaceId;
+    }
+    
+    public void setSourceContentId(String sourceContentId) {
+        this.sourceContentId = sourceContentId;
     }
 
 }

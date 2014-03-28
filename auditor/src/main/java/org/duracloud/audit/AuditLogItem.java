@@ -73,7 +73,18 @@ public interface AuditLogItem {
      * @return
      */
     public String getUsername();
+    
+    /**
+     * 
+     * @return
+     */
+    public String getSourceSpaceId();
 
+    /**
+     * 
+     * @return
+     */
+    public String getSourceContentId();
     /**
      * 
      * @return

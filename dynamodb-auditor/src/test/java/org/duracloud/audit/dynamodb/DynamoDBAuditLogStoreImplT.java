@@ -93,6 +93,8 @@ public class DynamoDBAuditLogStoreImplT {
                                            "action",
                                            "props",
                                            "acls",
+                                           "sourcespace",
+                                           "sourcecontent",
                                            timestamp);
                         }
                     }
@@ -161,7 +163,8 @@ public class DynamoDBAuditLogStoreImplT {
         Assert.assertNotNull(item.getContentSize());
         Assert.assertNotNull(item.getContentProperties());
         Assert.assertNotNull(item.getSpaceAcls());
-
+        Assert.assertNotNull(item.getSourceSpaceId());
+        Assert.assertNotNull(item.getSourceContentId());
     }
 
 }
