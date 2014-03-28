@@ -31,7 +31,7 @@ public class Driver {
                 new AmazonDynamoDBClient(new BasicAWSCredentials(cl.getOptionValue("u"),
                                                                  cl.getOptionValue("p")));
 
-            client.setRegion(Region.getRegion(Regions.DEFAULT_REGION));
+            client.setRegion(Region.getRegion(Regions.US_EAST_1));
 
             if(cl.hasOption("e")){
                 String endpoint = cl.getOptionValue("e");
