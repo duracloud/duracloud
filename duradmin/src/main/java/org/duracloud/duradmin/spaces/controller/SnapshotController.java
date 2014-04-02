@@ -102,7 +102,11 @@ public class SnapshotController {
             props.put("error", "Snapshot properties could not be loaded: " + e.getMessage());
         }
 
-        return new ModelAndView("jsonView", props);
+        ModelAndView mav =  new ModelAndView("jsonView");
+        for(Object key : props.keySet()){
+            mav.addObject(key.toString(), props.get(key));
+        }
+        return mav;
     }
 
     private boolean isSnapshotInProgress(ContentStore store, String storeId, String spaceId) {

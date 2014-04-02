@@ -24,7 +24,6 @@
     <durcloud.defaultport>443</durcloud.defaultport>
     <glassfish-jsp-2.1.version>2.1.v20100127</glassfish-jsp-2.1.version>
     <activemq.version>5.7.0</activemq.version>
-    <org.springframework.version>3.1.2.RELEASE</org.springframework.version>
     <org.springframework.webflow.version>2.3.0.RELEASE</org.springframework.webflow.version>
     <tiles.version>2.2.2</tiles.version>
     <jetty.version>8.1.4.v20120524</jetty.version>

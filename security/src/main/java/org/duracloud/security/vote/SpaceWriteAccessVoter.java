@@ -9,6 +9,7 @@ package org.duracloud.security.vote;
 
 import static org.duracloud.security.vote.VoterUtil.debugText;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -24,11 +25,10 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * This class decides if a caller has WRITE access to a given resource. If the
@@ -60,7 +60,7 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
      */
     public int vote(Authentication auth,
                     Object resource,
-                    ConfigAttributeDefinition config) {
+                    Collection config) {
         String label = "SpaceWriteAccessVoterImpl";
         if (resource != null && !supports(resource.getClass())) {
             log.debug(debugText(label, auth, config, resource, ACCESS_ABSTAIN));

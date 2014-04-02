@@ -8,6 +8,12 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.fileupload.ProgressListener;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -16,13 +22,6 @@ import org.duracloud.common.util.IOUtil;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Daniel Bernstein

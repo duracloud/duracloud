@@ -17,10 +17,6 @@
   </parent>
 
 
-  <properties>
-    <org.springframework.version>3.2.4.RELEASE</org.springframework.version>
-  </properties>
-
   <build>
     <plugins>
        <!-- Builds an executable jar which executes the app driver -->

@@ -14,23 +14,27 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.controller.AbstractRestController;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.validation.BindException;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -38,54 +42,24 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Daniel Bernstein
  *
  */
-public class ContentItemController extends  AbstractRestController<ContentItem> {
+@Controller
+@RequestMapping("/spaces/content")
+public class ContentItemController {
 
     protected final Logger log = 
         LoggerFactory.getLogger(ContentItemController.class);
 
 	private ContentStoreManager contentStoreManager;
-	
-	public ContentItemController(){
-		super(null);
-		setValidator(new Validator(){
-			@Override
-			public boolean supports(Class clazz) {
-				return clazz == ContentItem.class;
-			}
-			
-			@Override
-			public void validate(Object target, Errors errors) {
-				ContentItem command = (ContentItem)target;
 
-		        if (!StringUtils.isBlank(command.getStoreId())) {
-		            errors.rejectValue("storeId","required");
-		        }
-
-				if (!StringUtils.isBlank(command.getSpaceId())) {
-		            errors.rejectValue("spaceId","required");
-		        }
-
-		        if (!StringUtils.isBlank(command.getContentId())) {
-		            errors.rejectValue("contentId","required");
-		        }
-			}
-		});
-
-	}
+    @Autowired
+    public ContentItemController(
+        @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
+        this.contentStoreManager = contentStoreManager;
+    }    
     
-    public ContentStoreManager getContentStoreManager() {
-		return contentStoreManager;
-	}
-
-	public void setContentStoreManager(ContentStoreManager contentStoreManager) {
-		this.contentStoreManager = contentStoreManager;
-	}
-
-
-	
-	protected ModelAndView delete(HttpServletRequest request,
-			HttpServletResponse response, ContentItem contentItem,
-			BindException errors) throws Exception {
+	@RequestMapping(value="/delete", method = RequestMethod.POST)
+	public ModelAndView delete(@Valid ContentItem contentItem,
+			BindingResult result) throws Exception {
 		String spaceId = contentItem.getSpaceId();
         ContentStore contentStore = getContentStore(contentItem);
         contentStore.deleteContent(spaceId, contentItem.getContentId());
@@ -94,10 +68,10 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 
 	
 
-	@Override
-	protected ModelAndView get(HttpServletRequest request,
-			HttpServletResponse response, ContentItem ci,
-			BindException errors) throws Exception {
+	@RequestMapping(value="", method = RequestMethod.GET)
+	public ModelAndView get(HttpServletRequest request, HttpServletResponse response,
+			ContentItem ci,
+			BindingResult result) throws Exception {
 		ContentItem contentItem = new ContentItem();
 		try{
 		    populateContentItem(request, getContentStore(ci), ci, contentItem);
@@ -117,39 +91,23 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 	
 	
 	
-	@Override
-	protected ModelAndView put(HttpServletRequest request,
-			HttpServletResponse response, ContentItem contentItem,
-			BindException errors) throws Exception {
+	@RequestMapping(value ="/update-properties", method = RequestMethod.POST)
+	public ModelAndView updateContentProperties(HttpServletRequest request,
+	        @RequestParam String method,
+			HttpServletResponse response, @Valid ContentItem contentItem,
+			BindingResult results) throws Exception {
 	    try{
 	        String spaceId = contentItem.getSpaceId();
 	        String contentId = contentItem.getContentId();
 	        ContentStore contentStore = getContentStore(contentItem);
 	        ContentItem result = new ContentItem();
-	        String method = request.getParameter("method");
 	        Map<String,String> properties =
-                contentStore.getContentProperties(spaceId, contentId);
-	        if("changeMimetype".equals(method)){
-	            String mimetype = contentItem.getContentMimetype();
-	            String oldMimetype = properties.get(ContentStore.CONTENT_MIMETYPE);
-	            if(!StringUtils.isBlank(mimetype) && !mimetype.equals(oldMimetype)){
-	                properties.put(ContentStore.CONTENT_MIMETYPE, mimetype);
-	                contentStore.setContentProperties(spaceId, contentId, properties);
-	            }
-	        }else if ("copy".equals(method)){
-	          return  handleCopyContentItem(request,
-                    contentItem,
-                    spaceId,
-                    contentId,
-                    contentStore);
-	        }else{ 
-                PropertiesUtils.handle(method,
-                                       "space [" + spaceId + "]",
-                                       properties,
-                                       request);
-                contentStore.setContentProperties(spaceId, contentId, properties);
-            }
-
+            contentStore.getContentProperties(spaceId, contentId);
+            PropertiesUtils.handle(method,
+                                   "space [" + spaceId + "]",
+                                   properties,
+                                   request);
+            contentStore.setContentProperties(spaceId, contentId, properties);
 	        populateContentItem(request, contentStore, contentItem, result);
 	        return createModel(result);
 	        
@@ -158,6 +116,54 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 	        throw ex;
 	    }
 	}
+
+	   @RequestMapping(value ="/change-mimetype", method = RequestMethod.POST)
+	    public ModelAndView changeMimeType(HttpServletRequest request,
+	            HttpServletResponse response, @Valid ContentItem contentItem,
+	            BindingResult results) throws Exception {
+	        try{
+	            String spaceId = contentItem.getSpaceId();
+	            String contentId = contentItem.getContentId();
+	            ContentStore contentStore = getContentStore(contentItem);
+	            ContentItem result = new ContentItem();
+	            Map<String,String> properties =
+	                contentStore.getContentProperties(spaceId, contentId);
+                String mimetype = contentItem.getContentMimetype();
+                String oldMimetype = properties.get(ContentStore.CONTENT_MIMETYPE);
+                if(!StringUtils.isBlank(mimetype) && !mimetype.equals(oldMimetype)){
+                    properties.put(ContentStore.CONTENT_MIMETYPE, mimetype);
+                    contentStore.setContentProperties(spaceId, contentId, properties);
+                }
+
+	            populateContentItem(request, contentStore, contentItem, result);
+	            return createModel(result);
+	            
+	        }catch(Exception ex){
+	            ex.printStackTrace();
+	            throw ex;
+	        }
+	    }
+
+	    @RequestMapping(value ="/copy", method = RequestMethod.POST)
+	    public ModelAndView copy(HttpServletRequest request,
+	            @RequestParam String method,
+	            HttpServletResponse response, @Valid ContentItem contentItem,
+	            BindingResult result) throws Exception {
+	        try{
+	            String spaceId = contentItem.getSpaceId();
+	            String contentId = contentItem.getContentId();
+	            ContentStore contentStore = getContentStore(contentItem);
+                return  handleCopyContentItem(request,
+                        contentItem,
+                        spaceId,
+                        contentId,
+                        contentStore);
+	            	            
+	        }catch(Exception ex){
+	            ex.printStackTrace();
+	            throw ex;
+	        }
+	    }
 
     private ModelAndView handleCopyContentItem(
         HttpServletRequest request, ContentItem contentItem, String spaceId,

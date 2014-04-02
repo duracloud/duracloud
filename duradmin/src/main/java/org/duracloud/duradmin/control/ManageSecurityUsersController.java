@@ -20,10 +20,12 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.providers.encoding.PasswordEncoder;
-import org.springframework.validation.BindException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractCommandController;
 
 /**
  * @author Andrew Woods
@@ -32,7 +34,8 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
  *             is now read-only.
  */
 @Deprecated
-public class ManageSecurityUsersController extends AbstractCommandController {
+@Controller
+public class ManageSecurityUsersController  {
 
     private final Logger log = LoggerFactory.getLogger(
         ManageSecurityUsersController.class);
@@ -41,17 +44,20 @@ public class ManageSecurityUsersController extends AbstractCommandController {
 
     private PasswordEncoder passwordEncoder;
 
-    public ManageSecurityUsersController() {
-        setCommandClass(SecurityUserCommand.class);
-        setCommandName("users");
+    @Autowired
+    public ManageSecurityUsersController(
+        DuracloudUserDetailsService userDetailsService,
+        PasswordEncoder passwordEncoder) {
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
-    protected ModelAndView handle(HttpServletRequest request,
+    
+    @RequestMapping(value="/admin")
+    public ModelAndView handle(HttpServletRequest request,
                                   HttpServletResponse response,
-                                  Object command,
-                                  BindException errors) throws Exception {
-        SecurityUserCommand cmd = (SecurityUserCommand) command;
+                                  SecurityUserCommand cmd,
+                                  BindingResult result) throws Exception {
         cmd.setUsers(this.userDetailsService.getUsers());
         String verb = cmd.getVerb();
         String username = cmd.getUsername();
@@ -119,7 +125,6 @@ public class ManageSecurityUsersController extends AbstractCommandController {
         String ctxt = DuradminConfig.getDuraStoreContext();
         return new Application(host, port, ctxt);
     }
-
 
     public DuracloudUserDetailsService getUserDetailsService() {
         return userDetailsService;

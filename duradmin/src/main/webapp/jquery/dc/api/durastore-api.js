@@ -102,8 +102,8 @@ var dc;
 	 */
 	dc.store.DeleteSpace = function(space, callback){
 		return dc.ajax({
-			url: "/duradmin/spaces/space", 
-			data: "action=delete&storeId="+space.storeId+"&spaceId="+encodeURIComponent(space.spaceId),
+			url: "/duradmin/spaces/space/delete", 
+			data: "storeId="+space.storeId+"&spaceId="+encodeURIComponent(space.spaceId),
 			type: "POST",
 			success: callback.success,
 		    failure: callback.failure,
@@ -197,8 +197,8 @@ var dc;
 	 */
 	dc.store.DeleteContentItem = function(contentItem, callback){
 		dc.ajax({
-			url: "/duradmin/spaces/content", 
-			data: "action=delete&storeId="+contentItem.storeId+"&spaceId="+encodeURIComponent(contentItem.spaceId)+"&contentId="+encodeURIComponent(contentItem.contentId),
+			url: "/duradmin/spaces/content/delete", 
+			data: "storeId="+contentItem.storeId+"&spaceId="+encodeURIComponent(contentItem.spaceId)+"&contentId="+encodeURIComponent(contentItem.contentId),
 			type: "POST",
 			success: callback.success,
 		    failure: callback.failure,
@@ -216,10 +216,8 @@ var dc;
     dc.store.copyContentItem = function(storeId, spaceId, contentId, destStoreId, destSpaceId, destContentId, deleteOriginal, callback){
         var anvp = dc.store._appendNVPair;
         return dc.ajax({
-                        url: "/duradmin/spaces/content", 
+                        url: "/duradmin/spaces/content/copy", 
                         data: "".concat(
-                              anvp("action", "put"),
-                              anvp("method", "copy"),
                               anvp("deleteOriginal", deleteOriginal),
                               anvp("storeId", storeId),
                               anvp("spaceId", spaceId),
@@ -242,8 +240,8 @@ var dc;
 	 */
 	dc.store.UpdateContentItemMimetype = function(data, callback){
 		dc.ajax({
-			url: "/duradmin/spaces/content", 
-			data: data + "&action=put&method=changeMimetype",
+			url: "/duradmin/spaces/content/change-mimetype", 
+			data: data,
 			type: "POST",
 			success: function(data,xhr){
 				if(data.contentItem != undefined){

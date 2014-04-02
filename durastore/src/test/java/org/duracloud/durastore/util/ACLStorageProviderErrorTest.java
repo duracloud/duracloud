@@ -7,6 +7,15 @@
  */
 package org.duracloud.durastore.util;
 
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.error.StorageException;
@@ -16,19 +25,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Andrew Woods
@@ -107,7 +108,7 @@ public class ACLStorageProviderErrorTest {
                                                                     true,
                                                                     true,
                                                                     true,
-                                                                    authorities,
+                                                                    Arrays.asList(authorities),
                                                                     groups);
         EasyMock.expect(auth.getPrincipal()).andReturn(userDetails).anyTimes();
         EasyMock.replay(auth);

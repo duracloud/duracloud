@@ -7,29 +7,33 @@
  */
 package org.duracloud.duradmin.control;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.duradmin.util.SpaceUtil;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.duracloud.client.ContentStore;
+import org.duracloud.duradmin.util.SpaceUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author dbernstein@duraspace.org
  */
-public class ContentItemDownloadController 
-        extends AbstractController {
+@Controller
+public class ContentItemDownloadController {
 
     private ControllerSupport controllerSupport;
 
+    @Autowired
     public ContentItemDownloadController(ControllerSupport controllerSupport) {
         this.controllerSupport = controllerSupport;
     }
 
 
-    @Override
-    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+    @RequestMapping(value="/download/contentItem", method=RequestMethod.GET)
+    public ModelAndView handleRequestInternal(HttpServletRequest request,
                                                  HttpServletResponse response)
             throws Exception {
     	

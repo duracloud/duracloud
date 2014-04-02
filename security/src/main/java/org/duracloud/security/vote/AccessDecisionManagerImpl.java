@@ -7,13 +7,15 @@
  */
 package org.duracloud.security.vote;
 
-import org.springframework.security.AccessDeniedException;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.vote.AbstractAccessDecisionManager;
-import org.springframework.security.vote.AccessDecisionVoter;
 
+import java.util.Collection;
 import java.util.Iterator;
+
+import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.vote.AbstractAccessDecisionManager;
+import org.springframework.security.core.Authentication;
 
 /**
  * This class polls its internal list of AccessDecisionVoters to come to an
@@ -42,7 +44,7 @@ public class AccessDecisionManagerImpl extends AbstractAccessDecisionManager {
      */
     public void decide(Authentication authentication,
                        Object resource,
-                       ConfigAttributeDefinition config)
+                       Collection<ConfigAttribute> config)
         throws AccessDeniedException {
 
         int grant = 0;

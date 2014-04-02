@@ -7,26 +7,26 @@
  */
 package org.duracloud.security.vote;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import static org.duracloud.security.vote.VoterUtil.debugText;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.userdetails.UserDetailsService;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.security.vote.VoterUtil.debugText;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.util.CollectionUtils;
 
 /**
  * This class decides if a caller has READ access to a given resource. If the
@@ -71,7 +71,7 @@ public class SpaceReadAccessVoter extends SpaceAccessVoter {
      */
     public int vote(Authentication auth,
                     Object resource,
-                    ConfigAttributeDefinition config) {
+                    Collection config) {
         String label = "SpaceReadAccessVoterImpl";
         if (resource != null && !supports(resource.getClass())) {
             log.debug(debugText(label, auth, config, resource, ACCESS_ABSTAIN));

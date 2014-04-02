@@ -19,15 +19,19 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
 
 /**
  * 
  * @author Daniel Bernstein
  *
  */
-public class PartnerLogoController implements Controller{
+@Controller
+public class PartnerLogoController {
 
     protected final Logger log = 
         LoggerFactory.getLogger(PartnerLogoController.class);
@@ -36,12 +40,15 @@ public class PartnerLogoController implements Controller{
 
     private String adminSpaceId;
 
-    public PartnerLogoController(ContentStoreManager contentStoreManager, String adminSpaceId){
+    @Autowired
+    public PartnerLogoController(
+        @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager,
+        @Qualifier("adminSpaceId") String adminSpaceId) {
         this.contentStoreManager = contentStoreManager;
         this.adminSpaceId = adminSpaceId;
     }
     
-	@Override
+    @RequestMapping("/partnerlogo")
 	public ModelAndView handleRequest(HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		try{

@@ -7,17 +7,18 @@
  */
 package org.duracloud.duradmin.util;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.TagUtil;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 public class PropertiesUtils {
 

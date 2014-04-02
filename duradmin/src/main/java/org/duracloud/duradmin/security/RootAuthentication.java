@@ -8,11 +8,12 @@
 package org.duracloud.duradmin.security;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * This class comes in handy when duradmin, in the course of mediating a call from a user with ROLE_USER access,
@@ -33,7 +34,7 @@ public class RootAuthentication implements Authentication{
                                      true,
                                      true,
                                      true,
-                                     new GrantedAuthority[0],
+                                     new ArrayList<GrantedAuthority>(),
                                      new ArrayList<String>(0));
         
     }
@@ -43,7 +44,7 @@ public class RootAuthentication implements Authentication{
     }
 
     @Override
-    public GrantedAuthority[] getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return null;
     }
 

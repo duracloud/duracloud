@@ -218,6 +218,8 @@
         <innerClasses>**/*$*</innerClasses>
         <log.level.default>INFO</log.level.default>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <org.springframework.version>4.0.2.RELEASE</org.springframework.version>
+        <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
     </properties>
 
     <distributionManagement>
@@ -559,20 +561,27 @@
 
             <dependency>
                 <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.4</version>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.0.1</version>
+                <scope>provided</scope>
             </dependency>
 
+<!--
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>servlet-api</artifactId>
-                <version>6.0.18</version>
+                <version>7.0.53</version>
             </dependency>
-
+-->
             <dependency>
                 <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-core-tiger</artifactId>
-                <version>2.0.4</version>
+                <artifactId>spring-security-core</artifactId>
+                <version>${org.springframework.security.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework.security</groupId>
+              <artifactId>spring-security-taglibs</artifactId>
+              <version>${org.springframework.security.version}</version>
             </dependency>
 
             <dependency>
@@ -711,6 +720,10 @@
                 <version>1.0.1</version>
                 <exclusions>
                     <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
@@ -744,7 +757,7 @@
             <dependency>
                 <groupId>org.apache.tiles</groupId>
                 <artifactId>tiles-servlet</artifactId>
-                <version>2.1.3</version>
+                <version>2.2.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -760,7 +773,7 @@
             <dependency>
                 <groupId>org.apache.tiles</groupId>
                 <artifactId>tiles-jsp</artifactId>
-                <version>2.1.3</version>
+                <version>2.2.2</version>
             </dependency>
 
             <dependency>
@@ -775,6 +788,14 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-mock</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -794,8 +815,8 @@
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-taglibs</artifactId>
-                <version>2.0.4</version>
+                <artifactId>spring-security-config</artifactId>
+                <version>${org.springframework.security.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -806,12 +827,16 @@
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-core</artifactId>
-                <version>2.0.4</version>
+                <artifactId>spring-security-web</artifactId>
+                <version>${org.springframework.security.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-web</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -831,11 +856,15 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>2.5.6</version>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -855,7 +884,18 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>2.5.6</version>
+                <version>${org.springframework.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -867,7 +907,23 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
-                <version>2.5.6</version>
+                <version>${org.springframework.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+	    <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -879,7 +935,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
-                <version>2.5.6</version>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -889,9 +945,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework</groupId>
+                <groupId>org.springframework.webflow</groupId>
                 <artifactId>spring-webflow</artifactId>
-                <version>1.0.5</version>
+                <version>2.3.2.RELEASE</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -901,9 +957,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework</groupId>
+                <groupId>org.springframework.webflow</groupId>
                 <artifactId>spring-binding</artifactId>
-                <version>1.0.5</version>
+                <version>2.3.2.RELEASE</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -914,20 +970,8 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-mock</artifactId>
-                <version>2.0.8</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.jdbc</artifactId>
-                <version>2.5.6.A</version>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.commons</groupId>
@@ -935,11 +979,10 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>org.springframework.transaction</artifactId>
-                <version>2.5.6.A</version>
+                <artifactId>spring-context</artifactId>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.commons</groupId>
@@ -947,11 +990,10 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
-                <version>2.5.6</version>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -963,7 +1005,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jms</artifactId>
-                <version>2.5.6</version>
+                <version>${org.springframework.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -971,29 +1013,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
-                <groupId>org.springframework.webflow</groupId>
-                <artifactId>org.springframework.webflow</artifactId>
-                <version>2.0.8.RELEASE</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.webflow</groupId>
-                <artifactId>org.springframework.binding</artifactId>
-                <version>2.0.8.RELEASE</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-                    </exclusion>
-                </exclusions>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-test</artifactId>
+              <version>${org.springframework.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging</artifactId>
+                </exclusion>
+              </exclusions>
             </dependency>
 
             <dependency>
@@ -1060,6 +1089,19 @@
               <groupId>org.codehaus.jackson</groupId>
               <artifactId>jackson-xc</artifactId>
               <version>1.9.5</version>
+            </dependency>
+
+            <dependency>
+              <groupId>javax.validation</groupId>
+              <artifactId>validation-api</artifactId>
+              <version>1.0.0.GA</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.hibernate</groupId>
+              <artifactId>hibernate-validator</artifactId>
+              <version>4.1.0.Final</version>
+              <scope>compile</scope>
             </dependency>
 
         </dependencies>

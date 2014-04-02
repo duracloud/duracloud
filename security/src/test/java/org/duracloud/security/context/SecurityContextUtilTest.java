@@ -7,6 +7,12 @@
  */
 package org.duracloud.security.context;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -15,15 +21,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Andrew Woods
@@ -37,7 +39,7 @@ public class SecurityContextUtilTest {
     private String username = "username";
     private String password = "password";
     private String email = "email";
-    private GrantedAuthority[] authorities;
+    private Collection<GrantedAuthority> authorities;
     private List<String> groups;
 
     @Before
@@ -46,8 +48,8 @@ public class SecurityContextUtilTest {
 
         context = EasyMock.createMock("SecurityContext", SecurityContext.class);
 
-        authorities = new GrantedAuthority[]{new GrantedAuthorityImpl(
-            "ROLE_USER"), new GrantedAuthorityImpl("ROLE_ADMIN")};
+        authorities = Arrays.asList(new GrantedAuthority[]{new GrantedAuthorityImpl(
+            "ROLE_USER"), new GrantedAuthorityImpl("ROLE_ADMIN")});
         groups = new ArrayList<String>();
         groups.add("group-curators");
     }
@@ -120,11 +122,11 @@ public class SecurityContextUtilTest {
         DuracloudUserDetails userDetails = util.getCurrentUserDetails();
         Assert.assertNotNull(userDetails);
 
-        GrantedAuthority[] auths = userDetails.getAuthorities();
+        Collection<GrantedAuthority> auths = userDetails.getAuthorities();
         Assert.assertNotNull(auths);
-        List<GrantedAuthority> authsList = Arrays.asList(auths);
-
-        Assert.assertEquals(authorities.length, authsList.size());
+        List<GrantedAuthority> authsList = new ArrayList<>(auths);
+        LinkedList<GrantedAuthority> authoritiesList = new LinkedList<>(authorities);
+        Assert.assertEquals(authorities.size(), authsList.size());
         for (GrantedAuthority authority : authorities) {
             Assert.assertTrue(authsList.contains(authority));
         }

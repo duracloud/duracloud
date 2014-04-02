@@ -7,6 +7,15 @@
  */
 package org.duracloud.durastore.util;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.context.SecurityContextUtil;
@@ -15,15 +24,7 @@ import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.GrantedAuthority;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * This class provides a filtering of spaces based on the username and groups
@@ -126,7 +127,7 @@ public class ACLStorageProvider implements StorageProvider {
             return false;
         }
 
-        GrantedAuthority[] auths = user.getAuthorities();
+        Collection<GrantedAuthority> auths = user.getAuthorities();
         if (null != auths) {
             for (GrantedAuthority auth : auths) {
                 if ("ROLE_ADMIN".equals(auth.getAuthority())) {

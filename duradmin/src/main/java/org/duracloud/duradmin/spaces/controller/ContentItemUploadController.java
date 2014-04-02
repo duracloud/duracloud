@@ -8,9 +8,7 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,33 +25,36 @@ import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
 
 /**
  * 
  * @author Daniel Bernstein
  */
 
-public class ContentItemUploadController implements Controller {
+@Controller
+public class ContentItemUploadController  {
 
     protected final Logger log =
         LoggerFactory.getLogger(ContentItemUploadController.class);
 
 
-    public ContentStoreManager getContentStoreManager() {
-        return contentStoreManager;
-    }
+    private ContentStoreManager contentStoreManager;
 
-    public void setContentStoreManager(ContentStoreManager contentStoreManager) {
+    @Autowired
+    public ContentItemUploadController(
+        @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
     }
 
-    private ContentStoreManager contentStoreManager;
-
-    @Override
+    @RequestMapping(value="/spaces/content/upload", method = RequestMethod.POST)
     public ModelAndView handleRequest(HttpServletRequest request,
                                       HttpServletResponse response)
         throws Exception {

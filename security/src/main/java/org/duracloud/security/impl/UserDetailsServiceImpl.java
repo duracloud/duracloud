@@ -7,6 +7,12 @@
  */
 package org.duracloud.security.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.error.InvalidUsernameException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.RootUserCredential;
@@ -15,15 +21,10 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  * This class acts as the repository of username/password/role info for access
@@ -116,7 +117,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
                                                              u.isAccountNonExpired(),
                                                              u.isCredentialsNonExpired(),
                                                              u.isAccountNonLocked(),
-                                                             grants,
+                                                             Arrays.asList(grants),
                                                              u.getGroups());
 
         usersTable.put(u.getUsername(), user);
@@ -150,7 +151,7 @@ public class UserDetailsServiceImpl implements DuracloudUserDetailsService {
     }
 
     private SecurityUserBean createUserBean(DuracloudUserDetails user) {
-        List<String> grants = getGrants(user.getAuthorities());
+        List<String> grants = getGrants(user.getAuthorities().toArray(new GrantedAuthority[0]));
         return new SecurityUserBean(user.getUsername(),
                                     user.getPassword(),
                                     user.getEmail(),

@@ -7,6 +7,20 @@
  */
 package org.duracloud.duradmin.control;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
@@ -17,21 +31,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.validation.BindException;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 /**
  * @author Andrew Woods
@@ -52,8 +52,6 @@ public class InitControllerTest {
     private HttpServletRequest request;
     private HttpServletResponse response;
     private StorageSummaryCache storageSummaryCache;
-    private final Object o = null;
-    private final BindException be = null;
 
     @Before
     public void setUp() throws Exception {
@@ -68,8 +66,7 @@ public class InitControllerTest {
         ControllerSupport support = EasyMock.createMock("ControllerSupport",
                                                         ControllerSupport.class);
         EasyMock.expect(support.getContentStoreManager()).andReturn(contentStoreManager);
-        controller = new InitController();
-        controller.setControllerSupport(support);
+        controller = new InitController(support, storageSummaryCache);
         EasyMock.replay(support, contentStoreManager);
     }
 
@@ -100,7 +97,7 @@ public class InitControllerTest {
     private void doTest(int status) throws Exception {
         createMocks(status);
 
-        ModelAndView mav = controller.handle(request, response, o, be);
+        ModelAndView mav = controller.initialize(request, response);
         Assert.assertNotNull(mav);
 
         org.duracloud.duradmin.config.DuradminConfig config = new org.duracloud.duradmin.config.DuradminConfig();
@@ -133,7 +130,6 @@ public class InitControllerTest {
     private void createMocks(int status) throws IOException {
         request = EasyMock.createMock("HttpServletRequest",
                                       HttpServletRequest.class);
-        EasyMock.expect(request.getMethod()).andReturn("POST");
 
         ServletInputStream configStream = createConfigStream(status);
         EasyMock.expect(request.getInputStream()).andReturn(configStream);

@@ -7,14 +7,17 @@
  */
 package org.duracloud.duradmin.security;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 
 /**
@@ -27,8 +30,8 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 public class ContentStoreAuthenticationProvider implements AuthenticationProvider {
     private ContentStoreManager contentStoreManager;
     
-    private static GrantedAuthority[] USER_AUTHORITY = 
-                        new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_USER")};
+    private static Collection<GrantedAuthority> USER_AUTHORITY = 
+                    Arrays.asList(new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_USER")});
 
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {

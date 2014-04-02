@@ -4,9 +4,9 @@
              xmlns="http://www.springframework.org/schema/security"
              xsi:schemaLocation="
            http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
   <!--
     A lot of Spring conventions here.
@@ -81,17 +81,19 @@
   </beans:bean>
 
   <!-- AuthN Manager -->
-  <authentication-manager alias="authenticationManager"/>
-  <authentication-provider user-service-ref="userDetailsSvc">
-    <password-encoder ref="passwordEncoder"/>
-  </authentication-provider>
-  <authentication-provider user-service-ref="userDetailsSvc"/>
+  <authentication-manager alias="authenticationManager" erase-credentials="false">
+    <authentication-provider user-service-ref="userDetailsSvc">
+        <password-encoder ref="passwordEncoder"/>
+    </authentication-provider>
+    <authentication-provider user-service-ref="userDetailsSvc">
+    </authentication-provider>
+   </authentication-manager>
 
   <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl">
   </beans:bean>
 
   <beans:bean id="passwordEncoder"
-    class="org.springframework.security.providers.encoding.ShaPasswordEncoder" >
+    class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" >
    <beans:constructor-arg value="256"/>
   </beans:bean>
 

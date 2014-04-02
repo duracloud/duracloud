@@ -7,10 +7,10 @@
  */
 package org.duracloud.security;
 
-import org.springframework.security.userdetails.UserDetailsService;
-import org.duracloud.security.domain.SecurityUserBean;
-
 import java.util.List;
+
+import org.duracloud.security.domain.SecurityUserBean;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * @author Andrew Woods

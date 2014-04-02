@@ -12,8 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.duracloud.common.web.EncodeUtil;
-import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.NameValuePair;
+import org.duracloud.duradmin.util.PropertiesUtils;
+import org.hibernate.validator.constraints.NotBlank;
 
 
 public class ContentItem
@@ -21,12 +22,16 @@ public class ContentItem
 
     private static final long serialVersionUID = -5835779644282347055L;
 
+    
 	private String action;
 
+	@NotBlank
     private String spaceId;
 
+    @NotBlank
     private String contentId;
 
+    @NotBlank
 	private String storeId;
 	
 	private boolean primaryStorageProvider;

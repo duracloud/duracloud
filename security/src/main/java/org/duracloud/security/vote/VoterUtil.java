@@ -7,11 +7,10 @@
  */
 package org.duracloud.security.vote;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.ConfigAttribute;
-
 import java.util.Collection;
+
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.core.Authentication;
 
 /**
  * @author Andrew Woods
@@ -24,7 +23,7 @@ public class VoterUtil {
      */
     protected static String debugText(String heading,
                                       Authentication auth,
-                                      ConfigAttributeDefinition config,
+                                      Collection<ConfigAttribute> config,
                                       Object resource,
                                       int decision) {
         StringBuilder sb = new StringBuilder(heading);
@@ -33,7 +32,7 @@ public class VoterUtil {
             sb.append(auth.getName());
         }
         if (config != null) {
-            Collection<ConfigAttribute> atts = config.getConfigAttributes();
+            Collection<ConfigAttribute> atts = config;
             if (atts != null && atts.size() > 0) {
                 sb.append(" [");
                 for (ConfigAttribute att : atts) {

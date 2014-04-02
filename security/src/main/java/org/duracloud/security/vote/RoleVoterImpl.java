@@ -7,11 +7,13 @@
  */
 package org.duracloud.security.vote;
 
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.vote.RoleVoter;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.core.Authentication;
 
 /**
  * This class wraps the Spring-RoleVoter for debug visibility.
@@ -33,7 +35,7 @@ public class RoleVoterImpl extends RoleVoter {
     @Override
     public int vote(Authentication authentication,
                     Object resource,
-                    ConfigAttributeDefinition config) {
+                    Collection<ConfigAttribute> config) {
         int decision = super.vote(authentication, resource, config);
         log.debug(VoterUtil.debugText("RoleVoterImpl",
                                       authentication,

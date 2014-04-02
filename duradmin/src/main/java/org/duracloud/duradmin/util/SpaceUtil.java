@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -38,10 +39,10 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.domain.StorageProviderType;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Provides utility methods for spaces.
@@ -263,9 +264,9 @@ public class SpaceUtil {
     }
 
     protected static boolean hasRole(Authentication authentication, String role) {
-        GrantedAuthority[] authorities = authentication.getAuthorities();
-        for (GrantedAuthority a : authorities) {
-            if (a.getAuthority().equals(role)) {
+        Collection authorities = authentication.getAuthorities();
+        for (Object a : authorities) {
+            if (((GrantedAuthority)a).getAuthority().equals(role)) {
                 return true;
             }
         }

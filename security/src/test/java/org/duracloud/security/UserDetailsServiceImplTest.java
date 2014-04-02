@@ -7,21 +7,21 @@
  */
 package org.duracloud.security;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.common.model.SystemUserCredential;
+import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.security.impl.UserDetailsServiceImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.GrantedAuthority;
-import org.duracloud.security.impl.UserDetailsServiceImpl;
-import org.duracloud.security.domain.SecurityUserBean;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  * @author Andrew Woods
@@ -140,17 +140,17 @@ public class UserDetailsServiceImplTest {
         Assert.assertEquals(emailB, udB.getEmail());
         Assert.assertEquals(emailC, udC.getEmail());
 
-        GrantedAuthority[] gA = udA.getAuthorities();
-        GrantedAuthority[] gB = udB.getAuthorities();
-        GrantedAuthority[] gC = udC.getAuthorities();
+        List<GrantedAuthority> gA = new ArrayList<>(udA.getAuthorities());
+        List<GrantedAuthority> gB = new ArrayList<>(udB.getAuthorities());
+        List<GrantedAuthority> gC = new ArrayList<>(udC.getAuthorities());
 
         Assert.assertNotNull(gA);
         Assert.assertNotNull(gB);
         Assert.assertNotNull(gC);
 
-        Assert.assertEquals(grantsA.size(), gA.length);
-        Assert.assertEquals(grantsB.size(), gB.length);
-        Assert.assertEquals(grantsC.size(), gC.length);
+        Assert.assertEquals(grantsA.size(), gA.size());
+        Assert.assertEquals(grantsB.size(), gB.size());
+        Assert.assertEquals(grantsC.size(), gC.size());
 
         for (GrantedAuthority auth : gA) {
             Assert.assertTrue(grantsA.contains(auth.getAuthority()));

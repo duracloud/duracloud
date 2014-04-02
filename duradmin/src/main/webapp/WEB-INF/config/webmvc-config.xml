@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
   xsi:schemaLocation="
            http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+           http://www.springframework.org/schema/context/spring-context-4.0.xsd
+           http://www.springframework.org/schema/mvc
+           http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+           ">
 
 
   <!-- Localization   -->
@@ -21,57 +25,9 @@
         class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
    -->
   <context:component-scan base-package="org.duracloud.duradmin">
-  
   </context:component-scan>
-  <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
-   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
-
-  <!-- Map URLs to Controllers -->
-  <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-    <property name="mappings">
-      <props>
-        <prop key="/login">loginController</prop>
-        <prop key="/download/contentItem">contentItemDownloadController</prop>
-        <prop key="/security">initSecurityUsersController</prop>
-        <prop key="/admin">manageSecurityUsersController</prop>
-        <prop key="/spaces/content">contentItemController</prop>
-        <prop key="/spaces/content/upload">contentItemUploadController</prop>
-        <prop key="/spaces/space">spaceController</prop>
-        <prop key="/spaces/bulk-upload">bulkUploadController</prop>
-        <!-- 
-        <prop key="/spaces/upload">uploadController</prop>
-         -->
-        
-        <prop key="/partnerlogo">partnerLogoController</prop>
-      </props>
-    </property>
-    <property name="order" value="2" />
-  </bean>
+  <mvc:annotation-driven/>  
   
-  <!-- Request Controllers - processes request -->
-  <bean id="loginController" class="org.duracloud.duradmin.control.LoginController" />
-  <bean id="partnerLogoController" class="org.duracloud.duradmin.spaces.controller.PartnerLogoController">
-    <constructor-arg ref="contentStoreManager" />
-    <constructor-arg ref="adminSpaceId" />
-  </bean>
-
-  <bean id="bulkUploadController" class="org.duracloud.duradmin.spaces.controller.BulkUploadController">
-    <property name="contentStoreManager" ref="contentStoreManager" />
-    <property name="userDetailsService" ref="userDetailsSvc" />
-  </bean>
-  
-  <bean id="contentItemController" class="org.duracloud.duradmin.spaces.controller.ContentItemController">
-    <property name="contentStoreManager" ref="contentStoreManager" />
-  </bean>
-  <bean id="contentItemUploadController" class="org.duracloud.duradmin.spaces.controller.ContentItemUploadController">
-    <property name="contentStoreManager" ref="contentStoreManager" />
-  </bean>
-  <bean id="spaceController" class="org.duracloud.duradmin.spaces.controller.SpaceController">
-    <constructor-arg ref="adminSpaceId"/>
-    <constructor-arg ref="bitIntegrityResultsContentId"/>
-    <property name="contentStoreManager" ref="contentStoreManager" />
-  </bean>
-
   <bean id="adminSpaceId" class="java.lang.String">
     <constructor-arg value="x-duracloud-admin"/>
   </bean>
@@ -81,17 +37,7 @@
   </bean>
 
 
-  <bean id="contentItemDownloadController" class="org.duracloud.duradmin.control.ContentItemDownloadController">
-    <constructor-arg ref="controllerSupport" />
-  </bean>
-  <bean id="initSecurityUsersController" class="org.duracloud.duradmin.control.InitSecurityUsersController">
-    <constructor-arg ref="userDetailsSvc" />
-  </bean>
-  <bean id="manageSecurityUsersController" class="org.duracloud.duradmin.control.ManageSecurityUsersController">
-    <property name="userDetailsService" ref="userDetailsSvc" />
-    <property name="passwordEncoder" ref="passwordEncoder" />
-  </bean>
-  <bean id="tilesConfigurer" class="org.duracloud.duradmin.view.tiles2.TilesConfigurer">
+  <bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
     <property name="preparerFactoryClass" value="org.springframework.web.servlet.view.tiles2.SpringBeanPreparerFactory">
     </property>
     <property name="definitions">
@@ -127,10 +73,6 @@
   <bean name="stackTraceExceptionHandler" class="org.springframework.web.servlet.view.json.exception.StackTraceExceptionHandler" />
   <bean name="statusError" class="org.springframework.web.servlet.view.json.error.HttpStatusError" />
   <bean name="modelFlagError" class="org.springframework.web.servlet.view.json.error.ModelFlagError" />
-  <!--
-    <bean id="exceptionResolver" class="org.duracloud.duradmin.common.SimpleExceptionResolver"> <property name="exceptionMappings"> <props> <prop key="java.lang.Exception">error</prop> </props>
-    </property> <property name="order" value="2" /> </bean>
-  -->
 
   <!-- Enables plain Controllers -->
   <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter">

@@ -2179,7 +2179,7 @@ $(function(){
            var newData = data + "&method=" + method;
            var storeId = this._storeId;
            return {
-               url: "/duradmin/spaces/content?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&contentId="+encodeURIComponent(contentId) +"&action=put",
+               url: "/duradmin/spaces/content/update-properties?storeId="+storeId+"&spaceId="+encodeURIComponent(spaceId) +"&contentId="+encodeURIComponent(contentId) ,
                type: "POST",
                data: newData,
                cache: false,

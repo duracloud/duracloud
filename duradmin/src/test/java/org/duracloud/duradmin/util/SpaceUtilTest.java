@@ -8,7 +8,9 @@
 
 package org.duracloud.duradmin.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,9 +27,9 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 /**
  * 
  * @author Daniel Bernstein
@@ -86,9 +88,10 @@ public class SpaceUtilTest {
     }
     
     protected void expectAuthority(String role, int times){
+        Collection auths = Arrays.asList(new GrantedAuthority[] { 
+            new GrantedAuthorityImpl(role) });
         EasyMock.expect(authentication.getAuthorities())
-        .andReturn(new GrantedAuthority[] { 
-                        new GrantedAuthorityImpl(role) })
+        .andReturn(auths)
         .times(times);
     }
 
@@ -109,8 +112,9 @@ public class SpaceUtilTest {
     }
 
     protected void expectSubAdminAuthority() {
+        Collection auths = new ArrayList<GrantedAuthority>();
         EasyMock.expect(authentication.getAuthorities())
-                .andReturn(new GrantedAuthority[0]).times(2);
+                .andReturn(auths).times(2);
     }
 
     private void replay() {

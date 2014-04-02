@@ -9,7 +9,6 @@ package org.duracloud.duradmin.control;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
@@ -26,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -39,35 +38,28 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("/init")
-public class InitController extends BaseCommandController {
+public class InitController {
+
+    private static final String APP_NAME = "DurAdmin";
 
     private final Logger log = LoggerFactory.getLogger(InitController.class);
 
-    @Autowired
     private StorageSummaryCache storageSummaryCache; 
     
-    public InitController() {
-    	setCommandClass(AdminInit.class);
-    	setCommandName("adminInit");
+    private ControllerSupport controllerSupport;
+
+    @Autowired
+    public InitController(
+        ControllerSupport controllerSupport,
+        StorageSummaryCache storageSummaryCache) {
+        this.storageSummaryCache = storageSummaryCache;
+        this.controllerSupport = controllerSupport;
     }
     
-    protected ModelAndView handle(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  Object o,
-                                  BindException be) throws Exception {
-        String method = request.getMethod();
-        if (method.equalsIgnoreCase("POST")) {
-            return initialize(request, response);
-        } else if(method.equalsIgnoreCase("GET")) {
-            return isInitialized(response);
-        } else {
-            return respond(response, "unsupported: " + method, SC_METHOD_NOT_ALLOWED);
-        }
-    }
-
-    private ModelAndView initialize(HttpServletRequest request,
+    @RequestMapping(method=RequestMethod.POST)
+    public ModelAndView initialize(HttpServletRequest request,
                                     HttpServletResponse response) throws Exception {
-        log.debug("Initializing " + APP_NAME);
+        log.debug("Initializing DurAdmin");
 
         ServletInputStream xml = request.getInputStream();
         if (xml != null) {
@@ -105,7 +97,8 @@ public class InitController extends BaseCommandController {
         
     }
 
-    private ModelAndView isInitialized(HttpServletResponse response) {
+    @RequestMapping(value="",method=RequestMethod.GET)
+    public ModelAndView isInitialized(HttpServletResponse response) {
         if(DuradminConfig.isInitialized()) {
             String text = InitUtil.getInitializedText(APP_NAME);
             return respond(response, text, SC_OK);

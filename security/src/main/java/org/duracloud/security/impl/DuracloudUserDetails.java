@@ -7,11 +7,14 @@
  */
 package org.duracloud.security.impl;
 
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * @author Andrew Woods
@@ -29,7 +32,7 @@ public class DuracloudUserDetails extends User implements UserDetails {
                                 boolean accountNonExpired,
                                 boolean credentialsNonExpired,
                                 boolean accountNonLocked,
-                                GrantedAuthority[] authorities,
+                                Collection<GrantedAuthority> authorities,
                                 List<String> groups)
         throws IllegalArgumentException {
         super(username,

@@ -14,12 +14,14 @@ import java.util.Map;
 import org.duracloud.duradmin.util.NameValuePair;
 import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
+import org.hibernate.validator.constraints.NotBlank;
 
 public class Space
         implements Serializable {
 
     private static final long serialVersionUID = 3008516494814826947L;
 
+    @NotBlank
 	private String storeId;
 	
 	/*
@@ -36,6 +38,7 @@ public class Space
 
     private String action;
 
+    @NotBlank
     private String spaceId;
 
     private String access;

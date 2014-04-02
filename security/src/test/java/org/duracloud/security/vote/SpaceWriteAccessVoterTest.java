@@ -8,11 +8,13 @@
 package org.duracloud.security.vote;
 
 import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.vote.AccessDecisionVoter.ACCESS_GRANTED;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,17 +35,17 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.GrantedAuthorityImpl;
-import org.springframework.security.SecurityConfig;
-import org.springframework.security.intercept.web.FilterInvocation;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.anonymous.AnonymousAuthenticationToken;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.FilterInvocation;
 
 /**
  * @author Andrew Woods
@@ -106,7 +108,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(HttpVerb.PUT, contentId);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         expectGetSpaceAcls();
 
         replayMocks();
@@ -122,7 +124,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         addGetQueryStringInvocation(1);
 
         replayMocks();
@@ -138,7 +140,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
 
         addGetQueryStringInvocation(1);
         replayMocks();
@@ -154,7 +156,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         addGetQueryStringInvocation(1);
         replayMocks();
 
@@ -170,7 +172,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(HttpVerb.PUT, contentId);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         expectGetSpaceAcls();
 
         replayMocks();
@@ -186,7 +188,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         addGetQueryStringInvocation(1);
         replayMocks();
 
@@ -201,7 +203,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, groupWrite);
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         addGetQueryStringInvocation(1);
         replayMocks();
 
@@ -216,7 +218,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(securedSpace, login, HttpVerb.PUT);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         addGetQueryStringInvocation(1);
         replayMocks();
 
@@ -251,7 +253,7 @@ public class SpaceWriteAccessVoterTest {
             
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         addGetQueryStringInvocation(1);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         StorageAccount account =
             new StorageAccountImpl(storeId,
                                    "test",
@@ -274,7 +276,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockUpdateAclInvocation(login);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
 
         replayMocks();
 
@@ -289,7 +291,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockInvocation(securedSpace, login, HttpVerb.GET);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
 
         replayMocks();
 
@@ -314,7 +316,7 @@ public class SpaceWriteAccessVoterTest {
         Authentication caller = registeredUser(login, "none");
         createMockDeleteSpaceInvocation(login);
         createUserDetailsServiceMock(login);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         addGetQueryStringInvocation(1);
         replayMocks();
 
@@ -376,7 +378,7 @@ public class SpaceWriteAccessVoterTest {
                             boolean securedSpace,
                             int expected) {
         createMockInvocationVerifyVote(caller, securedSpace, HttpVerb.POST);
-        ConfigAttributeDefinition config = getConfigAttribute(securedSpace);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -400,8 +402,8 @@ public class SpaceWriteAccessVoterTest {
     }
 
     private Authentication anonymousUser() {
-        GrantedAuthority[] authorities =
-            new GrantedAuthorityImpl[]{new GrantedAuthorityImpl("ROLE_ANONYMOUS")};
+        Collection<GrantedAuthority> authorities =
+            Arrays.asList(new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_ANONYMOUS")});
         User user = new User("anon", "x", true, true, true, true, authorities);
         return new AnonymousAuthenticationToken("x", user, authorities);
     }
@@ -514,13 +516,23 @@ public class SpaceWriteAccessVoterTest {
         EasyMock.expect(request.getQueryString()).andReturn(
             "storeID=" + storeId + "&attachment=true").times(times);
     }
+    
+    
 
-    public ConfigAttributeDefinition getConfigAttribute(boolean securedSpace) {
+    public Collection<ConfigAttribute> getConfigAttribute(boolean securedSpace) {
         if (securedSpace) {
-            return new ConfigAttributeDefinition(new SecurityConfig("ROLE_USER"));
+            return createConfig(new SecurityConfig("ROLE_USER"));
         }
-        return new ConfigAttributeDefinition(new SecurityConfig("ROLE_ANONYMOUS"));
+        return createConfig(new SecurityConfig("ROLE_ANONYMOUS"));
     }
+
+    protected Collection<ConfigAttribute> createConfig(SecurityConfig role) {
+        List<ConfigAttribute> configAttributes = new LinkedList<>();
+        configAttributes.add(role);
+        return configAttributes;
+    }
+
+
 
     private UserDetailsService createUserDetailsServiceMock(LOGIN login) {
         UserDetails userDetails = new User(login.name(),
@@ -560,10 +572,10 @@ public class SpaceWriteAccessVoterTest {
         ROOT("ROLE_ROOT"),
         ADMIN("ROLE_ADMIN");
 
-        private GrantedAuthority[] auths;
+        private Collection<GrantedAuthority> auths;
 
         LOGIN(String role) {
-            auths = new GrantedAuthority[]{new GrantedAuthorityImpl(role)};
+            auths = Arrays.asList(new GrantedAuthority[]{new GrantedAuthorityImpl(role)});
         }
     }
 

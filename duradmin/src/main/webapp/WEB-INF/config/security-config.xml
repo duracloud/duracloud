@@ -2,19 +2,17 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/security"
   xsi:schemaLocation="
            http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">
+           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
   <beans:bean id="authenticationProcessingFilter"
-              class="org.springframework.security.ui.webapp.AuthenticationProcessingFilter">
+              class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
     <beans:property name="authenticationManager" ref="authenticationManager" />
-    <!--beans:property name="authenticationFailureUrl" value="/login?error=true" /-->
-    <beans:property name="defaultTargetUrl" value="/" />
     <beans:property name="filterProcessesUrl" value="/j_spring_security_check" />
   </beans:bean>
 
-  <http auto-config="false" entry-point-ref="authenticationProcessingFilterEntryPoint">
+  <http entry-point-ref="authenticationProcessingFilterEntryPoint">
     <intercept-url pattern="/init" method="GET" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
     <intercept-url pattern="/spaces/snapshot" method="POST" access="ROLE_ADMIN"/>
@@ -36,22 +34,24 @@
   </http>
 
   <!-- AuthN Manager -->
-  <authentication-manager alias="authenticationManager"/>
-  <authentication-provider user-service-ref="userDetailsSvc">
-    <password-encoder ref="passwordEncoder"/>
-  </authentication-provider>
-  <authentication-provider user-service-ref="userDetailsSvc"/>
+  <authentication-manager alias="authenticationManager"  erase-credentials="false">
+    <authentication-provider user-service-ref="userDetailsSvc">
+       <password-encoder ref="passwordEncoder"/>
+    </authentication-provider>
+    <authentication-provider user-service-ref="userDetailsSvc"/>
 
+  </authentication-manager>
+  
   <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl"/>
 
   <beans:bean id="passwordEncoder"
-    class="org.springframework.security.providers.encoding.ShaPasswordEncoder" >
+    class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" >
    <beans:constructor-arg value="256"/>
   </beans:bean>
 
-  <beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.ui.webapp.AuthenticationProcessingFilterEntryPoint">
+  <beans:bean id="authenticationProcessingFilterEntryPoint"	class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
 		<beans:property name="loginFormUrl" value="/login" />
-		<beans:property name="serverSideRedirect" value="true" />
+		<beans:property name="useForward" value="true" />
 	</beans:bean>
 
   <!-- AOP to log(in/out) ContentStoreMgr and ServicesMgr -->

@@ -9,26 +9,25 @@ package org.duracloud.duradmin.control;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
 import static org.duracloud.security.xml.SecurityUsersDocumentBinding.createSecurityUsersFrom;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 /**
  * This class initializes the application security users based on the xml
@@ -37,24 +36,23 @@ import org.springframework.web.servlet.mvc.AbstractController;
  * @author Andrew Woods
  *         Date: Apr 19, 2010
  */
-public class InitSecurityUsersController extends AbstractController {
+
+@Controller
+public class InitSecurityUsersController {
 
     private final Logger log = LoggerFactory.getLogger(InitSecurityUsersController.class);
 
     private DuracloudUserDetailsService userDetailsService;
-
+    
+    @Autowired
     public InitSecurityUsersController(DuracloudUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+    @RequestMapping(value="/security", method=RequestMethod.POST)
+    public ModelAndView handleRequestInternal(HttpServletRequest request,
                                                  HttpServletResponse response)
         throws Exception {
-
-        String method = request.getMethod();
-        if (!method.equalsIgnoreCase("POST")) {
-            return respond(response, "unsupported: " + method, SC_METHOD_NOT_ALLOWED);
-        }
 
         ServletInputStream xml = request.getInputStream();
         if (xml != null) {

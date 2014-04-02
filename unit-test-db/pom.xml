@@ -61,7 +61,7 @@
     <!-- spring -->
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.jdbc</artifactId>
+      <artifactId>spring-jdbc</artifactId>
     </dependency>    
 
     <dependency>

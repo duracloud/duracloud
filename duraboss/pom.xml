@@ -102,6 +102,11 @@
             <artifactId>spring-core</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- for Jersey -->
         <dependency>

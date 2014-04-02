@@ -7,12 +7,13 @@
  */
 package org.duracloud.security.impl;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.security.GrantedAuthority;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * @author Andrew Woods
@@ -67,7 +68,7 @@ public class DuracloudUserDetailsTest {
                                         true,
                                         true,
                                         true,
-                                        new GrantedAuthority[0],
+                                        new LinkedList<GrantedAuthority>(),
                                         groups);
     }
 

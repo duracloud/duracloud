@@ -7,19 +7,20 @@
  */
 package org.duracloud.duradmin.control;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
 
 /**
  * @author: Daniel Bernstein
  * Date: March 21, 2010
  */
-public class LoginController implements Controller{
-    public ModelAndView handleRequest(HttpServletRequest request,
-                                      HttpServletResponse response)
+@Controller
+public class LoginController {
+    
+    
+    @RequestMapping("/login")
+    public ModelAndView presentLogin()
             throws Exception {
         return new ModelAndView("login");
     }
