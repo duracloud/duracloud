@@ -53,7 +53,7 @@ public class GenerateConfigMojo
     /**
      * The maven project.
      *
-     * @parameter expression="${project}"
+     * @parameter property="${project}"
      * @required
      * @readonly
      */
@@ -105,14 +105,14 @@ public class GenerateConfigMojo
     protected ArtifactFactory factory;
 
     /**
-     * @parameter expression="${project.remoteArtifactRepositories}"
+     * @parameter property="${project.remoteArtifactRepositories}"
      */
     private List<ArtifactRepository> remoteRepositories;
 
     /**
      * The Maven Session Object
      *
-     * @parameter expression="${session}"
+     * @parameter property="${session}"
      * @required
      * @readonly
      */

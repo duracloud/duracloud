@@ -29,7 +29,7 @@
         <inherited>true</inherited>
         <configuration>
           <schemaDirectory>src/main/resources</schemaDirectory>
-          <outputJar>target/${artifactId}-xmlbeans-${version}.jar</outputJar>
+          <outputJar>target/${project.artifactId}-xmlbeans-${project.version}.jar</outputJar>
         </configuration>
       </plugin>
     </plugins>

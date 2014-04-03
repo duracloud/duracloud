@@ -113,7 +113,7 @@
             <configuration>
               <classifier>tools</classifier>
               <instructions>
-                <Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}-tools</Bundle-SymbolicName>
+                <Bundle-SymbolicName>${project.groupId}.${project.artifactId}-tools</Bundle-SymbolicName>
               </instructions>
             </configuration>
           </plugin>
