@@ -19,14 +19,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
-    <groupId>org.ops4j.pax</groupId>
-    <artifactId>exam</artifactId>
-    <version>3.4.0</version>
-    <relativePath></relativePath>
+    <groupId>org.duracloud</groupId>
+    <artifactId>mavenplugins</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.ops4j.pax.exam</groupId>
+  <groupId>org.duracloud.maven</groupId>
   <artifactId>paxexam-maven-plugin</artifactId>
   <version>1.1.0-duracloud</version>
   <packaging>maven-plugin</packaging>
@@ -35,6 +34,10 @@
   <description>
     Goal: generate-config: Converts configuration done inside pom to be readable by the PaxExamPluginOption option.
   </description>
+
+  <properties>
+    <checkstyle.skip>true</checkstyle.skip>
+  </properties>
 
   <distributionManagement>
 
@@ -59,8 +62,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
@@ -75,45 +78,66 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>profile-clover</id>
+  <!--<profiles>-->
+    <!--<profile>-->
+      <!--<id>profile-clover</id>-->
 
-      <properties>
-        <tomcat.port>${tomcat.port.default}</tomcat.port>
-        <database.home>${database.home.default}</database.home>
-      </properties>
+      <!--<properties>-->
+        <!--<tomcat.port>${tomcat.port.default}</tomcat.port>-->
+        <!--<database.home>${database.home.default}</database.home>-->
+      <!--</properties>-->
 
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.atlassian.maven.plugins</groupId>
-            <artifactId>maven-clover2-plugin</artifactId>
-            <version>2.6.2</version>
-            <configuration>
-              <licenseLocation>${cloverLicense}</licenseLocation>
-              <targetPercentage>50%</targetPercentage>
-              <includes>
-                <include>**/*.java</include>
-              </includes>
-              <generateHtml>true</generateHtml>
-              <generateHistorical>true</generateHistorical>
-              <historyDir>${user.home}/.clover/history/${project.artifact}</historyDir>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+      <!--<build>-->
+        <!--<plugins>-->
+          <!--<plugin>-->
+            <!--<groupId>com.atlassian.maven.plugins</groupId>-->
+            <!--<artifactId>maven-clover2-plugin</artifactId>-->
+            <!--<version>2.6.2</version>-->
+            <!--<configuration>-->
+              <!--<licenseLocation>${cloverLicense}</licenseLocation>-->
+              <!--<targetPercentage>50%</targetPercentage>-->
+              <!--<includes>-->
+                <!--<include>**/*.java</include>-->
+              <!--</includes>-->
+              <!--<generateHtml>true</generateHtml>-->
+              <!--<generateHistorical>true</generateHistorical>-->
+              <!--<historyDir>${user.home}/.clover/history/${project.artifact}</historyDir>-->
+            <!--</configuration>-->
+          <!--</plugin>-->
+        <!--</plugins>-->
+      <!--</build>-->
+    <!--</profile>-->
+  <!--</profiles>-->
 
   <dependencies>
+    <!--<dependency>-->
+      <!--<groupId>org.ops4j.pax.exam</groupId>-->
+      <!--<artifactId>pax-exam-checkstyle-rules</artifactId>-->
+      <!--<version>3.4.0</version>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
+      <version>5.0.0</version>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>ju</groupId>-->
+      <!--<artifactId></artifactId>-->
+      <!--<version></version>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -163,71 +187,71 @@
       <artifactId>maven-artifact</artifactId>
       <version>3.1.1</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-checkstyle-plugin</artifactId>
-      <version>2.10</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-artifact</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-project</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-model</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-plugin-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-container-default</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-interpolation</artifactId>
-        </exclusion>
+    <!--<dependency>-->
+      <!--<groupId>org.apache.maven.plugins</groupId>-->
+      <!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+      <!--<version>2.10</version>-->
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+          <!--<groupId>commons-logging</groupId>-->
+          <!--<artifactId>commons-logging</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>commons-lang</groupId>-->
+          <!--<artifactId>commons-lang</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven</groupId>-->
+          <!--<artifactId>maven-artifact</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven</groupId>-->
+          <!--<artifactId>maven-project</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven</groupId>-->
+          <!--<artifactId>maven-model</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven</groupId>-->
+          <!--<artifactId>maven-plugin-api</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.codehaus.plexus</groupId>-->
+          <!--<artifactId>plexus-container-default</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.codehaus.plexus</groupId>-->
+          <!--<artifactId>plexus-interpolation</artifactId>-->
+        <!--</exclusion>-->
 
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-repository-metadata</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven.shared</groupId>
-          <artifactId>maven-doxia-tools</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven.doxia</groupId>
-          <artifactId>doxia-decoration-model</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven.doxia</groupId>
-          <artifactId>doxia-sink-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.maven.doxia</groupId>
-          <artifactId>doxia-site-renderer</artifactId>
-        </exclusion>
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven</groupId>-->
+          <!--<artifactId>maven-repository-metadata</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven.shared</groupId>-->
+          <!--<artifactId>maven-doxia-tools</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven.doxia</groupId>-->
+          <!--<artifactId>doxia-decoration-model</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven.doxia</groupId>-->
+          <!--<artifactId>doxia-sink-api</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.apache.maven.doxia</groupId>-->
+          <!--<artifactId>doxia-site-renderer</artifactId>-->
+        <!--</exclusion>-->
 
-        <exclusion>
-          <groupId>xml-apis</groupId>
-          <artifactId>xml-apis</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+        <!--<exclusion>-->
+          <!--<groupId>xml-apis</groupId>-->
+          <!--<artifactId>xml-apis</artifactId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>org.apache.servicemix.tooling</groupId>
       <artifactId>depends-maven-plugin</artifactId>
