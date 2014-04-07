@@ -8,7 +8,6 @@
 package org.duracloud.security.impl;
 
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -48,6 +47,15 @@ public class DuracloudUserDetails extends User implements UserDetails {
 
     public String getEmail() {
         return email;
+    }
+    
+    @Override
+    public void eraseCredentials() {
+        //The credentials are getting erased despite my using the  
+        //erase-credentials="false" in security-config.xml
+        //overriding prevents the erasure from occurring.
+        //--db
+        //prevent password from being erased.
     }
 
     public List<String> getGroups() {
