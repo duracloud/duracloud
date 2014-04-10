@@ -32,7 +32,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
     private final Logger log =
         LoggerFactory.getLogger(EnableStreamingTaskRunner.class);
 
-    private static final String TASK_NAME = "enable-streaming";
+    public static final String TASK_NAME = "enable-streaming";
 
     public EnableStreamingTaskRunner(S3StorageProvider s3Provider,
                                      AmazonS3Client s3Client,

@@ -124,9 +124,7 @@ public class SpaceController extends  AbstractRestController<Space> {
                 contentStoreManager.getContentStore(space.getStoreId(),0);
 			populateSpace(space, cloudSpace, contentStoreWithoutRetries);
 			populateSpaceCount(space, request);
-			populateStreamEnabled(space);
             populateBitIntegrityResults(space);
-
 			return createModel(space);
 		}catch(ContentStoreException ex){
 			ex.printStackTrace();
@@ -165,26 +163,6 @@ public class SpaceController extends  AbstractRestController<Space> {
             log.error("failed to populate bit integrity results due to error:" + ex.getMessage(), ex);
         }
     }
-
-    private void populateStreamEnabled(Space space) {
-        boolean enabled = false;
-        try {
-            ServiceInfo info =
-                ServiceUtil.findMediaStreamingService(this.servicesManager);
-            enabled =
-                ServiceUtil.isMediaStreamingServiceEnabled(info,
-                                                           space.getSpaceId());
-        }catch(NotFoundException e){
-            enabled = false;
-        }catch (ServicesException e) {
-            throw new DuraCloudRuntimeException(e);
-        }
-
-        space.setStreamingEnabled(enabled);
-
-    }
-    
-
 
     private void populateSpace(Space space,
                                org.duracloud.domain.Space cloudSpace,

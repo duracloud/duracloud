@@ -81,6 +81,21 @@ var dc;
         });       
     };
 	
+
+    dc.service.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
+        var jqxhr = dc.ajax2({
+            url: "/duradmin/spaces/mediastreamer?storeId="+storeId+"&spaceId="
+                            + encodeURIComponent(spaceId) 
+                            + "&enable=" + enable,
+            type: "post",
+            cache: false,
+        }).fail(function(){
+            dc.displayErrorDialog(jqxhr);  
+        });
+        return jqxhr;
+    };
+    
+     
 	/**
 	 * @param Object space
 	 * @param Object callback The callback must implement success and failure methods. options begin method is supported.

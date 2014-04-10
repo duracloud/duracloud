@@ -2777,7 +2777,7 @@ $(function(){
                     });
                 });
             }
-
+            
             var switchHolder = $(".streaming-switch-holder");
             switchHolder.hide();                
             if(this._isAdmin() && space.primaryStorageProvider){
@@ -2794,7 +2794,7 @@ $(function(){
                                             , offText: "Off"
                     }).bind("turnOff", function(evt, future){
                         switchHolder.busy();
-                        $.when(dc.service.UpdateSpaceStreaming(space.storeId, space.spaceId, false))
+                        $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, false))
                          .done(function(){
                              future.success();
                          }).always(function(){
@@ -2802,7 +2802,7 @@ $(function(){
                          });
                     }).bind("turnOn", function(evt, future){
                         switchHolder.busy();
-                        $.when(dc.service.UpdateSpaceStreaming(space.storeId, space.spaceId, true))
+                        $.when(dc.store.UpdateSpaceStreaming(space.storeId, space.spaceId, true))
                          .done(function(){
                              future.success();
                          }).always(function(){
@@ -3295,40 +3295,15 @@ $(function(){
 
             this._appendToCenter(div);
 
-            $.when(dc.service.GetStreamingStatus(contentItem.storeId, contentItem.spaceId))
+            $.when(dc.store.GetSpace2({storeId:contentItem.storeId, spaceId:contentItem.spaceId}))
              .done(function(result){
-                 var streamingHost = null;
-                if(result.streamingEnabled){
-                    streamingHost = result.streamingHost;
-                    if(streamingHost != null && streamingHost.indexOf("null") == -1){
-                        that._writeMediaTag(result.streamingHost, contentItem);
-                    }else{
-                        viewer.append("<p>The streaming service for this space is starting up.</p>");
-                        viewer.append("<p>Please try again in a few minutes by refreshing this page.</p>");
-                    }
+                 var streamingHost = result.space.properties.streamingHost;
+                if(streamingHost != null && 
+                   streamingHost.trim() != "" && 
+                   streamingHost.indexOf("null") == -1){
+                    that._writeMediaTag(streamingHost, contentItem);
                 }else{
-                    viewer.append("<p>No streaming service is running against this space.</p>");
-                    if(that._isAdmin()){
-                        var streamingButton = $.fn.create("button").attr("id", "enable-streaming");
-                        streamingButton.html("Enable streaming for this space");
-                        streamingButton.click(function(evt){
-                            $(evt.target).disable();
-                            dc.busy("Enabling streaming service...");
-                            dc.service.UpdateSpaceStreaming(
-                                        contentItem.storeId, 
-                                        contentItem.spaceId, true)
-                                      .done(function(){
-                                          HistoryManager.pushState(contentItem);
-                                      })
-                                      .always(function(){
-                                          dc.done();
-                                      });
-                        });
-                        viewer.append(streamingButton);
-                    }
-                    
-                    //viewer.append("<p>The player below will work on HTML5 compliant browsers only.");
-                    //viewer.append(that._createHTML5MediaTag(contentItem,type));
+                    viewer.append("<p>Currently there is no streaming service is running against this space.</p>");
                 }
              });
         },

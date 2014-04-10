@@ -25,6 +25,8 @@ public class SpaceProperties
     private String size;
 
     private int queryCount;
+    
+    private String streamingHost;
 
     private Set<String> tags;
 
@@ -67,6 +69,14 @@ public class SpaceProperties
 
     public int getQueryCount() {
         return queryCount;
+    }
+
+    public String getStreamingHost() {
+        return streamingHost;
+    }
+
+    public void setStreamingHost(String streamingHost) {
+        this.streamingHost = streamingHost;
     }
 
 }

@@ -5,12 +5,12 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duradmin.services.controller;
+package org.duracloud.duradmin.spaces.controller;
 
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.test.AbstractTestBase;
-import org.duracloud.exec.Executor;
 import org.duracloud.exec.error.InvalidActionRequestException;
-import org.duracloud.serviceapi.ServicesManager;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
@@ -24,25 +24,27 @@ import org.springframework.web.servlet.ModelAndView;
  *
  */
 public class MediaStreamingServiceControllerTest extends AbstractTestBase {
-    private MediaStreamingServiceController controller;
+    private MediaStreamingTaskController controller;
 
     @Override
     @Before
     public void setup(){
         super.setup();
-        ServicesManager servicesManager = createMock(ServicesManager.class);
+        ContentStoreManager contentStoreManager = createMock(ContentStoreManager.class);
+        ContentStore store = createMock(ContentStore.class);
 
-        Executor executor = createMock(Executor.class);
         try {
-            executor.performAction(EasyMock.isA(String.class),
-                                   EasyMock.isA(String.class));
-        } catch (InvalidActionRequestException e) {
+            EasyMock.expect(contentStoreManager.getContentStore(EasyMock.isA(String.class))).andReturn(store);
+
+            EasyMock.expect(store.performTask(EasyMock.isA(String.class),
+                                   EasyMock.isA(String.class))).andReturn("result");
+
+        } catch (Exception e) {
             Assert.fail("Unexpected exception: "+e.getMessage());
         }
-        EasyMock.expectLastCall();
         replay();
         
-        controller = new MediaStreamingServiceController(executor, servicesManager);
+        controller = new MediaStreamingTaskController(contentStoreManager);
     }
 
     @Override
@@ -55,6 +57,6 @@ public class MediaStreamingServiceControllerTest extends AbstractTestBase {
     public void testPost() throws Exception{
        boolean enable = true;
        ModelAndView mav = controller.post("testStore", "testSpace", enable);
-       Assert.assertEquals(enable, mav.getModelMap().get(MediaStreamingServiceController.STREAMING_ENABLED_KEY));
+       Assert.assertEquals(enable, mav.getModelMap().get(MediaStreamingTaskController.STREAMING_ENABLED_KEY));
     }
 }

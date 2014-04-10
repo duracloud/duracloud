@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
@@ -57,6 +58,7 @@ public class SpaceUtil {
                                       Authentication authentication) throws ContentStoreException {
         space.setSpaceId(cloudSpace.getId());
         space.setProperties(getSpaceProperties(cloudSpace.getProperties()));
+        space.setStreamingEnabled(StringUtils.isNotBlank(space.getProperties().getStreamingHost()));
         space.setExtendedProperties(cloudSpace.getProperties());
         space.setContents(cloudSpace.getContentIds());
         Map<String,AclType> spaceAcls = contentStore.getSpaceACLs(cloudSpace.getId());
@@ -90,6 +92,7 @@ public class SpaceUtil {
         spaceProperties.setCount(spaceProps.remove(ContentStore.SPACE_COUNT));
         spaceProperties.setSize(spaceProps.remove(ContentStore.SPACE_SIZE));
         spaceProperties.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
+        spaceProperties.setStreamingHost(spaceProps.get(ContentStore.STREAMING_HOST));
         return spaceProperties;
     }
 

@@ -24,7 +24,7 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
     private final Logger log =
         LoggerFactory.getLogger(DisableStreamingTaskRunner.class);
 
-    private static final String TASK_NAME = "disable-streaming";
+    public static final String TASK_NAME = "disable-streaming";
 
     public DisableStreamingTaskRunner(S3StorageProvider s3Provider,
                                       AmazonS3Client s3Client,
