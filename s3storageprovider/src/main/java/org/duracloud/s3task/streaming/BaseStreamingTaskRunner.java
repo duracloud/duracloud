@@ -7,13 +7,7 @@
  */
 package org.duracloud.s3task.streaming;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.AccessControlList;
-import com.amazonaws.services.s3.model.CanonicalGrantee;
-import com.amazonaws.services.s3.model.Grant;
-import com.amazonaws.services.s3.model.Permission;
-import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
@@ -28,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -38,6 +32,8 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
 
     private final Logger log =
         LoggerFactory.getLogger(BaseStreamingTaskRunner.class);
+
+    public static final String STREAMING_HOST_PROP = "streaming-host";
 
     protected static final int maxRetries = 8;
 
@@ -138,56 +134,17 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
     }
 
     /*
-     * Sets access control for a given content ID in a given bucket to
-     * be available to a specific grantee.
+     * Updates the space properties to no longer include the
+     * streaming host value (if the value existed there in the first place)
      */
-    protected void setACL(String bucketName,
-                          String contentId,
-                          CanonicalGrantee s3Grantee)
-        throws DuraCloudCheckedException {
-        for(int i=0; i<maxRetries; i++) {
-            try {
-                AccessControlList contentACL =
-                    s3Client.getObjectAcl(bucketName, contentId);
-
-                // Determine if grant already exists
-                boolean grantExists = checkACL(contentACL,
-                                               s3Grantee.getIdentifier(),
-                                               Permission.Read);
-                if(!grantExists) {
-                    contentACL.grantPermission(s3Grantee,
-                                               Permission.Read);
-                    s3Client.setObjectAcl(bucketName, contentId, contentACL);
-                }
-                return;
-            } catch(AmazonServiceException e) {
-                log.warn("Exception encountered attempting to set streaming " +
-                         "ACL for S3 content: " + contentId + " in bucket: " +
-                         bucketName + ", error: " + e.getMessage());
-                wait(i);
-            }
+    protected void removeStreamingHostFromSpaceProps(String spaceId) {
+        // Update bucket tags to remove streaming host
+        Map<String, String> spaceProps =
+            s3Provider.getSpaceProperties(spaceId);
+        if(spaceProps.containsKey(STREAMING_HOST_PROP)) {
+            spaceProps.remove(STREAMING_HOST_PROP);
+            s3Provider.setNewSpaceProperties(spaceId, spaceProps);
         }
-        throw new DuraCloudCheckedException(
-            "Unable to set streaming ACL for " + contentId +
-            " in bucket " + bucketName);
-    }
-
-    /*
-     * Determines if the provided ACL includes the given permission for
-     * the given grantee
-     */
-    private boolean checkACL(AccessControlList acl,
-                             String granteeId,
-                             Permission permission) {
-        Set<Grant> grants = acl.getGrants();
-        for(Grant grant : grants) {
-            if(granteeId.equals(grant.getGrantee().getIdentifier())) {
-                if(permission.equals(grant.getPermission())) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     protected void wait(int index) {

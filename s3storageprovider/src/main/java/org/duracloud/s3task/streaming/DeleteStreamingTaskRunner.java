@@ -8,12 +8,12 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -46,6 +46,9 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
         // Will throw if bucket does not exist
         String bucketName = s3Provider.getBucketName(spaceId);
         String results;
+
+        removeStreamingHostFromSpaceProps(spaceId);
+        s3Client.deleteBucketPolicy(bucketName);
 
         try {
             List<StreamingDistribution> existingDists =

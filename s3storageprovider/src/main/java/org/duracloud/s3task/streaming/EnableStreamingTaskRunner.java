@@ -8,9 +8,7 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CanonicalGrantee;
 import org.apache.commons.lang.StringUtils;
-import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
@@ -21,9 +19,7 @@ import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -109,12 +105,16 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
                 distId = dist.getId();
             }
 
-            // Set content ACLs to accept origin access identity
-            String aclResults =
-                setContentAccessIdentity(spaceId, bucketName, oaIdentityId);
+            // Set bucket policy to accept origin access identity
+            setBucketAccessPolicy(bucketName, oaIdentityId);
 
-            results = "Enable Streaming Task completed, " +
-                      "results: " + aclResults;
+            // Update bucket tags to include streaming host
+            Map<String, String> spaceProps =
+                s3Provider.getSpaceProperties(spaceId);
+            spaceProps.put(STREAMING_HOST_PROP, domainName);
+            s3Provider.setNewSpaceProperties(spaceId, spaceProps);
+
+            results = "Enable Streaming Task completed successfully";
         } catch(CloudFrontServiceException e) {
             log.warn("Error encountered running " + TASK_NAME + " task: " +
                      e.getMessage(), e);
@@ -163,14 +163,12 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
     }
 
     /*
-     * Adds access permissions to each item in a space for an origin
+     * Updates the bucket policy to allow GET access to the cloudfront origin
      * access identity. This allows Cloudfront to access content in S3
      *
      * @return results of the ACL setting activity
      */
-    private String setContentAccessIdentity(String spaceId,
-                                            String bucketName,
-                                            String oaIdentityId)
+    private void setBucketAccessPolicy(String bucketName, String oaIdentityId)
         throws CloudFrontServiceException {
         // Clean up the origin access id if necessary
         oaIdentityId = StringUtils.removeStart(oaIdentityId,
@@ -180,41 +178,18 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         OriginAccessIdentity oaIdentity =
             cfService.getOriginAccessIdentity(oaIdentityId);
         String s3UserId = oaIdentity.getS3CanonicalUserId();
-        CanonicalGrantee s3Grantee = new CanonicalGrantee(s3UserId);
 
-        // Get a list of items in the space
-        Iterator<String> contentIds = getSpaceContents(spaceId);
-
-        // Attempt to set a new ACL permission allowing read for origin
-        // access identity to each content item
-        int successfulSet = 0;
-        List<String> failedSet = new ArrayList<String>();
-        while(contentIds.hasNext()) {
-            String contentId = contentIds.next();
-            try {
-                setACL(bucketName, contentId, s3Grantee);
-                successfulSet++;
-            } catch(DuraCloudCheckedException e) {
-                log.error(e.getMessage());
-                failedSet.add(contentId);
-            }
-        }
-
-        // Build results
-        StringBuilder results = new StringBuilder();
-        results.append(successfulSet);
-        results.append(" files ready for streaming. ");
-        if(failedSet.size() > 0) {
-            results.append(failedSet.size());
-            results.append(" files failed stream setup: ");
-            for(String failedId : failedSet) {
-                results.append(failedId);
-                results.append(", ");
-            }
-        }
-        results.trimToSize();
-
-        return results.toString();
+        StringBuilder policyText = new StringBuilder();
+        policyText.append("{\"Version\":\"2012-10-17\",");
+	    policyText.append("\"Id\":\"PolicyForCloudFrontPrivateContent\",");
+	    policyText.append("\"Statement\":[{");
+        policyText.append("\"Sid\":\"Grant CloudFront access to private content\",");
+		policyText.append("\"Effect\":\"Allow\",");
+		policyText.append("\"Principal\":{\"CanonicalUser\":\"" + s3UserId + "\"},");
+        policyText.append("\"Action\":\"s3:GetObject\",");
+        policyText.append("\"Resource\":\"arn:aws:s3:::" + bucketName + "/*\"");
+        policyText.append("}]}");
+        s3Client.setBucketPolicy(bucketName, policyText.toString());
     }
 
 }

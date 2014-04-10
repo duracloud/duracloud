@@ -7,20 +7,13 @@
  */
 package org.duracloud.s3task.streaming;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import org.duracloud.common.error.DuraCloudCheckedException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author: Bill Branan
@@ -53,20 +46,21 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
         String bucketName = s3Provider.getBucketName(spaceId);
         String results;
 
+        removeStreamingHostFromSpaceProps(spaceId);
+
         try {
             // Ensure that there is an existing distribution for the given space
             StreamingDistribution existingDist =
                 getExistingDistribution(bucketName);
 
-            String setAclResults;
             if(existingDist != null) {
-                setAclResults = resetContentAccess(spaceId, bucketName);
+                s3Client.deleteBucketPolicy(bucketName);
             } else {
                 throw new RuntimeException("No streaming distribution " +
                                            "exists for space " + spaceId);
             }
 
-            results = "Disable Streaming Task completed. " + setAclResults;
+            results = "Disable Streaming Task completed successfully";
         } catch(CloudFrontServiceException e) {
             log.warn("Error encountered running " + TASK_NAME + " task: " +
                      e.getMessage(), e);            
@@ -75,70 +69,6 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
 
         log.debug("Result of " + TASK_NAME + " task: " + results);        
         return results;
-    }
-
-    /*
-     * Resets access permissions on each item in a space to private, i.e.
-     * access only through DuraCloud and not via CloudFront.
-     *
-     * @return results of the ACL setting activity
-     */
-    private String resetContentAccess(String spaceId,
-                                      String bucketName) {
-        // Get a list of items in the space
-        Iterator<String> contentIds = getSpaceContents(spaceId);
-
-        // Set ACL permissions for all items back to private
-        int successfulSet = 0;
-        List<String> failedSet = new ArrayList<String>();
-        while(contentIds.hasNext()) {
-            String contentId = contentIds.next();
-            try {
-                resetACL(bucketName, contentId);
-                successfulSet++;
-            } catch(DuraCloudCheckedException e) {
-                log.error(e.getMessage());
-                failedSet.add(contentId);
-            }
-        }
-
-        // Build results
-        StringBuilder results = new StringBuilder();
-        results.append("Streaming for ");
-        results.append(successfulSet);
-        results.append(" files disabled. ");
-        if(failedSet.size() > 0) {
-            results.append(failedSet.size());
-            results.append(" files failed and may remain available: ");
-            for(String failedId : failedSet) {
-                results.append(failedId);
-                results.append(", ");
-            }
-        }
-        results.trimToSize();
-
-        return results.toString();
-    }
-
-    private void resetACL(String bucketName,
-                          String contentId)
-        throws DuraCloudCheckedException {
-        for(int i=0; i<maxRetries; i++) {
-            try {
-                s3Client.setObjectAcl(bucketName,
-                                      contentId,
-                                      CannedAccessControlList.Private);
-                return;
-            } catch(AmazonServiceException e) {
-                log.warn("Exception encountered attempting to reset streaming " +
-                         "ACL for S3 content: " + contentId + " in bucket: " +
-                         bucketName + ", error: " + e.getMessage());
-                wait(i);
-            }
-            throw new DuraCloudCheckedException(
-                "Unable to reset streaming ACL for " + contentId +
-                " in bucket " + bucketName);
-        }
     }
 
 }

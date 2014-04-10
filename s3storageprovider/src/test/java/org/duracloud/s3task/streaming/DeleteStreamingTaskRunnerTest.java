@@ -8,15 +8,19 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import org.duracloud.s3storage.S3StorageProvider;
 import org.easymock.EasyMock;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.model.cloudfront.S3Origin;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author: Bill Branan
@@ -24,9 +28,10 @@ import static junit.framework.Assert.fail;
  */
 public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
-    protected DeleteStreamingTaskRunner createRunner(AmazonS3Client s3Client,
+    protected DeleteStreamingTaskRunner createRunner(S3StorageProvider s3Provider,
+                                                     AmazonS3Client s3Client,
                                                      CloudFrontService cfService) {
-        this.s3Provider = createMockS3StorageProvider();
+        this.s3Provider = s3Provider;
         this.s3Client = s3Client;
         this.cfService = cfService;
         return new DeleteStreamingTaskRunner(s3Provider, s3Client, cfService);
@@ -35,7 +40,9 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testGetName() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3ClientV1(), createMockCFServiceV1());
+            createRunner(createMockS3StorageProvider(),
+                         createMockS3ClientV1(),
+                         createMockCFServiceV1());
 
         String name = runner.getName();
         assertEquals("delete-streaming", name);
@@ -48,7 +55,9 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask1() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3ClientV1(), createMockCFServiceV3());
+            createRunner(createMockS3StorageProviderV2(true),
+                         createMockS3ClientV3(),
+                         createMockCFServiceV3());
 
         try {
             runner.performTask(null);
@@ -58,11 +67,19 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         }
 
         try {
-            runner.performTask("spaceId");
+            runner.performTask(spaceId);
             fail("Exception expected");
         } catch(Exception expected) {
             assertNotNull(expected);
         }
+
+        testCapturedProps();
+    }
+
+    private void testCapturedProps() {
+        Map<String, String> spaceProps = spacePropsCapture.getValue();
+        String propName = DisableStreamingTaskRunner.STREAMING_HOST_PROP;
+        assertFalse(spaceProps.containsKey(propName));
     }
 
     /*
@@ -91,10 +108,13 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask2() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3ClientV1(), createMockCFServiceV4());
+            createRunner(createMockS3StorageProviderV2(true),
+                         createMockS3ClientV3(),
+                         createMockCFServiceV4());
 
-        String results = runner.performTask("spaceId");
+        String results = runner.performTask(spaceId);
         assertNotNull(results);
+        testCapturedProps();
     }
 
     /*
@@ -110,9 +130,9 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
-        S3Origin origin = new S3Origin("bucketName");
+        S3Origin origin = new S3Origin(bucketName);
         StreamingDistribution dist =
-            new StreamingDistribution("id", "status", null, "domainName",
+            new StreamingDistribution("id", "status", null, domainName,
                                       origin, null, "comment", true);
         StreamingDistribution[] distributions = {dist};
 
@@ -127,7 +147,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
         S3Origin origin2 = new S3Origin("origin");
         StreamingDistribution info =
-            new StreamingDistribution("id", "Deployed", null, "domainName",
+            new StreamingDistribution("id", "Deployed", null, domainName,
                                       origin2, null, "comment", false);
 
         EasyMock
