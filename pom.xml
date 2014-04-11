@@ -92,7 +92,6 @@
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>
-        <module>chronclient</module>
         <module>chunk</module>
         <module>stitch</module>
         <module>uploadtool</module>
