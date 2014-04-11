@@ -24,7 +24,6 @@
         <exclude>junit:junit</exclude>
         <exclude>org.seleniumhq.selenium:*</exclude>
         <exclude>org.easymock:*</exclude>
-        <exclude>org.apache.activemq:*</exclude>
         <exclude>htmlunit:*</exclude>
         <exclude>javax.servlet:jstl</exclude>
         <exclude>org.springframework:*</exclude>
@@ -45,7 +44,6 @@
       <unpackOptions>
         <excludes>
           <exclude>LICENSE</exclude>
-          <exclude>WEB-INF/lib/activemq*</exclude>
           <exclude>WEB-INF/lib/jetty*</exclude>
           <exclude>WEB-INF/lib/easymock*</exclude>
           <exclude>WEB-INF/lib/selenium*</exclude>

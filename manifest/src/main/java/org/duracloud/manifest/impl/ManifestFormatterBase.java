@@ -8,9 +8,9 @@
 package org.duracloud.manifest.impl;
 
 import org.apache.commons.io.IOUtils;
+import org.duracloud.manifest.ContentMessage;
 import org.duracloud.manifest.ManifestFormatter;
 import org.duracloud.manifest.error.ManifestFormatterException;
-import org.duracloud.storage.aop.ContentMessage;
 import org.slf4j.Logger;
 
 import java.io.IOException;

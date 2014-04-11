@@ -7,8 +7,6 @@
  */
 package org.duracloud.manifest;
 
-import org.duracloud.storage.aop.ContentMessage;
-
 import java.io.OutputStream;
 import java.util.Collection;
 

@@ -5,15 +5,15 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.storage.aop;
-
-import java.text.ParseException;
-import java.util.Date;
+package org.duracloud.manifest;
 
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.bulk.ManifestVerifier;
 import org.duracloud.storage.error.InvalidEventTSVException;
+
+import java.text.ParseException;
+import java.util.Date;
 
 /**
  * This bean holds to common elements for all ContentStore AOP messages.

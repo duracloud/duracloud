@@ -7,8 +7,7 @@
  */
 package org.duracloud.manifest.impl;
 
-import org.duracloud.storage.aop.ContentMessage;
-import org.duracloud.storage.aop.IngestMessage;
+import org.duracloud.manifest.ContentMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +31,7 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLine() throws Exception {
-        ContentMessage event = new IngestMessage();
+        ContentMessage event = new ContentMessage();
         event.setSpaceId(spaceId);
         event.setContentId(contentId);
         event.setContentMd5(contentMd5);
@@ -46,7 +45,7 @@ public class BagitManifestFormatterTest {
 
     @Test
     public void testGetLineNull() throws Exception {
-        ContentMessage event = new IngestMessage();
+        ContentMessage event = new ContentMessage();
 
         String line = formatter.getLine(event);
         Assert.assertNotNull(line);

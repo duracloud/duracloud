@@ -12,7 +12,6 @@
     of the application
   -->
   <import resource="restapi-config.xml" />
-  <import resource="messaging-config.xml" />
   <import resource="security-config.xml" />
   <import resource="notification-config.xml" />
 

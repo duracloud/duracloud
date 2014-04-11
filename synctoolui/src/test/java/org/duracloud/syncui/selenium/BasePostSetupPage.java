@@ -8,11 +8,11 @@
 package org.duracloud.syncui.selenium;
 
 import junit.framework.Assert;
-import org.apache.activemq.util.ByteArrayOutputStream;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
 import org.duracloud.syncui.controller.InitController;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**

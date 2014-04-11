@@ -7,7 +7,7 @@
  */
 package org.duracloud.manifest.impl;
 
-import org.duracloud.storage.aop.ContentMessage;
+import org.duracloud.manifest.ContentMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1044,18 +1044,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>com.springsource.org.apache.activemq</artifactId>
-                <version>5.2.0</version>
-                <exclusions>
-                  <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-                  </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
                 <version>1.7.3</version>
@@ -1065,12 +1053,6 @@
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-all</artifactId>
-                <version>5.2.0</version>
             </dependency>
 
             <dependency>

@@ -7,6 +7,23 @@
  */
 package org.duracloud.manifest.impl;
 
+import org.apache.commons.io.FileCleaningTracker;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.manifest.ContentMessage;
+import org.duracloud.manifest.LocalManifestGenerator;
+import org.duracloud.manifest.ManifestFormatter;
+import org.duracloud.manifest.error.ManifestArgumentException;
+import org.duracloud.manifest.error.ManifestEmptyException;
+import org.duracloud.manifest.error.ManifestGeneratorException;
+import org.duracloud.storage.error.InvalidEventTSVException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,24 +32,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.io.FileCleaningTracker;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.duracloud.audit.AuditLogStore;
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.manifest.LocalManifestGenerator;
-import org.duracloud.manifest.ManifestFormatter;
-import org.duracloud.manifest.error.ManifestArgumentException;
-import org.duracloud.manifest.error.ManifestEmptyException;
-import org.duracloud.manifest.error.ManifestGeneratorException;
-import org.duracloud.storage.aop.ContentMessage;
-import org.duracloud.storage.error.InvalidEventTSVException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class manages the generation of content manifests.

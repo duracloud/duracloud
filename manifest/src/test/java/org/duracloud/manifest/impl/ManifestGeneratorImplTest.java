@@ -13,12 +13,11 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.domain.Content;
-import org.duracloud.storage.aop.ContentMessage;
+import org.duracloud.manifest.ContentMessage;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,15 +26,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.duracloud.common.util.DateUtil.convertToStringVerbose;
 import static org.duracloud.manifest.ManifestGenerator.FORMAT;
-import static org.duracloud.storage.aop.ContentMessage.ACTION.COPY;
-import static org.duracloud.storage.aop.ContentMessage.ACTION.DELETE;
-import static org.duracloud.storage.aop.ContentMessage.ACTION.INGEST;
+import static org.duracloud.manifest.ContentMessage.ACTION.COPY;
+import static org.duracloud.manifest.ContentMessage.ACTION.DELETE;
+import static org.duracloud.manifest.ContentMessage.ACTION.INGEST;
 
 /**
  * @author Andrew Woods

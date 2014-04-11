@@ -16,7 +16,7 @@
       various servlet filters (including basic-auth, anonymous, and exception-translation)
    -->
   <http access-decision-manager-ref="duraAccessDecisionManager"
-        realm="DuraCloud:DuraService">
+        realm="DuraCloud:DuraBoss">
 
     <intercept-url pattern="/security" access="ROLE_ROOT"/>
 
