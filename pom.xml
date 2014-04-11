@@ -9,7 +9,7 @@
     <url>http://duracloud.org</url>
 
     <prerequisites>
-        <maven>2.2.1</maven>
+        <maven>3.0.0</maven>
     </prerequisites>
 
     <inceptionYear>2009</inceptionYear>
@@ -21,25 +21,19 @@
         </developer>
 
         <developer>
-            <name>Wilper, Chris</name>
-            <email>cwilper@duraspace.org</email>
+            <name>Bernstein, Danny</name>
+            <email>dbernstein@duraspace.org</email>
+        </developer>
+
+        <developer>
+            <name>Paulsson, Erik</name>
+            <email>epaulsson@duraspace.org</email>
         </developer>
 
         <developer>
             <name>Woods, Andrew</name>
             <email>awoods@duraspace.org</email>
         </developer>
-
-        <developer>
-            <name>Bernstein, Danny</name>
-            <email>dbernstein@duraspace.org</email>
-        </developer>
-
-        <developer>
-            <name>Hacskaylo, Charles</name>
-            <email>charlesh88@gmail.com</email>
-        </developer>
-
     </developers>
 
     <licenses>
