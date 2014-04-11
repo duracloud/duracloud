@@ -25,9 +25,6 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     public static final String duraStoreHostKey = "durastore-host";
     public static final String duraStorePortKey = "durastore-port";
     public static final String duraStoreContextKey = "durastore-context";
-    public static final String duraServiceHostKey = "duraservice-host";
-    public static final String duraServicePortKey = "duraservice-port";
-    public static final String duraServiceContextKey = "duraservice-context";
     public static final String duraBossContextKey = "duraboss-context";
 
     public static final String amaUrlKey = "ama-url";
@@ -35,9 +32,6 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     private String durastoreHost;
     private String durastorePort;
     private String durastoreContext;
-    private String duraserviceHost;
-    private String duraservicePort;
-    private String duraserviceContext;
     private String durabossContext;
 
     private String amaUrl;
@@ -65,15 +59,6 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
         } else if (key.equalsIgnoreCase(duraStoreContextKey)) {
             this.durastoreContext = value;
 
-        } else if (key.equalsIgnoreCase(duraServiceHostKey)) {
-            this.duraserviceHost = value;
-
-        } else if (key.equalsIgnoreCase(duraServicePortKey)) {
-            this.duraservicePort = value;
-
-        } else if (key.equalsIgnoreCase(duraServiceContextKey)) {
-            this.duraserviceContext = value;
-        
         } else if (key.equalsIgnoreCase(duraBossContextKey)) {
             this.durabossContext = value;
 
@@ -115,30 +100,6 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
     public void setDurastoreContext(String durastoreContext) {
         this.durastoreContext = durastoreContext;
-    }
-
-    public String getDuraserviceHost() {
-        return duraserviceHost;
-    }
-
-    public void setDuraserviceHost(String duraserviceHost) {
-        this.duraserviceHost = duraserviceHost;
-    }
-
-    public String getDuraservicePort() {
-        return duraservicePort;
-    }
-
-    public void setDuraservicePort(String duraservicePort) {
-        this.duraservicePort = duraservicePort;
-    }
-
-    public String getDuraserviceContext() {
-        return duraserviceContext;
-    }
-
-    public void setDuraserviceContext(String duraserviceContext) {
-        this.duraserviceContext = duraserviceContext;
     }
 
     public String getAmaUrl() {

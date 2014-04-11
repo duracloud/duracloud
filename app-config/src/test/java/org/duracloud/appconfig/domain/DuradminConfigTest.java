@@ -25,9 +25,6 @@ public class DuradminConfigTest {
     private String durastoreHost = "durastoreHost";
     private String durastorePort = "durastorePort";
     private String durastoreContext = "durastoreContext";
-    private String duraserviceHost = "duraserviceHost";
-    private String duraservicePort = "duraservicePort";
-    private String duraserviceContext = "duraserviceContext";
     private String durabossContext = "durabossContext";
 
     private String amaUrl = "amaUrl";
@@ -44,16 +41,9 @@ public class DuradminConfigTest {
 
         String p = DuradminConfig.QUALIFIER+".";
 
-//        props.put(p + DuradminConfig.hostKey, host);
-//        props.put(p + DuradminConfig.portKey, port);
-//        props.put(p + DuradminConfig.contextKey, context);
-
         props.put(p + DuradminConfig.duraStoreHostKey, durastoreHost);
         props.put(p + DuradminConfig.duraStorePortKey, durastorePort);
         props.put(p + DuradminConfig.duraStoreContextKey, durastoreContext);
-        props.put(p + DuradminConfig.duraServiceHostKey, duraserviceHost);
-        props.put(p + DuradminConfig.duraServicePortKey, duraservicePort);
-        props.put(p + DuradminConfig.duraServiceContextKey, duraserviceContext);
         props.put(p + DuradminConfig.duraBossContextKey, durabossContext);
         props.put(p + DuradminConfig.amaUrlKey, amaUrl);
 
@@ -65,9 +55,6 @@ public class DuradminConfigTest {
         Assert.assertNotNull(config.getDurastoreHost());
         Assert.assertNotNull(config.getDurastorePort());
         Assert.assertNotNull(config.getDurastoreContext());
-        Assert.assertNotNull(config.getDuraserviceHost());
-        Assert.assertNotNull(config.getDuraservicePort());
-        Assert.assertNotNull(config.getDuraserviceContext());
         Assert.assertNotNull(config.getDurabossContext());
 
         Assert.assertNotNull(config.getAmaUrl());
@@ -75,9 +62,6 @@ public class DuradminConfigTest {
         Assert.assertEquals(durastoreHost, config.getDurastoreHost());
         Assert.assertEquals(durastorePort, config.getDurastorePort());
         Assert.assertEquals(durastoreContext, config.getDurastoreContext());
-        Assert.assertEquals(duraserviceHost, config.getDuraserviceHost());
-        Assert.assertEquals(duraservicePort, config.getDuraservicePort());
-        Assert.assertEquals(duraserviceContext, config.getDuraserviceContext());
         Assert.assertEquals(durabossContext, config.getDurabossContext());
         Assert.assertEquals(amaUrl, config.getAmaUrl());
     }

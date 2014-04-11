@@ -24,9 +24,6 @@ public class DurabossConfigTest {
     private String durastoreHost = "durastoreHost";
     private String durastorePort = "durastorePort";
     private String durastoreContext = "durastoreContext";
-    private String duraserviceHost = "duraserviceHost";
-    private String duraservicePort = "duraservicePort";
-    private String duraserviceContext = "duraserviceContext";
 
     private String notifyType = "EMAIL";
     private String notifyUsername = "notifyUser";
@@ -36,7 +33,6 @@ public class DurabossConfigTest {
     private String notifyAdmin2 = "notifyAdmin2";
 
     private Boolean reporterEnabled = Boolean.FALSE;
-    private Boolean executorEnabled = Boolean.FALSE;
     private Boolean auditorEnabled = Boolean.FALSE;
 
     @Test
@@ -54,9 +50,6 @@ public class DurabossConfigTest {
         props.put(p + DurabossConfig.duraStoreHostKey, durastoreHost);
         props.put(p + DurabossConfig.duraStorePortKey, durastorePort);
         props.put(p + DurabossConfig.duraStoreContextKey, durastoreContext);
-        props.put(p + DurabossConfig.duraServiceHostKey, duraserviceHost);
-        props.put(p + DurabossConfig.duraServicePortKey, duraservicePort);
-        props.put(p + DurabossConfig.duraServiceContextKey, duraserviceContext);
 
         props.put(p + DurabossConfig.notificationKey + ".0." +
                       DurabossConfig.notificationTypeKey,
@@ -80,9 +73,6 @@ public class DurabossConfigTest {
         props.put(p + DurabossConfig.reporterKey + "." +
                       DurabossConfig.enabledKey,
                   reporterEnabled.toString());
-        props.put(p + DurabossConfig.executorKey + "." +
-                      DurabossConfig.enabledKey,
-                  executorEnabled.toString());
         props.put(p + DurabossConfig.auditorKey + "." +
                       DurabossConfig.enabledKey,
                   auditorEnabled.toString());
@@ -95,9 +85,6 @@ public class DurabossConfigTest {
         Assert.assertNotNull(config.getDurastoreHost());
         Assert.assertNotNull(config.getDurastorePort());
         Assert.assertNotNull(config.getDurastoreContext());
-        Assert.assertNotNull(config.getDuraserviceHost());
-        Assert.assertNotNull(config.getDuraservicePort());
-        Assert.assertNotNull(config.getDuraserviceContext());
 
         Collection<NotificationConfig> notifyConfigs = config.getNotificationConfigs();
         Assert.assertNotNull(notifyConfigs);
@@ -106,9 +93,6 @@ public class DurabossConfigTest {
         Assert.assertEquals(durastoreHost, config.getDurastoreHost());
         Assert.assertEquals(durastorePort, config.getDurastorePort());
         Assert.assertEquals(durastoreContext, config.getDurastoreContext());
-        Assert.assertEquals(duraserviceHost, config.getDuraserviceHost());
-        Assert.assertEquals(duraservicePort, config.getDuraservicePort());
-        Assert.assertEquals(duraserviceContext, config.getDuraserviceContext());
 
         NotificationConfig notifyConfig = notifyConfigs.iterator().next();
         Assert.assertEquals(notifyType, notifyConfig.getType());
@@ -121,7 +105,6 @@ public class DurabossConfigTest {
         Assert.assertTrue(admins.contains(notifyAdmin2));
 
         Assert.assertEquals(reporterEnabled, config.isReporterEnabled());
-        Assert.assertEquals(executorEnabled, config.isExecutorEnabled());
         Assert.assertEquals(auditorEnabled, config.isAuditorEnabled());
     }
 

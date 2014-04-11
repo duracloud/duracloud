@@ -80,12 +80,6 @@
 
         <dependency>
             <groupId>org.duracloud</groupId>
-            <artifactId>executor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
             <artifactId>auditor</artifactId>
             <version>${project.version}</version>
         </dependency>

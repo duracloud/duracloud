@@ -11,23 +11,16 @@ import org.duracloud.appconfig.domain.DurabossConfig;
 import org.duracloud.appconfig.xml.DurabossInitDocumentBinding;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.client.ServicesManagerImpl;
 import org.duracloud.client.manifest.ManifestGeneratorImpl;
 import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
-import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
-import org.duracloud.exec.LocalExecutor;
 import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.manifest.ManifestGenerator;
-import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.servicemonitor.ServiceSummarizer;
-import org.duracloud.servicemonitor.ServiceSummaryDirectory;
-import org.duracloud.servicemonitor.impl.ServiceSummarizerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,32 +42,23 @@ public class InitRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(InitRest.class);
 
     private StorageReportResource storageResource;
-    private ServiceReportResource serviceResource;
-    private ServiceSummaryDirectory summaryDirectory;
     private SecurityContextUtil securityContextUtil;
     private RestUtil restUtil;
     private String reportSpaceId;
     private NotificationManager notificationManager;
-    private LocalExecutor executor;
     private LocalManifestGenerator manifestGenerator;
 
     public InitRest(StorageReportResource storageResource,
-                    ServiceReportResource serviceResource,
-                    ServiceSummaryDirectory summaryDirectory,
                     SecurityContextUtil securityContextUtil,
                     RestUtil restUtil,
                     String reportSpaceId,
                     NotificationManager notificationManager,
-                    LocalExecutor executor,
                     LocalManifestGenerator manifestGenerator) {
         this.storageResource = storageResource;
-        this.serviceResource = serviceResource;
-        this.summaryDirectory = summaryDirectory;
         this.securityContextUtil = securityContextUtil;
         this.restUtil = restUtil;
         this.reportSpaceId = reportSpaceId;
         this.notificationManager = notificationManager;
-        this.executor = executor;
         this.manifestGenerator = manifestGenerator;
     }
 
@@ -112,11 +96,6 @@ public class InitRest extends BaseRest {
             new ContentStoreManagerImpl(host, port, context);
         storeMgr.login(credential);
 
-        context = config.getDuraserviceContext();
-        ServicesManager servicesMgr =
-            new ServicesManagerImpl(host, port, context);
-        servicesMgr.login(credential);
-
         context = config.getDurabossContext();
         ManifestGenerator manifestClient =
             new ManifestGeneratorImpl(host, port, context, credential);
@@ -128,23 +107,7 @@ public class InitRest extends BaseRest {
         if(config.isReporterEnabled()) {
             // Initialize Storage Reporter
             storageResource.initialize(storeMgr, reportSpaceId);
-            summaryDirectory.initialize(storeMgr);
-
-            // Initialize Service Reporter
-            ServiceSummarizer summarizer =
-                new ServiceSummarizerImpl(servicesMgr);
-            serviceResource.initialize(summaryDirectory, summarizer);
         }
-
-        // Only initialize the Executor if it is enabled
-        if(config.isExecutorEnabled()) {
-            executor.initialize(host,
-                                storeMgr,
-                                servicesMgr,
-                                manifestClient,
-                                notificationManager);
-        }
-
 
         // Always initialize the Manifest Generator.
         manifestGenerator.initialize(storeMgr);
@@ -154,8 +117,7 @@ public class InitRest extends BaseRest {
     public Response isInitialized() {
         log.debug("checking initialized");
 
-        boolean initialized = storageResource.isInitialized() &&
-                              serviceResource.isInitialized();
+        boolean initialized = storageResource.isInitialized();
         if(initialized) {
             String text = InitUtil.getInitializedText(APP_NAME);
             return responseOk(text);
