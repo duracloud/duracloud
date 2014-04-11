@@ -27,6 +27,9 @@
                 I had to use the downgraded version
            -->
           <version>1.7.1</version>
+          <configuration>
+            <createDependencyReducedPom>false</createDependencyReducedPom>
+          </configuration>
           <executions>
               <execution>
                   <phase>package</phase>
