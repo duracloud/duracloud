@@ -37,7 +37,6 @@ import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.duracloud.serviceapi.ServicesManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
@@ -101,7 +100,6 @@ public class SpaceUtil {
                                            String spaceId,
                                            String contentId,
                                            ContentStore store,
-                                           ServicesManager servicesManager, 
                                            Authentication authentication)
             throws ContentStoreException {
     	contentItem.setSpaceId(spaceId);
@@ -124,31 +122,6 @@ public class SpaceUtil {
         }
         contentItem.setCallerAcl(aclName);
         contentItem.setImageViewerBaseURL(null);
-    }
-
-    /*
-     * The use of this method is risky. As noted in this issue:
-     * https://jira.duraspace.org/browse/DURACLOUD-708, when a call was being
-     * made from populateContentItem() to this method, the user was often
-     * seeing 500 errors due to a null authentication in the security context.
-     * It appears that performing the authentication switch while other calls
-     * were under way (likely via ajax) caused these errors to occur.
-     */
-    private static String resolveImageViewerBaseURL(ContentProperties properties,
-                                  ServicesManager servicesManager) {
-        if(!properties.getMimetype().startsWith("image")){
-            return null;
-        }
-
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication auth = securityContext.getAuthentication();
-        securityContext.setAuthentication(new RootAuthentication());
-        
-        try {
-            return ServiceUtil.findImageServerUrlIfAvailable(servicesManager);
-        } finally {
-            securityContext.setAuthentication(auth);
-        }
     }
 
     private static String formatDurastoreURL(ContentItem contentItem,ContentStore store) {

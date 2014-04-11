@@ -111,10 +111,6 @@ public class ManageSecurityUsersController extends AbstractCommandController {
         durastore.setSecurityUsers(users);
         log.debug("pushed updates to durastore");
 
-        // update duraservice
-        Application duraservice = getDuraServiceApp();
-        duraservice.setSecurityUsers(users);
-        log.debug("pushed updates to duraservice");
     }
 
     private Application getDuraStoreApp() {
@@ -124,12 +120,6 @@ public class ManageSecurityUsersController extends AbstractCommandController {
         return new Application(host, port, ctxt);
     }
 
-    private Application getDuraServiceApp() {
-        String host = DuradminConfig.getDuraServiceHost();
-        String port = DuradminConfig.getDuraServicePort();
-        String ctxt = DuradminConfig.getDuraServiceContext();
-        return new Application(host, port, ctxt);
-    }
 
     public DuracloudUserDetailsService getUserDetailsService() {
         return userDetailsService;

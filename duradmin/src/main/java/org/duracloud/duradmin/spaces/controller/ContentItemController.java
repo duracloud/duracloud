@@ -24,7 +24,6 @@ import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -82,15 +81,6 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
 		this.contentStoreManager = contentStoreManager;
 	}
 
-	private ServicesManager servicesManager;
-    
-	public ServicesManager getServicesManager() {
-		return servicesManager;
-	}
-
-	public void setServicesManager(ServicesManager servicesManager) {
-		this.servicesManager = servicesManager;
-	}
 
 	
 	protected ModelAndView delete(HttpServletRequest request,
@@ -224,7 +214,6 @@ public class ContentItemController extends  AbstractRestController<ContentItem> 
                                       contentItem.getSpaceId(),
                                       contentItem.getContentId(),
                                       contentStore,
-                                      servicesManager,
                                       auth);
         String primaryStorageProviderId =
             contentStoreManager.getPrimaryContentStore().getStoreId();

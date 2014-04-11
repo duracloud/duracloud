@@ -94,21 +94,6 @@ public class DuradminConfig
         return config.getDuraStoreContext();
     }
 
-    public static String getDuraServiceHost() {
-        checkInitialized();
-        return config.getDuraServiceHost();
-    }
-
-    public static String getDuraServicePort() {
-        checkInitialized();
-        return config.getDuraServicePort();
-    }
-
-    public static String getDuraServiceContext() {
-        checkInitialized();
-        return config.getDuraServiceContext();
-    }
-
     public String getAmaUrl() {
         checkInitialized();
         return config.getAmaUrl();
@@ -125,9 +110,6 @@ public class DuradminConfig
         config.setDuraStoreHost(getPropsHost());
         config.setDuraStorePort(getPropsPort());
         config.setDuraStoreContext(getPropsDuraStoreContext());
-        config.setDuraServiceHost(getPropsHost());
-        config.setDuraServicePort(getPropsPort());
-        config.setDuraServiceContext(getPropsDuraServiceContext());
         config.setDuraBossContext(getPropsDuraBossContext());
 
         config.setAmaUrl(null); // default is null.

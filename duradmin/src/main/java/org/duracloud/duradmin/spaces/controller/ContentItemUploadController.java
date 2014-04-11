@@ -25,7 +25,6 @@ import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.util.SpaceUtil;
-import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
@@ -43,15 +42,6 @@ public class ContentItemUploadController implements Controller {
     protected final Logger log =
         LoggerFactory.getLogger(ContentItemUploadController.class);
 
-    private ServicesManager servicesManager;
-
-    public ServicesManager getServicesManager() {
-        return servicesManager;
-    }
-
-    public void setServicesManager(ServicesManager servicesManager) {
-        this.servicesManager = servicesManager;
-    }
 
     public ContentStoreManager getContentStoreManager() {
         return contentStoreManager;
@@ -124,7 +114,6 @@ public class ContentItemUploadController implements Controller {
                                                   ci.getSpaceId(),
                                                   ci.getContentId(),
                                                   contentStore,
-                                                  servicesManager,
                                                   auth);
                     results.add(result);
                     contentId = null;

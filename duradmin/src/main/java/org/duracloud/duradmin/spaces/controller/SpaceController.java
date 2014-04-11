@@ -21,16 +21,12 @@ import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.duradmin.util.PropertiesUtils;
-import org.duracloud.duradmin.util.ServiceUtil;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.execdata.bitintegrity.BitIntegrityResults;
 import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
 import org.duracloud.execdata.bitintegrity.StoreBitIntegrityResults;
 import org.duracloud.execdata.bitintegrity.serialize.BitIntegrityResultsSerializer;
-import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.serviceapi.error.NotFoundException;
-import org.duracloud.serviceapi.error.ServicesException;
 import org.duracloud.serviceconfig.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +57,6 @@ public class SpaceController extends  AbstractRestController<Space> {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	private ContentStoreManager contentStoreManager;
-	private ServicesManager servicesManager;
 
     private String bitIntegrityResultsContentId;
 
@@ -286,13 +281,6 @@ public class SpaceController extends  AbstractRestController<Space> {
 		return contentStoreManager.getContentStore(space.getStoreId());
 	}
 
-    public ServicesManager getServicesManager() {
-        return servicesManager;
-    }
-
-    public void setServicesManager(ServicesManager servicesManager) {
-        this.servicesManager = servicesManager;
-    }
 
 
 }

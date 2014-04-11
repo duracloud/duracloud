@@ -42,8 +42,6 @@
         <prop key="/spaces/upload">uploadController</prop>
          -->
         
-        <prop key="/services">servicesController</prop>
-        <prop key="/services/service">serviceController</prop>
         <prop key="/partnerlogo">partnerLogoController</prop>
       </props>
     </property>
@@ -64,17 +62,14 @@
   
   <bean id="contentItemController" class="org.duracloud.duradmin.spaces.controller.ContentItemController">
     <property name="contentStoreManager" ref="contentStoreManager" />
-    <property name="servicesManager" ref="servicesManager" />
   </bean>
   <bean id="contentItemUploadController" class="org.duracloud.duradmin.spaces.controller.ContentItemUploadController">
     <property name="contentStoreManager" ref="contentStoreManager" />
-    <property name="servicesManager" ref="servicesManager" />
   </bean>
   <bean id="spaceController" class="org.duracloud.duradmin.spaces.controller.SpaceController">
     <constructor-arg ref="adminSpaceId"/>
     <constructor-arg ref="bitIntegrityResultsContentId"/>
     <property name="contentStoreManager" ref="contentStoreManager" />
-    <property name="servicesManager" ref="servicesManager" />
   </bean>
 
   <bean id="adminSpaceId" class="java.lang.String">
@@ -88,12 +83,6 @@
 
   <bean id="contentItemDownloadController" class="org.duracloud.duradmin.control.ContentItemDownloadController">
     <constructor-arg ref="controllerSupport" />
-  </bean>
-  <bean id="servicesController" class="org.duracloud.duradmin.services.controller.ServicesController">
-    <property name="servicesManager" ref="servicesManager" />
-  </bean>
-  <bean id="serviceController" class="org.duracloud.duradmin.services.controller.ServiceController">
-    <property name="servicesManager" ref="servicesManager" />
   </bean>
   <bean id="initSecurityUsersController" class="org.duracloud.duradmin.control.InitSecurityUsersController">
     <constructor-arg ref="userDetailsSvc" />

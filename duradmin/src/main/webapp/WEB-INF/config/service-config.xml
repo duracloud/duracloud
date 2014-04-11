@@ -17,11 +17,8 @@
   <bean id="contentStoreManagerTarget"  factory-bean="contentStoreManagerFactory" factory-method="create" />
 
 
-  <bean id="servicesManagerTarget" class="org.duracloud.duradmin.services.DuradminServicesManagerImpl"/>
-
   <bean id="controllerSupport" class="org.duracloud.duradmin.control.ControllerSupport">
     <constructor-arg ref="contentStoreManager"/>
-    <constructor-arg ref="servicesManager"/>
   </bean>
 
   <bean id="baseCommandController" class="org.duracloud.duradmin.control.BaseCommandController" abstract="true">

@@ -10,7 +10,6 @@ package org.duracloud.duradmin.spaces.controller;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.test.AbstractTestBase;
-import org.duracloud.exec.error.InvalidActionRequestException;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;

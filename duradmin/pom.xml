@@ -223,6 +223,13 @@
       <artifactId>storeclient</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>executordata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storageprovider</artifactId>
@@ -233,17 +240,6 @@
       <artifactId>chronstagestorageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>serviceconfig</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>serviceclient</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -252,32 +248,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud.services</groupId>
-      <artifactId>computeservice</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>reportclient</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>executorclient</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>duraboss-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>executordata</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -417,14 +389,6 @@
       <artifactId>commons-fileupload</artifactId>
     </dependency>
     
-    <!-- 
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-     -->
-
     <dependency>
       <groupId>org.codehaus.mojo.webstart</groupId>
       <artifactId>webstart-jnlp-servlet</artifactId>

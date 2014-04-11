@@ -94,7 +94,7 @@
         <module>chunk</module>
         <module>stitch</module>
         <module>uploadtool</module>
-        <!--<module>duradmin</module>-->
+        <module>duradmin</module>
         <module>synctool</module>
         <module>synctoolui</module>
         <module>retrievaltool</module>

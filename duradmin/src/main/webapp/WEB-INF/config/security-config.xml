@@ -21,7 +21,6 @@
     <intercept-url pattern="/security" access="ROLE_ROOT"/>
     <intercept-url pattern="/dashboard" access="ROLE_ROOT"  />
     <intercept-url pattern="/admin" access="ROLE_ROOT"  />
-    <intercept-url pattern="/services**" access="ROLE_ADMIN"  />
     <intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/style/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
     <intercept-url pattern="/images/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
@@ -76,9 +75,5 @@
     <beans:property name="interceptorNames" value="securityAdvisor"/>
   </beans:bean>
 
-  <beans:bean id="servicesManager" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <beans:property name="target" ref="servicesManagerTarget"/>
-    <beans:property name="interceptorNames" value="securityAdvisor"/>
-  </beans:bean>
 
 </beans:beans>

@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.util.MessageUtils;
 import org.duracloud.duradmin.util.NavigationUtils;
-import org.duracloud.serviceapi.ServicesManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,6 @@ public abstract class BaseCommandController
         return controllerSupport.getContentStoreManager();
     }
 
-    protected ServicesManager getServicesManager() throws Exception {
-        return controllerSupport.getServicesManager();
-    }
 
     public void setControllerSupport(ControllerSupport controllerSupport) {
         this.controllerSupport = controllerSupport;

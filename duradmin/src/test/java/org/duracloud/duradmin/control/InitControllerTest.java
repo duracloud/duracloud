@@ -108,35 +108,23 @@ public class InitControllerTest {
         String storeHost = config.getDuraStoreHost();
         String storePort = config.getDuraStorePort();
         String storeCtxt = config.getDuraStoreContext();
-        String serviceHost = config.getDuraServiceHost();
-        String servicePort = config.getDuraServicePort();
-        String serviceCtxt = config.getDuraServiceContext();
         String url = config.getAmaUrl();
 
         if (status == SC_OK) {
             Assert.assertNotNull(storeHost);
             Assert.assertNotNull(storePort);
             Assert.assertNotNull(storeCtxt);
-            Assert.assertNotNull(serviceHost);
-            Assert.assertNotNull(servicePort);
-            Assert.assertNotNull(serviceCtxt);
             Assert.assertNotNull(url);
 
             Assert.assertEquals(durastoreHost, storeHost);
             Assert.assertEquals(durastorePort, storePort);
             Assert.assertEquals(durastoreContext, storeCtxt);
-            Assert.assertEquals(duraserviceHost, serviceHost);
-            Assert.assertEquals(duraservicePort, servicePort);
-            Assert.assertEquals(duraserviceContext, serviceCtxt);
             Assert.assertEquals(amaUrl, url);
 
         } else {
             Assert.assertNull(storeHost);
             Assert.assertNull(storePort);
             Assert.assertNull(storeCtxt);
-            Assert.assertNull(serviceHost);
-            Assert.assertNull(servicePort);
-            Assert.assertNull(serviceCtxt);
             Assert.assertNull(url);
         }
 
@@ -209,9 +197,6 @@ public class InitControllerTest {
         props.put(p + DuradminConfig.duraStoreHostKey, durastoreHost);
         props.put(p + DuradminConfig.duraStorePortKey, durastorePort);
         props.put(p + DuradminConfig.duraStoreContextKey, durastoreContext);
-        props.put(p + DuradminConfig.duraServiceHostKey, duraserviceHost);
-        props.put(p + DuradminConfig.duraServicePortKey, duraservicePort);
-        props.put(p + DuradminConfig.duraServiceContextKey, duraserviceContext);
         props.put(p + DuradminConfig.amaUrlKey, amaUrl);
 
         config.load(props);

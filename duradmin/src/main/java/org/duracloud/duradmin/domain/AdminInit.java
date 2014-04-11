@@ -16,9 +16,6 @@ public class AdminInit {
     private String duraStoreHost;
     private String duraStorePort;
     private String duraStoreContext;
-    private String duraServiceHost;
-    private String duraServicePort;
-    private String duraServiceContext;
     private String amaUrl;
     private String duraBossContext;
 
@@ -44,30 +41,6 @@ public class AdminInit {
 
     public void setDuraStoreContext(String duraStoreContext) {
         this.duraStoreContext = duraStoreContext;
-    }
-
-    public String getDuraServiceHost() {
-        return duraServiceHost;
-    }
-
-    public void setDuraServiceHost(String duraServiceHost) {
-        this.duraServiceHost = duraServiceHost;
-    }
-
-    public String getDuraServicePort() {
-        return duraServicePort;
-    }
-
-    public void setDuraServicePort(String duraServicePort) {
-        this.duraServicePort = duraServicePort;
-    }
-
-    public String getDuraServiceContext() {
-        return duraServiceContext;
-    }
-
-    public void setDuraServiceContext(String duraServiceContext) {
-        this.duraServiceContext = duraServiceContext;
     }
 
     public String getAmaUrl() {

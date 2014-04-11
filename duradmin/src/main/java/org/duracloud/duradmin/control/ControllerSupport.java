@@ -12,16 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.duradmin.util.MessageUtils;
-import org.duracloud.serviceapi.ServicesManager;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ControllerSupport {
 
-    private ServicesManager servicesManager;
     private ContentStoreManager contentStoreManager; 
     
-    public ControllerSupport(ServicesManager servicesManager, ContentStoreManager contentStoreManager ) {
-        this.servicesManager = servicesManager;
+    public ControllerSupport(ContentStoreManager contentStoreManager ) {
         this.contentStoreManager = contentStoreManager;
     }
 
@@ -33,24 +30,6 @@ public class ControllerSupport {
         MessageUtils.addRedirectMessageToModelAndView(modelAndView, request);
         return modelAndView;
     }
-
-    /**
-     * This method returns the current service-manager.
-     * It is highly suggested that callers of this method not cache the object
-     * returned here, since subsequent service-host/port/context updates will
-     * render the cached object obsolete.
-     *
-     * @return
-     * @throws Exception
-     */
-    public ServicesManager getServicesManager() {
-        return servicesManager;
-    }
-
-    public void setServicesManager(ServicesManager servicesManager) {
-        this.servicesManager = servicesManager;
-    }
-
 
 
     public ContentStoreManager getContentStoreManager() {

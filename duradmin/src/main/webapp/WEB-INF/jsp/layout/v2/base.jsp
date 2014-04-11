@@ -50,7 +50,6 @@
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/widget/ui.listdetailviewer.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/widget/ui.expandopanel.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/api/durastore-api.js"></script>
-	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/api/duraservice-api.js"></script>
 
 	<script type="text/javascript">
 
