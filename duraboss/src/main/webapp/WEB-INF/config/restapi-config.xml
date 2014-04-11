@@ -31,7 +31,6 @@
     <constructor-arg ref="restUtil"/>
     <constructor-arg ref="report-space"/>
     <constructor-arg ref="notificationManager"/>
-    <constructor-arg ref="executor"/>
     <constructor-arg ref="manifestGenerator"/>
   </bean>
 
@@ -51,25 +50,6 @@
     <constructor-arg ref="serviceMonitor"/>
     <constructor-arg ref="serviceNotificationMonitor"/>
   </bean>
-
-  <bean id="execResource" class="org.duracloud.duraboss.rest.exec.ExecResource" >
-    <constructor-arg ref="executor"/>
-  </bean>
-
-  <bean id="executor" class="org.duracloud.exec.impl.ExecutorImpl">
-    <constructor-arg>
-      <list>
-        <bean class="org.duracloud.exec.handler.BitIntegrityHandler">
-          <constructor-arg value="bit-integrity-results.json"/>
-        </bean>
-        <bean class="org.duracloud.exec.handler.MediaStreamingHandler"/>
-        <!-- Enable these handlers when they are implemented -->
-        <!-- <bean class="org.duracloud.exec.handler.DuplicationHandler"/> -->
-        <!-- <bean class="org.duracloud.exec.handler.ImageServerHandler"/> -->
-      </list>
-    </constructor-arg>
-  </bean>
-
 
   <!--manifest-->
   <bean id="manifestResource" class="org.duracloud.duraboss.rest.manifest.ManifestResource">

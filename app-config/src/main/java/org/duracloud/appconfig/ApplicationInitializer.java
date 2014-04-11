@@ -10,9 +10,8 @@ package org.duracloud.appconfig;
 import org.duracloud.appconfig.domain.AppConfig;
 import org.duracloud.appconfig.domain.Application;
 import org.duracloud.appconfig.domain.BaseConfig;
-import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.domain.DurabossConfig;
-import org.duracloud.appconfig.domain.DuraserviceConfig;
+import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.domain.DurastoreConfig;
 import org.duracloud.appconfig.domain.SecurityConfig;
 import org.duracloud.appconfig.support.ApplicationWithConfig;
@@ -33,7 +32,7 @@ import java.util.Properties;
 
 /**
  * This class loads the configuration properties of durastore, duradmin,
- * duraservice, and security and initializes each.
+ * duraboss, and security and initializes each.
  *
  * @author Andrew Woods
  *         Date: Apr 22, 2010
@@ -44,7 +43,6 @@ public class ApplicationInitializer extends BaseConfig {
     public static final String QUALIFIER = "app";
 
     private static final String duradminKey = "duradmin";
-    private static final String duraserviceKey = "duraservice";
     private static final String durastoreKey = "durastore";
     private static final String durabossKey = "duraboss";
 
@@ -56,9 +54,6 @@ public class ApplicationInitializer extends BaseConfig {
     private String duradminHost;
     private String duradminPort;
     private String duradminContext;
-    private String duraserviceHost;
-    private String duraservicePort;
-    private String duraserviceContext;
     private String durastoreHost;
     private String durastorePort;
     private String durastoreContext;
@@ -87,8 +82,8 @@ public class ApplicationInitializer extends BaseConfig {
     }
 
     /**
-     * This method sets the configuration of duradmin, durastore, duraservice,
-     * duraboss, and application security from the provided props.
+     * This method sets the configuration of duradmin, durastore, duraboss,
+     * and application security from the provided props.
      * Note: this method is called by the constructor, so generally is should
      * not be needed publicly.
      *
@@ -117,19 +112,6 @@ public class ApplicationInitializer extends BaseConfig {
             appsWithConfigs.put(appWithConfig.getName(), appWithConfig);
         } else {
             log.warn("duradmin endpoint not !loaded");
-        }
-
-        if (duraserviceEndpointLoad()) {
-            app = new Application(duraserviceHost,
-                                  duraservicePort,
-                                  duraserviceContext);
-
-            appWithConfig = new ApplicationWithConfig(duraserviceKey);
-            appWithConfig.setApplication(app);
-            appWithConfig.setConfig(new DuraserviceConfig());
-            appsWithConfigs.put(appWithConfig.getName(), appWithConfig);
-        } else {
-            log.warn("duraservice endpoint !loaded");
         }
 
         if (durastoreEndpointLoad()) {
@@ -164,11 +146,6 @@ public class ApplicationInitializer extends BaseConfig {
             null != duradminContext;
     }
 
-    private boolean duraserviceEndpointLoad() {
-        return null != duraserviceHost && null != duraservicePort &&
-            null != duraserviceContext;
-    }
-
     private boolean durastoreEndpointLoad() {
         return null != durastoreHost && null != durastorePort &&
             null != durastoreContext;
@@ -193,16 +170,12 @@ public class ApplicationInitializer extends BaseConfig {
         } else if (prefix.equalsIgnoreCase(DurastoreConfig.QUALIFIER)) {
             loadDurastore(suffix, value);
 
-        } else if (prefix.equalsIgnoreCase(DuraserviceConfig.QUALIFIER)) {
-            loadDuraservice(suffix, value);
-
         } else if (prefix.equalsIgnoreCase(DurabossConfig.QUALIFIER)) {
             loadDuraboss(suffix, value);
 
         } else if (prefix.equalsIgnoreCase(wildcardKey)) {
             loadDuradmin(suffix, value);
             loadDurastore(suffix, value);
-            loadDuraservice(suffix, value);
             loadDuraboss(suffix, value);
 
         } else {
@@ -248,24 +221,6 @@ public class ApplicationInitializer extends BaseConfig {
         }
     }
 
-    private void loadDuraservice(String key, String value) {
-        String prefix = getPrefix(key);
-        if (prefix.equalsIgnoreCase(hostKey)) {
-            this.duraserviceHost = value;
-
-        } else if (prefix.equalsIgnoreCase(portKey)) {
-            this.duraservicePort = value;
-
-        } else if (prefix.equalsIgnoreCase(contextKey)) {
-            this.duraserviceContext = value;
-
-        } else {
-            String msg = "unknown key: " + key + " (" + value + ")";
-            log.error(msg);
-            throw new DuraCloudRuntimeException(msg);
-        }
-    }
-
     private void loadDuraboss(String key, String value) {
         String prefix = getPrefix(key);
         if (prefix.equalsIgnoreCase(hostKey)) {
@@ -285,7 +240,7 @@ public class ApplicationInitializer extends BaseConfig {
     }
 
     /**
-     * This method initializes durastore, duraservice, and duradmin based
+     * This method initializes durastore, duraboss, and duradmin based
      * on the loaded configuration.
      *
      * @return
@@ -294,7 +249,6 @@ public class ApplicationInitializer extends BaseConfig {
         RestHttpHelper.HttpResponse response = null;
 
         response = initApp(appsWithConfigs.get(durastoreKey));
-        response = initApp(appsWithConfigs.get(duraserviceKey));
         if (durabossEndpointLoad()) {
             response = initApp(appsWithConfigs.get(durabossKey));
         }
@@ -348,7 +302,7 @@ public class ApplicationInitializer extends BaseConfig {
     }
 
     /**
-     * This method writes the configuration files for durastore, duraservice,
+     * This method writes the configuration files for durastore, duraboss,
      * duradmin and application security to the provided directory.
      *
      * @param dir
@@ -383,10 +337,6 @@ public class ApplicationInitializer extends BaseConfig {
 
     public Application getDurastore() {
         return appsWithConfigs.get(durastoreKey).getApplication();
-    }
-
-    public Application getDuraservice() {
-        return appsWithConfigs.get(duraserviceKey).getApplication();
     }
 
     public Application getDuraboss() {

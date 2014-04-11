@@ -30,12 +30,10 @@ public class DurabossConfig extends DuradminConfig {
     public static final String notificationAdminKey = "admin";
 
     public static final String reporterKey = "reporter";
-    public static final String executorKey = "executor";
     public static final String auditorKey = "auditor";
     public static final String enabledKey = "enabled";
 
     private boolean reporterEnabled = true;
-    private boolean executorEnabled = true;
     private boolean auditorEnabled = true;
 
     private Map<String, NotificationConfig> notificationConfigs =
@@ -51,9 +49,6 @@ public class DurabossConfig extends DuradminConfig {
             return true;
         } else if (prefix.equalsIgnoreCase(reporterKey)) {
             loadReporter(suffix, value);
-            return true;
-        } else if (prefix.equalsIgnoreCase(executorKey)) {
-            loadExecutor(suffix, value);
             return true;
         } else if (prefix.equalsIgnoreCase(auditorKey)) {
             loadAuditor(suffix, value);
@@ -96,13 +91,6 @@ public class DurabossConfig extends DuradminConfig {
         String prefix = getPrefix(key);
         if(prefix.equalsIgnoreCase(enabledKey)) {
             reporterEnabled = Boolean.valueOf(value);
-        }
-    }
-
-    private void loadExecutor(String key, String value) {
-        String prefix = getPrefix(key);
-        if(prefix.equalsIgnoreCase(enabledKey)) {
-            executorEnabled = Boolean.valueOf(value);
         }
     }
 
@@ -155,14 +143,6 @@ public class DurabossConfig extends DuradminConfig {
 
     public void setReporterEnabled(boolean reporterEnabled) {
         this.reporterEnabled = reporterEnabled;
-    }
-
-    public boolean isExecutorEnabled() {
-        return executorEnabled;
-    }
-
-    public void setExecutorEnabled(boolean executorEnabled) {
-        this.executorEnabled = executorEnabled;
     }
 
     public boolean isAuditorEnabled() {

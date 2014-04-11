@@ -33,9 +33,6 @@ public class DurabossInitDocumentBindingTest {
     private String durastoreHost = "durastoreHost";
     private String durastorePort = "durastorePort";
     private String durastoreContext = "durastoreContext";
-    private String duraserviceHost = "duraserviceHost";
-    private String duraservicePort = "duraservicePort";
-    private String duraserviceContext = "duraserviceContext";
 
     private String notifyType = "EMAIL";
     private String notifyUsername = "notifyUser";
@@ -49,14 +46,10 @@ public class DurabossInitDocumentBindingTest {
         // Create config
         DurabossConfig config = new DurabossConfig();
         config.setReporterEnabled(false);
-        config.setExecutorEnabled(false);
         config.setAuditorEnabled(false);
         config.setDurastoreHost(durastoreHost);
         config.setDurastorePort(durastorePort);
         config.setDurastoreContext(durastoreContext);
-        config.setDuraserviceHost(duraserviceHost);
-        config.setDuraservicePort(duraservicePort);
-        config.setDuraserviceContext(duraserviceContext);
         // Add notification config
         NotificationConfig notifyConfig = new NotificationConfig();
         notifyConfig.setType(notifyType);
@@ -82,7 +75,6 @@ public class DurabossInitDocumentBindingTest {
 
         // Verify results
         assertFalse(config.isReporterEnabled());
-        assertFalse(config.isExecutorEnabled());
         assertFalse(config.isAuditorEnabled());
         assertEquals(config.getDurastoreHost(),
                      trippedConfig.getDurastoreHost());
@@ -90,12 +82,6 @@ public class DurabossInitDocumentBindingTest {
                      trippedConfig.getDurastorePort());
         assertEquals(config.getDurastoreContext(),
                      trippedConfig.getDurastoreContext());
-        assertEquals(config.getDuraserviceHost(),
-                     trippedConfig.getDuraserviceHost());
-        assertEquals(config.getDuraservicePort(),
-                     trippedConfig.getDuraservicePort());
-        assertEquals(config.getDuraserviceContext(),
-                     trippedConfig.getDuraserviceContext());
 
         Collection<NotificationConfig> trippedNotifyConfigs =
             trippedConfig.getNotificationConfigs();

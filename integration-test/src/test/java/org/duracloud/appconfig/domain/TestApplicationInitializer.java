@@ -9,7 +9,6 @@ package org.duracloud.appconfig.domain;
 
 import org.duracloud.appconfig.ApplicationInitializer;
 import org.duracloud.common.model.Credential;
-import org.duracloud.common.model.DuraCloudUserType;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.unittestdb.domain.ResourceType;
@@ -34,18 +33,18 @@ public class TestApplicationInitializer extends BaseTestUtil {
     private static File propsFile;
     private static File incompletePropsFile;
 
+    public static final String contextKey = "context";
+
     @BeforeClass
     public static void beforeClass() throws IOException {
         Properties props = new Properties();
         Properties appProps = createAppProps();
         Properties storeProps = createDurastoreProps();
-        Properties serviceProps = createDuraserviceProps();
         Properties adminProps = createDuradminProps();
         Properties securityProps = createSecurityProps();
 
         props.putAll(appProps);
         props.putAll(storeProps);
-        props.putAll(serviceProps);
         props.putAll(adminProps);
         props.putAll(securityProps);
 
@@ -69,13 +68,11 @@ public class TestApplicationInitializer extends BaseTestUtil {
         String pWild = prefix + "*" + dot;
         String pAdmin = prefix + DuradminConfig.QUALIFIER + dot;
         String pStore = prefix + DurastoreConfig.QUALIFIER + dot;
-        String pService = prefix + DuraserviceConfig.QUALIFIER + dot;
 
-        props.put(pWild + DuraserviceConfig.hostKey, "localhost");
-        props.put(pWild + DuraserviceConfig.portKey, BaseTestUtil.getPort());
-        props.put(pAdmin + DuraserviceConfig.contextKey, "duradmin");
-        props.put(pStore + DuraserviceConfig.contextKey, "durastore");
-        props.put(pService + DuraserviceConfig.contextKey, "duraservice");
+        props.put(pWild + DurastoreConfig.hostKey, "localhost");
+        props.put(pWild + DurastoreConfig.portKey, BaseTestUtil.getPort());
+        props.put(pAdmin + contextKey, "duradmin");
+        props.put(pStore + contextKey, "durastore");
 
         return props;
     }
@@ -116,44 +113,6 @@ public class TestApplicationInitializer extends BaseTestUtil {
 
     }
 
-    private static Properties createDuraserviceProps() {
-        Properties props = new Properties();
-
-        String dot = ".";
-        String prefix = DuraserviceConfig.QUALIFIER + dot;
-
-        String p0 = prefix + DuraserviceConfig.primaryInstanceKey + dot;
-        String p1 = prefix + DuraserviceConfig.userStoreKey + dot;
-        String p2 = prefix + DuraserviceConfig.serviceStoreKey + dot;
-
-        props.put(p0 + DuraserviceConfig.hostKey, "localhost");
-        props.put(p0 + DuraserviceConfig.servicesAdminPortKey,
-                  BaseTestUtil.getServicesAdminPort());
-        props.put(p0 + DuraserviceConfig.servicesAdminContextKey,
-                  BaseTestUtil.getServicesAdminContext());
-
-        props.put(p1 + DuraserviceConfig.hostKey, "localhost");
-        props.put(p1 + DuraserviceConfig.portKey, BaseTestUtil.getPort());
-        props.put(p1 + DuraserviceConfig.contextKey, "durastore");
-        props.put(p1 + DuraserviceConfig.msgBrokerUrlKey,
-                  "tcp://localhost:61617");
-
-        Credential credential =
-            BaseTestUtil.getCredential(ResourceType.fromDuraCloudUserType(
-                DuraCloudUserType.ROOT));
-        props.put(p2 + DuraserviceConfig.hostKey, "localhost");
-        props.put(p2 + DuraserviceConfig.portKey, BaseTestUtil.getPort());
-        props.put(p2 + DuraserviceConfig.contextKey, "durastore");
-        props.put(p2 + DuraserviceConfig.usernameKey, credential.getUsername());
-        props.put(p2 + DuraserviceConfig.passwordKey, credential.getPassword());
-        props.put(p2 + DuraserviceConfig.spaceIdKey,
-                  "duracloud-service-repository");
-        props.put(p2 + DuraserviceConfig.serviceXmlIdKey,
-                  "duracloud-service-repository.xml");
-
-        return props;
-    }
-
     private static Properties createDuradminProps() {
         Properties props = new Properties();
 
@@ -162,10 +121,6 @@ public class TestApplicationInitializer extends BaseTestUtil {
         props.put(prefix + DuradminConfig.duraStoreHostKey, "localhost");
         props.put(prefix + DuradminConfig.duraStorePortKey, BaseTestUtil.getPort());
         props.put(prefix + DuradminConfig.duraStoreContextKey, "durastore");
-
-        props.put(prefix + DuradminConfig.duraServiceHostKey, "localhost");
-        props.put(prefix + DuradminConfig.duraServicePortKey, BaseTestUtil.getPort());
-        props.put(prefix + DuradminConfig.duraServiceContextKey, "duraservice");
 
         return props;
     }

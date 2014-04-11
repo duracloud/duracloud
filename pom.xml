@@ -55,7 +55,6 @@
     </organization>
 
     <modules>
-        <module>mavenplugins</module>
         <module>common</module>
         <module>common-cli</module>
         <module>mimeutil</module>
@@ -67,7 +66,6 @@
         <module>common-json</module>
         <module>common-notification</module>
         <module>common-queue</module>
-        <module>serviceconfig</module>
         <module>storageprovider</module>
         <module>unit-test-db</module>
         <module>storeclient</module>
@@ -83,16 +81,9 @@
         <module>chronstagestorageprovider</module>
         <module>durastore</module>
         <module>hellowebapp</module>
-        <module>services</module>
-        <module>serviceapi</module>
-        <module>servicemonitor</module>
-        <module>duraservice</module>
         <module>duraboss-api</module>
         <module>reportdata</module>
         <module>reporter</module>
-        <module>executordata</module>
-        <module>executor</module>
-        <module>executorclient</module>
         <module>auditor</module>
         <module>dynamodb-auditor</module>
         <module>auditlogtool</module>
@@ -101,13 +92,11 @@
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>
-        <module>serviceclient</module>
-        <module>servicesadminclient</module>
         <module>chronclient</module>
         <module>chunk</module>
         <module>stitch</module>
         <module>uploadtool</module>
-        <module>duradmin</module>
+        <!--<module>duradmin</module>-->
         <module>synctool</module>
         <module>synctoolui</module>
         <module>retrievaltool</module>

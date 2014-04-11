@@ -26,7 +26,7 @@ import java.io.InputStream;
 public class DuradminInitDocumentBinding {
 
     private static final Logger log = LoggerFactory.getLogger(
-        DuraserviceInitDocumentBinding.class);
+        DuradminInitDocumentBinding.class);
 
     /**
      * This method deserializes the provided xml into a duradmin config object.
@@ -44,9 +44,6 @@ public class DuradminInitDocumentBinding {
             config.setDurastoreHost(root.getChildText("durastoreHost"));
             config.setDurastorePort(root.getChildText("durastorePort"));
             config.setDurastoreContext(root.getChildText("durastoreContext"));
-            config.setDuraserviceHost(root.getChildText("duraserviceHost"));
-            config.setDuraservicePort(root.getChildText("duraservicePort"));
-            config.setDuraserviceContext(root.getChildText("duraserviceContext"));
             config.setDurabossContext(root.getChildText("durabossContext"));
             config.setAmaUrl(root.getChildText("amaUrl"));
 
@@ -73,9 +70,6 @@ public class DuradminInitDocumentBinding {
             String durastoreHost = duradminConfig.getDurastoreHost();
             String durastorePort = duradminConfig.getDurastorePort();
             String durastoreContext = duradminConfig.getDurastoreContext();
-            String duraserviceHost = duradminConfig.getDuraserviceHost();
-            String duraservicePort = duradminConfig.getDuraservicePort();
-            String duraserviceContext = duradminConfig.getDuraserviceContext();
             String amaUrl = duradminConfig.getAmaUrl();
 
             xml.append("<duradminConfig>");
@@ -85,12 +79,6 @@ public class DuradminInitDocumentBinding {
             xml.append("</durastorePort>");
             xml.append("  <durastoreContext>" + durastoreContext);
             xml.append("</durastoreContext>");
-            xml.append("  <duraserviceHost>" + duraserviceHost);
-            xml.append("</duraserviceHost>");
-            xml.append("  <duraservicePort>" + duraservicePort);
-            xml.append("</duraservicePort>");
-            xml.append("  <duraserviceContext>" + duraserviceContext);
-            xml.append("</duraserviceContext>");
             xml.append("  <amaUrl>" + amaUrl);
             xml.append("</amaUrl>");
             xml.append("</duradminConfig>");

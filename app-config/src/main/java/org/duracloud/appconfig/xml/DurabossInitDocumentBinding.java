@@ -60,17 +60,12 @@ public class DurabossInitDocumentBinding {
 
             config.setReporterEnabled(
                 Boolean.valueOf(root.getChildText("reporterEnabled")));
-            config.setExecutorEnabled(
-                Boolean.valueOf(root.getChildText("executorEnabled")));
             config.setAuditorEnabled(
                 Boolean.valueOf(root.getChildText("auditorEnabled")));
 
             config.setDurastoreHost(root.getChildText("durastoreHost"));
             config.setDurastorePort(root.getChildText("durastorePort"));
             config.setDurastoreContext(root.getChildText("durastoreContext"));
-            config.setDuraserviceHost(root.getChildText("duraserviceHost"));
-            config.setDuraservicePort(root.getChildText("duraservicePort"));
-            config.setDuraserviceContext(root.getChildText("duraserviceContext"));
 
             List<Element> notifyElements = root.getChildren("notificationConfig");
             if(null != notifyElements) {
@@ -122,18 +117,12 @@ public class DurabossInitDocumentBinding {
             String durastoreHost = durabossConfig.getDurastoreHost();
             String durastorePort = durabossConfig.getDurastorePort();
             String durastoreContext = durabossConfig.getDurastoreContext();
-            String duraserviceHost = durabossConfig.getDuraserviceHost();
-            String duraservicePort = durabossConfig.getDuraservicePort();
-            String duraserviceContext = durabossConfig.getDuraserviceContext();
             boolean reporterEnabled = durabossConfig.isReporterEnabled();
-            boolean executorEnabled = durabossConfig.isExecutorEnabled();
             boolean auditorEnabled = durabossConfig.isAuditorEnabled();
 
             xml.append("<durabossConfig>");
             xml.append("  <reporterEnabled>" + reporterEnabled);
             xml.append("</reporterEnabled>");
-            xml.append("  <executorEnabled>" + executorEnabled);
-            xml.append("</executorEnabled>");
             xml.append("  <auditorEnabled>" + auditorEnabled);
             xml.append("</auditorEnabled>");
             xml.append("  <durastoreHost>" + durastoreHost);
@@ -142,12 +131,6 @@ public class DurabossInitDocumentBinding {
             xml.append("</durastorePort>");
             xml.append("  <durastoreContext>" + durastoreContext);
             xml.append("</durastoreContext>");
-            xml.append("  <duraserviceHost>" + duraserviceHost);
-            xml.append("</duraserviceHost>");
-            xml.append("  <duraservicePort>" + duraservicePort);
-            xml.append("</duraservicePort>");
-            xml.append("  <duraserviceContext>" + duraserviceContext);
-            xml.append("</duraserviceContext>");
 
             Collection<NotificationConfig> notificationConfigs =
                 durabossConfig.getNotificationConfigs();

@@ -7,14 +7,6 @@
  */
 package org.duracloud.duraboss.rest;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Collection;
-
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.NotificationConfig;
@@ -24,20 +16,21 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.EncryptionUtil;
-import org.duracloud.duraboss.rest.report.ServiceReportResource;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
-import org.duracloud.exec.LocalExecutor;
 import org.duracloud.manifest.LocalManifestGenerator;
-import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.security.context.SecurityContextUtil;
-import org.duracloud.serviceapi.ServicesManager;
-import org.duracloud.servicemonitor.ServiceSummarizer;
-import org.duracloud.servicemonitor.ServiceSummaryDirectory;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -47,14 +40,11 @@ import org.junit.Test;
 public class InitRestTest {
 
     private StorageReportResource storageResource;
-    private ServiceReportResource serviceResource;
     private RestUtil restUtil;
     private InitRest initRest;
 
-    private ServiceSummaryDirectory serviceSummaryDirectory;
     private SecurityContextUtil securityContextUtil;
     private NotificationManager notificationManager;
-    private LocalExecutor executor;
     private LocalManifestGenerator manifestGenerator;
 
     private RestUtil.RequestContent requestContent;
@@ -62,39 +52,29 @@ public class InitRestTest {
     @Before
     public void setup() {
         storageResource = EasyMock.createMock(StorageReportResource.class);
-        serviceResource = EasyMock.createMock(ServiceReportResource.class);
         restUtil = EasyMock.createMock(RestUtil.class);
 
-        serviceSummaryDirectory = EasyMock.createMock("ServiceSummaryDirectory",
-                                                      ServiceSummaryDirectory.class);
         securityContextUtil = EasyMock.createMock("SecurityContextUtil",
                                                   SecurityContextUtil.class);
         notificationManager = EasyMock.createMock("NotificationManager",
                                                   NotificationManager.class);
-        executor = EasyMock.createMock("Executor", LocalExecutor.class);
         manifestGenerator = EasyMock.createMock("ManifestGenerator",
                                                 LocalManifestGenerator.class);
         requestContent = EasyMock.createMock("RequestContent",
                                              RestUtil.RequestContent.class);
         initRest = new InitRest(storageResource,
-                                serviceResource,
-                                serviceSummaryDirectory,
                                 securityContextUtil,
                                 restUtil,
                                 null,
                                 notificationManager,
-                                executor,
                                 manifestGenerator);
     }
 
     private void replayMocks() {
         EasyMock.replay(storageResource,
-                        serviceResource,
                         restUtil,
-                        serviceSummaryDirectory,
                         securityContextUtil,
                         notificationManager,
-                        executor,
                         manifestGenerator,
                         requestContent);
     }
@@ -102,12 +82,9 @@ public class InitRestTest {
     @After
     public void teardown() {
         EasyMock.verify(storageResource,
-                        serviceResource,
                         restUtil,
-                        serviceSummaryDirectory,
                         securityContextUtil,
                         notificationManager,
-                        executor,
                         manifestGenerator,
                         requestContent);
     }
@@ -119,7 +96,6 @@ public class InitRestTest {
 
         // Initialized
         EasyMock.expect(storageResource.isInitialized()).andReturn(true);
-        EasyMock.expect(serviceResource.isInitialized()).andReturn(true);
 
         replayMocks();
 
@@ -146,21 +122,7 @@ public class InitRestTest {
                                    EasyMock.<String>isNull());
         EasyMock.expectLastCall();
 
-        serviceSummaryDirectory.initialize(EasyMock.<ContentStoreManager>anyObject());
-        EasyMock.expectLastCall();
-
-        serviceResource.initialize(EasyMock.<ServiceSummaryDirectory>anyObject(),
-                                   EasyMock.<ServiceSummarizer>anyObject());
-        EasyMock.expectLastCall();
-
         notificationManager.initializeNotifiers(EasyMock.<Collection<NotificationConfig>>anyObject());
-        EasyMock.expectLastCall();
-
-        executor.initialize(EasyMock.<String>anyObject(),
-                            EasyMock.<ContentStoreManager>anyObject(),
-                            EasyMock.<ServicesManager>anyObject(),
-                            EasyMock.<ManifestGenerator>anyObject(),
-                            EasyMock.<NotificationManager>anyObject());
         EasyMock.expectLastCall();
 
         manifestGenerator.initialize(EasyMock.<ContentStoreManager>anyObject());
@@ -179,19 +141,13 @@ public class InitRestTest {
         String durastoreHost = "durastore-host";
         String durastorePort = "443";
         String durastoreContext = "durastore-context";
-        String duraserviceHost = "duraservice-host";
-        String duraservicePort = "443";
-        String duraserviceContext = "duraservice-context";
         boolean reporterEnabled = true;
-        boolean executorEnabled = true;
         boolean auditorEnabled = true;
 
         StringBuilder xml = new StringBuilder();
         xml.append("<durabossConfig>");
         xml.append("  <reporterEnabled>" + reporterEnabled);
         xml.append("</reporterEnabled>");
-        xml.append("  <executorEnabled>" + executorEnabled);
-        xml.append("</executorEnabled>");
         xml.append("  <auditorEnabled>" + auditorEnabled);
         xml.append("</auditorEnabled>");
         xml.append("  <durastoreHost>" + durastoreHost);
@@ -200,12 +156,6 @@ public class InitRestTest {
         xml.append("</durastorePort>");
         xml.append("  <durastoreContext>" + durastoreContext);
         xml.append("</durastoreContext>");
-        xml.append("  <duraserviceHost>" + duraserviceHost);
-        xml.append("</duraserviceHost>");
-        xml.append("  <duraservicePort>" + duraservicePort);
-        xml.append("</duraservicePort>");
-        xml.append("  <duraserviceContext>" + duraserviceContext);
-        xml.append("</duraserviceContext>");
 
         String encUsername = encrypt("username");
         String encPassword = encrypt("password");

@@ -203,14 +203,6 @@
 
         <dependency>
             <groupId>org.duracloud</groupId>
-            <artifactId>duraservice</artifactId>
-            <version>${project.version}</version>
-            <classifier>for-integration-test</classifier>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
             <artifactId>duradmin</artifactId>
             <version>${project.version}</version>
             <classifier>for-integration-test</classifier>
