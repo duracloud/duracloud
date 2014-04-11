@@ -80,7 +80,6 @@
         <module>irodsstorageprovider</module>
         <module>chronstagestorageprovider</module>
         <module>durastore</module>
-        <module>hellowebapp</module>
         <module>duraboss-api</module>
         <module>reportdata</module>
         <module>reporter</module>
