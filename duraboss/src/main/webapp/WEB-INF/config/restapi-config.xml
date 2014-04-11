@@ -10,23 +10,12 @@
     <constructor-arg ref="storageResource"/>
   </bean>  
 
-  <bean id="serviceReportRest" class="org.duracloud.duraboss.rest.report.ServiceReportRest" >
-    <constructor-arg ref="serviceResource"/>
-  </bean>
-
-  <bean id="execRest" class="org.duracloud.duraboss.rest.exec.ExecRest" >
-    <constructor-arg ref="execResource"/>
-    <constructor-arg ref="restUtil"/>
-  </bean>
-
   <bean id="manifestRest" class="org.duracloud.duraboss.rest.manifest.ManifestRest" >
     <constructor-arg ref="manifestResource"/>
   </bean>
 
   <bean id="initRest" class="org.duracloud.duraboss.rest.InitRest" >
     <constructor-arg ref="storageResource"/>
-    <constructor-arg ref="serviceResource"/>
-    <constructor-arg ref="summaryDirectory"/>
     <constructor-arg ref="securityContextUtil"/>
     <constructor-arg ref="restUtil"/>
     <constructor-arg ref="report-space"/>
@@ -46,11 +35,6 @@
     <constructor-arg value="report/error-log-storage-report.txt"/>
   </bean>
 
-  <bean id="serviceResource" class="org.duracloud.duraboss.rest.report.ServiceReportResource" >
-    <constructor-arg ref="serviceMonitor"/>
-    <constructor-arg ref="serviceNotificationMonitor"/>
-  </bean>
-
   <!--manifest-->
   <bean id="manifestResource" class="org.duracloud.duraboss.rest.manifest.ManifestResource">
     <constructor-arg ref="manifestGenerator"/>
@@ -68,17 +52,9 @@
   <bean id="fileCleaningTracker" class="org.apache.commons.io.FileCleaningTracker"
         destroy-method="exitWhenFinished"/>
 
-  <bean id="summaryDirectory" class="org.duracloud.servicemonitor.impl.ServiceSummaryDirectoryImpl">
-    <constructor-arg ref="report-space"/>
-    <constructor-arg value="report/service-summaries-$DATE.xml"/>
-  </bean>
-
   <bean id="report-space" class="java.lang.String">
     <constructor-arg value="x-duracloud-admin"/>
   </bean>
-
-  <bean id="serviceMonitor" class="org.duracloud.servicemonitor.impl.ServiceMonitorImpl"
-    destroy-method="dispose"/>
 
   <bean id="restUtil" class="org.duracloud.common.rest.RestUtilImpl"/>
 

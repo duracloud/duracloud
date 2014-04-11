@@ -5,12 +5,6 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-  <bean id="serviceNotificationMonitor"
-        class="org.duracloud.reporter.service.ServiceNotificationMonitor">
-    <constructor-arg ref="notificationManager" />
-    <constructor-arg ref="userDetailsSvc" />
-  </bean>
-
   <bean id="notificationManager"
         class="org.duracloud.common.notification.NotificationManager">
     <constructor-arg ref="emailNotifier"/>
