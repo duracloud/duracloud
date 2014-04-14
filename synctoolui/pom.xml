@@ -23,7 +23,6 @@
     <jetty.port>8888</jetty.port>
     <durcloud.defaultport>443</durcloud.defaultport>
     <glassfish-jsp-2.1.version>2.1.v20100127</glassfish-jsp-2.1.version>
-    <org.springframework.webflow.version>2.3.0.RELEASE</org.springframework.webflow.version>
     <tiles.version>2.2.2</tiles.version>
     <jetty.version>8.1.4.v20120524</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
