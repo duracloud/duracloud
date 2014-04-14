@@ -23,6 +23,5 @@
 
   <bean class="org.duracloud.duradmin.report.DuradminStorageReportManagerImpl"/>
   <bean class="org.duracloud.duradmin.report.DuradminServiceReportManagerImpl"/>
-  <bean id="executor" class="org.duracloud.duradmin.exec.DuradminExecutorImpl"/>
 
 </beans>

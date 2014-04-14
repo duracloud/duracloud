@@ -7,14 +7,13 @@
  */
 package org.duracloud.duradmin.domain;
 
+import org.duracloud.duradmin.util.NameValuePair;
+import org.duracloud.duradmin.util.PropertiesUtils;
+import org.hibernate.validator.constraints.NotBlank;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import org.duracloud.duradmin.util.NameValuePair;
-import org.duracloud.duradmin.util.PropertiesUtils;
-import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
-import org.hibernate.validator.constraints.NotBlank;
 
 public class Space
         implements Serializable {
@@ -34,8 +33,6 @@ public class Space
 	
 	private boolean streamingEnabled = false;
 	
-    private SpaceBitIntegrityResult bitIntegrityResult = null;
-
     private String action;
 
     @NotBlank
@@ -146,14 +143,6 @@ public class Space
 
     public void setStreamingEnabled(boolean streamingEnabled) {
         this.streamingEnabled = streamingEnabled;
-    }
-
-    public SpaceBitIntegrityResult getBitIntegrityResult() {
-        return bitIntegrityResult;
-    }
-
-    public void setBitIntegrityResult(SpaceBitIntegrityResult bitIntegrityResult) {
-        this.bitIntegrityResult = bitIntegrityResult;
     }
 
     public boolean isPrimaryStorageProvider() {

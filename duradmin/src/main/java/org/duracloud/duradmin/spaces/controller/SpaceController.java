@@ -8,36 +8,16 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.StoreCaller;
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.ExtendedIteratorCounterThread;
-import org.duracloud.common.util.IOUtil;
-import org.duracloud.domain.Content;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
-import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.execdata.bitintegrity.BitIntegrityResults;
-import org.duracloud.execdata.bitintegrity.SpaceBitIntegrityResult;
-import org.duracloud.execdata.bitintegrity.StoreBitIntegrityResults;
-import org.duracloud.execdata.bitintegrity.serialize.BitIntegrityResultsSerializer;
-import org.duracloud.serviceconfig.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +29,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * 
@@ -95,7 +83,6 @@ public class SpaceController {
                 contentStoreManager.getContentStore(space.getStoreId(),0);
 			populateSpace(space, cloudSpace, contentStoreWithoutRetries);
 			populateSpaceCount(space, request);
-            populateBitIntegrityResults(space);
 			return createModel(space);
 		}catch(ContentStoreException ex){
 			ex.printStackTrace();
@@ -103,37 +90,6 @@ public class SpaceController {
 			return createModel(null);
 		}
 	}
-
-    private void populateBitIntegrityResults(Space space) {
-        try{
-            String storeId = space.getStoreId();
-            String spaceId = space.getSpaceId();
-            ContentStore contentStore = this.contentStoreManager.getPrimaryContentStore();
-            Content content =
-                contentStore.getContent(this.adminSpaceId,
-                                        this.bitIntegrityResultsContentId);
-            InputStream is = content.getStream();
-            BitIntegrityResultsSerializer serializer = new BitIntegrityResultsSerializer();
-            String json = IOUtil.readStringFromStream(is);
-            BitIntegrityResults results = serializer.deserialize(json);
-            StoreBitIntegrityResults storeResults = results.getStores().get(storeId);
-            if(storeResults != null){
-                List<SpaceBitIntegrityResult> spaceResults = storeResults.getSpaceResults(spaceId);
-                if(spaceResults != null && spaceResults.size() > 0){
-                    for(SpaceBitIntegrityResult spaceResult : spaceResults){
-                        if(spaceResult.isDisplay()){
-                            
-                            space.setBitIntegrityResult(spaceResult);
-                            break;
-                        }
-                    }
-                }
-            }        
-            
-        }catch(Exception ex){
-            log.error("failed to populate bit integrity results due to error:" + ex.getMessage(), ex);
-        }
-    }
 
     private void populateSpace(Space space,
                                org.duracloud.domain.Space cloudSpace,
