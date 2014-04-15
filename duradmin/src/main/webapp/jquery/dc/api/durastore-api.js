@@ -82,7 +82,7 @@ var dc;
     };
 	
 
-    dc.service.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
+    dc.store.UpdateSpaceStreaming = function(storeId, spaceId, /*bool*/enable){
         var jqxhr = dc.ajax2({
             url: "/duradmin/spaces/mediastreamer?storeId="+storeId+"&spaceId="
                             + encodeURIComponent(spaceId) 
