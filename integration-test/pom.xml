@@ -211,20 +211,6 @@
 
         <dependency>
             <groupId>org.duracloud</groupId>
-            <artifactId>serviceclient</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>servicesadminclient</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
             <artifactId>s3storageprovider</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

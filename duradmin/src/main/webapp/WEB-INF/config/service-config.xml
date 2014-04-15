@@ -22,6 +22,5 @@
   </bean>
 
   <bean class="org.duracloud.duradmin.report.DuradminStorageReportManagerImpl"/>
-  <bean class="org.duracloud.duradmin.report.DuradminServiceReportManagerImpl"/>
 
 </beans>
