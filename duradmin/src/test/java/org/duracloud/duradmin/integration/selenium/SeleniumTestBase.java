@@ -43,13 +43,7 @@ public abstract class SeleniumTestBase
         Assert.assertTrue(selenium.isTextPresent("Login"));
 
     }
-    
-    
-    protected void navigateToServicesPage() throws Exception{
-        clickAndWait("css=#services-tab a");
-        assertTrue(selenium.isElementPresent("css=#services-list-view"));
-    }
-    
+
     protected void navigateToSpacesPage() throws Exception{
         clickAndWait("css=#spaces-tab a");
         assertTrue(selenium.isElementPresent("css=#provider-logo"));
