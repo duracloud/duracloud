@@ -146,7 +146,6 @@ public class ContentItemController {
 
 	    @RequestMapping(value ="/copy", method = RequestMethod.POST)
 	    public ModelAndView copy(HttpServletRequest request,
-	            @RequestParam String method,
 	            HttpServletResponse response, @Valid ContentItem contentItem,
 	            BindingResult result) throws Exception {
 	        try{
