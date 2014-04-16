@@ -196,26 +196,32 @@ $(function(){
             instance.change(state);
         });
 
-        //This is a solution to the a problem related to differences in the way
-        //the browser handles popstate on page load. Chrome and Safari issue a
-        //'popstate' event on page load; firefox does not
-        //cf http://stackoverflow.com/questions/6421769/popstate-on-pages-load-in-chrome
-        if($.browser['mozilla']){
-            var unpopped = ('state' in window.history);
-            if(unpopped){
-                setTimeout(function(){
-                    var evt = document.createEvent("PopStateEvent");
-                    evt.initPopStateEvent("popstate", false, false, null);
-                    window.dispatchEvent(evt);
-                });
-            }
-        }
         
         if($.browser['msie']){
             setTimeout(function(){
                 var state = buildStateFromUrl(window.location);
                 instance.change(state);
             });
+        }else{
+            //This is a solution to the a problem related to differences in the way
+            //the browser handles popstate on page load. Chrome and Safari issue a
+            //'popstate' event on page load; firefox does not
+            //cf http://stackoverflow.com/questions/6421769/popstate-on-pages-load-in-chrome
+            //UPDATE:  4/15/2014:  It would seems that webkit now handles popstate event on
+            //page load just like mozilla.
+            var unpopped = ('state' in window.history);
+            if(unpopped){
+                setTimeout(function(){
+                    var evt = document.createEvent("PopStateEvent");
+                    
+                    if($.browser['mozilla']){
+                        //webkit does not support initPopStateEvent().
+                        evt.initPopStateEvent("popstate", false, false, null);
+                    }
+                    
+                    window.dispatchEvent(evt);
+                });
+            }
         }
         
         return instance;
