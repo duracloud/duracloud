@@ -8,7 +8,9 @@
  -->
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="language" content="en" />
+    <meta name="language" content="en" />    
+    <meta http-equiv="Expires" content="-1"/>
+    
     <title><spring:message code="application.title" /> :: <tiles:insertAttribute name="title"/></title>
 	<link rel="shortcut icon" href="${pageContext.request.contextPath}/favicon.ico" />
 	<link rel="stylesheet"  href="${pageContext.request.contextPath}/style/jquery-ui.css" type="text/css" />	
@@ -54,7 +56,7 @@
 	<script type="text/javascript">
 
 	$(function() {
-
+		
 		///////////////////////////////////////////////////////////////////////
 		////controls rollovers on tags and properties
 		///////////////////////////////////////////////////////////////////////
