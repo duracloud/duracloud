@@ -26,7 +26,10 @@ import java.io.InputStream;
  * @author Andrew Woods
  *         Date: 3/29/12
  */
-@Path("/manifest")
+/**TODO The manifest in its current form is likely going away.
+*  This rest endpoint has been removed.  The whole class should be removed at some point in the near future.
+*/
+//@Path("/manifest")
 public class ManifestRest extends BaseRest {
 
     private final Logger log = LoggerFactory.getLogger(ManifestRest.class);
@@ -37,8 +40,8 @@ public class ManifestRest extends BaseRest {
         this.manifestResource = manifestResource;
     }
 
-    @Path("/{spaceId}")
-    @GET
+    //@Path("/{spaceId}")
+    //@GET
     public Response getManifest(@PathParam("spaceId") String spaceId,
                                 @QueryParam("format") String format,
                                 @QueryParam("date") String date,
