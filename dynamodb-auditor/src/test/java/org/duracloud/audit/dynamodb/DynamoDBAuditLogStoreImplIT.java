@@ -8,14 +8,13 @@
 package org.duracloud.audit.dynamodb;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.duracloud.audit.AuditLogItem;
 import org.duracloud.audit.AuditLogWriteFailedException;
+import org.duracloud.error.NotFoundException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
  * @author Daniel Bernstein 
  *         Date: 3/11/2014
  */
-public class DynamoDBAuditLogStoreImplT {
+public class DynamoDBAuditLogStoreImplIT {
 
     private DynamoDBAuditLogStore logStore;
 
@@ -132,6 +131,32 @@ public class DynamoDBAuditLogStoreImplT {
 
         Assert.assertEquals(expectedtotal, count);
     }
+    
+    @Test
+    public void testGetLogItemForContentId() throws Exception {
+        int stores = 2;
+        int content = 5;
+        int dates = 2;
+        loadData(client, 2,stores,3,content,dates);
+        AuditLogItem it = this.logStore.getLatestLogItem("account0", "store0","space0","content0");
+        verifyItem(it);
+    }
+
+    @Test
+    public void testGetLogItemForContentIdNotFound() throws Exception{
+        int stores = 2;
+        int content = 5;
+        int dates = 2;
+        loadData(client, 2,stores,3,content,dates);
+        try {
+            this.logStore.getLatestLogItem("account0", "store0","space0","contentxxx");
+            Assert.fail();
+        }catch(NotFoundException ex){
+            Assert.assertTrue(true);
+            
+        }
+        
+    }
 
     @Test
     public void testGetAllSpaceItems() throws Exception {
@@ -161,10 +186,7 @@ public class DynamoDBAuditLogStoreImplT {
         Assert.assertNotNull(item.getContentMd5());
         Assert.assertNotNull(item.getMimetype());
         Assert.assertNotNull(item.getContentSize());
-        Assert.assertNotNull(item.getContentProperties());
-        Assert.assertNotNull(item.getSpaceAcls());
-        Assert.assertNotNull(item.getSourceSpaceId());
-        Assert.assertNotNull(item.getSourceContentId());
+        
     }
 
 }

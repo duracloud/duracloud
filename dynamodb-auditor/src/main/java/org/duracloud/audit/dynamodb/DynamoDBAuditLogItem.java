@@ -46,7 +46,7 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
     public static final String TABLE_NAME = "AuditLog";
     public static final String ACCOUNT_SPACE_ID_INDEX = "AccountSpaceIdIndex";
     public static final String ID_TIMESTAMP_INDEX = "IdTimeStamp";
-    private static final String SOURCE_SPACE_ID__ATTRIBUTE = "SourceSpaceId";
+    private static final String SOURCE_SPACE_ID_ATTRIBUTE = "SourceSpaceId";
     private static final String SOURCE_CONTENT_ID_ATTRIBUTE = "SourceContentId";
     
     
@@ -191,7 +191,7 @@ public class DynamoDBAuditLogItem implements AuditLogItem {
         return spaceAcls;
     }
 
-    @DynamoDBAttribute(attributeName = SOURCE_SPACE_ID__ATTRIBUTE)
+    @DynamoDBAttribute(attributeName = SOURCE_SPACE_ID_ATTRIBUTE)
     @Override
     public String getSourceSpaceId() {
         return this.sourceSpaceId;

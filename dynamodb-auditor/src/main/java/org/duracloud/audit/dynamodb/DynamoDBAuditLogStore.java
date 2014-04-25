@@ -7,6 +7,7 @@
  */
 package org.duracloud.audit.dynamodb;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +18,7 @@ import org.duracloud.audit.AuditLogStore;
 import org.duracloud.audit.AuditLogWriteFailedException;
 import org.duracloud.common.collection.StreamingIterator;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.error.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,6 +129,15 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
                                               String storeId,
                                               String spaceId,
                                               String contentId) {
+        return getLogItems(account, storeId, spaceId, contentId, true, 0);
+    }
+
+    protected Iterator<AuditLogItem> getLogItems(String account,
+                                                         String storeId,
+                                                         String spaceId,
+                                                         String contentId,
+                                                         boolean ascending,
+                                                         int limit) {
         checkInitialized();
         Map<String, Condition> keyConditions = new HashMap<>();
         keyConditions.put(DynamoDBAuditLogItem.ID_ATTRIBUTE,
@@ -136,11 +147,38 @@ public class DynamoDBAuditLogStore implements AuditLogStore {
         QueryRequest request =
             new QueryRequest(DynamoDBAuditLogItem.TABLE_NAME)
                     .withKeyConditions(keyConditions)
-                    .withIndexName(DynamoDBAuditLogItem.ID_TIMESTAMP_INDEX);
+                    .withIndexName(DynamoDBAuditLogItem.ID_TIMESTAMP_INDEX)
+                    .withScanIndexForward(ascending);
+                    
+        if(limit > 0){
+            request.setLimit(limit);
+        }
+        
         request.setSelect(Select.ALL_PROJECTED_ATTRIBUTES);
         return new StreamingIterator<AuditLogItem>(new DynamoDBIteratorSource<AuditLogItem>(client,
                                                                            request,
                                                                            DynamoDBAuditLogItem.class));
+    }
+    
+    @Override
+    public AuditLogItem getLatestLogItem(String account,
+                                         String storeId,
+                                         String spaceId,
+                                         String contentId)
+        throws NotFoundException {
+        
+        Iterator<AuditLogItem> items =
+            getLogItems(account, storeId, spaceId, contentId, false, 1);
+
+        if (items.hasNext()) {
+            return items.next();
+        }
+        
+        throw new NotFoundException(MessageFormat.format("No items found with path {0}/{1}/{2}/{3}",
+                                                         account,
+                                                         storeId,
+                                                         spaceId,
+                                                         contentId));
     }
 
     private void checkInitialized() {

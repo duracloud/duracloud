@@ -31,7 +31,7 @@
             <dynamodb.port>${dynamodblocal.port}</dynamodb.port>
           </systemPropertyVariables>
           <includes>
-            <include>%regex[.*IT.java]</include>
+            <include>%regex[.*IT.class]</include>
           </includes>
         </configuration>
         <executions>
@@ -67,6 +67,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -85,10 +86,12 @@
           </execution>
         </executions>
       </plugin>
+       -->
+      
       <plugin>
         <groupId>com.jcabi</groupId>
         <artifactId>jcabi-dynamodb-maven-plugin</artifactId>
-        <version>0.4</version>
+        <version>0.5</version>
         <executions>
           <execution>
             <id>dynamodb-integration-test</id>

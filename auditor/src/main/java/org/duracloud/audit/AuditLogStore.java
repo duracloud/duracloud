@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.duracloud.error.NotFoundException;
+
 /**
  * This interface defines the contract for reading and writing audit logs.
  *
@@ -71,4 +73,17 @@ public interface AuditLogStore {
                                               String spaceId,
                                               String contentId);
 
+    /**
+     * Retrieves log history for a content item in chronological order
+     * @param account
+     * @param storeId
+     * @param spaceId
+     * @param contentId
+     * @return
+     */
+    public AuditLogItem getLatestLogItem(String account,
+                                              String storeId,
+                                              String spaceId,
+                                              String contentId) throws NotFoundException;
+    
 }
