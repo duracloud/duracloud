@@ -23,14 +23,10 @@ public class ESContentIndexClientContentIdIteratorSource extends AbstractESConte
         super(contentIndexClient, account, storeId, space);
     }
 
-    public Collection<String> getNext() {
-        Collection<String> contentIds = contentIndexClient.getSpaceContentIds(
+    @Override
+    protected Collection<String> getNextImpl() {
+        return contentIndexClient.getSpaceContentIds(
             account, storeId, space, pageNum, contentIndexClient.getPageSize());
-        if(contentIds.size() > 0) {
-            pageNum++;
-            return contentIds;
-        } else {
-            return null;
-        }
+        
     }
 }

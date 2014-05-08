@@ -33,5 +33,15 @@ public abstract class AbstractESContentIndexClientIteratorSource<T> implements I
         this.space = space;
     }
 
-    public abstract Collection<T> getNext();
+    protected abstract Collection<T> getNextImpl();
+    
+    public final Collection<T> getNext() {
+        Collection<T> collection = getNextImpl();
+        if(collection.size() > 0) {
+            pageNum++;
+            return collection;
+        } else {
+            return null;
+        }
+    }
 }

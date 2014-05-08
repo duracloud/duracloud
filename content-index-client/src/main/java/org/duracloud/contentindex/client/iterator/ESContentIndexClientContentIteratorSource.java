@@ -7,10 +7,10 @@
  */
 package org.duracloud.contentindex.client.iterator;
 
+import java.util.Collection;
+
 import org.duracloud.contentindex.client.ContentIndexItem;
 import org.duracloud.contentindex.client.ESContentIndexClient;
-
-import java.util.Collection;
 
 /**
  * @author Erik Paulsson
@@ -24,14 +24,8 @@ public class ESContentIndexClientContentIteratorSource extends AbstractESContent
         super(contentIndexClient, account, storeId, space);
     }
 
-    public Collection<ContentIndexItem> getNext() {
-        Collection<ContentIndexItem> items = contentIndexClient.getSpaceContents(
+    protected Collection<ContentIndexItem> getNextImpl() {
+        return contentIndexClient.getSpaceContents(
             account, storeId, space, pageNum, contentIndexClient.getPageSize());
-        if(items.size() > 0) {
-            pageNum++;
-            return items;
-        } else {
-            return null;
-        }
     }
 }
