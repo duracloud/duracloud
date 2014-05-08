@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -202,49 +203,49 @@ public class ESContentIndexClientTest {
         assertEquals(5, count1);
         assertEquals(3, count2);
 
-        List<ContentIndexItem> itemsFull1 =
+        Iterator<ContentIndexItem> itemsFull1 =
             contentIndexClient.getSpaceContents(account1, storeId, space);
-        List<ContentIndexItem> itemsFull2 =
+        Iterator<ContentIndexItem> itemsFull2 =
             contentIndexClient.getSpaceContents(account2, storeId, space);
 
-        assertEquals(5, itemsFull1.size());
-        int idIndex = 1;
-        for(ContentIndexItem item: itemsFull1) {
+        int idIndex = 0;
+        while(itemsFull1.hasNext()) {
+            idIndex++;
+            ContentIndexItem item = itemsFull1.next();
             assertItemFieldsNotNull(item);
             assertEquals(account1, item.getAccount());
             assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-            idIndex++;
         }
+        assertEquals(5, idIndex);
 
-        assertEquals(3, itemsFull2.size());
-        idIndex = 1;
-        for(ContentIndexItem item: itemsFull2) {
+        idIndex = 0;
+        while(itemsFull2.hasNext()) {
+            idIndex++;
+            ContentIndexItem item = itemsFull2.next();
             assertItemFieldsNotNull(item);
             assertEquals(account2, item.getAccount());
             assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-            idIndex++;
         }
+        assertEquals(3, idIndex);
 
-        List<ContentIndexItem> itemsId1 =
-            contentIndexClient.getSpaceContentIds(account1, storeId, space);
-        List<ContentIndexItem> itemsId2 =
-            contentIndexClient.getSpaceContentIds(account2, storeId, space);
+        Iterator<String> itemsId1 = contentIndexClient.getSpaceContentIds(
+            account1, storeId, space);
+        Iterator<String> itemsId2 = contentIndexClient.getSpaceContentIds(
+            account2, storeId, space);
 
-        assertEquals(5, itemsId1.size());
-        idIndex = 1;
-        for(ContentIndexItem item: itemsId1) {
-            assertItemFieldsNull(item);
-            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+        idIndex = 0;
+        while(itemsId1.hasNext()) {
             idIndex++;
+            assertTrue(itemsId1.next().endsWith(idIndex+".txt"));
         }
+        assertEquals(5, idIndex);
 
-        assertEquals(3, itemsId2.size());
-        idIndex = 1;
-        for(ContentIndexItem item: itemsId2) {
-            assertItemFieldsNull(item);
-            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+        idIndex = 0;
+        while(itemsId2.hasNext()) {
             idIndex++;
+            assertTrue(itemsId2.next().endsWith(idIndex+".txt"));
         }
+        assertEquals(3, idIndex);
 
         // both accounts
         items = contentIndexClient.getItemWithValue(value1, null, null, null);
