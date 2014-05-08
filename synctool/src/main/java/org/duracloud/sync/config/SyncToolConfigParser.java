@@ -205,6 +205,17 @@ public class SyncToolConfigParser {
        excludeOption.setRequired(false);
        cmdOptions.addOption(excludeOption);
 
+       Option prefixOption =
+           new Option("a", "prefix", true,
+                      "a prefix that is added to the beginning of the ID of " +
+                      "each content item that is stored in DuraCloud. For " +
+                      "example, a prefix value of 'a/b/c/' with a content " +
+                      "item whose path is 'dir1/file.txt' would result in " +
+                      "the file stored in DuraCloud as 'a/b/c/dir1/file.txt " +
+                      "(optional)");
+       prefixOption.setRequired(false);
+       cmdOptions.addOption(prefixOption);
+
        // Options to use Backup Config
        configFileOptions = new Options();
 
@@ -430,6 +441,10 @@ public class SyncToolConfigParser {
                                          "path to a valid file.");
             }
             config.setExcludeList(excludeFile);
+        }
+
+        if(cmd.hasOption("a")) {
+            config.setPrefix(cmd.getOptionValue("a"));
         }
 
         return config;

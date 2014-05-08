@@ -43,6 +43,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private boolean renameUpdates;
     private String updateSuffix;
     private String storeId;
+    private String prefix;
     EventListenerSupport<EndPointListener> listenerList;
 
     public DuraStoreSyncEndpoint(ContentStore contentStore,
@@ -51,7 +52,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                  boolean syncDeletes,
                                  boolean syncUpdates, 
                                  boolean renameUpdates, 
-                                 String updateSuffix) {
+                                 String updateSuffix,
+                                 String prefix) {
         this.contentStore = contentStore;
         this.username = username;
         this.storeId = this.contentStore.getStoreId();
@@ -60,6 +62,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         this.syncUpdates = syncUpdates;
         this.renameUpdates = renameUpdates;
         this.updateSuffix = updateSuffix;
+        this.prefix = prefix;
         this.listenerList = new EventListenerSupport<>(EndPointListener.class);
 
         ensureSpaceExists();
@@ -75,7 +78,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
              syncDeletes,
              true,
              false,
-             SyncToolConfig.DEFAULT_UPDATE_SUFFIX);
+             SyncToolConfig.DEFAULT_UPDATE_SUFFIX,
+             null);
     }
     
     protected String getUsername(){
@@ -282,12 +286,18 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
      * Determines the content ID of a file: the path of the file relative to
      * the watched directory. If the watched directory is null, the content ID
      * is simply the name of the file.
+     *
+     * If a prefix is being used, the prefix is added as the initial characters
+     * in the contentId.
      */
     protected String getContentId(MonitoredFile syncFile, File watchDir) {
         String contentId = syncFile.getName();
         if(null != watchDir) {
             URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
             contentId = relativeFileURI.getPath();
+        }
+        if(null != prefix) {
+            contentId = prefix + contentId;
         }
         return contentId;
     }

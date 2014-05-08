@@ -149,7 +149,8 @@ public class SyncTool {
                                            syncConfig.getMaxFileSize(),
                                            syncConfig.isSyncUpdates(),
                                            syncConfig.isRenameUpdates(),
-                                           syncConfig.getUpdateSuffix());
+                                           syncConfig.getUpdateSuffix(),
+                                           syncConfig.getPrefix());
         
         this.syncEndpoint.addEndPointListener(new EndPointLogger());
         

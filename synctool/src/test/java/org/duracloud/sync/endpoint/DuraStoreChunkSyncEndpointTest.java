@@ -96,12 +96,10 @@ public class DuraStoreChunkSyncEndpointTest {
     }
 
     private void setEndpoint() {
-        endpoint = new DuraStoreChunkSyncEndpoint(contentStore,
-                                                  username,
-                                                  spaceId,
-                                                  syncDeletes,
-                                                  maxFileSize,
-                                                  true, false,null);
+        endpoint = new DuraStoreChunkSyncEndpoint(contentStore, username,
+                                                  spaceId, syncDeletes,
+                                                  maxFileSize, true, false,
+                                                  null, null);
     }
 
     @Test
