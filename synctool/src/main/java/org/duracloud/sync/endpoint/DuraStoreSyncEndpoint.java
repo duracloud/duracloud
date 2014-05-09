@@ -145,7 +145,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         String contentId = getContentId(syncFile, watchDir);
         String absPath = syncFile.getAbsolutePath();
 
-        logger.info("Syncing file " + absPath +
+        logger.debug("Syncing file " + absPath +
                     " to DuraCloud with ID " + contentId);
         Map<String, String> contentProperties = getContentProperties(spaceId,
                                                                      contentId);
@@ -157,22 +157,25 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                         contentProperties.get(ContentStore.CONTENT_CHECKSUM);
                     if(dcChecksum.equals(syncFile.getChecksum())) {
                         logger.debug("Checksum for local file {} matches " +
-                            "file in DuraCloud, no update needed.",
-                            absPath);
+                                     "file in DuraCloud, no update needed.",
+                                     absPath);
                     } else {
                         if(syncUpdates){
                             logger.debug("Local file {} changed, updating DuraCloud.",
                                          absPath);
                             if(renameUpdates){
-                                logger.debug("Renaming updates enabled:  update to {} to prevent overwrites for local file {}",
-                                             contentId, absPath);
-
-                                //create backup of original using current timestamp in backup content id.
-                                //I'm using current timestamp since original timestamp is just a date without timestamp info.
-                                //Plus I think it is more intuitive to have the timestamp reflect the moment when the backup
-                                //file was created. -dbernstein
+                                // create backup of original using current timestamp
+                                // in backup content id. I'm using current timestamp
+                                // since original timestamp is just a date without
+                                // timestamp info. Plus I think it is more intuitive
+                                // to have the timestamp reflect the moment when the
+                                // backup file was created. -dbernstein
                                 String timeStamp = DateUtil.nowPlain();
-                                String backupContentId = contentId +  this.updateSuffix + "." +timeStamp;
+                                String backupContentId = contentId +
+                                    this.updateSuffix + "." +timeStamp;
+                                logger.info("Renaming {} to {} to prevent it " +
+                                            "from being overwritten",
+                                            contentId, backupContentId);
                                 this.contentStore.copyContent(this.spaceId,
                                                               contentId,
                                                               this.spaceId,
@@ -185,12 +188,11 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                                                   absPath);
                             }
 
-                            addUpdateContent(contentId, syncFile);
+                            addUpdateContent(contentId, syncFile, absPath);
 
-                            this.listenerList.fire()
-                                             .contentUpdated(this.storeId,
-                                                                 this.spaceId,
-                                                                 contentId, absPath);
+                            this.listenerList
+                                .fire().contentUpdated(this.storeId, this.spaceId,
+                                                       contentId, absPath);
                             result = SyncResultType.UPDATED;
                         }else{
                             logger.debug("Local file {} changed, but sync updates options ",
@@ -206,7 +208,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                 } else { // File was added
                     logger.debug("Local file {} added, moving to DuraCloud.",
                                  absPath);
-                    addUpdateContent(contentId, syncFile);
+                    addUpdateContent(contentId, syncFile, absPath);
                     this.listenerList.fire()
                                      .contentAdded(this.storeId,
                                                    this.spaceId,
@@ -215,20 +217,21 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                     result =  SyncResultType.ADDED;
                     
                 }
-            } else { // File was deleted
-                if(dcFileExists) {
-                    if(syncDeletes) {
-                        logger.debug("Local file {} deleted, " +
-                                     "removing from DuraCloud.",
-                                     absPath);
-                        deleteContent(spaceId, contentId);
-                        this.listenerList.fire()
-                                         .contentDeleted(this.storeId, this.spaceId, contentId, absPath);
-                        result = SyncResultType.DELETED;
-                    } else {
-                        logger.debug("Ignoring delete of file {}",
-                                     absPath);
+            } else { // File was deleted (does not exist locally)
+                if(syncDeletes) {
+                    if(dcFileExists) {
+                        deleteContent(spaceId, contentId, absPath);
+                    } else if(null != prefix) {
+                        // Check for dc file without prefix
+                        String noPrefixContentId =
+                            contentId.substring(prefix.length());
+                        if(null != getContentProperties(spaceId,
+                                                        noPrefixContentId)) {
+                            deleteContent(spaceId, noPrefixContentId, absPath);
+                        }
                     }
+                } else {
+                    logger.debug("Ignoring delete of file {}", absPath);
                 }
             }
         } catch(ContentStoreException e) {
@@ -245,14 +248,36 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
             props = contentStore.getContentProperties(spaceId, contentId);
 
         } catch (ContentStoreException e) {
-            logger.info("Content properties !exist: {}/{}", spaceId, contentId);
+            logger.debug("Content properties do not exist for content item " +
+                         "{} in space {}", contentId, spaceId);
         }
         return props;
     }
 
+    private SyncResultType deleteContent(String spaceId,
+                                         String contentId,
+                                         String absPath)
+        throws ContentStoreException {
+        logger.debug("Local file {} deleted, removing from DuraCloud.", absPath);
+        deleteContent(spaceId, contentId);
+        this.listenerList.fire().contentDeleted(this.storeId, this.spaceId,
+                                                contentId, absPath);
+        return SyncResultType.DELETED;
+    }
+
     protected void deleteContent(String spaceId, String contentId)
         throws ContentStoreException {
+        logger.info("Deleting {} from DuraCloud space {}", contentId, spaceId);
         contentStore.deleteContent(spaceId, contentId);
+    }
+
+    private void addUpdateContent(String contentId,
+                                  MonitoredFile syncFile,
+                                  String absPath)
+        throws ContentStoreException {
+        logger.info("Adding local file {} to DuraCloud space {}" +
+                    " with content ID {}", absPath, spaceId, contentId);
+        addUpdateContent(contentId, syncFile);
     }
 
     protected void addUpdateContent(String contentId, MonitoredFile syncFile)

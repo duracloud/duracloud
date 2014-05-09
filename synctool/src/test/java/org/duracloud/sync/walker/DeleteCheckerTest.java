@@ -7,9 +7,6 @@
  */
 package org.duracloud.sync.walker;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertEquals;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.mgmt.ChangedFile;
@@ -20,6 +17,10 @@ import org.junit.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 
 /**
  * @author: Bill Branan
@@ -46,15 +47,15 @@ public class DeleteCheckerTest extends SyncTestBase {
         File tempFile = File.createTempFile("temp", "file", tempDir);
         String delFile = "deletedFile";
 
-        List<String> filesList = new ArrayList<String>();
+        List<String> filesList = new ArrayList<>();
         filesList.add(tempFile.getName());
         filesList.add(delFile);
 
-        List<File> syncDirs = new ArrayList<File>();
+        List<File> syncDirs = new ArrayList<>();
         syncDirs.add(tempDir);
 
         DeleteChecker deleteChecker =
-            new DeleteChecker(filesList.iterator(), syncDirs);
+            new DeleteChecker(filesList.iterator(), syncDirs, null);
         deleteChecker.run();
 
         ChangedFile changedFile = changedList.getChangedFile();
@@ -62,4 +63,29 @@ public class DeleteCheckerTest extends SyncTestBase {
         assertEquals(delFile, changedFile.getFile().getName());
         assertNull(changedList.getChangedFile());
     }
+
+    @Test
+    public void testDeleteCheckerPrefix() throws Exception {
+        File tempFile = File.createTempFile("temp", "file", tempDir);
+        String delFile = "deletedFile";
+
+        String prefix = "prefix/";
+
+        List<String> filesList = new ArrayList<>();
+        filesList.add(prefix + tempFile.getName());
+        filesList.add(delFile);
+
+        List<File> syncDirs = new ArrayList<>();
+        syncDirs.add(tempDir);
+
+        DeleteChecker deleteChecker =
+            new DeleteChecker(filesList.iterator(), syncDirs, prefix);
+        deleteChecker.run();
+
+        ChangedFile changedFile = changedList.getChangedFile();
+        assertNotNull(changedFile);
+        assertEquals(delFile, changedFile.getFile().getName());
+        assertNull(changedList.getChangedFile());
+    }
+
 }

@@ -203,7 +203,8 @@ public class SyncTool {
 
     private void startDeleteChecker() {
         deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
-                                            syncConfig.getContentDirs());
+                                            syncConfig.getContentDirs(),
+                                            syncConfig.getPrefix());
     }
 
     private void startDirMonitor() {
