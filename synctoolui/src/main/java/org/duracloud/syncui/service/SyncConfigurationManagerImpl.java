@@ -7,7 +7,6 @@
  */
 package org.duracloud.syncui.service;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.sync.config.SyncToolConfig;
@@ -211,6 +210,11 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     @Override
     public boolean isRenameUpdates() {
         return this.syncToolConfig.isRenameUpdates();
+    }
+
+    @Override
+    public String getPrefix() {
+        return this.syncToolConfig.getPrefix();
     }
     
 }

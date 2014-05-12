@@ -28,6 +28,7 @@ public class DeleteChecker implements Runnable {
     private List<File> syncDirs;
     private boolean complete = false;
     private boolean stopped = false;
+    private String prefix;
     
     /**
      * Creates a delete checker
@@ -36,9 +37,11 @@ public class DeleteChecker implements Runnable {
      * @param syncDirs the list of local source directories being synced
      */
     protected DeleteChecker(Iterator<String> filesList,
-                            List<File> syncDirs) {
+                            List<File> syncDirs,
+                            String prefix) {
         this.filesList = filesList;
         this.syncDirs = syncDirs;
+        this.prefix = prefix;
     }
 
     /**
@@ -55,6 +58,10 @@ public class DeleteChecker implements Runnable {
 
         while (filesList.hasNext() && !stopped) {
             String fileToCheck = filesList.next();
+            if(null != prefix && fileToCheck.startsWith(prefix)) {
+                fileToCheck = fileToCheck.substring(prefix.length());
+            }
+
             logger.debug("Checking: " + fileToCheck);
 
             boolean exists = false;
@@ -86,8 +93,10 @@ public class DeleteChecker implements Runnable {
     }
 
     public static DeleteChecker start(Iterator<String> filesList,
-                                      List<File> syncDirs) {
-        DeleteChecker deleteChecker = new DeleteChecker(filesList, syncDirs);
+                                      List<File> syncDirs,
+                                      String prefix) {
+        DeleteChecker deleteChecker =
+            new DeleteChecker(filesList, syncDirs, prefix);
         (new Thread(deleteChecker)).start();
         return deleteChecker;
     }

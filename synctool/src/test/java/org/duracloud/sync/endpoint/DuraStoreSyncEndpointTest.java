@@ -65,7 +65,7 @@ public class DuraStoreSyncEndpointTest {
     @Test
     public void testGetContentId() throws Exception {
         replayMocks();
-        setEndpoint();
+        setEndpoint(null);
 
         File watchDir = new File("a");
         MonitoredFile file = new MonitoredFile(new File("a/b/c", "file.txt"));
@@ -79,9 +79,28 @@ public class DuraStoreSyncEndpointTest {
         assertEquals("file.txt", contentId);
     }
 
-    private void setEndpoint() {
-        endpoint =
-            new DuraStoreSyncEndpoint(contentStore, username, spaceId, false, true, false, null);
+    @Test
+    public void testGetContentIdPrefix() throws Exception {
+        String prefix = "prefix/";
+
+        replayMocks();
+        setEndpoint(prefix);
+
+        File watchDir = new File("a");
+        MonitoredFile file = new MonitoredFile(new File("a/b/c", "file.txt"));
+
+        // Get Content ID with a watch dir
+        String contentId = endpoint.getContentId(file, watchDir);
+        assertEquals(prefix + "b/c/file.txt", contentId);
+
+        // Get Content ID with now watch dir
+        contentId = endpoint.getContentId(file, null);
+        assertEquals(prefix + "file.txt", contentId);
+    }
+
+    private void setEndpoint(String prefix) {
+        endpoint = new DuraStoreSyncEndpoint(contentStore, username, spaceId,
+                                             false, true, false, null, prefix);
     }
 
     @Test
@@ -106,7 +125,7 @@ public class DuraStoreSyncEndpointTest {
                 .andReturn("");
 
         replayMocks();
-        setEndpoint();
+        setEndpoint(null);
 
         MonitoredFile monitoredFile = new MonitoredFile(contentFile);
         endpoint.addUpdateContent(contentId, monitoredFile);

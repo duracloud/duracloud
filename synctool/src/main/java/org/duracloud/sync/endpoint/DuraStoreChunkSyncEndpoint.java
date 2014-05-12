@@ -49,7 +49,8 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
              maxFileSize,
              true,
              false,
-             SyncToolConfig.DEFAULT_UPDATE_SUFFIX);
+             SyncToolConfig.DEFAULT_UPDATE_SUFFIX,
+             null);
     }
     
     public DuraStoreChunkSyncEndpoint(ContentStore contentStore,
@@ -59,14 +60,16 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
                                       long maxFileSize,
                                       boolean syncUpdates, 
                                       boolean renameUpdates, 
-                                      String updateSuffix) {
+                                      String updateSuffix,
+                                      String prefix) {
         super(contentStore,
               username,
               spaceId,
               syncDeletes,
               syncUpdates,
               renameUpdates,
-              updateSuffix);
+              updateSuffix,
+              prefix);
 
         if (maxFileSize % 1024 != 0) {
             throw new RuntimeException("Max file size must be factor of 1024");
