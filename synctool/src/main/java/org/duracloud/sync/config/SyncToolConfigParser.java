@@ -401,11 +401,17 @@ public class SyncToolConfigParser {
         }
 
         if(cmd.hasOption("o") && cmd.hasOption("n")){
-            throw new ParseException("Options -o and -n are mutually exclusive.");
+            throw new ParseException("Options -o (no updates) and -n " +
+                                     "(rename updates) cannot be used together.");
         }
             
         if(cmd.hasOption("o")){
             config.setSyncUpdates(false);
+        }
+
+        if(cmd.hasOption("n") && cmd.hasOption("d")){
+            throw new ParseException("Options -n (rename updates) and -d " +
+                                     "(sync deletes) cannot be used together.");
         }
 
         if(cmd.hasOption("n")){
