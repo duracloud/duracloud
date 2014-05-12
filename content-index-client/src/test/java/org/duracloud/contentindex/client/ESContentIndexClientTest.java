@@ -12,15 +12,18 @@ import org.duracloud.contentindex.client.ContentIndexClient;
 import org.duracloud.contentindex.client.ContentIndexItem;
 import org.duracloud.contentindex.client.ESContentIndexClient;
 import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.provider.StorageProvider;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.io.FileSystemUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.internal.runners.statements.Fail;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
@@ -47,6 +50,8 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  *         Date: 3/12/14
  */
 public class ESContentIndexClientTest {
+
+    private static final String CHECKSUM_KEY = StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 
     private static ContentIndexClient contentIndexClient;
 
@@ -167,11 +172,11 @@ public class ESContentIndexClientTest {
     }
 
     @Test
-    public void testSaveContentIndexItem() {
+    public void testSaveContentIndexItem() throws ContentIndexClientValidationException {
         ContentIndexItem item5 = createContentIndexItem(account1, 5);
         item5.addTag(value1);
         String item5Id = item5.getId();
-        String checksum1 = item5.getProps().get("checksum");
+        String checksum1 = item5.getProps().get(CHECKSUM_KEY);
 
         String returnedId = contentIndexClient.save(item5);
         assertNotNull(returnedId);
@@ -181,7 +186,7 @@ public class ESContentIndexClientTest {
             account1, storeId, space, item5.getContentId());
         assertFalse(retrieved == item5); // assert not the same object in memory
         assertNotNull(retrieved);
-        assertEquals(checksum1, retrieved.getProps().get("checksum"));
+        assertEquals(checksum1, retrieved.getProps().get(CHECKSUM_KEY));
 
         List<ContentIndexItem> items = new ArrayList();
         items.add(createContentIndexItem(account1, 4));
@@ -264,7 +269,60 @@ public class ESContentIndexClientTest {
         assertEquals(3, items.size());
 
     }
+    
+    @Test
+    public void testSaveContentIndexItemWithMissingCheckSum()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.getProps().remove(CHECKSUM_KEY);
 
+        trySave(item5);
+    }
+
+    protected void trySave(ContentIndexItem item5) {
+        try {
+            contentIndexClient.save(item5);
+            Assert.fail("should have failed validation");
+        } catch (ContentIndexClientValidationException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingVersion()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setVersion(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingStoreId()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setStoreId(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingStoreType()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setStoreType(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingSpace()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setSpace(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingAcocunt()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setAccount(null);
+        trySave(item5);
+    }
+
+    
     protected void assertItemFieldsNotNull(ContentIndexItem item) {
         assertNotNull(item.getId());
         assertNotNull(item.getAccount());
@@ -272,7 +330,7 @@ public class ESContentIndexClientTest {
         assertNotNull(item.getSpace());
         assertNotNull(item.getContentId());
         assertNotNull(item.getStoreType());
-        assertNotNull(item.getProps().get("checksum"));
+        assertNotNull(item.getProps().get(CHECKSUM_KEY));
     }
 
     protected void assertItemFieldsNull(ContentIndexItem item) {
@@ -293,10 +351,10 @@ public class ESContentIndexClientTest {
         ContentIndexItem item =
             new ContentIndexItem(account, storeId, space, contentId);
         item.setStoreType(StorageProviderType.AMAZON_S3.getName());
-        Map props = new HashMap();
-        props.put("checksum", checksum);
+        Map<String,String> props = new HashMap<>();
+        props.put(CHECKSUM_KEY, checksum);
         item.setProps(props);
-
+        item.setVersion(System.currentTimeMillis());
         return item;
     }
 }

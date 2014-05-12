@@ -36,10 +36,14 @@ public class ESContentIndexClientUtil {
         settingsMap.put("action.auto_create_index", "false");
         // disable automatic type creation
         settingsMap.put("index.mapper.dynamic", "false");
+        settingsMap.put("http.port", "9200");
+        settingsMap.put("transport.tcp.port", "9300");
+
         Settings settings = ImmutableSettings.settingsBuilder()
                                              .put(settingsMap).build();
         Client client = new TransportClient(settings)
             .addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
+            
         return client;
     }
 

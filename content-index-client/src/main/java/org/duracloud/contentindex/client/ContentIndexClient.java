@@ -65,14 +65,15 @@ public interface ContentIndexClient {
      * @param item
      * @return the ID of the ContentIndexItem entity
      */
-    public String save(ContentIndexItem item);
+    public String save(ContentIndexItem item) throws ContentIndexClientValidationException;
 
     /**
      * Save multiple entities to the datastore in a single request.
      *
      * @param items
+     * @throws ContentIndexClientValidationException 
      */
-    public void bulkSave(List<ContentIndexItem> items);
+    public void bulkSave(List<ContentIndexItem> items) throws ContentIndexClientValidationException;
 
     public void addIndex(String index, boolean isAlias);
 

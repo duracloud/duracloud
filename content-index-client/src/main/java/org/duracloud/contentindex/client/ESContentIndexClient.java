@@ -16,10 +16,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 import org.duracloud.common.collection.StreamingIterator;
 import org.duracloud.contentindex.client.iterator.ESContentIndexClientContentIdIteratorSource;
 import org.duracloud.contentindex.client.iterator.ESContentIndexClientContentIteratorSource;
+import org.duracloud.storage.provider.StorageProvider;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasAction;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -52,6 +58,7 @@ public class ESContentIndexClient implements ContentIndexClient {
     private ElasticsearchOperations elasticSearchOps;
     private Client client;
     private int pageSize = 200;
+    private Validator validator;
 
     public ESContentIndexClient(ElasticsearchOperations elasticSearchOps,
                                 Client client) {
@@ -64,6 +71,7 @@ public class ESContentIndexClient implements ContentIndexClient {
         this.elasticSearchOps = elasticSearchOps;
         this.client = client;
         this.pageSize = pageSize;
+        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     /**
@@ -257,7 +265,8 @@ public class ESContentIndexClient implements ContentIndexClient {
     }
 
     @Override
-    public String save(ContentIndexItem item) {
+    public String save(ContentIndexItem item)  throws ContentIndexClientValidationException {
+        validate(item);
         IndexQuery indexQuery = createIndexQuery(item);
         String id = elasticSearchOps.index(indexQuery);
 
@@ -268,11 +277,38 @@ public class ESContentIndexClient implements ContentIndexClient {
         return id;
     }
 
+    private void validate(ContentIndexItem item) throws ContentIndexClientValidationException{
+        if(item.getProps() != null){
+            String key = StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
+            String checksum = item.getProps().get(key);
+            if(checksum == null){
+                throw new ContentIndexClientValidationException("The item properties must contain a non-null entry for the following key: "  + key + ";  item="+ item);
+            }
+        }
+        
+        Set<ConstraintViolation<ContentIndexItem>> results = validator.validate(item);
+        
+        if(results.size() > 0){
+            StringBuilder sb = new StringBuilder();
+            sb.append("Failed to validate " + item + ":");
+            for(ConstraintViolation<ContentIndexItem> violation : results){
+                sb.append("\n\t");
+                sb.append(violation.getMessage());
+            }
+            
+            throw new ContentIndexClientValidationException(sb.toString());
+        }
+        
+    }
+
+
+
     @Override
-    public void bulkSave(List<ContentIndexItem> items) {
+    public void bulkSave(List<ContentIndexItem> items) throws ContentIndexClientValidationException {
         if (!items.isEmpty()) {
-            List<IndexQuery> queries = new ArrayList();
+            List<IndexQuery> queries = new ArrayList<>();
             for (ContentIndexItem item : items) {
+                validate(item);
                 queries.add(createIndexQuery(item));
             }
             elasticSearchOps.bulkIndex(queries);
@@ -289,6 +325,7 @@ public class ESContentIndexClient implements ContentIndexClient {
         indexQuery.setType(TYPE_CONTENT);
         indexQuery.setId(item.getId());
         indexQuery.setObject(item);
+        indexQuery.setVersion(item.getVersion());
         return indexQuery;
     }
 
