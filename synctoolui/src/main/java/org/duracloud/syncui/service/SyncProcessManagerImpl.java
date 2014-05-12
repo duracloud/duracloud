@@ -236,6 +236,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             csm.login(new Credential(username, dc.getPassword()));
             ContentStore contentStore = csm.getPrimaryContentStore();
             boolean syncDeletes = this.syncConfigurationManager.isSyncDeletes();
+            String prefix = this.syncConfigurationManager.getPrefix();
             SyncEndpoint syncEndpoint =
                 new DuraStoreChunkSyncEndpoint(contentStore,
                                                username,
@@ -244,7 +245,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                                1073741824, // 1GB chunk size
                                                this.syncConfigurationManager.isSyncUpdates(),
                                                this.syncConfigurationManager.isRenameUpdates(),
-                                               this.syncConfigurationManager.getUpdateSuffix());
+                                               this.syncConfigurationManager.getUpdateSuffix(),
+                                               prefix);
 
             
             syncEndpoint.addEndPointListener(new EndPointLogger());
@@ -262,7 +264,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             
             if(syncDeletes) {
                 deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
-                                                    dirs);
+                                                    dirs,
+                                                    prefix);
             }
 
 
