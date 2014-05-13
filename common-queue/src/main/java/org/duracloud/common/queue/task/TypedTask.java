@@ -7,8 +7,6 @@
  */
 package org.duracloud.common.queue.task;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.Map;
 
 /**
@@ -22,7 +20,6 @@ public abstract class TypedTask extends SpaceCentricTypedTask{
     public static final String CONTENT_ID_PROP = "contentId";
 
     private String contentId;
-
 
     public String getContentId() {
         return contentId;

@@ -27,11 +27,13 @@ public abstract class SpaceCentricTypedTask {
     private String storeId;
     private String spaceId;
 
+    private int attempts;
     /* To be used as the value for variables when that variable doesn't apply
        to the current action type, such for contentId when the action involves
        only a space */
     public static final String NA =  "not-applicable";
 
+    
     /**
      * The unique identifier for the account, ie the account's subdomain.
      * 
@@ -61,6 +63,10 @@ public abstract class SpaceCentricTypedTask {
         this.spaceId = spaceId;
     }
 
+    public int getAttempts() {
+        return attempts;
+    }
+    
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
@@ -75,6 +81,7 @@ public abstract class SpaceCentricTypedTask {
         setAccount(props.get(ACCOUNT_PROP));
         setStoreId(props.get(STORE_ID_PROP));
         setSpaceId(props.get(SPACE_ID_PROP));
+        this.attempts = task.getAttempts();
     }
 
     /**
