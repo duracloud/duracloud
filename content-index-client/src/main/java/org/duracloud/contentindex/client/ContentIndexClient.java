@@ -68,6 +68,14 @@ public interface ContentIndexClient {
     public String save(ContentIndexItem item) throws ContentIndexClientValidationException;
 
     /**
+     * Deletes a ContentIndexItem
+     *
+     * @param item
+     * @throws ContentIndexClientValidationException if the  item is missing a required field.
+     */
+    public void delete(ContentIndexItem item) throws ContentIndexClientValidationException;
+
+    /**
      * Save multiple entities to the datastore in a single request.
      *
      * @param items

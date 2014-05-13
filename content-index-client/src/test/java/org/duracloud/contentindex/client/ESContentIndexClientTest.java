@@ -7,25 +7,13 @@
  */
 package org.duracloud.contentindex.client;
 
-import org.duracloud.contentindex.client.AccountIndexItem;
-import org.duracloud.contentindex.client.ContentIndexClient;
-import org.duracloud.contentindex.client.ContentIndexItem;
-import org.duracloud.contentindex.client.ESContentIndexClient;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.provider.StorageProvider;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.io.FileSystemUtils;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.node.Node;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.internal.runners.statements.Fail;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static org.duracloud.contentindex.client.ESContentIndexClient.SHARED_INDEX;
+import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,13 +25,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static org.duracloud.contentindex.client.ESContentIndexClient.SHARED_INDEX;
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.provider.StorageProvider;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.io.FileSystemUtils;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.node.Node;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 
 /**
  * @author Erik Paulsson
@@ -78,7 +72,7 @@ public class ESContentIndexClientTest {
         final String nodeName = "junittestnode";
         datadir = TMP_PATH + "/" + nodeName;
 
-        Map settingsMap = new HashMap();
+        Map<String,String> settingsMap = new HashMap<>();
         // create all data directories under Maven build directory
         settingsMap.put("path.conf", TMP_PATH);
         settingsMap.put("path.data", TMP_PATH);
@@ -128,7 +122,7 @@ public class ESContentIndexClientTest {
 
     @Test
     public void testAccountItems() {
-        Map<String, Integer> storeSpaceCreate = new HashMap();
+        Map<String, Integer> storeSpaceCreate = new HashMap<>();
         storeSpaceCreate.put("0", 50);
         storeSpaceCreate.put("1", 100);
         AccountIndexItem accountIndexItem =
@@ -159,7 +153,7 @@ public class ESContentIndexClientTest {
             Map<String, Integer> storeSpaces) {
         AccountIndexItem item = new AccountIndexItem();
         item.setId(account);
-        Set<String> spaces = new HashSet();
+        Set<String> spaces = new HashSet<>();
         for(String storeId: storeSpaces.keySet()) {
             spaces.clear();
             int numSpaces = storeSpaces.get(storeId);
@@ -188,14 +182,14 @@ public class ESContentIndexClientTest {
         assertNotNull(retrieved);
         assertEquals(checksum1, retrieved.getProps().get(CHECKSUM_KEY));
 
-        List<ContentIndexItem> items = new ArrayList();
+        List<ContentIndexItem> items = new ArrayList<>();
         items.add(createContentIndexItem(account1, 4));
         items.add(createContentIndexItem(account1, 3).addProp(key1, value1));
         items.add(createContentIndexItem(account1, 2));
         items.add(createContentIndexItem(account1, 1));
         contentIndexClient.bulkSave(items);
 
-        items = new ArrayList();
+        items = new ArrayList<>();
         items.add(createContentIndexItem(account2, 3)
                       .addProp(key1, value1).addProp(key2, value2));
         items.add(createContentIndexItem(account2, 2)
@@ -320,6 +314,41 @@ public class ESContentIndexClientTest {
         ContentIndexItem item5 = createContentIndexItem(account1, 5);
         item5.setAccount(null);
         trySave(item5);
+    }
+
+    @Test
+    public void testVersionedDeletes() throws ContentIndexClientValidationException {
+        ContentIndexItem item = createContentIndexItem(account1, 1000);
+        long version = item.getVersion();
+        long oldVersion = version - 1;
+        long newVersion = version + 1;
+        
+        String account = item.getAccount();
+        String storeId = item.getStoreId();
+        String space = item.getSpace();
+        String content = item.getContentId();
+
+        contentIndexClient.save(item);
+
+        //delete older and confirm that newer was not deleted.
+        item = contentIndexClient.get(account, storeId, space, content);
+        Assert.assertEquals(version, item.getVersion().longValue());
+        item.setVersion(oldVersion);
+        contentIndexClient.delete(item);
+        item = contentIndexClient.get(account, storeId, space, content);
+        
+        assertNotNull(item);
+        assertEquals(version, item.getVersion().longValue());
+
+        //delete newer version
+        item.setVersion(newVersion);
+        
+        contentIndexClient.delete(item);
+        
+        item = contentIndexClient.get(account, storeId, space, content);
+        assertNull(item);
+        
+        
     }
 
     

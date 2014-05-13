@@ -30,6 +30,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasAction;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermFilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +38,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.query.DeleteQuery;
 import org.springframework.data.elasticsearch.core.query.GetQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * @author Erik Paulsson
@@ -54,7 +57,7 @@ public class ESContentIndexClient implements ContentIndexClient {
     public static final String SHARED_INDEX = "dc_multi";
     public static final String TYPE_ACCOUNT = "account";
     public static final String TYPE_CONTENT = "content";
-
+    
     private ElasticsearchOperations elasticSearchOps;
     private Client client;
     private int pageSize = 200;
@@ -275,6 +278,28 @@ public class ESContentIndexClient implements ContentIndexClient {
         elasticSearchOps.refresh(item.getAccount(), true);
 
         return id;
+    }
+    
+    @Override
+    public void delete(ContentIndexItem item)
+        throws ContentIndexClientValidationException {
+        validate(item);
+ 
+        ContentIndexItem existing =
+            get(item.getAccount(),
+                item.getStoreId(),
+                item.getSpace(),
+                item.getContentId());
+        
+        if(existing != null){
+            
+            if(item.getVersion().compareTo(existing.getVersion()) >= 0){
+                elasticSearchOps.delete(item.getAccount(), TYPE_CONTENT, item.getId());
+                // refresh the index.
+                // @See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-refresh.html
+                elasticSearchOps.refresh(item.getAccount(), true);
+            }
+        }
     }
 
     private void validate(ContentIndexItem item) throws ContentIndexClientValidationException{
