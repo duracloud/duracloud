@@ -86,4 +86,12 @@ public interface AuditLogStore {
                                               String spaceId,
                                               String contentId) throws NotFoundException;
     
+    /**
+     * Adds the following properties to the specified item.
+     * @param item
+     * @param properties
+     * @throws AuditLogWriteFailedException
+     */
+    public void updateProperties(AuditLogItem item, String properties) throws AuditLogWriteFailedException;
+    
 }
