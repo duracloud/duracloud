@@ -68,7 +68,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <!-- for XStream -->

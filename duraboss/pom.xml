@@ -58,12 +58,6 @@
             <groupId>org.duracloud</groupId>
             <artifactId>common-rest</artifactId>
             <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.commons</groupId>
-              <artifactId>com.springsource.org.apache.commons.io</artifactId>
-            </exclusion>
-          </exclusions>
         </dependency>
 
         <dependency>

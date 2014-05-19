@@ -52,17 +52,6 @@
 
       </build>
 
-      <dependencies>
-        
-         <!--commons.io is duplicated here because scope:compile is
-             needed by assembly.plugin.-->
-        <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>com.springsource.org.apache.commons.io</artifactId>
-        </dependency>
-
-      </dependencies>
-
     </profile>
   </profiles>
 
@@ -126,13 +115,11 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
-
-    <!-- OSGi bundles -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>com.springsource.org.apache.commons.io</artifactId>
-      <scope>provided</scope>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
+
 
   </dependencies>
 </project>

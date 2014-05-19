@@ -1,0 +1,96 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
+package org.duracloud.syncoptimize.test;
+
+import org.duracloud.client.ContentStore;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.sync.SyncToolInitializer;
+import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.StatusManager;
+import org.duracloud.syncoptimize.config.SyncOptimizeConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Handles running a single sync action using the SyncTool and capturing the
+ * time required for the test to complete.
+ *
+ * @author Bill Branan
+ *         Date: 5/16/14
+ */
+public class SyncTester {
+
+    private SyncOptimizeConfig syncOptConfig;
+    private File dataDir;
+    private File workDir;
+    private ContentStore contentStore;
+
+    private final Logger log = LoggerFactory.getLogger(SyncTester.class);
+
+    public SyncTester(SyncOptimizeConfig syncOptConfig,
+                      File dataDir,
+                      File workDir,
+                      ContentStore contentStore) {
+        this.syncOptConfig = syncOptConfig;
+        this.dataDir = dataDir;
+        this.workDir = workDir;
+        this.contentStore = contentStore;
+    }
+
+    public long runSyncTest(int threads) {
+        long start = System.currentTimeMillis();
+        performSync(threads);
+        long end = System.currentTimeMillis();
+        cleanupSync();
+        return end - start;
+    }
+
+    private void performSync(int threads) {
+        SyncToolInitializer syncTool = new SyncToolInitializer();
+
+        List<String> args = new ArrayList<>();
+        args.add("-h");
+        args.add(syncOptConfig.getHost());
+        args.add("-s");
+        args.add(syncOptConfig.getSpaceId());
+        args.add("-u");
+        args.add(syncOptConfig.getUsername());
+        args.add("-p");
+        args.add(syncOptConfig.getPassword());
+        args.add("-c");
+        args.add(dataDir.getAbsolutePath());
+        args.add("-w");
+        args.add(workDir.getAbsolutePath());
+        args.add("-x");
+        args.add("-l");
+        args.add("-t");
+        args.add(String.valueOf(threads));
+
+        syncTool.main(args.toArray(new String[]{}));
+    }
+
+    private void cleanupSync() {
+        for(String contentId : dataDir.list()) {
+            try {
+                contentStore.deleteContent(syncOptConfig.getSpaceId(),
+                                           contentId);
+            } catch(ContentStoreException e) {
+                log.error("Error cleaning up DuraStore content: " +
+                          e.getMessage());
+            }
+        }
+
+        ChangedList.getInstance().clear();
+        StatusManager.getInstance().clear();
+    }
+
+}

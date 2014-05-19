@@ -18,7 +18,7 @@ import org.duracloud.sync.config.SyncToolConfigParser;
  */
 public class SyncToolInitializer {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         // Parse command line options.
         SyncToolInitializer initializer = new SyncToolInitializer();
         SyncToolConfig syncConfig = initializer.processCommandLineArgs(args);
