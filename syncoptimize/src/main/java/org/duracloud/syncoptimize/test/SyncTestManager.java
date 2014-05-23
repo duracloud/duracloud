@@ -36,6 +36,7 @@ public class SyncTestManager {
     private File workDir;
     private ContentStore contentStore;
     private SyncTestStatus syncStatus;
+    private String prefix;
     private int transferedMB;
 
     private int minThreadCount = 2;
@@ -44,11 +45,13 @@ public class SyncTestManager {
     public SyncTestManager(SyncOptimizeConfig syncOptConfig,
                            File dataDir,
                            File workDir,
-                           SyncTestStatus syncStatus) throws IOException {
+                           SyncTestStatus syncStatus,
+                           String prefix) throws IOException {
         this.syncOptConfig = syncOptConfig;
         this.dataDir = dataDir;
         this.workDir = workDir;
         this.syncStatus = syncStatus;
+        this.prefix = prefix;
         this.contentStore = getContentStore();
 
         this.transferedMB = syncOptConfig.getNumFiles() *
@@ -63,7 +66,7 @@ public class SyncTestManager {
      */
     public int runTest() {
         SyncTester syncTester =
-            new SyncTester(syncOptConfig, dataDir, workDir, contentStore);
+            new SyncTester(syncOptConfig, dataDir, workDir, contentStore, prefix);
 
         int lowThreads = minThreadCount;
         int highThreads = initialMaxThreadCount;

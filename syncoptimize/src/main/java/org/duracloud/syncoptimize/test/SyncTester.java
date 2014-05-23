@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -33,20 +34,24 @@ public class SyncTester {
     private File dataDir;
     private File workDir;
     private ContentStore contentStore;
+    private String prefix;
 
     private final Logger log = LoggerFactory.getLogger(SyncTester.class);
 
     public SyncTester(SyncOptimizeConfig syncOptConfig,
                       File dataDir,
                       File workDir,
-                      ContentStore contentStore) {
+                      ContentStore contentStore,
+                      String prefix) {
         this.syncOptConfig = syncOptConfig;
         this.dataDir = dataDir;
         this.workDir = workDir;
         this.contentStore = contentStore;
+        this.prefix = prefix;
     }
 
     public long runSyncTest(int threads) {
+        cleanupSync();
         long start = System.currentTimeMillis();
         performSync(threads);
         long end = System.currentTimeMillis();
@@ -70,6 +75,8 @@ public class SyncTester {
         args.add(dataDir.getAbsolutePath());
         args.add("-w");
         args.add(workDir.getAbsolutePath());
+        args.add("-a");
+        args.add(prefix);
         args.add("-x");
         args.add("-l");
         args.add("-t");
@@ -82,15 +89,17 @@ public class SyncTester {
         return new SyncToolInitializer();
     }
 
-    private void cleanupSync() {
-        for(String contentId : dataDir.list()) {
-            try {
-                contentStore.deleteContent(syncOptConfig.getSpaceId(),
-                                           contentId);
-            } catch(ContentStoreException e) {
-                log.error("Error cleaning up DuraStore content: " +
-                          e.getMessage());
+    protected void cleanupSync() {
+        try {
+            String spaceId = syncOptConfig.getSpaceId();
+            Iterator<String> testContent =
+                contentStore.getSpaceContents(spaceId, prefix);
+            while(testContent.hasNext()) {
+                contentStore.deleteContent(spaceId, testContent.next());
             }
+        } catch(ContentStoreException e) {
+            log.error("Error cleaning up DuraStore content: " +
+                      e.getMessage());
         }
 
         ChangedList.getInstance().clear();

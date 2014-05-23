@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Properties;
 
 /**
@@ -75,6 +76,9 @@ public class SyncOptimizeDriver {
         this.dataDir = new File(tempDir, DATA_DIR_NAME);
         this.workDir = new File(tempDir, WORK_DIR_NAME);
 
+        String prefix = "sync-optimize/" +
+                        InetAddress.getLocalHost().getHostName() + "/";
+
         TestDataHandler dataHandler = new TestDataHandler();
         dataHandler.createDirectories(dataDir, workDir);
         dataHandler.createTestData(dataDir,
@@ -82,7 +86,8 @@ public class SyncOptimizeDriver {
                                    syncOptConfig.getSizeFiles());
 
         SyncTestManager testManager =
-            new SyncTestManager(syncOptConfig, dataDir, workDir, syncTestStatus);
+            new SyncTestManager(syncOptConfig, dataDir, workDir,
+                                syncTestStatus, prefix);
         int optimalThreads = testManager.runTest();
 
         dataHandler.removeDirectories(dataDir, workDir);
