@@ -12,6 +12,7 @@ import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.SyncProcessStats;
 import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.duracloud.syncui.service.SyncOptimizeManager;
 import org.duracloud.syncui.service.SyncProcessError;
 import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
@@ -46,12 +47,15 @@ public class StatusController {
 
     private SyncProcessManager syncProcessManager;
     private SyncConfigurationManager syncConfigurationManager;
-
+    private SyncOptimizeManager syncOptimizeManager;
+    
     @Autowired
     public StatusController(SyncProcessManager syncProcessManager,
-                            SyncConfigurationManager syncConfigurationManager) {
+                            SyncConfigurationManager syncConfigurationManager,
+                            SyncOptimizeManager syncOptimizeManager) {
         this.syncProcessManager = syncProcessManager;
         this.syncConfigurationManager = syncConfigurationManager;
+        this.syncOptimizeManager = syncOptimizeManager;
     }
 
     @RequestMapping(value = { "" })
@@ -69,7 +73,8 @@ public class StatusController {
     @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "start" })
     public View
         start() {
-        try {
+        try{
+            
             this.syncProcessManager.start();
         } catch (SyncProcessException e) {
             log.error(e.getMessage(), e);
@@ -125,6 +130,11 @@ public class StatusController {
     @ModelAttribute
     public SyncProcessStats syncProcessStats() {
         return this.syncProcessManager.getProcessStats();
+    }
+
+    @ModelAttribute
+    public SyncOptimizeManager syncOptimizeManager() {
+        return this.syncOptimizeManager;
     }
 
     @ModelAttribute

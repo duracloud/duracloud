@@ -30,7 +30,7 @@ public class SyncToolConfig implements Serializable {
     private File workDir;
     private List<File> contentDirs;
     private long pollFrequency;
-    private int numThreads;
+    private int numThreads = 5;
     private long maxFileSize;
     private boolean syncDeletes;
     private boolean cleanStart;

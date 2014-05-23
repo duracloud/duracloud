@@ -42,7 +42,8 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     private SyncConfigurationManager syncConfigurationManager;
     private ContentStore contentStore;
     private ContentStoreManagerFactory contentStoreManagerFactory;
-
+    private SyncOptimizeManager syncOptimizeManager;
+    
     class TestSyncStateListener implements SyncStateChangeListener {
         private CountDownLatch latch = new CountDownLatch(1);
         private SyncProcessState state;
@@ -74,9 +75,11 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         this.contentStore = createMock(ContentStore.class);
         this.contentStoreManagerFactory =
             createMock(ContentStoreManagerFactory.class);
+        this.syncOptimizeManager = createMock(SyncOptimizeManager.class);
         this.syncProcessManagerImpl =
             new SyncProcessManagerImpl(syncConfigurationManager,
-                                       this.contentStoreManagerFactory);
+                                       this.contentStoreManagerFactory,
+                                       this.syncOptimizeManager);
 
     }
 
@@ -88,6 +91,11 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         File directory = new File(System.getProperty("java.io.tmpdir") + File.separator + "test-" + System.currentTimeMillis());
         directory.mkdirs();
         directory.deleteOnExit();
+            
+        EasyMock.expect(this.syncOptimizeManager.isRunning())
+                .andReturn(false).atLeastOnce();
+        EasyMock.expect(this.syncConfigurationManager.getThreadCount())
+                .andReturn(10).atLeastOnce();
         
         ContentStoreManager contentStoreManager =
             createMock(ContentStoreManager.class);

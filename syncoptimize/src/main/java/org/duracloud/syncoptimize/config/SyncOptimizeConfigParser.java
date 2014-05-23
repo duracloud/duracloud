@@ -26,13 +26,14 @@ import org.slf4j.LoggerFactory;
  * @author Bill Branan
  *         Date: 5/16/14
  */
+
 public class SyncOptimizeConfigParser {
 
     private final Logger logger =
         LoggerFactory.getLogger(SyncOptimizeConfigParser.class);
 
     protected static final int DEFAULT_PORT = 443;
-    protected static final String DEFAULT_CONTEXT = "durastore";
+    public static final String DEFAULT_CONTEXT = "durastore";
     protected static final int DEFAULT_NUM_FILES = 10;
     protected static final int DEFAULT_SIZE_FILES = 5;
 

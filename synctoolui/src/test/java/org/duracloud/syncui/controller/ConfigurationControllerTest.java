@@ -14,6 +14,8 @@ import org.duracloud.syncui.domain.DirectoryConfig;
 import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.duracloud.syncui.service.SyncOptimizeManager;
+import org.duracloud.syncui.service.SyncProcessManager;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,13 +32,21 @@ public class ConfigurationControllerTest extends AbstractTest {
 
     private ConfigurationController configurationController; 
     private SyncConfigurationManager syncConfigurationManager;
+    private SyncProcessManager syncProcessManager;
+    private SyncOptimizeManager syncOptimizeManager;
     @Before
     @Override
     public void setup() {
         super.setup();
 
         this.syncConfigurationManager = createMock(SyncConfigurationManager.class);
-        this.configurationController = new ConfigurationController(syncConfigurationManager, null);
+        this.syncProcessManager = createMock(SyncProcessManager.class);
+        this.syncOptimizeManager = createMock(SyncOptimizeManager.class);
+        
+        this.configurationController =
+            new ConfigurationController(syncConfigurationManager,
+                                        syncProcessManager,
+                                        syncOptimizeManager);
     }
     
     @Test

@@ -80,4 +80,10 @@ public interface SyncConfigurationManager {
 
     public String getPrefix();
 
+    public void setPrefix(String prefix);
+    
+    public int getThreadCount();
+    
+    public void setThreadCount(int threadCount);
+
 }

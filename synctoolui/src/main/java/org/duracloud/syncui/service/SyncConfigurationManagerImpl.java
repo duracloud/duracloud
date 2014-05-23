@@ -217,4 +217,22 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         return this.syncToolConfig.getPrefix();
     }
     
+    
+    @Override
+    public void setPrefix(String prefix) {
+        this.syncToolConfig.setPrefix(prefix);
+        persistSyncToolConfig();
+    }
+    
+    @Override
+    public int getThreadCount() {
+        return this.syncToolConfig.getNumThreads();
+        
+    }
+    
+    @Override
+    public void setThreadCount(int threadCount) {
+        this.syncToolConfig.setNumThreads(threadCount);
+        persistSyncToolConfig();
+    }
 }
