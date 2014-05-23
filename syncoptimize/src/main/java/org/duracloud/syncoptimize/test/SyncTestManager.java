@@ -36,6 +36,7 @@ public class SyncTestManager {
     private File workDir;
     private ContentStore contentStore;
     private SyncTestStatus syncStatus;
+    private int transferedMB;
 
     private int minThreadCount = 2;
     private int initialMaxThreadCount = 30;
@@ -49,6 +50,9 @@ public class SyncTestManager {
         this.workDir = workDir;
         this.syncStatus = syncStatus;
         this.contentStore = getContentStore();
+
+        this.transferedMB = syncOptConfig.getNumFiles() *
+                            syncOptConfig.getSizeFiles();
     }
 
     /**
@@ -118,8 +122,8 @@ public class SyncTestManager {
     }
 
     private SyncTestEvent runSyncTest(SyncTester syncTester, int threads) {
-        SyncTestEvent event =
-            new SyncTestEvent(threads, syncTester.runSyncTest(threads));
+        long elapsed = syncTester.runSyncTest(threads);
+        SyncTestEvent event = new SyncTestEvent(threads, elapsed, transferedMB);
         syncStatus.addEvent(event);
         return event;
     }

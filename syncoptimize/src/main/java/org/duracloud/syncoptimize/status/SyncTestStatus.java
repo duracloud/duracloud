@@ -19,30 +19,19 @@ import java.util.List;
  */
 public class SyncTestStatus {
 
-    private static final Float MILLIS_IN_A_SEC = 1000f;
-
     private boolean printEvents;
     private List<SyncTestEvent> syncEvents;
-    private int transferedMB = 1;
 
     public SyncTestStatus(boolean printEvents) {
         this.syncEvents = new ArrayList<>();
         this.printEvents = printEvents;
     }
 
-    public void setTransferedMB(int transferedMB) {
-        this.transferedMB = transferedMB;
-    }
-
     public void addEvent(SyncTestEvent event) {
         syncEvents.add(event);
 
         if(printEvents) {
-            float seconds = event.getElapsed() / MILLIS_IN_A_SEC;
-            float rate = (transferedMB * 8) / seconds; // Mb per sec
-            System.out.println("### Test with " + event.getThreads() +
-                               " threads required " + seconds + " seconds. " +
-                               "Transfer rate: " + rate + " Mbps.");
+            System.out.println("### " + event.toString());
         }
     }
 

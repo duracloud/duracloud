@@ -55,7 +55,7 @@ public class SyncTester {
     }
 
     private void performSync(int threads) {
-        SyncToolInitializer syncTool = new SyncToolInitializer();
+        SyncToolInitializer syncTool = getSyncTool();
 
         List<String> args = new ArrayList<>();
         args.add("-h");
@@ -75,7 +75,11 @@ public class SyncTester {
         args.add("-t");
         args.add(String.valueOf(threads));
 
-        syncTool.main(args.toArray(new String[]{}));
+        syncTool.runSyncTool(args.toArray(new String[]{}));
+    }
+
+    protected SyncToolInitializer getSyncTool() {
+        return new SyncToolInitializer();
     }
 
     private void cleanupSync() {

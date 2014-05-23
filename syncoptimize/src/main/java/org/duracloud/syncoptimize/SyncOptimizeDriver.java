@@ -71,9 +71,6 @@ public class SyncOptimizeDriver {
      */
     public int getOptimalThreads(SyncOptimizeConfig syncOptConfig)
         throws IOException {
-        this.syncTestStatus.setTransferedMB(syncOptConfig.getNumFiles() *
-                                            syncOptConfig.getSizeFiles());
-
         File tempDir = FileUtils.getTempDirectory();
         this.dataDir = new File(tempDir, DATA_DIR_NAME);
         this.workDir = new File(tempDir, WORK_DIR_NAME);

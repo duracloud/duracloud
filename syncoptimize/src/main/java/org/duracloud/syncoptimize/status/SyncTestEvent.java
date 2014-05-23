@@ -17,12 +17,18 @@ package org.duracloud.syncoptimize.status;
  */
 public class SyncTestEvent {
 
-    private int threads;
-    private long elapsed;
+    private static final Float MILLIS_IN_A_SEC = 1000f;
 
-    public SyncTestEvent(int threads, long elapsed) {
+    private int threads;
+    private long elapsed; // Elapsed time in milliseconds
+    private float elapsedSeconds; // Elapsed time in seconds
+    private float transferRate; // Transfer rate in Mbps
+
+    public SyncTestEvent(int threads, long elapsed, int transferedMB) {
         this.threads = threads;
         this.elapsed = elapsed;
+        this.elapsedSeconds = elapsed / MILLIS_IN_A_SEC;
+        this.transferRate = (transferedMB * 8) / elapsedSeconds; // Mb per sec
     }
 
     public int getThreads() {
@@ -33,4 +39,13 @@ public class SyncTestEvent {
         return elapsed;
     }
 
+    public float getTransferRate() {
+        return transferRate;
+    }
+
+    @Override
+    public String toString() {
+        return "Test with " + threads + " threads required " + elapsedSeconds +
+               " seconds. Transfer rate: " + transferRate + " Mbps.";
+    }
 }
