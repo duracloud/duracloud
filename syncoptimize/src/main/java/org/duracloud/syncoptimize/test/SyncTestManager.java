@@ -65,8 +65,7 @@ public class SyncTestManager {
      * @return optimal thread number
      */
     public int runTest() {
-        SyncTester syncTester =
-            new SyncTester(syncOptConfig, dataDir, workDir, contentStore, prefix);
+        SyncTester syncTester = getSyncTester();
 
         int lowThreads = minThreadCount;
         int highThreads = initialMaxThreadCount;
@@ -131,7 +130,12 @@ public class SyncTestManager {
         return event;
     }
 
-    private ContentStore getContentStore() {
+    protected SyncTester getSyncTester() {
+        return new SyncTester(syncOptConfig, dataDir, workDir,
+                              contentStore, prefix);
+    }
+
+    protected ContentStore getContentStore() {
         ContentStoreManager storeManager =
             new ContentStoreManagerImpl(syncOptConfig.getHost(),
                                         String.valueOf(syncOptConfig.getPort()),
