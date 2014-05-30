@@ -68,12 +68,10 @@ public class SDSCStorageProviderClientTestNotRun {
     private SwiftClient getFreshSwiftClient() {
         String trimmedAuthUrl = // JClouds expects authURL with no version
             authUrl.substring(0, authUrl.lastIndexOf("/"));
-        RestContext<SwiftClient, SwiftAsyncClient> context =
-            ContextBuilder.newBuilder(new SwiftApiMetadata())
-                          .endpoint(trimmedAuthUrl)
-                          .credentials(username, password)
-                          .build(SwiftApiMetadata.CONTEXT_TOKEN);
-        return context.getApi();
+        return ContextBuilder.newBuilder(new SwiftApiMetadata())
+                             .endpoint(trimmedAuthUrl)
+                             .credentials(username, password)
+                             .buildApi(SwiftClient.class);
     }
 
     @Test

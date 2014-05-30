@@ -53,44 +53,28 @@
       <artifactId>httpcore</artifactId>
     </dependency>
 
-  <dependency>
-    <groupId>org.jclouds</groupId>
-    <artifactId>jclouds-allblobstore</artifactId>
-    <version>1.5.5</version>
-    <exclusions>
-      <exclusion>
-        <groupId>org.jclouds</groupId>
-        <artifactId>jclouds-core</artifactId>
-      </exclusion>
-      <exclusion>
-        <groupId>org.jclouds.api</groupId>
-        <artifactId>swift</artifactId>
-      </exclusion>
-    </exclusions>
-  </dependency>
+    <dependency>
+      <groupId>org.apache.jclouds</groupId>
+      <artifactId>jclouds-core</artifactId>
+      <version>1.8.0</version>
+    </dependency>
 
-  <dependency>
-    <groupId>org.jclouds</groupId>
-    <artifactId>jclouds-core</artifactId>
-    <version>1.5.5-patched</version>
-  </dependency>
+    <dependency>
+      <groupId>org.apache.jclouds</groupId>
+      <artifactId>jclouds-blobstore</artifactId>
+      <version>1.8.0</version>
+    </dependency>
 
-  <dependency>
-    <groupId>org.jclouds.api</groupId>
-    <artifactId>swift</artifactId>
-    <version>1.5.5-patched</version>
-    <exclusions>
-      <exclusion>
-        <groupId>org.jclouds</groupId>
-        <artifactId>jclouds-core</artifactId>
-      </exclusion>
-    </exclusions>
-  </dependency>
+    <dependency>
+      <groupId>org.apache.jclouds.api</groupId>
+      <artifactId>swift</artifactId>
+      <version>1.8.0</version>
+    </dependency>
 
-  <dependency>
-    <groupId>org.jclouds.driver</groupId>
-    <artifactId>jclouds-enterprise</artifactId>
-    <version>1.5.5</version>
-  </dependency>
+    <dependency>
+      <groupId>org.apache.jclouds.driver</groupId>
+      <artifactId>jclouds-enterprise</artifactId>
+      <version>1.8.0</version>
+    </dependency>
   </dependencies>
 </project>
