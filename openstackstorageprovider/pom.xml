@@ -57,6 +57,34 @@
     <groupId>org.jclouds</groupId>
     <artifactId>jclouds-allblobstore</artifactId>
     <version>1.5.5</version>
+    <exclusions>
+      <exclusion>
+        <groupId>org.jclouds</groupId>
+        <artifactId>jclouds-core</artifactId>
+      </exclusion>
+      <exclusion>
+        <groupId>org.jclouds.api</groupId>
+        <artifactId>swift</artifactId>
+      </exclusion>
+    </exclusions>
+  </dependency>
+
+  <dependency>
+    <groupId>org.jclouds</groupId>
+    <artifactId>jclouds-core</artifactId>
+    <version>1.5.5-patched</version>
+  </dependency>
+
+  <dependency>
+    <groupId>org.jclouds.api</groupId>
+    <artifactId>swift</artifactId>
+    <version>1.5.5-patched</version>
+    <exclusions>
+      <exclusion>
+        <groupId>org.jclouds</groupId>
+        <artifactId>jclouds-core</artifactId>
+      </exclusion>
+    </exclusions>
   </dependency>
 
   <dependency>
