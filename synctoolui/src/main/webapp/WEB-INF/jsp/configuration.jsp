@@ -187,6 +187,8 @@
                   </label>
                   <form:button id="optimize" disabled="${optimizing or syncRunning }">Optimize Automatically</form:button>
                   
+                    <div id="syncOptimizeStatus">
+                    
                     <c:choose>
                       <c:when test="${syncRunning}">
                                             <div class="message warning">
@@ -209,6 +211,7 @@
                         </c:if>
                       </c:otherwise>
                     </c:choose>
+                    </div>
                   
                   
                   

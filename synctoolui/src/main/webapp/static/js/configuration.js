@@ -148,4 +148,9 @@ $(function() {
     $(".options input, .options select").change(function(e){
         $(this).closest("form").submit();
     });
+    
+    
+    setInterval(function(){
+        $("#syncOptimizeStatus").load(window.location.href + " #syncOptimizeStatus");
+    }, 5000);
 });
