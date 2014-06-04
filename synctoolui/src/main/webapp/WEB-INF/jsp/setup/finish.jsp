@@ -49,6 +49,20 @@ file="../include/libraries.jsp"%>
           <spring:message
            code="continue" />
         </button>
+        <button
+         id="optimize">
+          <!-- using a button here because the a link wasn't rendering properly
+               and css problem was not clear to me. dbernstein -->
+          <spring:message
+           code="optimize" text="Optimize Now" />
+        </button>
+        <script>
+    	    $("#optimize").click(function(e){
+    	        e.preventDefault();
+    	        window.location.href = 'configuration#optimize-now';
+    	    });
+        </script>
+
       </fieldset>
     </form>
   </tiles:putAttribute>

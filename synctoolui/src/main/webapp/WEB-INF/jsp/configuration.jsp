@@ -185,8 +185,9 @@
                     </c:forEach>
                   </form:select>
                   </label>
+                  <div id="optimize-now">
                   <form:button id="optimize" disabled="${optimizing or syncRunning }">Optimize Automatically</form:button>
-                  
+                  </div>
                     <div id="syncOptimizeStatus">
                     
                     <c:choose>
