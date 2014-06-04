@@ -14,20 +14,23 @@
 
    <c:choose>
    <c:when test="${not syncOptimizer.running}">
-     <p>In order to optimize the threads, we'll run a series of test uploads
-        from your local drive to your DuraCloud space. The time required for 
-        this test to run depends on your upload rate. 
-        This means the test could take less than 10 minutes, or could run for over an hour 
-        before final results are available. 
-        Upon completion, the thread count will be modified automatically and, if
-        requested (using checkbox below), the sync process will be restarted.</p>
-        <fieldset>
-        <label style="width:100%; text-align:left">
-        <input name="autoStart" type="checkbox" value="true" checked="checked"/>
-        Automatically start on completion
-        </label>
-        
-        </fieldset>
+      <p>
+        In order to optimize the threads, we'll run a series of test uploads from your local drive to your DuraCloud space. 
+        The time required for this test to run depends on your upload rate; 
+        this means the test could take anywhere from a few minutes to over an hour before final results are available. 
+        Upon completion, the thread count will be modified automatically and, if requested (using checkbox below), the sync 
+        process will be restarted.
+      </p>
+      <p>
+        Please note: While the test is running, it may consume considerable system resources.
+      </p>
+      <fieldset>
+      <label style="width:100%; text-align:left">
+      <input name="autoStart" type="checkbox" value="true" checked="checked"/>
+      Automatically start on completion
+      </label>
+      
+      </fieldset>
 
    </c:when>
    <c:otherwise>
