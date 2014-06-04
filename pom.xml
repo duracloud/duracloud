@@ -263,8 +263,8 @@
     </pluginRepositories>
 
     <scm>
-        <connection>scm:svn:https://svn.duraspace.org/duracloud/trunk</connection>
-        <developerConnection>scm:svn:https://svn.duraspace.org/duracloud/trunk</developerConnection>
+        <connection>scm:git:git://github.com/duracloud/duracloud</connection>
+        <developerConnection>scm:git:git://github.com/duracloud/duracloud</developerConnection>
     </scm>
 
     <build>
@@ -334,32 +334,30 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.google.code.maven-svn-revision-number-plugin</groupId>
-                <artifactId>svn-revision-number-maven-plugin</artifactId>
-                <version>1.13</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.3</version>
                 <executions>
                     <execution>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>revision</goal>
+                            <goal>create</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <entries>
-                        <entry>
-                            <prefix>prefix</prefix>
-                        </entry>
-                    </entries>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <shortRevisionLength>5</shortRevisionLength>
                 </configuration>
             </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.0-beta-9</version>
                 <configuration>
-                    <tagBase>https://svn.duraspace.org/duracloud/tags</tagBase>
+                    <tagBase>https://github.com/duracloud/duracloud/tags</tagBase>
                 </configuration>
             </plugin>
 

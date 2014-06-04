@@ -278,25 +278,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.1</version>
-          <executions>
-              <execution>
-                  <phase>generate-resources</phase>
-                  <goals>
-                      <goal>create</goal>
-                  </goals>
-              </execution>
-          </executions>
-          <configuration>
-              <doCheck>false</doCheck>
-              <doUpdate>false</doUpdate>
-              <shortRevisionLength>5</shortRevisionLength>
-          </configuration>
-      </plugin>
     </plugins>
   </build>
 
