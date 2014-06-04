@@ -181,6 +181,10 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     
     @Override
     public void setSyncDeletes(boolean flag) {
+        if(flag && this.syncToolConfig.isRenameUpdates()){
+            //sync deletes cannot be used if rename updates is enabled.
+            return;
+        }
         this.syncToolConfig.setSyncDeletes(flag);
         persistSyncToolConfig();
     }
@@ -203,6 +207,10 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public void setRenameUpdates(boolean b) {
+        if(b && this.syncToolConfig.syncDeletes()){
+            //rename updates cannot be used if syncDeletes is enabled.
+            return;
+        }
         this.syncToolConfig.setRenameUpdates(b);
         persistSyncToolConfig();
     }

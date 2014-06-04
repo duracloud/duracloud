@@ -9,8 +9,8 @@
   <legend>Deletion Policy</legend>
   <ul>
     <li><label
-      title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud.">
-        <form:checkbox path="syncDeletes" /> Sync
+      title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud. Note: It cannot be used in conjunction with the 'Update, but do not overwrite' policy.">
+        <form:checkbox id="syncDeletes" path="syncDeletes" disabled="${advancedForm.updatePolicy == 'PRESERVE'}"/> Sync
         deletes
     </label></li>
   </ul>
@@ -26,10 +26,22 @@
           path="updatePolicy"
           value="NONE" />Do not sync updates</label></li>
     <li><label><form:radiobutton
+          id="preserveUpdatePolicy"
           path="updatePolicy"
-          value="PRESERVE" />Update but do not overwrite (preserve original in
+          value="PRESERVE"  
+          disabled="${advancedForm.syncDeletes}"
+          />Update but do not overwrite (preserve original in
         cloud)</label></li>
   </ul>
 </fieldset>
+<script>
+	$("#syncDeletes").change(function(){
+		$("#preserveUpdatePolicy").prop("disabled",($("#syncDeletes").is(":checked")));
+	});
+	$("[name='updatePolicy']").change(function(){
+		$("#syncDeletes").prop("disabled",($("#preserveUpdatePolicy").is(":checked")));
+	});
+
+	</script>
 
 
