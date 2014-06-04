@@ -3309,7 +3309,7 @@ $(function(){
                    streamingHost.indexOf("null") == -1){
                     that._writeMediaTag(streamingHost, contentItem);
                 }else{
-                    viewer.append("<p>Currently there is no streaming service is running against this space.</p>");
+                    viewer.append("<p>Turn on streaming for this space to enable playback.</p>");
                 }
              });
         },
