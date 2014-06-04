@@ -54,7 +54,7 @@ file="../include/libraries.jsp"%>
           <!-- using a button here because the a link wasn't rendering properly
                and css problem was not clear to me. dbernstein -->
           <spring:message
-           code="optimize" text="Optimize Now" />
+           code="optimize" text="Optimize" />
         </button>
         <script>
     	    $("#optimize").click(function(e){
