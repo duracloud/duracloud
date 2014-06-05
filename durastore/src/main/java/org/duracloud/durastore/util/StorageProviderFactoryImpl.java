@@ -7,8 +7,16 @@
  */
 package org.duracloud.durastore.util;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.duracloud.audit.provider.AuditStorageProvider;
 import org.duracloud.chronstorage.ChronStageStorageProvider;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.aws.SQSTaskQueue;
 import org.duracloud.common.queue.noop.NoopTaskQueue;
@@ -29,16 +37,10 @@ import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StatelessStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.provider.StorageProviderBase;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides access to StorageProvider implementations
@@ -205,6 +207,10 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new MockVerifyCreateStorageProvider();
         } else if (type.equals(StorageProviderType.TEST_VERIFY_DELETE)) {
             storageProvider = new MockVerifyDeleteStorageProvider();
+        } else {
+            throw new StorageException("Unsupported storage provider type ("
+                + type.name() + ")  associated with storage account ("
+                + storageAccountId + "): unable to create");
         }
 
         StorageProvider auditProvider =
@@ -214,6 +220,11 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
                                      type.getName(),
                                      userUtil,
                                      auditQueue);
+        
+        if(storageProvider instanceof StorageProviderBase){
+            ((StorageProviderBase)storageProvider).setWrappedStorageProvider(auditProvider);
+        }
+        
         StorageProvider aclProvider = new ACLStorageProvider(auditProvider);
         StorageProvider brokeredProvider =
             new BrokeredStorageProvider(statelessProvider,

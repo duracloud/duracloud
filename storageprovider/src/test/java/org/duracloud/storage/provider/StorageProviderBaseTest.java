@@ -235,7 +235,8 @@ public class StorageProviderBaseTest {
 
         providerBase.deleteSpace(spaceId);
     }
-
+    
+ 
     @Test
     public void testEmptyDeleteWorker() {
         EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
@@ -280,6 +281,38 @@ public class StorageProviderBaseTest {
         StorageProviderBase.SpaceDeleteWorker worker =
             providerBase.getSpaceDeleteWorker(spaceId);
         worker.run();
+    }
+    
+    @Test
+    public void testOnceDeleteWorkerWithWrappedStorageProvider() {
+        String contentId = "content-id";
+        List<String> contents = new ArrayList<String>();
+        contents.add(contentId);
+        StorageProvider wrappedProvider = EasyMock.createMock(StorageProvider.class);
+        providerBase.setWrappedStorageProvider(wrappedProvider);
+        EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
+                                                      EasyMock.<String>isNull()))
+                .andReturn(contents.iterator())
+                .once();
+
+        wrappedProvider.deleteContent(spaceId, contentId);
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(providerMock.getSpaceContents(EasyMock.eq(spaceId),
+                                                      EasyMock.<String>isNull()))
+                .andReturn(new ArrayList<String>().iterator())
+                .once();
+
+        providerMock.removeSpace(spaceId);
+        EasyMock.expectLastCall();
+        EasyMock.replay(wrappedProvider);
+        replayMocks();
+        
+        StorageProviderBase.SpaceDeleteWorker worker =
+            providerBase.getSpaceDeleteWorker(spaceId);
+        worker.run();
+        
+        EasyMock.verify(wrappedProvider);
     }
 
     @Test
