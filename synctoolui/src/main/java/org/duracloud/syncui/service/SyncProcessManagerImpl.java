@@ -241,6 +241,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         try {
             ContentStoreManager csm = contentStoreManagerFactory.create();
             String username = dc.getUsername();
+            String spaceId = dc.getSpaceId();
             csm.login(new Credential(username, dc.getPassword()));
             ContentStore contentStore = csm.getPrimaryContentStore();
             boolean syncDeletes = this.syncConfigurationManager.isSyncDeletes();
@@ -248,7 +249,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             SyncEndpoint syncEndpoint =
                 new DuraStoreChunkSyncEndpoint(contentStore,
                                                username,
-                                               dc.getSpaceId(),
+                                               spaceId,
                                                syncDeletes,
                                                1073741824, // 1GB chunk size
                                                this.syncConfigurationManager.isSyncUpdates(),
@@ -271,7 +272,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             dirMonitor.startMonitor();
             
             if(syncDeletes) {
-                deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
+                deleteChecker = DeleteChecker.start(syncEndpoint,
+                                                    spaceId,
                                                     dirs,
                                                     prefix);
             }

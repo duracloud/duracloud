@@ -113,7 +113,7 @@ public class DuraStoreChunkSyncEndpoint extends DuraStoreSyncEndpoint {
     }
 
     @Override
-    protected void deleteContent(String spaceId, String contentId)
+    public void deleteContent(String spaceId, String contentId)
         throws ContentStoreException {
         boolean contentDeleted = true;
         try {

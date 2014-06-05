@@ -220,14 +220,16 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
             } else { // File was deleted (does not exist locally)
                 if(syncDeletes) {
                     if(dcFileExists) {
-                        deleteContent(spaceId, contentId, absPath);
+                        result = deleteContent(spaceId, contentId, absPath);
                     } else if(null != prefix) {
                         // Check for dc file without prefix
                         String noPrefixContentId =
                             contentId.substring(prefix.length());
                         if(null != getContentProperties(spaceId,
                                                         noPrefixContentId)) {
-                            deleteContent(spaceId, noPrefixContentId, absPath);
+                            result = deleteContent(spaceId,
+                                                   noPrefixContentId,
+                                                   absPath);
                         }
                     }
                 } else {
@@ -260,15 +262,16 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         throws ContentStoreException {
         logger.debug("Local file {} deleted, removing from DuraCloud.", absPath);
         deleteContent(spaceId, contentId);
-        this.listenerList.fire().contentDeleted(this.storeId, this.spaceId,
-                                                contentId, absPath);
         return SyncResultType.DELETED;
     }
 
-    protected void deleteContent(String spaceId, String contentId)
+    @Override
+    public void deleteContent(String spaceId, String contentId)
         throws ContentStoreException {
         logger.info("Deleting {} from DuraCloud space {}", contentId, spaceId);
         contentStore.deleteContent(spaceId, contentId);
+        this.listenerList.fire().contentDeleted(this.storeId, this.spaceId,
+                                                contentId);
     }
 
     private void addUpdateContent(String contentId,

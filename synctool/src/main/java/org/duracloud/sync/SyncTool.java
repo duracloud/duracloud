@@ -202,7 +202,8 @@ public class SyncTool {
     }
 
     private void startDeleteChecker() {
-        deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
+        deleteChecker = DeleteChecker.start(syncEndpoint,
+                                            syncConfig.getSpaceId(),
                                             syncConfig.getContentDirs(),
                                             syncConfig.getPrefix());
     }

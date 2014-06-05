@@ -85,7 +85,10 @@ public class Retrier {
      *            to customized logging.
      * @throws Exception
      */
-    public <T extends Object> T execute(Retriable retriable, ExceptionHandler exceptionHandler) throws Exception {
+    public <T extends Object> T execute(Retriable retriable,
+                                        ExceptionHandler exceptionHandler)
+        throws Exception {
+
         if (exceptionHandler == null) {
             throw new IllegalArgumentException(
                     "exceptionHandler must be non-null");
