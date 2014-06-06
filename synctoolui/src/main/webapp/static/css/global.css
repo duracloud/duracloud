@@ -555,6 +555,8 @@ div.green-check {
 .message-holder > *{
   margin-left:auto;
   margin-right:auto;
+  min-width: 200px;
+  max-width: 500px;
 }
 .message {
     border-radius: 10px;
@@ -563,9 +565,6 @@ div.green-check {
 	margin-top:10px;
 	margin-button:10px;
 	opacity:0.75;
-	min-width: 200px;
-    max-width: 500px;
-	
 }
 
 .info {
