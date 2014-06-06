@@ -3,13 +3,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duradmin</artifactId>
   <packaging>war</packaging>
-  <version>3.0.0</version>
+  <version>3.1.0</version>
   <name>DuraCloud Administrator</name>
   <url>http://localhost:8080/${project.artifactId}</url>
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <repositories />
@@ -416,10 +416,10 @@
       <artifactId>com.springsource.org.xmlpull</artifactId>
       <scope>runtime</scope>
     </dependency>
+
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>com.springsource.org.apache.commons.io</artifactId>
-      <scope>runtime</scope>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
 
     <!-- jquery plugins -->

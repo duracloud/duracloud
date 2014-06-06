@@ -55,12 +55,10 @@ public interface EndPointListener {
      * @param storeId
      * @param spaceId
      * @param contentId
-     * @param localFilePath
      */
     void contentDeleted(String storeId,
                         String spaceId,
-                        String contentId,
-                        String localFilePath);
+                        String contentId);
 
     /**
      * 

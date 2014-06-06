@@ -139,12 +139,16 @@ public class FileSystemSyncEndpoint implements SyncEndpoint {
     @Override
     public void addEndPointListener(EndPointListener listener) {
         // TODO Auto-generated method stub
-        
     }
     
     @Override
     public void removeEndPointListener(EndPointListener listener) {
         // TODO Auto-generated method stub
-        
     }
+
+    @Override
+    public void deleteContent(String spaceId, String contentId) {
+        // TODO Auto-generated method stub
+    }
+
 }

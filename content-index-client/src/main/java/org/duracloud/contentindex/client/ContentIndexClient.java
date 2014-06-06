@@ -8,6 +8,7 @@
 package org.duracloud.contentindex.client;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -16,17 +17,29 @@ import java.util.List;
  */
 public interface ContentIndexClient {
 
-    public List<ContentIndexItem> getSpaceContents(String account,
+    public Iterator<ContentIndexItem> getSpaceContents(String account,
                                                    String storeId,
                                                    String space);
+
+    public List<ContentIndexItem> getSpaceContents(String account,
+                                                       String storeId,
+                                                       String space,
+                                                       int pageNum,
+                                                       int pageSize);
 
     public Collection<String> getSpaces(String account, String storeId);
 
     public String save(AccountIndexItem item);
 
-    public List<ContentIndexItem> getSpaceContentIds(String account,
+    public Iterator<String> getSpaceContentIds(String account,
                                                      String storeId,
                                                      String space);
+
+    public List<String> getSpaceContentIds(String account,
+                                           String storeId,
+                                           String space,
+                                           int pageNum,
+                                           int pageSize);
 
     public Long getSpaceCount(String account, String storeId, String space);
 
@@ -52,14 +65,26 @@ public interface ContentIndexClient {
      * @param item
      * @return the ID of the ContentIndexItem entity
      */
-    public String save(ContentIndexItem item);
+    public String save(ContentIndexItem item) throws ContentIndexClientValidationException;
+
+    /**
+     * Deletes a ContentIndexItem
+     *
+     * @param item
+     * @throws ContentIndexClientValidationException if the  item is missing a required field.
+     */
+    public void delete(ContentIndexItem item) throws ContentIndexClientValidationException;
 
     /**
      * Save multiple entities to the datastore in a single request.
      *
      * @param items
+     * @throws ContentIndexClientValidationException 
      */
-    public void bulkSave(List<ContentIndexItem> items);
+    public void bulkSave(List<ContentIndexItem> items) throws ContentIndexClientValidationException;
 
     public void addIndex(String index, boolean isAlias);
+
+    public int getPageSize();
+    public void setPageSize(int pageSize);
 }

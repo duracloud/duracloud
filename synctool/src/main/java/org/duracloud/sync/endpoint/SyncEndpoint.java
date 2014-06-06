@@ -7,6 +7,8 @@
  */
 package org.duracloud.sync.endpoint;
 
+import org.duracloud.error.ContentStoreException;
+
 import java.io.File;
 import java.util.Iterator;
 
@@ -65,5 +67,14 @@ public interface SyncEndpoint {
     public SyncResultType
         syncFileAndReturnDetailedResult(MonitoredFile monitoredFile,
                                         File watchDir);
+
+    /**
+     * Removes content from the endpoint.
+     *
+     * @param spaceId
+     * @param contentId
+     */
+    public void deleteContent(String spaceId, String contentId)
+        throws ContentStoreException;
 
 }

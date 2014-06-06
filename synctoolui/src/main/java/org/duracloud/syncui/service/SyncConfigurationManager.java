@@ -7,10 +7,10 @@
  */
 package org.duracloud.syncui.service;
 
-import java.io.File;
-
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
+
+import java.io.File;
 
 /**
  * Provides persist operations for configuration related operations.
@@ -77,4 +77,13 @@ public interface SyncConfigurationManager {
     public void setRenameUpdates(boolean b);
 
     public File getWorkDirectory();
+
+    public String getPrefix();
+
+    public void setPrefix(String prefix);
+    
+    public int getThreadCount();
+    
+    public void setThreadCount(int threadCount);
+
 }

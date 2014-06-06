@@ -45,11 +45,15 @@ public class StatusManager {
      * Not to be used outside of tests
      */
     protected StatusManager() {
+        init();
+    }
+
+    private void init() {
         succeeded = 0;
-        failed = new ArrayList<SyncSummary>();
+        failed = new ArrayList<>();
         startTime = DateUtil.nowLong();
         changedList = ChangedList.getInstance();
-        recentlyCompleted = new LinkedList<SyncSummary>();
+        recentlyCompleted = new LinkedList<>();
     }
 
     public int getQueueSize() {
@@ -105,6 +109,9 @@ public class StatusManager {
         }
     }
 
+    public void clear() {
+        init();
+    }
 
     public String getPrintableStatus() {
         StringBuilder status = new StringBuilder();

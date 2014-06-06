@@ -14,21 +14,36 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+
+import org.duracloud.common.collection.StreamingIterator;
+import org.duracloud.contentindex.client.iterator.ESContentIndexClientContentIdIteratorSource;
+import org.duracloud.contentindex.client.iterator.ESContentIndexClientContentIteratorSource;
+import org.duracloud.storage.provider.StorageProvider;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasAction;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermFilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.query.DeleteQuery;
 import org.springframework.data.elasticsearch.core.query.GetQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * @author Erik Paulsson
@@ -42,14 +57,42 @@ public class ESContentIndexClient implements ContentIndexClient {
     public static final String SHARED_INDEX = "dc_multi";
     public static final String TYPE_ACCOUNT = "account";
     public static final String TYPE_CONTENT = "content";
-
+    
     private ElasticsearchOperations elasticSearchOps;
     private Client client;
+    private int pageSize = 200;
+    private Validator validator;
 
     public ESContentIndexClient(ElasticsearchOperations elasticSearchOps,
                                 Client client) {
+        this(elasticSearchOps, client, 200);
+    }
+
+    public ESContentIndexClient(ElasticsearchOperations elasticSearchOps,
+                                Client client,
+                                int pageSize) {
         this.elasticSearchOps = elasticSearchOps;
         this.client = client;
+        this.pageSize = pageSize;
+        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
+    }
+
+    /**
+     * Returns the max number of records that con be contained in a "page".
+     * @return the max number of records that can be contained in a "page" of a
+     *   large result set.  A "page" is a subset of a larger result set.
+     */
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    /**
+     * Sets the max number of records that can be contained in a "page".  A page
+     * is a subset of a larger result set.
+     * @param pageSize
+     */
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 
     @Override
@@ -83,26 +126,59 @@ public class ESContentIndexClient implements ContentIndexClient {
     }
 
     @Override
+    public Iterator<ContentIndexItem> getSpaceContents(String account,
+                                                       String storeId,
+                                                       String space) {
+        return new StreamingIterator<ContentIndexItem>(
+            new ESContentIndexClientContentIteratorSource(
+                this, account, storeId, space));
+    }
+
+    @Override
     public List<ContentIndexItem> getSpaceContents(String account,
                                                    String storeId,
-                                                   String space) {
+                                                   String space,
+                                                   int pageNum,
+                                                   int pageSize) {
         SearchQuery searchQuery = getSortedQueryForSpace(account, storeId,
                                                          space);
-        List<ContentIndexItem> items = elasticSearchOps
-            .queryForList(searchQuery, ContentIndexItem.class);
+        searchQuery.setPageable(new PageRequest(pageNum, pageSize));
+        Page<ContentIndexItem> page = elasticSearchOps
+            .queryForPage(searchQuery, ContentIndexItem.class);
+
+        List<ContentIndexItem> items = new ArrayList<>(page.getNumberOfElements());
+        for(ContentIndexItem item: page.getContent()) {
+            items.add(item);
+        }
         return items;
     }
 
     @Override
-    public List<ContentIndexItem> getSpaceContentIds(String account,
+    public Iterator<String> getSpaceContentIds(String account,
                                                      String storeId,
                                                      String space) {
+        return new StreamingIterator<String>(
+            new ESContentIndexClientContentIdIteratorSource(
+                this, account, storeId, space));
+    }
+
+    @Override
+    public List<String> getSpaceContentIds(String account,
+                                              String storeId,
+                                              String space,
+                                              int pageNum,
+                                              int pageSize) {
         SearchQuery searchQuery = getSortedQueryForSpace(account, storeId,
                                                          space);
         searchQuery.addFields("contentId");
-        List<ContentIndexItem> items = elasticSearchOps
-            .queryForList(searchQuery, ContentIndexItem.class);
-        return items;
+        searchQuery.setPageable(new PageRequest(pageNum, pageSize));
+        Page<ContentIndexItem> page = elasticSearchOps.queryForPage(searchQuery,
+                                                                    ContentIndexItem.class);
+        List<String> ids = new ArrayList<>(page.getNumberOfElements());
+        for(ContentIndexItem item: page.getContent()) {
+            ids.add(item.getContentId());
+        }
+        return ids;
     }
 
     @Override
@@ -192,7 +268,8 @@ public class ESContentIndexClient implements ContentIndexClient {
     }
 
     @Override
-    public String save(ContentIndexItem item) {
+    public String save(ContentIndexItem item)  throws ContentIndexClientValidationException {
+        validate(item);
         IndexQuery indexQuery = createIndexQuery(item);
         String id = elasticSearchOps.index(indexQuery);
 
@@ -202,12 +279,61 @@ public class ESContentIndexClient implements ContentIndexClient {
 
         return id;
     }
+    
+    @Override
+    public void delete(ContentIndexItem item)
+        throws ContentIndexClientValidationException {
+        validate(item);
+ 
+        ContentIndexItem existing =
+            get(item.getAccount(),
+                item.getStoreId(),
+                item.getSpace(),
+                item.getContentId());
+        
+        if(existing != null){
+            
+            if(item.getVersion().compareTo(existing.getVersion()) >= 0){
+                elasticSearchOps.delete(item.getAccount(), TYPE_CONTENT, item.getId());
+                // refresh the index.
+                // @See: http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-refresh.html
+                elasticSearchOps.refresh(item.getAccount(), true);
+            }
+        }
+    }
+
+    private void validate(ContentIndexItem item) throws ContentIndexClientValidationException{
+        if(item.getProps() != null){
+            String key = StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
+            String checksum = item.getProps().get(key);
+            if(checksum == null){
+                throw new ContentIndexClientValidationException("The item properties must contain a non-null entry for the following key: "  + key + ";  item="+ item);
+            }
+        }
+        
+        Set<ConstraintViolation<ContentIndexItem>> results = validator.validate(item);
+        
+        if(results.size() > 0){
+            StringBuilder sb = new StringBuilder();
+            sb.append("Failed to validate " + item + ":");
+            for(ConstraintViolation<ContentIndexItem> violation : results){
+                sb.append("\n\t");
+                sb.append(violation.getMessage());
+            }
+            
+            throw new ContentIndexClientValidationException(sb.toString());
+        }
+        
+    }
+
+
 
     @Override
-    public void bulkSave(List<ContentIndexItem> items) {
+    public void bulkSave(List<ContentIndexItem> items) throws ContentIndexClientValidationException {
         if (!items.isEmpty()) {
-            List<IndexQuery> queries = new ArrayList();
+            List<IndexQuery> queries = new ArrayList<>();
             for (ContentIndexItem item : items) {
+                validate(item);
                 queries.add(createIndexQuery(item));
             }
             elasticSearchOps.bulkIndex(queries);
@@ -224,6 +350,7 @@ public class ESContentIndexClient implements ContentIndexClient {
         indexQuery.setType(TYPE_CONTENT);
         indexQuery.setId(item.getId());
         indexQuery.setObject(item);
+        indexQuery.setVersion(item.getVersion());
         return indexQuery;
     }
 

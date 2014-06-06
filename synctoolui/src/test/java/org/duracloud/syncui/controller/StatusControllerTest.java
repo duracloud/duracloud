@@ -10,6 +10,7 @@ package org.duracloud.syncui.controller;
 import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.duracloud.syncui.service.SyncOptimizeManager;
 import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
 import org.easymock.EasyMock;
@@ -28,7 +29,7 @@ public class StatusControllerTest extends AbstractTest {
 
     private SyncProcessManager syncProcessManager;
     private SyncConfigurationManager syncConfigurationManager;
-
+    private SyncOptimizeManager syncOptimizeManager;
     private StatusController statusController;
     @Before
     @Override
@@ -36,7 +37,11 @@ public class StatusControllerTest extends AbstractTest {
         super.setup();
         syncProcessManager = createMock(SyncProcessManager.class);
         syncConfigurationManager = createMock(SyncConfigurationManager.class);
-        statusController = new StatusController(syncProcessManager, syncConfigurationManager);
+        syncOptimizeManager = createMock(SyncOptimizeManager.class);
+        statusController =
+            new StatusController(syncProcessManager,
+                                 syncConfigurationManager,
+                                 syncOptimizeManager);
     }
     
     @Test
@@ -53,6 +58,7 @@ public class StatusControllerTest extends AbstractTest {
     @Test
     public void testStart() throws SyncProcessException{
         syncProcessManager.start();
+
         EasyMock.expectLastCall();
         replay();
         

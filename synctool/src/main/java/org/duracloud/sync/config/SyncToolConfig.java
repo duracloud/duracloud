@@ -30,7 +30,7 @@ public class SyncToolConfig implements Serializable {
     private File workDir;
     private List<File> contentDirs;
     private long pollFrequency;
-    private int numThreads;
+    private int numThreads = 5;
     private long maxFileSize;
     private boolean syncDeletes;
     private boolean cleanStart;
@@ -40,6 +40,7 @@ public class SyncToolConfig implements Serializable {
     private boolean syncUpdates = true;
     private boolean renameUpdates = false;
     private String updateSuffix = DEFAULT_UPDATE_SUFFIX;
+    private String prefix;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
@@ -52,6 +53,8 @@ public class SyncToolConfig implements Serializable {
         for(File dir : getContentDirs()) {
             config.append("  ").append(dir.getAbsolutePath()).append("\n");
         }
+        config.append("Content Name Prefix: ");
+        config.append(getPrefix()).append("\n");
 
         config.append("DuraStore Host: ");
         config.append(getHost()).append("\n");
@@ -257,6 +260,14 @@ public class SyncToolConfig implements Serializable {
 
     public void setUpdateSuffix(String updateSuffix) {
         this.updateSuffix = updateSuffix;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
     }
 
 }

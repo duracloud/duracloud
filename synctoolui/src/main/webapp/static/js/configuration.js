@@ -105,8 +105,52 @@ $(function() {
                 width : "500px"
 
             });
+    
+    $("#optimize").click(function(e) {
+        e.preventDefault();
+        $("#optimize-dialog").dialog("open");
+        return false;
 
-    $("#options input").change(function(e){
+    });
+    // initialize add dialog
+    $("#optimize-dialog")
+            .dialog(
+                    {
+                        modal : true,
+                        open : function() {
+                            var dialog = this;
+                            var addDirectoryUrl = "configuration/optimize";
+
+                            // subroutine to handle replacing the dialog
+                            // contents
+                            var loadContent = function(jqxhr, dialog) {
+                                // add next button handler
+                                // replace the content
+                                $(dialog).empty().append($(jqxhr.responseText));
+                                // attach cancel button listener
+                                addCancelButtonHandler(dialog);
+                                
+                            };
+
+                            var jqxhr = $.get(addDirectoryUrl).done(function() {
+                                loadContent(jqxhr, dialog);
+                            });
+                        },
+                        position : "top",
+                        autoOpen : false,
+                        closeText : "",
+                        width : "500px"
+
+                    });
+    
+    
+
+    $(".options input, .options select").change(function(e){
         $(this).closest("form").submit();
     });
+    
+    
+    setInterval(function(){
+        $("#syncOptimizeStatus").load(window.location.href + " #syncOptimizeStatus");
+    }, 5000);
 });

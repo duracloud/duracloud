@@ -27,19 +27,12 @@ public class ESContentIndexClientUtil {
     
     public static Client createESClient(){
         Map<String,String> settingsMap = new HashMap<>();
-        // create all data directories under Maven build directory
-        settingsMap.put("index.number_of_shards", "5");
-        settingsMap.put("index.number_of_replicas", "0");
-        // disable clustering
-        settingsMap.put("discovery.zen.ping.multicast.enabled", "false");
-        // disable automatic index creation
-        settingsMap.put("action.auto_create_index", "false");
-        // disable automatic type creation
-        settingsMap.put("index.mapper.dynamic", "false");
+
         Settings settings = ImmutableSettings.settingsBuilder()
                                              .put(settingsMap).build();
         Client client = new TransportClient(settings)
             .addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
+            
         return client;
     }
 

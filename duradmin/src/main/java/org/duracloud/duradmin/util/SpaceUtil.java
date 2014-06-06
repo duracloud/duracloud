@@ -181,6 +181,11 @@ public class SpaceUtil {
                     " with limited retrieval capability. Please contact " +
                     "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
                     "for assistance in retrieving this content item.";
+                //It is necessary to pad the message in order to force Internet Explorer to 
+                //display the server sent text rather than display the browser default error message.
+                //If the message is less than 512 bytes, the browser will ignore the message.
+                //c.f. http://support.microsoft.com/kb/294807
+                message += StringUtils.repeat(" ", 512);
                 outStream.write(message.getBytes());
                 outStream.close();
 	        } else {

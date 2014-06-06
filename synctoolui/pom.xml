@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
-  <version>3.0.0</version>
+  <version>3.1.0</version>
   <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -278,25 +278,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.1</version>
-          <executions>
-              <execution>
-                  <phase>generate-resources</phase>
-                  <goals>
-                      <goal>create</goal>
-                  </goals>
-              </execution>
-          </executions>
-          <configuration>
-              <doCheck>false</doCheck>
-              <doUpdate>false</doUpdate>
-              <shortRevisionLength>5</shortRevisionLength>
-          </configuration>
-      </plugin>
     </plugins>
   </build>
 
@@ -458,6 +439,12 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>synctool</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>syncoptimize</artifactId>
       <version>${project.version}</version>
     </dependency>
 

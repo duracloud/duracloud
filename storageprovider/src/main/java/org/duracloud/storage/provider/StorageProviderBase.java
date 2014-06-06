@@ -35,6 +35,7 @@ public abstract class StorageProviderBase implements StorageProvider {
     protected static final String ACL_DELIM = ":";
 
     protected final Logger log = LoggerFactory.getLogger(StorageProviderBase.class);
+    private StorageProvider wrappedStorageProvider;
 
     protected abstract boolean spaceExists(String spaceId);
     protected abstract void removeSpace(String spaceId);
@@ -323,13 +324,18 @@ public abstract class StorageProviderBase implements StorageProvider {
                 } catch(InterruptedException e) {
                 }
 
+                StorageProvider sp = StorageProviderBase.this;
+                if(wrappedStorageProvider != null){
+                    sp = wrappedStorageProvider;
+                }
+
                 while(contents.hasNext()) {
                     String contentId = contents.next();
                     log.debug("deleteContent(" + spaceId + ", " +
                               contentId + ") - count=" + count);
 
                     try {
-                        deleteContent(spaceId, contentId);
+                        sp.deleteContent(spaceId, contentId);
                     } catch(Exception e) {
                         log.error("Error deleting content " + contentId +
                             " in space " + spaceId, e);
@@ -360,5 +366,17 @@ public abstract class StorageProviderBase implements StorageProvider {
     
     protected Map<String,String> removeCalculatedProperties (Map<String,String> properties){
         return StorageProviderUtil.removeCalculatedProperties(properties);
+    }
+    
+    /**
+     * Sets an alternate storage provider that can be used for select operations.
+     * The motivation for adding this method came from a need to have the 
+     * deleteSpace operation generate audit events for content items as they were deleted
+     * before the space itself was deleted. 
+     * 
+     * @param wrappedStorageProvider
+     */
+    public void setWrappedStorageProvider(StorageProvider wrappedStorageProvider){
+        this.wrappedStorageProvider = wrappedStorageProvider;
     }
 }

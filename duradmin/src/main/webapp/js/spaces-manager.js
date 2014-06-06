@@ -470,9 +470,9 @@ $(function(){
                                               $(document).trigger("contentItemDeleted", theOther._contentItem);
                                           }
                                           
-                                          if(that._storeId == copiedContentItem.storeId && 
-                                                  that._spaceId == copiedContentItem.spaceId){
-                                              $(document).trigger("contentItemAdded", theOther._contentItem);
+                                          if(theOther._contentItem.storeId == copiedContentItem.storeId && 
+                                                  theOther._contentItem.spaceId == copiedContentItem.spaceId){
+                                              $(document).trigger("contentItemAdded", copiedContentItem);
 
                                           }
                                           
@@ -1578,6 +1578,10 @@ $(function(){
             
             $(document).bind("contentItemDeleted", function(evt, state){
                 that._getList().selectablelist("removeById", state.contentId);
+            });
+
+            $(document).bind("contentItemAdded", function(evt, state){
+                that._addContentItemToList(state, that._isReadOnly(state));
             });
 
         },
@@ -3309,7 +3313,7 @@ $(function(){
                    streamingHost.indexOf("null") == -1){
                     that._writeMediaTag(streamingHost, contentItem);
                 }else{
-                    viewer.append("<p>Currently there is no streaming service is running against this space.</p>");
+                    viewer.append("<p>Turn on streaming for this space to enable playback.</p>");
                 }
              });
         },

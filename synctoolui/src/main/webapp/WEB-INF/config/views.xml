@@ -43,6 +43,7 @@
   <definition name="log"  template="/WEB-INF/jsp/log.jsp" />
   <definition name="jqueryFileTree"  template="/WEB-INF/jsp/jqueryFileTree.jsp" />
   <definition name="directory"  template="/WEB-INF/jsp/directory.jsp" />
+  <definition name="optimize"  template="/WEB-INF/jsp/optimize.jsp" />
   <definition name="success"  template="/WEB-INF/jsp/success.jsp" />
   
 </tiles-definitions>

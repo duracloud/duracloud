@@ -7,6 +7,7 @@
  */
 package org.duracloud.sync.mgmt;
 
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.SyncTestBase;
 import org.duracloud.sync.endpoint.EndPointListener;
 import org.duracloud.sync.endpoint.MonitoredFile;
@@ -80,6 +81,10 @@ public class SyncManagerTest extends SyncTestBase {
 
         @Override
         public void removeEndPointListener(EndPointListener listener) {}
+
+        @Override
+        public void deleteContent(String spaceId, String contentId)
+            throws ContentStoreException {}
     }
 
     @Test

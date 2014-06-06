@@ -7,6 +7,15 @@
  */
 package org.duracloud.syncui.service;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -31,14 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * The SyncProcessManagerImpl is an implementation of the SyncProcessManager
@@ -70,15 +71,15 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private DirectoryUpdateMonitor dirMonitor;
     private DeleteChecker deleteChecker;
     private SyncProcessError error;
-
+    private SyncOptimizeManager syncOptimizeManager;
     private ContentStoreManagerFactory contentStoreManagerFactory;
-
     private Date syncStartedDate = null;
 
     @Autowired
     public SyncProcessManagerImpl(
         SyncConfigurationManager syncConfigurationManager,
-        ContentStoreManagerFactory contentStoreManagerFactory) {
+            ContentStoreManagerFactory contentStoreManagerFactory,
+            SyncOptimizeManager syncOptimizeManager) {
         this.syncConfigurationManager = syncConfigurationManager;
         this.currentState = this.stoppedState;
         this.listeners = new ArrayList<SyncStateChangeListener>();
@@ -86,6 +87,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             new SyncProcessStateTransitionValidator();
 
         this.contentStoreManagerFactory = contentStoreManagerFactory;
+        this.syncOptimizeManager = syncOptimizeManager;
     }
     
     @PostConstruct
@@ -190,6 +192,12 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
 
     private void startImpl() throws SyncProcessException {
+        if(syncOptimizeManager.isRunning()){
+            String errorMsg = "The transfer rate is currently being optimized.";
+            setError(new SyncProcessError(errorMsg));
+            return;
+        }
+
         changeState(startingState);
         this.syncStartedDate = new Date();
         setError(null);
@@ -233,23 +241,26 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         try {
             ContentStoreManager csm = contentStoreManagerFactory.create();
             String username = dc.getUsername();
+            String spaceId = dc.getSpaceId();
             csm.login(new Credential(username, dc.getPassword()));
             ContentStore contentStore = csm.getPrimaryContentStore();
             boolean syncDeletes = this.syncConfigurationManager.isSyncDeletes();
+            String prefix = this.syncConfigurationManager.getPrefix();
             SyncEndpoint syncEndpoint =
                 new DuraStoreChunkSyncEndpoint(contentStore,
                                                username,
-                                               dc.getSpaceId(),
+                                               spaceId,
                                                syncDeletes,
                                                1073741824, // 1GB chunk size
                                                this.syncConfigurationManager.isSyncUpdates(),
                                                this.syncConfigurationManager.isRenameUpdates(),
-                                               this.syncConfigurationManager.getUpdateSuffix());
+                                               this.syncConfigurationManager.getUpdateSuffix(),
+                                               prefix);
 
             
             syncEndpoint.addEndPointListener(new EndPointLogger());
             
-            syncManager = new SyncManager(dirs, syncEndpoint, 3, // threads
+            syncManager = new SyncManager(dirs, syncEndpoint, this.syncConfigurationManager.getThreadCount(), // threads
                                           CHANGE_LIST_MONITOR_FREQUENCY); // change list poll frequency
             syncManager.beginSync();
 
@@ -261,8 +272,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             dirMonitor.startMonitor();
             
             if(syncDeletes) {
-                deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
-                                                    dirs);
+                deleteChecker = DeleteChecker.start(syncEndpoint,
+                                                    spaceId,
+                                                    dirs,
+                                                    prefix);
             }
 
 

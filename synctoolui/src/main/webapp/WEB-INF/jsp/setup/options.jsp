@@ -22,7 +22,7 @@ file="../include/libraries.jsp"%>
   <tiles:putAttribute
    name="panelContent"
    cascade="true">
-    <div id="options">
+    <div class="options">
     <form:form
      method="POST"
      modelAttribute="advancedForm">

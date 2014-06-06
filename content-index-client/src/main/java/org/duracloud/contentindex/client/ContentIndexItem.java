@@ -7,7 +7,9 @@
  */
 package org.duracloud.contentindex.client;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldIndex;
@@ -17,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @author Erik Paulsson
@@ -30,12 +34,22 @@ public class ContentIndexItem {
     @Id
     private String id;
 
+    @NotBlank
     private String account;
+    @NotBlank
     private String storeId;
+    @NotBlank
     private String storeType;
+    @NotBlank
     private String space;
 
+    @Version
+    @NotNull
+    private Long version;
+
+    
     @Field(type = FieldType.String, index = FieldIndex.not_analyzed)
+    @NotBlank
     private String contentId;
 
     private Map<String, String> props;
@@ -148,5 +162,13 @@ public class ContentIndexItem {
         }
         tags.add(tag);
         return this;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

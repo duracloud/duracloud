@@ -7,7 +7,6 @@
  */
 package org.duracloud.syncui.service;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.sync.config.SyncToolConfig;
@@ -182,6 +181,10 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     
     @Override
     public void setSyncDeletes(boolean flag) {
+        if(flag && this.syncToolConfig.isRenameUpdates()){
+            //sync deletes cannot be used if rename updates is enabled.
+            return;
+        }
         this.syncToolConfig.setSyncDeletes(flag);
         persistSyncToolConfig();
     }
@@ -204,6 +207,10 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public void setRenameUpdates(boolean b) {
+        if(b && this.syncToolConfig.syncDeletes()){
+            //rename updates cannot be used if syncDeletes is enabled.
+            return;
+        }
         this.syncToolConfig.setRenameUpdates(b);
         persistSyncToolConfig();
     }
@@ -212,5 +219,28 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     public boolean isRenameUpdates() {
         return this.syncToolConfig.isRenameUpdates();
     }
+
+    @Override
+    public String getPrefix() {
+        return this.syncToolConfig.getPrefix();
+    }
     
+    
+    @Override
+    public void setPrefix(String prefix) {
+        this.syncToolConfig.setPrefix(prefix);
+        persistSyncToolConfig();
+    }
+    
+    @Override
+    public int getThreadCount() {
+        return this.syncToolConfig.getNumThreads();
+        
+    }
+    
+    @Override
+    public void setThreadCount(int threadCount) {
+        this.syncToolConfig.setNumThreads(threadCount);
+        persistSyncToolConfig();
+    }
 }

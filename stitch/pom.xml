@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>stitch</artifactId>
   <packaging>jar</packaging>
-  <version>3.0.0</version>
+  <version>3.1.0</version>
   <name>Content Stitching</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -51,17 +51,6 @@
         </plugins>
 
       </build>
-
-      <dependencies>
-
-        <!--commons.io is duplicated here because scope:compile is
-      needed by assembly.plugin.-->
-        <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>com.springsource.org.apache.commons.io</artifactId>
-        </dependency>
-
-      </dependencies>
 
     </profile>
   </profiles>
@@ -129,11 +118,9 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
 
-    <!-- OSGi bundles -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>com.springsource.org.apache.commons.io</artifactId>
-      <scope>provided</scope>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
 
   </dependencies>

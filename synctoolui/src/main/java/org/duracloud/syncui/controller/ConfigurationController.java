@@ -15,8 +15,12 @@ import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
+import org.duracloud.syncui.domain.PrefixForm;
 import org.duracloud.syncui.domain.SyncProcessState;
+import org.duracloud.syncui.domain.ThreadCountForm;
 import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.duracloud.syncui.service.SyncOptimizeManager;
+import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
 import org.duracloud.syncui.util.UpdatePolicyHelper;
 import org.slf4j.Logger;
@@ -48,13 +52,16 @@ public class ConfigurationController {
 
     private SyncConfigurationManager syncConfigurationManager;
     private SyncProcessManager syncProcessManager;
+    private SyncOptimizeManager syncOptimizeManager;
 
     @Autowired
     public ConfigurationController(
         SyncConfigurationManager syncConfigurationManager,
-        SyncProcessManager syncProcessManager) {
+        SyncProcessManager syncProcessManager,
+        SyncOptimizeManager syncOptimizeManager) {
         this.syncConfigurationManager = syncConfigurationManager;
         this.syncProcessManager = syncProcessManager;
+        this.syncOptimizeManager = syncOptimizeManager;
     }
 
     @ModelAttribute("directoryConfigs")
@@ -84,7 +91,8 @@ public class ConfigurationController {
         f.setUpdatePolicy(UpdatePolicyHelper.get(this.syncConfigurationManager).name());
         return f;
     }
-    
+
+
     @RequestMapping(value = { "" }, method= RequestMethod.GET)
     public String get(Model model) {
         log.debug("accessing configuration page");
@@ -120,7 +128,34 @@ public class ConfigurationController {
         UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
+    
+    @ModelAttribute("threadCountForm")
+    public ThreadCountForm threadCountForm(){
+        ThreadCountForm f = new ThreadCountForm();
+        f.setThreadCount(this.syncConfigurationManager.getThreadCount());
+        return f;
+    }
+    
+    @ModelAttribute("syncOptimizeManager")
+    public SyncOptimizeManager syncOptimizeManager(){
+        return this.syncOptimizeManager;
+    }
+
+
  
+
+    @RequestMapping(value = { "/thread-count" }, method = RequestMethod.POST)
+    public View updateThreadCount(
+                                ThreadCountForm form,
+                                RedirectAttributes redirectAttributes) {
+
+        int threadCount = form.getThreadCount();
+        log.debug("updating thread count  to : {}", threadCount);
+        this.syncConfigurationManager.setThreadCount(threadCount);
+        return createConfigUpdatedRedirectView(redirectAttributes);
+    }
+
+
     @ModelAttribute("directoryConfigForm")
     public DirectoryConfigForm directoryConfigForm() {
         return new DirectoryConfigForm();
@@ -147,11 +182,77 @@ public class ConfigurationController {
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
 
+    
+
+    @ModelAttribute("prefixForm")
+    public PrefixForm prefixForm(){
+        PrefixForm f = new PrefixForm();
+        f.setPrefix(this.syncConfigurationManager.getPrefix());
+        return f;
+    }
+
+    @RequestMapping(value = { "/prefix" }, method = RequestMethod.POST)
+    public View updatePrefix(
+                                PrefixForm form,
+                                RedirectAttributes redirectAttributes) {
+
+        String prefix = form.getPrefix();
+        log.debug("updating prefix  to : {}", prefix);
+        this.syncConfigurationManager.setPrefix(prefix);
+        return createConfigUpdatedRedirectView(redirectAttributes);
+    }
+
+    @RequestMapping(value = { "/optimize" }, method = RequestMethod.GET)
+    public String optimize() {
+        return "optimize";
+    }
+
+    @RequestMapping(value = { "/optimize" }, method = RequestMethod.POST)
+    public View
+        optimize(@RequestParam(value = "autoStart", defaultValue = "false") final boolean autoStart,
+                 RedirectAttributes redirectAttributes) {
+        
+        if (!syncProcessManager.getProcessState()
+            .equals(SyncProcessState.STOPPED)) {
+                throw new IllegalStateException("The  optimizer cannot run when the sync process is running.");
+        }
+
+        
+        this.syncOptimizeManager.start(new SyncOptimizeManagerResultCallBack(){
+            public void onSuccess(){
+                if(autoStart){
+                    try {
+                        syncProcessManager.start();
+                    } catch (SyncProcessException e) {
+                        log.error("failed to start sync process manager: "
+                                      + e.getMessage(),
+                                  e);
+                    }
+                }
+            }
+            
+            @Override
+            public void onFailure(Exception ex, String status) {
+                //do nothing.
+            }
+        });
+
+
+        
+        return createRedirect(redirectAttributes, "syncOptimizeStarted");
+    }
+
     private View
         createConfigUpdatedRedirectView(RedirectAttributes redirectAttributes) {
+        String include = "configUpdated";
+        return createRedirect(redirectAttributes, include);
+    }
+
+    protected View createRedirect(RedirectAttributes redirectAttributes,
+                                  String include) {
         RedirectView view =
-            new RedirectView("/configuration", true, true, false);
-        redirectAttributes.addFlashAttribute("messageInclude", "configUpdated");
+            new RedirectView(CONFIGURATION_MAPPING, true, true, false);
+        redirectAttributes.addFlashAttribute("messageInclude", include);
 
         return view;
     }

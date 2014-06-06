@@ -30,7 +30,7 @@
     	    setInterval(refresh, 5000);
 			
     	    
-    	    $("#recent-activity, #errors").live("mouseover",function(){
+    	    $("#recent-activity, #errors, #active-syncs-table").live("mouseover",function(){
     	       skipRefresh = true; 
     	    }).live("mouseout", function(){
      	       skipRefresh = false; 
@@ -113,7 +113,7 @@
             <div class="body">
               <fmt:formatNumber
                 var="queueSize"
-                value="${syncProcessStats.queueSize}" />
+                value="${syncOptimizeManager.running ? 0 : syncProcessStats.queueSize}" />
               <div
                 id="status-indicator"
                 class="yui3-g  ${fn:toLowerCase(syncProcessState)} <c:if test="${ currentError != null }">error</c:if>">
@@ -182,11 +182,15 @@
       <div class="yui3-u-1-2">
         <div class="content">
           <div id="active-syncs" class="section top">
-            <div class="header">Active Syncs
+          <c:if test="${not empty monitoredFiles}">
+            
+          </c:if>
+            <div class="header">Active Syncs (${not empty monitoredFiles ? monitoredFiles.size() : '0' })
             
             <a id="download-log" href="${pageContext.request.contextPath}/log?download" class="button">Download History</a>
             </div>
             <div class="body">
+              <div id="active-syncs-table">
               <c:choose>
                 <c:when test="${not empty monitoredFiles}">
                   <table>
@@ -219,6 +223,8 @@
                   <p>There are no active uploads at this time.</p>
                 </c:otherwise>
               </c:choose>
+              </div>
+              
               <h4>Recent Activity</h4>
               <div id="recent-activity">
                   <c:choose>
@@ -289,7 +295,7 @@
                   <%-- begin queued --%>
                   <div id="queued">
                   <c:choose>
-                      <c:when test="${not empty queuedFiles}">
+                      <c:when test="${queueSize > 0}">
                         <table>
                           <thead>
                             <tr>

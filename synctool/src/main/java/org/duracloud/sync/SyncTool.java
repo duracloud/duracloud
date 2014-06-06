@@ -113,20 +113,36 @@ public class SyncTool {
      */
     protected boolean configEquals(SyncToolConfig currConfig,
                                    SyncToolConfig prevConfig) {
-        if (currConfig.getHost().equals(prevConfig.getHost())) {
-            if (currConfig.getSpaceId().equals(prevConfig.getSpaceId())) {
-                String storeId = currConfig.getStoreId();
-                String prevStoreId = prevConfig.getStoreId();
-                if ((null == storeId && null == prevStoreId) ||
-                    (null != storeId && storeId.equals(prevStoreId))) {
-                    if (currConfig.syncDeletes() == prevConfig.syncDeletes()) {
-                        if (currConfig.getContentDirs()
-                                      .equals(prevConfig.getContentDirs())) {
-                            return true;
-                        }
-                    }
-                }
-            }
+        boolean sameHost = currConfig.getHost().equals(prevConfig.getHost());
+        boolean sameSpaceId =
+            currConfig.getSpaceId().equals(prevConfig.getSpaceId());
+        boolean sameStoreId = sameConfig(currConfig.getStoreId(),
+                                         prevConfig.getStoreId());
+        boolean sameSyncDeletes =
+            currConfig.syncDeletes() == prevConfig.syncDeletes();
+        boolean sameContentDirs =
+            currConfig.getContentDirs().equals(prevConfig.getContentDirs());
+        boolean sameSyncUpdates =
+            currConfig.isSyncUpdates() == prevConfig.isSyncUpdates();
+        boolean sameRenameUpdates =
+            currConfig.isRenameUpdates() == prevConfig.isRenameUpdates();
+        boolean sameExclude = sameConfig(currConfig.getExcludeList(),
+                                         prevConfig.getExcludeList());
+        boolean samePrefix = sameConfig(currConfig.getPrefix(),
+                                        prevConfig.getPrefix());
+
+        if(sameHost && sameSpaceId && sameStoreId && sameSyncDeletes &&
+           sameContentDirs && sameSyncUpdates && sameRenameUpdates &&
+           sameExclude && samePrefix) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean sameConfig(Object nowConfig, Object prevConfig) {
+        if((null == nowConfig && null == prevConfig) ||
+           (null != nowConfig && nowConfig.equals(prevConfig))) {
+            return true;
         }
         return false;
     }
@@ -149,7 +165,8 @@ public class SyncTool {
                                            syncConfig.getMaxFileSize(),
                                            syncConfig.isSyncUpdates(),
                                            syncConfig.isRenameUpdates(),
-                                           syncConfig.getUpdateSuffix());
+                                           syncConfig.getUpdateSuffix(),
+                                           syncConfig.getPrefix());
         
         this.syncEndpoint.addEndPointListener(new EndPointLogger());
         
@@ -185,8 +202,10 @@ public class SyncTool {
     }
 
     private void startDeleteChecker() {
-        deleteChecker = DeleteChecker.start(syncEndpoint.getFilesList(),
-                                            syncConfig.getContentDirs());
+        deleteChecker = DeleteChecker.start(syncEndpoint,
+                                            syncConfig.getSpaceId(),
+                                            syncConfig.getContentDirs(),
+                                            syncConfig.getPrefix());
     }
 
     private void startDirMonitor() {

@@ -32,6 +32,10 @@ public class SyncToolTest extends SyncTestBase {
     private static final String prevSpaceId = "prevSpaceId";
     private static final String prevStoreId = "prevStoreId";
     private static final boolean prevSyncDel = false;
+    private static final boolean prevNoUpdates = false;
+    private static final boolean prevRenameUpdates = false;
+    private static final String prevPrefix = null;
+    private static final File prevExclude = null;
     private static final String fileName1 = "/a/b/c.txt";
     private static final String fileName2 = "/a/b/d.txt";
 
@@ -73,10 +77,11 @@ public class SyncToolTest extends SyncTestBase {
         ConfigStorage storage = new ConfigStorage();
         storage.backupConfig(workDir, args);
         storage.backupConfig(workDir, args); // twice to push to prev config
-        List<File> contentDirs = new ArrayList<File>();
+        List<File> contentDirs = new ArrayList<>();
         contentDirs.add(contentDir);
         config = getConfig(prevHost, prevSpaceId, prevStoreId,
-                           prevSyncDel, contentDirs);
+                           prevSyncDel, prevNoUpdates, prevRenameUpdates,
+                           prevPrefix, prevExclude, contentDirs);
         config.setWorkDir(workDir);
         syncTool.setSyncConfig(config);
 
@@ -94,68 +99,95 @@ public class SyncToolTest extends SyncTestBase {
 
     @Test
     public void testConfigEquals() {
-        List<File> prevDirs;
-        prevDirs = new ArrayList<File>();
+        SyncToolConfig prevConfig = getPrevConfig();
+        assertTrue(syncTool.configEquals(prevConfig, prevConfig));
+
+        SyncToolConfig currConfig = getPrevConfig();
+        assertTrue(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setHost("host");
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setSpaceId("spaceId");
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setStoreId("storeId");
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setStoreId(null);
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setSyncDeletes(true);
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setSyncUpdates(false);
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setRenameUpdates(true);
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setPrefix("prefix");
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        currConfig = getPrevConfig();
+        currConfig.setExcludeList(new File(fileName1));
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        List<File> newDirs = new ArrayList<>();
+        newDirs.add(new File(fileName1));
+        currConfig = getPrevConfig();
+        currConfig.setContentDirs(newDirs);
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        newDirs = new ArrayList<>();
+        newDirs.add(new File(fileName2));
+        currConfig = getPrevConfig();
+        currConfig.setContentDirs(newDirs);
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+
+        newDirs = new ArrayList<>();
+        newDirs.add(new File("newFile.txt"));
+        currConfig = getPrevConfig();
+        currConfig.setContentDirs(newDirs);
+        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+    }
+
+    private SyncToolConfig getPrevConfig() {
+        List<File> prevDirs = new ArrayList<>();
         prevDirs.add(new File(fileName1));
         prevDirs.add(new File(fileName2));
 
-        SyncToolConfig prevConfig =
-            getConfig(prevHost, prevSpaceId, prevStoreId, prevSyncDel, prevDirs);
-        assertTrue(syncTool.configEquals(prevConfig, prevConfig));
-
-        SyncToolConfig currConfig =
-            getConfig(prevHost, prevSpaceId, prevStoreId, prevSyncDel, prevDirs);
-        assertTrue(syncTool.configEquals(currConfig, prevConfig));
-
-        currConfig =
-            getConfig("host", prevSpaceId, prevStoreId, prevSyncDel, prevDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
-
-        currConfig =
-            getConfig(prevHost, "spaceId", prevStoreId, prevSyncDel, prevDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
-
-        currConfig =
-            getConfig(prevHost, prevSpaceId, "storeId", prevSyncDel, prevDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
-
-        currConfig =
-            getConfig(prevHost, prevSpaceId, null, prevSyncDel, prevDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
-
-        currConfig =
-            getConfig(prevHost, prevSpaceId, prevStoreId, true, prevDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
-
-        List<File> newDirs = new ArrayList<File>();
-        newDirs.add(new File(fileName1));
-        currConfig =
-            getConfig(prevHost, prevSpaceId, prevStoreId, prevSyncDel, newDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
-
-        newDirs = new ArrayList<File>();
-        newDirs.add(new File(fileName2));
-        currConfig =
-            getConfig(prevHost, prevSpaceId, prevStoreId, prevSyncDel, newDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
-
-        newDirs = new ArrayList<File>();
-        newDirs.add(new File("newFile.txt"));
-        currConfig =
-            getConfig(prevHost, prevSpaceId, prevStoreId, prevSyncDel, newDirs);
-        assertFalse(syncTool.configEquals(currConfig, prevConfig));
+        return getConfig(prevHost, prevSpaceId, prevStoreId, prevSyncDel,
+                         prevNoUpdates, prevRenameUpdates, prevPrefix,
+                         prevExclude, prevDirs);
     }
 
     private SyncToolConfig getConfig(String host,
                                      String spaceId,
                                      String storeId,
                                      boolean syncDel,
+                                     boolean noUpdates,
+                                     boolean renameUpdates,
+                                     String prefix,
+                                     File exclude,
                                      List<File> contentDirs) {
         SyncToolConfig config = new SyncToolConfig();
         config.setHost(host);
         config.setSpaceId(spaceId);
         config.setStoreId(storeId);
         config.setSyncDeletes(syncDel);
+        config.setSyncUpdates(!noUpdates);
+        config.setRenameUpdates(renameUpdates);
+        config.setPrefix(prefix);
+        config.setExcludeList(exclude);
         config.setContentDirs(contentDirs);
         return config;
     }

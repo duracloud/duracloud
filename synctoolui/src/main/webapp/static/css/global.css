@@ -246,10 +246,16 @@ ul.button-bar li {
 	display:inline;
 }
 
-#recent-activity {
+#recent-activity, #active-syncs-table{
 	height: 100px;
-	border: 1px solid #555;
+	border: 1px solid #999;
 	overflow-y:auto;
+}
+
+
+
+#active-syncs-table p {
+  padding:10px;
 }
 
 #recent-activity table{
@@ -433,7 +439,9 @@ div.green-check {
 }
 
 
-
+#active-syncs h4 {
+  margin: 10px 0px 0px 0px;
+}
 
 #active-syncs td:nth-child(1) {
 	width: 150px;
@@ -544,32 +552,34 @@ div.green-check {
 	margin-left: 10px;	
 }
 
+.message-holder > *{
+  margin-left:auto;
+  margin-right:auto;
+  min-width: 200px;
+  max-width: 500px;
+}
 .message {
     border-radius: 10px;
 	padding:10px;
 	font-size:1.0em;
 	margin-top:10px;
 	margin-button:10px;
-	margin-left:auto;
-	margin-right:auto;
-	min-width:200px;
-	max-width:500px;
 	opacity:0.75;
 }
 
-.message-holder .info {
+.info {
 	border:1px solid #0F0;
 	background-color: #AFA;
 	color: #050;
 }
 
-.message-holder .error {
+.error {
 	border:1px solid #F00;
 	background-color: #FAA;
 	color: #500;
 }
 
-.message-holder .warning {
+.warning {
 	border:1px solid #FF0;
 	background-color: #FFA;
 	color: #550;
@@ -579,26 +589,26 @@ div.green-check {
   font-size:10px !important;
 }
 
-#options label{
+.options label{
   width:100% ! important;
   text-align: left;
 }
 
-#options [type=radio] {
+.options [type=radio] {
   margin-left:20px;
   padding: 10px;
 }
 
-#options fieldset {
+.options fieldset {
   border: 1px solid #ccc;
   margin-bottom: 10px;
 }
 
-#options fieldset.button-bar {
+.options fieldset.button-bar {
   border: 0px none;
 }
 
-#options fieldset li {
+.options fieldset li {
   height: 25px; 
   position: relative;
 }

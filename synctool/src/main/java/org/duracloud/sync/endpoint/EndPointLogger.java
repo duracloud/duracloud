@@ -56,11 +56,9 @@ public class EndPointLogger implements EndPointListener {
     @Override
     public void contentDeleted(String storeId,
                                String spaceId,
-                               String contentId,
-                               String localFilePath) {
+                               String contentId) {
         log.info(format(new Object[] { 
-            SyncResultType.DELETED,
-            storeId, spaceId, contentId, localFilePath}));
+            SyncResultType.DELETED, storeId, spaceId, contentId}));
     }
     
     @Override

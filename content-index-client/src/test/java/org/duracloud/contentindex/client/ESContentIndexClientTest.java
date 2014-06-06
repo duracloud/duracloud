@@ -7,32 +7,6 @@
  */
 package org.duracloud.contentindex.client;
 
-import org.duracloud.contentindex.client.AccountIndexItem;
-import org.duracloud.contentindex.client.ContentIndexClient;
-import org.duracloud.contentindex.client.ContentIndexItem;
-import org.duracloud.contentindex.client.ESContentIndexClient;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.io.FileSystemUtils;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.node.Node;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
@@ -41,11 +15,37 @@ import static junit.framework.Assert.assertTrue;
 import static org.duracloud.contentindex.client.ESContentIndexClient.SHARED_INDEX;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.provider.StorageProvider;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.io.FileSystemUtils;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.node.Node;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+
 /**
  * @author Erik Paulsson
  *         Date: 3/12/14
  */
 public class ESContentIndexClientTest {
+
+    private static final String CHECKSUM_KEY = StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
 
     private static ContentIndexClient contentIndexClient;
 
@@ -72,7 +72,7 @@ public class ESContentIndexClientTest {
         final String nodeName = "junittestnode";
         datadir = TMP_PATH + "/" + nodeName;
 
-        Map settingsMap = new HashMap();
+        Map<String,String> settingsMap = new HashMap<>();
         // create all data directories under Maven build directory
         settingsMap.put("path.conf", TMP_PATH);
         settingsMap.put("path.data", TMP_PATH);
@@ -122,7 +122,7 @@ public class ESContentIndexClientTest {
 
     @Test
     public void testAccountItems() {
-        Map<String, Integer> storeSpaceCreate = new HashMap();
+        Map<String, Integer> storeSpaceCreate = new HashMap<>();
         storeSpaceCreate.put("0", 50);
         storeSpaceCreate.put("1", 100);
         AccountIndexItem accountIndexItem =
@@ -153,7 +153,7 @@ public class ESContentIndexClientTest {
             Map<String, Integer> storeSpaces) {
         AccountIndexItem item = new AccountIndexItem();
         item.setId(account);
-        Set<String> spaces = new HashSet();
+        Set<String> spaces = new HashSet<>();
         for(String storeId: storeSpaces.keySet()) {
             spaces.clear();
             int numSpaces = storeSpaces.get(storeId);
@@ -166,11 +166,11 @@ public class ESContentIndexClientTest {
     }
 
     @Test
-    public void testSaveContentIndexItem() {
+    public void testSaveContentIndexItem() throws ContentIndexClientValidationException {
         ContentIndexItem item5 = createContentIndexItem(account1, 5);
         item5.addTag(value1);
         String item5Id = item5.getId();
-        String checksum1 = item5.getProps().get("checksum");
+        String checksum1 = item5.getProps().get(CHECKSUM_KEY);
 
         String returnedId = contentIndexClient.save(item5);
         assertNotNull(returnedId);
@@ -180,16 +180,16 @@ public class ESContentIndexClientTest {
             account1, storeId, space, item5.getContentId());
         assertFalse(retrieved == item5); // assert not the same object in memory
         assertNotNull(retrieved);
-        assertEquals(checksum1, retrieved.getProps().get("checksum"));
+        assertEquals(checksum1, retrieved.getProps().get(CHECKSUM_KEY));
 
-        List<ContentIndexItem> items = new ArrayList();
+        List<ContentIndexItem> items = new ArrayList<>();
         items.add(createContentIndexItem(account1, 4));
         items.add(createContentIndexItem(account1, 3).addProp(key1, value1));
         items.add(createContentIndexItem(account1, 2));
         items.add(createContentIndexItem(account1, 1));
         contentIndexClient.bulkSave(items);
 
-        items = new ArrayList();
+        items = new ArrayList<>();
         items.add(createContentIndexItem(account2, 3)
                       .addProp(key1, value1).addProp(key2, value2));
         items.add(createContentIndexItem(account2, 2)
@@ -202,49 +202,49 @@ public class ESContentIndexClientTest {
         assertEquals(5, count1);
         assertEquals(3, count2);
 
-        List<ContentIndexItem> itemsFull1 =
+        Iterator<ContentIndexItem> itemsFull1 =
             contentIndexClient.getSpaceContents(account1, storeId, space);
-        List<ContentIndexItem> itemsFull2 =
+        Iterator<ContentIndexItem> itemsFull2 =
             contentIndexClient.getSpaceContents(account2, storeId, space);
 
-        assertEquals(5, itemsFull1.size());
-        int idIndex = 1;
-        for(ContentIndexItem item: itemsFull1) {
+        int idIndex = 0;
+        while(itemsFull1.hasNext()) {
+            idIndex++;
+            ContentIndexItem item = itemsFull1.next();
             assertItemFieldsNotNull(item);
             assertEquals(account1, item.getAccount());
             assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-            idIndex++;
         }
+        assertEquals(5, idIndex);
 
-        assertEquals(3, itemsFull2.size());
-        idIndex = 1;
-        for(ContentIndexItem item: itemsFull2) {
+        idIndex = 0;
+        while(itemsFull2.hasNext()) {
+            idIndex++;
+            ContentIndexItem item = itemsFull2.next();
             assertItemFieldsNotNull(item);
             assertEquals(account2, item.getAccount());
             assertTrue(item.getContentId().endsWith(idIndex+".txt"));
-            idIndex++;
         }
+        assertEquals(3, idIndex);
 
-        List<ContentIndexItem> itemsId1 =
-            contentIndexClient.getSpaceContentIds(account1, storeId, space);
-        List<ContentIndexItem> itemsId2 =
-            contentIndexClient.getSpaceContentIds(account2, storeId, space);
+        Iterator<String> itemsId1 = contentIndexClient.getSpaceContentIds(
+            account1, storeId, space);
+        Iterator<String> itemsId2 = contentIndexClient.getSpaceContentIds(
+            account2, storeId, space);
 
-        assertEquals(5, itemsId1.size());
-        idIndex = 1;
-        for(ContentIndexItem item: itemsId1) {
-            assertItemFieldsNull(item);
-            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+        idIndex = 0;
+        while(itemsId1.hasNext()) {
             idIndex++;
+            assertTrue(itemsId1.next().endsWith(idIndex+".txt"));
         }
+        assertEquals(5, idIndex);
 
-        assertEquals(3, itemsId2.size());
-        idIndex = 1;
-        for(ContentIndexItem item: itemsId2) {
-            assertItemFieldsNull(item);
-            assertTrue(item.getContentId().endsWith(idIndex+".txt"));
+        idIndex = 0;
+        while(itemsId2.hasNext()) {
             idIndex++;
+            assertTrue(itemsId2.next().endsWith(idIndex+".txt"));
         }
+        assertEquals(3, idIndex);
 
         // both accounts
         items = contentIndexClient.getItemWithValue(value1, null, null, null);
@@ -263,7 +263,95 @@ public class ESContentIndexClientTest {
         assertEquals(3, items.size());
 
     }
+    
+    @Test
+    public void testSaveContentIndexItemWithMissingCheckSum()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.getProps().remove(CHECKSUM_KEY);
 
+        trySave(item5);
+    }
+
+    protected void trySave(ContentIndexItem item5) {
+        try {
+            contentIndexClient.save(item5);
+            Assert.fail("should have failed validation");
+        } catch (ContentIndexClientValidationException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingVersion()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setVersion(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingStoreId()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setStoreId(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingStoreType()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setStoreType(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingSpace()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setSpace(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testSaveContentIndexItemWithMissingAcocunt()  {
+        ContentIndexItem item5 = createContentIndexItem(account1, 5);
+        item5.setAccount(null);
+        trySave(item5);
+    }
+
+    @Test
+    public void testVersionedDeletes() throws ContentIndexClientValidationException {
+        ContentIndexItem item = createContentIndexItem(account1, 1000);
+        long version = item.getVersion();
+        long oldVersion = version - 1;
+        long newVersion = version + 1;
+        
+        String account = item.getAccount();
+        String storeId = item.getStoreId();
+        String space = item.getSpace();
+        String content = item.getContentId();
+
+        contentIndexClient.save(item);
+
+        //delete older and confirm that newer was not deleted.
+        item = contentIndexClient.get(account, storeId, space, content);
+        Assert.assertEquals(version, item.getVersion().longValue());
+        item.setVersion(oldVersion);
+        contentIndexClient.delete(item);
+        item = contentIndexClient.get(account, storeId, space, content);
+        
+        assertNotNull(item);
+        assertEquals(version, item.getVersion().longValue());
+
+        //delete newer version
+        item.setVersion(newVersion);
+        
+        contentIndexClient.delete(item);
+        
+        item = contentIndexClient.get(account, storeId, space, content);
+        assertNull(item);
+        
+        
+    }
+
+    
     protected void assertItemFieldsNotNull(ContentIndexItem item) {
         assertNotNull(item.getId());
         assertNotNull(item.getAccount());
@@ -271,7 +359,7 @@ public class ESContentIndexClientTest {
         assertNotNull(item.getSpace());
         assertNotNull(item.getContentId());
         assertNotNull(item.getStoreType());
-        assertNotNull(item.getProps().get("checksum"));
+        assertNotNull(item.getProps().get(CHECKSUM_KEY));
     }
 
     protected void assertItemFieldsNull(ContentIndexItem item) {
@@ -292,10 +380,10 @@ public class ESContentIndexClientTest {
         ContentIndexItem item =
             new ContentIndexItem(account, storeId, space, contentId);
         item.setStoreType(StorageProviderType.AMAZON_S3.getName());
-        Map props = new HashMap();
-        props.put("checksum", checksum);
+        Map<String,String> props = new HashMap<>();
+        props.put(CHECKSUM_KEY, checksum);
         item.setProps(props);
-
+        item.setVersion(System.currentTimeMillis());
         return item;
     }
 }

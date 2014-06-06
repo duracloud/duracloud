@@ -90,6 +90,7 @@ public class SyncToolConfigParserTest {
         argsMap.remove("-l");
         argsMap.remove("-x");
         argsMap.remove("-w");
+        argsMap.remove("-a");
 
         // Process configs, make sure optional params are set to defaults
         syncConfig =
@@ -108,6 +109,7 @@ public class SyncToolConfigParserTest {
         assertEquals(false, syncConfig.exitOnCompletion());
         assertEquals(expectedPassword, syncConfig.getPassword());
         assertNull(syncConfig.getWorkDir());
+        assertNull(syncConfig.getPrefix());
 
         // Make sure error is thrown on missing required params
         for(String arg : argsMap.keySet()) {
@@ -145,6 +147,7 @@ public class SyncToolConfigParserTest {
         argsMap.put("-d", "");
         argsMap.put("-l", "");
         argsMap.put("-x", "");
+        argsMap.put("-a", "prefix/");
         return argsMap;
     }
 
@@ -167,6 +170,7 @@ public class SyncToolConfigParserTest {
         assertEquals(argsMap.get("-m"),
                      String.valueOf(syncConfig.getMaxFileSize() /
                                     SyncToolConfigParser.GIGABYTE));
+        assertEquals(argsMap.get("-a"), syncConfig.getPrefix());
         assertEquals(true, syncConfig.syncDeletes());
         assertEquals(true, syncConfig.isCleanStart());
         assertEquals(true, syncConfig.exitOnCompletion());

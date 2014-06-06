@@ -12,6 +12,7 @@ import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.SyncProcessStats;
 import org.duracloud.syncui.service.SyncConfigurationManager;
+import org.duracloud.syncui.service.SyncOptimizeManager;
 import org.duracloud.syncui.service.SyncProcessError;
 import org.duracloud.syncui.service.SyncProcessException;
 import org.duracloud.syncui.service.SyncProcessManager;
@@ -46,12 +47,15 @@ public class StatusController {
 
     private SyncProcessManager syncProcessManager;
     private SyncConfigurationManager syncConfigurationManager;
-
+    private SyncOptimizeManager syncOptimizeManager;
+    
     @Autowired
     public StatusController(SyncProcessManager syncProcessManager,
-                            SyncConfigurationManager syncConfigurationManager) {
+                            SyncConfigurationManager syncConfigurationManager,
+                            SyncOptimizeManager syncOptimizeManager) {
         this.syncProcessManager = syncProcessManager;
         this.syncConfigurationManager = syncConfigurationManager;
+        this.syncOptimizeManager = syncOptimizeManager;
     }
 
     @RequestMapping(value = { "" })
@@ -66,10 +70,11 @@ public class StatusController {
         return "status";
     }
 
-    @RequestMapping(value = StatusController.STATUS_MAPPING, method = RequestMethod.POST, params = { "start" })
+    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "start" })
     public View
         start() {
-        try {
+        try{
+            
             this.syncProcessManager.start();
         } catch (SyncProcessException e) {
             log.error(e.getMessage(), e);
@@ -83,14 +88,14 @@ public class StatusController {
         return redirectView;
     }
 
-    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "pause" })
+    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "pause" })
     public View
         pause() {
         this.syncProcessManager.pause();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
-    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "resume" })
+    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "resume" })
     public View
         resume() {
         try {
@@ -101,21 +106,21 @@ public class StatusController {
         return redirectTo(STATUS_MAPPING);
     }
 
-    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "stop" })
+    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "stop" })
     public View
         stop() {
             this.syncProcessManager.stop();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
-    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "restart" })
+    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "restart" })
     public View
         restart() {
             this.syncProcessManager.restart();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
-    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "clear-failures" })
+    @RequestMapping(value = { "" }, method = RequestMethod.POST, params = { "clear-failures" })
     public View
         clearErrors() {
         this.syncProcessManager.clearFailures();
@@ -125,6 +130,11 @@ public class StatusController {
     @ModelAttribute
     public SyncProcessStats syncProcessStats() {
         return this.syncProcessManager.getProcessStats();
+    }
+
+    @ModelAttribute
+    public SyncOptimizeManager syncOptimizeManager() {
+        return this.syncOptimizeManager;
     }
 
     @ModelAttribute
