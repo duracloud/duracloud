@@ -521,7 +521,7 @@ public class IrodsStorageProvider extends StorageProviderBase {
         } catch (IRodsRequestException e) {
             // DO NOTHING
         }
-        return (stats == null);
+        return (stats != null);
     }
 
     @Override
