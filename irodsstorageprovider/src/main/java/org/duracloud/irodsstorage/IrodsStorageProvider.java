@@ -8,6 +8,7 @@ import static org.duracloud.storage.domain.StorageAccount.OPTS.BASE_DIRECTORY;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.HOST;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.PORT;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.RESOURCE;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.TEMP_PATH;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.ZONE;
 
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class IrodsStorageProvider extends StorageProviderBase {
     private String host;
     private String baseDirectory;
     private String storageResource;
+    private String tempPath;
     private static final int BLOCK_SIZE = 32768;
 
     public IrodsStorageProvider(String username, String password, Map<String, String> options) {
@@ -70,6 +72,7 @@ public class IrodsStorageProvider extends StorageProviderBase {
         this.host = getOptionString(HOST.name(), options);
         this.baseDirectory = getOptionString(BASE_DIRECTORY.name(), options);
         this.storageResource = getOptionString(RESOURCE.name(), options);
+        this.tempPath = getOptionString(TEMP_PATH.name(), options);
         log.info("Creating new irods provider " + username + "#" + zone + "@" + host + ":" + port + baseDirectory + " rsrc " + storageResource);
     }
 
@@ -391,11 +394,11 @@ public class IrodsStorageProvider extends StorageProviderBase {
         ConnectOperation co = new ConnectOperation(host, port, username, password, zone);
         // log.info("ConnectOperation host:" + host + " port:" + port + " username:" + username + " password:" + password + " zone:" + zone);
         try {
-            IrodsOperations io = new IrodsOperations(co);
-            RodsObjStat_PI stat = io.stat(path);
-            ObjTypeEnum type = stat.getObjType();
+            // IrodsOperations io = new IrodsOperations(co);
+            // RodsObjStat_PI stat = io.stat(path);
+            // ObjTypeEnum type = stat.getObjType();
             // log.info("Opening inputstream to irods path: " + path + " type " + type);
-            IrodsProxyInputStream pxyInputStream = new IrodsProxyInputStream(path, co.getConnection());
+            IrodsProxyInputStream pxyInputStream = new IrodsProxyInputStream(path, tempPath, co);
             // log.info("IrodsProxyInputStream created");
             return pxyInputStream;
         } catch (IOException e) {
