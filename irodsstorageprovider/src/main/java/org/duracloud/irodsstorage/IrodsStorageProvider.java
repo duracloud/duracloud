@@ -10,7 +10,9 @@ import static org.duracloud.storage.domain.StorageAccount.OPTS.PORT;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.RESOURCE;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.TEMP_PATH;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.ZONE;
+import static org.duracloud.storage.error.StorageException.RETRY;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,6 +25,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TimeZone;
 
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProviderBase;
 import org.duracloud.storage.util.StorageProviderUtil;
@@ -480,6 +483,8 @@ public class IrodsStorageProvider extends StorageProviderBase {
                 results.put(PROPERTIES_CONTENT_MD5, stat.getChksum());
             }
             return results;
+        } catch (NotFoundException e) {
+            throw e;
         } catch (IOException e) {
             log.error("Could not connect to iRODS", e);
             throw new StorageException(e);
@@ -499,9 +504,11 @@ public class IrodsStorageProvider extends StorageProviderBase {
                 results.put(e, mDataMap.get(e));
             }
             return results;
+        } catch (FileNotFoundException e) {
+            throw new NotFoundException("File Not Found on iRods");
         } catch (IOException e) {
             log.error("Could not connect to iRODS", e);
-            throw new StorageException(e);
+            throw new StorageException(e, RETRY);
         }
     }
 
