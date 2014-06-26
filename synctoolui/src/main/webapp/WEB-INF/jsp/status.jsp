@@ -111,7 +111,6 @@
 
             </div>
             <div class="body">
-            ${syncOptimizeManager.running ? 0 : syncProcessStats.queueSize}
               <c:set 
                 var="queueSize"
                 value="${syncOptimizeManager.running ? 0 : syncProcessStats.queueSize}" />
