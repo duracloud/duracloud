@@ -8,3 +8,7 @@
 *.DS_Store
 *.log
 unit-test-db/testUnitDB
+*.iml
+*.ipr
+*.iws
+synctoolui/overlays/
