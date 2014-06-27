@@ -24,21 +24,10 @@
 
               <img src="${pageContext.request.contextPath }/static/image/crash.jpg" height="200"/>
                   <p><strong>${message}</strong></p>
-<c:url
-var="mailto"
-value=
-"mailto:support@duracloud.org?subject=[SyncTool] ${message}&body=
-[your comments here]%0D%0A
-****************%0D%0A
-version:${version}%0D%0A
-revision:${revision}%0D%0A
-url:${requestScope['javax.servlet.forward.request_uri']}%0D%0A
-querystring:${requestScope['javax.servlet.forward.query_string']}%0D%0A
-${stackTrace}"/>
- 
+
                   <a
                     class="button"
-                    href="${mailto}">Send a message to DuraCloud support</a>
+                    href="${pageContext.request.contextPath}/status">Return to status page</a>
                   
                   <c:if test="${not empty stackTrace}">
                   <p><a class="button" id="showDetails">Details</a></p>
