@@ -3,13 +3,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>storageprovider</artifactId>
   <packaging>bundle</packaging>
-  <version>3.1.0</version>
+  <version>3.1.1</version>
   <name>Storage Provider Interfaces</name>
   
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

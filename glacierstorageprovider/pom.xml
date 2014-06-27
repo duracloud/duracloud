@@ -3,13 +3,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>glacierstorageprovider</artifactId>
   <packaging>jar</packaging>
-  <version>3.1.0</version>
+  <version>3.1.1</version>
   <name>Glacier Storage Provider</name>
   
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

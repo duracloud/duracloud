@@ -111,9 +111,10 @@
 
             </div>
             <div class="body">
-              <fmt:formatNumber
+              <c:set 
                 var="queueSize"
                 value="${syncOptimizeManager.running ? 0 : syncProcessStats.queueSize}" />
+              <fmt:formatNumber var="queueSizeFormatted" value="${queueSize}" />
               <div
                 id="status-indicator"
                 class="yui3-g  ${fn:toLowerCase(syncProcessState)} <c:if test="${ currentError != null }">error</c:if>">
@@ -166,7 +167,7 @@
                   
                   <tr>
                     <td><spring:message code="queueSize" /></td>
-                    <td>${queueSize}</td>
+                    <td>${queueSizeFormatted}</td>
                   </tr>
 
                   <tr>
@@ -284,7 +285,7 @@
             <div class="header">
               <ul class="tabs">
                 <li class='<c:if test="${statusTab == 'queued'}">selected</c:if>'><a href="?statusTab=queued">Queued for Synchronization</a>
-                  (${queueSize})</li>
+                  (${queueSizeFormatted})</li>
                 <li id="errors-tab" class='<c:if test="${statusTab == 'errors'}">selected</c:if>'><a href="?statusTab=errors">Errors</a>
                   (${syncProcessStats.errorCount})</li>
               </ul>
