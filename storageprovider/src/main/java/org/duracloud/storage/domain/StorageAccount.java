@@ -28,6 +28,7 @@ public interface StorageAccount {
         HOST,
         BASE_DIRECTORY,
         RESOURCE,
+        TEMP_PATH,
         // Chronopolis below
         BRIDGE_HOST,
         BRIDGE_PORT,

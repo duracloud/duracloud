@@ -55,6 +55,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String hostKey = "host";
     protected static final String baseDirectoryKey = "base-directory";
     protected static final String resourceKey = "resource";
+    protected static final String tempPathKey = "temp-path";
     // Chronopolis
     protected static final String bridgeHostKey = "bridge-host";
     protected static final String bridgePortKey = "bridge-port";
@@ -142,6 +143,9 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
         } else if (suffix.equalsIgnoreCase(resourceKey)) {
             acct.setOption(StorageAccount.OPTS.RESOURCE.name(), value);
+
+        } else if (suffix.equalsIgnoreCase(tempPathKey)) {
+            acct.setOption(StorageAccount.OPTS.TEMP_PATH.name(), value);
 
         } else if (suffix.equalsIgnoreCase(bridgeHostKey)) {
             acct.setOption(StorageAccount.OPTS.BRIDGE_HOST.name(), value);
