@@ -3,14 +3,14 @@
     <groupId>org.duracloud</groupId>
     <artifactId>reporter</artifactId>
     <packaging>jar</packaging>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
     <name>DuraCloud Reporter</name>
     <url>http://localhost:8080/${project.artifactId}</url>
 
     <parent>
         <groupId>org.duracloud</groupId>
         <artifactId>duracloud</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

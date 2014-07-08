@@ -7,6 +7,13 @@
  */
 package org.duracloud.appconfig.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.domain.DuraStoreInitConfig;
@@ -16,12 +23,6 @@ import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class holds the configuration elements for durastore.
@@ -175,6 +176,13 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         return storageAccounts.values();
     }
 
+    public void setStorageAccounts(Set<StorageAccount> storageAccts) {
+        this.storageAccounts = new HashMap<String, StorageAccount>();
+        for (StorageAccount storageAcct : storageAccts) {
+            this.storageAccounts.put(storageAcct.getId(), storageAcct);
+        }
+    }
+
     public String asXml() {
         boolean includeCredentials = true;
         DuraStoreInitConfig initConfig = new DuraStoreInitConfig();
@@ -183,7 +191,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         initConfig.setStorageAccounts(accounts);
         return documentBinding.createXmlFrom(initConfig, includeCredentials);
     }
-
+    
     public String getInitResource() {
         return INIT_RESOURCE;
     }

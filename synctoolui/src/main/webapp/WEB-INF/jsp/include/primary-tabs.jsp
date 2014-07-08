@@ -1,5 +1,5 @@
 <%@include file="../include/libraries.jsp"%>
-<tiles:importAttribute  name="primaryTab"   />
+<tiles:importAttribute  name="primaryTab"  ignore="true"  />
 <ul
  class="tabs primary">
   <li class='<c:if test="${primaryTab == 'status'}">selected</c:if>'>
