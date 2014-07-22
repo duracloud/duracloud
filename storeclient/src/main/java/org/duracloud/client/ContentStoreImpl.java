@@ -10,8 +10,10 @@ package org.duracloud.client;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.retry.ExceptionHandler;
+import org.duracloud.common.retry.Retriable;
+import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.SerializationUtil;
-import org.duracloud.common.util.WaitUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.common.web.RestHttpHelper.HttpResponse;
@@ -65,6 +67,8 @@ public class ContentStoreImpl implements ContentStore{
     private final Logger log =
         LoggerFactory.getLogger(ContentStoreImpl.class);
 
+    private ExceptionHandler retryExceptionHandler;
+
     /**
      * Creates a ContentStore. This ContentStore uses the default number of
      * retries when a failure occurs (3).
@@ -81,6 +85,13 @@ public class ContentStoreImpl implements ContentStore{
         this.type = type;
         this.storeId = storeId;
         this.restHelper = restHelper;
+
+        this.retryExceptionHandler = new ExceptionHandler() {
+            @Override
+            public void handle(Exception ex) {
+                log.info(ex.getMessage());
+            }
+        };
     }
 
     /**
@@ -95,6 +106,14 @@ public class ContentStoreImpl implements ContentStore{
         if(maxRetries >= 0) {
             this.maxRetries = maxRetries;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setRetryExceptionHandler(ExceptionHandler retryExceptionHandler) {
+        this.retryExceptionHandler = retryExceptionHandler;
     }
 
     public String getBaseURL() {
@@ -188,36 +207,14 @@ public class ContentStoreImpl implements ContentStore{
         return url;
     }
 
-    /**
-     * An interface which defines a single method which will be retried on error
-     */
-    protected interface Retryable {
-        Object retry() throws ContentStoreException;
-    }
-
-    /**
-     * Provides a way to execute a variety of methods and allow a retry to
-     * occur on method failure.
-     *
-     * This method, along with the Retryable interface is an implementation
-     * of the command pattern.
-     *
-     * @param retryable
-     * @throws ContentStoreException
-     */
-    protected <T extends Object> T execute(Retryable retryable)
+    protected <T extends Object> T execute(Retriable retriable)
         throws ContentStoreException {
-        ContentStoreException lastException = null;
-        for(int i=0; i<=maxRetries; i++) {
-            try {
-                return (T)retryable.retry();
-            } catch (ContentStoreException e) {
-                lastException = e;
-                log.warn(e.getMessage());
-                WaitUtil.wait(i);
-            }
+        try {
+            Retrier retrier = new Retrier();
+            return retrier.execute(retriable, retryExceptionHandler);
+        } catch(Exception e) {
+            throw (ContentStoreException)e;
         }
-        throw lastException;
     }
 
     /**
@@ -225,7 +222,7 @@ public class ContentStoreImpl implements ContentStore{
      */
     @Override
     public List<String> getSpaces() throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public List<String> retry() throws ContentStoreException {
                 // The actual method being executed
@@ -284,7 +281,7 @@ public class ContentStoreImpl implements ContentStore{
                                              final String prefix)
         throws ContentStoreException {
         final ContentStore store = this;
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public Iterator<String> retry() throws ContentStoreException {
                 // The actual method being executed
@@ -302,7 +299,7 @@ public class ContentStoreImpl implements ContentStore{
                           final long maxResults,
                           final String marker)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public Space retry() throws ContentStoreException {
                 // The actual method being executed
@@ -358,7 +355,7 @@ public class ContentStoreImpl implements ContentStore{
     @Override
     public void createSpace(final String spaceId)
         throws ContentStoreException {
-        execute(new Retryable() {
+        execute(new Retriable() {
             @Override
             public Boolean retry() throws ContentStoreException {
                 // The actual method being executed
@@ -390,7 +387,7 @@ public class ContentStoreImpl implements ContentStore{
      */
     @Override
     public void deleteSpace(final String spaceId) throws ContentStoreException {
-        execute(new Retryable() {
+        execute(new Retriable() {
             @Override
             public Boolean retry() throws ContentStoreException {
                 // The actual method being executed
@@ -421,7 +418,7 @@ public class ContentStoreImpl implements ContentStore{
     @Override
     public Map<String, String> getSpaceProperties(final String spaceId)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public Map<String, String> retry() throws ContentStoreException {
                 // The actual method being executed
@@ -453,7 +450,7 @@ public class ContentStoreImpl implements ContentStore{
     @Override
     public Map<String, AclType> getSpaceACLs(final String spaceId)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public Map<String, AclType> retry() throws ContentStoreException {
                 // The actual method being executed
@@ -498,7 +495,7 @@ public class ContentStoreImpl implements ContentStore{
     public void setSpaceACLs(final String spaceId,
                              final Map<String, AclType> spaceACLs)
         throws ContentStoreException {
-        execute(new Retryable() {
+        execute(new Retriable() {
             @Override
             public Boolean retry() throws ContentStoreException {
                 // The actual method being executed
@@ -550,7 +547,7 @@ public class ContentStoreImpl implements ContentStore{
                              final String contentChecksum,
                              final Map<String, String> contentProperties)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public String retry() throws ContentStoreException {
                 // The actual method being executed
@@ -627,7 +624,7 @@ public class ContentStoreImpl implements ContentStore{
                               final String destSpaceId,
                               final String destContentId)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public String retry() throws ContentStoreException {
                 // The actual method being executed
@@ -766,7 +763,7 @@ public class ContentStoreImpl implements ContentStore{
     @Override
     public Content getContent(final String spaceId, final String contentId)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public Content retry() throws ContentStoreException {
                 // The actual method being executed
@@ -804,7 +801,7 @@ public class ContentStoreImpl implements ContentStore{
     @Override
     public void deleteContent(final String spaceId, final String contentId)
         throws ContentStoreException {
-        execute(new Retryable() {
+        execute(new Retriable() {
             @Override
             public Boolean retry() throws ContentStoreException {
                 // The actual method being executed
@@ -838,7 +835,7 @@ public class ContentStoreImpl implements ContentStore{
                                      final String contentId,
                                      final Map<String, String> contentProperties)
         throws ContentStoreException {
-        execute(new Retryable() {
+        execute(new Retriable() {
             @Override
             public Boolean retry() throws ContentStoreException {
                 // The actual method being executed
@@ -877,7 +874,7 @@ public class ContentStoreImpl implements ContentStore{
     public Map<String, String> getContentProperties(final String spaceId,
                                                     final String contentId)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public Map<String, String> retry() throws ContentStoreException {
                 // The actual method being executed
@@ -1034,7 +1031,7 @@ public class ContentStoreImpl implements ContentStore{
      */
     @Override
     public List<String> getSupportedTasks() throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public List<String> retry() throws ContentStoreException {
                 // The actual method being executed
@@ -1066,7 +1063,7 @@ public class ContentStoreImpl implements ContentStore{
     public String performTask(final String taskName,
                               final String taskParameters)
         throws ContentStoreException {
-        return execute(new Retryable() {
+        return execute(new Retriable() {
             @Override
             public String retry() throws ContentStoreException {
                 // The actual method being executed

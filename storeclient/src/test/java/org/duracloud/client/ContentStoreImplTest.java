@@ -11,6 +11,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.domain.Content;
@@ -93,11 +94,11 @@ public class ContentStoreImplTest {
         replayMocks();
     }
 
-    private class TestRetryable implements ContentStoreImpl.Retryable {
+    private class TestRetriable implements Retriable {
         private int expectedFailures = 0;
         private int attempts = 0;
 
-        public TestRetryable(int expectedFailures) {
+        public TestRetriable(int expectedFailures) {
             this.expectedFailures = expectedFailures;
         }
 
@@ -114,7 +115,7 @@ public class ContentStoreImplTest {
 
     private Integer doWork(int expectedFailures) throws ContentStoreException {
         ContentStoreImpl fakeStore = new ContentStoreImpl(null, null,null, null);
-        return fakeStore.execute(new TestRetryable(expectedFailures));
+        return fakeStore.execute(new TestRetriable(expectedFailures));
     }
 
     @Test
@@ -434,22 +435,27 @@ public class ContentStoreImplTest {
                                              String destContentId,
                                              String md5,
                                              int status) throws Exception {
-        EasyMock.expect(response.getStatusCode()).andReturn(status);
+        int retries = 4;
+        EasyMock.expect(response.getStatusCode())
+                .andReturn(status).times(retries);
 
         Header header = EasyMock.createMock(Header.class);
-        EasyMock.expect(header.getValue()).andReturn(md5);
-        EasyMock.expect(response.getResponseBody()).andReturn("body");
+        EasyMock.expect(header.getValue())
+                .andReturn(md5);
+        EasyMock.expect(response.getResponseBody())
+                .andReturn("body")
+                .times(retries);
         EasyMock.replay(header);
 
         String fullURL =
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" +
                 destStoreId;
-        Capture<Map<String, String>> capturedHeaders =
-            new Capture<Map<String, String>>();
+        Capture<Map<String, String>> capturedHeaders = new Capture<>();
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
                                        EasyMock.<String>isNull(),
                                        EasyMock.capture(capturedHeaders)))
-            .andReturn(response);
+                .andReturn(response)
+                .times(retries);
     }
 
     private Capture<Map<String, String>> createCopyContentMocks(String destStoreId,

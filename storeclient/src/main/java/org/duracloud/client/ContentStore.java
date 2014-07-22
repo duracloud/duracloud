@@ -8,6 +8,7 @@
 package org.duracloud.client;
 
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.domain.Content;
 import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
@@ -388,5 +389,12 @@ public interface ContentStore {
      */
     public String performTask(String taskName, String taskParameters)
         throws ContentStoreException;
+
+    /**
+     * Sets the Exception Handler which will be used to process any Exceptions
+     * that are thrown when an action fails but will be retried. The default
+     * Exception handler logs the exception messages at the WARN level.
+     */
+    public void setRetryExceptionHandler(ExceptionHandler retryExceptionHandler);
 
 }
