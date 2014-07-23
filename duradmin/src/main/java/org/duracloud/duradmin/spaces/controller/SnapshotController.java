@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.duracloud.chrontask.snapshot.SnapshotTaskParameters;
+import org.duracloud.snapshottask.snapshot.SnapshotTaskParameters;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.constant.Constants;

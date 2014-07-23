@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.chronstorage;
+package org.duracloud.snapshotstorage;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
@@ -22,9 +22,9 @@ import java.util.List;
  * @author Bill Branan
  *         Date: 1/28/14
  */
-public class ChronStageStorageProviderTest {
+public class SnapshotStorageProviderTest {
 
-    private ChronStageStorageProvider provider;
+    private SnapshotStorageProvider provider;
     private AmazonS3Client s3Client;
 
     // Must be 20 char alphanum (and lowercase, to match bucket naming pattern)
@@ -34,7 +34,7 @@ public class ChronStageStorageProviderTest {
     @Before
     public void setup() {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
-        provider = new ChronStageStorageProvider(s3Client, accessKey, null);
+        provider = new SnapshotStorageProvider(s3Client, accessKey, null);
     }
 
     @After
@@ -47,7 +47,7 @@ public class ChronStageStorageProviderTest {
     }
 
     @Test
-    public void testCreateChronStageProvider() throws Exception {
+    public void testCreateSnapshotProvider() throws Exception {
         List<Bucket> buckets = new ArrayList<>();
         buckets.add(new Bucket(accessKey + "." + spaceId));
         EasyMock.expect(s3Client.listBuckets()).andReturn(buckets).anyTimes();

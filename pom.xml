@@ -75,7 +75,7 @@
         <module>sdscstorageprovider</module>
         <module>rackspacestorageprovider</module>
         <module>irodsstorageprovider</module>
-        <module>chronstagestorageprovider</module>
+        <module>snapshotstorageprovider</module>
         <module>durastore</module>
         <module>duraboss-api</module>
         <module>reportdata</module>

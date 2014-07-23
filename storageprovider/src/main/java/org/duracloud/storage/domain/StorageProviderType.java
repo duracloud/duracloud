@@ -13,7 +13,7 @@ public enum StorageProviderType {
     RACKSPACE("rackspace"),
     SDSC("sdsc"),
     IRODS("irods"),
-    CHRON_STAGE("chron-stage"),
+    SNAPSHOT("snapshot"),
     UNKNOWN("unknown"),
     TEST_RETRY("test-retry"),
     TEST_VERIFY_CREATE("test-verify-create"),

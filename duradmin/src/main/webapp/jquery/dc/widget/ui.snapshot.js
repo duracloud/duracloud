@@ -18,7 +18,7 @@
  * ACL Editor: used for displaying and manipulating acls on a space.
  * created by Daniel Bernstein
  */
-$.widget("ui.chronopolis",
+$.widget("ui.snapshot",
 	$.extend({}, $.ui.expandopanel.prototype, 
 		{  
 	        _listPanel: null, 
@@ -35,7 +35,7 @@ $.widget("ui.chronopolis",
 			}, 
 
 			options: $.extend({}, $.ui.expandopanel.prototype.options, {
-				title: "Chronopolis", 
+				title: "Snapshot",
 			    space: null,
 			}),
 			
@@ -59,7 +59,7 @@ $.widget("ui.chronopolis",
 			    var panel = $.fn.create("div");
 			    panel.empty();
 			    if(!s.snapshotInProgress){
-                    var d = $("#chronopolis-dialog");
+                    var d = $("#snapshot-dialog");
                     
                     d.dialog({
                         autoOpen: false,

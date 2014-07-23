@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.chronstorage;
+package org.duracloud.snapshotstorage;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -16,29 +16,29 @@ import java.util.Map;
 
 /**
  * A storage provider to act as a staging area for content that will
- * be transferred to Chronopolis.
+ * be transferred to an external storage system as a "snapshot". A "snapshot"
+ * in this case is a set of content that is captured as a whole at a point
+ * in time.
  *
  * @author Bill Branan
  *         Date: 1/28/14
  */
-public class ChronStageStorageProvider extends S3StorageProvider {
+public class SnapshotStorageProvider extends S3StorageProvider {
 
     private final Logger log =
-        LoggerFactory.getLogger(ChronStageStorageProvider.class);
+        LoggerFactory.getLogger(SnapshotStorageProvider.class);
 
-    public ChronStageStorageProvider(String accessKey, String secretKey) {
+    public SnapshotStorageProvider(String accessKey, String secretKey) {
         super(accessKey, secretKey);
     }
 
-    public ChronStageStorageProvider(String accessKey,
-                                     String secretKey,
-                                     Map<String, String> options) {
+    public SnapshotStorageProvider(String accessKey, String secretKey,
+                                   Map<String, String> options) {
         super(accessKey, secretKey, options);
     }
 
-    public ChronStageStorageProvider(AmazonS3Client s3Client,
-                                     String accessKey,
-                                     Map<String, String> options) {
+    public SnapshotStorageProvider(AmazonS3Client s3Client, String accessKey,
+                                   Map<String, String> options) {
          super(s3Client, accessKey, options);
     }
 

@@ -1939,10 +1939,10 @@ $(function(){
            return viewerPane;      
        },
        
-       _loadChronopolisPane: function(space){
+       _loadSnapshotPane: function(space){
            var viewerPane =  $.fn.create("div")
-                                 .attr("id", "chronopolis")
-                                 .chronopolis({open: true, space: space});
+                                 .attr("id", "snapshot")
+                                 .snapshot({open: true, space: space});
            this._appendToCenter(viewerPane);
            return viewerPane;      
        },
@@ -2655,10 +2655,10 @@ $(function(){
         },     
         
         
-        _isChronopolis: function(storeId, storeProviders){
+        _isSnapshot: function(storeId, storeProviders){
             var ischron = false;
             $.each(storeProviders, function(i, provider){
-                if(storeId == provider.id && provider.type == 'chron_stage'){
+                if(storeId == provider.id && provider.type == 'snapshot'){
                     ischron = true;
                     return false;
                 }
@@ -2834,8 +2834,8 @@ $(function(){
                 }
 
                 
-                if(this._isChronopolis(space.storeId, storeProviders)){
-                    this._loadChronopolisPane(space);
+                if(this._isSnapshot(space.storeId, storeProviders)){
+                    this._loadSnapshotPane(space);
                 }
 
                 this._loadAclPane(space, readOnly);

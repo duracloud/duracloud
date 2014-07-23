@@ -15,8 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.duracloud.audit.provider.AuditStorageProvider;
-import org.duracloud.chronstorage.ChronStageStorageProvider;
-import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.aws.SQSTaskQueue;
 import org.duracloud.common.queue.noop.NoopTaskQueue;
@@ -199,8 +198,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
             storageProvider = new IrodsStorageProvider(username,
                                                        password,
                                                        account.getOptions());
-        } else if (type.equals(StorageProviderType.CHRON_STAGE)) {
-            storageProvider = new ChronStageStorageProvider(username, password);
+        } else if (type.equals(StorageProviderType.SNAPSHOT)) {
+            storageProvider = new SnapshotStorageProvider(username, password);
         } else if (type.equals(StorageProviderType.TEST_RETRY)) {
             storageProvider = new MockRetryStorageProvider();
         } else if (type.equals(StorageProviderType.TEST_VERIFY_CREATE)) {

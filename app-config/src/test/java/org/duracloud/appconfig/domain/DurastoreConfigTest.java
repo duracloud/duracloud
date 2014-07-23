@@ -40,7 +40,7 @@ public class DurastoreConfigTest {
     private String[] ids = {"id0", "id1", "id2", "id3"};
     private String[] types = {StorageProviderType.AMAZON_S3.toString(),
                               StorageProviderType.RACKSPACE.toString(),
-                              StorageProviderType.CHRON_STAGE.toString(),
+                              StorageProviderType.SNAPSHOT.toString(),
                               StorageProviderType.IRODS.toString()};
     private String[] usernames = {"username0", "username1", "username2", "username3"};
     private String[] passwords = {"password0", "password1", "password2", "password3"};
@@ -87,7 +87,7 @@ public class DurastoreConfigTest {
                 props.put(p + DurastoreConfig.portKey, port);
                 props.put(p + DurastoreConfig.baseDirectoryKey, baseDirectory);
                 props.put(p + DurastoreConfig.resourceKey, resource);
-            } else if (types[i] == StorageProviderType.CHRON_STAGE.toString()) {
+            } else if (types[i] == StorageProviderType.SNAPSHOT.toString()) {
                 props.put(p + DurastoreConfig.bridgeHostKey, bridgeHost);
                 props.put(p + DurastoreConfig.bridgePortKey, bridgePort);
                 props.put(p + DurastoreConfig.bridgeUserKey, bridgeUser);
@@ -150,7 +150,7 @@ public class DurastoreConfigTest {
                                 options.get(BASE_DIRECTORY.name()));
             Assert.assertEquals(resource, options.get(RESOURCE.name()));
 
-        } else if (type == StorageProviderType.CHRON_STAGE) {
+        } else if (type == StorageProviderType.SNAPSHOT) {
             Assert.assertEquals(bridgeHost, options.get(BRIDGE_HOST.name()));
             Assert.assertEquals(bridgePort, options.get(BRIDGE_PORT.name()));
             Assert.assertEquals(bridgeUser, options.get(BRIDGE_USER.name()));

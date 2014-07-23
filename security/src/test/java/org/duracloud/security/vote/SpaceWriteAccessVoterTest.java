@@ -7,21 +7,6 @@
  */
 package org.duracloud.security.vote;
 
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
-import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -46,6 +31,20 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterInvocation;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_ABSTAIN;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_DENIED;
+import static org.springframework.security.access.AccessDecisionVoter.ACCESS_GRANTED;
 
 /**
  * @author Andrew Woods
@@ -258,7 +257,7 @@ public class SpaceWriteAccessVoterTest {
             new StorageAccountImpl(storeId,
                                    "test",
                                    "test",
-                                   StorageProviderType.CHRON_STAGE);
+                                   StorageProviderType.SNAPSHOT);
         accounts.add(account);
         
         EasyMock.expect(provider.getContentProperties(EasyMock.isA(String.class),

@@ -8,7 +8,7 @@
 package org.duracloud.durastore.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.duracloud.chrontask.ChronStageTaskProvider;
+import org.duracloud.snapshottask.SnapshotTaskProvider;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.glaciertask.GlacierTaskProvider;
 import org.duracloud.s3storage.S3ProviderUtil;
@@ -85,7 +85,7 @@ public class TaskProviderFactory extends ProviderFactoryBase {
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password);
             taskProvider = new GlacierTaskProvider(glacierProvider, s3Client);
-        } else if (type.equals(StorageProviderType.CHRON_STAGE)) {
+        } else if (type.equals(StorageProviderType.SNAPSHOT)) {
             StorageProvider storageProvider =
                 storageProviderFactory.getStorageProvider(storageAccountId);
 
@@ -101,15 +101,15 @@ public class TaskProviderFactory extends ProviderFactoryBase {
             String bridgePass =
                 account.getOptions().get(StorageAccount.OPTS.BRIDGE_PASS.name());
 
-            taskProvider = new ChronStageTaskProvider(storageProvider,
-                                                      dcHost,
-                                                      dcPort,
-                                                      storageAccountId,
-                                                      dcAccountName,
-                                                      bridgeHost,
-                                                      bridgePort,
-                                                      bridgeUser,
-                                                      bridgePass);
+            taskProvider = new SnapshotTaskProvider(storageProvider,
+                                                    dcHost,
+                                                    dcPort,
+                                                    storageAccountId,
+                                                    dcAccountName,
+                                                    bridgeHost,
+                                                    bridgePort,
+                                                    bridgeUser,
+                                                    bridgePass);
         } else {
             throw new TaskException("No TaskProvider is available for " + type);
         }

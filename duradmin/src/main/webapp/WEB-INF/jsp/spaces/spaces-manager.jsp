@@ -48,7 +48,7 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.acleditor.js"></script>
     <script
       type="text/javascript"
-      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.chronopolis.js"></script>
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.snapshot.js"></script>
 
     <script
       type="text/javascript"
@@ -446,13 +446,13 @@
         </div>
 
         <div
-          id="chronopolis-dialog"
+          id="snapshot-dialog"
           class="dialog"
           style="display: none; overflow: auto"
           title="Create Snapshot">
           <h1 class="dc-dialog-title">Create a snapshot</h1>
           <p class="hint">This action begins the process of transferring all of
-            the content in this space to Chronopolis for preservation. Once the
+            the content in this space to DPN for preservation. Once the
             Create button below is pressed, you will no longer be able to edit
             the contents of this space. You may optionally include a description
             of this snapshot, which will be preserved along with the snapshot
