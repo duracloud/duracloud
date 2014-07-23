@@ -18,21 +18,19 @@
         <developer>
             <name>Branan, Bill</name>
             <email>bbranan@duraspace.org</email>
+            <organization>DuraSpace</organization>
         </developer>
 
         <developer>
             <name>Bernstein, Danny</name>
             <email>dbernstein@duraspace.org</email>
-        </developer>
-
-        <developer>
-            <name>Paulsson, Erik</name>
-            <email>epaulsson@duraspace.org</email>
+            <organization>DuraSpace</organization>
         </developer>
 
         <developer>
             <name>Woods, Andrew</name>
             <email>awoods@duraspace.org</email>
+            <organization>DuraSpace</organization>
         </developer>
     </developers>
 
@@ -47,6 +45,11 @@
         <name>DuraSpace</name>
         <url>http://www.duraspace.org</url>
     </organization>
+
+    <scm>
+        <connection>scm:git:git://github.com/duracloud/duracloud</connection>
+        <developerConnection>scm:git:git://github.com/duracloud/duracloud</developerConnection>
+    </scm>
 
     <modules>
         <module>common</module>
@@ -170,6 +173,64 @@
             </build>
         </profile>
 
+        <profile>
+            <id>generate-docs-source-signature</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>releaseBuild</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                         </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+      
     </profiles>
 
     <properties>
@@ -189,15 +250,15 @@
     <distributionManagement>
 
       <repository>
-        <id>duraspace-releases</id>
-        <name>DuraSpace Release Maven Repository</name>
-        <url>https://m2.duraspace.org/content/repositories/releases</url>
+        <id>sonatype-releases</id>
+        <name>Sonatype Release Staging Maven Repository</name>
+        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
       </repository>
 
       <snapshotRepository>
-        <id>duraspace-snapshots</id>
-        <name>DuraSpace Snapshots Maven Repository</name>
-        <url>https://m2.duraspace.org/content/repositories/snapshots</url>
+        <id>sonatype-snapshots</id>
+        <name>Sonatype Snapshots Maven Repository</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       </snapshotRepository>
 
     </distributionManagement>
@@ -262,11 +323,6 @@
 
     </pluginRepositories>
 
-    <scm>
-        <connection>scm:git:git://github.com/duracloud/duracloud</connection>
-        <developerConnection>scm:git:git://github.com/duracloud/duracloud</developerConnection>
-    </scm>
-
     <build>
 
         <resources>
@@ -283,20 +339,6 @@
         </testResources>
 
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
