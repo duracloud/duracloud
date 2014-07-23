@@ -92,6 +92,8 @@ public class TaskProviderFactory extends ProviderFactoryBase {
             String dcHost = storageAccountManager.getInstanceHost();
             String dcPort = storageAccountManager.getInstancePort();
             String dcAccountName = storageAccountManager.getAccountName();
+            String dcSnapshotUser =
+                account.getOptions().get(StorageAccount.OPTS.SNAPSHOT_USER.name());
             String bridgeHost =
                 account.getOptions().get(StorageAccount.OPTS.BRIDGE_HOST.name());
             String bridgePort =
@@ -106,6 +108,7 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                                                     dcPort,
                                                     storageAccountId,
                                                     dcAccountName,
+                                                    dcSnapshotUser,
                                                     bridgeHost,
                                                     bridgePort,
                                                     bridgeUser,

@@ -7,8 +7,11 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import org.duracloud.common.model.AclType;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.common.constant.Constants;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -30,13 +33,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class SnapshotTaskRunnerTest {
 
-    private SnapshotStorageProvider chronProvider;
+    private SnapshotStorageProvider snapshotProvider;
     private SnapshotTaskRunner taskRunner;
 
     private String dcHost = "instance-host";
     private String dcPort = "instance-port";
     private String dcStoreId = "store-id";
     private String dcAccountName = "account-name";
+    private String dcSnapshotUser = "snapshot-user";
     private String bridgeHost = "bridge-host";
     private String bridgePort = "bridge-port";
     private String bridgeUser = "bridge-user";
@@ -44,20 +48,21 @@ public class SnapshotTaskRunnerTest {
 
     @Before
     public void setup() {
-        chronProvider = EasyMock.createMock("SnapshotStorageProvider",
-                                            SnapshotStorageProvider.class);
-        taskRunner = new SnapshotTaskRunner(chronProvider, dcHost, dcPort,
-                                            dcStoreId, dcAccountName, bridgeHost,
-                                            bridgePort, bridgeUser, bridgePass);
+        snapshotProvider = EasyMock.createMock("SnapshotStorageProvider",
+                                               SnapshotStorageProvider.class);
+        taskRunner =
+            new SnapshotTaskRunner(snapshotProvider, dcHost, dcPort, dcStoreId,
+                                   dcAccountName, dcSnapshotUser, bridgeHost,
+                                   bridgePort, bridgeUser, bridgePass);
     }
 
     private void replayMocks() {
-        EasyMock.replay(chronProvider);
+        EasyMock.replay(snapshotProvider);
     }
 
     @After
     public void tearDown() throws IOException {
-        EasyMock.verify(chronProvider);
+        EasyMock.verify(snapshotProvider);
     }
 
     @Test
@@ -78,6 +83,30 @@ public class SnapshotTaskRunnerTest {
                              "/snapshot/" + dcHost + "/" + dcPort +"/" +
                              dcStoreId + "/" + spaceId + "/" + snapshotId;
         assertEquals(expectedUrl, snapshotUrl);
+    }
+
+    @Test
+    public void testSetSnapshotUserPermissions() {
+        String spaceId = "space-id";
+        String aclUserName = "acl-user-name";
+        AclType aclValue = AclType.WRITE;
+
+        Map<String, AclType> spaceACLs = new HashMap<>();
+        spaceACLs.put(aclUserName, aclValue);
+        EasyMock.expect(snapshotProvider.getSpaceACLs(spaceId))
+                .andReturn(spaceACLs);
+
+        Capture<Map<String, AclType>> spaceACLsCapture = new Capture<>();
+        snapshotProvider.setSpaceACLs(EasyMock.eq(spaceId),
+                                      EasyMock.capture(spaceACLsCapture));
+
+        replayMocks();
+
+        taskRunner.setSnapshotUserPermissions(spaceId);
+        Map<String, AclType> capSpaceACLs = spaceACLsCapture.getValue();
+        assertEquals(capSpaceACLs.get(aclUserName), aclValue);
+        String user = StorageProvider.PROPERTIES_SPACE_ACL + dcSnapshotUser;
+        assertEquals(capSpaceACLs.get(user), AclType.READ);
     }
 
     @Test
@@ -118,7 +147,7 @@ public class SnapshotTaskRunnerTest {
         String props = "one=two";
 
         EasyMock.expect(
-            chronProvider.addContent(EasyMock.eq(spaceId),
+            snapshotProvider.addContent(EasyMock.eq(spaceId),
                                      EasyMock.eq(Constants.SNAPSHOT_ID),
                                      EasyMock.eq("text/x-java-properties"),
                                      EasyMock.<Map<String, String>>isNull(),

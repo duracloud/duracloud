@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BASE_DIRECTORY;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.SNAPSHOT_USER;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_HOST;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_PASS;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_PORT;
@@ -51,6 +52,7 @@ public class DurastoreConfigTest {
     private String port = "port";
     private String baseDirectory = "baseDirectory";
     private String resource = "resource";
+    private String snapshotUser = "snapshotuser";
     private String bridgeHost = "bridgehost";
     private String bridgePort = "bridgeport";
     private String bridgeUser = "bridgeuser";
@@ -88,6 +90,7 @@ public class DurastoreConfigTest {
                 props.put(p + DurastoreConfig.baseDirectoryKey, baseDirectory);
                 props.put(p + DurastoreConfig.resourceKey, resource);
             } else if (types[i] == StorageProviderType.SNAPSHOT.toString()) {
+                props.put(p + DurastoreConfig.snapshotUserKey, snapshotUser);
                 props.put(p + DurastoreConfig.bridgeHostKey, bridgeHost);
                 props.put(p + DurastoreConfig.bridgePortKey, bridgePort);
                 props.put(p + DurastoreConfig.bridgeUserKey, bridgeUser);
@@ -151,6 +154,7 @@ public class DurastoreConfigTest {
             Assert.assertEquals(resource, options.get(RESOURCE.name()));
 
         } else if (type == StorageProviderType.SNAPSHOT) {
+            Assert.assertEquals(snapshotUser, options.get(SNAPSHOT_USER.name()));
             Assert.assertEquals(bridgeHost, options.get(BRIDGE_HOST.name()));
             Assert.assertEquals(bridgePort, options.get(BRIDGE_PORT.name()));
             Assert.assertEquals(bridgeUser, options.get(BRIDGE_USER.name()));

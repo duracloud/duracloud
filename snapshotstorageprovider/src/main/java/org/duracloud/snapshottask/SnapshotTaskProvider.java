@@ -19,9 +19,14 @@ import org.slf4j.LoggerFactory;
 public class SnapshotTaskProvider extends TaskProviderBase {
 
     public SnapshotTaskProvider(StorageProvider snapshotProvider,
-                                String dcHost, String dcPort, String dcStoreId,
-                                String dcAccountName, String bridgeHost,
-                                String bridgePort, String bridgeUser,
+                                String dcHost,
+                                String dcPort,
+                                String dcStoreId,
+                                String dcAccountName,
+                                String dcSnapshotUser,
+                                String bridgeHost,
+                                String bridgePort,
+                                String bridgeUser,
                                 String bridgePass) {
         log = LoggerFactory.getLogger(SnapshotTaskProvider.class);
 
@@ -30,6 +35,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                             dcPort,
                                             dcStoreId,
                                             dcAccountName,
+                                            dcSnapshotUser,
                                             bridgeHost,
                                             bridgePort,
                                             bridgeUser,

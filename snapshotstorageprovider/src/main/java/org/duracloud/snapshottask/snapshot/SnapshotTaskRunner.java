@@ -35,34 +35,36 @@ import java.util.Properties;
 public class SnapshotTaskRunner implements TaskRunner {
 
     private static final String TASK_NAME = "snapshot";
-    private static final String SNAPSHOT_USER = "chronopolis";
 
     private Logger log = LoggerFactory.getLogger(SnapshotTaskRunner.class);
 
-    private StorageProvider chronProvider;
+    private StorageProvider snapshotProvider;
     private String dcAccountName;
     private String dcHost;
     private String dcPort;
     private String dcStoreId;
+    private String dcSnapshotUser;
     private String bridgeAppHost;
     private String bridgeAppPort;
     private String bridgeAppUser;
     private String bridgeAppPass;
 
-    public SnapshotTaskRunner(StorageProvider chronProvider,
+    public SnapshotTaskRunner(StorageProvider snapshotProvider,
                               String dcHost,
                               String dcPort,
                               String dcStoreId,
                               String dcAccountName,
+                              String dcSnapshotUser,
                               String bridgeAppHost,
                               String bridgeAppPort,
                               String bridgeAppUser,
                               String bridgeAppPass) {
-        this.chronProvider = chronProvider;
+        this.snapshotProvider = snapshotProvider;
         this.dcHost = dcHost;
         this.dcPort = dcPort;
         this.dcStoreId = dcStoreId;
         this.dcAccountName = dcAccountName;
+        this.dcSnapshotUser = dcSnapshotUser;
         this.bridgeAppHost = bridgeAppHost;
         this.bridgeAppPort = bridgeAppPort;
         this.bridgeAppUser = bridgeAppUser;
@@ -78,9 +80,11 @@ public class SnapshotTaskRunner implements TaskRunner {
     public String performTask(String taskParameters) {
         log.info("Performing SNAPSHOT task with parameters, " +
                  "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
-                 "Account Name: {} Bridge Host: {} Bridge Port: {} Bridge User: {}",
+                 "Account Name: {} DuraCloud Snapshot User: {} Bridge Host: {} " +
+                 "Bridge Port: {} Bridge User: {}",
                  new Object[] {dcHost, dcPort, dcStoreId, dcAccountName,
-                               bridgeAppHost, bridgeAppPort, bridgeAppUser});
+                               dcSnapshotUser, bridgeAppHost, bridgeAppPort,
+                               bridgeAppUser});
 
         // Get input params
         SnapshotTaskParameters taskParams = parseTaskParams(taskParameters);
@@ -107,10 +111,7 @@ public class SnapshotTaskRunner implements TaskRunner {
         storeSnapshotProps(spaceId, serializedProps);
 
         // Give snapshot user read permissions on space
-        Map<String, AclType> spaceACLs = chronProvider.getSpaceACLs(spaceId);
-        spaceACLs.put(StorageProvider.PROPERTIES_SPACE_ACL + SNAPSHOT_USER,
-                      AclType.READ);
-        chronProvider.setSpaceACLs(spaceId, spaceACLs);
+        setSnapshotUserPermissions(spaceId);
 
         // Create URL to call bridge app
         String snapshotURL = buildSnapshotURL(spaceId, snapshotId);
@@ -131,6 +132,17 @@ public class SnapshotTaskRunner implements TaskRunner {
         log.info("SNAPSHOT with ID {} completed successfully ", snapshotId);
 
         return buildTaskResult(snapshotId);
+    }
+
+    /*
+     * Give the snapshot user the necessary permissions to pull content from
+     * the snapshot space.
+     */
+    protected void setSnapshotUserPermissions(String spaceId) {
+        Map<String, AclType> spaceACLs = snapshotProvider.getSpaceACLs(spaceId);
+        spaceACLs.put(StorageProvider.PROPERTIES_SPACE_ACL + dcSnapshotUser,
+                      AclType.READ);
+        snapshotProvider.setSpaceACLs(spaceId, spaceACLs);
     }
 
     /*
@@ -202,7 +214,7 @@ public class SnapshotTaskRunner implements TaskRunner {
         ChecksumUtil checksumUtil = new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String propsChecksum = checksumUtil.generateChecksum(serializedProps);
 
-        chronProvider.addContent(spaceId,
+        snapshotProvider.addContent(spaceId,
                                  Constants.SNAPSHOT_ID,
                                  "text/x-java-properties",
                                  null,
