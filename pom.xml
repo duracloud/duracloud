@@ -111,12 +111,6 @@
                 </property>
             </activation>
 
-            <properties>
-                <tomcat.port>${tomcat.port.default}</tomcat.port>
-                <database.home>${database.home.default}</database.home>
-                <log.level>${log.level.default}</log.level>
-            </properties>
-
             <build>
                 <plugins>
                     <plugin>
@@ -153,11 +147,6 @@
                 </property>
             </activation>
 
-            <properties>
-                <tomcat.port>${tomcat.port.default}</tomcat.port>
-                <database.home>${database.home.default}</database.home>
-            </properties>
-
             <build>
                 <plugins>
                     <plugin>
@@ -174,7 +163,7 @@
         </profile>
 
         <profile>
-            <id>generate-docs-source-signature</id>
+            <id>profile-generate-docs-source-signature</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
                 <property>
@@ -183,6 +172,7 @@
             </activation>
             <build>
                 <plugins>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -227,20 +217,34 @@
                             </execution>
                         </executions>
                     </plugin>
+
                 </plugins>
             </build>
+        </profile>
+
+        <profile>
+            <id>profile-empty</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>skipDeploy</name>
+                </property>
+            </activation>
         </profile>
       
     </profiles>
 
     <properties>
         <tomcat.port.default>8080</tomcat.port.default>
+        <tomcat.port>${tomcat.port.default}</tomcat.port>
         <database.home.default>/opt/derby/duracloudDB</database.home.default>
+        <database.home>${database.home.default}</database.home>
         <unitTests>**/*Test.class</unitTests>
         <integrationTests>**/Test*.class</integrationTests>
         <instrumentedTests>**/*Test*__*.class</instrumentedTests>
         <innerClasses>**/*$*</innerClasses>
         <log.level.default>INFO</log.level.default>
+        <log.level>${log.level.default}</log.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
