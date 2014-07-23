@@ -29,14 +29,19 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
+ * Begins the process of creating a snapshot by collecting the necessary
+ * information and passing it down to the snapshot bridge application. Along
+ * the way, the space provided is also set to read-only so that changes cannot
+ * be made to the content.
+ *
  * @author: Bill Branan
  *          Date: 2/1/13
  */
-public class SnapshotTaskRunner implements TaskRunner {
+public class CreateSnapshotTaskRunner implements TaskRunner {
 
-    private static final String TASK_NAME = "snapshot";
+    private static final String TASK_NAME = "create-snapshot";
 
-    private Logger log = LoggerFactory.getLogger(SnapshotTaskRunner.class);
+    private Logger log = LoggerFactory.getLogger(CreateSnapshotTaskRunner.class);
 
     private StorageProvider snapshotProvider;
     private String dcAccountName;
@@ -49,16 +54,12 @@ public class SnapshotTaskRunner implements TaskRunner {
     private String bridgeAppUser;
     private String bridgeAppPass;
 
-    public SnapshotTaskRunner(StorageProvider snapshotProvider,
-                              String dcHost,
-                              String dcPort,
-                              String dcStoreId,
-                              String dcAccountName,
-                              String dcSnapshotUser,
-                              String bridgeAppHost,
-                              String bridgeAppPort,
-                              String bridgeAppUser,
-                              String bridgeAppPass) {
+    public CreateSnapshotTaskRunner(StorageProvider snapshotProvider,
+                                    String dcHost, String dcPort,
+                                    String dcStoreId, String dcAccountName,
+                                    String dcSnapshotUser, String bridgeAppHost,
+                                    String bridgeAppPort, String bridgeAppUser,
+                                    String bridgeAppPass) {
         this.snapshotProvider = snapshotProvider;
         this.dcHost = dcHost;
         this.dcPort = dcPort;

@@ -7,7 +7,13 @@
  */
 package org.duracloud.snapshottask;
 
-import org.duracloud.snapshottask.snapshot.SnapshotTaskRunner;
+import org.duracloud.snapshottask.snapshot.CompleteSnapshotTaskRunner;
+import org.duracloud.snapshottask.snapshot.CreateSnapshotTaskRunner;
+import org.duracloud.snapshottask.snapshot.GetRestoreStatusTaskRunner;
+import org.duracloud.snapshottask.snapshot.GetSnapshotContentsTaskRunner;
+import org.duracloud.snapshottask.snapshot.GetSnapshotStatusTaskRunner;
+import org.duracloud.snapshottask.snapshot.GetSnapshotsTaskRunner;
+import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
@@ -30,7 +36,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                 String bridgePass) {
         log = LoggerFactory.getLogger(SnapshotTaskProvider.class);
 
-        taskList.add(new SnapshotTaskRunner(snapshotProvider,
+        taskList.add(new CreateSnapshotTaskRunner(snapshotProvider,
                                             dcHost,
                                             dcPort,
                                             dcStoreId,
@@ -40,6 +46,12 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                             bridgePort,
                                             bridgeUser,
                                             bridgePass));
+        taskList.add(new GetSnapshotStatusTaskRunner());
+        taskList.add(new CompleteSnapshotTaskRunner());
+        taskList.add(new GetSnapshotsTaskRunner());
+        taskList.add(new GetSnapshotContentsTaskRunner());
+        taskList.add(new RestoreSnapshotTaskRunner());
+        taskList.add(new GetRestoreStatusTaskRunner());
     }
 
 }

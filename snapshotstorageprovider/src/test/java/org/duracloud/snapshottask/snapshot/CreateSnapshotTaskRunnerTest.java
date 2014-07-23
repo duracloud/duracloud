@@ -31,10 +31,10 @@ import static org.junit.Assert.assertTrue;
  * @author Bill Branan
  *         Date: 1/29/14
  */
-public class SnapshotTaskRunnerTest {
+public class CreateSnapshotTaskRunnerTest {
 
     private SnapshotStorageProvider snapshotProvider;
-    private SnapshotTaskRunner taskRunner;
+    private CreateSnapshotTaskRunner taskRunnerCreate;
 
     private String dcHost = "instance-host";
     private String dcPort = "instance-port";
@@ -50,8 +50,8 @@ public class SnapshotTaskRunnerTest {
     public void setup() {
         snapshotProvider = EasyMock.createMock("SnapshotStorageProvider",
                                                SnapshotStorageProvider.class);
-        taskRunner =
-            new SnapshotTaskRunner(snapshotProvider, dcHost, dcPort, dcStoreId,
+        taskRunnerCreate =
+            new CreateSnapshotTaskRunner(snapshotProvider, dcHost, dcPort, dcStoreId,
                                    dcAccountName, dcSnapshotUser, bridgeHost,
                                    bridgePort, bridgeUser, bridgePass);
     }
@@ -68,7 +68,7 @@ public class SnapshotTaskRunnerTest {
     @Test
     public void testGetName() {
         replayMocks();
-        assertEquals("snapshot", taskRunner.getName());
+        assertEquals("create-snapshot", taskRunnerCreate.getName());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class SnapshotTaskRunnerTest {
         String spaceId = "space-id";
         String snapshotId = "snapshot-id";
 
-        String snapshotUrl = taskRunner.buildSnapshotURL(spaceId, snapshotId);
+        String snapshotUrl = taskRunnerCreate.buildSnapshotURL(spaceId, snapshotId);
         String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
                              "/snapshot/" + dcHost + "/" + dcPort +"/" +
                              dcStoreId + "/" + spaceId + "/" + snapshotId;
@@ -102,7 +102,7 @@ public class SnapshotTaskRunnerTest {
 
         replayMocks();
 
-        taskRunner.setSnapshotUserPermissions(spaceId);
+        taskRunnerCreate.setSnapshotUserPermissions(spaceId);
         Map<String, AclType> capSpaceACLs = spaceACLsCapture.getValue();
         assertEquals(capSpaceACLs.get(aclUserName), aclValue);
         String user = StorageProvider.PROPERTIES_SPACE_ACL + dcSnapshotUser;
@@ -118,7 +118,7 @@ public class SnapshotTaskRunnerTest {
             "{\"description\" : \"test snapshot\"}}";
 
         SnapshotTaskParameters taskParams =
-            taskRunner.parseTaskParams(taskParamsSerialized);
+            taskRunnerCreate.parseTaskParams(taskParamsSerialized);
         assertEquals("test-space", taskParams.getSpaceId());
         assertEquals("test snapshot",
                      taskParams.getSnapshotProperties().get("description"));
@@ -131,7 +131,7 @@ public class SnapshotTaskRunnerTest {
         Map<String, String> propsMap = new HashMap<>();
         propsMap.put("one", "two");
         propsMap.put("three", "four");
-        String props = taskRunner.buildSnapshotProps(propsMap);
+        String props = taskRunnerCreate.buildSnapshotProps(propsMap);
         assertTrue(props.contains("one=two"));
         assertTrue(props.contains("three=four"));
 
@@ -157,7 +157,7 @@ public class SnapshotTaskRunnerTest {
                 .andReturn("success!");
         replayMocks();
 
-        taskRunner.storeSnapshotProps(spaceId, props);
+        taskRunnerCreate.storeSnapshotProps(spaceId, props);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class SnapshotTaskRunnerTest {
 
         String snapshotId = "snapshot-id";
         String expectedResult = "{\"snapshotId\":\""+snapshotId+"\"}";
-        String result = taskRunner.buildTaskResult(snapshotId);
+        String result = taskRunnerCreate.buildTaskResult(snapshotId);
         String cleanResult = result.replaceAll("\n", "")
                                    .replaceAll("\r", "")
                                    .replaceAll("\\s+", "");
