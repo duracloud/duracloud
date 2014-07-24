@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -93,7 +94,6 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         // Get input params
         CreateSnapshotTaskParameters taskParams = parseTaskParams(taskParameters);
         String spaceId = taskParams.getSpaceId();
-        Map<String, String> snapshotProps = taskParams.getSnapshotProperties();
 
         // Generate snapshot ID
         long now = System.currentTimeMillis();
@@ -101,12 +101,15 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                             "-"+ DateUtil.convertToStringPlain(now);
 
         // Pull together all snapshot properties
+        Map<String, String> snapshotProps = new HashMap<>();
         snapshotProps.put("duracloud-host", dcHost);
         snapshotProps.put("duracloud-space-id", spaceId);
         snapshotProps.put("duracloud-store-id", dcStoreId);
         snapshotProps.put("snapshot-id", snapshotId);
         snapshotProps.put("snapshot-date", DateUtil.convertToStringVerbose(now));
         snapshotProps.put("owner-id", dcAccountName);
+        snapshotProps.put("description", taskParams.getDescription());
+        snapshotProps.put("user-email", taskParams.getUserEmail());
 
         // Store snapshot properties in the snapshot space. This both provides
         // access to the properties down stream and effectively sets the space
@@ -121,7 +124,7 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         String snapshotURL = buildSnapshotURL(snapshotId);
 
         // Create body for call to bridge app
-        String snapshotBody = buildSnapshotBody(spaceId);
+        String snapshotBody = buildSnapshotBody(taskParams);
 
         log.info("Making SNAPSHOT call to URL {} with body {}",
                  snapshotURL, snapshotBody);
@@ -157,20 +160,27 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
      * Create URL to call bridge app
      */
     protected String buildSnapshotURL(String snapshotId) {
-        return MessageFormat.format("http://{0}:{1}/snapshot/{2}",
-                                    bridgeAppHost, bridgeAppPort, snapshotId);
+        String protocol = "http";
+        if("443".equals(bridgeAppPort)) {
+            protocol = "https";
+        }
+        return MessageFormat.format("{0}://{1}:{2}/bridge/snapshot/{3}",
+                                    protocol, bridgeAppHost, bridgeAppPort,
+                                    snapshotId);
     }
 
     /*
-     * Creates the body of the request that will be send to the bridge app
+     * Creates the body of the request that will be sent to the bridge app
      */
-    protected String buildSnapshotBody(String spaceId) {
+    protected String buildSnapshotBody(CreateSnapshotTaskParameters taskParams) {
         CreateSnapshotBridgeParameters bridgeParams =
             new CreateSnapshotBridgeParameters();
         bridgeParams.setHost(dcHost);
         bridgeParams.setPort(dcPort);
         bridgeParams.setStoreId(dcStoreId);
-        bridgeParams.setSpaceId(spaceId);
+        bridgeParams.setSpaceId(taskParams.getSpaceId());
+        bridgeParams.setDescription(taskParams.getDescription());
+        bridgeParams.setUserEmail(taskParams.getUserEmail());
 
         JaxbJsonSerializer<CreateSnapshotBridgeParameters> serializer =
             new JaxbJsonSerializer<>(CreateSnapshotBridgeParameters.class);

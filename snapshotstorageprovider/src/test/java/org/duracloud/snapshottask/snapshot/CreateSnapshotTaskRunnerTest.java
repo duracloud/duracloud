@@ -82,7 +82,7 @@ public class CreateSnapshotTaskRunnerTest {
 
         String snapshotUrl = taskRunnerCreate.buildSnapshotURL(snapshotId);
         String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
-                             "/snapshot/" + snapshotId;
+                             "/bridge/snapshot/" + snapshotId;
         assertEquals(expectedUrl, snapshotUrl);
     }
 
@@ -91,13 +91,23 @@ public class CreateSnapshotTaskRunnerTest {
         replayMocks();
 
         String spaceId = "space-id";
-        String snapshotBody = taskRunnerCreate.buildSnapshotBody(spaceId);
+        String description = "description";
+        String userEmail = "user-email";
+        CreateSnapshotTaskParameters taskParams =
+            new CreateSnapshotTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setDescription(description);
+        taskParams.setUserEmail(userEmail);
+
+        String snapshotBody = taskRunnerCreate.buildSnapshotBody(taskParams);
         String snapBodyNoSpaces = snapshotBody.replaceAll("\\s+", "");
 
         assertThat(snapBodyNoSpaces, containsString("\"host\":\""+dcHost+"\""));
         assertThat(snapBodyNoSpaces, containsString("\"port\":\""+dcPort+"\""));
         assertThat(snapBodyNoSpaces, containsString("\"storeId\":\""+dcStoreId+"\""));
         assertThat(snapBodyNoSpaces, containsString("\"spaceId\":\""+spaceId+"\""));
+        assertThat(snapBodyNoSpaces, containsString("\"description\":\""+description+"\""));
+        assertThat(snapBodyNoSpaces, containsString("\"userEmail\":\""+userEmail+"\""));
     }
 
     @Test
@@ -129,14 +139,15 @@ public class CreateSnapshotTaskRunnerTest {
         replayMocks();
 
         String taskParamsSerialized =
-            "{\"spaceId\" : \"test-space\", \"snapshotProperties\" : " +
-            "{\"description\" : \"test snapshot\"}}";
+            "{\"spaceId\" : \"test-space\"," +
+            " \"description\" : \"test snapshot\"," +
+            " \"userEmail\" : \"yo@myemail.com\"}";
 
         CreateSnapshotTaskParameters taskParams =
             taskRunnerCreate.parseTaskParams(taskParamsSerialized);
         assertEquals("test-space", taskParams.getSpaceId());
-        assertEquals("test snapshot",
-                     taskParams.getSnapshotProperties().get("description"));
+        assertEquals("test snapshot", taskParams.getDescription());
+        assertEquals("yo@myemail.com", taskParams.getUserEmail());
     }
 
     @Test

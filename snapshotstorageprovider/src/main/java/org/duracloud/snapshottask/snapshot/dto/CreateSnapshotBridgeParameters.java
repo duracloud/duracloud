@@ -27,6 +27,12 @@ public class CreateSnapshotBridgeParameters {
     @XmlValue
     private String spaceId;
 
+    @XmlValue
+    private String description;
+
+    @XmlValue
+    private String userEmail;
+
     public String getHost() {
         return host;
     }
@@ -57,6 +63,22 @@ public class CreateSnapshotBridgeParameters {
 
     public void setSpaceId(String spaceId) {
         this.spaceId = spaceId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
 }

@@ -16,6 +16,7 @@ import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -46,10 +45,13 @@ public class SnapshotController {
         LoggerFactory.getLogger(SnapshotController.class);
 
     private ContentStoreManager contentStoreManager;
+    private DuracloudUserDetailsService userDetailsService;
 
     @Autowired(required=true)
-    public SnapshotController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
+    public SnapshotController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager,
+                              DuracloudUserDetailsService userDetailsService) {
         this.contentStoreManager = contentStoreManager;
+        this.userDetailsService = userDetailsService;
     }
 
 
@@ -70,14 +72,15 @@ public class SnapshotController {
             response.setStatus(HttpStatus.SC_METHOD_FAILURE);
             response.getWriter().write("{\"result\":\"Snapshot already in progress.\"}");
         }else{
-            Map<String,String> snapshotProperties = new HashMap<>();
-            snapshotProperties.put("description", description);
             CreateSnapshotTaskParameters params = new CreateSnapshotTaskParameters();
             params.setSpaceId(spaceId);
-            params.setSnapshotProperties(snapshotProperties);
+            params.setDescription(description);
+            String username = request.getUserPrincipal().getName();
+            params.setUserEmail(userDetailsService.getUserByUsername(username)
+                                                  .getEmail());
+
             JaxbJsonSerializer<CreateSnapshotTaskParameters> serializer =
                 new JaxbJsonSerializer<>(CreateSnapshotTaskParameters.class);
-            
             String paramString = serializer.serialize(params);
             String json = store.performTask("create-snapshot", paramString);
            response.setStatus(HttpStatus.SC_ACCEPTED);

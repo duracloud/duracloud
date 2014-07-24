@@ -8,8 +8,6 @@
 package org.duracloud.snapshottask.snapshot.dto;
 
 import javax.xml.bind.annotation.XmlValue;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Bill Branan
@@ -21,11 +19,10 @@ public class CreateSnapshotTaskParameters {
     private String spaceId;
 
     @XmlValue
-    private Map<String, String> snapshotProperties;
+    private String description;
 
-    public CreateSnapshotTaskParameters() {
-        snapshotProperties = new HashMap<>();
-    }
+    @XmlValue
+    private String userEmail;
 
     public String getSpaceId() {
         return spaceId;
@@ -35,12 +32,20 @@ public class CreateSnapshotTaskParameters {
         this.spaceId = spaceId;
     }
 
-    public Map<String, String> getSnapshotProperties() {
-        return snapshotProperties;
+    public String getDescription() {
+        return description;
     }
 
-    public void setSnapshotProperties(Map<String, String> snapshotProperties) {
-        this.snapshotProperties = snapshotProperties;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
 }
