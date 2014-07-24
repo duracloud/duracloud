@@ -16,7 +16,7 @@ import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
-import org.duracloud.snapshottask.snapshot.SnapshotTaskParameters;
+import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,11 +72,11 @@ public class SnapshotController {
         }else{
             Map<String,String> snapshotProperties = new HashMap<>();
             snapshotProperties.put("description", description);
-            SnapshotTaskParameters params = new SnapshotTaskParameters();
+            CreateSnapshotTaskParameters params = new CreateSnapshotTaskParameters();
             params.setSpaceId(spaceId);
             params.setSnapshotProperties(snapshotProperties);
-            JaxbJsonSerializer<SnapshotTaskParameters> serializer =
-                new JaxbJsonSerializer<>(SnapshotTaskParameters.class);
+            JaxbJsonSerializer<CreateSnapshotTaskParameters> serializer =
+                new JaxbJsonSerializer<>(CreateSnapshotTaskParameters.class);
             
             String paramString = serializer.serialize(params);
             String json = store.performTask("create-snapshot", paramString);

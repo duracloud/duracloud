@@ -15,6 +15,9 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotBridgeParameters;
+import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
+import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskResult;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
@@ -88,7 +91,7 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                                bridgeAppUser});
 
         // Get input params
-        SnapshotTaskParameters taskParams = parseTaskParams(taskParameters);
+        CreateSnapshotTaskParameters taskParams = parseTaskParams(taskParameters);
         String spaceId = taskParams.getSpaceId();
         Map<String, String> snapshotProps = taskParams.getSnapshotProperties();
 
@@ -114,16 +117,20 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         // Give snapshot user read permissions on space
         setSnapshotUserPermissions(spaceId);
 
-        // Create URL to call bridge app
-        String snapshotURL = buildSnapshotURL(spaceId, snapshotId);
+        // Create URL for call to bridge app
+        String snapshotURL = buildSnapshotURL(snapshotId);
 
-        log.info("Making SNAPSHOT call to URL: {}", snapshotURL);
+        // Create body for call to bridge app
+        String snapshotBody = buildSnapshotBody(spaceId);
+
+        log.info("Making SNAPSHOT call to URL {} with body {}",
+                 snapshotURL, snapshotBody);
 
         // Make call to DPN bridge ingest app to kick off transfer
         RestHttpHelper restHelper =
             new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
         try {
-            restHelper.post(snapshotURL, null, null);
+            restHelper.put(snapshotURL, snapshotBody, null);
         } catch(Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "initiate snapshot request. " +
@@ -148,12 +155,31 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
 
     /*
      * Create URL to call bridge app
-     * path format: dcHost/dcPort/storeId/spaceId/snapshotId
      */
-    protected String buildSnapshotURL(String spaceId, String snapshotId) {
-        return MessageFormat.format("http://{0}:{1}/snapshot/{2}/{3}/{4}/{5}/{6}",
-                                    bridgeAppHost, bridgeAppPort, dcHost, dcPort,
-                                    dcStoreId, spaceId, snapshotId);
+    protected String buildSnapshotURL(String snapshotId) {
+        return MessageFormat.format("http://{0}:{1}/snapshot/{2}",
+                                    bridgeAppHost, bridgeAppPort, snapshotId);
+    }
+
+    /*
+     * Creates the body of the request that will be send to the bridge app
+     */
+    protected String buildSnapshotBody(String spaceId) {
+        CreateSnapshotBridgeParameters bridgeParams =
+            new CreateSnapshotBridgeParameters();
+        bridgeParams.setHost(dcHost);
+        bridgeParams.setPort(dcPort);
+        bridgeParams.setStoreId(dcStoreId);
+        bridgeParams.setSpaceId(spaceId);
+
+        JaxbJsonSerializer<CreateSnapshotBridgeParameters> serializer =
+            new JaxbJsonSerializer<>(CreateSnapshotBridgeParameters.class);
+        try {
+            return serializer.serialize(bridgeParams);
+        } catch(IOException e) {
+            throw new TaskException("Unable to parse task parameters due to: " +
+                                    e.getMessage());
+        }
     }
 
     /**
@@ -161,9 +187,9 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
      *
      * @param taskParameters - JSON formatted set of parameters
      */
-    protected SnapshotTaskParameters parseTaskParams(String taskParameters) {
-        JaxbJsonSerializer<SnapshotTaskParameters> serializer =
-            new JaxbJsonSerializer<>(SnapshotTaskParameters.class);
+    protected CreateSnapshotTaskParameters parseTaskParams(String taskParameters) {
+        JaxbJsonSerializer<CreateSnapshotTaskParameters> serializer =
+            new JaxbJsonSerializer<>(CreateSnapshotTaskParameters.class);
         try {
             return serializer.deserialize(taskParameters);
         } catch(IOException e) {
@@ -216,12 +242,12 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         String propsChecksum = checksumUtil.generateChecksum(serializedProps);
 
         snapshotProvider.addContent(spaceId,
-                                 Constants.SNAPSHOT_ID,
-                                 "text/x-java-properties",
-                                 null,
-                                 serializedProps.length(),
-                                 propsChecksum,
-                                 propsStream);
+                                    Constants.SNAPSHOT_ID,
+                                    "text/x-java-properties",
+                                    null,
+                                    serializedProps.length(),
+                                    propsChecksum,
+                                    propsStream);
     }
 
     /**
@@ -231,12 +257,12 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
      * @return JSON formatted task result info
      */
     protected String buildTaskResult(String snapshotId) {
-        SnapshotTaskResult taskResult = new SnapshotTaskResult();
+        CreateSnapshotTaskResult taskResult = new CreateSnapshotTaskResult();
         taskResult.setSnapshotId(snapshotId);
 
         // Parse spaceId and snapshot properties from taskParams
-        JaxbJsonSerializer<SnapshotTaskResult> serializer =
-            new JaxbJsonSerializer<>(SnapshotTaskResult.class);
+        JaxbJsonSerializer<CreateSnapshotTaskResult> serializer =
+            new JaxbJsonSerializer<>(CreateSnapshotTaskResult.class);
         try {
             return serializer.serialize(taskResult);
         } catch(IOException e) {

@@ -10,6 +10,7 @@ package org.duracloud.snapshottask.snapshot;
 import org.duracloud.common.model.AclType;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.common.constant.Constants;
+import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -25,7 +26,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
  * @author Bill Branan
@@ -75,14 +78,26 @@ public class CreateSnapshotTaskRunnerTest {
     public void testBuildSnapshotURL() {
         replayMocks();
 
-        String spaceId = "space-id";
         String snapshotId = "snapshot-id";
 
-        String snapshotUrl = taskRunnerCreate.buildSnapshotURL(spaceId, snapshotId);
+        String snapshotUrl = taskRunnerCreate.buildSnapshotURL(snapshotId);
         String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
-                             "/snapshot/" + dcHost + "/" + dcPort +"/" +
-                             dcStoreId + "/" + spaceId + "/" + snapshotId;
+                             "/snapshot/" + snapshotId;
         assertEquals(expectedUrl, snapshotUrl);
+    }
+
+    @Test
+    public void testBuildSnapshotBody() {
+        replayMocks();
+
+        String spaceId = "space-id";
+        String snapshotBody = taskRunnerCreate.buildSnapshotBody(spaceId);
+        String snapBodyNoSpaces = snapshotBody.replaceAll("\\s", "");
+
+        assertThat(snapBodyNoSpaces, containsString("\"host\":\""+dcHost+"\""));
+        assertThat(snapBodyNoSpaces, containsString("\"port\":\""+dcPort+"\""));
+        assertThat(snapBodyNoSpaces, containsString("\"storeId\":\""+dcStoreId+"\""));
+        assertThat(snapBodyNoSpaces, containsString("\"spaceId\":\""+spaceId+"\""));
     }
 
     @Test
@@ -117,7 +132,7 @@ public class CreateSnapshotTaskRunnerTest {
             "{\"spaceId\" : \"test-space\", \"snapshotProperties\" : " +
             "{\"description\" : \"test snapshot\"}}";
 
-        SnapshotTaskParameters taskParams =
+        CreateSnapshotTaskParameters taskParams =
             taskRunnerCreate.parseTaskParams(taskParamsSerialized);
         assertEquals("test-space", taskParams.getSpaceId());
         assertEquals("test snapshot",

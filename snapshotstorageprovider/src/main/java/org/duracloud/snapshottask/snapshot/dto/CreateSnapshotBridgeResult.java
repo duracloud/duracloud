@@ -5,21 +5,21 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshottask.snapshot;
+package org.duracloud.snapshottask.snapshot.dto;
 
 import javax.xml.bind.annotation.XmlValue;
 
 /**
  * @author Bill Branan
- *         Date: 1/30/14
+ *         Date: 7/24/14
  */
-public class SnapshotTaskResult {
-
-    public SnapshotTaskResult() {
-    }
+public class CreateSnapshotBridgeResult {
 
     @XmlValue
     private String snapshotId;
+
+    @XmlValue
+    private String status;
 
     public String getSnapshotId() {
         return snapshotId;
@@ -27,6 +27,14 @@ public class SnapshotTaskResult {
 
     public void setSnapshotId(String snapshotId) {
         this.snapshotId = snapshotId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }

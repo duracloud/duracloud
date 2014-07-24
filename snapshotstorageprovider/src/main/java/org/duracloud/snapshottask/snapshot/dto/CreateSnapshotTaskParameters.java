@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshottask.snapshot;
+package org.duracloud.snapshottask.snapshot.dto;
 
 import javax.xml.bind.annotation.XmlValue;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import java.util.Map;
  * @author Bill Branan
  *         Date: 1/30/14
  */
-public class SnapshotTaskParameters {
+public class CreateSnapshotTaskParameters {
 
     @XmlValue
     private String spaceId;
@@ -23,7 +23,7 @@ public class SnapshotTaskParameters {
     @XmlValue
     private Map<String, String> snapshotProperties;
 
-    public SnapshotTaskParameters() {
+    public CreateSnapshotTaskParameters() {
         snapshotProperties = new HashMap<>();
     }
 
