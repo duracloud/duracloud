@@ -92,7 +92,7 @@ public class CreateSnapshotTaskRunnerTest {
 
         String spaceId = "space-id";
         String snapshotBody = taskRunnerCreate.buildSnapshotBody(spaceId);
-        String snapBodyNoSpaces = snapshotBody.replaceAll("\\s", "");
+        String snapBodyNoSpaces = snapshotBody.replaceAll("\\s+", "");
 
         assertThat(snapBodyNoSpaces, containsString("\"host\":\""+dcHost+"\""));
         assertThat(snapBodyNoSpaces, containsString("\"port\":\""+dcPort+"\""));
@@ -182,9 +182,7 @@ public class CreateSnapshotTaskRunnerTest {
         String snapshotId = "snapshot-id";
         String expectedResult = "{\"snapshotId\":\""+snapshotId+"\"}";
         String result = taskRunnerCreate.buildTaskResult(snapshotId);
-        String cleanResult = result.replaceAll("\n", "")
-                                   .replaceAll("\r", "")
-                                   .replaceAll("\\s+", "");
+        String cleanResult = result.replaceAll("\\s+", "");
         assertEquals(expectedResult, cleanResult);
     }
 
