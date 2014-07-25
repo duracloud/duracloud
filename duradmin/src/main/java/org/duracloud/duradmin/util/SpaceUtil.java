@@ -7,19 +7,6 @@
  */
 package org.duracloud.duradmin.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
@@ -33,7 +20,6 @@ import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.domain.ContentProperties;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
-import org.duracloud.duradmin.security.RootAuthentication;
 import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
@@ -41,8 +27,18 @@ import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides utility methods for spaces.
@@ -65,7 +61,7 @@ public class SpaceUtil {
         space.setAcls(toAclList(spaceAcls));
 
         if (isAdmin(authentication)
-            && isChronopolis(contentStore)
+            && isSnapshotProvider(contentStore)
             && isSnapshotInProgress(contentStore, space.getSpaceId())) {
             space.setSnapshotInProgress(true);
         }
@@ -212,7 +208,7 @@ public class SpaceUtil {
         
         if(snapshotInProgress == null){
             snapshotInProgress = false;
-    	    if(isChronopolis(store)){
+    	    if(isSnapshotProvider(store)){
     	        snapshotInProgress = isSnapshotInProgress(store,spaceId);
     	    }
         }
@@ -256,8 +252,8 @@ public class SpaceUtil {
         } //do nothing - no snapshot in progress
     }
 
-    protected static boolean isChronopolis(ContentStore store) {
-        return store.getStorageProviderType().equals(StorageProviderType.CHRON_STAGE.name());
+    protected static boolean isSnapshotProvider(ContentStore store) {
+        return store.getStorageProviderType().equals(StorageProviderType.SNAPSHOT.name());
     }
 	
     public static boolean isAdmin(Authentication authentication) {

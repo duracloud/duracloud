@@ -231,7 +231,7 @@
     </dependency>
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>chronstagestorageprovider</artifactId>
+      <artifactId>snapshotstorageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
 

@@ -7,14 +7,6 @@
  */
 package org.duracloud.security.vote;
 
-import static org.duracloud.security.vote.VoterUtil.debugText;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
@@ -29,6 +21,13 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static org.duracloud.security.vote.VoterUtil.debugText;
 
 /**
  * This class decides if a caller has WRITE access to a given resource. If the
@@ -169,7 +168,7 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
 
        for(StorageAccount account : accounts){
            if(account.getId().equals(storeId)){
-               if(account.getType().equals(StorageProviderType.CHRON_STAGE)){
+               if(account.getType().equals(StorageProviderType.SNAPSHOT)){
                    StorageProvider store = factory.getStorageProvider(storeId);
                    try{
                        String spaceId = getSpaceId(httpRequest);

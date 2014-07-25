@@ -8,16 +8,7 @@
 
 package org.duracloud.duradmin.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import junit.framework.Assert;
-
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.model.AclType;
 import org.duracloud.duradmin.domain.Acl;
@@ -30,6 +21,14 @@ import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 /**
  * 
  * @author Daniel Bernstein
@@ -152,8 +151,8 @@ public class SpaceUtilTest {
     }
 
     @Test
-    public void testChronopolisSnashotInProgress() throws Exception{
-        expectGetStorageProviderType(StorageProviderType.CHRON_STAGE);
+    public void testSnashotInProgress() throws Exception{
+        expectGetStorageProviderType(StorageProviderType.SNAPSHOT);
         EasyMock.expect(this.contentStore.getContentProperties(
                                                EasyMock.isA(String.class),
                                                EasyMock.isA(String.class)))
