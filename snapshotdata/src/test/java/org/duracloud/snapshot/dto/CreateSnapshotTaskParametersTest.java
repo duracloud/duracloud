@@ -5,9 +5,9 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshottask.snapshot.dto;
+package org.duracloud.snapshot.dto;
 
-import org.duracloud.storage.error.TaskException;
+import org.duracloud.snapshot.error.SnapshotDataException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -42,14 +42,14 @@ public class CreateSnapshotTaskParametersTest {
         try {
             CreateSnapshotTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
-        } catch(TaskException e) {
+        } catch(SnapshotDataException e) {
         }
 
         // Verify that empty params throw
         try {
             CreateSnapshotTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
-        } catch(TaskException e) {
+        } catch(SnapshotDataException e) {
         }
     }
 

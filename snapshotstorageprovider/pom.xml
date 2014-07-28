@@ -17,6 +17,12 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>snapshotdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>s3storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -32,12 +38,6 @@
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>  
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>common-json</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
   </dependencies>
 </project>

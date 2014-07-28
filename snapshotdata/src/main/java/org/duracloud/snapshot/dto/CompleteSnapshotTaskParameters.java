@@ -5,10 +5,10 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshottask.snapshot.dto;
+package org.duracloud.snapshot.dto;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.storage.error.TaskException;
+import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
 import java.io.IOException;
@@ -50,12 +50,13 @@ public class CompleteSnapshotTaskParameters {
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
             if(null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
-                throw new TaskException("Task parameter values may not be empty");
+                throw new SnapshotDataException(
+                    "Task parameter values may not be empty");
             }
             return params;
         } catch(IOException e) {
-            throw new TaskException("Unable to parse task parameters due to: " +
-                                    e.getMessage());
+            throw new SnapshotDataException(
+                "Unable to parse task parameters due to: " + e.getMessage());
         }
     }
 

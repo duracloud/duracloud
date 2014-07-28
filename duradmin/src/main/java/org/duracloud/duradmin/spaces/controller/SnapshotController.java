@@ -17,7 +17,7 @@ import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.security.DuracloudUserDetailsService;
-import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.CreateSnapshotTaskParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

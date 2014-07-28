@@ -5,10 +5,10 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshottask.snapshot.dto;
+package org.duracloud.snapshot.dto;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.storage.error.TaskException;
+import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
 import java.io.IOException;
@@ -48,8 +48,8 @@ public class CreateSnapshotTaskResult {
         try {
             return serializer.serialize(this);
         } catch(IOException e) {
-            throw new TaskException("Unable to create task result due to: " +
-                                    e.getMessage());
+            throw new SnapshotDataException(
+                "Unable to create task result due to: " + e.getMessage());
         }
     }
 

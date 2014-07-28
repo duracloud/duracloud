@@ -9,8 +9,8 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
+import org.duracloud.snapshot.dto.CreateSnapshotTaskParameters;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
-import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;

@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshottask.snapshot.dto;
+package org.duracloud.snapshot.dto;
 
 import org.junit.Test;
 

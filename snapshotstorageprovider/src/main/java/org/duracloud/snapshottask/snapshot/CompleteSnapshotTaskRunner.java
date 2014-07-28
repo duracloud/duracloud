@@ -9,9 +9,9 @@ package org.duracloud.snapshottask.snapshot;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
+import org.duracloud.snapshot.dto.CompleteSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.CompleteSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
-import org.duracloud.snapshottask.snapshot.dto.CompleteSnapshotTaskParameters;
-import org.duracloud.snapshottask.snapshot.dto.CompleteSnapshotTaskResult;
 import org.duracloud.storage.provider.TaskRunner;
 
 import java.util.ArrayList;
