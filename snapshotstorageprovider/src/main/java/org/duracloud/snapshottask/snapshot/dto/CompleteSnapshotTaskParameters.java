@@ -15,9 +15,9 @@ import java.io.IOException;
 
 /**
  * @author Bill Branan
- *         Date: 1/30/14
+ *         Date: 7/25/14
  */
-public class CreateSnapshotTaskParameters {
+public class CompleteSnapshotTaskParameters {
 
     /**
      * The ID of the space in which the content to snapshot resides
@@ -25,20 +25,8 @@ public class CreateSnapshotTaskParameters {
     @XmlValue
     private String spaceId;
 
-    /**
-     * User-supplied description of the snapshot
-     */
-    @XmlValue
-    private String description;
-
-    /**
-     * The email address of the user, will be used for snapshot notifications
-     */
-    @XmlValue
-    private String userEmail;
-
     // Required by JAXB
-    public CreateSnapshotTaskParameters() {
+    public CompleteSnapshotTaskParameters() {
     }
 
     public String getSpaceId() {
@@ -49,37 +37,19 @@ public class CreateSnapshotTaskParameters {
         this.spaceId = spaceId;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
     /**
      * Parses properties from task parameter string
      *
      * @param taskParameters - JSON formatted set of parameters
      */
-    public static CreateSnapshotTaskParameters deserialize(String taskParameters) {
-        JaxbJsonSerializer<CreateSnapshotTaskParameters> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotTaskParameters.class);
+    public static CompleteSnapshotTaskParameters deserialize(String taskParameters) {
+        JaxbJsonSerializer<CompleteSnapshotTaskParameters> serializer =
+            new JaxbJsonSerializer<>(CompleteSnapshotTaskParameters.class);
         try {
-            CreateSnapshotTaskParameters params =
+            CompleteSnapshotTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(null == params.getSpaceId() || params.getSpaceId().isEmpty() ||
-               null == params.getDescription() || params.getDescription().isEmpty() ||
-               null == params.getUserEmail() || params.getUserEmail().isEmpty()) {
+            if(null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
                 throw new TaskException("Task parameter values may not be empty");
             }
             return params;

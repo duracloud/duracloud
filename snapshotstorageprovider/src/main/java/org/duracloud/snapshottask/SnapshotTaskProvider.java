@@ -7,6 +7,8 @@
  */
 package org.duracloud.snapshottask;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.snapshottask.snapshot.CompleteSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.CreateSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetRestoreStatusTaskRunner;
@@ -14,7 +16,6 @@ import org.duracloud.snapshottask.snapshot.GetSnapshotContentsTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotStatusTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotsTaskRunner;
 import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
-import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SnapshotTaskProvider extends TaskProviderBase {
 
-    public SnapshotTaskProvider(StorageProvider snapshotProvider,
+    public SnapshotTaskProvider(SnapshotStorageProvider snapshotProvider,
+                                AmazonS3Client s3Client,
                                 String dcHost,
                                 String dcPort,
                                 String dcStoreId,
@@ -37,17 +39,17 @@ public class SnapshotTaskProvider extends TaskProviderBase {
         log = LoggerFactory.getLogger(SnapshotTaskProvider.class);
 
         taskList.add(new CreateSnapshotTaskRunner(snapshotProvider,
-                                            dcHost,
-                                            dcPort,
-                                            dcStoreId,
-                                            dcAccountName,
-                                            dcSnapshotUser,
-                                            bridgeHost,
-                                            bridgePort,
-                                            bridgeUser,
-                                            bridgePass));
+                                                  dcHost,
+                                                  dcPort,
+                                                  dcStoreId,
+                                                  dcAccountName,
+                                                  dcSnapshotUser,
+                                                  bridgeHost,
+                                                  bridgePort,
+                                                  bridgeUser,
+                                                  bridgePass));
         taskList.add(new GetSnapshotStatusTaskRunner());
-        taskList.add(new CompleteSnapshotTaskRunner());
+        taskList.add(new CompleteSnapshotTaskRunner(snapshotProvider, s3Client));
         taskList.add(new GetSnapshotsTaskRunner());
         taskList.add(new GetSnapshotContentsTaskRunner());
         taskList.add(new RestoreSnapshotTaskRunner());

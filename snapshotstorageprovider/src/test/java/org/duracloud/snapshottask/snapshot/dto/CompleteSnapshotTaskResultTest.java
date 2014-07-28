@@ -1,0 +1,31 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
+package org.duracloud.snapshottask.snapshot.dto;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
+/**
+ * @author Bill Branan
+ *         Date: 7/25/14
+ */
+public class CompleteSnapshotTaskResultTest {
+
+    @Test
+    public void testSerialize() {
+        int expirationDays = 42;
+        String result = new CompleteSnapshotTaskResult(expirationDays).serialize();
+        String cleanResult = result.replaceAll("\\s+", "");
+        assertThat(cleanResult,
+                   containsString("\"contentExpirationDays\":"+expirationDays));
+
+    }
+
+}

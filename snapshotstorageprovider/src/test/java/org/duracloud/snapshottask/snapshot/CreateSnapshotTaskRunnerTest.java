@@ -7,9 +7,9 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
-import org.duracloud.common.constant.Constants;
 import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -54,9 +54,10 @@ public class CreateSnapshotTaskRunnerTest {
         snapshotProvider = EasyMock.createMock("SnapshotStorageProvider",
                                                SnapshotStorageProvider.class);
         taskRunnerCreate =
-            new CreateSnapshotTaskRunner(snapshotProvider, dcHost, dcPort, dcStoreId,
-                                   dcAccountName, dcSnapshotUser, bridgeHost,
-                                   bridgePort, bridgeUser, bridgePass);
+            new CreateSnapshotTaskRunner(snapshotProvider, dcHost, dcPort,
+                                         dcStoreId, dcAccountName,
+                                         dcSnapshotUser, bridgeHost,
+                                         bridgePort, bridgeUser, bridgePass);
     }
 
     private void replayMocks() {
@@ -99,15 +100,15 @@ public class CreateSnapshotTaskRunnerTest {
         taskParams.setDescription(description);
         taskParams.setUserEmail(userEmail);
 
-        String snapshotBody = taskRunnerCreate.buildSnapshotBody(taskParams);
-        String snapBodyNoSpaces = snapshotBody.replaceAll("\\s+", "");
+        String result = taskRunnerCreate.buildSnapshotBody(taskParams);
+        String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(snapBodyNoSpaces, containsString("\"host\":\""+dcHost+"\""));
-        assertThat(snapBodyNoSpaces, containsString("\"port\":\""+dcPort+"\""));
-        assertThat(snapBodyNoSpaces, containsString("\"storeId\":\""+dcStoreId+"\""));
-        assertThat(snapBodyNoSpaces, containsString("\"spaceId\":\""+spaceId+"\""));
-        assertThat(snapBodyNoSpaces, containsString("\"description\":\""+description+"\""));
-        assertThat(snapBodyNoSpaces, containsString("\"userEmail\":\""+userEmail+"\""));
+        assertThat(cleanResult, containsString("\"host\":\""+dcHost+"\""));
+        assertThat(cleanResult, containsString("\"port\":\""+dcPort+"\""));
+        assertThat(cleanResult, containsString("\"storeId\":\""+dcStoreId+"\""));
+        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
+        assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
+        assertThat(cleanResult, containsString("\"userEmail\":\""+userEmail+"\""));
     }
 
     @Test
@@ -132,22 +133,6 @@ public class CreateSnapshotTaskRunnerTest {
         assertEquals(capSpaceACLs.get(aclUserName), aclValue);
         String user = StorageProvider.PROPERTIES_SPACE_ACL + dcSnapshotUser;
         assertEquals(capSpaceACLs.get(user), AclType.READ);
-    }
-
-    @Test
-    public void testParseTaskParams() {
-        replayMocks();
-
-        String taskParamsSerialized =
-            "{\"spaceId\" : \"test-space\"," +
-            " \"description\" : \"test snapshot\"," +
-            " \"userEmail\" : \"yo@myemail.com\"}";
-
-        CreateSnapshotTaskParameters taskParams =
-            taskRunnerCreate.parseTaskParams(taskParamsSerialized);
-        assertEquals("test-space", taskParams.getSpaceId());
-        assertEquals("test snapshot", taskParams.getDescription());
-        assertEquals("yo@myemail.com", taskParams.getUserEmail());
     }
 
     @Test
@@ -184,17 +169,6 @@ public class CreateSnapshotTaskRunnerTest {
         replayMocks();
 
         taskRunnerCreate.storeSnapshotProps(spaceId, props);
-    }
-
-    @Test
-    public void testBuildTaskResult() {
-        replayMocks();
-
-        String snapshotId = "snapshot-id";
-        String expectedResult = "{\"snapshotId\":\""+snapshotId+"\"}";
-        String result = taskRunnerCreate.buildTaskResult(snapshotId);
-        String cleanResult = result.replaceAll("\\s+", "");
-        assertEquals(expectedResult, cleanResult);
     }
 
 }

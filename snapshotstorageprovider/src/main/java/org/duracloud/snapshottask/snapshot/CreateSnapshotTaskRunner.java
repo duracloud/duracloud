@@ -8,7 +8,6 @@
 package org.duracloud.snapshottask.snapshot;
 
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.util.ChecksumUtil;
@@ -16,6 +15,7 @@ import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotBridgeParameters;
+import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotBridgeResult;
 import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskParameters;
 import org.duracloud.snapshottask.snapshot.dto.CreateSnapshotTaskResult;
 import org.duracloud.storage.error.TaskException;
@@ -92,7 +92,8 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                                bridgeAppUser});
 
         // Get input params
-        CreateSnapshotTaskParameters taskParams = parseTaskParams(taskParameters);
+        CreateSnapshotTaskParameters taskParams =
+            CreateSnapshotTaskParameters.deserialize(taskParameters);
         String spaceId = taskParams.getSpaceId();
 
         // Generate snapshot ID
@@ -133,7 +134,21 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         RestHttpHelper restHelper =
             new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
         try {
-            restHelper.put(snapshotURL, snapshotBody, null);
+            RestHttpHelper.HttpResponse response =
+                restHelper.put(snapshotURL, snapshotBody, null);
+
+            int statusCode = response.getStatusCode();
+            if(statusCode != 200 && statusCode != 201) {
+                throw new RuntimeException("Unexpected response code: " +
+                                           statusCode);
+            }
+
+            String responseBody = response.getResponseBody();
+            CreateSnapshotBridgeResult bridgeResult =
+                CreateSnapshotBridgeResult.deserialize(responseBody);
+            log.info("SNAPSHOT created with ID {} and status {}",
+                     bridgeResult.getSnapshotId(),
+                     bridgeResult.getStatus());
         } catch(Exception e) {
             throw new TaskException("Exception encountered attempting to " +
                                     "initiate snapshot request. " +
@@ -142,7 +157,7 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
 
         log.info("SNAPSHOT with ID {} completed successfully ", snapshotId);
 
-        return buildTaskResult(snapshotId);
+        return new CreateSnapshotTaskResult(snapshotId).serialize();
     }
 
     /*
@@ -174,38 +189,11 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
      */
     protected String buildSnapshotBody(CreateSnapshotTaskParameters taskParams) {
         CreateSnapshotBridgeParameters bridgeParams =
-            new CreateSnapshotBridgeParameters();
-        bridgeParams.setHost(dcHost);
-        bridgeParams.setPort(dcPort);
-        bridgeParams.setStoreId(dcStoreId);
-        bridgeParams.setSpaceId(taskParams.getSpaceId());
-        bridgeParams.setDescription(taskParams.getDescription());
-        bridgeParams.setUserEmail(taskParams.getUserEmail());
-
-        JaxbJsonSerializer<CreateSnapshotBridgeParameters> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotBridgeParameters.class);
-        try {
-            return serializer.serialize(bridgeParams);
-        } catch(IOException e) {
-            throw new TaskException("Unable to parse task parameters due to: " +
-                                    e.getMessage());
-        }
-    }
-
-    /**
-     * Parses spaceId and snapshot properties from task parameter string
-     *
-     * @param taskParameters - JSON formatted set of parameters
-     */
-    protected CreateSnapshotTaskParameters parseTaskParams(String taskParameters) {
-        JaxbJsonSerializer<CreateSnapshotTaskParameters> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotTaskParameters.class);
-        try {
-            return serializer.deserialize(taskParameters);
-        } catch(IOException e) {
-            throw new TaskException("Unable to parse task parameters due to: " +
-                                    e.getMessage());
-        }
+            new CreateSnapshotBridgeParameters(dcHost, dcPort, dcStoreId,
+                                               taskParams.getSpaceId(),
+                                               taskParams.getDescription(),
+                                               taskParams.getUserEmail());
+        return bridgeParams.serialize();
     }
 
     /**
@@ -258,27 +246,6 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                                     serializedProps.length(),
                                     propsChecksum,
                                     propsStream);
-    }
-
-    /**
-     * Creates a serialized version of task results
-     *
-     * @param snapshotId
-     * @return JSON formatted task result info
-     */
-    protected String buildTaskResult(String snapshotId) {
-        CreateSnapshotTaskResult taskResult = new CreateSnapshotTaskResult();
-        taskResult.setSnapshotId(snapshotId);
-
-        // Parse spaceId and snapshot properties from taskParams
-        JaxbJsonSerializer<CreateSnapshotTaskResult> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotTaskResult.class);
-        try {
-            return serializer.serialize(taskResult);
-        } catch(IOException e) {
-            throw new TaskException("Unable to create task result due to: " +
-                                    e.getMessage());
-        }
     }
 
 }

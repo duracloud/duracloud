@@ -7,7 +7,11 @@
  */
 package org.duracloud.snapshottask.snapshot.dto;
 
+import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.storage.error.TaskException;
+
 import javax.xml.bind.annotation.XmlValue;
+import java.io.IOException;
 
 /**
  * @author Bill Branan
@@ -15,23 +19,55 @@ import javax.xml.bind.annotation.XmlValue;
  */
 public class CreateSnapshotBridgeParameters {
 
+    /**
+     * The host name of the DuraCloud instance
+     */
     @XmlValue
     private String host;
 
+    /**
+     * The port on which DuraCloud is available
+     */
     @XmlValue
     private String port;
 
+    /**
+     * The ID of the storage provider where the snapshot space can be found
+     */
     @XmlValue
     private String storeId;
 
+    /**
+     * The ID of the space in which the content to snapshot resides
+     */
     @XmlValue
     private String spaceId;
 
+    /**
+     * User-supplied description of the snapshot
+     */
     @XmlValue
     private String description;
 
+    /**
+     * The email address of the user, will be used for snapshot notifications
+     */
     @XmlValue
     private String userEmail;
+
+    public CreateSnapshotBridgeParameters(String host,
+                                          String port,
+                                          String storeId,
+                                          String spaceId,
+                                          String description,
+                                          String userEmail) {
+        this.host = host;
+        this.port = port;
+        this.storeId = storeId;
+        this.spaceId = spaceId;
+        this.description = description;
+        this.userEmail = userEmail;
+    }
 
     public String getHost() {
         return host;
@@ -79,6 +115,22 @@ public class CreateSnapshotBridgeParameters {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    /**
+     * Creates a serialized version of bridge parameters
+     *
+     * @return JSON formatted bridge info
+     */
+    public String serialize() {
+        JaxbJsonSerializer<CreateSnapshotBridgeParameters> serializer =
+            new JaxbJsonSerializer<>(CreateSnapshotBridgeParameters.class);
+        try {
+            return serializer.serialize(this);
+        } catch(IOException e) {
+            throw new TaskException("Unable to create task result due to: " +
+                                    e.getMessage());
+        }
     }
 
 }

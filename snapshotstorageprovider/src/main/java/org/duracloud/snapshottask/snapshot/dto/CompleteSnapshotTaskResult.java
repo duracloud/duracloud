@@ -15,26 +15,26 @@ import java.io.IOException;
 
 /**
  * @author Bill Branan
- *         Date: 1/30/14
+ *         Date: 7/25/14
  */
-public class CreateSnapshotTaskResult {
+public class CompleteSnapshotTaskResult {
 
     /**
-     * The ID which has been assigned to the snapshot
+     * The number of days before content expires
      */
     @XmlValue
-    private String snapshotId;
+    private int contentExpirationDays;
 
-    public CreateSnapshotTaskResult(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public CompleteSnapshotTaskResult(int contentExpirationDays) {
+        this.contentExpirationDays = contentExpirationDays;
     }
 
-    public String getSnapshotId() {
-        return snapshotId;
+    public int getContentExpirationDays() {
+        return contentExpirationDays;
     }
 
-    public void setSnapshotId(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public void setContentExpirationDays(int contentExpirationDays) {
+        this.contentExpirationDays = contentExpirationDays;
     }
 
     /**
@@ -43,8 +43,8 @@ public class CreateSnapshotTaskResult {
      * @return JSON formatted task result info
      */
     public String serialize() {
-        JaxbJsonSerializer<CreateSnapshotTaskResult> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotTaskResult.class);
+        JaxbJsonSerializer<CompleteSnapshotTaskResult> serializer =
+            new JaxbJsonSerializer<>(CompleteSnapshotTaskResult.class);
         try {
             return serializer.serialize(this);
         } catch(IOException e) {

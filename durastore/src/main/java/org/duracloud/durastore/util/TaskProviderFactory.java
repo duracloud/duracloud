@@ -8,17 +8,17 @@
 package org.duracloud.durastore.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.duracloud.snapshottask.SnapshotTaskProvider;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.glaciertask.GlacierTaskProvider;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3task.S3TaskProvider;
+import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.snapshottask.SnapshotTaskProvider;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.TaskException;
-import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.jets3t.service.CloudFrontService;
@@ -86,8 +86,10 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                 S3ProviderUtil.getAmazonS3Client(username, password);
             taskProvider = new GlacierTaskProvider(glacierProvider, s3Client);
         } else if (type.equals(StorageProviderType.SNAPSHOT)) {
-            StorageProvider storageProvider =
-                storageProviderFactory.getStorageProvider(storageAccountId);
+            SnapshotStorageProvider snapshotProvider =
+                new SnapshotStorageProvider(username, password);
+            AmazonS3Client s3Client =
+                S3ProviderUtil.getAmazonS3Client(username, password);
 
             String dcHost = storageAccountManager.getInstanceHost();
             String dcPort = storageAccountManager.getInstancePort();
@@ -103,7 +105,8 @@ public class TaskProviderFactory extends ProviderFactoryBase {
             String bridgePass =
                 account.getOptions().get(StorageAccount.OPTS.BRIDGE_PASS.name());
 
-            taskProvider = new SnapshotTaskProvider(storageProvider,
+            taskProvider = new SnapshotTaskProvider(snapshotProvider,
+                                                    s3Client,
                                                     dcHost,
                                                     dcPort,
                                                     storageAccountId,
