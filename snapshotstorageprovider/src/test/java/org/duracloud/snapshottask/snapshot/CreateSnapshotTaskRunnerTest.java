@@ -9,8 +9,14 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.util.IOUtil;
+import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.dto.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.CreateSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.CreateSnapshotTaskResult;
+import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -28,6 +34,7 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
@@ -37,7 +44,8 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 public class CreateSnapshotTaskRunnerTest {
 
     private SnapshotStorageProvider snapshotProvider;
-    private CreateSnapshotTaskRunner taskRunnerCreate;
+    private RestHttpHelper restHelper;
+    private CreateSnapshotTaskRunner taskRunner;
 
     private String dcHost = "instance-host";
     private String dcPort = "instance-port";
@@ -53,7 +61,8 @@ public class CreateSnapshotTaskRunnerTest {
     public void setup() {
         snapshotProvider = EasyMock.createMock("SnapshotStorageProvider",
                                                SnapshotStorageProvider.class);
-        taskRunnerCreate =
+        restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
+        taskRunner =
             new CreateSnapshotTaskRunner(snapshotProvider, dcHost, dcPort,
                                          dcStoreId, dcAccountName,
                                          dcSnapshotUser, bridgeHost,
@@ -61,18 +70,18 @@ public class CreateSnapshotTaskRunnerTest {
     }
 
     private void replayMocks() {
-        EasyMock.replay(snapshotProvider);
+        EasyMock.replay(snapshotProvider, restHelper);
     }
 
     @After
     public void tearDown() throws IOException {
-        EasyMock.verify(snapshotProvider);
+        EasyMock.verify(snapshotProvider, restHelper);
     }
 
     @Test
     public void testGetName() {
         replayMocks();
-        assertEquals("create-snapshot", taskRunnerCreate.getName());
+        assertEquals("create-snapshot", taskRunner.getName());
     }
 
     @Test
@@ -81,7 +90,7 @@ public class CreateSnapshotTaskRunnerTest {
 
         String snapshotId = "snapshot-id";
 
-        String snapshotUrl = taskRunnerCreate.buildSnapshotURL(snapshotId);
+        String snapshotUrl = taskRunner.buildSnapshotURL(snapshotId);
         String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
                              "/bridge/snapshot/" + snapshotId;
         assertEquals(expectedUrl, snapshotUrl);
@@ -100,7 +109,7 @@ public class CreateSnapshotTaskRunnerTest {
         taskParams.setDescription(description);
         taskParams.setUserEmail(userEmail);
 
-        String result = taskRunnerCreate.buildSnapshotBody(taskParams);
+        String result = taskRunner.buildSnapshotBody(taskParams);
         String cleanResult = result.replaceAll("\\s+", "");
 
         assertThat(cleanResult, containsString("\"host\":\""+dcHost+"\""));
@@ -128,7 +137,7 @@ public class CreateSnapshotTaskRunnerTest {
 
         replayMocks();
 
-        taskRunnerCreate.setSnapshotUserPermissions(spaceId);
+        taskRunner.setSnapshotUserPermissions(spaceId);
         Map<String, AclType> capSpaceACLs = spaceACLsCapture.getValue();
         assertEquals(capSpaceACLs.get(aclUserName), aclValue);
         String user = StorageProvider.PROPERTIES_SPACE_ACL + dcSnapshotUser;
@@ -142,7 +151,7 @@ public class CreateSnapshotTaskRunnerTest {
         Map<String, String> propsMap = new HashMap<>();
         propsMap.put("one", "two");
         propsMap.put("three", "four");
-        String props = taskRunnerCreate.buildSnapshotProps(propsMap);
+        String props = taskRunner.buildSnapshotProps(propsMap);
         assertTrue(props.contains("one=two"));
         assertTrue(props.contains("three=four"));
 
@@ -168,7 +177,55 @@ public class CreateSnapshotTaskRunnerTest {
                 .andReturn("success!");
         replayMocks();
 
-        taskRunnerCreate.storeSnapshotProps(spaceId, props);
+        taskRunner.storeSnapshotProps(spaceId, props);
+    }
+
+    @Test
+    public void testCallBridgeSuccess() throws Exception {
+        String snapshotId = "snapshot-id";
+        String snapshotURL = "snapshot-url";
+        String snapshotBody = "snapshot-body";
+
+        CreateSnapshotBridgeResult bridgeResult =
+            new CreateSnapshotBridgeResult(snapshotId,
+                                           SnapshotStatus.INITIALIZED);
+        InputStream resultStream =
+            IOUtil.writeStringToStream(bridgeResult.serialize());
+
+        RestHttpHelper.HttpResponse response =
+            new RestHttpHelper.HttpResponse(201, null, null, resultStream);
+        EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, null))
+                .andReturn(response);
+
+        replayMocks();
+
+        String callResult =
+            taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
+
+        CreateSnapshotTaskResult taskResult =
+            CreateSnapshotTaskResult.deserialize(callResult);
+        assertEquals(snapshotId, taskResult.getSnapshotId());
+        assertEquals(SnapshotStatus.INITIALIZED, taskResult.getStatus());
+    }
+
+    @Test
+    public void testCallBridgeFailure() throws Exception {
+        String snapshotURL = "snapshot-url";
+        String snapshotBody = "snapshot-body";
+
+        InputStream resultStream = IOUtil.writeStringToStream("Error");
+        RestHttpHelper.HttpResponse response =
+            new RestHttpHelper.HttpResponse(500, null, null, resultStream);
+        EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, null))
+                .andReturn(response);
+
+        replayMocks();
+
+        try {
+            taskRunner.callBridge(restHelper, snapshotURL, snapshotBody);
+            fail("Exception expected on 500 response");
+        } catch(TaskException e) {
+        }
     }
 
 }

@@ -13,23 +13,19 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 import java.io.IOException;
 
 /**
- * Result of calling create snapshot task.
- *
- * Note: The task result currently mirrors the bridge result
- *
  * @author Bill Branan
- *         Date: 1/30/14
+ *         Date: 7/29/14
  */
-public class CreateSnapshotTaskResult extends CreateSnapshotBridgeResult {
+public class GetSnapshotListTaskResult extends GetSnapshotListBridgeResult {
 
     /**
      * Parses properties from task result
      *
      * @param taskResult - JSON formatted set of properties
      */
-    public static CreateSnapshotTaskResult deserialize(String taskResult) {
-        JaxbJsonSerializer<CreateSnapshotTaskResult> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotTaskResult.class);
+    public static GetSnapshotListTaskResult deserialize(String taskResult) {
+        JaxbJsonSerializer<GetSnapshotListTaskResult> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotListTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
         } catch(IOException e) {

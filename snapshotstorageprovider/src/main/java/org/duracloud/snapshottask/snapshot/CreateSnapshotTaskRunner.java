@@ -17,7 +17,6 @@ import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.dto.CreateSnapshotBridgeParameters;
 import org.duracloud.snapshot.dto.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.CreateSnapshotTaskParameters;
-import org.duracloud.snapshot.dto.CreateSnapshotTaskResult;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
@@ -127,37 +126,19 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         // Create body for call to bridge app
         String snapshotBody = buildSnapshotBody(taskParams);
 
-        log.info("Making SNAPSHOT call to URL {} with body {}",
-                 snapshotURL, snapshotBody);
-
         // Make call to DPN bridge ingest app to kick off transfer
         RestHttpHelper restHelper =
             new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
-        try {
-            RestHttpHelper.HttpResponse response =
-                restHelper.put(snapshotURL, snapshotBody, null);
+        String callResult =
+            callBridge(restHelper, snapshotURL, snapshotBody);
 
-            int statusCode = response.getStatusCode();
-            if(statusCode != 200 && statusCode != 201) {
-                throw new RuntimeException("Unexpected response code: " +
-                                           statusCode);
-            }
+        CreateSnapshotBridgeResult bridgeResult =
+            CreateSnapshotBridgeResult.deserialize(callResult);
+        log.info("SNAPSHOT created with ID {} and status {}",
+                 bridgeResult.getSnapshotId(),
+                 bridgeResult.getStatus());
 
-            String responseBody = response.getResponseBody();
-            CreateSnapshotBridgeResult bridgeResult =
-                CreateSnapshotBridgeResult.deserialize(responseBody);
-            log.info("SNAPSHOT created with ID {} and status {}",
-                     bridgeResult.getSnapshotId(),
-                     bridgeResult.getStatus());
-        } catch(Exception e) {
-            throw new TaskException("Exception encountered attempting to " +
-                                    "initiate snapshot request. " +
-                                    "Error reported: " + e.getMessage(), e);
-        }
-
-        log.info("SNAPSHOT with ID {} completed successfully ", snapshotId);
-
-        return new CreateSnapshotTaskResult(snapshotId).serialize();
+        return callResult;
     }
 
     /*
@@ -175,10 +156,7 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
      * Create URL to call bridge app
      */
     protected String buildSnapshotURL(String snapshotId) {
-        String protocol = "http";
-        if("443".equals(bridgeAppPort)) {
-            protocol = "https";
-        }
+        String protocol = "443".equals(bridgeAppPort) ? "https" : "http";
         return MessageFormat.format("{0}://{1}:{2}/bridge/snapshot/{3}",
                                     protocol, bridgeAppHost, bridgeAppPort,
                                     snapshotId);
@@ -246,6 +224,31 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                                     serializedProps.length(),
                                     propsChecksum,
                                     propsStream);
+    }
+
+    /*
+     * Calls the bridge application to create a snapshot
+     */
+    protected String callBridge(RestHttpHelper restHelper,
+                                String snapshotURL,
+                                String snapshotBody) {
+        log.info("Making SNAPSHOT call to URL {} with body {}",
+                 snapshotURL, snapshotBody);
+
+        try {
+            RestHttpHelper.HttpResponse response =
+                restHelper.put(snapshotURL, snapshotBody, null);
+            int statusCode = response.getStatusCode();
+            if(statusCode != 200 && statusCode != 201) {
+                throw new RuntimeException("Unexpected response code: " +
+                                           statusCode);
+            }
+            return response.getResponseBody();
+        } catch(Exception e) {
+            throw new TaskException("Exception encountered attempting to " +
+                                    "initiate snapshot request. " +
+                                    "Error reported: " + e.getMessage(), e);
+        }
     }
 
 }

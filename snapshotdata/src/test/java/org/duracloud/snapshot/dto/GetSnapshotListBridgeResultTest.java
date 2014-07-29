@@ -7,10 +7,14 @@
  */
 package org.duracloud.snapshot.dto;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 
 /**
@@ -19,7 +23,35 @@ import org.junit.Test;
  */
 public class GetSnapshotListBridgeResultTest {
 
+    @Test
+    public void testSerialize() {
+        SnapshotSummary summary1 =
+            new SnapshotSummary("id-1", SnapshotStatus.SNAPSHOT_COMPLETE, "desc-1");
+        List<SnapshotSummary> summaries = new ArrayList<>();
+        summaries.add(summary1);
 
+        String result = new GetSnapshotListBridgeResult(summaries).serialize();
+        verifySummary(result, "id-1", SnapshotStatus.SNAPSHOT_COMPLETE.name(), "desc-1");
+
+        SnapshotSummary summary2 =
+            new SnapshotSummary("id-2", SnapshotStatus.WAITING_FOR_DPN, "desc-2");
+        summaries.add(summary2);
+
+        result = new GetSnapshotListBridgeResult(summaries).serialize();
+        verifySummary(result, "id-1", SnapshotStatus.SNAPSHOT_COMPLETE.name(), "desc-1");
+        verifySummary(result, "id-2", SnapshotStatus.SNAPSHOT_COMPLETE.name(), "desc-2");
+    }
+
+    private void verifySummary(String result, String id,
+                               String status, String description) {
+        String cleanResult = result.replaceAll("\\s+", "");
+
+        assertThat(cleanResult, containsString("\"snapshotId\":\""+id+"\""));
+        assertThat(cleanResult,
+                   containsString("\"status\":\""+status+"\""));
+        assertThat(cleanResult,
+                   containsString("\"description\":\""+description+"\""));
+    }
     
     @Test
     public void testDeSerialize(){

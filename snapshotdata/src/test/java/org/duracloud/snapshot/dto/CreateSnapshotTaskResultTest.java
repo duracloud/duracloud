@@ -9,6 +9,7 @@ package org.duracloud.snapshot.dto;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
@@ -21,10 +22,32 @@ public class CreateSnapshotTaskResultTest {
     @Test
     public void testSerialize() {
         String snapshotId = "snapshot-id";
-        String result = new CreateSnapshotTaskResult(snapshotId).serialize();
+        SnapshotStatus status = SnapshotStatus.INITIALIZED;
+
+        CreateSnapshotTaskResult taskResult = new CreateSnapshotTaskResult();
+        taskResult.setSnapshotId(snapshotId);
+        taskResult.setStatus(status);
+
+        String result = taskResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult,
                    containsString("\"snapshotId\":\""+snapshotId+"\""));
+        assertThat(cleanResult,
+                   containsString(
+                       "\"status\":\""+SnapshotStatus.INITIALIZED.name()+"\""));
     }
+
+    @Test
+    public void testDeserialize() {
+        // Verify valid params
+        String resultSerialized = "{\"snapshotId\" : \"snapshot-id\"," +
+                                    "\"status\":\"" + SnapshotStatus.INITIALIZED +"\"}";
+
+        CreateSnapshotTaskResult taskResult =
+            CreateSnapshotTaskResult.deserialize(resultSerialized);
+        assertEquals("snapshot-id", taskResult.getSnapshotId());
+        assertEquals(SnapshotStatus.INITIALIZED, taskResult.getStatus());
+    }
+
 
 }

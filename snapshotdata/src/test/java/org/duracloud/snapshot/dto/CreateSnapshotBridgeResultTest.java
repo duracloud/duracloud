@@ -36,8 +36,8 @@ public class CreateSnapshotBridgeResultTest {
     @Test
     public void testDeserialize() {
         // Verify valid params
-        String resultSerialized =
-            "{\"snapshotId\" : \"snapshot-id\",\"status\":\"" + SnapshotStatus.INITIALIZED +"\"}";
+        String resultSerialized = "{\"snapshotId\" : \"snapshot-id\"," +
+                                    "\"status\":\"" + SnapshotStatus.INITIALIZED +"\"}";
 
         CreateSnapshotBridgeResult bridgeResult =
             CreateSnapshotBridgeResult.deserialize(resultSerialized);
