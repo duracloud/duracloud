@@ -29,13 +29,13 @@ public class CreateSnapshotBridgeResult {
      * The current status of the snapshot action
      */
     @XmlValue
-    private String status;
+    private SnapshotStatus status;
 
     // Required by JAXB
     public CreateSnapshotBridgeResult() {
     }
 
-    public CreateSnapshotBridgeResult(String snapshotId, String status) {
+    public CreateSnapshotBridgeResult(String snapshotId, SnapshotStatus status) {
         this.snapshotId = snapshotId;
         this.status = status;
     }
@@ -48,11 +48,11 @@ public class CreateSnapshotBridgeResult {
         this.snapshotId = snapshotId;
     }
 
-    public String getStatus() {
+    public SnapshotStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(SnapshotStatus status) {
         this.status = status;
     }
 

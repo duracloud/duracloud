@@ -23,36 +23,36 @@ public class CreateRestoreBridgeResult {
      * The ID which has been assigned to the restoration
      */
     @XmlValue
-    private String restoreId;
+    private Long restoreId;
 
     /**
      * The current status of the restore action
      */
     @XmlValue
-    private String status;
+    private RestoreStatus status;
 
     // Required by JAXB
     public CreateRestoreBridgeResult() {
     }
 
-    public CreateRestoreBridgeResult(String restoreId, String status) {
+    public CreateRestoreBridgeResult(Long restoreId, RestoreStatus status) {
         this.restoreId = restoreId;
         this.status = status;
     }
 
-    public String getRestoreId() {
+    public Long getRestoreId() {
         return restoreId;
     }
 
-    public void setRestoreId(String restoreId) {
+    public void setRestoreId(Long restoreId) {
         this.restoreId = restoreId;
     }
 
-    public String getStatus() {
+    public RestoreStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(RestoreStatus status) {
         this.status = status;
     }
 

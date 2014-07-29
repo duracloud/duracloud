@@ -23,7 +23,7 @@ public class CompleteSnapshotBridgeResult {
      * The snapshot status 
      */
     @XmlValue
-    private String status;
+    private SnapshotStatus status;
 
     /**
      * The details of the current status
@@ -33,7 +33,7 @@ public class CompleteSnapshotBridgeResult {
 
     public CompleteSnapshotBridgeResult(){}
 
-    public CompleteSnapshotBridgeResult(String status,
+    public CompleteSnapshotBridgeResult(SnapshotStatus status,
                                           String details) {
         this.status = status;
         this.details = details;
@@ -52,15 +52,15 @@ public class CompleteSnapshotBridgeResult {
             return serializer.serialize(this);
         } catch(IOException e) {
             throw new SnapshotDataException(
-                "Unable to create task result due to: " + e.getMessage());
+                "Unable to create result due to: " + e.getMessage());
         }
     }
 
-    public String getStatus() {
+    public SnapshotStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(SnapshotStatus status) {
         this.status = status;
     }
 

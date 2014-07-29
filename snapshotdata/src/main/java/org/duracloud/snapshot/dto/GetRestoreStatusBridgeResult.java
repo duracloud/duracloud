@@ -23,7 +23,7 @@ public class GetRestoreStatusBridgeResult {
      * The Restoration status 
      */
     @XmlValue
-    private String status;
+    private RestoreStatus status;
 
     /**
      * The details of the current status
@@ -33,7 +33,7 @@ public class GetRestoreStatusBridgeResult {
 
     public GetRestoreStatusBridgeResult(){}
 
-    public GetRestoreStatusBridgeResult(String status,
+    public GetRestoreStatusBridgeResult(RestoreStatus status,
                                           String details) {
         this.status = status;
         this.details = details;
@@ -56,11 +56,11 @@ public class GetRestoreStatusBridgeResult {
         }
     }
 
-    public String getStatus() {
+    public RestoreStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(RestoreStatus status) {
         this.status = status;
     }
 

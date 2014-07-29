@@ -19,9 +19,12 @@ public class SnapshotSummary {
     @XmlValue
     private String description;
 
+    @XmlValue
+    private SnapshotStatus status;
+    
     public SnapshotSummary() {}
     
-    public SnapshotSummary(String snapshotId, String description) {
+    public SnapshotSummary(String snapshotId, SnapshotStatus status, String description) {
         super();
         this.snapshotId = snapshotId;
         this.description = description;
@@ -41,5 +44,13 @@ public class SnapshotSummary {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public SnapshotStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SnapshotStatus status) {
+        this.status = status;
     }
 }
