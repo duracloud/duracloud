@@ -28,6 +28,7 @@ public class SnapshotSummary {
         super();
         this.snapshotId = snapshotId;
         this.description = description;
+        this.status = status;
     }
 
     public String getSnapshotId() {

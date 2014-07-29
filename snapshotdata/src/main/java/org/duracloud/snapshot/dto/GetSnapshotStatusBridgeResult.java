@@ -41,18 +41,18 @@ public class GetSnapshotStatusBridgeResult {
 
     
     /**
-     * Creates a serialized version of bridge parameters
+     * Parses properties from bridge result string
      *
-     * @return JSON formatted bridge info
+     * @param bridgeResult - JSON formatted set of properties
      */
-    public String serialize() {
+    public static GetSnapshotStatusBridgeResult deserialize(String bridgeResult) {
         JaxbJsonSerializer<GetSnapshotStatusBridgeResult> serializer =
             new JaxbJsonSerializer<>(GetSnapshotStatusBridgeResult.class);
         try {
-            return serializer.serialize(this);
+            return serializer.deserialize(bridgeResult);
         } catch(IOException e) {
             throw new SnapshotDataException(
-                "Unable to create task result due to: " + e.getMessage());
+                "Unable to deserialize result due to: " + e.getMessage());
         }
     }
 

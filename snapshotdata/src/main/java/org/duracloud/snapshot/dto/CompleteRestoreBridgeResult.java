@@ -41,15 +41,15 @@ public class CompleteRestoreBridgeResult {
 
     
     /**
-     * Creates a serialized version of bridge parameters
+     * Creates a deserialized version of bridge parameters
      *
      * @return JSON formatted bridge info
      */
-    public String serialize() {
+    public static CompleteRestoreBridgeResult deserialize(String json) {
         JaxbJsonSerializer<CompleteRestoreBridgeResult> serializer =
             new JaxbJsonSerializer<>(CompleteRestoreBridgeResult.class);
         try {
-            return serializer.serialize(this);
+            return serializer.deserialize(json);
         } catch(IOException e) {
             throw new SnapshotDataException(
                 "Unable to create result due to: " + e.getMessage());

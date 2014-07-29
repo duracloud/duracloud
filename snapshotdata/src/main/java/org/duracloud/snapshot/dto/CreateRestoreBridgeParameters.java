@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 7/24/14
  */
-public class CreateRetoreBridgeParameters {
+public class CreateRestoreBridgeParameters {
 
     /**
      * The host name of the DuraCloud instance
@@ -55,9 +55,9 @@ public class CreateRetoreBridgeParameters {
     @XmlValue
     private String userEmail;
 
-    public CreateRetoreBridgeParameters(){}
+    public CreateRestoreBridgeParameters(){}
 
-    public CreateRetoreBridgeParameters(String host,
+    public CreateRestoreBridgeParameters(String host,
                                           String port,
                                           String storeId,
                                           String spaceId,
@@ -125,8 +125,8 @@ public class CreateRetoreBridgeParameters {
      * @return JSON formatted bridge info
      */
     public String serialize() {
-        JaxbJsonSerializer<CreateRetoreBridgeParameters> serializer =
-            new JaxbJsonSerializer<>(CreateRetoreBridgeParameters.class);
+        JaxbJsonSerializer<CreateRestoreBridgeParameters> serializer =
+            new JaxbJsonSerializer<>(CreateRestoreBridgeParameters.class);
         try {
             return serializer.serialize(this);
         } catch(IOException e) {
