@@ -5,8 +5,9 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
+import org.duracloud.snapshot.dto.RestoreStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,8 +18,6 @@ import org.junit.Test;
  */
 public class CompleteRestoreBridgeResultTest {
 
-
-    
     @Test
     public void testDeSerialize(){
         RestoreStatus status = RestoreStatus.INITIALIZED;
@@ -26,7 +25,8 @@ public class CompleteRestoreBridgeResultTest {
         String str = "{ \"status\" : \"" + status + "\","  
                         + " \"details\" : \"" + details + "\"}";
         
-        CompleteRestoreBridgeResult params = CompleteRestoreBridgeResult.deserialize(str);
+        CompleteRestoreBridgeResult params =
+            CompleteRestoreBridgeResult.deserialize(str);
         Assert.assertEquals(status, params.getStatus());
         Assert.assertEquals(details, params.getDetails());
     }

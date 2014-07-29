@@ -5,31 +5,29 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
+import org.duracloud.snapshot.dto.RestoreStatus;
 import org.junit.Assert;
 import org.junit.Test;
-
 
 /**
  * @author Daniel Bernstein
  *         Date: 7/29/14
  */
-public class GetSnapshotBridgeStatusResultTest {
+public class GetRestoreStatusBridgeResultTest {
 
-
-    
     @Test
     public void testDeSerialize(){
-        SnapshotStatus status = SnapshotStatus.INITIALIZED;
+        RestoreStatus status = RestoreStatus.INITIALIZED;
         String details = "details";
         String str = "{ \"status\" : \"" + status + "\","  
                         + " \"details\" : \"" + details + "\"}";
         
-        GetSnapshotStatusBridgeResult params = GetSnapshotStatusBridgeResult.deserialize(str);
+        GetRestoreStatusBridgeResult params = GetRestoreStatusBridgeResult
+            .deserialize(str);
         Assert.assertEquals(status, params.getStatus());
         Assert.assertEquals(details, params.getDetails());
     }
-
 
 }

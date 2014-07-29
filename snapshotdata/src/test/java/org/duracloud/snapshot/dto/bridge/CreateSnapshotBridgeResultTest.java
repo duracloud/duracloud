@@ -5,8 +5,9 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
+import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

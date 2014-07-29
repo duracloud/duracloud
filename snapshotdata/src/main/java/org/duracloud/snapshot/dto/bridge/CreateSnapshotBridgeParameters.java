@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.error.SnapshotDataException;

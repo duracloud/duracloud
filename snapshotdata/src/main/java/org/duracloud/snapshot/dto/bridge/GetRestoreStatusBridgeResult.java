@@ -5,16 +5,17 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.RestoreStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
 import java.io.IOException;
 
 /**
- * @author  Daniel Bernstein
+ * @author Daniel Bernstein
  *         Date: 7/28/14
  */
 public class GetRestoreStatusBridgeResult {

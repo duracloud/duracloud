@@ -5,25 +5,26 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.RestoreStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
 import java.io.IOException;
 
 /**
- * @author  Daniel Bernstein
+ * @author Daniel Bernstein
  *         Date: 7/28/14
  */
-public class GetSnapshotStatusBridgeResult {
+public class CompleteRestoreBridgeResult {
 
     /**
-     * The snapshot status 
+     * The restore status 
      */
     @XmlValue
-    private SnapshotStatus status;
+    private RestoreStatus status;
 
     /**
      * The details of the current status
@@ -31,9 +32,9 @@ public class GetSnapshotStatusBridgeResult {
     @XmlValue
     private String details;
 
-    public GetSnapshotStatusBridgeResult(){}
+    public CompleteRestoreBridgeResult(){}
 
-    public GetSnapshotStatusBridgeResult(SnapshotStatus status,
+    public CompleteRestoreBridgeResult(RestoreStatus status,
                                           String details) {
         this.status = status;
         this.details = details;
@@ -41,26 +42,26 @@ public class GetSnapshotStatusBridgeResult {
 
     
     /**
-     * Parses properties from bridge result string
+     * Creates a deserialized version of bridge parameters
      *
-     * @param bridgeResult - JSON formatted set of properties
+     * @return JSON formatted bridge info
      */
-    public static GetSnapshotStatusBridgeResult deserialize(String bridgeResult) {
-        JaxbJsonSerializer<GetSnapshotStatusBridgeResult> serializer =
-            new JaxbJsonSerializer<>(GetSnapshotStatusBridgeResult.class);
+    public static CompleteRestoreBridgeResult deserialize(String json) {
+        JaxbJsonSerializer<CompleteRestoreBridgeResult> serializer =
+            new JaxbJsonSerializer<>(CompleteRestoreBridgeResult.class);
         try {
-            return serializer.deserialize(bridgeResult);
+            return serializer.deserialize(json);
         } catch(IOException e) {
             throw new SnapshotDataException(
-                "Unable to deserialize result due to: " + e.getMessage());
+                "Unable to create result due to: " + e.getMessage());
         }
     }
 
-    public SnapshotStatus getStatus() {
+    public RestoreStatus getStatus() {
         return status;
     }
 
-    public void setStatus(SnapshotStatus status) {
+    public void setStatus(RestoreStatus status) {
         this.status = status;
     }
 

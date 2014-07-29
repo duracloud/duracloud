@@ -5,9 +5,10 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.RestoreStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
@@ -17,42 +18,42 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 7/24/14
  */
-public class CreateSnapshotBridgeResult {
+public class CreateRestoreBridgeResult {
 
     /**
-     * The ID which has been assigned to the snapshot
+     * The ID which has been assigned to the restoration
      */
     @XmlValue
-    private String snapshotId;
+    private Long restoreId;
 
     /**
-     * The current status of the snapshot action
+     * The current status of the restore action
      */
     @XmlValue
-    private SnapshotStatus status;
+    private RestoreStatus status;
 
     // Required by JAXB
-    public CreateSnapshotBridgeResult() {
+    public CreateRestoreBridgeResult() {
     }
 
-    public CreateSnapshotBridgeResult(String snapshotId, SnapshotStatus status) {
-        this.snapshotId = snapshotId;
+    public CreateRestoreBridgeResult(Long restoreId, RestoreStatus status) {
+        this.restoreId = restoreId;
         this.status = status;
     }
 
-    public String getSnapshotId() {
-        return snapshotId;
+    public Long getRestoreId() {
+        return restoreId;
     }
 
-    public void setSnapshotId(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public void setRestoreId(Long restoreId) {
+        this.restoreId = restoreId;
     }
 
-    public SnapshotStatus getStatus() {
+    public RestoreStatus getStatus() {
         return status;
     }
 
-    public void setStatus(SnapshotStatus status) {
+    public void setStatus(RestoreStatus status) {
         this.status = status;
     }
 
@@ -62,12 +63,12 @@ public class CreateSnapshotBridgeResult {
      * @return JSON formatted bridge info
      */
     public String serialize() {
-        JaxbJsonSerializer<CreateSnapshotBridgeResult> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotBridgeResult.class);
+        JaxbJsonSerializer<CreateRestoreBridgeResult> serializer =
+            new JaxbJsonSerializer<>(CreateRestoreBridgeResult.class);
         try {
             return serializer.serialize(this);
         } catch(IOException e) {
-            throw new SnapshotDataException("Unable to create task result due to: " +
+            throw new SnapshotDataException("Unable to create result due to: " +
                                             e.getMessage());
         }
     }
@@ -77,14 +78,14 @@ public class CreateSnapshotBridgeResult {
      *
      * @param bridgeResult - JSON formatted set of properties
      */
-    public static CreateSnapshotBridgeResult deserialize(String bridgeResult) {
-        JaxbJsonSerializer<CreateSnapshotBridgeResult> serializer =
-            new JaxbJsonSerializer<>(CreateSnapshotBridgeResult.class);
+    public static CreateRestoreBridgeResult deserialize(String bridgeResult) {
+        JaxbJsonSerializer<CreateRestoreBridgeResult> serializer =
+            new JaxbJsonSerializer<>(CreateRestoreBridgeResult.class);
         try {
             return serializer.deserialize(bridgeResult);
         } catch(IOException e) {
             throw new SnapshotDataException(
-                "Unable to create task result due to: " + e.getMessage());
+                "Unable to create result due to: " + e.getMessage());
         }
     }
 

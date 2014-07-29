@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.task;
 
 import org.duracloud.snapshot.error.SnapshotDataException;
 import org.junit.Test;
@@ -17,29 +17,37 @@ import static org.junit.Assert.fail;
  * @author Bill Branan
  *         Date: 7/25/14
  */
-public class CompleteSnapshotTaskParametersTest {
+public class CreateSnapshotTaskParametersTest {
 
     @Test
     public void testDeserialize() {
         // Verify valid params
-        String taskParamsSerialized = "{\"spaceId\" : \"test-space\"}";
+        String taskParamsSerialized =
+            "{\"spaceId\" : \"test-space\"," +
+            " \"description\" : \"test snapshot\"," +
+            " \"userEmail\" : \"yo@myemail.com\"}";
 
-        CompleteSnapshotTaskParameters taskParams =
-            CompleteSnapshotTaskParameters.deserialize(taskParamsSerialized);
+        CreateSnapshotTaskParameters taskParams =
+            CreateSnapshotTaskParameters.deserialize(taskParamsSerialized);
         assertEquals("test-space", taskParams.getSpaceId());
+        assertEquals("test snapshot", taskParams.getDescription());
+        assertEquals("yo@myemail.com", taskParams.getUserEmail());
 
         // Verify that empty params throw
-        taskParamsSerialized = "{\"spaceId\" : \"\"}";
+        taskParamsSerialized =
+            "{\"spaceId\" : \"\"," +
+            " \"description\" : \"\"," +
+            " \"userEmail\" : \"\"}";
 
         try {
-            CompleteSnapshotTaskParameters.deserialize(taskParamsSerialized);
+            CreateSnapshotTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
         } catch(SnapshotDataException e) {
         }
 
         // Verify that empty params throw
         try {
-            CompleteSnapshotTaskParameters.deserialize("");
+            CreateSnapshotTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
         } catch(SnapshotDataException e) {
         }

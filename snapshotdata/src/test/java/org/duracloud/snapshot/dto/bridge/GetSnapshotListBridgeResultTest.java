@@ -5,8 +5,10 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.snapshot.dto;
+package org.duracloud.snapshot.dto.bridge;
 
+import org.duracloud.snapshot.dto.SnapshotStatus;
+import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +64,8 @@ public class GetSnapshotListBridgeResultTest {
                      "[ { \"status\" : \"" + status + "\","  
                         + " \"description\" : \"" + description + "\"," 
                         + " \"snapshotId\" : \"" + snapshotId + "\"}]}";
-                GetSnapshotListBridgeResult params = GetSnapshotListBridgeResult.deserialize(str);
+                GetSnapshotListBridgeResult params =
+                    GetSnapshotListBridgeResult.deserialize(str);
         List<SnapshotSummary> snapshots = params.getSnapshots();
 
         Assert.assertNotNull(snapshots);
@@ -73,6 +76,5 @@ public class GetSnapshotListBridgeResultTest {
         Assert.assertEquals(status, snapshot.getStatus());
         Assert.assertEquals(description, snapshot.getDescription());
     }
-
 
 }

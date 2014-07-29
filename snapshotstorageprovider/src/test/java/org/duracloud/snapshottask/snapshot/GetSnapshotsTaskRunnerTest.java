@@ -9,8 +9,8 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.snapshot.dto.GetSnapshotListBridgeResult;
-import org.duracloud.snapshot.dto.GetSnapshotListTaskResult;
+import org.duracloud.snapshot.dto.bridge.GetSnapshotListBridgeResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.duracloud.storage.error.TaskException;
