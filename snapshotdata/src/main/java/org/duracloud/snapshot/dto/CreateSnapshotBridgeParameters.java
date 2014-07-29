@@ -55,6 +55,8 @@ public class CreateSnapshotBridgeParameters {
     @XmlValue
     private String userEmail;
 
+    public CreateSnapshotBridgeParameters(){}
+
     public CreateSnapshotBridgeParameters(String host,
                                           String port,
                                           String storeId,
