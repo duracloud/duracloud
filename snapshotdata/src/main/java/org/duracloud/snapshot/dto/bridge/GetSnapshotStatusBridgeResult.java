@@ -35,26 +35,9 @@ public class GetSnapshotStatusBridgeResult {
     public GetSnapshotStatusBridgeResult(){}
 
     public GetSnapshotStatusBridgeResult(SnapshotStatus status,
-                                          String details) {
+                                         String details) {
         this.status = status;
         this.details = details;
-    }
-
-    
-    /**
-     * Parses properties from bridge result string
-     *
-     * @param bridgeResult - JSON formatted set of properties
-     */
-    public static GetSnapshotStatusBridgeResult deserialize(String bridgeResult) {
-        JaxbJsonSerializer<GetSnapshotStatusBridgeResult> serializer =
-            new JaxbJsonSerializer<>(GetSnapshotStatusBridgeResult.class);
-        try {
-            return serializer.deserialize(bridgeResult);
-        } catch(IOException e) {
-            throw new SnapshotDataException(
-                "Unable to deserialize result due to: " + e.getMessage());
-        }
     }
 
     public SnapshotStatus getStatus() {
@@ -71,6 +54,38 @@ public class GetSnapshotStatusBridgeResult {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    /**
+     * Creates a serialized version of bridge result
+     *
+     * @return JSON formatted bridge info
+     */
+    public String serialize() {
+        JaxbJsonSerializer<GetSnapshotStatusBridgeResult> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotStatusBridgeResult.class);
+        try {
+            return serializer.serialize(this);
+        } catch(IOException e) {
+            throw new SnapshotDataException("Unable to create task result due to: " +
+                                            e.getMessage());
+        }
+    }
+
+    /**
+     * Parses properties from bridge result string
+     *
+     * @param bridgeResult - JSON formatted set of properties
+     */
+    public static GetSnapshotStatusBridgeResult deserialize(String bridgeResult) {
+        JaxbJsonSerializer<GetSnapshotStatusBridgeResult> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotStatusBridgeResult.class);
+        try {
+            return serializer.deserialize(bridgeResult);
+        } catch(IOException e) {
+            throw new SnapshotDataException(
+                "Unable to deserialize result due to: " + e.getMessage());
+        }
     }
 
 }

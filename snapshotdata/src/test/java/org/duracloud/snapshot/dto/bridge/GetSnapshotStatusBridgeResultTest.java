@@ -11,12 +11,29 @@ import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
+
 
 /**
  * @author Daniel Bernstein
  *         Date: 7/29/14
  */
-public class GetSnapshotBridgeStatusResultTest {
+public class GetSnapshotStatusBridgeResultTest {
+
+    @Test
+    public void testSerialize() {
+        SnapshotStatus status = SnapshotStatus.INITIALIZED;
+        String details = "status-details";
+
+        GetSnapshotStatusBridgeResult params =
+            new GetSnapshotStatusBridgeResult(status, details);
+        String result = params.serialize();
+        String cleanResult = result.replaceAll("\\s+", "");
+
+        assertThat(cleanResult, containsString("\"status\":\""+status.name()+"\""));
+        assertThat(cleanResult, containsString("\"details\":\""+details+"\""));
+    }
 
     @Test
     public void testDeSerialize(){
