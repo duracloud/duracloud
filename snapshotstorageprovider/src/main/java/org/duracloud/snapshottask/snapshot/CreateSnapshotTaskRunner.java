@@ -10,6 +10,8 @@ package org.duracloud.snapshottask.snapshot;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
+import org.duracloud.common.retry.Retriable;
+import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.IOUtil;
@@ -17,6 +19,7 @@ import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeParameters;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
+import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
@@ -58,10 +61,14 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
     private String bridgeAppPass;
 
     public CreateSnapshotTaskRunner(StorageProvider snapshotProvider,
-                                    String dcHost, String dcPort,
-                                    String dcStoreId, String dcAccountName,
-                                    String dcSnapshotUser, String bridgeAppHost,
-                                    String bridgeAppPort, String bridgeAppUser,
+                                    String dcHost,
+                                    String dcPort,
+                                    String dcStoreId,
+                                    String dcAccountName,
+                                    String dcSnapshotUser,
+                                    String bridgeAppHost,
+                                    String bridgeAppPort,
+                                    String bridgeAppUser,
                                     String bridgeAppPass) {
         this.snapshotProvider = snapshotProvider;
         this.dcHost = dcHost;
@@ -97,8 +104,9 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
 
         // Generate snapshot ID
         long now = System.currentTimeMillis();
-        String snapshotId = dcAccountName + "-" + dcStoreId + "-" + spaceId +
-                            "-"+ DateUtil.convertToStringPlain(now);
+        SnapshotIdentifier snapshotIdentifier =
+            new SnapshotIdentifier(dcAccountName, dcStoreId, spaceId, now);
+        String snapshotId = snapshotIdentifier.getSnapshotId();
 
         // Pull together all snapshot properties
         Map<String, String> snapshotProps = new HashMap<>();
@@ -129,8 +137,7 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         // Make call to DPN bridge ingest app to kick off transfer
         RestHttpHelper restHelper =
             new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
-        String callResult =
-            callBridge(restHelper, snapshotURL, snapshotBody);
+        String callResult = callBridge(restHelper, snapshotURL, snapshotBody);
 
         CreateSnapshotBridgeResult bridgeResult =
             CreateSnapshotBridgeResult.deserialize(callResult);
@@ -145,11 +152,26 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
      * Give the snapshot user the necessary permissions to pull content from
      * the snapshot space.
      */
-    protected void setSnapshotUserPermissions(String spaceId) {
-        Map<String, AclType> spaceACLs = snapshotProvider.getSpaceACLs(spaceId);
-        spaceACLs.put(StorageProvider.PROPERTIES_SPACE_ACL + dcSnapshotUser,
-                      AclType.READ);
-        snapshotProvider.setSpaceACLs(spaceId, spaceACLs);
+    protected String setSnapshotUserPermissions(final String spaceId) {
+        try {
+            Retrier retrier = new Retrier();
+            return retrier.execute(new Retriable() {
+                @Override
+                public String retry() throws Exception {
+                    // The actual method being executed
+                    Map<String, AclType> spaceACLs =
+                        snapshotProvider.getSpaceACLs(spaceId);
+                    spaceACLs.put(StorageProvider.PROPERTIES_SPACE_ACL +
+                                  dcSnapshotUser, AclType.READ);
+                    snapshotProvider.setSpaceACLs(spaceId, spaceACLs);
+                    return spaceId;
+                }
+            });
+        } catch(Exception e) {
+            throw new TaskException("Unable to create snapshot, failed" +
+                                    "setting space permissions due to: " +
+                                    e.getMessage(), e);
+        }
     }
 
     /*
