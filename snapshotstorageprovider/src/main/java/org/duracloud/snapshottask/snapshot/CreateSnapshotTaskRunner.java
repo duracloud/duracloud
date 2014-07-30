@@ -7,6 +7,7 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import org.apache.http.HttpHeaders;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
@@ -258,8 +259,10 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                  snapshotURL, snapshotBody);
 
         try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put(HttpHeaders.CONTENT_TYPE, "application/json");
             RestHttpHelper.HttpResponse response =
-                restHelper.put(snapshotURL, snapshotBody, null);
+                restHelper.put(snapshotURL, snapshotBody, headers);
             int statusCode = response.getStatusCode();
             if(statusCode != 200 && statusCode != 201) {
                 throw new RuntimeException("Unexpected response code: " +

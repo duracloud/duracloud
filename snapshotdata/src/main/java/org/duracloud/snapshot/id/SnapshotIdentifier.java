@@ -17,6 +17,8 @@ import java.text.ParseException;
  */
 public class SnapshotIdentifier {
 
+    public static final String DELIM = "~";
+
     private String accountName;
     private String storeId;
     private String spaceId;
@@ -31,7 +33,7 @@ public class SnapshotIdentifier {
     }
 
     public String getSnapshotId() {
-        return accountName + ":" + storeId + ":" + spaceId + ":" +
+        return accountName + DELIM + storeId + DELIM + spaceId + DELIM +
                DateUtil.convertToStringPlain(timestamp);
     }
 
@@ -49,7 +51,7 @@ public class SnapshotIdentifier {
 
     public static SnapshotIdentifier parseSnapshotId(String snapshotId)
         throws ParseException {
-        String[] snapshotIdParts = snapshotId.split(":");
+        String[] snapshotIdParts = snapshotId.split(DELIM);
         long timestamp = DateUtil.convertToDate(snapshotIdParts[3],
                                                 DateUtil.DateFormat.PLAIN_FORMAT)
                                  .getTime();

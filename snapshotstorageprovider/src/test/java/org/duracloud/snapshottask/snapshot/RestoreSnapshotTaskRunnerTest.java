@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -136,7 +137,9 @@ public class RestoreSnapshotTaskRunnerTest {
 
         RestHttpHelper.HttpResponse response =
             new RestHttpHelper.HttpResponse(200, null, null, resultStream);
-        EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, null))
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))
                 .andReturn(response);
 
         replayMocks();
@@ -158,7 +161,9 @@ public class RestoreSnapshotTaskRunnerTest {
         InputStream resultStream = IOUtil.writeStringToStream("Error");
         RestHttpHelper.HttpResponse response =
             new RestHttpHelper.HttpResponse(500, null, null, resultStream);
-        EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, null))
+                Map<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))
                 .andReturn(response);
 
         replayMocks();
