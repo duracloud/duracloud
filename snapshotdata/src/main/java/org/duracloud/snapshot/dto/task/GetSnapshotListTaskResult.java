@@ -7,18 +7,28 @@
  */
 package org.duracloud.snapshot.dto.task;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.duracloud.snapshot.dto.bridge.GetSnapshotListBridgeResult;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
-import java.io.IOException;
-
 /**
- * @author Bill Branan
- *         Date: 7/29/14
+ * @author Daniel Bernstein
+ *         Date: 8/4/14
  */
 public class GetSnapshotListTaskResult extends GetSnapshotListBridgeResult {
 
+    public GetSnapshotListTaskResult(){}
+
+    public GetSnapshotListTaskResult(List<SnapshotSummary> snapshots){
+        super(snapshots);
+    }
+    
     /**
      * Parses properties from task result
      *

@@ -413,6 +413,24 @@ var dc;
         });
     };
 
+    dc.store.RestoreSnapshot = function(storeId, snapshotId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/snapshot/restore/"+storeId+"/"+snapshotId, 
+            async: true,
+            dataType: 'json',
+            type: "post",
+        });
+    };
+
+    dc.store.GetSnapshots = function(storeId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/snapshots/" + storeId, 
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+    
     dc.store.GetSnapshotProperties = function(storeId, spaceId){
         
         return dc.ajax2({

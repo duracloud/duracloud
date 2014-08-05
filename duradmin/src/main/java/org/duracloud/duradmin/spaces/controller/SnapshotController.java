@@ -8,6 +8,13 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -18,20 +25,18 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotListTaskParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.util.Properties;
 
 /**
  * 
@@ -109,6 +114,36 @@ public class SnapshotController {
             mav.addObject(key.toString(), props.get(key));
         }
         return mav;
+    }
+    
+    @RequestMapping(value = "/spaces/snapshots/{storeId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getSnapshotList(@PathVariable("storeId") String storeId,
+                                  HttpServletRequest request) {
+
+        String host = request.getHeader("REMOTE_HOST");
+        if(host == null){
+            host = "localhost";
+        }
+        
+        try {
+
+            ContentStore store = this.contentStoreManager.getContentStore(storeId);
+            GetSnapshotListTaskParameters params = new GetSnapshotListTaskParameters(host);
+            
+            JaxbJsonSerializer<GetSnapshotListTaskParameters> serializer =
+                new JaxbJsonSerializer<>(GetSnapshotListTaskParameters.class);
+
+            String paramString = serializer.serialize(params);
+            String json = store.performTask("get-snapshots", paramString);
+            return json;
+        } catch (ContentStoreException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean isSnapshotInProgress(ContentStore store, String storeId, String spaceId) {

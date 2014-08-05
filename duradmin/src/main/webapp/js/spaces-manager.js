@@ -1947,6 +1947,16 @@ $(function(){
            return viewerPane;      
        },
        
+       _isSnapshot: function(storeId, storeProviders){
+           var ischron = false;
+           $.each(storeProviders, function(i, provider){
+               if(storeId == provider.id && provider.type == 'snapshot'){
+                   ischron = true;
+                   return false;
+               }
+           });
+           return ischron; 
+       },
        
        _loadPropertiesPane: function(extendedProperties, /*bool*/ readOnly){
            $("#extended-properties", this.element).remove();
@@ -2525,12 +2535,20 @@ $(function(){
         
         load: function(storeId){
           this._storeId = storeId;
-          
+
           if(this._isAdmin()){
+
+              if(this._isSnapshot(storeId, storeProviders)){
+                  var snapshotRestore = $.fn.create("div");
+                  this._appendToCenter(snapshotRestore);
+                  snapshotRestore.snapshotrestore({storeId: this._storeId});
+              }
+
               var history = $.fn.create("div");
               this._appendToCenter(history);
               history.historypanel({storeId: this._storeId});
           }
+          
         },
     }));
 
@@ -2546,7 +2564,6 @@ $(function(){
         _spaces: [],
         _title: "{count} space(s) selected.",
         
-        
         _updateTitle: function(count){
             var title = this._title.replace("{count}", count);
             this._setObjectName(title);
@@ -2555,8 +2572,8 @@ $(function(){
         spaces: function(spaces){
           this._spaces = spaces;  
           this._updateTitle(this._spaces.length);
-          
         },
+
         _initPane: function(){
             var that = this;
             
@@ -2654,17 +2671,6 @@ $(function(){
             });
         },     
         
-        
-        _isSnapshot: function(storeId, storeProviders){
-            var ischron = false;
-            $.each(storeProviders, function(i, provider){
-                if(storeId == provider.id && provider.type == 'snapshot'){
-                    ischron = true;
-                    return false;
-                }
-            });
-            return ischron; 
-        },
         
         _createThrobberHtml:function(){
            return "<img src='/duradmin/images/wait.gif'/>";    
