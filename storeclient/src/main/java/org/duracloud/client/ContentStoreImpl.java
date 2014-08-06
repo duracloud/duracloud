@@ -539,6 +539,15 @@ public class ContentStoreImpl implements ContentStore{
      * {@inheritDoc}
      */
     @Override
+    public boolean spaceExists(String spaceId) throws ContentStoreException {
+        List<String> spaces = getSpaces();
+        return spaces.contains(spaceId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String addContent(final String spaceId,
                              final String contentId,
                              final InputStream content,
@@ -899,6 +908,20 @@ public class ContentStoreImpl implements ContentStore{
             throw new UnauthorizedException(task, spaceId, contentId, e);
         } catch (Exception e) {
             throw new ContentStoreException(task, spaceId, contentId, e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean contentExists(String spaceId, String contentId)
+        throws ContentStoreException {
+        try {
+            doGetContentProperties(spaceId, contentId);
+            return true;
+        } catch(NotFoundException e) {
+            return false;
         }
     }
 

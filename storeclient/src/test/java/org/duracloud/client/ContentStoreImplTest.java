@@ -213,6 +213,21 @@ public class ContentStoreImplTest {
     }
 
     @Test
+    public void testSpaceExists() throws Exception {
+        String xml = "<spaces><space id=\"space1\" />" +
+                     "<space id=\"space2\" /></spaces>";
+        String fullURL = baseURL + "/spaces" + "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200).times(2);
+        EasyMock.expect(response.getResponseBody()).andReturn(xml).times(2);
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response).times(2);
+
+        replayMocks();
+
+        Assert.assertTrue(contentStore.spaceExists("space1"));
+        Assert.assertFalse(contentStore.spaceExists("spaceX"));
+    }
+
+    @Test
     public void testAddContent() throws Exception {
         InputStream content = IOUtils.toInputStream("content");
         String checksum = "checksum";
@@ -316,6 +331,27 @@ public class ContentStoreImplTest {
         Assert.assertEquals("text/xml", props.get(
             StorageProvider.PROPERTIES_CONTENT_MIMETYPE));
         Assert.assertEquals("custom", props.get("custom-property"));
+    }
+
+    @Test
+    public void testContentExists() throws Exception {
+        String fullURL = baseURL + "/" + spaceId + "/" + contentId +
+                         "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode())
+                .andReturn(HttpStatus.SC_OK);
+        EasyMock.expect(response.getStatusCode())
+                .andReturn(HttpStatus.SC_NOT_FOUND);
+
+        Header[] headers = new Header[]{};
+        EasyMock.expect(response.getResponseHeaders())
+                .andReturn(headers).times(2);
+        EasyMock.expect(restHelper.head(fullURL)).andReturn(response).times(2);
+        EasyMock.expect(response.getResponseBody()).andReturn("");
+
+        replayMocks();
+
+        Assert.assertTrue(contentStore.contentExists(spaceId, contentId));
+        Assert.assertFalse(contentStore.contentExists(spaceId, contentId));
     }
 
     @Test

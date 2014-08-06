@@ -4,7 +4,6 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.domain.Content;
-import org.duracloud.error.NotFoundException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.easymock.EasyMock;
@@ -61,9 +60,9 @@ public class SnapshotControllerTest {
 
     @Test
     public void testPost() throws Exception {
-        EasyMock.expect(store.getContentProperties(EasyMock.isA(String.class),
-                                                   EasyMock.isA(String.class)))
-                .andThrow(new NotFoundException("not found"));
+        EasyMock.expect(store.contentExists(EasyMock.isA(String.class),
+                                            EasyMock.isA(String.class)))
+                .andReturn(false);
         EasyMock.expect(store.performTask(EasyMock.isA(String.class),
                                           EasyMock.isA(String.class)))
                 .andReturn("response");
@@ -101,7 +100,12 @@ public class SnapshotControllerTest {
 
     @Test
     public void testGet() throws Exception{
-        EasyMock.expect(store.getContent(EasyMock.isA(String.class), EasyMock.isA(String.class))).andReturn(content);
+        EasyMock.expect(store.contentExists(EasyMock.isA(String.class),
+                                            EasyMock.isA(String.class)))
+                .andReturn(true);
+        EasyMock.expect(store.getContent(EasyMock.isA(String.class),
+                                         EasyMock.isA(String.class)))
+                .andReturn(content);
         
         Properties props = new Properties();
         ByteArrayOutputStream os = new ByteArrayOutputStream();

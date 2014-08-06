@@ -8,13 +8,6 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -22,7 +15,6 @@ import org.duracloud.common.constant.Constants;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskParameters;
@@ -37,6 +29,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * 
@@ -68,12 +66,11 @@ public class SnapshotController {
                                       @RequestParam String description)
         throws Exception {
 
-
         ContentStore store = getContentStore(storeId);
         //check that a snapshot is not already being generated.
         response.setHeader("Content-Type", "application/json");
 
-        if(isSnapshotInProgress(store,storeId, spaceId)) {
+        if(isSnapshotInProgress(store, spaceId)) {
             response.setStatus(HttpStatus.SC_METHOD_FAILURE);
             response.getWriter().write("{\"result\":\"Snapshot already in progress.\"}");
         }else{
@@ -101,12 +98,17 @@ public class SnapshotController {
         Properties props = new Properties();
         try {
             ContentStore store = this.contentStoreManager.getContentStore(storeId);
-            try(InputStream is = store.getContent(spaceId, Constants.SNAPSHOT_ID).getStream()){
-                props.load(is);
+            if(store.contentExists(spaceId, Constants.SNAPSHOT_ID)) {
+                try(InputStream is =
+                        store.getContent(spaceId, Constants.SNAPSHOT_ID)
+                             .getStream()){
+                    props.load(is);
+                }
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            props.put("error", "Snapshot properties could not be loaded: " + e.getMessage());
+            props.put("error",
+                      "Snapshot properties could not be loaded: " + e.getMessage());
         }
 
         ModelAndView mav =  new ModelAndView("jsonView");
@@ -146,13 +148,10 @@ public class SnapshotController {
         }
     }
 
-    private boolean isSnapshotInProgress(ContentStore store, String storeId, String spaceId) {
+    private boolean isSnapshotInProgress(ContentStore store,
+                                         String spaceId) {
         try {
-            
-            store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
-            return true;
-        }catch(NotFoundException ex){
-            return false;
+            return store.contentExists(spaceId, Constants.SNAPSHOT_ID);
         }catch (ContentStoreException ex){
             throw new RuntimeException(ex);
         }

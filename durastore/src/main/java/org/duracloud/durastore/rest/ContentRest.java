@@ -90,7 +90,7 @@ public class ContentRest extends BaseRest {
             return doGetContent(spaceID, contentID, storeID, attachment);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
@@ -159,7 +159,7 @@ public class ContentRest extends BaseRest {
             return addContentPropertiesToResponse(Response.ok(), properties);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -297,7 +297,7 @@ public class ContentRest extends BaseRest {
             return doUpdateContentProperties(spaceID, contentID, storeID);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
@@ -394,7 +394,7 @@ public class ContentRest extends BaseRest {
             return responseBad(msg.toString(), e, BAD_REQUEST);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -471,7 +471,7 @@ public class ContentRest extends BaseRest {
             return responseBad(msg.toString(), e, BAD_REQUEST);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
@@ -602,7 +602,7 @@ public class ContentRest extends BaseRest {
             return responseOk(msg.toString(), responseText);
 
         } catch(ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -615,6 +615,13 @@ public class ContentRest extends BaseRest {
     private Response responseOk(String msg, String text) {
         log.debug(msg);
         return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    private Response responseNotFound(String msg,
+                                      Exception e,
+                                      Response.Status status) {
+        log.debug("Not Found: " + msg);
+        return responseBad(e.getMessage(), status);
     }
 
     private Response responseBad(String msg,

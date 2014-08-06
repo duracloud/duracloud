@@ -201,6 +201,15 @@ public interface ContentStore {
         throws ContentStoreException;
 
     /**
+     * Determines if a space exists
+     *
+     * @param spaceId the identifier of the DuraCloud Space to check
+     * @return true if the space exists, false otherwise
+     * @throws ContentStoreException if an error occurs
+     */
+    public boolean spaceExists(String spaceId) throws ContentStoreException;
+
+    /**
      * Adds content to a space. The contentId of the new content item can
      * include "/" symbols to indicate a folder heirarchy.
      * Returns the checksum of the content as computed by the
@@ -350,6 +359,17 @@ public interface ContentStore {
     public Map<String, String> getContentProperties(String spaceId,
                                                     String contentId)
             throws ContentStoreException;
+
+    /**
+     * Determines if a content item exists in a given space
+     *
+     * @param spaceId the identifier of the DuraCloud Space
+     * @param contentId the identifier of the content item to check
+     * @return true if the content item exists, false otherwise
+     * @throws ContentStoreException if an error occurs
+     */
+    public boolean contentExists(String spaceId, String contentId)
+        throws ContentStoreException;
 
     /**
      * Checks a space ID to ensure that it conforms to all restrictions
