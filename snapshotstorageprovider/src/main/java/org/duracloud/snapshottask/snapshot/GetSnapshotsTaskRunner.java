@@ -7,15 +7,14 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import java.text.MessageFormat;
-
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.snapshot.dto.task.GetSnapshotListTaskParameters;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.MessageFormat;
 
 /**
  * Get a listing of snapshots which are accessible to this account.
@@ -29,15 +28,18 @@ public class GetSnapshotsTaskRunner implements TaskRunner {
 
     private Logger log = LoggerFactory.getLogger(GetSnapshotsTaskRunner.class);
 
+    private String dcHost;
     private String bridgeAppHost;
     private String bridgeAppPort;
     private String bridgeAppUser;
     private String bridgeAppPass;
 
-    public GetSnapshotsTaskRunner(String bridgeAppHost,
+    public GetSnapshotsTaskRunner(String dcHost,
+                                  String bridgeAppHost,
                                   String bridgeAppPort,
                                   String bridgeAppUser,
                                   String bridgeAppPass) {
+        this.dcHost = dcHost;
         this.bridgeAppHost = bridgeAppHost;
         this.bridgeAppPort = bridgeAppPort;
         this.bridgeAppUser = bridgeAppUser;
@@ -53,10 +55,7 @@ public class GetSnapshotsTaskRunner implements TaskRunner {
     public String performTask(String taskParameters) {
         RestHttpHelper restHelper =
             new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
-        
-        GetSnapshotListTaskParameters params =
-            GetSnapshotListTaskParameters.deserialize(taskParameters);
-        return callBridge(restHelper, buildBridgeURL()+ "?host="+ params.getHost());
+        return callBridge(restHelper, buildBridgeURL());
     }
 
     /*
@@ -64,8 +63,9 @@ public class GetSnapshotsTaskRunner implements TaskRunner {
      */
     protected String buildBridgeURL() {
         String protocol = "443".equals(bridgeAppPort) ? "https" : "http"; 
-        return MessageFormat.format("{0}://{1}:{2}/bridge/snapshot", protocol,
-                                    bridgeAppHost, bridgeAppPort);
+        return MessageFormat.format("{0}://{1}:{2}/bridge/snapshot?host={3}",
+                                    protocol, bridgeAppHost, bridgeAppPort,
+                                    dcHost);
     }
 
     /*

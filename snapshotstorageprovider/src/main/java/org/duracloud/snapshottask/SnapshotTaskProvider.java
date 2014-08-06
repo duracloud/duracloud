@@ -54,7 +54,8 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                      bridgePass));
         taskList.add(new CompleteSnapshotTaskRunner(snapshotProvider,
                                                     s3Client));
-        taskList.add(new GetSnapshotsTaskRunner(bridgeHost,
+        taskList.add(new GetSnapshotsTaskRunner(dcHost,
+                                                bridgeHost,
                                                 bridgePort,
                                                 bridgeUser,
                                                 bridgePass));

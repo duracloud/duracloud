@@ -17,7 +17,6 @@ import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
-import org.duracloud.snapshot.dto.task.GetSnapshotListTaskParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -122,27 +120,12 @@ public class SnapshotController {
     @ResponseBody
     public String getSnapshotList(@PathVariable("storeId") String storeId,
                                   HttpServletRequest request) {
-
-        String host = request.getHeader("REMOTE_HOST");
-        if(host == null){
-            host = "localhost";
-        }
-        
         try {
-
-            ContentStore store = this.contentStoreManager.getContentStore(storeId);
-            GetSnapshotListTaskParameters params = new GetSnapshotListTaskParameters(host);
-            
-            JaxbJsonSerializer<GetSnapshotListTaskParameters> serializer =
-                new JaxbJsonSerializer<>(GetSnapshotListTaskParameters.class);
-
-            String paramString = serializer.serialize(params);
-            String json = store.performTask("get-snapshots", paramString);
+            ContentStore store =
+                this.contentStoreManager.getContentStore(storeId);
+            String json = store.performTask("get-snapshots", "");
             return json;
         } catch (ContentStoreException e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
