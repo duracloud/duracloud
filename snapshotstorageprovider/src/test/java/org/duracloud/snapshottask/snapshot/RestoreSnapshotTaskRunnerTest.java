@@ -136,7 +136,7 @@ public class RestoreSnapshotTaskRunnerTest {
             IOUtil.writeStringToStream(bridgeResult.serialize());
 
         RestHttpHelper.HttpResponse response =
-            new RestHttpHelper.HttpResponse(200, null, null, resultStream);
+            new RestHttpHelper.HttpResponse(201, null, null, resultStream);
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         EasyMock.expect(restHelper.put(snapshotURL, snapshotBody, headers))

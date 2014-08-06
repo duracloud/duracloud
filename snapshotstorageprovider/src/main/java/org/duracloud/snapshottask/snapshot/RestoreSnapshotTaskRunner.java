@@ -242,7 +242,7 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
             RestHttpHelper.HttpResponse response =
                 restHelper.put(snapshotURL, snapshotBody, headers);
             int statusCode = response.getStatusCode();
-            if(statusCode != 200) {
+            if(statusCode != 201) {
                 throw new RuntimeException("Unexpected response code: " +
                                            statusCode);
             }
