@@ -153,14 +153,12 @@ public class SpaceUtilTest {
     @Test
     public void testSnashotInProgress() throws Exception{
         expectGetStorageProviderType(StorageProviderType.SNAPSHOT);
-        EasyMock.expect(this.contentStore.getContentProperties(
+        EasyMock.expect(this.contentStore.contentExists(
                                                EasyMock.isA(String.class),
                                                EasyMock.isA(String.class)))
-                                          .andReturn(
-                                               new HashMap<String, String>());
+                                          .andReturn(true);
         expectAuthority("ROLE_ADMIN", 1);
         
-
         replay();
         
         AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, null, authentication);

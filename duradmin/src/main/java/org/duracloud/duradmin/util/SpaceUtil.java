@@ -22,7 +22,6 @@ import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
 import org.duracloud.security.impl.DuracloudUserDetails;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.springframework.security.core.Authentication;
@@ -244,12 +243,7 @@ public class SpaceUtil {
 
     private static boolean isSnapshotInProgress(ContentStore store,
                                                 String spaceId) throws ContentStoreException {
-        try{
-            store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
-            return true;
-        }catch(NotFoundException ex){
-            return false;
-        } //do nothing - no snapshot in progress
+        return store.contentExists(spaceId, Constants.SNAPSHOT_ID);
     }
 
     protected static boolean isSnapshotProvider(ContentStore store) {
