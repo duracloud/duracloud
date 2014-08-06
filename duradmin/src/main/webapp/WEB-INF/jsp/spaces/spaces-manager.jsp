@@ -51,10 +51,6 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.snapshot.js"></script>
     <script
       type="text/javascript"
-      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.snapshotrestore.js"></script>
-
-    <script
-      type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.historypanel.js"></script>
     <script
       type="text/javascript"
@@ -481,23 +477,6 @@
           </div>
         </div>
         
-        <div
-          id="snapshot-restore-dialog"
-          class="dialog"
-          style="display: none; overflow: auto"
-          title="Restore Snapshot">
-          <h1 class="dc-dialog-title">Restore a snapshot</h1>
-          <p class="hint">This action begins the process of restoring a 
-            snapshot from DPN to DuraCloud. This process may take anywhere from 
-            a few minutes to days depending on the size of the selected snapshot's contents.
-            When the snapshot is complete we'll send a notification to ${user.email}</p>
-            <p>To proceed, select a snapshot from the list beliow and click 'Restore'.</p>
-          <div class="center">
-            <form id="snapshot-restore-form" onsubmit="return false;">
-                <input type="hidden" name="snapshotId"/>
-            </form>
-          </div>
-        </div>
         
         <div
           id="edit-content-item-dialog"
