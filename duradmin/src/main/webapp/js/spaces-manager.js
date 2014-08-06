@@ -2537,13 +2537,6 @@ $(function(){
           this._storeId = storeId;
 
           if(this._isAdmin()){
-
-              if(this._isSnapshot(storeId, storeProviders)){
-                  var snapshotRestore = $.fn.create("div");
-                  this._appendToCenter(snapshotRestore);
-                  snapshotRestore.snapshotrestore({storeId: this._storeId});
-              }
-
               var history = $.fn.create("div");
               this._appendToCenter(history);
               history.historypanel({storeId: this._storeId});
