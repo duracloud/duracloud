@@ -8,6 +8,12 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.InputStream;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -17,6 +23,7 @@ import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +136,30 @@ public class SnapshotController {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+    
+    @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getSnapshot(@PathVariable("storeId") String storeId,
+                                  @PathVariable("snapshotId") String snapshotId) {
+
+        try {
+
+            ContentStore store = this.contentStoreManager.getContentStore(storeId);
+            
+            GetSnapshotTaskParameters params = new GetSnapshotTaskParameters();
+            params.setSnapshotId(snapshotId);
+            
+            JaxbJsonSerializer<GetSnapshotTaskParameters> serializer =
+                new JaxbJsonSerializer<>(GetSnapshotTaskParameters.class);
+
+            String paramString = serializer.serialize(params);
+            String json = store.performTask("get-snapshot", paramString);
+            return json;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        } 
     }
 
     private boolean isSnapshotInProgress(ContentStore store,

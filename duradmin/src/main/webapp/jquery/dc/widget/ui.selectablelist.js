@@ -142,6 +142,7 @@ $.widget("ui.selectablelist",{
 	clear: function(notify){
 		this._currentItem = null;
 		this.element.children("."+this.options.itemClass).remove();	
+        this.element.children("."+this.options.itemClass + "-divider").remove(); 
 		this.dataMap = new Array();
 		this._fireCurrentItemChanged(null,notify);
 		$(this._footer).html('');
@@ -182,6 +183,14 @@ $.widget("ui.selectablelist",{
 		
 		return item;
 	},
+	
+    addDivider: function(label){
+        this.setFooter('');
+        
+        var divider = $.fn.create("div").addClass(this.options.itemClass+"-divider");
+        divider.html(label);
+        this._footer.before(divider);
+    },
 	
 	select: function(select){
 		var that = this;

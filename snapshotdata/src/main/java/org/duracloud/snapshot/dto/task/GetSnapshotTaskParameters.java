@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 7/29/14
  */
-public class GetSnapshotStatusTaskParameters {
+public class GetSnapshotTaskParameters {
 
     @XmlValue
     private String snapshotId;
@@ -35,11 +35,11 @@ public class GetSnapshotStatusTaskParameters {
      *
      * @param taskParameters - JSON formatted set of parameters
      */
-    public static GetSnapshotStatusTaskParameters deserialize(String taskParameters) {
-        JaxbJsonSerializer<GetSnapshotStatusTaskParameters> serializer =
-            new JaxbJsonSerializer<>(GetSnapshotStatusTaskParameters.class);
+    public static GetSnapshotTaskParameters deserialize(String taskParameters) {
+        JaxbJsonSerializer<GetSnapshotTaskParameters> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotTaskParameters.class);
         try {
-            GetSnapshotStatusTaskParameters params =
+            GetSnapshotTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
             if(null == params.getSnapshotId() || params.getSnapshotId().isEmpty()) {

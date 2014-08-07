@@ -9,7 +9,7 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.snapshot.dto.task.GetSnapshotStatusTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
@@ -23,19 +23,19 @@ import java.text.MessageFormat;
  * @author Bill Branan
  *         Date: 7/23/14
  */
-public class GetSnapshotStatusTaskRunner implements TaskRunner {
+public class GetSnapshotTaskRunner implements TaskRunner {
 
-    private static final String TASK_NAME = "get-snapshot-status";
+    private static final String TASK_NAME = "get-snapshot";
 
     private Logger log =
-        LoggerFactory.getLogger(GetSnapshotStatusTaskRunner.class);
+        LoggerFactory.getLogger(GetSnapshotTaskRunner.class);
 
     private String bridgeAppHost;
     private String bridgeAppPort;
     private String bridgeAppUser;
     private String bridgeAppPass;
 
-    public GetSnapshotStatusTaskRunner(String bridgeAppHost,
+    public GetSnapshotTaskRunner(String bridgeAppHost,
                                        String bridgeAppPort,
                                        String bridgeAppUser,
                                        String bridgeAppPass) {
@@ -52,8 +52,8 @@ public class GetSnapshotStatusTaskRunner implements TaskRunner {
 
     @Override
     public String performTask(String taskParameters) {
-        GetSnapshotStatusTaskParameters params =
-            GetSnapshotStatusTaskParameters.deserialize(taskParameters);
+        GetSnapshotTaskParameters params =
+            GetSnapshotTaskParameters.deserialize(taskParameters);
         String snapshotId = params.getSnapshotId();
 
         RestHttpHelper restHelper =
