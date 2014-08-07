@@ -17,29 +17,29 @@ import static org.junit.Assert.fail;
  * @author Bill Branan
  *         Date: 7/29/14
  */
-public class GetSnapshotStatusTaskParametersTest {
+public class GetSnapshotTaskParametersTest {
 
     @Test
     public void testDeserialize() {
         // Verify valid params
         String taskParamsSerialized = "{\"snapshotId\" : \"snapshot-id\"}";
 
-        GetSnapshotStatusTaskParameters taskParams =
-            GetSnapshotStatusTaskParameters.deserialize(taskParamsSerialized);
+        GetSnapshotTaskParameters taskParams =
+            GetSnapshotTaskParameters.deserialize(taskParamsSerialized);
         assertEquals("snapshot-id", taskParams.getSnapshotId());
 
         // Verify that empty params throw
         taskParamsSerialized = "{\"snapshotId\" : \"\"}";
 
         try {
-            GetSnapshotStatusTaskParameters.deserialize(taskParamsSerialized);
+            GetSnapshotTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
         } catch(SnapshotDataException e) {
         }
 
         // Verify that empty params throw
         try {
-            GetSnapshotStatusTaskParameters.deserialize("");
+            GetSnapshotTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
         } catch(SnapshotDataException e) {
         }

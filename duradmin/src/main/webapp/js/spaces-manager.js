@@ -1209,7 +1209,7 @@ $(function(){
         },
         
         _loadSpaceInternal: function(params, showDetail) {
-        
+            var that = this;
             dc.busy("Loading...", {modal:true});
             retrieveSpace =  dc.store.GetSpace2(params)
                             .success(function(data){
@@ -1479,7 +1479,7 @@ $(function(){
                             newState = that._createUniqueStateObject({
                                                                 storeId: that._storeId, 
                                                                 spaceId:spaceId,
-                                                                snapshot: (currentItem.snapshot ? false : true)
+                                                                snapshot: (currentItem.data.snapshot ? true : false)
                                                                 });
                             HistoryManager.pushState(newState);
                         }else{
@@ -1569,11 +1569,19 @@ $(function(){
             var filter = $("#space-filter").val();
             this._spacesList.selectablelist("clear",false);
             var firstMatchFound = false;
+            var snapshotDividerAdded = false;
+            that._spacesList.selectablelist("addDivider", "Spaces");
+
             $.each(this._spaces,function(i, space){
                 if(!filter || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1){
+                    
+                    if(!snapshotDividerAdded && space.snapshot){
+                        that._spacesList.selectablelist("addDivider", "Snapshots");
+                        snapshotDividerAdded = true;
+                    }
+                    
                     that.addSpaceToList(space);
                     if(!firstMatchFound){
-                        //$("#spaces-list").selectablelist('setCurrentItemById',space.spaceId);    
                         firstMatchFound = true;
                     }
                 }
@@ -2988,12 +2996,17 @@ $(function(){
             this._setObjectName(snapshot.snapshotId);
             this._setObjectId(snapshot.snapshotId);
           
+            var snapshotDate = "";
+            
+            if(snapshot.snapshotDate){
+                snapshotDate = new Date(snapshot.snapshotDate);
+            }
             var props =  [
                             ["Description", snapshot.description],
-                            ["Snapshot Date", snapshot.snapshotDate],
-                            ["Source Host", snapshot.source.host],
-                            ["Source Store",  snapshot.source.storeId],
-                            ["Source Space",  snapshot.source.spaceId],
+                            ["Snapshot Date", snapshotDate],
+                            ["Source Host", snapshot.sourceHost],
+                            ["Source Store",  snapshot.sourceStoreId],
+                            ["Source Space",  snapshot.sourceSpaceId],
                             ["Status",  snapshot.status],
 
                        ];

@@ -10,7 +10,7 @@ package org.duracloud.snapshottask.snapshot;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.duracloud.snapshot.dto.bridge.GetSnapshotStatusBridgeResult;
+import org.duracloud.snapshot.dto.bridge.GetSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotStatusTaskResult;
 import org.duracloud.storage.error.TaskException;
 import org.easymock.EasyMock;
@@ -27,10 +27,10 @@ import static org.junit.Assert.fail;
  * @author Bill Branan
  *         Date: 7/29/14
  */
-public class GetSnapshotStatusTaskRunnerTest {
+public class GetSnapshotTaskRunnerTest {
 
     private RestHttpHelper restHelper;
-    private GetSnapshotStatusTaskRunner taskRunner;
+    private GetSnapshotTaskRunner taskRunner;
 
     private String snapshotId = "snapshot-id";
     private String bridgeHost = "bridge-host";
@@ -41,7 +41,7 @@ public class GetSnapshotStatusTaskRunnerTest {
     @Before
     public void setup() {
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
-        taskRunner = new GetSnapshotStatusTaskRunner(bridgeHost, bridgePort,
+        taskRunner = new GetSnapshotTaskRunner(bridgeHost, bridgePort,
                                                      bridgeUser, bridgePass);
     }
 
@@ -68,10 +68,13 @@ public class GetSnapshotStatusTaskRunnerTest {
     public void testCallBridgeSuccess() throws Exception {
         String bridgeURL = "bridge-url";
         SnapshotStatus status = SnapshotStatus.TRANSFERRING_FROM_DURACLOUD;
-        String details = "details";
+        String description = "description";
 
-        GetSnapshotStatusBridgeResult bridgeResult =
-            new GetSnapshotStatusBridgeResult(status, details);
+        GetSnapshotBridgeResult bridgeResult =
+            new GetSnapshotBridgeResult();
+        bridgeResult.setDescription(description);
+        bridgeResult.setStatus(status);
+        
         InputStream resultStream =
             IOUtil.writeStringToStream(bridgeResult.serialize());
 
@@ -87,7 +90,7 @@ public class GetSnapshotStatusTaskRunnerTest {
         GetSnapshotStatusTaskResult taskResult =
             GetSnapshotStatusTaskResult.deserialize(callResult);
         assertEquals(status, taskResult.getStatus());
-        assertEquals(details, taskResult.getDetails());
+        assertEquals(description, taskResult.getDescription());
     }
 
     @Test

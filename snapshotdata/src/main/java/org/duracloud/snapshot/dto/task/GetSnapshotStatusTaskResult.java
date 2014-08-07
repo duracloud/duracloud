@@ -8,7 +8,7 @@
 package org.duracloud.snapshot.dto.task;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.snapshot.dto.bridge.GetSnapshotStatusBridgeResult;
+import org.duracloud.snapshot.dto.bridge.GetSnapshotBridgeResult;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 7/29/14
  */
-public class GetSnapshotStatusTaskResult extends GetSnapshotStatusBridgeResult {
+public class GetSnapshotStatusTaskResult extends GetSnapshotBridgeResult {
 
     /**
      * Parses properties from task result
