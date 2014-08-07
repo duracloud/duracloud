@@ -130,6 +130,27 @@ public class SnapshotController {
             throw new RuntimeException(e);
         }
     }
+    
+    @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getSnapshot(@PathVariable("storeId") String storeId,
+                                  @PathVariable("snapshotId") String snapshotId) {
+
+        try {
+
+            ContentStore store = this.contentStoreManager.getContentStore(storeId);
+            
+            JaxbJsonSerializer<GetSnapshotListTaskParameters> serializer =
+                new JaxbJsonSerializer<>(GetSnapshotListTaskParameters.class);
+
+            String paramString = serializer.serialize(params);
+            String json = store.performTask("get-snapshot", paramString);
+            return json;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        } 
+    }
 
     private boolean isSnapshotInProgress(ContentStore store,
                                          String spaceId) {

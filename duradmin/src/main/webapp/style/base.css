@@ -1289,3 +1289,6 @@ button#enable-streaming {
 	margin-top:10px;
 }
 
+.snapshot {
+  border: 1px solid #FF0000;
+}

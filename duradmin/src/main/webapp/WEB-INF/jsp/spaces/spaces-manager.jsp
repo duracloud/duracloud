@@ -231,6 +231,22 @@
           <div class="center"></div>
           <span class="object-id"></span>
         </div>
+        
+                <!-- Snapshot Detail Pane:  The div is invisible and used as a prototype for displaying specific snapshot details.-->
+        <div
+          id="snapshotDetailPane"
+          class="dc-detail-pane"
+          style="display: none">
+          <div class="north header">
+            <h1>Snapshot Detail</h1>
+            <h3 class="object-name">Snapshot Name Here</h3>
+            <div class="button-bar">
+              <button class="featured"><i class="pre copy"></i>Restore Snapshot</button>
+            </div>
+          </div>
+          <div class="center"></div>
+          <span class="object-id"></span>
+        </div>
 
         <div
           id="genericDetailPane"

@@ -253,6 +253,18 @@ $(function(){
             }
         },
         
+        _isSnapshot: function(storeId, storeProviders){
+            var ischron = false;
+            $.each(storeProviders, function(i, provider){
+                if(storeId == provider.id && provider.type == 'snapshot'){
+                    ischron = true;
+                    return false;
+                }
+            });
+            return ischron; 
+        },
+
+        
         _isObjectAlreadyDisplayedInDetail: function(objectId){
             return(this._storeId + "/" + objectId == $("#detail-pane .object-id").html());
         },
@@ -1039,6 +1051,15 @@ $(function(){
                        that._detailPane.spacedetail("load", space);
                    },
                    
+                   showSnapshot: function(snapshot){
+                       currentlyDisplayedDetail = "snapshot";
+                       currentlyDisplayedObject = snapshot;
+                       that._detailPane
+                       .replaceContents($("#snapshotDetailPane").clone());
+                       that._detailPane.snapshotdetail();
+                       that._detailPane.snapshotdetail("load", snapshot);
+                   },
+                   
                    showContentItem: function(contentItem){
                        currentlyDisplayedDetail = "contentItem";
                        currentlyDisplayedObject = contentItem;
@@ -1147,15 +1168,50 @@ $(function(){
             return provider.id;
         },
         
-        _loadSpace:function(params, showDetail){
+        _loadSpace: function(params, showDetail){
             var that = this;
             if(showDetail == undefined){
                 showDetail = true;
             }
+            var func;
+            if(params.snapshot){
+                func =  that._loadSnapshot(params);
+            }else{
+                func =  that._loadSpaceInternal(params, showDetail);
+            }
+            
+            return $.when(that.loadSpaces(params),func)
+            .always(function(){
+                dc.done();
+            });
+        },
+        
+        _loadSnapshot: function (params){
+            dc.busy("Loading snapshot...", {modal:true});
+            var that = this;
+            var retrieveSnapshot = 
+                    dc.store.GetSnapshot(params)
+                            .success(function(snapshot){
+                                var snapshot = snapshot;
+                                //that._spacesListPane.spaceslistpane("setCurrentById", snapshot.spaceId);
+                                //that._loadContentItems(space);
+                                
+                                that._displaySnapshot(snapshot,params);
+                            }).fail(function(){
+                                if(retrieveSnapshot.status == 404){
+                                    alert("snapshot " + params.spaceId + " does not exist.");
+                                    this._detailManager.showEmpty();
+                                } else {
+                                    alert("failed to retrieve snapshot");
+                                }                          
+                            });
 
+        },
+        
+        _loadSpaceInternal: function(params, showDetail) {
+        
             dc.busy("Loading...", {modal:true});
-            var retrieveSpace = 
-                    dc.store.GetSpace2(params)
+            retrieveSpace =  dc.store.GetSpace2(params)
                             .success(function(data){
                                 var space = data.space;
                                 that._spacesListPane.spaceslistpane("setCurrentById", space.spaceId);
@@ -1171,10 +1227,7 @@ $(function(){
                                 }                           
                             });
             
-            return $.when(that.loadSpaces(params),retrieveSpace)
-                       .always(function(){
-                           dc.done();
-                       });
+            return retrieveSpace;
         },
         
         _loadContentItem: function(params){
@@ -1214,6 +1267,10 @@ $(function(){
 
         _displaySpace: function(space){
             this._detailManager.showSpace(space);
+        },
+
+        _displaySnapshot: function(snapshot){
+            this._detailManager.showSnapshot(snapshot);
         },
 
         _loadContentItems: function(space){
@@ -1259,7 +1316,39 @@ $(function(){
                              storeId: storeId,
                          }).done(function(data){
                              that._spacesArray = data.spaces;
-                             that._spacesListPane.spaceslistpane("load",that._spacesArray,storeId);
+                             
+                             if(that._isSnapshot(storeId, storeProviders)){
+                                 dc.store
+                                 .GetSnapshots(storeId)
+                                 .always(function(){
+                                     dc.done();
+                                 }).done(function(snapshotData){
+                                     var snapshots = snapshotData.snapshots;
+                                     $.each(snapshots, function(i,snapshot){
+                                         var snapshotId = snapshot.snapshotId;
+                                         var space = {
+                                           spaceId: snapshotId,
+                                           storeId: storeId,
+                                           snapshot: true
+                                         };
+                                         
+                                         that._spacesArray.push(space);
+                                     });
+                                     
+                                     that._spacesListPane.spaceslistpane("load",that._spacesArray,storeId);
+
+                                 })
+                                 .fail(function( jqXHR, 
+                                                 textStatus, 
+                                                 errorThrown ) {
+                                     alert("error retrieving list of snapshots: " + 
+                                            errorThrown + 
+                                            " - " + textStatus + " - " +
+                                            jqXHR.responseText);
+                                 });
+                             }else{
+                                 that._spacesListPane.spaceslistpane("load",that._spacesArray,storeId);
+                             }
                              
                          }).fail(function(xhr, message){
                                 dc.logXhr(xhr, message);
@@ -1389,7 +1478,9 @@ $(function(){
                         if(spaceId){
                             newState = that._createUniqueStateObject({
                                                                 storeId: that._storeId, 
-                                                                spaceId:spaceId});
+                                                                spaceId:spaceId,
+                                                                snapshot: (currentItem.snapshot ? false : true)
+                                                                });
                             HistoryManager.pushState(newState);
                         }else{
                             dc.error("spaceId is undefined");
@@ -1449,6 +1540,10 @@ $(function(){
             var node =  $.fn.create("div");
             node.attr("id", space.spaceId)
                    .html(space.spaceId);
+            
+            if(space.snapshot == true) {
+                node.addClass("snapshot");
+            }
             this._spacesList.selectablelist(
                     'addItem',node,space, false, disabled);    
         },
@@ -1945,17 +2040,6 @@ $(function(){
                                  .snapshot({open: true, space: space});
            this._appendToCenter(viewerPane);
            return viewerPane;      
-       },
-       
-       _isSnapshot: function(storeId, storeProviders){
-           var ischron = false;
-           $.each(storeProviders, function(i, provider){
-               if(storeId == provider.id && provider.type == 'snapshot'){
-                   ischron = true;
-                   return false;
-               }
-           });
-           return ischron; 
        },
        
        _loadPropertiesPane: function(extendedProperties, /*bool*/ readOnly){
@@ -2886,6 +2970,36 @@ $(function(){
         
         
 
+    }));
+    
+    
+    /**
+     * This widget defines the detailed view of a completed snapshot
+     */
+    $.widget("ui.snapshotdetail", $.extend({}, $.ui.basedetailpane.prototype, {
+        _snapshot: null,
+        _init: function(){
+            var that = this;
+            $.ui.basedetailpane.prototype._init.call(this);
+        },     
+        
+        load: function(snapshot){
+            this._snapshot = snapshot;
+            this._setObjectName(snapshot.snapshotId);
+            this._setObjectId(snapshot.snapshotId);
+          
+            var props =  [
+                            ["Description", snapshot.description],
+                            ["Snapshot Date", snapshot.snapshotDate],
+                            ["Source Host", snapshot.source.host],
+                            ["Source Store",  snapshot.source.storeId],
+                            ["Source Space",  snapshot.source.spaceId],
+                            ["Status",  snapshot.status],
+
+                       ];
+            
+            this._loadProperties(props);
+        },
     }));
     
     /**
