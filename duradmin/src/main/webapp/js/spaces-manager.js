@@ -2954,12 +2954,13 @@ $(function(){
 
         _getRestoreId: function(space){
             var restoreId =  space.properties.restoreId ;
-            return (restoreId == undefined ? null : restoreId);
+            return (restoreId == undefined || 
+                    restoreId == null || restoreId == 0 ? null : restoreId);
         },
         
         _loadRestorePane:function(space){
             var restoreId = this._getRestoreId(space);
-            if(restoreId){
+            if(restoreId != null){
                 var restore = $.fn.create("div");
                 this._appendToCenter(restore);
                 restore.restore({
