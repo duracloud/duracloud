@@ -32,4 +32,10 @@ public class Constants {
      */
     public static final String SNAPSHOT_ID = ".collection-snapshot.properties";
 
+    /**
+     * The property value set on a space to indicate that it is a restored
+     * snapshot.
+     */
+    public static final String RESTORE_ID_PROP = "restore-id";
+
 }

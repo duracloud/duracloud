@@ -7,6 +7,7 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
@@ -173,6 +174,28 @@ public class RestoreSnapshotTaskRunnerTest {
             fail("Exception expected on 500 response");
         } catch(TaskException e) {
         }
+    }
+
+    @Test
+    public void testAddRestoreIdToSpaceProps() throws Exception {
+        String restoreSpaceId = "restore-space-id";
+        Long restoreId = 42l;
+
+        Map<String, String> spaceProps = new HashMap<>();
+        EasyMock.expect(snapshotProvider.getSpaceProperties(restoreSpaceId))
+                .andReturn(spaceProps);
+
+        Capture<Map<String, String>> propsCapture = new Capture<>();
+        snapshotProvider.setNewSpaceProperties(EasyMock.eq(restoreSpaceId),
+                                               EasyMock.capture(propsCapture));
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        taskRunner.addRestoreIdToSpaceProps(restoreSpaceId, restoreId);
+        Map<String, String> updatedSpaceProps = propsCapture.getValue();
+        assertEquals(String.valueOf(restoreId),
+                     updatedSpaceProps.get(Constants.RESTORE_ID_PROP));
     }
 
     @Test

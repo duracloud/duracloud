@@ -8,6 +8,7 @@
 package org.duracloud.snapshottask.snapshot;
 
 import org.apache.http.HttpHeaders;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.retry.Retriable;
@@ -18,6 +19,7 @@ import org.duracloud.snapshot.dto.bridge.CreateRestoreBridgeResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
+import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
@@ -45,7 +47,7 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
     private Logger log =
         LoggerFactory.getLogger(RestoreSnapshotTaskRunner.class);
 
-    private StorageProvider snapshotProvider;
+    private SnapshotStorageProvider snapshotProvider;
     private String dcHost;
     private String dcPort;
     private String dcStoreId;
@@ -55,7 +57,7 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
     private String bridgeAppUser;
     private String bridgeAppPass;
 
-    public RestoreSnapshotTaskRunner(StorageProvider snapshotProvider,
+    public RestoreSnapshotTaskRunner(SnapshotStorageProvider snapshotProvider,
                                      String dcHost,
                                      String dcPort,
                                      String dcStoreId,
@@ -124,6 +126,9 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
         String callResult = callBridge(restHelper, bridgeURL, bridgeBody);
         CreateRestoreBridgeResult bridgeResult =
             CreateRestoreBridgeResult.deserialize(callResult);
+
+        // Add restore ID to space properties
+        addRestoreIdToSpaceProps(restoreSpaceId, bridgeResult.getRestoreId());
 
         // Send response
         RestoreSnapshotTaskResult taskResult = new RestoreSnapshotTaskResult();
@@ -252,6 +257,19 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
                                     "initiate snapshot request. " +
                                     "Error reported: " + e.getMessage(), e);
         }
+    }
+
+    /*
+     * Adds the restore ID as a property on the new restore space
+     */
+    protected void addRestoreIdToSpaceProps(String restoreSpaceId,
+                                            Long restoreId) {
+        Map<String, String> restoreSpaceProps =
+            snapshotProvider.getSpaceProperties(restoreSpaceId);
+        restoreSpaceProps.put(Constants.RESTORE_ID_PROP,
+                              String.valueOf(restoreId));
+        snapshotProvider.setNewSpaceProperties(restoreSpaceId,
+                                               restoreSpaceProps);
     }
 
 }
