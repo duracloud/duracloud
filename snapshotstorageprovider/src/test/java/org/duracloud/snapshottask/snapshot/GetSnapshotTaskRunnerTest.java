@@ -11,7 +11,7 @@ import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.bridge.GetSnapshotBridgeResult;
-import org.duracloud.snapshot.dto.task.GetSnapshotStatusTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.storage.error.TaskException;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -87,8 +87,8 @@ public class GetSnapshotTaskRunnerTest {
 
         String callResult = taskRunner.callBridge(restHelper, bridgeURL);
 
-        GetSnapshotStatusTaskResult taskResult =
-            GetSnapshotStatusTaskResult.deserialize(callResult);
+        GetSnapshotTaskResult taskResult =
+            GetSnapshotTaskResult.deserialize(callResult);
         assertEquals(status, taskResult.getStatus());
         assertEquals(description, taskResult.getDescription());
     }

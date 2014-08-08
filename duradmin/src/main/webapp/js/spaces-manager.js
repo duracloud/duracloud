@@ -253,6 +253,19 @@ $(function(){
             }
         },
         
+        /**
+         * This method adds uniqueness to a state object to ensure that 
+         * when the state is pushed onto the history stack it causes 
+         * a pushstack event to fire.  If no such uniqueness occurs, the 
+         * event will not fire and the content will not be updated.  For example, 
+         * clicking on a space that is already loaded, will not be refreshed unless
+         * the state object is made unique.
+         */
+        _createUniqueStateObject: function(state){
+            state.time = new Date();
+            return state;
+        },
+        
         _isSnapshot: function(storeId, storeProviders){
             var ischron = false;
             $.each(storeProviders, function(i, provider){
@@ -1450,19 +1463,6 @@ $(function(){
             $("#check-all-spaces", this.element).attr("checked", checked);
         },
         
-        /**
-         * This method adds uniqueness to a state object to ensure that 
-         * when the state is pushed onto the history stack it causes 
-         * a pushstack event to fire.  If no such uniqueness occurs, the 
-         * event will not fire and the content will not be updated.  For example, 
-         * clicking on a space that is already loaded, will not be refreshed unless
-         * the state object is made unique.
-         */
-        _createUniqueStateObject: function(state){
-            state.time = new Date();
-            return state;
-        },
-        
         _handleSpaceListStateChangedEvent: function(evt, state){
             var that = this;
             try{
@@ -2043,11 +2043,16 @@ $(function(){
        },
        
        _loadSnapshotPane: function(space){
-           var viewerPane =  $.fn.create("div")
-                                 .attr("id", "snapshot")
-                                 .snapshot({open: true, space: space});
-           this._appendToCenter(viewerPane);
-           return viewerPane;      
+           
+           if(this._isSnapshot(space.storeId, storeProviders) 
+                   && this._getRestoreId(space) == null){
+               var viewerPane =  $.fn.create("div")
+                                     .attr("id", "snapshot")
+                                     .snapshot({open: true, space: space});
+               this._appendToCenter(viewerPane);
+           
+           }
+           
        },
        
        _loadPropertiesPane: function(extendedProperties, /*bool*/ readOnly){
@@ -2925,9 +2930,9 @@ $(function(){
                 }
 
                 
-                if(this._isSnapshot(space.storeId, storeProviders)){
-                    this._loadSnapshotPane(space);
-                }
+                this._loadSnapshotPane(space);
+                
+                this._loadRestorePane(space);
 
                 this._loadAclPane(space, readOnly);
             }
@@ -2947,6 +2952,23 @@ $(function(){
             this._loadHistoryPanel(space);
         },
 
+        _getRestoreId: function(space){
+            var restoreId =  space.properties.restoreId ;
+            return (restoreId == undefined ? null : restoreId);
+        },
+        
+        _loadRestorePane:function(space){
+            var restoreId = this._getRestoreId(space);
+            if(restoreId){
+                var restore = $.fn.create("div");
+                this._appendToCenter(restore);
+                restore.restore({
+                    storeId : space.storeId,
+                    restoreId : restoreId
+                });
+            }
+        },
+        
         _loadHistoryPanel: function(options){
             var history = $.fn.create("div");
             this._appendToCenter(history);
@@ -2992,6 +3014,7 @@ $(function(){
         },     
         
         load: function(snapshot){
+            this._storeId = snapshot.sourceStoreId;
             this._snapshot = snapshot;
             this._setObjectName(snapshot.snapshotId);
             this._setObjectId(snapshot.snapshotId);
@@ -3012,6 +3035,78 @@ $(function(){
                        ];
             
             this._loadProperties(props);
+            
+            this._configureRestoreControls();
+        },
+        
+        
+        
+        _configureRestoreControls: function(){
+            var that = this;
+
+            that._getRestoreButton().disable(true);
+            that._getRestoreLink().makeHidden();
+
+            if(that._snapshot.status != 'SNAPSHOT_COMPLETE'){
+                return;
+            }
+            
+            dc.store.GetRestoreBySnapshot(that._storeId, that._snapshot.snapshotId)
+            .success(function(restore){
+                that._enableRestoreLink(restore);
+            })
+            .error(function(jqxhr,  textStatus, errorThrown){
+                that._enableRestoreButton();
+            });
+        },
+        
+        _getRestoreButton: function(){  
+            return $(this.element).find("#restoreButton");            
+        },
+
+        _getRestoreLink: function(){  
+            return $(this.element).find("#restoreLink");            
+        },
+
+        _enableRestoreButton: function() {
+            var that = this;
+            that._getRestoreLink().makeHidden();
+            that._getRestoreButton()
+                .unbind("click")
+                .click(function(){
+                    that._restoreSnapshot();
+                })
+                .disable(false);
+        },
+        
+        _restoreSnapshot: function(){
+            var that = this;
+            dc.store.RestoreSnapshot(that._storeId, that._snapshot.snapshotId)
+                .success(function(data){
+                    that._configureRestoreControls();
+                    alert("You successfully initiated restore of snapshot.\n" + 
+                            "Click 'View Restored Space' link to track it's progress");
+                })
+                .error(function(jqxhr,  textStatus, errorThrown){
+                    alert("failed to initiate restore: status=" + jqxhr.status + 
+                            "; error thrown=" + errorThrown );
+                });
+        },
+        
+        _enableRestoreLink:function(restore){
+            var that = this;
+            that._getRestoreButton()
+                .disable(true);
+
+            that._getRestoreLink()
+                .unbind("click")
+                .click(function(){
+                    HistoryManager.pushState(that._createUniqueStateObject({
+                                    storeId : restore.destinationStoreId,
+                                    spaceId : restore.destinationSpaceId
+                    }));
+                })
+                .makeVisible();
         },
     }));
     

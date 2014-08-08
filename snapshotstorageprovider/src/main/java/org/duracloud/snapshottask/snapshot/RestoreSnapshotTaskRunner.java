@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class RestoreSnapshotTaskRunner implements TaskRunner {
 
-    private static final String TASK_NAME = "restore-snapshot";
+    public static final String TASK_NAME = "restore-snapshot";
 
     private Logger log =
         LoggerFactory.getLogger(RestoreSnapshotTaskRunner.class);
@@ -126,7 +126,7 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
         String callResult = callBridge(restHelper, bridgeURL, bridgeBody);
         CreateRestoreBridgeResult bridgeResult =
             CreateRestoreBridgeResult.deserialize(callResult);
-
+        
         // Add restore ID to space properties
         addRestoreIdToSpaceProps(restoreSpaceId, bridgeResult.getRestoreId());
 
@@ -137,6 +137,7 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
         taskResult.setStatus(bridgeResult.getStatus());
         return taskResult.serialize();
     }
+
 
     /*
      * Determines if a restore of this snapshot is either already under way

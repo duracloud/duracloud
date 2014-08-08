@@ -88,6 +88,12 @@ public class SpaceUtil {
         spaceProperties.setSize(spaceProps.remove(ContentStore.SPACE_SIZE));
         spaceProperties.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
         spaceProperties.setStreamingHost(spaceProps.get(ContentStore.STREAMING_HOST));
+        
+        String restoreIdStr = spaceProps.get(Constants.RESTORE_ID_PROP);
+        if(StringUtils.isNotBlank(restoreIdStr)){
+            spaceProperties.setRestoreId(Long.valueOf(restoreIdStr));
+        }
+        
         return spaceProperties;
     }
 

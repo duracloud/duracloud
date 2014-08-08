@@ -415,7 +415,7 @@ var dc;
 
     dc.store.RestoreSnapshot = function(storeId, snapshotId){
         return dc.ajax2({
-            url: "/duradmin/spaces/snapshot/restore/"+storeId+"/"+snapshotId, 
+            url: "/duradmin/spaces/restores?storeId="+storeId+"&snapshotId="+snapshotId, 
             async: true,
             dataType: 'json',
             type: "post",
@@ -440,6 +440,28 @@ var dc;
             type: "get",
         });
     };
+    
+    
+   
+    dc.store.GetRestoreBySnapshot = function(storeId,snapshotId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/restores/"+storeId+"/by-snapshot/" + snapshotId, 
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+    
+    dc.store.GetRestore = function(storeId,restoreId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/restores/"+storeId+"/"+restoreId, 
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+        
+    
     
     dc.store.GetSnapshotProperties = function(storeId, spaceId){
         

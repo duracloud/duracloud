@@ -10,32 +10,31 @@ package org.duracloud.snapshottask.snapshot;
 import java.text.MessageFormat;
 
 import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.task.GetRestoreTaskParameters;
 import org.duracloud.storage.error.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Gets the status of an action to perform a snapshot
+ * Gets the status of an action to restore a snapshot.
  *
  * @author Bill Branan
  *         Date: 7/23/14
  */
-public class GetSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
+public class GetRestoreTaskRunner extends AbstractSnapshotTaskRunner {
 
-    private static final String TASK_NAME = "get-snapshot";
+    private static final String TASK_NAME = "get-restore";
 
-    private Logger log =
-        LoggerFactory.getLogger(GetSnapshotTaskRunner.class);
+    private Logger log = LoggerFactory.getLogger(GetRestoreTaskRunner.class);
 
-
-    public GetSnapshotTaskRunner(String bridgeAppHost,
-                                       String bridgeAppPort,
-                                       String bridgeAppUser,
-                                       String bridgeAppPass) {
+ 
+    public GetRestoreTaskRunner(String bridgeAppHost,
+                                  String bridgeAppPort,
+                                  String bridgeAppUser,
+                                  String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
     }
-
+    
     @Override
     public String getName() {
         return TASK_NAME;
@@ -43,20 +42,25 @@ public class GetSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
     @Override
     public String performTask(String taskParameters) {
-        GetSnapshotTaskParameters params =
-            GetSnapshotTaskParameters.deserialize(taskParameters);
-        String snapshotId = params.getSnapshotId();
-
-        return callBridge(createRestHelper(), buildBridgeURL(snapshotId));
+        GetRestoreTaskParameters params =
+            GetRestoreTaskParameters.deserialize(taskParameters);
+        return callBridge(createRestHelper(), buildBridgeURL(params));
     }
 
     /*
      * Create URL to call bridge app
      */
-    protected String buildBridgeURL(String snapshotId) {
-        return MessageFormat.format("{0}/snapshot/{1}",
-                                    buildBridgeBaseURL(),
-                                    snapshotId);
+    protected String buildBridgeURL(GetRestoreTaskParameters params) {
+        if(params.getRestoreId() != null){
+            return MessageFormat.format("{0}/restore/{1}",
+                                        buildBridgeBaseURL(),
+                                        params.getRestoreId());
+            
+        }else{
+            return MessageFormat.format("{0}/restore/by-snapshot/{1}",
+                                        buildBridgeBaseURL(),
+                                        params.getSnapshotId());
+        }
     }
 
     /*
@@ -75,7 +79,7 @@ public class GetSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
             return response.getResponseBody();
         } catch(Exception e) {
             throw new TaskException("Exception encountered attempting to " +
-                                    "get  snapshot. " +
+                                    "get restore. " +
                                     "Error reported: " + e.getMessage(), e);
         }
     }

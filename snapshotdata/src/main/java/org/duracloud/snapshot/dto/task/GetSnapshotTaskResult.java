@@ -17,16 +17,16 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 7/29/14
  */
-public class GetSnapshotStatusTaskResult extends GetSnapshotBridgeResult {
+public class GetSnapshotTaskResult extends GetSnapshotBridgeResult {
 
     /**
      * Parses properties from task result
      *
      * @param taskResult - JSON formatted set of properties
      */
-    public static GetSnapshotStatusTaskResult deserialize(String taskResult) {
-        JaxbJsonSerializer<GetSnapshotStatusTaskResult> serializer =
-            new JaxbJsonSerializer<>(GetSnapshotStatusTaskResult.class);
+    public static GetSnapshotTaskResult deserialize(String taskResult) {
+        JaxbJsonSerializer<GetSnapshotTaskResult> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
         } catch(IOException e) {

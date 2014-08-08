@@ -51,6 +51,9 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.snapshot.js"></script>
     <script
       type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.restore.js"></script>
+    <script
+      type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.historypanel.js"></script>
     <script
       type="text/javascript"
@@ -241,7 +244,14 @@
             <h1>Snapshot Detail</h1>
             <h3 class="object-name">Snapshot Name Here</h3>
             <div class="button-bar">
-              <button class="featured"><i class="pre copy"></i>Restore Snapshot</button>
+
+              <button 
+                id="restoreButton"
+                class="featured">
+                <i class="pre copy"></i>Restore Snapshot
+              </button>
+              
+              <a id="restoreLink" class="button">View Restored Space</a>
             </div>
           </div>
           <div class="center"></div>

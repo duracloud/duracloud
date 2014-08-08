@@ -29,6 +29,8 @@ public class SpaceProperties
     private String streamingHost;
 
     private Set<String> tags;
+    
+    private Long restoreId;
 
     public String getCreated() {
         return created;
@@ -77,6 +79,14 @@ public class SpaceProperties
 
     public void setStreamingHost(String streamingHost) {
         this.streamingHost = streamingHost;
+    }
+
+    public Long getRestoreId() {
+        return restoreId;
+    }
+
+    public void setRestoreId(Long restoreId) {
+        this.restoreId = restoreId;
     }
 
 }
