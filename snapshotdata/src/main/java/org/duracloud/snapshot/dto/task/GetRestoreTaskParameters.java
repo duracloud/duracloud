@@ -40,16 +40,10 @@ public class GetRestoreTaskParameters {
 
     private void check(String snapshotId, Long restoreId) {
         if(!StringUtils.isBlank(snapshotId) && restoreId != null){
-            throw new IllegalArgumentException("snapshotId or restoreId may not be non-null at the same time ");
+            throw new IllegalArgumentException(
+                "EITHER a snapshotId or a restoreId may be set, but not both");
         }
     }
-
-    /**
-     * Parses properties from task parameter string
-     *
-     * @param taskParameters - JSON formatted set of parameters
-     */
-
 
     public Long getRestoreId() {
         return restoreId;
@@ -60,6 +54,27 @@ public class GetRestoreTaskParameters {
         this.restoreId = restoreId;
     }
 
+    /**
+     * Creates a serialized version of task parameters
+     *
+     * @return JSON formatted task result info
+     */
+    public String serialize() {
+        JaxbJsonSerializer<GetRestoreTaskParameters> serializer =
+            new JaxbJsonSerializer<>(GetRestoreTaskParameters.class);
+        try {
+            return serializer.serialize(this);
+        } catch(IOException e) {
+            throw new SnapshotDataException(
+                "Unable to create task parameters due to: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Parses properties from task parameter string
+     *
+     * @param taskParameters - JSON formatted set of parameters
+     */
     public static GetRestoreTaskParameters deserialize(String taskParameters) {
         JaxbJsonSerializer<GetRestoreTaskParameters> serializer =
             new JaxbJsonSerializer<>(GetRestoreTaskParameters.class);

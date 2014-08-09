@@ -11,13 +11,28 @@ import org.duracloud.snapshot.error.SnapshotDataException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
  * @author Bill Branan
  *         Date: 7/25/14
  */
 public class CompleteSnapshotTaskParametersTest {
+
+    @Test
+    public void testSerialize() {
+        String spaceId = "space-id";
+
+        CompleteSnapshotTaskParameters taskParams =
+            new CompleteSnapshotTaskParameters();
+        taskParams.setSpaceId(spaceId);
+
+        String result = taskParams.serialize();
+        String cleanResult = result.replaceAll("\\s+", "");
+        assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId +"\""));
+    }
 
     @Test
     public void testDeserialize() {

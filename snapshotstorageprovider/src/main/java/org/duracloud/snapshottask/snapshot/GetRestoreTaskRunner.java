@@ -7,37 +7,36 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import java.text.MessageFormat;
-
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskParameters;
 import org.duracloud.storage.error.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
+
 /**
- * Gets the status of an action to restore a snapshot.
+ * Gets the status and details of a snapshot restore action.
  *
  * @author Bill Branan
  *         Date: 7/23/14
  */
 public class GetRestoreTaskRunner extends AbstractSnapshotTaskRunner {
 
-    private static final String TASK_NAME = "get-restore";
-
     private Logger log = LoggerFactory.getLogger(GetRestoreTaskRunner.class);
 
  
     public GetRestoreTaskRunner(String bridgeAppHost,
-                                  String bridgeAppPort,
-                                  String bridgeAppUser,
-                                  String bridgeAppPass) {
+                                String bridgeAppPort,
+                                String bridgeAppUser,
+                                String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
     }
     
     @Override
     public String getName() {
-        return TASK_NAME;
+        return SnapshotConstants.GET_RESTORE_TASK_NAME;
     }
 
     @Override
@@ -67,7 +66,7 @@ public class GetRestoreTaskRunner extends AbstractSnapshotTaskRunner {
      * Calls the bridge application to get snapshot listing
      */
     protected String callBridge(RestHttpHelper restHelper, String bridgeURL) {
-        log.info("Making bridge call to get snapshot status. URL: {}", bridgeURL);
+        log.info("Making bridge call to get restore status. URL: {}", bridgeURL);
 
         try {
             RestHttpHelper.HttpResponse response = restHelper.get(bridgeURL);

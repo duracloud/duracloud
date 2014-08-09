@@ -9,6 +9,7 @@ package org.duracloud.snapshottask.snapshot;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
+import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
@@ -26,7 +27,6 @@ import java.util.List;
  */
 public class CompleteSnapshotTaskRunner implements TaskRunner {
 
-    private static final String TASK_NAME = "complete-snapshot";
     private static int EXPIRATION_DAYS = 1;
 
     private SnapshotStorageProvider snapshotProvider;
@@ -40,7 +40,7 @@ public class CompleteSnapshotTaskRunner implements TaskRunner {
 
     @Override
     public String getName() {
-        return TASK_NAME;
+        return SnapshotConstants.COMPLETE_SNAPSHOT_TASK_NAME;
     }
 
     @Override

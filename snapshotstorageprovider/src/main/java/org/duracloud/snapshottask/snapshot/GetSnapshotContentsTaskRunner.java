@@ -8,6 +8,7 @@
 package org.duracloud.snapshottask.snapshot;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.storage.provider.TaskRunner;
 
 /**
@@ -20,11 +21,9 @@ import org.duracloud.storage.provider.TaskRunner;
  */
 public class GetSnapshotContentsTaskRunner implements TaskRunner {
 
-    private static final String TASK_NAME = "get-snapshot-contents";
-
     @Override
     public String getName() {
-        return TASK_NAME;
+        return SnapshotConstants.GET_SNAPSHOT_CONTENTS_TASK_NAME;
     }
 
     @Override

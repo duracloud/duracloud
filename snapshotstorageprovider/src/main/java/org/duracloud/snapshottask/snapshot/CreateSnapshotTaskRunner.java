@@ -17,6 +17,7 @@ import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeParameters;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
@@ -45,8 +46,6 @@ import java.util.Properties;
  *          Date: 2/1/13
  */
 public class CreateSnapshotTaskRunner implements TaskRunner {
-
-    private static final String TASK_NAME = "create-snapshot";
 
     private Logger log = LoggerFactory.getLogger(CreateSnapshotTaskRunner.class);
 
@@ -85,7 +84,7 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
 
     @Override
     public String getName() {
-        return TASK_NAME;
+        return SnapshotConstants.CREATE_SNAPSHOT_TASK_NAME;
     }
 
     @Override

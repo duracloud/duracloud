@@ -38,6 +38,22 @@ public class CompleteSnapshotTaskParameters {
     }
 
     /**
+     * Creates a serialized version of task parameters
+     *
+     * @return JSON formatted task result info
+     */
+    public String serialize() {
+        JaxbJsonSerializer<CompleteSnapshotTaskParameters> serializer =
+            new JaxbJsonSerializer<>(CompleteSnapshotTaskParameters.class);
+        try {
+            return serializer.serialize(this);
+        } catch(IOException e) {
+            throw new SnapshotDataException(
+                "Unable to create task parameters due to: " + e.getMessage());
+        }
+    }
+
+    /**
      * Parses properties from task parameter string
      *
      * @param taskParameters - JSON formatted set of parameters

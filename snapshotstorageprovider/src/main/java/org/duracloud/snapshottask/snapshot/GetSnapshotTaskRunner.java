@@ -7,38 +7,37 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import java.text.MessageFormat;
-
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.storage.error.TaskException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
+
 /**
- * Gets the status of an action to perform a snapshot
+ * Gets the status and details of a snapshot action
  *
  * @author Bill Branan
  *         Date: 7/23/14
  */
 public class GetSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
-    private static final String TASK_NAME = "get-snapshot";
-
     private Logger log =
         LoggerFactory.getLogger(GetSnapshotTaskRunner.class);
 
 
     public GetSnapshotTaskRunner(String bridgeAppHost,
-                                       String bridgeAppPort,
-                                       String bridgeAppUser,
-                                       String bridgeAppPass) {
+                                 String bridgeAppPort,
+                                 String bridgeAppUser,
+                                 String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
     }
 
     @Override
     public String getName() {
-        return TASK_NAME;
+        return SnapshotConstants.GET_SNAPSHOT_TASK_NAME;
     }
 
     @Override

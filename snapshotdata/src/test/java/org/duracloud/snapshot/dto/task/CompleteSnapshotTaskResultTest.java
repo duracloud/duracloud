@@ -9,6 +9,7 @@ package org.duracloud.snapshot.dto.task;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
@@ -18,14 +19,27 @@ import static org.junit.matchers.JUnitMatchers.containsString;
  */
 public class CompleteSnapshotTaskResultTest {
 
+    private int expirationDays = 42;
+
     @Test
     public void testSerialize() {
-        int expirationDays = 42;
+
         String result = new CompleteSnapshotTaskResult(expirationDays).serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult,
                    containsString("\"contentExpirationDays\":"+expirationDays));
 
+    }
+
+    @Test
+    public void testDeserialize() {
+        // Verify valid params
+        String taskParamsSerialized =
+            "{\"contentExpirationDays\" : "+expirationDays+"}";
+
+        CompleteSnapshotTaskResult taskResult =
+            CompleteSnapshotTaskResult.deserialize(taskParamsSerialized);
+        assertEquals(expirationDays, taskResult.getContentExpirationDays());
     }
 
 }

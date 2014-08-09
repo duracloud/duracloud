@@ -9,6 +9,7 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
@@ -23,8 +24,6 @@ import java.text.MessageFormat;
  *         Date: 7/23/14
  */
 public class GetSnapshotsTaskRunner implements TaskRunner {
-
-    private static final String TASK_NAME = "get-snapshots";
 
     private Logger log = LoggerFactory.getLogger(GetSnapshotsTaskRunner.class);
 
@@ -48,7 +47,7 @@ public class GetSnapshotsTaskRunner implements TaskRunner {
 
     @Override
     public String getName() {
-        return TASK_NAME;
+        return SnapshotConstants.GET_SNAPSHOTS_TASK_NAME;
     }
 
     @Override

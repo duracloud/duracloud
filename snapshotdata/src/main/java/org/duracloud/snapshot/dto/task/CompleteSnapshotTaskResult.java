@@ -25,6 +25,9 @@ public class CompleteSnapshotTaskResult {
     @XmlValue
     private int contentExpirationDays;
 
+    // Required by JAXB
+    public CompleteSnapshotTaskResult() {}
+
     public CompleteSnapshotTaskResult(int contentExpirationDays) {
         this.contentExpirationDays = contentExpirationDays;
     }
@@ -47,6 +50,22 @@ public class CompleteSnapshotTaskResult {
             new JaxbJsonSerializer<>(CompleteSnapshotTaskResult.class);
         try {
             return serializer.serialize(this);
+        } catch(IOException e) {
+            throw new SnapshotDataException(
+                "Unable to create task result due to: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Parses properties from task result
+     *
+     * @param taskResult - JSON formatted set of properties
+     */
+    public static CompleteSnapshotTaskResult deserialize(String taskResult) {
+        JaxbJsonSerializer<CompleteSnapshotTaskResult> serializer =
+            new JaxbJsonSerializer<>(CompleteSnapshotTaskResult.class);
+        try {
+            return serializer.deserialize(taskResult);
         } catch(IOException e) {
             throw new SnapshotDataException(
                 "Unable to create task result due to: " + e.getMessage());

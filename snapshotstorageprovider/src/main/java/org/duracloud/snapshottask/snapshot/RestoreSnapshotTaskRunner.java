@@ -14,6 +14,7 @@ import org.duracloud.common.model.Credential;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.bridge.CreateRestoreBridgeParameters;
 import org.duracloud.snapshot.dto.bridge.CreateRestoreBridgeResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
@@ -41,8 +42,6 @@ import java.util.Map;
  *         Date: 7/23/14
  */
 public class RestoreSnapshotTaskRunner implements TaskRunner {
-
-    public static final String TASK_NAME = "restore-snapshot";
 
     private Logger log =
         LoggerFactory.getLogger(RestoreSnapshotTaskRunner.class);
@@ -79,7 +78,7 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
 
     @Override
     public String getName() {
-        return TASK_NAME;
+        return SnapshotConstants.RESTORE_SNAPSHOT_TASK_NAME;
     }
 
     @Override
