@@ -8,12 +8,15 @@
 package org.duracloud.client.task;
 
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
+
+import java.util.List;
 
 /**
  * Provides a client interface for the SnapshotStorageProvider's set of tasks.
@@ -76,9 +79,13 @@ public interface SnapshotTaskClient {
      * the same as the list of content that existed in the original space at the
      * moment the snapshot was initiated.
      *
+     * @param pageNumber the page number of result set pages
+     * @param pageSize the maximum number of content items to include in the result set
+     * @return list of content items
      * @throws ContentStoreException on error
      */
-    public void getSnapshotContents()
+    public List<SnapshotContentItem> getSnapshotContents(int pageNumber,
+                                                         int pageSize)
         throws ContentStoreException;
 
     /**
