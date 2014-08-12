@@ -9,6 +9,7 @@
 package org.duracloud.duradmin.spaces.controller;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,16 +18,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.task.SnapshotTaskClient;
+import org.duracloud.client.task.SnapshotTaskClientManager;
+import org.duracloud.client.task.SnapshotTaskClientImpl;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
+import org.duracloud.snapshot.SnapshotConstants;
+import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
-import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,19 +50,22 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class SnapshotController {
-
+   
     protected final Logger log =
         LoggerFactory.getLogger(SnapshotController.class);
 
     private ContentStoreManager contentStoreManager;
     private DuracloudUserDetailsService userDetailsService;
-
+    private SnapshotTaskClientManager snapshotTaskClientManager;
+    
     @Autowired(required = true)
     public SnapshotController(
         @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager,
-        DuracloudUserDetailsService userDetailsService) {
+        DuracloudUserDetailsService userDetailsService, 
+        SnapshotTaskClientManager snapshotTaskClientManager) {
         this.contentStoreManager = contentStoreManager;
         this.userDetailsService = userDetailsService;
+        this.snapshotTaskClientManager = snapshotTaskClientManager;
     }
 
     @RequestMapping(value = "/spaces/snapshot", method = RequestMethod.POST)
@@ -164,6 +172,43 @@ public class SnapshotController {
             throw new RuntimeException(e);
         }
     }
+    
+    @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/content", method = RequestMethod.GET)
+    public ModelAndView
+        getContent(@PathVariable("storeId") String storeId,
+                    @PathVariable("snapshotId") String snapshotId,
+                    @RequestParam(value="page", required=false) Integer page,
+                    @RequestParam(value="prefix", required=false) String prefix) {
+        try {
+            SnapshotTaskClient taskClient = getTaskClient(storeId);
+
+            if(page == null){
+                page = 0;
+            }
+            //TODO ADD PREFIX to the SnapshotTaskClient.getSnapshotContents
+            int pageSize = 200;
+            List<SnapshotContentItem> items =
+                taskClient.getSnapshotContents(page, pageSize);
+            ModelAndView mav = new ModelAndView("jsonView");
+            mav.addObject("contents", items);
+            mav.addObject("page", page);
+            mav.addObject("snapshotId", snapshotId);
+            mav.addObject("storeId", storeId);
+            mav.addObject("nextPage", items.size() == pageSize? page+1 : null);
+            mav.addObject("prefix", prefix);
+            return mav;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected SnapshotTaskClient getTaskClient(String storeId)
+        throws ContentStoreException {
+        SnapshotTaskClient taskClient =
+            this.snapshotTaskClientManager.get(storeId);
+        return taskClient;
+    }
 
     @RequestMapping(value = "/spaces/restores/{storeId}/by-snapshot/{snapshotId}", method = RequestMethod.GET)
     @ResponseBody
@@ -221,7 +266,7 @@ public class SnapshotController {
             new JaxbJsonSerializer<>(RestoreSnapshotTaskParameters.class);
         String paramString = serializer.serialize(params);
         String json =
-            store.performTask(RestoreSnapshotTaskRunner.TASK_NAME, paramString);
+            store.performTask(SnapshotConstants.RESTORE_SNAPSHOT_TASK_NAME, paramString);
         return json;
     }
 

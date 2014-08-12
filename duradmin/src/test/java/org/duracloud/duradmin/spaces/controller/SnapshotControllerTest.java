@@ -3,6 +3,10 @@ package org.duracloud.duradmin.spaces.controller;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,15 +15,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.task.SnapshotTaskClient;
+import org.duracloud.client.task.SnapshotTaskClientManager;
 import org.duracloud.domain.Content;
+import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
-import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
+import org.duracloud.snapshot.SnapshotConstants;
+import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 
@@ -28,14 +37,16 @@ import org.junit.Test;
  */
 public class SnapshotControllerTest {
 
-    ContentStore store;
-    ContentStoreManager storeManager;
-    HttpServletResponse response;
-    HttpServletRequest request;
-    PrintWriter writer;
-    Content content;
-    DuracloudUserDetailsService userDetailsService;
-
+    private ContentStore store;
+    private ContentStoreManager storeManager;
+    private HttpServletResponse response;
+    private HttpServletRequest request;
+    private PrintWriter writer;
+    private Content content;
+    private DuracloudUserDetailsService userDetailsService;
+    private SnapshotTaskClient taskClient;
+    private SnapshotTaskClientManager taskClientFactory;
+    
     @Before
     public void setUp() throws Exception {
         store = EasyMock.createMock(ContentStore.class);
@@ -45,23 +56,44 @@ public class SnapshotControllerTest {
         writer = EasyMock.createMock(PrintWriter.class);
         content = EasyMock.createMock(Content.class);
         userDetailsService = EasyMock.createMock(DuracloudUserDetailsService.class);
+        taskClient = EasyMock.createMock(SnapshotTaskClient.class);
+        taskClientFactory = EasyMock.createMock(SnapshotTaskClientManager.class);
+    }
+
+    protected void setupGetContentStore() throws ContentStoreException {
         EasyMock.expect(storeManager.getContentStore(EasyMock.isA(String.class)))
                 .andReturn(store);
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(store, storeManager, response, request, writer,
-                        content, userDetailsService);
+        EasyMock.verify(store,
+                        storeManager,
+                        response,
+                        request,
+                        writer,
+                        content,
+                        userDetailsService,
+                        taskClient, 
+                        taskClientFactory);
     }
 
     private void replay() {
-        EasyMock.replay(store, storeManager, response, request, writer,
-                        content, userDetailsService);
+        EasyMock.replay(store,
+                        storeManager,
+                        response,
+                        request,
+                        writer,
+                        content,
+                        userDetailsService,
+                        taskClient,
+                        taskClientFactory);
     }
 
     @Test
     public void testCreateSnapshot() throws Exception {
+        setupGetContentStore();
+
         EasyMock.expect(store.contentExists(EasyMock.isA(String.class),
                                             EasyMock.isA(String.class)))
                 .andReturn(false);
@@ -81,8 +113,7 @@ public class SnapshotControllerTest {
         setupUserDetails();
 
         replay();
-        SnapshotController controller =
-            new SnapshotController(storeManager, userDetailsService);
+        SnapshotController controller = createController();
         Assert.assertNull(controller.create(request,
                                         response,
                                         "spaceId",
@@ -92,7 +123,9 @@ public class SnapshotControllerTest {
     
     @Test
     public void testRestoreSnapshot() throws Exception {
-        EasyMock.expect(store.performTask(EasyMock.eq(RestoreSnapshotTaskRunner.TASK_NAME),
+        setupGetContentStore();
+
+        EasyMock.expect(store.performTask(EasyMock.eq(SnapshotConstants.RESTORE_SNAPSHOT_TASK_NAME),
                                           EasyMock.isA(String.class)))
                 .andReturn("response");
 
@@ -100,8 +133,7 @@ public class SnapshotControllerTest {
         setupUserDetails();
 
         replay();
-        SnapshotController controller =
-            new SnapshotController(storeManager, userDetailsService);
+        SnapshotController controller = createController();
         Assert.assertNotNull(controller.restore(request, "store-id", "snapshot-id"));
     }
 
@@ -122,6 +154,8 @@ public class SnapshotControllerTest {
 
     @Test
     public void testGetSnapshot() throws Exception{
+        setupGetContentStore();
+
         EasyMock.expect(store.contentExists(EasyMock.isA(String.class),
                                             EasyMock.isA(String.class)))
                 .andReturn(true);
@@ -135,33 +169,73 @@ public class SnapshotControllerTest {
         EasyMock.expect(content.getStream())
                 .andReturn(new ByteArrayInputStream(os.toByteArray()));
         replay();
-        SnapshotController controller =
-            new SnapshotController(storeManager, userDetailsService);
+        SnapshotController controller = createController();
         Assert.assertNotNull(controller.get("storeId", "spaceId"));
     }
     
     @Test
     public void testGetRestoreBySnaphshotId() throws Exception{
+        
+        setupGetContentStore();
+
         EasyMock.expect(store.performTask(EasyMock.eq("get-restore"),
                                          EasyMock.isA(String.class)))
                 .andReturn("results");
         
         replay();
-        SnapshotController controller =
-            new SnapshotController(storeManager, userDetailsService);
+        SnapshotController controller = createController();
         Assert.assertNotNull(controller.getRestore("store-id", "snapshot-id"));
     }
 
     @Test
     public void testGetRestore() throws Exception{
+        
+        setupGetContentStore();
+
         EasyMock.expect(store.performTask(EasyMock.eq("get-restore"),
                                          EasyMock.isA(String.class)))
                 .andReturn("results");
         
         replay();
-        SnapshotController controller =
-            new SnapshotController(storeManager, userDetailsService);
+        SnapshotController controller = createController();
         Assert.assertNotNull(controller.getRestore("store-id", 1000l));
+    }
+    
+    @Test
+    public void testGetContent() throws Exception{
+
+        String storeId = "store-id";
+        String snapshotId = "snapshot-id";
+        Integer page = 0;
+        String prefix = "prefix";
+        
+        List<SnapshotContentItem> items = new ArrayList<>();
+        for(int i = 0; i < 200; i++ ) {
+            SnapshotContentItem item = new SnapshotContentItem();
+            item.setContentId("content-id"+ i);
+            item.setContentProperties(new HashMap<String,String>());
+            items.add(item);
+        }
+        
+        EasyMock.expect(this.taskClientFactory.get(storeId))
+                .andReturn(taskClient);
+        EasyMock.expect(taskClient.getSnapshotContents(page, 200)).andReturn(items);
+        replay();
+        SnapshotController controller = createController();
+        ModelAndView mav = controller.getContent(storeId, snapshotId, page, prefix);
+        Map<String,Object> model = mav.getModel();
+        Assert.assertEquals(model.get("storeId"), storeId);
+        Assert.assertEquals(model.get("snapshotId"), snapshotId);
+        Assert.assertEquals(model.get("prefix"), prefix);
+        Assert.assertEquals(model.get("page"),page);
+        Assert.assertEquals(model.get("nextPage"),page+1);
+    }
+        
+
+    protected SnapshotController createController() {
+        return new SnapshotController(storeManager,
+                                      userDetailsService,
+                                      taskClientFactory);
     }
 
 }

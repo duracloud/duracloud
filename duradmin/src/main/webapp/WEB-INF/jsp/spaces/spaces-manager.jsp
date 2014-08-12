@@ -163,6 +163,14 @@
           <div
             id="content-item-list-view"
             class="dc-list-item-viewer">
+          </div>
+        </div>
+        <div
+          id="detail-pane"
+          class="detail-pane"></div>
+
+        <div id="contentItemListPane"
+                  style="display: none">
             <div class="north header list-header clearfix">
               <div
                 id="header-content-list"
@@ -199,11 +207,42 @@
                 class="dc-item-list"
                 id="content-item-list"></div>
             </div>
-          </div>
         </div>
-        <div
-          id="detail-pane"
-          class="detail-pane"></div>
+
+        <div id="snapshotItemListPane"
+                  style="display: none">
+            <div class="north header list-header clearfix">
+              <div
+                id="header-content-list"
+                class="header-section clearfix">
+
+                <button class="float-r refresh-space-button">
+                  <i class="pre refresh"></i>Refresh
+                </button>
+
+                <h2>Snapshot Content Items</h2>
+              </div>
+              <div class="header-section">
+                <span class="float-r"> <input
+                  id="content-item-filter"
+                  class="dc-item-list-filter"
+                  value=""
+                  placeholder="type prefix"
+                  type="text" /> </span> <span
+                  id="content-item-list-status"
+                  class="dc-status"></span> <span
+                  id="content-item-list-controls"
+                  class="dc-item-list-controls"></span>
+
+              </div>
+            </div>
+
+            <div class="center dc-item-list-wrapper">
+              <div
+                class="dc-item-list"
+                id="content-item-list"></div>
+            </div>
+        </div>
 
         <!-- Space Detail Pane:  The div is invisible and used as a prototype for displaying specific space details.-->
         <div

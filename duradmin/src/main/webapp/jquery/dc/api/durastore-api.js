@@ -268,7 +268,6 @@ var dc;
 				dc.checkSession();
 				future.success(data);
 		    },
-		    
 		    error: function(xhr, status, errorThrown){
 		    	future.failure(status,xhr);
 		    },
@@ -473,6 +472,19 @@ var dc;
         });
     };
 
+    dc.store.GetSnapshotContent = function(storeId, snapshotId, page, prefix){
+        if(!page){
+            page = 0;
+        }
+        return dc.ajax2({
+            url : "/duradmin/spaces/snapshots/" + storeId + "/" + snapshotId
+                    + "/content?page=" + page + "&prefix="
+                    + prefix,
+            dataType : 'json',
+            async : true,
+            type : "get",
+        });
+    };
     /**
      * 
      */
