@@ -1,17 +1,5 @@
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -23,12 +11,24 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
+import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * 
@@ -208,7 +208,7 @@ public class SnapshotControllerTest {
         String snapshotId = "snapshot-id";
         Integer page = 0;
         String prefix = "prefix";
-        
+
         List<SnapshotContentItem> items = new ArrayList<>();
         for(int i = 0; i < 200; i++ ) {
             SnapshotContentItem item = new SnapshotContentItem();
@@ -216,11 +216,17 @@ public class SnapshotControllerTest {
             item.setContentProperties(new HashMap<String,String>());
             items.add(item);
         }
-        
+        GetSnapshotContentsTaskResult result =
+            new GetSnapshotContentsTaskResult();
+        result.setContentItems(items);
+
         EasyMock.expect(this.taskClientFactory.get(storeId))
                 .andReturn(taskClient);
-        EasyMock.expect(taskClient.getSnapshotContents(page, 200)).andReturn(items);
+        EasyMock.expect(taskClient.getSnapshotContents(snapshotId, page, 200, prefix))
+                .andReturn(result);
+
         replay();
+
         SnapshotController controller = createController();
         ModelAndView mav = controller.getContent(storeId, snapshotId, page, prefix);
         Map<String,Object> model = mav.getModel();
@@ -231,7 +237,6 @@ public class SnapshotControllerTest {
         Assert.assertEquals(model.get("nextPage"),page+1);
     }
         
-
     protected SnapshotController createController() {
         return new SnapshotController(storeManager,
                                       userDetailsService,

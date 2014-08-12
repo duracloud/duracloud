@@ -8,19 +8,11 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
 import org.duracloud.client.task.SnapshotTaskClientManager;
-import org.duracloud.client.task.SnapshotTaskClientImpl;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.duradmin.domain.Space;
@@ -30,6 +22,7 @@ import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
 import org.slf4j.Logger;
@@ -43,6 +36,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * 
@@ -185,10 +184,10 @@ public class SnapshotController {
             if(page == null){
                 page = 0;
             }
-            //TODO ADD PREFIX to the SnapshotTaskClient.getSnapshotContents
             int pageSize = 200;
-            List<SnapshotContentItem> items =
-                taskClient.getSnapshotContents(page, pageSize);
+            GetSnapshotContentsTaskResult result =
+                taskClient.getSnapshotContents(snapshotId, page, pageSize, prefix);
+            List<SnapshotContentItem> items = result.getContentItems();
             ModelAndView mav = new ModelAndView("jsonView");
             mav.addObject("contents", items);
             mav.addObject("page", page);
