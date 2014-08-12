@@ -10,11 +10,13 @@ package org.duracloud.client.task;
 import org.duracloud.client.ContentStore;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.RestoreStatus;
+import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
@@ -25,7 +27,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -51,6 +55,9 @@ public class SnapshotTaskClientImplTest {
     private int contentExpirationDays = 42;
     private Long restoreId = 97l;
     private RestoreStatus restoreStatus = RestoreStatus.WAITING_FOR_DPN;
+    private String contentId = "content-id";
+    private String propName = "prop-name";
+    private String propValue = "prop-value";
 
     @Before
     public void setup() {
@@ -156,9 +163,28 @@ public class SnapshotTaskClientImplTest {
 
     @Test
     public void testGetSnapshotContents() throws Exception {
+        String taskName = SnapshotConstants.GET_SNAPSHOT_CONTENTS_TASK_NAME;
+
+        Map<String, String> contentProps = new HashMap<>();
+        contentProps.put(propName, propValue);
+        SnapshotContentItem contentItem = new SnapshotContentItem();
+        contentItem.setContentId(contentId);
+        contentItem.setContentProperties(contentProps);
+        List<SnapshotContentItem> contentItems = new ArrayList<>();
+        contentItems.add(contentItem);
+
+        GetSnapshotContentsTaskResult preparedResult =
+            new GetSnapshotContentsTaskResult();
+        preparedResult.setContentItems(contentItems);
+
+        setupMock(taskName, preparedResult.serialize());
         replayMocks();
 
-        // TODO: Implement
+        GetSnapshotContentsTaskResult result =
+            taskClient.getSnapshotContents(snapshotId, 1, 1000, null);
+        SnapshotContentItem item = result.getContentItems().get(0);
+        assertThat(contentId, equalTo(item.getContentId()));
+        assertThat(propValue, equalTo(item.getContentProperties().get(propName)));
     }
 
     @Test

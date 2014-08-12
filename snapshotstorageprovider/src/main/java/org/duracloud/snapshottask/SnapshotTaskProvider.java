@@ -60,7 +60,10 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                 bridgePort,
                                                 bridgeUser,
                                                 bridgePass));
-        taskList.add(new GetSnapshotContentsTaskRunner());
+        taskList.add(new GetSnapshotContentsTaskRunner(bridgeHost,
+                                                       bridgePort,
+                                                       bridgeUser,
+                                                       bridgePass));
         taskList.add(new RestoreSnapshotTaskRunner(snapshotProvider,
                                                    dcHost,
                                                    dcPort,

@@ -22,4 +22,8 @@ public class SnapshotConstants {
     public static final String RESTORE_SNAPSHOT_TASK_NAME = "restore-snapshot";
     public static final String GET_RESTORE_TASK_NAME = "get-restore";
 
+    public static final int DEFAULT_CONTENT_PAGE_NUMBER = 0;
+    public static final int MIN_CONTENT_PAGE_SIZE = 1;
+    public static final int MAX_CONTENT_PAGE_SIZE = 1000;
+
 }

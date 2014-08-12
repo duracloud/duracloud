@@ -7,13 +7,13 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import java.io.IOException;
-import java.util.List;
+import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.SnapshotContentItem;
+import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
-
-import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.snapshot.error.SnapshotDataException;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Daniel Bernstein
@@ -25,20 +25,30 @@ public class GetSnapshotContentBridgeResult {
      * The details of the current status
      */
     @XmlValue
-    private List<String> contentIds;
+    private List<SnapshotContentItem> contentItems;
 
-    public GetSnapshotContentBridgeResult(){}
-
-    public GetSnapshotContentBridgeResult(List<String> contentIds) {
-        this.setContentIds(contentIds);
+    public List<SnapshotContentItem> getContentItems() {
+        return contentItems;
     }
 
-    public List<String> getContentIds() {
-        return contentIds;
+    public void setContentItems(List<SnapshotContentItem> contentItems) {
+        this.contentItems = contentItems;
     }
 
-    public void setContentIds(List<String> contentIds) {
-        this.contentIds = contentIds;
+    /**
+     * Creates a serialized version of bridge result
+     *
+     * @return JSON formatted bridge info
+     */
+    public String serialize() {
+        JaxbJsonSerializer<GetSnapshotContentBridgeResult> serializer =
+            new JaxbJsonSerializer<>(GetSnapshotContentBridgeResult.class);
+        try {
+            return serializer.serialize(this);
+        } catch(IOException e) {
+            throw new SnapshotDataException("Unable to create bridge result due to: " +
+                                            e.getMessage());
+        }
     }
 
     /**
@@ -56,4 +66,5 @@ public class GetSnapshotContentBridgeResult {
                 "Unable to deserialize result due to: " + e.getMessage());
         }
     }
+
 }

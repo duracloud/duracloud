@@ -8,15 +8,13 @@
 package org.duracloud.client.task;
 
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
-
-import java.util.List;
 
 /**
  * Provides a client interface for the SnapshotStorageProvider's set of tasks.
@@ -47,7 +45,7 @@ public interface SnapshotTaskClient {
     /**
      * Gets the status and details of a snapshot action.
      *
-     * @param snapshotId
+     * @param snapshotId the ID of the snapshot to retrieve
      * @return results
      * @throws ContentStoreException on error
      */
@@ -79,13 +77,17 @@ public interface SnapshotTaskClient {
      * the same as the list of content that existed in the original space at the
      * moment the snapshot was initiated.
      *
+     * @param snapshotId the ID of the snapshot to retrieve
      * @param pageNumber the page number of result set pages
      * @param pageSize the maximum number of content items to include in the result set
+     * @param prefix an optional prefix used to find content items
      * @return list of content items
      * @throws ContentStoreException on error
      */
-    public List<SnapshotContentItem> getSnapshotContents(int pageNumber,
-                                                         int pageSize)
+    public GetSnapshotContentsTaskResult getSnapshotContents(String snapshotId,
+                                                             int pageNumber,
+                                                             int pageSize,
+                                                             String prefix)
         throws ContentStoreException;
 
     /**

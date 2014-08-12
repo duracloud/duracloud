@@ -10,21 +10,19 @@ package org.duracloud.client.task;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.snapshot.SnapshotConstants;
-import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskParameters;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implements the snapshot task client interface by making task calls through
@@ -111,11 +109,23 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
      * {@inheritDoc}
      */
     @Override
-    public List<SnapshotContentItem> getSnapshotContents(int pageNumber,
-                                                         int pageSize)
+    public GetSnapshotContentsTaskResult getSnapshotContents(String snapshotId,
+                                                             int pageNumber,
+                                                             int pageSize,
+                                                             String prefix)
         throws ContentStoreException {
-        // TODO: Implement
-        return new ArrayList<>();
+        GetSnapshotContentsTaskParameters taskParams =
+            new GetSnapshotContentsTaskParameters();
+        taskParams.setSnapshotId(snapshotId);
+        taskParams.setPageNumber(pageNumber);
+        taskParams.setPageSize(pageSize);
+        taskParams.setPrefix(prefix);
+
+        String taskResult = 
+            contentStore.performTask(SnapshotConstants.GET_SNAPSHOT_CONTENTS_TASK_NAME,
+                                     taskParams.serialize());
+
+        return GetSnapshotContentsTaskResult.deserialize(taskResult);
     }
 
     /**

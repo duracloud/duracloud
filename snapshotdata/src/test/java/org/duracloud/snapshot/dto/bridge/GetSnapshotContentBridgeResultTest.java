@@ -7,10 +7,17 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import java.util.List;
-
+import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 
 /**
@@ -19,21 +26,48 @@ import org.junit.Test;
  */
 public class GetSnapshotContentBridgeResultTest {
 
+     private String contentId = "content-id";
+     private String propName = "content-prop-name";
+     private String propValue = "content-prop-value";
+
+    @Test
+    public void testSerialize() {
+        GetSnapshotContentBridgeResult bridgeResult =
+            new GetSnapshotContentBridgeResult();
+        List<SnapshotContentItem> contentItemList = new ArrayList<>();
+        SnapshotContentItem contentItem = new SnapshotContentItem();
+        contentItem.setContentId(contentId);
+        Map<String, String> contentProperties = new HashMap<>();
+        contentProperties.put(propName, propValue);
+        contentItem.setContentProperties(contentProperties);
+        contentItemList.add(contentItem);
+        bridgeResult.setContentItems(contentItemList);
+
+        String result = bridgeResult.serialize();
+        String cleanResult = result.replaceAll("\\s+", "");
+        assertThat(cleanResult, containsString("\"contentId\":\""+contentId+"\""));
+        assertThat(cleanResult, containsString("\""+propName+"\":\""+propValue+"\""));
+    }
 
     @Test
     public void testDeSerialize(){
-        String contentId = "content-id";
-        String str = "{ \"contentIds\" : " +
-                     "[ \""+contentId + "\"]"  + 
-                        "}";
-                   ;
-        GetSnapshotContentBridgeResult result =  GetSnapshotContentBridgeResult.deserialize(str);
-        List<String> contentIds = result.getContentIds();
-        
-        Assert.assertNotNull(contentIds);
-        Assert.assertEquals(1,contentIds.size());
-        
-        Assert.assertEquals(contentId, contentIds.get(0));
+        String str = "{ \"contentItems\" : " +
+                     "[ { \"contentId\" : \"" + contentId + "\","
+                        + " \"contentProperties\" : " +
+                        "{\"" + propName + "\" : \"" + propValue + "\"}}]}";
+
+        System.out.println(str);
+
+        GetSnapshotContentBridgeResult result =
+            GetSnapshotContentBridgeResult.deserialize(str);
+        List<SnapshotContentItem> contentItems = result.getContentItems();
+
+        Assert.assertNotNull(contentItems);
+        Assert.assertEquals(1,contentItems.size());
+
+        Assert.assertEquals(contentId, contentItems.get(0).getContentId());
+        Assert.assertEquals(propValue, contentItems.get(0).getContentProperties()
+                                                   .get(propName));
     }
 
 }
