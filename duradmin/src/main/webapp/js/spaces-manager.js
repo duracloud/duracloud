@@ -1511,12 +1511,15 @@ $(function() {
       this._spacesList.selectablelist("clear", false);
       var firstMatchFound = false;
       var snapshotDividerAdded = false;
-      that._spacesList.selectablelist("addDivider", "Spaces");
-
+      var snapshotProvider = this._isSnapshot(storeId, storeProviders);
+      if(snapshotProvider){
+        that._spacesList.selectablelist("addDivider", "Spaces");
+      }
+      
       $.each(this._spaces, function(i, space) {
         if (!filter || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
 
-          if (!snapshotDividerAdded && space.snapshot) {
+          if (snapshotProvider && !snapshotDividerAdded && space.snapshot) {
             that._spacesList.selectablelist("addDivider", "Snapshots");
             snapshotDividerAdded = true;
           }
