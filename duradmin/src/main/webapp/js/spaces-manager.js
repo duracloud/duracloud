@@ -1485,7 +1485,12 @@ $(function() {
       if (space.snapshot == true) {
         node.addClass("snapshot");
       }
-      this._spacesList.selectablelist('addItem', node, space, false, disabled);
+      this._spacesList.selectablelist('addItem', 
+                                      node, 
+                                      space, 
+                                      false, 
+                                      disabled, 
+                                      space.snapshot);
     },
 
     selectedSpaces : function() {
