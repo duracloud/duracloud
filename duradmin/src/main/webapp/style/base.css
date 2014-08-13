@@ -1289,15 +1289,6 @@ button#enable-streaming {
 	margin-top:10px;
 }
 
-.snapshot {
-  background-color:  #FFEBCC;
-}
-
-.snapshot.dc-item:hover,
-.snapshot.dc-selected-list-item {
-  background-color: #FFB84D;
-}
-
 .dc-item-divider {
   background-color:#5b5b5b;
   padding:5px;
