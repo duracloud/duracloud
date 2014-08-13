@@ -153,7 +153,7 @@ $.widget("ui.selectablelist",{
 	 */
 	_init: function(){
 		var that = this;
-		this.clear();
+		this.clear(false);
 
 		this._footer = $.fn.create("div").addClass("dc-selectablelist-footer").html("");
 		$(that.element).append(that._footer);
@@ -163,7 +163,7 @@ $.widget("ui.selectablelist",{
 			that._initItem(c);
 		});
 		
-		that.element.bind("selectionChanged", function(evt, state){
+		that.element.unbind().bind("selectionChanged", function(evt, state){
 			var selectionChanged = that.options.selectionChanged;
 			if(selectionChanged){
 				selectionChanged(evt,state);
