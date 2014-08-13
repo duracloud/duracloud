@@ -32,6 +32,22 @@ public class SnapshotIdentifier {
         this.timestamp = timestamp;
     }
 
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public String getSpaceId() {
+        return spaceId;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
     public String getSnapshotId() {
         return accountName + DELIM + storeId + DELIM + spaceId + DELIM +
                DateUtil.convertToStringPlain(timestamp);
