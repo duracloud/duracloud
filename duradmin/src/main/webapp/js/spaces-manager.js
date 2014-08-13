@@ -1286,6 +1286,9 @@ $(function() {
                                                 that._spacesArray, 
                                                 storeId);
 
+            that._spacesListPane.spaceslistpane("setCurrentById", 
+                                                optionalParams.spaceId);
+
           }).fail(function(jqXHR, textStatus, errorThrown) {
             alert("error retrieving list of snapshots: " + errorThrown + " - " + textStatus + " - " + jqXHR.responseText);
           });
