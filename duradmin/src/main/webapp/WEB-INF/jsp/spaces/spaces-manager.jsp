@@ -296,6 +296,21 @@
           <div class="center"></div>
           <span class="object-id"></span>
         </div>
+        
+        <div
+          id="snapshotItemDetailPane"
+          class="dc-detail-pane"
+          style="display: none">
+          <div class="north header">
+            <h1>Snapshot Item Detail</h1>
+            <h3 class="object-name">Snapshot Name Here</h3>
+            <div class="button-bar">
+            </div>
+          </div>
+          <div class="center"></div>
+          <span class="object-id"></span>
+        </div>
+        
 
         <div
           id="genericDetailPane"

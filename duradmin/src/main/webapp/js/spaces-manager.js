@@ -906,6 +906,17 @@ $(function() {
                                          */
                                         _initHistoryHandlers : function() {
                                             var that = this;
+                                            
+                                            //snapshot content handler
+                                            HistoryManager.addChangeHandler(function(params) {
+                                              if (params['snapshotId']) {
+                                                HistoryManager.queue(function() {
+                                                  return that._loadSnapshotItem(params);
+                                                });
+              
+                                                return true;
+                                              }
+                                            });
 
                                             // content handler
                                             HistoryManager
@@ -914,6 +925,7 @@ $(function() {
                                                         if (params['contentId']) {
                                                             HistoryManager
                                                                     .queue(function() {
+                                                                      
                                                                         return that
                                                                                 ._loadContentItem(params);
                                                                     });
@@ -1257,6 +1269,21 @@ $(function() {
                                                                         "load",
                                                                         snapshot);
                                                     },
+                                                    
+                                                    showSnapshotItem : function(item) {
+                                                                        currentlyDisplayedDetail = "snapshotItem";
+                                                                        currentlyDisplayedObject = item;
+                                                                        that._detailPane
+                                                                                .replaceContents($(
+                                                                                        "#snapshotItemDetailPane")
+                                                                                        .clone());
+                                                                        that._detailPane
+                                                                                .snapshotitemdetail();
+                                                                        that._detailPane
+                                                                                .snapshotitemdetail(
+                                                                                        "load",
+                                                                                        item);
+                                                    },
 
                                                     showContentItem : function(
                                                             contentItem) {
@@ -1506,6 +1533,11 @@ $(function() {
 
                                             return retrieveSpace;
                                         },
+
+                                        _loadSnapshotItem : function(item) {
+                                          var that = this;
+                                          that._detailManager.showSnapshotItem(item);
+                                        },  
 
                                         _loadContentItem : function(params) {
                                             var that = this;
@@ -2123,8 +2155,7 @@ $(function() {
                                                         var contentId = $(
                                                                 selectedItems[0])
                                                                 .attr("id");
-                                                        var space = this._contentItemListPane
-                                                                .contentitemlistpane("currentSpace");
+                                                        var space = this.currentSpace();
 
                                                         HistoryManager
                                                                 .pushState({
@@ -2715,10 +2746,10 @@ $(function() {
                 var currentItem = state.currentItem;
                 if (currentItem) {
                     var data = $.extend(currentItem.data, {
-                        snapshotId : that._snapshot.snapshot.id,
+                        snapshotId : that._snapshot.snapshotId,
                         storeId : that._snapshot.storeId
                     });
-                    HistoryManager.pushState(currentItem.data);
+                    HistoryManager.pushState(data);
                 } else {
                     // alert("no current in snapshot content list!");
                 }
@@ -2755,6 +2786,7 @@ $(function() {
         },
 
         _addContentItemsToList : function(snapshot) {
+            var that = this;
             $.each(snapshot.contents, function(i, value) {
                 that._addContentItemToList(value);
             });
@@ -4530,6 +4562,34 @@ $(function() {
                                         },
 
                                     }));
+
+    
+    /**
+     * This widget defines the detailed view of a  snapshot item
+     */
+    $.widget("ui.snapshotitemdetail", $
+      .extend({}, $.ui.basedetailpane.prototype, {
+        _item : null,
+        _init : function() {
+          var that = this;
+          $.ui.basedetailpane.prototype._init.call(this);
+        },
+
+        load : function(item) {
+          this._item = item;
+          this._setObjectName(item.contentId);
+          this._setObjectId(item.contentId);
+
+          var props = [];
+
+          $.each(item.contentProperties, function(key, value) {
+            props.push([ key, value ]);
+          });
+
+          this._loadProperties(props);
+        },
+
+      }));
 
     /**
      * This widget defines the detailed view of a completed snapshot
