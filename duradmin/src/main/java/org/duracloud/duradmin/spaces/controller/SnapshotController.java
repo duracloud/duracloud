@@ -8,23 +8,24 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
 import org.duracloud.client.task.SnapshotTaskClientManager;
 import org.duracloud.common.constant.Constants;
-import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.duradmin.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
-import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
-import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
-import org.duracloud.snapshot.dto.task.GetRestoreTaskParameters;
+import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
-import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
-import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +37,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * 
@@ -68,6 +63,7 @@ public class SnapshotController {
     }
 
     @RequestMapping(value = "/spaces/snapshot", method = RequestMethod.POST)
+    @ResponseBody
     public String create(HttpServletRequest request,
                          HttpServletResponse response,
                          @RequestParam String spaceId,
@@ -80,25 +76,28 @@ public class SnapshotController {
 
         if (isSnapshotInProgress(store, spaceId)) {
             response.setStatus(HttpStatus.SC_METHOD_FAILURE);
-            response.getWriter()
-                    .write("{\"result\":\"Snapshot already in progress.\"}");
+            return "{\"result\":\"Snapshot already in progress.\"}";
         } else {
-            CreateSnapshotTaskParameters params =
-                new CreateSnapshotTaskParameters();
-            params.setSpaceId(spaceId);
-            params.setDescription(description);
-            String username = request.getUserPrincipal().getName();
-            params.setUserEmail(userDetailsService.getUserByUsername(username)
-                                                  .getEmail());
+            
+            String username = getUsername(request);
+            String userEmail = getUserEmail(username);
 
-            JaxbJsonSerializer<CreateSnapshotTaskParameters> serializer =
-                new JaxbJsonSerializer<>(CreateSnapshotTaskParameters.class);
-            String paramString = serializer.serialize(params);
-            String json = store.performTask("create-snapshot", paramString);
+            SnapshotTaskClient taskClient = getTaskClient(storeId);
+            CreateSnapshotTaskResult result = taskClient.createSnapshot(spaceId, description, userEmail);
             response.setStatus(HttpStatus.SC_ACCEPTED);
-            response.getWriter().write(json);
+            return result.serialize();
         }
-        return null;
+    }
+
+    protected String getUserEmail(String username) {
+        String userEmail = userDetailsService.getUserByUsername(username)
+            .getEmail();
+        return userEmail;
+    }
+
+    protected String getUsername(HttpServletRequest request) {
+        String username = request.getUserPrincipal().getName();
+        return username;
     }
 
     @RequestMapping(value = "/spaces/snapshot", method = RequestMethod.GET)
@@ -133,13 +132,11 @@ public class SnapshotController {
     @RequestMapping(value = "/spaces/snapshots/{storeId}", method = RequestMethod.GET)
     @ResponseBody
     public String
-        getSnapshotList(@PathVariable("storeId") String storeId,
-                        HttpServletRequest request) {
+        getSnapshotList(@PathVariable("storeId") String storeId) {
         try {
-            ContentStore store =
-                this.contentStoreManager.getContentStore(storeId);
-            String json = store.performTask("get-snapshots", "");
-            return json;
+            return getTaskClient(storeId)
+                    .getSnapshots()
+                    .serialize();
         } catch (ContentStoreException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -150,26 +147,11 @@ public class SnapshotController {
     @ResponseBody
     public String
         getSnapshot(@PathVariable("storeId") String storeId,
-                    @PathVariable("snapshotId") String snapshotId) {
+                    @PathVariable("snapshotId") String snapshotId) throws Exception {
 
-        try {
-
-            ContentStore store =
-                this.contentStoreManager.getContentStore(storeId);
-
-            GetSnapshotTaskParameters params = new GetSnapshotTaskParameters();
-            params.setSnapshotId(snapshotId);
-
-            JaxbJsonSerializer<GetSnapshotTaskParameters> serializer =
-                new JaxbJsonSerializer<>(GetSnapshotTaskParameters.class);
-
-            String paramString = serializer.serialize(params);
-            String json = store.performTask("get-snapshot", paramString);
-            return json;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
+        return getTaskClient(storeId)
+                .getSnapshot(snapshotId)
+                .serialize();
     }
     
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/content", method = RequestMethod.GET)
@@ -215,9 +197,13 @@ public class SnapshotController {
         getRestore(@PathVariable("storeId") String storeId,
                    @PathVariable("snapshotId") String snapshotId) {
 
-        GetRestoreTaskParameters params = new GetRestoreTaskParameters();
-        params.setSnapshotId(snapshotId);
-        return getRestore(storeId, params);
+        try {
+            return getTaskClient(storeId).getRestoreBySnapshot(snapshotId)
+                                         .serialize();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     @RequestMapping(value = "/spaces/restores/{storeId}/{restoreId}", method = RequestMethod.GET)
@@ -225,48 +211,31 @@ public class SnapshotController {
     public String
         getRestore(@PathVariable("storeId") String storeId,
                    @PathVariable("restoreId") Long restoreId) {
-        GetRestoreTaskParameters params = new GetRestoreTaskParameters();
-        params.setRestoreId(restoreId);
-        return getRestore(storeId, params);
-    }
-
-    private String getRestore(String storeId, GetRestoreTaskParameters params) {
         try {
-            JaxbJsonSerializer<GetRestoreTaskParameters> serializer =
-                new JaxbJsonSerializer<>(GetRestoreTaskParameters.class);
-
-            String paramString = serializer.serialize(params);
-            ContentStore store =
-                this.contentStoreManager.getContentStore(storeId);
-            String json = store.performTask("get-restore", paramString);
-            return json;
+            return getTaskClient(storeId)
+                        .getRestore(restoreId)
+                        .serialize();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
+
+
     @RequestMapping(value = "/spaces/restores", method = RequestMethod.POST)
     @ResponseBody
     public String restore(HttpServletRequest request,
                           @RequestParam String storeId,
                           @RequestParam String snapshotId) throws Exception {
-
-        ContentStore store = getContentStore(storeId);
-
-        RestoreSnapshotTaskParameters params =
-            new RestoreSnapshotTaskParameters();
-        params.setSnapshotId(snapshotId);
-        String username = request.getUserPrincipal().getName();
-        params.setUserEmail(userDetailsService.getUserByUsername(username)
-                                              .getEmail());
-
-        JaxbJsonSerializer<RestoreSnapshotTaskParameters> serializer =
-            new JaxbJsonSerializer<>(RestoreSnapshotTaskParameters.class);
-        String paramString = serializer.serialize(params);
-        String json =
-            store.performTask(SnapshotConstants.RESTORE_SNAPSHOT_TASK_NAME, paramString);
-        return json;
+        try {
+            String userEmail = getUserEmail(getUsername(request));
+            return getTaskClient(storeId).restoreSnapshot(snapshotId, userEmail).serialize();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        
     }
 
     private boolean isSnapshotInProgress(ContentStore store, String spaceId) {
@@ -282,8 +251,4 @@ public class SnapshotController {
         return this.contentStoreManager.getContentStore(storeId);
     }
 
-    protected ContentStore getContentStore(Space space)
-        throws ContentStoreException {
-        return contentStoreManager.getContentStore(space.getStoreId());
-    }
 }
