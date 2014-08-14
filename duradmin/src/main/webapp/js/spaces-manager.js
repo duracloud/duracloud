@@ -1357,6 +1357,8 @@ $(function() {
 
     _spaces : [],
     _spacesList : null,
+    _spacesLabel: "Spaces",
+    _snapshotsLabel: "Snapshots",
 
     _init : function() {
       $.ui.basepane.prototype._init.call(this);
@@ -1477,7 +1479,14 @@ $(function() {
       }
     },
 
-    addSpaceToList : function(space) {
+    addSpaceToList : function(space, dividerLabel) {
+      var that = this;
+      if(dividerLabel == undefined && 
+          that._isSnapshot(that._storeId, 
+                           storeProviders)){
+        dividerLabel = this._spacesLabel;
+      }
+      
       var disabled = this._isReadOnly(space);
       var node = $.fn.create("div");
       node.attr("id", space.spaceId).html(space.spaceId);
@@ -1490,7 +1499,8 @@ $(function() {
                                       space, 
                                       false, 
                                       disabled, 
-                                      space.snapshot);
+                                      space.snapshot,
+                                      dividerLabel);
     },
 
     selectedSpaces : function() {
@@ -1518,18 +1528,18 @@ $(function() {
       var snapshotDividerAdded = false;
       var snapshotProvider = this._isSnapshot(storeId, storeProviders);
       if(snapshotProvider){
-        that._spacesList.selectablelist("addDivider", "Spaces");
+        that._spacesList.selectablelist("addDivider", this._spacesLabel);
       }
       
       $.each(this._spaces, function(i, space) {
         if (!filter || space.spaceId.toLowerCase().indexOf(filter.toLowerCase()) > -1) {
 
           if (snapshotProvider && !snapshotDividerAdded && space.snapshot) {
-            that._spacesList.selectablelist("addDivider", "Snapshots");
+            that._spacesList.selectablelist("addDivider", that._snapshotsLabel);
             snapshotDividerAdded = true;
           }
 
-          that.addSpaceToList(space);
+          that.addSpaceToList(space, (space.snapshot ? that._snapshotsLabel: that._spacesLabel));
           if (!firstMatchFound) {
             firstMatchFound = true;
           }

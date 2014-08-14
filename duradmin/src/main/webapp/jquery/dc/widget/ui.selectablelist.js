@@ -177,23 +177,57 @@ $.widget("ui.selectablelist",{
     	                   data, 
     	                   selected, 
     	                   /* optional boolean */disabled, 
-    	                   /*optional boolean*/noIndent //suppresses indentation for non-selectable items.
+    	                   /*optional boolean*/noIndent, //suppresses indentation for non-selectable items.
+    	                   /*optional String*/ dividerLabel //specifies label of the section 
+    	                                                    //into which the item should be inserted.
     	                   ) {
+    	var that = this;
       this.setFooter('');
-      this._footer.before(item);
-      this._initItem(item, data, disabled, noIndent);
+      if(dividerLabel){
+        var dividers = [];
+        $("." + this.itemDividerClass(), this.element).each(function(i,e){
+            dividers.push(e);
+        });
+        
+        if(dividers.length > 0){
+          
+          $.each(dividers, function(i, div){
+            if($(div).html() == dividerLabel){
+               if(i == dividers.length-1){
+                 that._footer.before(item);
+               }else{
+                 $(dividers[i+1]).before(item);
+               }
+               
+               return false;
+            }
+          });
+        }else{
+          this._footer.before(item);
+        }
+      
 
-      if (selected && this.options.selectable) {
-        $("input[type=checkbox]", item).attr("checked", true);
+        if (selected && this.options.selectable) {
+          $("input[type=checkbox]", item).attr("checked", true);
+        }
+        
+      }else{
+          this._footer.before(item);
       }
 
+      this._initItem(item, data, disabled, noIndent);
+
       return item;
+    },
+    
+    itemDividerClass: function(){
+      return this.options.itemClass+"-divider";
     },
 	
     addDivider: function(label){
         this.setFooter('');
         
-        var divider = $.fn.create("div").addClass(this.options.itemClass+"-divider");
+        var divider = $.fn.create("div").addClass(this.itemDividerClass());
         divider.html(label);
         this._footer.before(divider);
     },
@@ -378,7 +412,6 @@ $.widget("ui.selectablelist",{
 
       //add the data to the map
       that._putData($(item).attr("id"), data);
-
       return item;
     }
 });
