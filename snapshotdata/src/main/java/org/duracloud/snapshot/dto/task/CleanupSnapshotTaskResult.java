@@ -15,29 +15,29 @@ import java.io.IOException;
 
 /**
  * @author Bill Branan
- *         Date: 7/25/14
+ *         Date: 8/14/14
  */
-public class CompleteSnapshotTaskResult {
+public class CleanupSnapshotTaskResult {
 
     /**
      * The number of days before content expires
      */
     @XmlValue
-    private String result;
+    private int contentExpirationDays;
 
     // Required by JAXB
-    public CompleteSnapshotTaskResult() {}
+    public CleanupSnapshotTaskResult() {}
 
-    public CompleteSnapshotTaskResult(String result) {
-        this.result = result;
+    public CleanupSnapshotTaskResult(int contentExpirationDays) {
+        this.contentExpirationDays = contentExpirationDays;
     }
 
-    public String getResult() {
-        return result;
+    public int getContentExpirationDays() {
+        return contentExpirationDays;
     }
 
-    public void setResult(String result) {
-        this.result = result;
+    public void setContentExpirationDays(int contentExpirationDays) {
+        this.contentExpirationDays = contentExpirationDays;
     }
 
     /**
@@ -46,8 +46,8 @@ public class CompleteSnapshotTaskResult {
      * @return JSON formatted task result info
      */
     public String serialize() {
-        JaxbJsonSerializer<CompleteSnapshotTaskResult> serializer =
-            new JaxbJsonSerializer<>(CompleteSnapshotTaskResult.class);
+        JaxbJsonSerializer<CleanupSnapshotTaskResult> serializer =
+            new JaxbJsonSerializer<>(CleanupSnapshotTaskResult.class);
         try {
             return serializer.serialize(this);
         } catch(IOException e) {
@@ -61,9 +61,9 @@ public class CompleteSnapshotTaskResult {
      *
      * @param taskResult - JSON formatted set of properties
      */
-    public static CompleteSnapshotTaskResult deserialize(String taskResult) {
-        JaxbJsonSerializer<CompleteSnapshotTaskResult> serializer =
-            new JaxbJsonSerializer<>(CompleteSnapshotTaskResult.class);
+    public static CleanupSnapshotTaskResult deserialize(String taskResult) {
+        JaxbJsonSerializer<CleanupSnapshotTaskResult> serializer =
+            new JaxbJsonSerializer<>(CleanupSnapshotTaskResult.class);
         try {
             return serializer.deserialize(taskResult);
         } catch(IOException e) {

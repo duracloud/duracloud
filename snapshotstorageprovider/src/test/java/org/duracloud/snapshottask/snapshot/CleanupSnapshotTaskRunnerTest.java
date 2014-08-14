@@ -8,7 +8,9 @@
 package org.duracloud.snapshottask.snapshot;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
 import org.easymock.EasyMockSupport;
@@ -22,10 +24,10 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author Bill Branan
- *         Date: 7/25/14
+ *         Date: 8/14/14
  */
 @RunWith(EasyMockRunner.class)
-public class CompleteSnapshotTaskRunnerTest extends EasyMockSupport {
+public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
 
     @Mock
     private SnapshotStorageProvider snapshotProvider;
@@ -34,8 +36,8 @@ public class CompleteSnapshotTaskRunnerTest extends EasyMockSupport {
     private AmazonS3Client s3Client;
 
     @TestSubject
-    private CompleteSnapshotTaskRunner taskRunner =
-        new CompleteSnapshotTaskRunner(snapshotProvider, s3Client);
+    private CleanupSnapshotTaskRunner taskRunner =
+        new CleanupSnapshotTaskRunner(snapshotProvider, s3Client);
 
     @After
     public void tearDown(){
@@ -45,7 +47,7 @@ public class CompleteSnapshotTaskRunnerTest extends EasyMockSupport {
     @Test
     public void testGetName() {
         replayAll();
-        assertEquals("complete-snapshot", taskRunner.getName());
+        assertEquals("cleanup-snapshot", taskRunner.getName());
     }
 
     @Test
@@ -55,12 +57,23 @@ public class CompleteSnapshotTaskRunnerTest extends EasyMockSupport {
 
         EasyMock.expect(snapshotProvider.getBucketName(spaceId))
                 .andReturn(bucketName);
-        s3Client.deleteBucketLifecycleConfiguration(EasyMock.eq(bucketName));
+        Capture<BucketLifecycleConfiguration> lifecycleConfigCapture =
+            new Capture<>();
+        s3Client.setBucketLifecycleConfiguration(EasyMock.eq(bucketName),
+                                                 EasyMock.capture(
+                                                     lifecycleConfigCapture));
         EasyMock.expectLastCall();
 
         replayAll();
 
         taskRunner.performTask("{\"spaceId\":\""+spaceId+"\"}");
+        BucketLifecycleConfiguration lifecycleConfig =
+            lifecycleConfigCapture.getValue();
+        BucketLifecycleConfiguration.Rule rule =
+            lifecycleConfig.getRules().get(0);
+        assertEquals(1, rule.getExpirationInDays());
+        assertEquals("clear-content-rule", rule.getId());
+        assertEquals("Enabled", rule.getStatus());
     }
 
 }

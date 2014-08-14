@@ -19,27 +19,25 @@ import static org.junit.matchers.JUnitMatchers.containsString;
  */
 public class CompleteSnapshotTaskResultTest {
 
-    private int expirationDays = 42;
+    private String resultValue = "result";
 
     @Test
     public void testSerialize() {
 
-        String result = new CompleteSnapshotTaskResult(expirationDays).serialize();
+        String result = new CompleteSnapshotTaskResult(resultValue).serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult,
-                   containsString("\"contentExpirationDays\":"+expirationDays));
+        assertThat(cleanResult, containsString("\"result\":\""+resultValue+"\""));
 
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
-        String taskParamsSerialized =
-            "{\"contentExpirationDays\" : "+expirationDays+"}";
+        String taskParamsSerialized = "{\"result\" : \""+resultValue+"\"}";
 
         CompleteSnapshotTaskResult taskResult =
             CompleteSnapshotTaskResult.deserialize(taskParamsSerialized);
-        assertEquals(expirationDays, taskResult.getContentExpirationDays());
+        assertEquals(resultValue, taskResult.getResult());
     }
 
 }

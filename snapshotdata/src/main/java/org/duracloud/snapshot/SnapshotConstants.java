@@ -14,6 +14,7 @@ package org.duracloud.snapshot;
 public class SnapshotConstants {
 
     public static final String CREATE_SNAPSHOT_TASK_NAME = "create-snapshot";
+    public static final String CLEANUP_SNAPSHOT_TASK_NAME = "cleanup-snapshot";
     public static final String COMPLETE_SNAPSHOT_TASK_NAME = "complete-snapshot";
     public static final String GET_SNAPSHOTS_TASK_NAME = "get-snapshots";
     public static final String GET_SNAPSHOT_TASK_NAME = "get-snapshot";

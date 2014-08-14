@@ -8,26 +8,19 @@
 package org.duracloud.snapshottask.snapshot;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Completes the snapshot process by cleaning up content that is no longer
- * needed now that the snapshot has been transferred successfully.
+ * Completes the snapshot process by removing unnecessary bucket-level policies
  *
  * @author Bill Branan
  *         Date: 7/23/14
  */
 public class CompleteSnapshotTaskRunner implements TaskRunner {
-
-    private static int EXPIRATION_DAYS = 1;
 
     private SnapshotStorageProvider snapshotProvider;
     private AmazonS3Client s3Client;
@@ -50,23 +43,11 @@ public class CompleteSnapshotTaskRunner implements TaskRunner {
         String spaceId = taskParams.getSpaceId();
         String bucketName = snapshotProvider.getBucketName(spaceId);
 
-        // Create bucket deletion policy
-        BucketLifecycleConfiguration.Rule expireRule =
-            new BucketLifecycleConfiguration.Rule()
-                .withId("clear-content-rule")
-                .withExpirationInDays(EXPIRATION_DAYS)
-                .withStatus(BucketLifecycleConfiguration.ENABLED.toString());
+        // Remove policy on bucket
+        s3Client.deleteBucketLifecycleConfiguration(bucketName);
 
-        List<BucketLifecycleConfiguration.Rule> rules = new ArrayList<>();
-        rules.add(expireRule);
-
-        BucketLifecycleConfiguration configuration =
-            new BucketLifecycleConfiguration().withRules(rules);
-
-        // Set policy on bucket
-        s3Client.setBucketLifecycleConfiguration(bucketName, configuration);
-
-        return new CompleteSnapshotTaskResult(EXPIRATION_DAYS).serialize();
+        String result = "Snapshot complete was successful";
+        return new CompleteSnapshotTaskResult(result).serialize();
     }
 
 }
