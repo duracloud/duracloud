@@ -1463,11 +1463,11 @@ $(function() {
     },
 
     showStatus : function(message) {
-      $("#space-list-status", this.element).html(message).fadeIn("fast");
+      $("#space-list-status", this.element).busySibling(message);
     },
 
     hideStatus : function() {
-      $("#space-list-status", this.element).fadeOut("fast");
+      $("#space-list-status", this.element).idleSibling();
     },
 
     currentSpace : function() {
@@ -3298,16 +3298,19 @@ $(function() {
       var that = this;
 
       that._getRestoreButton().disable(true);
-      that._getRestoreLink().makeHidden();
+      that._getRestoreLink().hide();
 
       if (that._snapshot.status != 'SNAPSHOT_COMPLETE') {
         return;
       }
 
+      that._getRestoreButton().busySibling("Retrieving restore info...");
       dc.store.GetRestoreBySnapshot(that._storeId, that._snapshot.snapshotId).success(function(restore) {
         that._enableRestoreLink(restore);
       }).error(function(jqxhr, textStatus, errorThrown) {
         that._enableRestoreButton();
+      }).always(function(){
+        that._getRestoreButton().idleSibling();
       });
     },
 
@@ -3321,7 +3324,7 @@ $(function() {
 
     _enableRestoreButton : function() {
       var that = this;
-      that._getRestoreLink().makeHidden();
+      that._getRestoreLink().hide();
       that._getRestoreButton().unbind("click").click(function() {
         that._restoreSnapshot();
       }).disable(false);
@@ -3346,7 +3349,7 @@ $(function() {
           storeId : restore.destinationStoreId,
           spaceId : restore.destinationSpaceId
         }));
-      }).makeVisible();
+      }).show();
     },
   }));
 

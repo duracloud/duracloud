@@ -142,6 +142,23 @@ $(function(){
             return this;
         };
 
+
+    $.fn.busySibling = function(text){
+      var busy = $("<div class='dc-busy-holder'></div>");
+      if(text){
+        busy.html(text);
+      }
+      busy.insertAfter($(this));
+      busy.show("fast");
+      return this;
+    };
+
+    $.fn.idleSibling = function(){
+      $(this).next(".dc-busy-holder").hide("fast").remove();
+      return this;
+    };
+
+        
 	})();
 });
 

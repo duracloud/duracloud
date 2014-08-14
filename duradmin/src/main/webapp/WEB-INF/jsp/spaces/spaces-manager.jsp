@@ -284,13 +284,12 @@
             <h3 class="object-name">Snapshot Name Here</h3>
             <div class="button-bar">
 
+              <a id="restoreLink" class="button">View Restored Space</a>
               <button 
                 id="restoreButton"
                 class="featured">
                 <i class="pre copy"></i>Restore Snapshot
               </button>
-              
-              <a id="restoreLink" class="button">View Restored Space</a>
             </div>
           </div>
           <div class="center"></div>
