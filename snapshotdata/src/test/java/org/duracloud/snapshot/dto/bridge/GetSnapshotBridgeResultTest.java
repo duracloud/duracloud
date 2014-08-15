@@ -7,14 +7,14 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.*;
-import static org.junit.Assert.*;
+import org.duracloud.snapshot.dto.SnapshotStatus;
+import org.junit.Test;
+
 import java.util.Date;
 
-import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 
 /**
@@ -30,6 +30,7 @@ public class GetSnapshotBridgeResultTest {
     private String sourceStoreId = "source-store-id";
     private Date snapshotDate = new Date();
     private String snapshotId = "snapshot-id";
+    private Long contentItemCount = 424242l;
     
     @Test
     public void testSerialize() {
@@ -43,18 +44,29 @@ public class GetSnapshotBridgeResultTest {
         params.setSourceStoreId(sourceStoreId);
         params.setSnapshotId(snapshotId);
         params.setSnapshotDate(snapshotDate);
+        params.setContentItemCount(contentItemCount);
         
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"status\":\""+status.name()+"\""));
-        assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
-        assertThat(cleanResult, containsString("\"sourceHost\":\""+sourceHost+"\""));
-        assertThat(cleanResult, containsString("\"sourceSpaceId\":\""+sourceSpaceId+"\""));
-        assertThat(cleanResult, containsString("\"sourceStoreId\":\""+sourceStoreId+"\""));
-        assertThat(cleanResult, containsString("\"snapshotDate\":"+snapshotDate.getTime()));
-        assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
+        assertThat(cleanResult,
+                   containsString("\"status\":\""+status.name()+"\""));
+        assertThat(cleanResult,
+                   containsString("\"description\":\""+description+"\""));
+        assertThat(cleanResult,
+                   containsString("\"sourceHost\":\""+sourceHost+"\""));
+        assertThat(cleanResult,
+                   containsString("\"sourceSpaceId\":\""+sourceSpaceId+"\""));
+        assertThat(cleanResult,
+                   containsString("\"sourceStoreId\":\""+sourceStoreId+"\""));
+        assertThat(cleanResult,
+                   containsString("\"snapshotDate\":"+snapshotDate.getTime()));
+        assertThat(cleanResult,
+                   containsString("\"description\":\""+description+"\""));
+        assertThat(cleanResult,
+                   containsString("\"contentItemCount\":"+contentItemCount));
 
-        GetSnapshotBridgeResult params2 = GetSnapshotBridgeResult.deserialize(result);
+        GetSnapshotBridgeResult params2 =
+            GetSnapshotBridgeResult.deserialize(result);
         assertEquals(description, params2.getDescription());
         assertEquals(sourceHost, params2.getSourceHost());
         assertEquals(sourceSpaceId, params2.getSourceSpaceId());

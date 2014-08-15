@@ -7,14 +7,13 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import java.io.IOException;
-import java.util.Date;
-
-import javax.xml.bind.annotation.XmlValue;
-
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
+
+import javax.xml.bind.annotation.XmlValue;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author Daniel Bernstein
@@ -25,7 +24,6 @@ public class GetSnapshotBridgeResult {
     @XmlValue
     private String snapshotId;
 
-    
     @XmlValue
     private Date snapshotDate;
 
@@ -44,6 +42,8 @@ public class GetSnapshotBridgeResult {
     @XmlValue
     private String description;
 
+    @XmlValue
+    private Long contentItemCount;
     
     public GetSnapshotBridgeResult(){}
 
@@ -112,7 +112,15 @@ public class GetSnapshotBridgeResult {
     public void setSourceStoreId(String sourceStoreId) {
         this.sourceStoreId = sourceStoreId;
     }
-    
+
+    public Long getContentItemCount() {
+        return contentItemCount;
+    }
+
+    public void setContentItemCount(Long contentItemCount) {
+        this.contentItemCount = contentItemCount;
+    }
+
     /**
      * Creates a serialized version of bridge result
      *
