@@ -63,13 +63,13 @@ $.widget("ui.restore",
                     
                     that.getContent().append(table);
                 })
-                .fail(function( jqXHR, 
+                .error(function( jqXHR, 
                                 textStatus, 
                                 errorThrown ) {
-                    alert("error retrieving list of snapshots: " + 
-                           errorThrown + 
-                           " - " + textStatus + " - " +
-                           jqXHR.responseText);
+
+                  dc.displayErrorDialog(jqXHR, 
+                                        "Unable to display restore.", 
+                                        errorThrown);
                 });
 
 

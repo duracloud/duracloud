@@ -84,21 +84,24 @@ $.widget("ui.snapshot",
                                         dc.done();
                                     })
                                     .done(function(response){
-                                        dc.done();
-                                        alert("The snapshot is being generated!");
+                                        dc.done("The snapshot is being generated!");
                                         that._displayProperties(response,panel);
                                         response.snapshot = true;
                                         response.storeId = s.storeId;
                                         response.spaceId = response.snapshotId;
                                         $(document).trigger("reloadSpaceList", response);
                                     })
-                                    .fail(function( jqXHR, 
+                                    .error(function( jqXHR, 
                                                     textStatus, 
                                                     errorThrown ) {
-                                        alert("error: " + 
+                                        dc.done();
+                                        dc.error("error: " + 
                                                errorThrown + 
-                                               "; status=" + 
-                                               textStatus);
+                                               "; response=" + 
+                                               jqXHR.responseText);
+                                        dc.displayErrorDialog(jqXHR, 
+                                                              "Failed to initiate snapshot.", 
+                                                              errorThrown);
                                     });
                             },
                             Cancel: function() {
@@ -125,11 +128,10 @@ $.widget("ui.snapshot",
 	                  .done(function(properties){
 	                    that._displayProperties(properties, panel);
 	                  })
-	                  .fail(function( jqXHR, textStatus, errorThrown ) {
-	                                          alert("error: " + 
-                                                     errorThrown + 
-                                                     "; status=" + 
-                                                     textStatus);
+	                  .error(function( jqXHR, textStatus, errorThrown ) {
+                      dc.displayErrorDialog(jqXHR, 
+                                            "Unable to display snapshot.", 
+                                            errorThrown);
 	                  });
 			    }
 			    

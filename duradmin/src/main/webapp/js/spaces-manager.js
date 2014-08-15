@@ -1134,13 +1134,17 @@ $(function() {
         that._displaySnapshot(snapshot, params);
         that._loadSnapshotContentItems(snapshot);
 
-      }).fail(function() {
-        if (retrieveSnapshot.status == 404) {
-          alert("snapshot " + params.spaceId + " does not exist.");
+      }).error(function(jqXHR, textStatus, errorThrown) {
+        var message = "Unable to display snapshot.";
+        if (jqXHR.status == 404) {
+          message = "snapshot " + params.spaceId + " does not exist.";
           this._detailManager.showEmpty();
-        } else {
-          alert("failed to retrieve snapshot");
-        }
+        } 
+        
+        dc.displayErrorDialog(jqXHR, 
+                              message, 
+                              errorThrown);
+
       });
 
     },
@@ -1286,7 +1290,9 @@ $(function() {
 
               that._spacesArray.push(space);
             });
-
+          }).error(function(jqXHR, textStatus, errorThrown) {
+            dc.displayErrorDialog(jqXHR, "Unable to display snapshot list.",errorThrown);
+          }).always(function(){
             that._spacesListPane.spaceslistpane("load", 
                                                 that._spacesArray, 
                                                 storeId);
@@ -1294,8 +1300,6 @@ $(function() {
             that._spacesListPane.spaceslistpane("setCurrentById", 
                                                 optionalParams.spaceId);
 
-          }).fail(function(jqXHR, textStatus, errorThrown) {
-            alert("error retrieving list of snapshots: " + errorThrown + " - " + textStatus + " - " + jqXHR.responseText);
           });
         } else {
           that._spacesListPane.spaceslistpane("load", that._spacesArray, storeId);
@@ -3351,7 +3355,9 @@ $(function() {
         });
       }).error(function(jqxhr, textStatus, errorThrown) {
         dc.done();
-        alert("failed to initiate restore: status=" + jqxhr.status + "; error thrown=" + errorThrown);
+        dc.displayErrorDialog(jqxhr, 
+                              "Unable to initiate snapshot restore.", 
+                              errorThrown);
       });
     },
 
