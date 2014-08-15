@@ -108,9 +108,6 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
         String restoreSpaceId = snapshotIdentifier.getRestoreSpaceId();
         createSpace(restoreSpaceId);
 
-        // Set permissions on restore space
-        setRestoreSpaceUserPermissions(restoreSpaceId);
-
         // Create URL for call to bridge app
         String bridgeURL = buildBridgeURL();
 
@@ -128,6 +125,9 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
         
         // Add restore ID to space properties
         addRestoreIdToSpaceProps(restoreSpaceId, bridgeResult.getRestoreId());
+
+        // Set permissions on restore space
+        setRestoreSpaceUserPermissions(restoreSpaceId);
 
         // Send response
         RestoreSnapshotTaskResult taskResult = new RestoreSnapshotTaskResult();
