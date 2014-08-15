@@ -741,7 +741,7 @@ $(function() {
         that._loadSpace(state);
       });
       
-      $(document).bind("reload-space-list", function(evt, state){
+      $(document).bind("reloadSpaceList", function(evt, state){
           state.forceRefresh = true;
           that.loadSpaces(state);
       });
@@ -3340,7 +3340,7 @@ $(function() {
       dc.store.RestoreSnapshot(that._storeId, that._snapshot.snapshotId).success(function(data) {
         that._configureRestoreControls().success(function(){
           that._getRestoreLink().click();
-          $(document).trigger("reload-space-list", {storeId: that._storeId, spaceId: data.spaceId});
+          $(document).trigger("reloadSpaceList", {storeId: that._storeId, spaceId: data.spaceId});
         }).error(function(){
            dc.done();
         });

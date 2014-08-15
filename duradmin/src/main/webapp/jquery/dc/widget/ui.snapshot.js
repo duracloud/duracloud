@@ -83,10 +83,14 @@ $.widget("ui.snapshot",
                                     .always(function(){
                                         dc.done();
                                     })
-                                    .done(function(properties){
+                                    .done(function(response){
+                                        dc.done();
                                         alert("The snapshot is being generated!");
-                                        that._displayProperties(properties,panel);
-                                        $(document).trigger("staleSpace", that.options.space);
+                                        that._displayProperties(response,panel);
+                                        response.snapshot = true;
+                                        response.storeId = s.storeId;
+                                        response.spaceId = response.snapshotId;
+                                        $(document).trigger("reloadSpaceList", response);
                                     })
                                     .fail(function( jqXHR, 
                                                     textStatus, 
