@@ -55,8 +55,8 @@ $.widget("ui.restore",
                     var data = [];
                     data.push(["Status", restore.status]);
                     data.push(["Status Message", restore.statusText]);
-                    data.push(["Start Date", (restore.startDate ? new Date(restore.startDate):"")]);
-                    data.push(["End Date", (restore.endDate ? new Date(restore.endDate):"")]);
+                    data.push(["Start Date", (restore.startDate ? new Date(restore.startDate).toString():"")]);
+                    data.push(["End Date", (restore.endDate ? new Date(restore.endDate).toString():"")]);
                     data.push(["Snaphshot ID", restore.snapshotId]);
                     
                     var table = dc.createTable(data);
