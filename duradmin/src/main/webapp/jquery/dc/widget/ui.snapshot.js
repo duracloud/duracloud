@@ -44,12 +44,27 @@ $.widget("ui.snapshot",
 			    panel.removeClass()
                 panel.append("<p class='success'>A snapshot request has been issued.</p>");
 			    var list = [];
-			    
+			    var value = "";
+			    var snapshotId;
 			    for(i in properties){
-			        list.push([i, properties[i]]);
+			        value = properties[i];
+			        if(i == "snapshotId" || 
+			            i == "Snapshot ID" || 
+			            i == "snapshot-id"){
+			          snapshotId = value;
+			          value = "<a id='snapshot-id'>"+snapshotId+"</a>";
+			        }
+
+			        list.push([i, value]);
 			    }
 			    
-                panel.append(dc.createTable(list));
+          panel.append(dc.createTable(list));
+          $(panel).find("#snapshot-id").click(function(evt){
+              $(document).trigger("navigateToSpace", {
+                spaceId: snapshotId,
+                snapshot: true
+              });
+          });
 			},
 			
 			_createUI: function () {

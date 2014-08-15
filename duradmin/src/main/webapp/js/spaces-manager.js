@@ -745,6 +745,14 @@ $(function() {
           state.forceRefresh = true;
           that.loadSpaces(state);
       });
+      
+      $(document).bind("navigateToSpace", function(evt, state){
+        if(!state.storeId){
+          state.storeId = that._storeId;
+        }
+        HistoryManager.pushState(that._createUniqueStateObject(state));
+      });
+
     },
 
     /**

@@ -73,7 +73,8 @@ public class GetSnapshotBridgeResultTest {
         assertEquals(sourceStoreId, params2.getSourceStoreId());
         assertEquals(snapshotDate, params2.getSnapshotDate());
         assertEquals(snapshotId, params2.getSnapshotId());
-        
+        assertEquals(contentItemCount, params2.getContentItemCount());
+               
         
     }
 }
