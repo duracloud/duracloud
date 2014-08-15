@@ -13,6 +13,7 @@ import org.duracloud.snapshot.dto.RestoreStatus;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.SnapshotSummary;
+import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
@@ -58,6 +59,7 @@ public class SnapshotTaskClientImplTest {
     private String contentId = "content-id";
     private String propName = "prop-name";
     private String propValue = "prop-value";
+    private String completionResult = "result";
 
     @Before
     public void setup() {
@@ -124,19 +126,33 @@ public class SnapshotTaskClientImplTest {
     }
 
     @Test
+    public void testCleanupSnapshot() throws Exception {
+        String taskName = SnapshotConstants.CLEANUP_SNAPSHOT_TASK_NAME;
+
+        CleanupSnapshotTaskResult preparedResult = new CleanupSnapshotTaskResult();
+        preparedResult.setContentExpirationDays(contentExpirationDays);
+
+        setupMock(taskName, preparedResult.serialize());
+        replayMocks();
+
+        CleanupSnapshotTaskResult result = taskClient.cleanupSnapshot(spaceId);
+        assertThat(contentExpirationDays,
+                   equalTo(result.getContentExpirationDays()));
+    }
+
+    @Test
     public void testCompleteSnapshot() throws Exception {
         String taskName = SnapshotConstants.COMPLETE_SNAPSHOT_TASK_NAME;
 
         CompleteSnapshotTaskResult preparedResult = new CompleteSnapshotTaskResult();
-        preparedResult.setContentExpirationDays(contentExpirationDays);
+        preparedResult.setResult(completionResult);
 
         setupMock(taskName, preparedResult.serialize());
         replayMocks();
 
         CompleteSnapshotTaskResult result =
             taskClient.completeSnapshot(spaceId);
-        assertThat(contentExpirationDays,
-                   equalTo(result.getContentExpirationDays()));
+        assertThat(completionResult, equalTo(result.getResult()));
     }
 
     @Test

@@ -10,6 +10,8 @@ package org.duracloud.client.task;
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.snapshot.SnapshotConstants;
+import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskParameters;
+import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
@@ -74,6 +76,23 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
                                      taskParams.serialize());
 
         return GetSnapshotTaskResult.deserialize(taskResult);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CleanupSnapshotTaskResult cleanupSnapshot(String spaceId)
+        throws ContentStoreException {
+        CleanupSnapshotTaskParameters taskParams =
+            new CleanupSnapshotTaskParameters();
+        taskParams.setSpaceId(spaceId);
+
+        String taskResult =
+            contentStore.performTask(SnapshotConstants.CLEANUP_SNAPSHOT_TASK_NAME,
+                                     taskParams.serialize());
+
+        return CleanupSnapshotTaskResult.deserialize(taskResult);
     }
 
     /**

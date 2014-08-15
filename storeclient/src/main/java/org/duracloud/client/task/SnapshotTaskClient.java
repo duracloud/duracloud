@@ -8,6 +8,7 @@
 package org.duracloud.client.task;
 
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
@@ -53,8 +54,21 @@ public interface SnapshotTaskClient {
         throws ContentStoreException;
 
     /**
-     * Completes the snapshot process by cleaning up content that is no longer
-     * needed now that the snapshot has been transferred successfully.
+     * Cleans up content that is no longer needed now that the snapshot
+     * has been transferred successfully. This call should be made before
+     * the completeSnapshot call.
+     *
+     * @param spaceId
+     * @return
+     * @throws ContentStoreException
+     */
+    public CleanupSnapshotTaskResult cleanupSnapshot(String spaceId)
+        throws ContentStoreException;
+
+    /**
+     * Completes the snapshot. The cleanupSnapshot call should be made and
+     * all content should have been removed from the snapshot space prior
+     * to this call being made.
      *
      * @param spaceId the ID of the space that hosted the snapshot content
      * @return results
