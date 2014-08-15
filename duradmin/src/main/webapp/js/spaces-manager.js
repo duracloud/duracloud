@@ -3289,7 +3289,12 @@ $(function() {
       if (snapshot.snapshotDate) {
         snapshotDate = new Date(snapshot.snapshotDate);
       }
-      var props = [ [ "Description", snapshot.description ], [ "Snapshot Date", snapshotDate ], [ "Source Host", snapshot.sourceHost ], [ "Source Store", snapshot.sourceStoreId ], [ "Source Space", snapshot.sourceSpaceId ], [ "Status", snapshot.status ],
+      var props = [ [ "Description", snapshot.description ], 
+                    [ "Snapshot Date", snapshotDate.toString() ], 
+                    [ "Source Host", snapshot.sourceHost ], 
+                    [ "Source Store", snapshot.sourceStoreId ], 
+                    [ "Source Space", snapshot.sourceSpaceId ], 
+                    [ "Status", snapshot.status ],
 
       ];
 
