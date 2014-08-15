@@ -3299,7 +3299,7 @@ $(function() {
                     [ "Source Store", snapshot.sourceStoreId ], 
                     [ "Source Space", snapshot.sourceSpaceId ], 
                     [ "Status", snapshot.status ],
-
+                    [ "Content Item Count", snapshot.contentItemCount ]
       ];
 
       this._loadProperties(props);
