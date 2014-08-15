@@ -740,6 +740,11 @@ $(function() {
       $(document).bind("staleSpace", function(evt, state) {
         that._loadSpace(state);
       });
+      
+      $(document).bind("reload-space-list", function(evt, state){
+          state.forceRefresh = true;
+          that.loadSpaces(state);
+      });
     },
 
     /**
@@ -1394,7 +1399,6 @@ $(function() {
       $(document).bind("spaceDeleted", function(evt, state) {
         that._spacesList.selectablelist("removeById", state.spaceId);
       });
-
     },
 
     setCurrentById : function(spaceId) {
@@ -3305,7 +3309,7 @@ $(function() {
       }
 
       that._getRestoreButton().busySibling("Retrieving restore info...");
-      dc.store.GetRestoreBySnapshot(that._storeId, that._snapshot.snapshotId).success(function(restore) {
+      return dc.store.GetRestoreBySnapshot(that._storeId, that._snapshot.snapshotId).success(function(restore) {
         that._enableRestoreLink(restore);
       }).error(function(jqxhr, textStatus, errorThrown) {
         that._enableRestoreButton();
@@ -3332,10 +3336,16 @@ $(function() {
 
     _restoreSnapshot : function() {
       var that = this;
+      dc.busy("Initiating snapshot restore...");
       dc.store.RestoreSnapshot(that._storeId, that._snapshot.snapshotId).success(function(data) {
-        that._configureRestoreControls();
-        alert("You successfully initiated restore of snapshot.\n" + "Click 'View Restored Space' link to track it's progress");
+        that._configureRestoreControls().success(function(){
+          that._getRestoreLink().click();
+          $(document).trigger("reload-space-list", {storeId: that._storeId, spaceId: data.spaceId});
+        }).error(function(){
+           dc.done();
+        });
       }).error(function(jqxhr, textStatus, errorThrown) {
+        dc.done();
         alert("failed to initiate restore: status=" + jqxhr.status + "; error thrown=" + errorThrown);
       });
     },
