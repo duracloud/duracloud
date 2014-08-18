@@ -9,12 +9,14 @@ package org.duracloud.snapshottask.snapshot;
 
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.IOUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.SnapshotStatus;
+import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -118,6 +120,21 @@ public class CreateSnapshotTaskRunnerTest {
         assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
         assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
         assertThat(cleanResult, containsString("\"userEmail\":\""+userEmail+"\""));
+    }
+
+    @Test
+    public void testGenerateSnapshotId() {
+        replayMocks();
+
+        String spaceId = "space-id";
+        long timestamp = System.currentTimeMillis();
+        String snapshotId = taskRunner.generateSnapshotId(spaceId, timestamp);
+
+        String delim = SnapshotIdentifier.DELIM;
+        String expectedSnapshotId =
+            dcAccountName + delim + dcStoreId + delim + spaceId + delim;
+        assertTrue(snapshotId.startsWith(expectedSnapshotId));
+        assertTrue(snapshotId.endsWith(DateUtil.convertToStringPlain(timestamp)));
     }
 
     @Test

@@ -20,6 +20,7 @@ import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeParameters;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
+import org.duracloud.snapshot.error.SnapshotDataException;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -94,9 +95,7 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
         // Generate snapshot ID
         long now = System.currentTimeMillis();
-        SnapshotIdentifier snapshotIdentifier =
-            new SnapshotIdentifier(dcAccountName, dcStoreId, spaceId, now);
-        String snapshotId = snapshotIdentifier.getSnapshotId();
+        String snapshotId = generateSnapshotId(spaceId, now);
 
         // Pull together all snapshot properties
         Map<String, String> snapshotProps = new HashMap<>();
@@ -121,12 +120,22 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         // Create URL for call to bridge app
         String snapshotURL = buildSnapshotURL(snapshotId);
 
-        // Create body for call to bridge app
-        String snapshotBody = buildSnapshotBody(taskParams);
+        String callResult;
+        try {
+            // Create body for call to bridge app
+            String snapshotBody = buildSnapshotBody(taskParams);
 
-        // Make call to DPN bridge ingest app to kick off transfer
-        String callResult =
-            callBridge(createRestHelper(), snapshotURL, snapshotBody);
+            // Make call to DPN bridge ingest app to kick off transfer
+            callResult =
+                callBridge(createRestHelper(), snapshotURL, snapshotBody);
+        } catch(TaskException | SnapshotDataException e) {
+            // Bridge call did not complete successfully, clean up!
+            removeSnapshotProps(spaceId);
+            String msg = MessageFormat.format("Call to create snapshot failed, " +
+                "snapshot properties have been removed from space {0}. " +
+                "Error message: {1}", spaceId, e.getMessage());
+            throw new TaskException(msg, e);
+        }
 
         CreateSnapshotBridgeResult bridgeResult =
             CreateSnapshotBridgeResult.deserialize(callResult);
@@ -135,6 +144,15 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
                  bridgeResult.getStatus());
 
         return callResult;
+    }
+
+    /*
+     * Generates a snapshot Id based on a set of variables
+     */
+    protected String generateSnapshotId(String spaceId, long timestamp) {
+        SnapshotIdentifier snapshotIdentifier =
+            new SnapshotIdentifier(dcAccountName, dcStoreId, spaceId, timestamp);
+        return snapshotIdentifier.getSnapshotId();
     }
 
     /*
@@ -234,6 +252,10 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
                                     serializedProps.length(),
                                     propsChecksum,
                                     propsStream);
+    }
+
+    protected void removeSnapshotProps(String spaceId) {
+        snapshotProvider.deleteContent(spaceId, Constants.SNAPSHOT_ID);
     }
 
     /*
