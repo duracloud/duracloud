@@ -10,7 +10,6 @@ package org.duracloud.snapshottask.snapshot;
 import org.apache.http.HttpHeaders;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
-import org.duracloud.common.model.Credential;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.util.ChecksumUtil;
@@ -24,7 +23,6 @@ import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +43,7 @@ import java.util.Properties;
  * @author: Bill Branan
  *          Date: 2/1/13
  */
-public class CreateSnapshotTaskRunner implements TaskRunner {
+public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
     private Logger log = LoggerFactory.getLogger(CreateSnapshotTaskRunner.class);
 
@@ -55,10 +53,6 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
     private String dcPort;
     private String dcStoreId;
     private String dcSnapshotUser;
-    private String bridgeAppHost;
-    private String bridgeAppPort;
-    private String bridgeAppUser;
-    private String bridgeAppPass;
 
     public CreateSnapshotTaskRunner(StorageProvider snapshotProvider,
                                     String dcHost,
@@ -70,16 +64,13 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                                     String bridgeAppPort,
                                     String bridgeAppUser,
                                     String bridgeAppPass) {
+        super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.snapshotProvider = snapshotProvider;
         this.dcHost = dcHost;
         this.dcPort = dcPort;
         this.dcStoreId = dcStoreId;
         this.dcAccountName = dcAccountName;
         this.dcSnapshotUser = dcSnapshotUser;
-        this.bridgeAppHost = bridgeAppHost;
-        this.bridgeAppPort = bridgeAppPort;
-        this.bridgeAppUser = bridgeAppUser;
-        this.bridgeAppPass = bridgeAppPass;
     }
 
     @Override
@@ -93,9 +84,8 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
                  "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
                  "Account Name: {} DuraCloud Snapshot User: {} Bridge Host: {} " +
                  "Bridge Port: {} Bridge User: {}",
-                 new Object[] {dcHost, dcPort, dcStoreId, dcAccountName,
-                               dcSnapshotUser, bridgeAppHost, bridgeAppPort,
-                               bridgeAppUser});
+                 dcHost, dcPort, dcStoreId, dcAccountName, dcSnapshotUser,
+                 getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser());
 
         // Get input params
         CreateSnapshotTaskParameters taskParams =
@@ -135,9 +125,8 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
         String snapshotBody = buildSnapshotBody(taskParams);
 
         // Make call to DPN bridge ingest app to kick off transfer
-        RestHttpHelper restHelper =
-            new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
-        String callResult = callBridge(restHelper, snapshotURL, snapshotBody);
+        String callResult =
+            callBridge(createRestHelper(), snapshotURL, snapshotBody);
 
         CreateSnapshotBridgeResult bridgeResult =
             CreateSnapshotBridgeResult.deserialize(callResult);
@@ -178,9 +167,8 @@ public class CreateSnapshotTaskRunner implements TaskRunner {
      * Create URL to call bridge app
      */
     protected String buildSnapshotURL(String snapshotId) {
-        String protocol = "443".equals(bridgeAppPort) ? "https" : "http";
-        return MessageFormat.format("{0}://{1}:{2}/bridge/snapshot/{3}",
-                                    protocol, bridgeAppHost, bridgeAppPort,
+        return MessageFormat.format("{0}/snapshot/{1}",
+                                    buildBridgeBaseURL(),
                                     snapshotId);
     }
 

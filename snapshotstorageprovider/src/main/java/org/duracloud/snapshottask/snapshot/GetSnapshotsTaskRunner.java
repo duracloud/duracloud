@@ -7,11 +7,9 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.storage.error.TaskException;
-import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,26 +21,19 @@ import java.text.MessageFormat;
  * @author Bill Branan
  *         Date: 7/23/14
  */
-public class GetSnapshotsTaskRunner implements TaskRunner {
+public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
 
     private Logger log = LoggerFactory.getLogger(GetSnapshotsTaskRunner.class);
 
     private String dcHost;
-    private String bridgeAppHost;
-    private String bridgeAppPort;
-    private String bridgeAppUser;
-    private String bridgeAppPass;
 
     public GetSnapshotsTaskRunner(String dcHost,
                                   String bridgeAppHost,
                                   String bridgeAppPort,
                                   String bridgeAppUser,
                                   String bridgeAppPass) {
+        super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.dcHost = dcHost;
-        this.bridgeAppHost = bridgeAppHost;
-        this.bridgeAppPort = bridgeAppPort;
-        this.bridgeAppUser = bridgeAppUser;
-        this.bridgeAppPass = bridgeAppPass;
     }
 
     @Override
@@ -52,18 +43,15 @@ public class GetSnapshotsTaskRunner implements TaskRunner {
 
     @Override
     public String performTask(String taskParameters) {
-        RestHttpHelper restHelper =
-            new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
-        return callBridge(restHelper, buildBridgeURL());
+        return callBridge(createRestHelper(), buildBridgeURL());
     }
 
     /*
      * Create URL to call bridge app
      */
     protected String buildBridgeURL() {
-        String protocol = "443".equals(bridgeAppPort) ? "https" : "http"; 
-        return MessageFormat.format("{0}://{1}:{2}/bridge/snapshot?host={3}",
-                                    protocol, bridgeAppHost, bridgeAppPort,
+        return MessageFormat.format("{0}/snapshot?host={1}",
+                                    buildBridgeBaseURL(),
                                     dcHost);
     }
 
@@ -74,7 +62,6 @@ public class GetSnapshotsTaskRunner implements TaskRunner {
         log.info("Making bridge call to get snapshot list. URL: {}", bridgeURL);
 
         try {
-           
             RestHttpHelper.HttpResponse response = restHelper.get(bridgeURL);
             int statusCode = response.getStatusCode();
             if(statusCode != 200) {

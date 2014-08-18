@@ -7,11 +7,11 @@
  */
 package org.duracloud.snapshottask.snapshot;
 
-import java.text.MessageFormat;
-
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.storage.provider.TaskRunner;
+
+import java.text.MessageFormat;
 
 public abstract class AbstractSnapshotTaskRunner implements TaskRunner {
 
@@ -27,6 +27,22 @@ public abstract class AbstractSnapshotTaskRunner implements TaskRunner {
         this.bridgeAppPort = bridgeAppPort;
         this.bridgeAppUser = bridgeAppUser;
         this.bridgeAppPass = bridgeAppPass;
+    }
+
+    protected String getBridgeAppHost() {
+        return bridgeAppHost;
+    }
+
+    protected String getBridgeAppPort() {
+        return bridgeAppPort;
+    }
+
+    protected String getBridgeAppUser() {
+        return bridgeAppUser;
+    }
+
+    protected String getBridgeAppPass() {
+        return bridgeAppPass;
     }
 
     /*

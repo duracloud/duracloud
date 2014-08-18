@@ -10,7 +10,6 @@ package org.duracloud.snapshottask.snapshot;
 import org.apache.http.HttpHeaders;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
-import org.duracloud.common.model.Credential;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
 import org.duracloud.common.web.RestHttpHelper;
@@ -23,7 +22,6 @@ import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,7 @@ import java.util.Map;
  * @author Bill Branan
  *         Date: 7/23/14
  */
-public class RestoreSnapshotTaskRunner implements TaskRunner {
+public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
     private Logger log =
         LoggerFactory.getLogger(RestoreSnapshotTaskRunner.class);
@@ -51,10 +49,6 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
     private String dcPort;
     private String dcStoreId;
     private String dcSnapshotUser;
-    private String bridgeAppHost;
-    private String bridgeAppPort;
-    private String bridgeAppUser;
-    private String bridgeAppPass;
 
     public RestoreSnapshotTaskRunner(SnapshotStorageProvider snapshotProvider,
                                      String dcHost,
@@ -65,15 +59,12 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
                                      String bridgeAppPort,
                                      String bridgeAppUser,
                                      String bridgeAppPass) {
+        super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.snapshotProvider = snapshotProvider;
         this.dcHost = dcHost;
         this.dcPort = dcPort;
         this.dcStoreId = dcStoreId;
         this.dcSnapshotUser = dcSnapshotUser;
-        this.bridgeAppHost = bridgeAppHost;
-        this.bridgeAppPort = bridgeAppPort;
-        this.bridgeAppUser = bridgeAppUser;
-        this.bridgeAppPass = bridgeAppPass;
     }
 
     @Override
@@ -87,8 +78,8 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
                  "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
                  "DuraCloud Snapshot User: {} Bridge Host: {} Bridge Port: {} " +
                  "Bridge User: {}",
-                 new Object[] {dcHost, dcPort, dcStoreId, dcSnapshotUser,
-                               bridgeAppHost, bridgeAppPort, bridgeAppUser});
+                  dcHost, dcPort, dcStoreId, dcSnapshotUser,
+                  getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser());
 
         // Get input params
         RestoreSnapshotTaskParameters taskParams =
@@ -117,9 +108,8 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
                                             taskParams.getUserEmail());
 
         // Call to bridge to request restore
-        RestHttpHelper restHelper =
-            new RestHttpHelper(new Credential(bridgeAppUser, bridgeAppPass));
-        String callResult = callBridge(restHelper, bridgeURL, bridgeBody);
+        String callResult =
+            callBridge(createRestHelper(), bridgeURL, bridgeBody);
         CreateRestoreBridgeResult bridgeResult =
             CreateRestoreBridgeResult.deserialize(callResult);
         
@@ -215,9 +205,7 @@ public class RestoreSnapshotTaskRunner implements TaskRunner {
      * Create URL to call bridge app
      */
     protected String buildBridgeURL() {
-        String protocol = "443".equals(bridgeAppPort) ? "https" : "http";
-        return MessageFormat.format("{0}://{1}:{2}/bridge/restore", protocol,
-                                    bridgeAppHost, bridgeAppPort);
+        return MessageFormat.format("{0}/restore", buildBridgeBaseURL());
     }
 
     /*
