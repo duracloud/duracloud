@@ -7,6 +7,7 @@
  */
 package org.duracloud.security.vote;
 
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -259,10 +260,11 @@ public class SpaceWriteAccessVoterTest {
                                    "test",
                                    StorageProviderType.SNAPSHOT);
         accounts.add(account);
-        
-        EasyMock.expect(provider.getContentProperties(EasyMock.isA(String.class),
-                                                      EasyMock.isA(String.class)))
-                .andReturn(new HashMap<String,String>());
+
+        Map<String, String> spaceProps = new HashMap<>();
+        spaceProps.put(Constants.SNAPSHOT_ID_PROP, "snapshot-id");
+        EasyMock.expect(provider.getSpaceProperties(EasyMock.isA(String.class)))
+                .andReturn(spaceProps);
 
         replayMocks();
 

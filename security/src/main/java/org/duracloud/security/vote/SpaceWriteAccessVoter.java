@@ -170,13 +170,16 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
            if(account.getId().equals(storeId)){
                if(account.getType().equals(StorageProviderType.SNAPSHOT)){
                    StorageProvider store = factory.getStorageProvider(storeId);
-                   try{
+                   try {
                        String spaceId = getSpaceId(httpRequest);
-                       store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
-                       return true;
-                   }catch(NotFoundException ex){}
-                   break;
+                       Map<String, String> spaceProps  =
+                           store.getSpaceProperties(spaceId);
+                       if(spaceProps.containsKey(Constants.SNAPSHOT_ID_PROP)) {
+                           return true;
+                       }
+                   } catch(NotFoundException e) {}
                }
+               break;
            }
        }
        

@@ -14,6 +14,8 @@ import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 
+import java.util.HashMap;
+
 /**
  * Completes the snapshot process by removing unnecessary bucket-level policies
  *
@@ -45,6 +47,10 @@ public class CompleteSnapshotTaskRunner implements TaskRunner {
 
         // Remove policy on bucket
         s3Client.deleteBucketLifecycleConfiguration(bucketName);
+
+        // Clear space properties (removes snapshot ID and other props)
+        snapshotProvider.setNewSpaceProperties(spaceId,
+                                               new HashMap<String, String>());
 
         String result = "Snapshot complete was successful";
         return new CompleteSnapshotTaskResult(result).serialize();

@@ -22,6 +22,7 @@ import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
 import org.duracloud.snapshot.error.SnapshotDataException;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
+import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -48,14 +49,14 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
 
     private Logger log = LoggerFactory.getLogger(CreateSnapshotTaskRunner.class);
 
-    private StorageProvider snapshotProvider;
+    private SnapshotStorageProvider snapshotProvider;
     private String dcAccountName;
     private String dcHost;
     private String dcPort;
     private String dcStoreId;
     private String dcSnapshotUser;
 
-    public CreateSnapshotTaskRunner(StorageProvider snapshotProvider,
+    public CreateSnapshotTaskRunner(SnapshotStorageProvider snapshotProvider,
                                     String dcHost,
                                     String dcPort,
                                     String dcStoreId,
@@ -114,6 +115,9 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         String serializedProps = buildSnapshotProps(snapshotProps);
         storeSnapshotProps(spaceId, serializedProps);
 
+        // Add snapshot ID to space properties
+        addSnapshotIdToSpaceProps(spaceId, snapshotId);
+
         // Give snapshot user read permissions on space
         setSnapshotUserPermissions(spaceId);
 
@@ -153,6 +157,16 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         SnapshotIdentifier snapshotIdentifier =
             new SnapshotIdentifier(dcAccountName, dcStoreId, spaceId, timestamp);
         return snapshotIdentifier.getSnapshotId();
+    }
+
+    /*
+     * Adds a snapshot ID property to the space
+     */
+    protected void addSnapshotIdToSpaceProps(String spaceId, String snapshotId) {
+        Map<String, String> spaceProps =
+            snapshotProvider.getSpaceProperties(spaceId);
+        spaceProps.put(Constants.SNAPSHOT_ID_PROP, snapshotId);
+        snapshotProvider.setNewSpaceProperties(spaceId, spaceProps);
     }
 
     /*
@@ -246,7 +260,7 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
         String propsChecksum = checksumUtil.generateChecksum(serializedProps);
 
         snapshotProvider.addContent(spaceId,
-                                    Constants.SNAPSHOT_ID,
+                                    Constants.SNAPSHOT_PROPS_FILENAME,
                                     "text/x-java-properties",
                                     null,
                                     serializedProps.length(),
@@ -255,7 +269,7 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
     }
 
     protected void removeSnapshotProps(String spaceId) {
-        snapshotProvider.deleteContent(spaceId, Constants.SNAPSHOT_ID);
+        snapshotProvider.deleteContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
     }
 
     /*

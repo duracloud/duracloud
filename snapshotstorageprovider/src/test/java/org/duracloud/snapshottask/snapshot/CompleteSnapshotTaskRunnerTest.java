@@ -18,6 +18,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -58,9 +60,13 @@ public class CompleteSnapshotTaskRunnerTest extends EasyMockSupport {
         s3Client.deleteBucketLifecycleConfiguration(EasyMock.eq(bucketName));
         EasyMock.expectLastCall();
 
+        snapshotProvider.setNewSpaceProperties(EasyMock.eq(spaceId),
+                                               EasyMock.isA(Map.class));
+        EasyMock.expectLastCall();
+
         replayAll();
 
-        taskRunner.performTask("{\"spaceId\":\""+spaceId+"\"}");
+        taskRunner.performTask("{\"spaceId\":\"" + spaceId + "\"}");
     }
 
 }

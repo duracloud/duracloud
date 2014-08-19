@@ -249,7 +249,7 @@ public class SpaceUtil {
 
     private static boolean isSnapshotInProgress(ContentStore store,
                                                 String spaceId) throws ContentStoreException {
-        return store.contentExists(spaceId, Constants.SNAPSHOT_ID);
+        return store.contentExists(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
     }
 
     protected static boolean isSnapshotProvider(ContentStore store) {

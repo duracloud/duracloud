@@ -17,7 +17,7 @@ import java.text.ParseException;
  */
 public class SnapshotIdentifier {
 
-    public static final String DELIM = "~";
+    public static final String DELIM = "_";
 
     private String accountName;
     private String storeId;

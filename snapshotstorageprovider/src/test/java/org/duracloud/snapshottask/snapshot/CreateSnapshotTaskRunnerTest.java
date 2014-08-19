@@ -138,6 +138,28 @@ public class CreateSnapshotTaskRunnerTest {
     }
 
     @Test
+    public void testAddSnapshotIdToSpaceProps() throws Exception {
+        String spaceId = "space-id";
+        String snapshotId = "snapshot-id";
+
+        Map<String, String> spaceProps = new HashMap<>();
+        EasyMock.expect(snapshotProvider.getSpaceProperties(spaceId))
+                .andReturn(spaceProps);
+
+        Capture<Map<String, String>> propsCapture = new Capture<>();
+        snapshotProvider.setNewSpaceProperties(EasyMock.eq(spaceId),
+                                               EasyMock.capture(propsCapture));
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        taskRunner.addSnapshotIdToSpaceProps(spaceId, snapshotId);
+        Map<String, String> updatedSpaceProps = propsCapture.getValue();
+        assertEquals(String.valueOf(snapshotId),
+                     updatedSpaceProps.get(Constants.SNAPSHOT_ID_PROP));
+    }
+
+    @Test
     public void testSetSnapshotUserPermissions() {
         String spaceId = "space-id";
         String aclUserName = "acl-user-name";
@@ -185,7 +207,7 @@ public class CreateSnapshotTaskRunnerTest {
 
         EasyMock.expect(
             snapshotProvider.addContent(EasyMock.eq(spaceId),
-                                     EasyMock.eq(Constants.SNAPSHOT_ID),
+                                     EasyMock.eq(Constants.SNAPSHOT_PROPS_FILENAME),
                                      EasyMock.eq("text/x-java-properties"),
                                      EasyMock.<Map<String, String>>isNull(),
                                      EasyMock.eq((long)props.length()),

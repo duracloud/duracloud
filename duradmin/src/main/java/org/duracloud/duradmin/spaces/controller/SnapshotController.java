@@ -108,9 +108,9 @@ public class SnapshotController {
         try {
             ContentStore store =
                 this.contentStoreManager.getContentStore(storeId);
-            if (store.contentExists(spaceId, Constants.SNAPSHOT_ID)) {
+            if (store.contentExists(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)) {
                 try (InputStream is =
-                    store.getContent(spaceId, Constants.SNAPSHOT_ID)
+                    store.getContent(spaceId, Constants.SNAPSHOT_PROPS_FILENAME)
                          .getStream()) {
                     props.load(is);
                 }
@@ -240,7 +240,7 @@ public class SnapshotController {
 
     private boolean isSnapshotInProgress(ContentStore store, String spaceId) {
         try {
-            return store.contentExists(spaceId, Constants.SNAPSHOT_ID);
+            return store.contentExists(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
         } catch (ContentStoreException ex) {
             throw new RuntimeException(ex);
         }
