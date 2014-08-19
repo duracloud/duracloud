@@ -273,7 +273,7 @@ $(function() {
       return state;
     },
 
-    _isSnapshot : function(storeId, storeProviders) {
+    _isSnapshot : function(storeId) {
       var ischron = false;
       $.each(storeProviders, function(i, provider) {
         if (storeId == provider.id && provider.type == 'snapshot') {
@@ -1283,7 +1283,7 @@ $(function() {
       }).done(function(data) {
         that._spacesArray = data.spaces;
 
-        if (that._isSnapshot(storeId, storeProviders)) {
+        if (that._isSnapshot(storeId)) {
           dc.store.GetSnapshots(storeId).always(function() {
             dc.done();
           }).done(function(snapshotData) {
@@ -1498,8 +1498,7 @@ $(function() {
     addSpaceToList : function(space, dividerLabel) {
       var that = this;
       if(dividerLabel == undefined && 
-          that._isSnapshot(that._storeId, 
-                           storeProviders)){
+          that._isSnapshot(that._storeId)){
         dividerLabel = this._spacesLabel;
       }
       
@@ -1542,7 +1541,7 @@ $(function() {
       this._spacesList.selectablelist("clear", false);
       var firstMatchFound = false;
       var snapshotDividerAdded = false;
-      var snapshotProvider = this._isSnapshot(storeId, storeProviders);
+      var snapshotProvider = this._isSnapshot(storeId);
       if(snapshotProvider){
         that._spacesList.selectablelist("addDivider", this._spacesLabel);
       }
@@ -2313,7 +2312,7 @@ $(function() {
 
     _loadSnapshotPane : function(space) {
 
-      if (this._isSnapshot(space.storeId, storeProviders) && this._getRestoreId(space) == null) {
+      if (this._isSnapshot(space.storeId) && this._getRestoreId(space) == null) {
         var viewerPane = $.fn.create("div").attr("id", "snapshot").snapshot({
           open : true,
           space : space
@@ -3142,7 +3141,7 @@ $(function() {
 
       var switchHolder = $(".streaming-switch-holder");
       switchHolder.hide();
-      if (this._isAdmin() && space.primaryStorageProvider) {
+      if (this._isAdmin() && space.primaryStorageProvider && !this._isSnapshot(this._storeId)) {
         switchHolder.show();
 
         // deploy/undeploy switch
