@@ -31,6 +31,8 @@ public class SpaceProperties
     private Set<String> tags;
     
     private Long restoreId;
+    
+    private String snapshotId;
 
     public String getCreated() {
         return created;
@@ -87,6 +89,14 @@ public class SpaceProperties
 
     public void setRestoreId(Long restoreId) {
         this.restoreId = restoreId;
+    }
+
+    public String getSnapshotId() {
+        return snapshotId;
+    }
+
+    public void setSnapshotId(String snapshotId) {
+        this.snapshotId = snapshotId;
     }
 
 }

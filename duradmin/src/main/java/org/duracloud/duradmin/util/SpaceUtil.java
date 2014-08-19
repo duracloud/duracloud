@@ -88,12 +88,13 @@ public class SpaceUtil {
         spaceProperties.setSize(spaceProps.remove(ContentStore.SPACE_SIZE));
         spaceProperties.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
         spaceProperties.setStreamingHost(spaceProps.get(ContentStore.STREAMING_HOST));
-        
+        spaceProperties.setSnapshotId(spaceProps.get(Constants.SNAPSHOT_ID_PROP));
+
         String restoreIdStr = spaceProps.get(Constants.RESTORE_ID_PROP);
         if(StringUtils.isNotBlank(restoreIdStr)){
             spaceProperties.setRestoreId(Long.valueOf(restoreIdStr));
         }
-        
+
         return spaceProperties;
     }
 
@@ -248,8 +249,10 @@ public class SpaceUtil {
     }
 
     private static boolean isSnapshotInProgress(ContentStore store,
-                                                String spaceId) throws ContentStoreException {
-        return store.contentExists(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
+                                                String spaceId)
+        throws ContentStoreException {
+        return store.getSpaceProperties(spaceId)
+                    .containsKey(Constants.SNAPSHOT_ID_PROP);
     }
 
     protected static boolean isSnapshotProvider(ContentStore store) {
