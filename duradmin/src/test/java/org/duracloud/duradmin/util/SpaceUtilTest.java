@@ -8,8 +8,18 @@
 
 package org.duracloud.duradmin.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.Assert;
+
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.duradmin.domain.Acl;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -21,14 +31,6 @@ import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 /**
  * 
  * @author Daniel Bernstein
@@ -152,11 +154,12 @@ public class SpaceUtilTest {
 
     @Test
     public void testSnashotInProgress() throws Exception{
+        Map<String,String> map = new HashMap<String,String>();
+        map.put(Constants.SNAPSHOT_ID_PROP, "test");
         expectGetStorageProviderType(StorageProviderType.SNAPSHOT);
-        EasyMock.expect(this.contentStore.contentExists(
-                                               EasyMock.isA(String.class),
+        EasyMock.expect(this.contentStore.getSpaceProperties(
                                                EasyMock.isA(String.class)))
-                                          .andReturn(true);
+                                          .andReturn(map);
         expectAuthority("ROLE_ADMIN", 1);
         
         replay();

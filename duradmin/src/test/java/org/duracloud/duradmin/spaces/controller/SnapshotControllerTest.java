@@ -22,7 +22,6 @@ import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
-import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
@@ -106,10 +105,8 @@ public class SnapshotControllerTest extends EasyMockSupport {
 
         setupGetContentStore();
         setupGetTaskClient(storeId);
-        EasyMock.expect(store.contentExists(EasyMock.isA(String.class),
-                                            EasyMock.isA(String.class)))
-                .andReturn(false);
-        
+        EasyMock.expect(store.getSpaceProperties(EasyMock.isA(String.class)))
+                .andReturn(new HashMap<String, String>());        
         
         EasyMock.expect(taskClient.createSnapshot(spaceId, description, userEmail))
                 .andReturn(new CreateSnapshotTaskResult());

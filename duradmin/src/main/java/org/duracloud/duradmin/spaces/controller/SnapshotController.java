@@ -240,7 +240,8 @@ public class SnapshotController {
 
     private boolean isSnapshotInProgress(ContentStore store, String spaceId) {
         try {
-            return store.contentExists(spaceId, Constants.SNAPSHOT_PROPS_FILENAME);
+            return store.getSpaceProperties(spaceId)
+                        .containsKey(Constants.SNAPSHOT_ID_PROP);
         } catch (ContentStoreException ex) {
             throw new RuntimeException(ex);
         }
