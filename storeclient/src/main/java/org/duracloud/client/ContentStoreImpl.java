@@ -210,7 +210,7 @@ public class ContentStoreImpl implements ContentStore{
     protected <T extends Object> T execute(Retriable retriable)
         throws ContentStoreException {
         try {
-            Retrier retrier = new Retrier();
+            Retrier retrier = new Retrier(maxRetries);
             return retrier.execute(retriable, retryExceptionHandler);
         } catch(Exception e) {
             throw (ContentStoreException)e;

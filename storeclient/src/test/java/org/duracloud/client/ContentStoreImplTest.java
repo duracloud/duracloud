@@ -417,19 +417,21 @@ public class ContentStoreImplTest {
 
     @Test
     public void testCopyContentErrorWithDefaultStore() throws Exception {
+        int retries = 2;
         contentStore =
-            new ContentStoreImpl(baseURL, type, storeId, restHelper, 0);
-        doTestCopyContentError(storeId);
+            new ContentStoreImpl(baseURL, type, storeId, restHelper, retries);
+        doTestCopyContentError(storeId, retries);
     }
 
     @Test
     public void testCopyContentErrorWithAlternateStore() throws Exception {
+        int retries = 4;
         contentStore =
-            new ContentStoreImpl(baseURL, type, storeId, restHelper, 0);
-        doTestCopyContentError("1");
+            new ContentStoreImpl(baseURL, type, storeId, restHelper, retries);
+        doTestCopyContentError("1", retries);
     }
 
-    private void doTestCopyContentError(String destStoreId) throws Exception {
+    private void doTestCopyContentError(String destStoreId, int retries) throws Exception {
         String srcSpaceId = "src-space-id";
         String srcContentId = "src-content-id";
         String destSpaceId = "dest-space-id";
@@ -441,7 +443,8 @@ public class ContentStoreImplTest {
                                     destSpaceId,
                                     destContentId,
                                     expectedMd5,
-                                    status);
+                                    status,
+                                    retries + 1);
         replayMocks();
 
         try {
@@ -470,17 +473,17 @@ public class ContentStoreImplTest {
                                              String destSpaceId,
                                              String destContentId,
                                              String md5,
-                                             int status) throws Exception {
-        int retries = 4;
+                                             int status,
+                                             int expectedAttempts) throws Exception {
         EasyMock.expect(response.getStatusCode())
-                .andReturn(status).times(retries);
+                .andReturn(status).times(expectedAttempts);
 
         Header header = EasyMock.createMock(Header.class);
         EasyMock.expect(header.getValue())
                 .andReturn(md5);
         EasyMock.expect(response.getResponseBody())
                 .andReturn("body")
-                .times(retries);
+                .times(expectedAttempts);
         EasyMock.replay(header);
 
         String fullURL =
@@ -491,7 +494,7 @@ public class ContentStoreImplTest {
                                        EasyMock.<String>isNull(),
                                        EasyMock.capture(capturedHeaders)))
                 .andReturn(response)
-                .times(retries);
+                .times(expectedAttempts);
     }
 
     private Capture<Map<String, String>> createCopyContentMocks(String destStoreId,
