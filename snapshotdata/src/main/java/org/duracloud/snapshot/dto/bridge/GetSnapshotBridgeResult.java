@@ -45,6 +45,9 @@ public class GetSnapshotBridgeResult {
     @XmlValue
     private Long contentItemCount;
     
+    @XmlValue
+    private Long totalSizeInBytes;
+    
     public GetSnapshotBridgeResult(){}
 
  
@@ -151,5 +154,15 @@ public class GetSnapshotBridgeResult {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }
+    }
+
+
+    public Long getTotalSizeInBytes() {
+        return totalSizeInBytes;
+    }
+
+
+    public void setTotalSizeInBytes(Long totalSizeInBytes) {
+        this.totalSizeInBytes = totalSizeInBytes;
     }
 }

@@ -31,6 +31,7 @@ public class GetSnapshotBridgeResultTest {
     private Date snapshotDate = new Date();
     private String snapshotId = "snapshot-id";
     private Long contentItemCount = 424242l;
+    private Long totalSizeInBytes = 111111l;
     
     @Test
     public void testSerialize() {
@@ -45,6 +46,7 @@ public class GetSnapshotBridgeResultTest {
         params.setSnapshotId(snapshotId);
         params.setSnapshotDate(snapshotDate);
         params.setContentItemCount(contentItemCount);
+        params.setTotalSizeInBytes(totalSizeInBytes);
         
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
@@ -64,6 +66,8 @@ public class GetSnapshotBridgeResultTest {
                    containsString("\"description\":\""+description+"\""));
         assertThat(cleanResult,
                    containsString("\"contentItemCount\":"+contentItemCount));
+        assertThat(cleanResult,
+                   containsString("\"totalSizeInBytes\":"+totalSizeInBytes));
 
         GetSnapshotBridgeResult params2 =
             GetSnapshotBridgeResult.deserialize(result);
@@ -74,6 +78,7 @@ public class GetSnapshotBridgeResultTest {
         assertEquals(snapshotDate, params2.getSnapshotDate());
         assertEquals(snapshotId, params2.getSnapshotId());
         assertEquals(contentItemCount, params2.getContentItemCount());
+        assertEquals(totalSizeInBytes, params2.getTotalSizeInBytes());
                
         
     }

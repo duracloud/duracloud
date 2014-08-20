@@ -3306,7 +3306,9 @@ $(function() {
                     [ "Source Store", snapshot.sourceStoreId ], 
                     [ "Source Space", snapshot.sourceSpaceId ], 
                     [ "Status", snapshot.status ],
-                    [ "Content Item Count", snapshot.contentItemCount ]
+                    [ "Content Item Count", snapshot.contentItemCount ],
+                    [ "Total Size", dc.formatBytes(snapshot.totalSizeInBytes,true) ]
+                    
       ];
 
       this._loadProperties(props);
