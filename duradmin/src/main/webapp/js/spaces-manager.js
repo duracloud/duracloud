@@ -1672,11 +1672,11 @@ $(function() {
             var contentId = $(selectedItems[0]).attr("id");
             var space = this.currentSpace();
 
-            HistoryManager.pushState({
+            HistoryManager.pushState(that._createUniqueStateObject({
               storeId : that._storeId,
               spaceId : space.spaceId,
               contentId : contentId
-            });
+            }));
           } else {
             var contentItems = this.selectedContentItems();
             DetailManager.showMultiContentItems(contentItems);
@@ -3508,7 +3508,9 @@ $(function() {
           $.each(deletedContentItems, function(i, ci) {
             $(document).trigger("contentItemDeleted", ci);
           });
-
+          
+          HistoryManager.pushState(space);
+          
         },
       });
     },
