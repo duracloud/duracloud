@@ -19,6 +19,7 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.TaskException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.jets3t.service.CloudFrontService;
@@ -67,26 +68,31 @@ public class TaskProviderFactory extends ProviderFactoryBase {
         String username = account.getUsername();
         String password = account.getPassword();
         StorageProviderType type = account.getType();
+        StorageProvider storageProvider =
+            storageProviderFactory.getStorageProvider(storageAccountId);
 
         TaskProvider taskProvider;
         if (type.equals(StorageProviderType.AMAZON_S3)) {
-            S3StorageProvider s3Provider =
+            S3StorageProvider unwrappedS3Provider =
                 new S3StorageProvider(username, password);
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password);
             CloudFrontService cfService =
                 S3ProviderUtil.getCloudFrontService(username, password);
-            taskProvider = new S3TaskProvider(s3Provider,
+            taskProvider = new S3TaskProvider(storageProvider,
+                                              unwrappedS3Provider,
                                               s3Client,
                                               cfService);
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
-            GlacierStorageProvider glacierProvider =
+            GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password);
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password);
-            taskProvider = new GlacierTaskProvider(glacierProvider, s3Client);
+            taskProvider = new GlacierTaskProvider(storageProvider,
+                                                   unwrappedGlacierProvider,
+                                                   s3Client);
         } else if (type.equals(StorageProviderType.SNAPSHOT)) {
-            SnapshotStorageProvider snapshotProvider =
+            SnapshotStorageProvider unwrappedSnapshotProvider =
                 new SnapshotStorageProvider(username, password);
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password);
@@ -105,7 +111,8 @@ public class TaskProviderFactory extends ProviderFactoryBase {
             String bridgePass =
                 account.getOptions().get(StorageAccount.OPTS.BRIDGE_PASS.name());
 
-            taskProvider = new SnapshotTaskProvider(snapshotProvider,
+            taskProvider = new SnapshotTaskProvider(storageProvider,
+                                                    unwrappedSnapshotProvider,
                                                     s3Client,
                                                     dcHost,
                                                     dcPort,

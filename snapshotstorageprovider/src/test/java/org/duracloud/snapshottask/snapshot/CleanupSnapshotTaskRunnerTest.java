@@ -10,15 +10,12 @@ package org.duracloud.snapshottask.snapshot;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.easymock.EasyMockRunner;
-import org.easymock.EasyMockSupport;
-import org.easymock.Mock;
-import org.easymock.TestSubject;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,27 +23,38 @@ import static org.junit.Assert.assertEquals;
  * @author Bill Branan
  *         Date: 8/14/14
  */
-@RunWith(EasyMockRunner.class)
-public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
+public class CleanupSnapshotTaskRunnerTest {
 
-    @Mock
-    private SnapshotStorageProvider snapshotProvider;
-
-    @Mock
+    private StorageProvider snapshotProvider;
+    private SnapshotStorageProvider unwrappedSnapshotProvider;
     private AmazonS3Client s3Client;
+    private CleanupSnapshotTaskRunner taskRunner;
 
-    @TestSubject
-    private CleanupSnapshotTaskRunner taskRunner =
-        new CleanupSnapshotTaskRunner(snapshotProvider, s3Client);
+    @Before
+    public void setup() {
+        snapshotProvider = EasyMock.createMock("StorageProvider",
+                                               StorageProvider.class);
+        unwrappedSnapshotProvider =
+            EasyMock.createMock("SnapshotStorageProvider",
+                                SnapshotStorageProvider.class);
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        taskRunner = new CleanupSnapshotTaskRunner(snapshotProvider,
+                                                   unwrappedSnapshotProvider,
+                                                   s3Client);
+    }
+
+    private void replayMocks() {
+        EasyMock.replay(snapshotProvider, unwrappedSnapshotProvider, s3Client);
+    }
 
     @After
     public void tearDown(){
-        verifyAll();
+        EasyMock.verify(snapshotProvider, unwrappedSnapshotProvider, s3Client);
     }
 
     @Test
     public void testGetName() {
-        replayAll();
+        replayMocks();
         assertEquals("cleanup-snapshot", taskRunner.getName());
     }
 
@@ -55,7 +63,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
         String spaceId = "space-id";
         String bucketName = "bucket-name";
 
-        EasyMock.expect(snapshotProvider.getBucketName(spaceId))
+        EasyMock.expect(unwrappedSnapshotProvider.getBucketName(spaceId))
                 .andReturn(bucketName);
         Capture<BucketLifecycleConfiguration> lifecycleConfigCapture =
             new Capture<>();
@@ -64,7 +72,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport {
                                                      lifecycleConfigCapture));
         EasyMock.expectLastCall();
 
-        replayAll();
+        replayMocks();
 
         taskRunner.performTask("{\"spaceId\":\""+spaceId+"\"}");
         BucketLifecycleConfiguration lifecycleConfig =

@@ -9,6 +9,7 @@ package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
 import org.jets3t.service.model.cloudfront.StreamingDistribution;
@@ -26,10 +27,12 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
 
     public static final String TASK_NAME = "disable-streaming";
 
-    public DisableStreamingTaskRunner(S3StorageProvider s3Provider,
+    public DisableStreamingTaskRunner(StorageProvider s3Provider,
+                                      S3StorageProvider unwrappedS3Provider,
                                       AmazonS3Client s3Client,
                                       CloudFrontService cfService) {
         this.s3Provider = s3Provider;
+        this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
         this.cfService = cfService;
     }
@@ -43,7 +46,7 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
         log.info("Performing " + TASK_NAME + " task on space " + spaceId);        
 
         // Will throw if bucket does not exist
-        String bucketName = s3Provider.getBucketName(spaceId);
+        String bucketName = unwrappedS3Provider.getBucketName(spaceId);
         String results;
 
         removeStreamingHostFromSpaceProps(spaceId);

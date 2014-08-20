@@ -12,6 +12,7 @@ import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 
 import java.util.HashMap;
@@ -24,12 +25,15 @@ import java.util.HashMap;
  */
 public class CompleteSnapshotTaskRunner implements TaskRunner {
 
-    private SnapshotStorageProvider snapshotProvider;
+    private StorageProvider snapshotProvider;
+    private SnapshotStorageProvider unwrappedSnapshotProvider;
     private AmazonS3Client s3Client;
 
-    public CompleteSnapshotTaskRunner(SnapshotStorageProvider snapshotProvider,
+    public CompleteSnapshotTaskRunner(StorageProvider snapshotProvider,
+                                      SnapshotStorageProvider unwrappedSnapshotProvider,
                                       AmazonS3Client s3Client) {
         this.snapshotProvider = snapshotProvider;
+        this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
         this.s3Client = s3Client;
     }
 
@@ -43,14 +47,14 @@ public class CompleteSnapshotTaskRunner implements TaskRunner {
         CompleteSnapshotTaskParameters taskParams =
             CompleteSnapshotTaskParameters.deserialize(taskParameters);
         String spaceId = taskParams.getSpaceId();
-        String bucketName = snapshotProvider.getBucketName(spaceId);
+        String bucketName = unwrappedSnapshotProvider.getBucketName(spaceId);
 
         // Remove policy on bucket
         s3Client.deleteBucketLifecycleConfiguration(bucketName);
 
         // Clear space properties (removes snapshot ID and other props)
-        snapshotProvider.setNewSpaceProperties(spaceId,
-                                               new HashMap<String, String>());
+        unwrappedSnapshotProvider
+            .setNewSpaceProperties(spaceId, new HashMap<String, String>());
 
         String result = "Snapshot complete was successful";
         return new CompleteSnapshotTaskResult(result).serialize();

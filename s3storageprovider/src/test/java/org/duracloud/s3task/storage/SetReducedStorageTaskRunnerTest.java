@@ -23,7 +23,9 @@ public class SetReducedStorageTaskRunnerTest extends SetStorageClassTestBase {
     @Test
     public void testPerformTask() {
         SetReducedStorageTaskRunner runner =
-            new SetReducedStorageTaskRunner(s3Provider, s3Client);
+            new SetReducedStorageTaskRunner(s3Provider,
+                                            unwrappedS3Provider,
+                                            s3Client);
 
         assertEquals("set-reduced-redundancy-storage-class", runner.getName());
         assertEquals(StorageClass.ReducedRedundancy, runner.getStorageClass());

@@ -39,7 +39,8 @@ import static org.junit.matchers.JUnitMatchers.containsString;
  */
 public class RestoreSnapshotTaskRunnerTest {
 
-    private SnapshotStorageProvider snapshotProvider;
+    private StorageProvider snapshotProvider;
+    private SnapshotStorageProvider unwrappedSnapshotProvider;
     private RestHttpHelper restHelper;
     private RestoreSnapshotTaskRunner taskRunner;
 
@@ -54,22 +55,26 @@ public class RestoreSnapshotTaskRunnerTest {
 
     @Before
     public void setup() {
-        snapshotProvider = EasyMock.createMock("SnapshotStorageProvider",
-                                               SnapshotStorageProvider.class);
+        snapshotProvider = EasyMock.createMock("StorageProvider",
+                                               StorageProvider.class);
+        unwrappedSnapshotProvider =
+            EasyMock.createMock("SnapshotStorageProvider",
+                                SnapshotStorageProvider.class);
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
         taskRunner =
-            new RestoreSnapshotTaskRunner(snapshotProvider, dcHost, dcPort,
-                                         dcStoreId, dcSnapshotUser, bridgeHost,
-                                         bridgePort, bridgeUser, bridgePass);
+            new RestoreSnapshotTaskRunner(snapshotProvider, unwrappedSnapshotProvider,
+                                         dcHost, dcPort, dcStoreId, dcSnapshotUser,
+                                         bridgeHost, bridgePort, bridgeUser,
+                                         bridgePass);
     }
 
     private void replayMocks() {
-        EasyMock.replay(snapshotProvider, restHelper);
+        EasyMock.replay(snapshotProvider, unwrappedSnapshotProvider, restHelper);
     }
 
     @After
     public void tearDown() throws IOException {
-        EasyMock.verify(snapshotProvider, restHelper);
+        EasyMock.verify(snapshotProvider, unwrappedSnapshotProvider, restHelper);
     }
 
     @Test
@@ -186,8 +191,8 @@ public class RestoreSnapshotTaskRunnerTest {
                 .andReturn(spaceProps);
 
         Capture<Map<String, String>> propsCapture = new Capture<>();
-        snapshotProvider.setNewSpaceProperties(EasyMock.eq(restoreSpaceId),
-                                               EasyMock.capture(propsCapture));
+        unwrappedSnapshotProvider.setNewSpaceProperties(EasyMock.eq(restoreSpaceId),
+                                                        EasyMock.capture(propsCapture));
         EasyMock.expectLastCall();
 
         replayMocks();

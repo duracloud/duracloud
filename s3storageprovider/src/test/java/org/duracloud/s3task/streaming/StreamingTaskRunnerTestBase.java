@@ -9,6 +9,7 @@ package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.jets3t.service.CloudFrontService;
@@ -25,7 +26,8 @@ import java.util.Map;
  */
 public class StreamingTaskRunnerTestBase {
 
-    protected S3StorageProvider s3Provider;
+    protected StorageProvider s3Provider;
+    protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
     protected CloudFrontService cfService;
 
@@ -36,26 +38,48 @@ public class StreamingTaskRunnerTestBase {
 
     @After
     public void tearDown() {
-        EasyMock.verify(s3Provider);
+        EasyMock.verify(s3Provider, unwrappedS3Provider, s3Client, cfService);
         s3Provider = null;
-
-        EasyMock.verify(s3Client);
+        unwrappedS3Provider = null;
         s3Client = null;
-
-        EasyMock.verify(cfService);
         cfService = null;
     }
 
-    protected S3StorageProvider createMockS3StorageProvider() {
+    protected S3StorageProvider createMockUnwrappedS3StorageProvider() {
         S3StorageProvider provider =
             EasyMock.createMock(S3StorageProvider.class);
 
         EasyMock
             .expect(provider.getBucketName(EasyMock.isA(String.class)))
-            .andReturn("bucketName")
+            .andReturn(bucketName)
             .anyTimes();
 
-        List<String> contents = new ArrayList<String>();
+        EasyMock.replay(provider);
+        return provider;
+    }
+
+    protected S3StorageProvider createMockUnwrappedS3StorageProviderV2() {
+        S3StorageProvider provider =
+            EasyMock.createMock(S3StorageProvider.class);
+
+        EasyMock
+            .expect(provider.getBucketName(EasyMock.isA(String.class)))
+            .andReturn(bucketName)
+            .anyTimes();
+
+        spacePropsCapture = new Capture<>();
+        provider.setNewSpaceProperties(EasyMock.eq(spaceId),
+                                       EasyMock.capture(spacePropsCapture));
+        EasyMock.expectLastCall();
+
+        EasyMock.replay(provider);
+        return provider;
+    }
+
+    protected StorageProvider createMockStorageProvider() {
+        StorageProvider provider = EasyMock.createMock(StorageProvider.class);
+
+        List<String> contents = new ArrayList<>();
         contents.add("item1");
         contents.add("item2");
         contents.add("item3");        
@@ -76,24 +100,17 @@ public class StreamingTaskRunnerTestBase {
      * getSpaceProperties () - returns the set of space properties
      * setNewSpaceProperties () - set the space props with a streaming host
      */
-    protected S3StorageProvider createMockS3StorageProviderV2(
+    protected StorageProvider createMockStorageProviderV2(
         boolean includeStreamingProp) {
-        S3StorageProvider provider =
-            EasyMock.createMock(S3StorageProvider.class);
+        StorageProvider provider =
+            EasyMock.createMock(StorageProvider.class);
 
-        EasyMock.expect(provider.getBucketName(spaceId))
-                .andReturn(bucketName)
-                .anyTimes();
         Map<String, String> props = new HashMap<>();
         if(includeStreamingProp) {
             props.put(BaseStreamingTaskRunner.STREAMING_HOST_PROP, domainName);
         }
         EasyMock.expect(provider.getSpaceProperties(spaceId))
                 .andReturn(props);
-        spacePropsCapture = new Capture<>();
-        provider.setNewSpaceProperties(EasyMock.eq(spaceId),
-                                       EasyMock.capture(spacePropsCapture));
-        EasyMock.expectLastCall();
 
         EasyMock.replay(provider);
         return provider;

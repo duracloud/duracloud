@@ -13,6 +13,7 @@ import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 
 import java.util.ArrayList;
@@ -30,12 +31,15 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
 
     private static int EXPIRATION_DAYS = 1;
 
-    private SnapshotStorageProvider snapshotProvider;
+    private StorageProvider snapshotProvider;
+    private SnapshotStorageProvider unwrappedSnapshotProvider;
     private AmazonS3Client s3Client;
 
-    public CleanupSnapshotTaskRunner(SnapshotStorageProvider snapshotProvider,
+    public CleanupSnapshotTaskRunner(StorageProvider snapshotProvider,
+                                     SnapshotStorageProvider unwrappedSnapshotProvider,
                                      AmazonS3Client s3Client) {
         this.snapshotProvider = snapshotProvider;
+        this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
         this.s3Client = s3Client;
     }
 
@@ -49,7 +53,7 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
         CleanupSnapshotTaskParameters taskParams =
             CleanupSnapshotTaskParameters.deserialize(taskParameters);
         String spaceId = taskParams.getSpaceId();
-        String bucketName = snapshotProvider.getBucketName(spaceId);
+        String bucketName = unwrappedSnapshotProvider.getBucketName(spaceId);
 
         // Create bucket deletion policy
         BucketLifecycleConfiguration.Rule expireRule =

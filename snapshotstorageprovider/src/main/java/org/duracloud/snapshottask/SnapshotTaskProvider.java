@@ -17,6 +17,7 @@ import org.duracloud.snapshottask.snapshot.GetSnapshotContentsTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotsTaskRunner;
 import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SnapshotTaskProvider extends TaskProviderBase {
 
-    public SnapshotTaskProvider(SnapshotStorageProvider snapshotProvider,
+    public SnapshotTaskProvider(StorageProvider snapshotProvider,
+                                SnapshotStorageProvider unwrappedSnapshotProvider,
                                 AmazonS3Client s3Client,
                                 String dcHost,
                                 String dcPort,
@@ -40,6 +42,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
         log = LoggerFactory.getLogger(SnapshotTaskProvider.class);
 
         taskList.add(new CreateSnapshotTaskRunner(snapshotProvider,
+                                                  unwrappedSnapshotProvider,
                                                   dcHost,
                                                   dcPort,
                                                   dcStoreId,
@@ -54,8 +57,10 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                bridgeUser,
                                                bridgePass));
         taskList.add(new CleanupSnapshotTaskRunner(snapshotProvider,
+                                                   unwrappedSnapshotProvider,
                                                    s3Client));
         taskList.add(new CompleteSnapshotTaskRunner(snapshotProvider,
+                                                    unwrappedSnapshotProvider,
                                                     s3Client));
         taskList.add(new GetSnapshotsTaskRunner(dcHost,
                                                 bridgeHost,
@@ -67,6 +72,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                        bridgeUser,
                                                        bridgePass));
         taskList.add(new RestoreSnapshotTaskRunner(snapshotProvider,
+                                                   unwrappedSnapshotProvider,
                                                    dcHost,
                                                    dcPort,
                                                    dcStoreId,

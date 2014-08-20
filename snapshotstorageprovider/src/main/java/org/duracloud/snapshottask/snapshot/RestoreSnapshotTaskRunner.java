@@ -44,13 +44,15 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
     private Logger log =
         LoggerFactory.getLogger(RestoreSnapshotTaskRunner.class);
 
-    private SnapshotStorageProvider snapshotProvider;
+    private StorageProvider snapshotProvider;
+    private SnapshotStorageProvider unwrappedSnapshotProvider;
     private String dcHost;
     private String dcPort;
     private String dcStoreId;
     private String dcSnapshotUser;
 
-    public RestoreSnapshotTaskRunner(SnapshotStorageProvider snapshotProvider,
+    public RestoreSnapshotTaskRunner(StorageProvider snapshotProvider,
+                                     SnapshotStorageProvider unwrappedSnapshotProvider,
                                      String dcHost,
                                      String dcPort,
                                      String dcStoreId,
@@ -61,6 +63,7 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
                                      String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.snapshotProvider = snapshotProvider;
+        this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
         this.dcHost = dcHost;
         this.dcPort = dcPort;
         this.dcStoreId = dcStoreId;
@@ -256,8 +259,8 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
             snapshotProvider.getSpaceProperties(restoreSpaceId);
         restoreSpaceProps.put(Constants.RESTORE_ID_PROP,
                               String.valueOf(restoreId));
-        snapshotProvider.setNewSpaceProperties(restoreSpaceId,
-                                               restoreSpaceProps);
+        unwrappedSnapshotProvider.setNewSpaceProperties(restoreSpaceId,
+                                                        restoreSpaceProps);
     }
 
 }

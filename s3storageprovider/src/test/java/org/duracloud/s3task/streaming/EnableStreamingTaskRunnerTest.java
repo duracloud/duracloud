@@ -10,6 +10,7 @@ package org.duracloud.s3task.streaming;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.model.cloudfront.LoggingStatus;
@@ -32,19 +33,23 @@ import static junit.framework.Assert.fail;
  */
 public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
-    protected EnableStreamingTaskRunner createRunner(S3StorageProvider s3Provider,
+    protected EnableStreamingTaskRunner createRunner(StorageProvider s3Provider,
+                                                     S3StorageProvider unwrappedS3Provider,
                                                      AmazonS3Client s3Client,
                                                      CloudFrontService cfService) {
         this.s3Provider = s3Provider;
+        this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
         this.cfService = cfService;
-        return new EnableStreamingTaskRunner(s3Provider, s3Client, cfService);
+        return new EnableStreamingTaskRunner(s3Provider, unwrappedS3Provider,
+                                             s3Client, cfService);
     }
 
     @Test
     public void testGetName() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3StorageProvider(),
+            createRunner(createMockStorageProvider(),
+                         createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
                          createMockCFServiceV1());
 
@@ -59,7 +64,8 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask1() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3StorageProviderV2(false),
+            createRunner(createMockStorageProviderV2(false),
+                         createMockUnwrappedS3StorageProviderV2(),
                          createMockS3ClientV3(),
                          createMockCFServiceV3());
 
@@ -145,7 +151,8 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask2() throws Exception {
         EnableStreamingTaskRunner runner =
-            createRunner(createMockS3StorageProviderV2(false),
+            createRunner(createMockStorageProviderV2(false),
+                         createMockUnwrappedS3StorageProviderV2(),
                          createMockS3ClientV3(),
                          createMockCFServiceV2());
 
