@@ -141,8 +141,8 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
                 removeSnapshotProps(spaceId);
                 removeSnapshotIdFromSpaceProps(spaceId);
             }catch(Exception ex){
-                log.error("failed to fully clean up snapshot props for "
-                    + spaceId + ": " + ex.getMessage(), ex);
+                log.error("Failed to fully clean up snapshot props for " +
+                          spaceId + ": " + ex.getMessage(), ex);
             }
             String msg = MessageFormat.format("Call to create snapshot failed, " +
                 "snapshot properties have been removed from space {0}. " +
@@ -179,21 +179,21 @@ public class CreateSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
     }
 
     /*
-     * Adds a snapshot ID property to the space
+     * Removes the snapshot ID property from a space
      */
     protected void removeSnapshotIdFromSpaceProps(String spaceId) {
-        log.debug("removing " + Constants.SNAPSHOT_ID_PROP + " from space " + spaceId);
+        log.debug("Removing " + Constants.SNAPSHOT_ID_PROP +
+                  " property from space " + spaceId);
         Map<String, String> spaceProps =
             snapshotProvider.getSpaceProperties(spaceId);
         if(spaceProps.remove(Constants.SNAPSHOT_ID_PROP) != null){
             unwrappedSnapshotProvider.setNewSpaceProperties(spaceId, spaceProps);
-            log.info("removed " + Constants.SNAPSHOT_ID_PROP
-                    + " from  space properties for space " + spaceId);
+            log.info("Removed " + Constants.SNAPSHOT_ID_PROP +
+                     " from  space properties for space " + spaceId);
         }else{
-            log.debug("property "
-                + Constants.SNAPSHOT_ID_PROP
-                + " does not exist in space properties for " + spaceId
-                + ". No need to update space properties.");
+            log.debug("Property " + Constants.SNAPSHOT_ID_PROP +
+                      " does not exist in space properties for " + spaceId +
+                      ". No need to update space properties.");
         }
     }
     /*
