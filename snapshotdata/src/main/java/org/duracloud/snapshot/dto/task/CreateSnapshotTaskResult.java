@@ -7,6 +7,7 @@
  */
 package org.duracloud.snapshot.dto.task;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.bridge.CreateSnapshotBridgeResult;
 import org.duracloud.snapshot.error.SnapshotDataException;
@@ -38,5 +39,11 @@ public class CreateSnapshotTaskResult extends CreateSnapshotBridgeResult {
                 "Unable to create task result due to: " + e.getMessage());
         }
     }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).build();
+    }
+
 
 }

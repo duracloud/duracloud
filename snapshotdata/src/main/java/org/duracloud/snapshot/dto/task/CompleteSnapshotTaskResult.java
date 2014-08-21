@@ -7,17 +7,19 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.snapshot.error.SnapshotDataException;
+import java.io.IOException;
 
 import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
+
+import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
+import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Bill Branan
  *         Date: 7/25/14
  */
-public class CompleteSnapshotTaskResult {
+public class CompleteSnapshotTaskResult extends BaseDTO {
 
     /**
      * The number of days before content expires
@@ -71,5 +73,5 @@ public class CompleteSnapshotTaskResult {
                 "Unable to create task result due to: " + e.getMessage());
         }
     }
-
+    
 }

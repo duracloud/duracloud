@@ -9,11 +9,11 @@ package org.duracloud.snapshot.dto.bridge;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.RestoreStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
@@ -21,7 +21,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
  * @author Daniel Bernstein
  *         Date: 7/28/14
  */
-public class GetRestoreBridgeResult {
+public class GetRestoreBridgeResult extends BaseDTO{
 
     @XmlValue
     private Long id;
@@ -140,5 +140,6 @@ public class GetRestoreBridgeResult {
     public void setDestinationSpaceId(String destinationSpaceId) {
         this.destinationSpaceId = destinationSpaceId;
     }
+
 
 }

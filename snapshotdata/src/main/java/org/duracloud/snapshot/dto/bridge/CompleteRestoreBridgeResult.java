@@ -7,18 +7,20 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.snapshot.dto.RestoreStatus;
-import org.duracloud.snapshot.error.SnapshotDataException;
+import java.io.IOException;
 
 import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
+
+import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
+import org.duracloud.snapshot.dto.RestoreStatus;
+import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Daniel Bernstein
  *         Date: 7/28/14
  */
-public class CompleteRestoreBridgeResult {
+public class CompleteRestoreBridgeResult extends BaseDTO{
 
     /**
      * The restore status 

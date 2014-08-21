@@ -7,12 +7,14 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.apache.commons.lang3.StringUtils;
-import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.snapshot.error.SnapshotDataException;
+import java.io.IOException;
 
 import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
+import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * This class is used for passing either a snapshotId or a restoreId to the
@@ -21,7 +23,7 @@ import java.io.IOException;
  * @author Daniel Bernstein 
  *         Date: 8/7/14
  */
-public class GetRestoreTaskParameters {
+public class GetRestoreTaskParameters extends BaseDTO {
 
     @XmlValue
     private String snapshotId;
@@ -91,4 +93,5 @@ public class GetRestoreTaskParameters {
                 "Unable to parse task parameters due to: " + e.getMessage());
         }
     }
+    
 }

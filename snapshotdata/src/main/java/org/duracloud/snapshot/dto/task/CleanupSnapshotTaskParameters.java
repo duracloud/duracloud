@@ -8,6 +8,7 @@
 package org.duracloud.snapshot.dto.task;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
@@ -17,7 +18,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 8/14/14
  */
-public class CleanupSnapshotTaskParameters {
+public class CleanupSnapshotTaskParameters extends BaseDTO{
 
     /**
      * The ID of the space in which the content to snapshot resides

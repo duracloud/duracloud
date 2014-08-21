@@ -10,8 +10,7 @@ package org.duracloud.snapshot.dto.task;
 import java.io.IOException;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlValue;
-
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.duracloud.snapshot.dto.bridge.GetSnapshotListBridgeResult;
@@ -44,5 +43,11 @@ public class GetSnapshotListTaskResult extends GetSnapshotListBridgeResult {
                 "Unable to create task result due to: " + e.getMessage());
         }
     }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).build();
+    }
+
 
 }

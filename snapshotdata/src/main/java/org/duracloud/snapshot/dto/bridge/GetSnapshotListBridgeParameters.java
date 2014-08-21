@@ -8,6 +8,7 @@
 package org.duracloud.snapshot.dto.bridge;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
@@ -17,7 +18,7 @@ import java.io.IOException;
  * @author Daniel Bernstein
  *         Date: 7/31/14
  */
-public class GetSnapshotListBridgeParameters {
+public class GetSnapshotListBridgeParameters extends BaseDTO {
 
     /**
      * The host name of the DuraCloud instance
@@ -56,4 +57,5 @@ public class GetSnapshotListBridgeParameters {
                 "Unable to create  result due to: " + e.getMessage());
         }
     }
+
 }

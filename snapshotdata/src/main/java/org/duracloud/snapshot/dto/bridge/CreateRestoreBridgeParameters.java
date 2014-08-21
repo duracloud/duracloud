@@ -7,6 +7,7 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
@@ -134,5 +135,11 @@ public class CreateRestoreBridgeParameters {
                 "Unable to create  result due to: " + e.getMessage());
         }
     }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).build();
+    }
+
 
 }

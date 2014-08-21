@@ -9,6 +9,8 @@ package org.duracloud.snapshot.dto;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * Contains information about a single content item which was included in a
  * snapshot.
@@ -36,5 +38,11 @@ public class SnapshotContentItem {
     public void setContentProperties(Map<String, String> contentProperties) {
         this.contentProperties = contentProperties;
     }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).build();
+    }
+
 
 }

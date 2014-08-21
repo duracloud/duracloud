@@ -8,6 +8,7 @@
 package org.duracloud.snapshot.dto.bridge;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
@@ -19,7 +20,7 @@ import java.util.Date;
  * @author Daniel Bernstein
  *         Date: 7/28/14
  */
-public class GetSnapshotBridgeResult {
+public class GetSnapshotBridgeResult extends BaseDTO{
 
     @XmlValue
     private String snapshotId;
@@ -165,4 +166,5 @@ public class GetSnapshotBridgeResult {
     public void setTotalSizeInBytes(Long totalSizeInBytes) {
         this.totalSizeInBytes = totalSizeInBytes;
     }
+    
 }

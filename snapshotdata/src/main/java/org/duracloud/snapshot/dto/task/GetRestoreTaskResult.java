@@ -50,5 +50,5 @@ public class GetRestoreTaskResult extends GetRestoreBridgeResult {
                 "Unable to create task result due to: " + e.getMessage());
         }
     }
-
+    
 }

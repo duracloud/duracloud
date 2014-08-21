@@ -13,6 +13,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
@@ -20,7 +21,7 @@ import org.duracloud.snapshot.error.SnapshotDataException;
  * @author Daniel Bernstein
  *         Date: 7/28/14
  */
-public class GetSnapshotContentBridgeResult {
+public class GetSnapshotContentBridgeResult extends BaseDTO {
 
     @XmlValue
     private Long totalCount;
@@ -77,5 +78,5 @@ public class GetSnapshotContentBridgeResult {
     public void setTotalCount(Long totalCount) {
         this.totalCount = totalCount;
     }
-
+    
 }

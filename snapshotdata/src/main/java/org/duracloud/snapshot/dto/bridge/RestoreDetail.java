@@ -2,6 +2,7 @@ package org.duracloud.snapshot.dto.bridge;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.duracloud.snapshot.dto.RestoreStatus;
 
 public class RestoreDetail {
@@ -48,4 +49,10 @@ public class RestoreDetail {
     public void setStatusText(String statusText) {
         this.statusText = statusText;
     }
+    
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).build();
+    }
+
 }

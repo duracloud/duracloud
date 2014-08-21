@@ -7,17 +7,19 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import org.duracloud.common.json.JaxbJsonSerializer;
-import org.duracloud.snapshot.error.SnapshotDataException;
+import java.io.IOException;
 
 import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
+
+import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
+import org.duracloud.snapshot.error.SnapshotDataException;
 
 /**
  * @author Bill Branan
  *         Date: 7/30/14
  */
-public class RestoreSnapshotTaskParameters {
+public class RestoreSnapshotTaskParameters extends BaseDTO {
 
     /**
      * The ID of the snapshot to be restored

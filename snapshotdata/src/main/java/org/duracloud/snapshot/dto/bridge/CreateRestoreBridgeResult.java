@@ -8,6 +8,7 @@
 package org.duracloud.snapshot.dto.bridge;
 
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.RestoreStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
@@ -18,7 +19,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 7/24/14
  */
-public class CreateRestoreBridgeResult {
+public class CreateRestoreBridgeResult extends BaseDTO {
 
     /**
      * The ID which has been assigned to the restoration
