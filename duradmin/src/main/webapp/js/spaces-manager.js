@@ -2050,7 +2050,7 @@ $(function() {
       // handle enter key behavior on filter.
       $(this.element).find(".dc-item-list-filter").bindEnterKey(function(evt) {
         that._reloadSnapshotContents(that._snapshot, null, function(snapshot) {
-          that._load(that._snapshot);
+          that._load(snapshot);
         });
       });
 
@@ -2101,10 +2101,14 @@ $(function() {
         modal : true
       });
 
-      dc.store.GetSnapshotContent(this._snapshot.sourceStoreId, this._snapshot.snapshotId, page, prefix).success(function(data) {
+      var xhr = dc.store.GetSnapshotContent(this._snapshot.storeId, 
+                                            this._snapshot.snapshotId, 
+                                            page, 
+                                            prefix)
+      .success(function(data) {
         handler(data);
       }).error(function() {
-
+        dc.displayErrorDialog(xhr, "Failed to retrieve contents.");
       }).always(function() {
         dc.done();
       });
@@ -2201,6 +2205,11 @@ $(function() {
 
       totalCount = (snapshot.totalCount ? snapshot.totalCount : "?");
 
+      if(this._getFilterText() != ''){
+        totalCount = "?";
+      }
+      
+      
       if (totalCount == 0) {
         statusTxt = "";
       } else {
