@@ -14,6 +14,8 @@ import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -24,6 +26,9 @@ import java.util.HashMap;
  *         Date: 7/23/14
  */
 public class CompleteSnapshotTaskRunner implements TaskRunner {
+
+    private Logger log = LoggerFactory
+        .getLogger(CompleteSnapshotTaskRunner.class);
 
     private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
@@ -49,12 +54,17 @@ public class CompleteSnapshotTaskRunner implements TaskRunner {
         String spaceId = taskParams.getSpaceId();
         String bucketName = unwrappedSnapshotProvider.getBucketName(spaceId);
 
+        log.info("Performing Complete Snapshot Task for spaceID: " + spaceId);
+
         // Remove policy on bucket
         s3Client.deleteBucketLifecycleConfiguration(bucketName);
 
         // Clear space properties (removes snapshot ID and other props)
         unwrappedSnapshotProvider
             .setNewSpaceProperties(spaceId, new HashMap<String, String>());
+
+        log.info("Complete Snapshot Task for space " + spaceId +
+                 " completed successfully");
 
         String result = "Snapshot complete was successful";
         return new CompleteSnapshotTaskResult(result).serialize();

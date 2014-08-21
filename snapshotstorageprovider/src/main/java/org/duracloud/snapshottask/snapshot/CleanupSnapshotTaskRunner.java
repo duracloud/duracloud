@@ -15,6 +15,8 @@ import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,9 @@ import java.util.List;
  *         Date: 8/14/14
  */
 public class CleanupSnapshotTaskRunner implements TaskRunner {
+
+    private Logger log =
+        LoggerFactory.getLogger(CleanupSnapshotTaskRunner.class);
 
     private static int EXPIRATION_DAYS = 1;
 
@@ -55,6 +60,8 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
         String spaceId = taskParams.getSpaceId();
         String bucketName = unwrappedSnapshotProvider.getBucketName(spaceId);
 
+        log.info("Performing Cleanup Snapshot Task for spaceID: " + spaceId);
+
         // Create bucket deletion policy
         BucketLifecycleConfiguration.Rule expireRule =
             new BucketLifecycleConfiguration.Rule()
@@ -70,6 +77,9 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
 
         // Set policy on bucket
         s3Client.setBucketLifecycleConfiguration(bucketName, configuration);
+
+        log.info("Cleanup Snapshot Task for space " + spaceId +
+                 " completed successfully");
 
         return new CleanupSnapshotTaskResult(EXPIRATION_DAYS).serialize();
     }
