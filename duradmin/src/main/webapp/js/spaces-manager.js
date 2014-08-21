@@ -1173,7 +1173,7 @@ $(function() {
       }).fail(function() {
         if (retrieveSpace.status == 404) {
           alert(params.spaceId + " does not exist.");
-          this._detailManager.showEmpty();
+          that._detailManager.showEmpty();
         }
       });
 
