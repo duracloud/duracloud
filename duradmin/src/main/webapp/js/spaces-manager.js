@@ -2179,7 +2179,7 @@ $(function() {
         dc.store.GetSnapshotContent(that._snapshot.storeId, that._snapshot.snapshotId, page, prefix).success(function(snapshot) {
           that._snapshot = snapshot;
           dc.done();
-          that._addContentItemsToList(snapsphot);
+          that._addContentItemsToList(snapshot);
           that._updateNavigationControls(snapshot);
         }).error(function(xhr, status, errorThrown) {
           setTimeout(function() {

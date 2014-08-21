@@ -29,9 +29,11 @@ public class GetSnapshotContentBridgeResultTest {
      private String contentId = "content-id";
      private String propName = "content-prop-name";
      private String propValue = "content-prop-value";
+     private Long totalCount = 1001l;
 
     @Test
     public void testSerialize() {
+        
         GetSnapshotContentBridgeResult bridgeResult =
             new GetSnapshotContentBridgeResult();
         List<SnapshotContentItem> contentItemList = new ArrayList<>();
@@ -42,16 +44,18 @@ public class GetSnapshotContentBridgeResultTest {
         contentItem.setContentProperties(contentProperties);
         contentItemList.add(contentItem);
         bridgeResult.setContentItems(contentItemList);
-
+        bridgeResult.setTotalCount(totalCount);
         String result = bridgeResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult, containsString("\"contentId\":\""+contentId+"\""));
         assertThat(cleanResult, containsString("\""+propName+"\":\""+propValue+"\""));
+        assertThat(cleanResult, containsString("\"totalCount\":" +totalCount));
+
     }
 
     @Test
     public void testDeSerialize(){
-        String str = "{ \"contentItems\" : " +
+        String str = "{ \"totalCount\" : " +  totalCount+", \"contentItems\" : " +
                      "[ { \"contentId\" : \"" + contentId + "\","
                         + " \"contentProperties\" : " +
                         "{\"" + propName + "\" : \"" + propValue + "\"}}]}";
@@ -64,6 +68,7 @@ public class GetSnapshotContentBridgeResultTest {
 
         Assert.assertNotNull(contentItems);
         Assert.assertEquals(1,contentItems.size());
+        Assert.assertEquals(totalCount, result.getTotalCount());
 
         Assert.assertEquals(contentId, contentItems.get(0).getContentId());
         Assert.assertEquals(propValue, contentItems.get(0).getContentProperties()

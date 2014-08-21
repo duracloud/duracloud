@@ -177,6 +177,7 @@ public class SnapshotController {
             mav.addObject("storeId", storeId);
             mav.addObject("nextPage", items.size() == pageSize? page+1 : null);
             mav.addObject("prefix", prefix);
+            mav.addObject("totalCount", result.getTotalCount());
             return mav;
         } catch (Exception e) {
             log.error(e.getMessage(), e);

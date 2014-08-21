@@ -7,13 +7,14 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.error.SnapshotDataException;
-
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * @author Daniel Bernstein
@@ -21,6 +22,8 @@ import java.util.List;
  */
 public class GetSnapshotContentBridgeResult {
 
+    @XmlValue
+    private Long totalCount;
     /**
      * The details of the current status
      */
@@ -65,6 +68,14 @@ public class GetSnapshotContentBridgeResult {
             throw new SnapshotDataException(
                 "Unable to deserialize result due to: " + e.getMessage());
         }
+    }
+
+    public Long getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(Long totalCount) {
+        this.totalCount = totalCount;
     }
 
 }
