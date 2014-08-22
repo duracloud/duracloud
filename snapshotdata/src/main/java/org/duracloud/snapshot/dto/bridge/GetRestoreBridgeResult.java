@@ -23,7 +23,7 @@ import java.util.Date;
 public class GetRestoreBridgeResult extends BaseDTO {
 
     @XmlValue
-    private Long id;
+    private Long restoreId;
     @XmlValue
     private String snapshotId;
     @XmlValue
@@ -44,12 +44,12 @@ public class GetRestoreBridgeResult extends BaseDTO {
     @XmlValue
     private String destinationSpaceId;
     
-    public Long getId() {
-        return id;
+    public Long getRestoreId() {
+        return restoreId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setRestoreId(Long restoreId) {
+        this.restoreId = restoreId;
     }
 
     public String getSnapshotId() {

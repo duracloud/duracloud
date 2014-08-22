@@ -36,7 +36,7 @@ public class GetRestoreBridgeResultTest {
     @Test
     public void testDeSerialize(){
         String str =
-            "{ \"id\": \"" + id + "\"," +
+            "{ \"restoreId\": \"" + id + "\"," +
              " \"snapshotId\" : \"" + snapshotId + "\"," +
              " \"startDate\" : \"" + startDate.getTime() + "\"," +
              " \"endDate\" : \"" + endDate.getTime() + "\","  +
@@ -51,7 +51,7 @@ public class GetRestoreBridgeResultTest {
         GetRestoreBridgeResult params = GetRestoreBridgeResult
             .deserialize(str);
 
-        assertEquals(id, params.getId());
+        assertEquals(id, params.getRestoreId());
         assertEquals(snapshotId, params.getSnapshotId());
         assertEquals(status, params.getStatus());
         assertEquals(startDate, params.getStartDate());
@@ -66,7 +66,7 @@ public class GetRestoreBridgeResultTest {
     @Test
     public void testToString() {
         GetRestoreBridgeResult result = new GetRestoreBridgeResult();
-        result.setId(id);
+        result.setRestoreId(id);
         result.setSnapshotId(snapshotId);
         result.setStatus(status);
         result.setStartDate(startDate);
@@ -78,7 +78,7 @@ public class GetRestoreBridgeResultTest {
         result.setDestinationSpaceId(destinationSpaceId);
 
         String value = result.toString();
-        assertThat(value, containsString("id=" + id));
+        assertThat(value, containsString("restoreId=" + id));
         assertThat(value, containsString("snapshotId=" + snapshotId));
         assertThat(value, containsString("status=" + status.name()));
         assertThat(value, containsString("startDate=" + startDate));

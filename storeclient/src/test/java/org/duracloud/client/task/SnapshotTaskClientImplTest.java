@@ -227,7 +227,7 @@ public class SnapshotTaskClientImplTest {
         String taskName = SnapshotConstants.GET_RESTORE_TASK_NAME;
 
         GetRestoreTaskResult preparedResult = new GetRestoreTaskResult();
-        preparedResult.setId(restoreId);
+        preparedResult.setRestoreId(restoreId);
         preparedResult.setDestinationHost(host);
         preparedResult.setDestinationPort(port);
         preparedResult.setDestinationSpaceId(spaceId);
@@ -242,7 +242,7 @@ public class SnapshotTaskClientImplTest {
         replayMocks();
 
         GetRestoreTaskResult result = taskClient.getRestore(restoreId);
-        assertThat(restoreId, equalTo(result.getId()));
+        assertThat(restoreId, equalTo(result.getRestoreId()));
         assertThat(host, equalTo(result.getDestinationHost()));
         assertThat(port, equalTo(result.getDestinationPort()));
         assertThat(spaceId, equalTo(result.getDestinationSpaceId()));
