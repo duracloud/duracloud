@@ -20,7 +20,7 @@ import java.util.Date;
  * @author Daniel Bernstein
  *         Date: 7/28/14
  */
-public class GetSnapshotBridgeResult extends BaseDTO{
+public class GetSnapshotBridgeResult extends BaseDTO {
 
     @XmlValue
     private String snapshotId;
@@ -72,46 +72,37 @@ public class GetSnapshotBridgeResult extends BaseDTO{
         return snapshotId;
     }
 
-
     public void setSnapshotId(String snapshotId) {
         this.snapshotId = snapshotId;
     }
-
 
     public Date getSnapshotDate() {
         return snapshotDate;
     }
 
-
     public void setSnapshotDate(Date snapshotDate) {
         this.snapshotDate = snapshotDate;
     }
-
 
     public String getSourceHost() {
         return sourceHost;
     }
 
-
     public void setSourceHost(String sourceHost) {
         this.sourceHost = sourceHost;
     }
-
 
     public String getSourceSpaceId() {
         return sourceSpaceId;
     }
 
-
     public void setSourceSpaceId(String sourceSpaceId) {
         this.sourceSpaceId = sourceSpaceId;
     }
 
-
     public String getSourceStoreId() {
         return sourceStoreId;
     }
-
 
     public void setSourceStoreId(String sourceStoreId) {
         this.sourceStoreId = sourceStoreId;
@@ -123,6 +114,14 @@ public class GetSnapshotBridgeResult extends BaseDTO{
 
     public void setContentItemCount(Long contentItemCount) {
         this.contentItemCount = contentItemCount;
+    }
+
+    public Long getTotalSizeInBytes() {
+        return totalSizeInBytes;
+    }
+
+    public void setTotalSizeInBytes(Long totalSizeInBytes) {
+        this.totalSizeInBytes = totalSizeInBytes;
     }
 
     /**
@@ -157,14 +156,4 @@ public class GetSnapshotBridgeResult extends BaseDTO{
         }
     }
 
-
-    public Long getTotalSizeInBytes() {
-        return totalSizeInBytes;
-    }
-
-
-    public void setTotalSizeInBytes(Long totalSizeInBytes) {
-        this.totalSizeInBytes = totalSizeInBytes;
-    }
-    
 }

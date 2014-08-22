@@ -9,12 +9,10 @@ package org.duracloud.snapshot.dto;
 
 import javax.xml.bind.annotation.XmlValue;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 /**
  * @author Daniel Bernstein Date: 7/28/14
  */
-public class SnapshotSummary {
+public class SnapshotSummary extends BaseDTO {
 
     @XmlValue
     private String snapshotId;
@@ -26,7 +24,9 @@ public class SnapshotSummary {
     
     public SnapshotSummary() {}
     
-    public SnapshotSummary(String snapshotId, SnapshotStatus status, String description) {
+    public SnapshotSummary(String snapshotId,
+                           SnapshotStatus status,
+                           String description) {
         super();
         this.snapshotId = snapshotId;
         this.description = description;
@@ -56,9 +56,5 @@ public class SnapshotSummary {
     public void setStatus(SnapshotStatus status) {
         this.status = status;
     }
-    
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).build();
-    }
+
 }

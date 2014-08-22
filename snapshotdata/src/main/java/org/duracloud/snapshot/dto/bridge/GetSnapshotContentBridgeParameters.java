@@ -34,15 +34,38 @@ public class GetSnapshotContentBridgeParameters extends BaseDTO {
 
     public GetSnapshotContentBridgeParameters(){}
 
-    
-    public GetSnapshotContentBridgeParameters(
-        int page, int pageSize, String prefix) {
+    public GetSnapshotContentBridgeParameters(int page,
+                                              int pageSize,
+                                              String prefix) {
         super();
         this.page = page;
         this.pageSize = pageSize;
         this.prefix = prefix;
     }
 
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 
     /**
      * Creates a serialized version of bridge parameters
@@ -60,34 +83,4 @@ public class GetSnapshotContentBridgeParameters extends BaseDTO {
         }
     }
 
-
-    public int getPage() {
-        return page;
-    }
-
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-
-    public String getPrefix() {
-        return prefix;
-    }
-
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-    
 }

@@ -7,15 +7,14 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlValue;
-
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.error.SnapshotDataException;
+
+import javax.xml.bind.annotation.XmlValue;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Daniel Bernstein
@@ -37,6 +36,14 @@ public class GetSnapshotContentBridgeResult extends BaseDTO {
 
     public void setContentItems(List<SnapshotContentItem> contentItems) {
         this.contentItems = contentItems;
+    }
+    
+    public Long getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(Long totalCount) {
+        this.totalCount = totalCount;
     }
 
     /**
@@ -71,12 +78,4 @@ public class GetSnapshotContentBridgeResult extends BaseDTO {
         }
     }
 
-    public Long getTotalCount() {
-        return totalCount;
-    }
-
-    public void setTotalCount(Long totalCount) {
-        this.totalCount = totalCount;
-    }
-    
 }

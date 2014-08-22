@@ -26,7 +26,6 @@ public class GetSnapshoBridgeParameters extends BaseDTO {
     @XmlValue
     private String sourceHost;
 
-
     public GetSnapshoBridgeParameters(){}
 
     public GetSnapshoBridgeParameters(String sourceHost) {
@@ -40,8 +39,7 @@ public class GetSnapshoBridgeParameters extends BaseDTO {
     public void setSourceHost(String sourceHost) {
         this.sourceHost = sourceHost;
     }
-    
-    
+
     /**
      * Creates a serialized version of bridge parameters
      *

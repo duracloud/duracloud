@@ -7,8 +7,8 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.duracloud.common.json.JaxbJsonSerializer;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.error.SnapshotDataException;
 
 import javax.xml.bind.annotation.XmlValue;
@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 7/24/14
  */
-public class CreateRestoreBridgeParameters {
+public class CreateRestoreBridgeParameters extends BaseDTO {
 
     /**
      * The host name of the DuraCloud instance
@@ -135,11 +135,5 @@ public class CreateRestoreBridgeParameters {
                 "Unable to create  result due to: " + e.getMessage());
         }
     }
-    
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).build();
-    }
-
 
 }

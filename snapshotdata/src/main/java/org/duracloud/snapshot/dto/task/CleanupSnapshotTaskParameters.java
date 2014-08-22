@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Bill Branan
  *         Date: 8/14/14
  */
-public class CleanupSnapshotTaskParameters extends BaseDTO{
+public class CleanupSnapshotTaskParameters extends BaseDTO {
 
     /**
      * The ID of the space in which the content to snapshot resides

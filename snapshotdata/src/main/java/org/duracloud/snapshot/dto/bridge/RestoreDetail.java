@@ -1,11 +1,12 @@
 package org.duracloud.snapshot.dto.bridge;
 
-import java.util.Date;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.RestoreStatus;
 
-public class RestoreDetail {
+import java.util.Date;
+
+public class RestoreDetail extends BaseDTO {
+
     private Long id;
     private String snapshotId;
     private RestoreStatus status;
@@ -48,11 +49,6 @@ public class RestoreDetail {
     }
     public void setStatusText(String statusText) {
         this.statusText = statusText;
-    }
-    
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).build();
     }
 
 }

@@ -7,14 +7,13 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import java.io.IOException;
-
-import javax.xml.bind.annotation.XmlValue;
-
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
+
+import javax.xml.bind.annotation.XmlValue;
+import java.io.IOException;
 
 /**
  * @author Bill Branan
@@ -90,6 +89,5 @@ public class CreateSnapshotBridgeResult extends BaseDTO {
                 "Unable to create task result due to: " + e.getMessage());
         }
     }
-
 
 }

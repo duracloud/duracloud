@@ -7,14 +7,13 @@
  */
 package org.duracloud.snapshot.dto.task;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.duracloud.snapshot.dto.bridge.GetSnapshotListBridgeResult;
 import org.duracloud.snapshot.error.SnapshotDataException;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Daniel Bernstein

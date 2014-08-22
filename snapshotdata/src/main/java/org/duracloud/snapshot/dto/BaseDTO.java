@@ -16,8 +16,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  *         Date: 8/21/14
  */
 public class BaseDTO {
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
+
 }
