@@ -7,8 +7,15 @@
  */
 package org.duracloud.sync.endpoint;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.ContentIdUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
@@ -16,13 +23,6 @@ import org.duracloud.storage.util.StorageProviderUtil;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Endpoint which pushes files to DuraCloud.
@@ -142,7 +142,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     public SyncResultType syncFileAndReturnDetailedResult(MonitoredFile syncFile,
                                                           File watchDir) {
         SyncResultType result = SyncResultType.ALREADY_IN_SYNC;
-        String contentId = getContentId(syncFile, watchDir);
+        String contentId = ContentIdUtil.getContentId(syncFile.getFile(), watchDir);
         String absPath = syncFile.getAbsolutePath();
 
         logger.debug("Syncing file " + absPath +
@@ -310,25 +310,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         return StorageProviderUtil.createContentProperties(absolutePath, username);
     }
 
-    /*
-     * Determines the content ID of a file: the path of the file relative to
-     * the watched directory. If the watched directory is null, the content ID
-     * is simply the name of the file.
-     *
-     * If a prefix is being used, the prefix is added as the initial characters
-     * in the contentId.
-     */
-    protected String getContentId(MonitoredFile syncFile, File watchDir) {
-        String contentId = syncFile.getName();
-        if(null != watchDir) {
-            URI relativeFileURI = watchDir.toURI().relativize(syncFile.toURI());
-            contentId = relativeFileURI.getPath();
-        }
-        if(null != prefix) {
-            contentId = prefix + contentId;
-        }
-        return contentId;
-    }
+
 
     public Iterator<String> getFilesList() {
         Iterator<String> spaceContents;
