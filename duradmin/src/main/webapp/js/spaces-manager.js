@@ -3336,10 +3336,17 @@ $(function() {
       }
 
       that._getRestoreButton().busySibling("Retrieving restore info...");
-      return dc.store.GetRestoreBySnapshot(that._storeId, that._snapshot.snapshotId).success(function(restore) {
-        that._enableRestoreLink(restore);
+      return dc.store.GetSnapshotRestoreSpaceId({snapshotId:that._snapshot.snapshotId,
+                                storeId:that._snapshot.sourceStoreId}).success(function(restoreSpace) {
+        if(restoreSpace.spaceId){
+          that._enableRestoreLink(restoreSpace);
+        }else{
+          that._enableRestoreButton();
+        }
       }).error(function(jqxhr, textStatus, errorThrown) {
-        that._enableRestoreButton();
+          dc.displayErrorDialog(jqxhr, 
+                                "Unable to retrieve restore space id.", 
+                                errorThrown);
       }).always(function(){
         that._getRestoreButton().idleSibling();
       });
@@ -3379,15 +3386,12 @@ $(function() {
       });
     },
 
-    _enableRestoreLink : function(restore) {
+    _enableRestoreLink : function(restoreSpace) {
       var that = this;
       that._getRestoreButton().disable(true);
 
       that._getRestoreLink().unbind("click").click(function() {
-        HistoryManager.pushState(that._createUniqueStateObject({
-          storeId : restore.destinationStoreId,
-          spaceId : restore.destinationSpaceId
-        }));
+        HistoryManager.pushState(that._createUniqueStateObject(restoreSpace));
       }).show();
     },
   }));

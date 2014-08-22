@@ -440,6 +440,15 @@ var dc;
         });
     };
     
+    dc.store.GetSnapshotRestoreSpaceId = function(params){
+      
+      return dc.ajax2({
+          url: "/duradmin/spaces/snapshots/" + params.storeId + "/" + params.snapshotId + "/restore-space-id", 
+          async: true,
+          dataType: 'json',
+          type: "get",
+      });
+  };
     
    
     dc.store.GetRestoreBySnapshot = function(storeId,snapshotId){

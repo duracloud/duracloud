@@ -26,6 +26,7 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
+import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,6 +183,31 @@ public class SnapshotController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Returns the name of the restore space, if it exists, associated with a snapshot
+     * @param request
+     * @param snapshotId
+     * @return
+     * @throws ParseException 
+     */
+    @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/restore-space-id", method = RequestMethod.GET)
+    @ResponseBody
+    public String restoreSpaceId(HttpServletRequest request,
+                          @PathVariable("storeId") String storeId,
+                          @PathVariable("snapshotId") String snapshotId) throws Exception  {
+        ContentStore contentStore = getContentStore(storeId); 
+ 
+        String spaceId =
+            SnapshotIdentifier.parseSnapshotId(snapshotId).getRestoreSpaceId();
+
+        if(contentStore.spaceExists(spaceId)){
+            return "{ \"spaceId\": \""+ spaceId +"\"," + 
+                     "\"storeId\": \""+ storeId +"\"}";
+        }else{
+            return "{}";
         }
     }
 
