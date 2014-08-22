@@ -7,8 +7,6 @@
  */
 package org.duracloud.snapshot.dto;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
@@ -18,11 +16,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  *         Date: 8/21/14
  */
 public class BaseDTO {
-    
     @Override
     public String toString() {
-        return new ToStringBuilder(this).build();
+        return ToStringBuilder.reflectionToString(this);
     }
-
-
 }

@@ -44,10 +44,4 @@ public class GetSnapshotListTaskResult extends GetSnapshotListBridgeResult {
         }
     }
     
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).build();
-    }
-
-
 }
