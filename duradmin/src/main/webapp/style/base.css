@@ -1306,3 +1306,7 @@ button#enable-streaming {
     font-size: 10px;
     padding-left:20px;
 }
+
+div.snapshot.dc-item {
+  padding: 5px 5px 0px 7px;
+}

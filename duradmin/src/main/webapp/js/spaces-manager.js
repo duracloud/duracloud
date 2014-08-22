@@ -1346,7 +1346,7 @@ $(function() {
       });
 
       listBrowserLayout = $('#' + that._listBrowserId).layout({
-        west__size : 300,
+        west__size : 350,
         west__minSize : 260,
         west__paneSelector : "#" + that._spacesListViewId,
         center__paneSelector : "#" + that._contentItemListViewId,
