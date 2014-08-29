@@ -2,7 +2,7 @@ package org.duracloud.audit;
 
 import org.duracloud.common.error.DuraCloudCheckedException;
 
-import com.amazonaws.AmazonClientException;
+import java.lang.Exception; 
 /**
  * 
  * @author Daniel Bernstein
@@ -15,7 +15,7 @@ public class AuditLogWriteFailedException extends DuraCloudCheckedException {
     private AuditLogItem logItem;
     
     public AuditLogWriteFailedException(
-        AmazonClientException ex, AuditLogItem logItem) {
+        Exception ex, AuditLogItem logItem) {
         super(ex);
         this.logItem = logItem;
     }
