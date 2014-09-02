@@ -20,6 +20,12 @@ public class AuditLogWriteFailedException extends DuraCloudCheckedException {
         this.logItem = logItem;
     }
     
+    public AuditLogWriteFailedException(
+        String message, AuditLogItem logItem) {
+        super(message);
+	this.logItem = logItem;
+    }
+
     public AuditLogItem getLogItem() {
         return logItem;
     }
