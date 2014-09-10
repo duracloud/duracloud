@@ -7,15 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.duracloud.audit.provider.AuditStorageProvider;
-import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.common.queue.aws.SQSTaskQueue;
 import org.duracloud.common.queue.noop.NoopTaskQueue;
@@ -28,6 +20,7 @@ import org.duracloud.irodsstorage.IrodsStorageProvider;
 import org.duracloud.rackspacestorage.RackspaceStorageProvider;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.sdscstorage.SDSCStorageProvider;
+import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
@@ -40,6 +33,13 @@ import org.duracloud.storage.provider.StorageProviderBase;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides access to StorageProvider implementations
@@ -163,10 +163,7 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     @Override
     public StorageProvider getStorageProvider(String storageAccountId)
             throws StorageException {
-        if(null == storageAccountId) {
-            storageAccountId =
-                getAccountManager().getPrimaryStorageAccount().getId();
-        }
+        storageAccountId = checkStorageAccountId(storageAccountId);
 
         if(storageProviders.containsKey(storageAccountId)) {
             return storageProviders.get(storageAccountId);
@@ -235,6 +232,13 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
         return brokeredProvider;
     }
 
+    private String checkStorageAccountId(String storageAccountId) {
+        if(null == storageAccountId) {
+            return getAccountManager().getPrimaryStorageAccount().getId();
+        }
+        return storageAccountId;
+    }
+
     /**
      * Removes a particular storage provider from the cache, which will
      * require that the connection be recreated on the next call.
@@ -243,6 +247,8 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
      */
     @Override
     public void expireStorageProvider(String storageAccountId) {
+        storageAccountId = checkStorageAccountId(storageAccountId);
+
         log.info("Expiring storage provider connection!  Storage account id: {}", storageAccountId);
         storageProviders.remove(storageAccountId);
     }

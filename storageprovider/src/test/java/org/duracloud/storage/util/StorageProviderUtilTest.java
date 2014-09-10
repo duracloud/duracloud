@@ -7,7 +7,7 @@
  */
 package org.duracloud.storage.util;
 
-import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.junit.After;
 import org.junit.Before;
@@ -106,11 +106,12 @@ public class StorageProviderUtilTest {
                                                 contentId,
                                                 checksum);
             fail("Exception expected comparing different checksums");
-        } catch(StorageException expected) {
+        } catch(ChecksumMismatchException expected) {
             assertNotNull(expected);
         }
     }
 
+    @Test
     public void testCreateContentProperties() throws IOException{
         File file = File.createTempFile("test", ".properties");
         file.deleteOnExit();

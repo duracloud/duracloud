@@ -11,6 +11,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.web.EncodeUtil;
+import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.durastore.error.ResourceStateException;
@@ -395,6 +396,9 @@ public class ContentRest extends BaseRest {
 
         } catch (ResourceNotFoundException e) {
             return responseNotFound(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceChecksumException e) {
+            return responseBad(msg.toString(), e, CONFLICT);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
