@@ -369,9 +369,4 @@ public class SpaceRest extends BaseRest {
         return responseBad(e.getMessage(), status);
     }
 
-    private Response responseBad(String msg, Response.Status status) {
-        String entity = msg == null ? "null" : msg;
-        return Response.status(status).entity(entity).build();
-    }
-
 }

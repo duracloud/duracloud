@@ -7,6 +7,14 @@
  */
 package org.duracloud.duraboss.rest;
 
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Collection;
+
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.NotificationConfig;
@@ -17,20 +25,12 @@ import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
-import org.duracloud.manifest.LocalManifestGenerator;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -45,7 +45,6 @@ public class InitRestTest {
 
     private SecurityContextUtil securityContextUtil;
     private NotificationManager notificationManager;
-    private LocalManifestGenerator manifestGenerator;
 
     private RestUtil.RequestContent requestContent;
 
@@ -58,16 +57,13 @@ public class InitRestTest {
                                                   SecurityContextUtil.class);
         notificationManager = EasyMock.createMock("NotificationManager",
                                                   NotificationManager.class);
-        manifestGenerator = EasyMock.createMock("ManifestGenerator",
-                                                LocalManifestGenerator.class);
         requestContent = EasyMock.createMock("RequestContent",
                                              RestUtil.RequestContent.class);
         initRest = new InitRest(storageResource,
                                 securityContextUtil,
                                 restUtil,
                                 null,
-                                notificationManager,
-                                manifestGenerator);
+                                notificationManager);
     }
 
     private void replayMocks() {
@@ -75,7 +71,6 @@ public class InitRestTest {
                         restUtil,
                         securityContextUtil,
                         notificationManager,
-                        manifestGenerator,
                         requestContent);
     }
 
@@ -85,7 +80,6 @@ public class InitRestTest {
                         restUtil,
                         securityContextUtil,
                         notificationManager,
-                        manifestGenerator,
                         requestContent);
     }
 
@@ -123,9 +117,6 @@ public class InitRestTest {
         EasyMock.expectLastCall();
 
         notificationManager.initializeNotifiers(EasyMock.<Collection<NotificationConfig>>anyObject());
-        EasyMock.expectLastCall();
-
-        manifestGenerator.initialize(EasyMock.<ContentStoreManager>anyObject());
         EasyMock.expectLastCall();
 
         replayMocks();

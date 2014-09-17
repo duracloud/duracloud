@@ -5,20 +5,19 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.duraboss.rest.manifest;
-
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.manifest.ManifestGenerator;
-import org.duracloud.manifest.error.ManifestArgumentException;
-import org.duracloud.manifest.error.ManifestEmptyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.duracloud.durastore.rest;
 
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 
-import static org.duracloud.manifest.ManifestGenerator.FORMAT;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.manifest.ManifestGenerator;
+import org.duracloud.manifest.ManifestGenerator.FORMAT;
+import org.duracloud.manifest.error.ManifestArgumentException;
+import org.duracloud.manifest.error.ManifestEmptyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew Woods
@@ -36,14 +35,12 @@ public class ManifestResource {
 
     public InputStream getManifest(String storeId,
                                    String spaceId,
-                                   String format,
-                                   String date)
+                                   String fmt)
         throws ManifestArgumentException, ManifestEmptyException {
 
-        FORMAT fmt = validateFormat(format);
-        Date d8 = validateDate(date);
-
-        return manifestGenerator.getManifest(storeId, spaceId, fmt, d8);
+        return manifestGenerator.getManifest(storeId,
+                                             spaceId,
+                                             validateFormat(fmt));
     }
 
     private FORMAT validateFormat(String format)
@@ -71,36 +68,6 @@ public class ManifestResource {
         }
     }
 
-    private Date validateDate(String date) throws ManifestArgumentException {
-        // null is default.
-        if (null == date) {
-            return null;
-        }
-
-        Exception exception = null;
-        for (DateUtil.DateFormat dateFormat : DateUtil.DateFormat.values()) {
-            try {
-                return DateUtil.convertToDate(date, dateFormat);
-            } catch (ParseException e) {
-                exception = e;
-            }
-        }
-
-        StringBuilder err = new StringBuilder("Invalid date format: ");
-        err.append(date);
-        err.append(" Allowable formats are: ");
-
-        for (DateUtil.DateFormat dateFormat : DateUtil.DateFormat.values()) {
-            err.append("'");
-            err.append(dateFormat.getPattern());
-            err.append("', \n");
-        }
-        err.delete(err.length() - 3, err.length());
-        err.append(".");
-
-        log.error(err.toString());
-        throw new ManifestArgumentException(err.toString(), exception);
-
-    }
+ 
 
 }

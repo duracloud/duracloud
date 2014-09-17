@@ -7,19 +7,17 @@
  */
 package org.duracloud.client.manifest;
 
-import org.duracloud.common.util.DateUtil;
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.manifest.ManifestGenerator;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Date;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author: Bill Branan
@@ -82,31 +80,26 @@ public class ManifestGeneratorImplTest {
         EasyMock.expect(mockRestHelper.get(url2))
                 .andReturn(successResponse);
 
-        Date asOfDate = new Date();
-        String url3 =
-            url2 + "&date=" + DateUtil.convertToStringPlain(asOfDate.getTime());
 
-        EasyMock.expect(mockRestHelper.get(url3))
+        EasyMock.expect(mockRestHelper.get(url2))
                 .andReturn(successResponse);
 
         replayMocks();
 
         InputStream result1 =
-            generator.getManifest(storeId, spaceId, null, null);
+            generator.getManifest(storeId, spaceId, null);
         assertNotNull(result1);
 
         InputStream result2 =
             generator.getManifest(storeId,
                                   spaceId,
-                                  ManifestGenerator.FORMAT.TSV,
-                                  null);
+                                  ManifestGenerator.FORMAT.TSV);
         assertNotNull(result2);
 
         InputStream result3 =
             generator.getManifest(storeId,
                                   spaceId,
-                                  ManifestGenerator.FORMAT.TSV,
-                                  asOfDate);
+                                  ManifestGenerator.FORMAT.TSV);
         assertNotNull(result3);
 
     }

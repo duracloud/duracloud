@@ -634,10 +634,4 @@ public class ContentRest extends BaseRest {
         log.error("Error: " + msg, e);
         return responseBad(e.getMessage(), status);
     }
-
-    private Response responseBad(String msg, Response.Status status) {
-        String entity = msg == null ? "null" : msg;
-        return Response.status(status).entity(entity).build();
-    }
-
 }

@@ -7,11 +7,10 @@
  */
 package org.duracloud.manifest;
 
+import java.io.InputStream;
+
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestEmptyException;
-
-import java.io.InputStream;
-import java.util.Date;
 
 /**
  * The Manifest Generator is responsible for creating content manifests from
@@ -36,15 +35,13 @@ public interface ManifestGenerator {
      * @param storeId  of manifest items
      * @param spaceId  of manifest items
      * @param format   of manifest (see {@link FORMAT})
-     * @param asOfDate of manifest items (format: 'EEE, d MMM yyyy HH:mm:ss z')
      * @return {@link InputStream} of manifest content
      * @throws ManifestArgumentException if format or date are invalid
      * @throws ManifestEmptyException    if no manifest is created
      */
     public InputStream getManifest(String storeId,
                                    String spaceId,
-                                   FORMAT format,
-                                   Date asOfDate)
+                                   FORMAT format)
         throws ManifestArgumentException, ManifestEmptyException;
 
 }

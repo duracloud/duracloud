@@ -38,15 +38,14 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    public String getLine(ContentMessage event) {
+    protected String
+        getLine(String contentMd5, String spaceId, String contentId) {
         StringBuilder line = new StringBuilder();
-        line.append(event.getSpaceId());
+        line.append(spaceId);
         line.append(DELIM);
-        line.append(event.getContentId());
+        line.append(contentId);
         line.append(DELIM);
-        line.append(event.getContentMd5());
-
-        return line.toString();
+        line.append(contentMd5);
+        return line.toString();    
     }
-
 }

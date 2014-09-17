@@ -36,6 +36,20 @@
     <constructor-arg ref="restUtil"/>
   </bean>
 
+  <!--manifest-->
+  <bean id="manifestResource" class="org.duracloud.durastore.rest.ManifestResource">
+    <constructor-arg ref="manifestGenerator"/>
+  </bean>
+
+  <bean id="manifestRest" class="org.duracloud.durastore.rest.ManifestRest" >
+    <constructor-arg ref="manifestResource"/>
+  </bean>
+
+  <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
+    <constructor-arg ref="manifestStore"/>
+  </bean>
+
+
   <!-- Support beans -->
   <bean id="storageAccountsDocumentBinding"
         class="org.duracloud.storage.xml.StorageAccountsDocumentBinding" />

@@ -33,13 +33,14 @@ public class BagitManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    public String getLine(ContentMessage event) {
+    protected String
+        getLine(String contentChecksum, String spaceId, String contentId) {
         StringBuilder line = new StringBuilder();
-        line.append(event.getContentMd5());
+        line.append(contentChecksum);
         line.append("  ");
-        line.append(event.getSpaceId());
+        line.append(spaceId);
         line.append("/");
-        line.append(event.getContentId());
+        line.append(contentId);
 
         return line.toString();
     }

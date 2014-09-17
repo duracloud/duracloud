@@ -94,8 +94,7 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
     @Override
     public InputStream getManifest(String storeId,
                                    String spaceId,
-                                   FORMAT format,
-                                   Date asOfDate)
+                                   FORMAT format)
         throws ManifestArgumentException, ManifestEmptyException {
         String url = buildURL(spaceId);
         if(null != storeId) {
@@ -103,10 +102,6 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
         }
         if(null != format) {
             url = addQueryParameter(url, "format", format.name());
-        }
-        if(null != asOfDate) {
-            String date = DateUtil.convertToStringPlain(asOfDate.getTime());
-            url = addQueryParameter(url, "date", date);
         }
 
         RestHttpHelper.HttpResponse response = runGetManifest(url);

@@ -53,6 +53,7 @@
 
     <modules>
         <module>common</module>
+        <module>common-test</module>
         <module>common-cli</module>
         <module>mimeutil</module>
         <module>notification</module>
@@ -78,9 +79,10 @@
         <module>snapshotdata</module>
         <module>snapshotstorageprovider</module>
         <module>durastore</module>
-        <module>duraboss-api</module>
+        <module>manifest-api</module>
         <module>reportdata</module>
         <module>reporter</module>
+        <module>mill-jpa-repo</module>
         <module>auditor</module>
         <module>manifest</module>
         <module>manifestclient</module>
@@ -250,6 +252,9 @@
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
         <org.springframework.webflow.version>2.3.3.RELEASE</org.springframework.webflow.version>
+        <org.springframework.data.jpa.version>1.6.0.RELEASE</org.springframework.data.jpa.version>
+        <mysql.driver.version>5.1.28</mysql.driver.version>
+        <hibernate.version>4.3.2.Final</hibernate.version>
     </properties>
 
     <distributionManagement>
@@ -1080,8 +1085,32 @@
             <dependency>
               <groupId>org.hibernate</groupId>
               <artifactId>hibernate-validator</artifactId>
-              <version>4.1.0.Final</version>
+              <version>${hibernate.version}</version>
               <scope>compile</scope>
+            </dependency>
+ 
+            <dependency>
+              <groupId>org.hibernate</groupId>
+              <artifactId>hibernate-entitymanager</artifactId>
+              <version>${hibernate.version}</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.springframework.data</groupId>
+              <artifactId>spring-data-jpa</artifactId>
+              <version>${org.springframework.data.jpa.version}</version>
+            </dependency>
+      
+            <dependency>
+              <groupId>commons-dbcp</groupId>
+              <artifactId>commons-dbcp</artifactId>
+              <version>1.4</version>
+            </dependency>
+
+            <dependency>
+              <groupId>mysql</groupId>
+              <artifactId>mysql-connector-java</artifactId>
+              <version>${mysql.driver.version}</version>
             </dependency>
 
         </dependencies>

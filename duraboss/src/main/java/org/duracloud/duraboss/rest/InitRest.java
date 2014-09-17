@@ -7,30 +7,28 @@
  */
 package org.duracloud.duraboss.rest;
 
+import static javax.ws.rs.core.Response.Status.*;
+
+import java.io.InputStream;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+
 import org.duracloud.appconfig.domain.DurabossConfig;
 import org.duracloud.appconfig.xml.DurabossInitDocumentBinding;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
-import org.duracloud.client.manifest.ManifestGeneratorImpl;
 import org.duracloud.common.error.NoUserLoggedInException;
 import org.duracloud.common.model.Credential;
 import org.duracloud.common.notification.NotificationManager;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
 import org.duracloud.duraboss.rest.report.StorageReportResource;
-import org.duracloud.manifest.LocalManifestGenerator;
-import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-
-import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
 
 /**
  * @author: Bill Branan
@@ -46,20 +44,17 @@ public class InitRest extends BaseRest {
     private RestUtil restUtil;
     private String reportSpaceId;
     private NotificationManager notificationManager;
-    private LocalManifestGenerator manifestGenerator;
 
     public InitRest(StorageReportResource storageResource,
                     SecurityContextUtil securityContextUtil,
                     RestUtil restUtil,
                     String reportSpaceId,
-                    NotificationManager notificationManager,
-                    LocalManifestGenerator manifestGenerator) {
+                    NotificationManager notificationManager) {
         this.storageResource = storageResource;
         this.securityContextUtil = securityContextUtil;
         this.restUtil = restUtil;
         this.reportSpaceId = reportSpaceId;
         this.notificationManager = notificationManager;
-        this.manifestGenerator = manifestGenerator;
     }
 
     /**
@@ -97,9 +92,7 @@ public class InitRest extends BaseRest {
         storeMgr.login(credential);
 
         context = config.getDurabossContext();
-        ManifestGenerator manifestClient =
-            new ManifestGeneratorImpl(host, port, context, credential);
-
+       
         notificationManager.initializeNotifiers(
             config.getNotificationConfigs());
 
@@ -108,9 +101,6 @@ public class InitRest extends BaseRest {
             // Initialize Storage Reporter
             storageResource.initialize(storeMgr, reportSpaceId);
         }
-
-        // Always initialize the Manifest Generator.
-        manifestGenerator.initialize(storeMgr);
     }
 
     @GET

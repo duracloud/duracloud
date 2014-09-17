@@ -25,7 +25,7 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>duraboss-api</artifactId>
+      <artifactId>manifest-api</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -37,7 +37,14 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>auditor</artifactId>
+      <artifactId>common-test</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>mill-jpa-repo</artifactId>
       <version>${project.version}</version>
     </dependency>
 
