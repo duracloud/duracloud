@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.sync.util;
+package org.duracloud.client.util;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;

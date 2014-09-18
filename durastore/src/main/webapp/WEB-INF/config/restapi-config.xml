@@ -49,6 +49,23 @@
     <constructor-arg ref="manifestStore"/>
   </bean>
 
+  <bean id="auditLogRest" class="org.duracloud.durastore.rest.AuditLogRest" >
+    <constructor-arg ref="auditLogReader"/>
+  </bean>
+
+  <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl" >
+    <constructor-arg >
+        <bean class="org.duracloud.audit.AuditConfig">
+            <property name="storeId" value="${duracloud.audit.storeId}"/>
+            <property name="spaceId" value="${duracloud.audit.spaceId}"/>
+            <property name="duracloudHost" value="${duracloud.audit.host}"/>
+            <property name="duracloudPort" value="${duracloud.audit.port}"/>
+            <property name="duracloudUsername" value="${duracloud.audit.username}"/>
+            <property name="duracloudPassword" value="${duracloud.audit.password}"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
 
   <!-- Support beans -->
   <bean id="storageAccountsDocumentBinding"

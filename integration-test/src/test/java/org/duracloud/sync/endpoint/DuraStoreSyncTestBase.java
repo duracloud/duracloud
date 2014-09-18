@@ -8,9 +8,9 @@
 package org.duracloud.sync.endpoint;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.util.StoreClientUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.SyncIntegrationTestBase;
-import org.duracloud.sync.util.StoreClientUtil;
 import org.junit.After;
 import org.junit.Assert;
 

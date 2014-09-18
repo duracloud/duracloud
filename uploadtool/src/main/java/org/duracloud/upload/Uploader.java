@@ -8,13 +8,13 @@
 package org.duracloud.upload;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.util.StoreClientUtil;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.mgmt.SyncSummary;
-import org.duracloud.sync.util.StoreClientUtil;
 import org.duracloud.sync.walker.DirWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

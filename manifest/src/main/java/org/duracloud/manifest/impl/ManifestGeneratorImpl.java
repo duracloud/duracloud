@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.duracloud.manifest.ManifestFormatter;
 import org.duracloud.manifest.ManifestGenerator;
+import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestEmptyException;
 import org.duracloud.manifest.error.ManifestGeneratorException;

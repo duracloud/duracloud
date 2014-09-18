@@ -7,11 +7,10 @@
  */
 package org.duracloud.manifest.impl;
 
-import org.duracloud.manifest.ContentMessage;
+import static org.duracloud.common.util.bulk.ManifestVerifier.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
 
 /**
  * This class formats content manifests as tab-separated-values (TSV).

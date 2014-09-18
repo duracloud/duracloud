@@ -8,6 +8,7 @@
 package org.duracloud.sync;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.util.StoreClientUtil;
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.sync.backup.SyncBackupManager;
 import org.duracloud.sync.config.SyncToolConfig;
@@ -19,7 +20,6 @@ import org.duracloud.sync.mgmt.ChangedList;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
-import org.duracloud.sync.util.StoreClientUtil;
 import org.duracloud.sync.walker.DeleteChecker;
 import org.duracloud.sync.walker.DirWalker;
 import org.duracloud.sync.walker.RestartDirWalker;
