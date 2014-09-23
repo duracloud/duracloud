@@ -175,7 +175,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
 
 
     protected String getPrefix() {
-        String prefix = account + "/" + storeId+"/"+spaceId;
+        String prefix = account + "/" + storeId+"/"+spaceId +"/";
         return prefix;
     }
 

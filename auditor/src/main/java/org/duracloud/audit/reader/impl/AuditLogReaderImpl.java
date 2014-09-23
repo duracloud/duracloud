@@ -23,7 +23,6 @@ import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.audit.reader.AuditLogReaderException;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.util.StoreClientUtil;
-import org.duracloud.common.util.IOUtil;
 import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class AuditLogReaderImpl implements AuditLogReader {
         final String auditSpaceId = auditConfig.getSpaceId();
         final ContentStore contentStore = getContentStore(auditConfig);
 
-        String prefix = MessageFormat.format("{0}/{1}/{2}",account, storeId, spaceId);
+        String prefix = MessageFormat.format("{0}/{1}/{2}/",account, storeId, spaceId);
         final PipedInputStream is = new PipedInputStream(10 * 1024);
         final PipedOutputStream os;
         try {
