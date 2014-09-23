@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import org.duracloud.audit.reader.AuditLogEmptyException;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +57,15 @@ public class AuditLogRest extends BaseRest {
                                                                 spaceId);
             return responseOkStream(auditLog);
         } catch (Exception e) {
+            
             log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}",
                       account, storeId, spaceId), e);
-            return responseBad(e);
+            
+            if(e instanceof AuditLogEmptyException){
+                return responseNotFound("No audit logs found.");
+            }else{
+                return responseBad(e);
+            }
         }
     }
 
