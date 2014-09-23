@@ -3062,6 +3062,10 @@ $(function() {
         spaceProps.push([ 'Size', space.properties.size ]);
       }
 
+      if (space.properties.streamingHost) {
+        spaceProps.push([ 'Streaming Host', space.properties.streamingHost ]);
+      }
+
       var bitIntegrityResult = space.bitIntegrityResult;
       if (bitIntegrityResult) {
         var completionDate = bitIntegrityResult.completionDate;
