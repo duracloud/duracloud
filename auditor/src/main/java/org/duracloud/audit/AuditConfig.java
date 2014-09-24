@@ -14,58 +14,13 @@ package org.duracloud.audit;
  * 
  */
 public class AuditConfig {
-    private String spaceId;
-    private String storeId;
-    private String duracloudHost;
-    private int duracloudPort;
-    private String duracloudUsername;
-    private String duracloudPassword;
+    private String logSpaceId;
 
-    public String getSpaceId() {
-        return spaceId;
+    public String getLogSpaceId() {
+        return logSpaceId;
     }
 
-    public void setSpaceId(String spaceId) {
-        this.spaceId = spaceId;
-    }
-
-    public String getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(String storeId) {
-        this.storeId = storeId;
-    }
-
-    public String getDuracloudHost() {
-        return duracloudHost;
-    }
-
-    public void setDuracloudHost(String duracloudHost) {
-        this.duracloudHost = duracloudHost;
-    }
-
-    public int getDuracloudPort() {
-        return duracloudPort;
-    }
-
-    public void setDuracloudPort(int duracloudPort) {
-        this.duracloudPort = duracloudPort;
-    }
-
-    public String getDuracloudUsername() {
-        return duracloudUsername;
-    }
-
-    public void setDuracloudUsername(String duracloudUsername) {
-        this.duracloudUsername = duracloudUsername;
-    }
-
-    public String getDuracloudPassword() {
-        return duracloudPassword;
-    }
-
-    public void setDuracloudPassword(String duracloudPassword) {
-        this.duracloudPassword = duracloudPassword;
+    public void setLogSpaceId(String logSpaceId) {
+        this.logSpaceId = logSpaceId;
     }
 }

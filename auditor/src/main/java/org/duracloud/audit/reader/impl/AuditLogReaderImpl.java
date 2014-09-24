@@ -21,10 +21,11 @@ import org.duracloud.audit.AuditConfig;
 import org.duracloud.audit.reader.AuditLogEmptyException;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.audit.reader.AuditLogReaderException;
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.util.StoreClientUtil;
-import org.duracloud.domain.Content;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,17 +40,19 @@ public class AuditLogReaderImpl implements AuditLogReader {
         LoggerFactory.getLogger(AuditLogReaderImpl.class);
 
     private AuditConfig auditConfig;
+    
+    private StorageProvider storageProvider;
 
     public AuditLogReaderImpl(AuditConfig auditConfig) {
         this.auditConfig = auditConfig;
-
     }
 
     @Override
     public InputStream gitAuditLog(final String account, final String storeId, final String spaceId)
         throws AuditLogEmptyException {
-        final String auditSpaceId = auditConfig.getSpaceId();
-        final ContentStore contentStore = getContentStore(auditConfig);
+        
+        this.storageProvider = getStorageProvider();
+        final String auditBucket = auditConfig.getLogSpaceId();
 
         String prefix = MessageFormat.format("{0}/{1}/{2}/",account, storeId, spaceId);
         final PipedInputStream is = new PipedInputStream(10 * 1024);
@@ -64,7 +67,7 @@ public class AuditLogReaderImpl implements AuditLogReader {
         try {
 
             final Iterator<String> it =
-                contentStore.getSpaceContents(auditSpaceId, prefix);
+                this.storageProvider.getSpaceContents(auditBucket, prefix);
             if (!it.hasNext()) {
                 throw new AuditLogEmptyException("there are no items logged for storeId: " + storeId
                                                  + " and spaceId: "
@@ -80,8 +83,8 @@ public class AuditLogReaderImpl implements AuditLogReader {
                         
                         while (it.hasNext()) {
                             String contentId = it.next();
-                            writeToOutputStream(auditSpaceId,
-                                                contentStore,
+                            writeToOutputStream(auditBucket,
+                                                storageProvider,
                                                 os,
                                                 count,
                                                 contentId);
@@ -100,23 +103,35 @@ public class AuditLogReaderImpl implements AuditLogReader {
                 }
             }).start();
 
-        } catch (ContentStoreException e) {
+        } catch (StorageException e) {
             throw new AuditLogReaderException(e);
         }
 
         return is;
     }
 
+    protected StorageProvider getStorageProvider() {
+        String accessKey = System.getProperty("aws.accessKeyId");
+        String secretKey = System.getProperty("aws.secretKey");
+        if(accessKey == null || secretKey == null){
+            throw new AuditLogReaderException(
+                    "The aws.accessKeyId and/or aws.secretKey system properties are not set.  " +
+            		"They should have been set on initialization!");
+        }
+        
+        return new S3StorageProvider(accessKey, secretKey);
+    }
+
     protected void writeToOutputStream(String auditSpaceId,
-                                       ContentStore contentStore,
+                                       StorageProvider storageProvider,
                                        final PipedOutputStream os,
                                        int count,
                                        String contentId)
         throws ContentStoreException,
             IOException {
-        Content content = contentStore.getContent(auditSpaceId, contentId);
+        InputStream is = storageProvider.getContent(auditSpaceId, contentId);
         BufferedReader reader =
-            new BufferedReader(new InputStreamReader(content.getStream()));
+            new BufferedReader(new InputStreamReader(is));
         if (count > 0) {
             // skip header if not hte first file
             reader.readLine();
@@ -132,15 +147,4 @@ public class AuditLogReaderImpl implements AuditLogReader {
         }
     }
 
-    protected ContentStore getContentStore(AuditConfig auditConfig) {
-        StoreClientUtil storeUtil = new StoreClientUtil();
-        ContentStore store =
-            storeUtil.createContentStore(auditConfig.getDuracloudHost(),
-                                         auditConfig.getDuracloudPort(),
-                                         "durastore",
-                                         auditConfig.getDuracloudUsername(),
-                                         auditConfig.getDuracloudPassword(),
-                                         auditConfig.getStoreId());
-        return store;
-    }
 }

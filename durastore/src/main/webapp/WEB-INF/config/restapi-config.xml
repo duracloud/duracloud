@@ -60,12 +60,7 @@
   <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl" >
     <constructor-arg >
         <bean class="org.duracloud.audit.AuditConfig">
-            <property name="storeId" value="${duracloud.audit.storeId}"/>
-            <property name="spaceId" value="${duracloud.audit.spaceId}"/>
-            <property name="duracloudHost" value="${duracloud.audit.host}"/>
-            <property name="duracloudPort" value="${duracloud.audit.port}"/>
-            <property name="duracloudUsername" value="${duracloud.audit.username}"/>
-            <property name="duracloudPassword" value="${duracloud.audit.password}"/>
+            <property name="logSpaceId" value="auditlogs"/>
         </bean>
     </constructor-arg>
   </bean>
