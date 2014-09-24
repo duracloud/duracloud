@@ -13,10 +13,15 @@ import java.text.MessageFormat;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
 import org.duracloud.audit.reader.AuditLogEmptyException;
 import org.duracloud.audit.reader.AuditLogReader;
+import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +37,17 @@ public class AuditLogRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(AuditLogRest.class);
 
     private AuditLogReader auditLogReader;
-
-    public AuditLogRest(AuditLogReader auditLogReader) {
+    private StorageProviderFactory storageProviderFactory;
+    
+    public AuditLogRest(AuditLogReader auditLogReader, StorageProviderFactory storageProviderFactory) {
         this.auditLogReader = auditLogReader;
+        this.storageProviderFactory = storageProviderFactory;
     }
 
-    @Path("/{storeId}/{spaceId}")
+    @Path("/{spaceId}")
     @GET
     public Response getAuditLog (@PathParam("spaceId") String spaceId,
-                                @PathParam("storeId") String storeId) {
+                                 @QueryParam("storeID") String storeId) {
         
         String account = request.getHeader("X-FORWARDED-HOST");
         if(account == null){
@@ -52,6 +59,21 @@ public class AuditLogRest extends BaseRest {
         log.info("getting audit log for account:{}, storeId:{}, spaceId:{}",
                  new Object[]{account, storeId, spaceId});
 
+        if(StringUtils.isBlank(storeId)){
+            for(StorageAccount storageAccount: this.storageProviderFactory.getStorageAccounts()){
+                if(storageAccount.isPrimary()){
+                    storeId = storageAccount.getId();
+                    break;
+                }
+            }
+            
+            if(StringUtils.isBlank(storeId)){
+                throw new DuraCloudRuntimeException("storeId is blank and no primary storage account is indicated.");
+            }
+            
+        }
+
+        
         try {
             InputStream auditLog = auditLogReader.gitAuditLog(account, storeId,
                                                                 spaceId);

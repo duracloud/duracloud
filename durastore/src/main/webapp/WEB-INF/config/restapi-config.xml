@@ -45,6 +45,7 @@
 
   <bean id="manifestRest" class="org.duracloud.durastore.rest.ManifestRest" >
     <constructor-arg ref="manifestResource"/>
+    <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
   <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
@@ -53,6 +54,7 @@
 
   <bean id="auditLogRest" class="org.duracloud.durastore.rest.AuditLogRest" >
     <constructor-arg ref="auditLogReader"/>
+    <constructor-arg ref="storageProviderFactory"/>
   </bean>
 
   <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl" >

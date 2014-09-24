@@ -15,8 +15,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestEmptyException;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +37,10 @@ public class ManifestRest extends BaseRest {
 
     private ManifestResource manifestResource;
 
-    public ManifestRest(ManifestResource manifestResource) {
+    private StorageProviderFactory storageProviderFactory;
+
+    public ManifestRest(ManifestResource manifestResource, StorageProviderFactory storageProviderFactory) {
+        this.storageProviderFactory = storageProviderFactory;
         this.manifestResource = manifestResource;
     }
 
@@ -46,9 +53,26 @@ public class ManifestRest extends BaseRest {
                  new Object[]{storeId, spaceId, format});
 
         try {
+            if(StringUtils.isBlank(storeId)){
+                for(StorageAccount storageAccount: this.storageProviderFactory.getStorageAccounts()){
+                    if(storageAccount.isPrimary()){
+                        storeId = storageAccount.getId();
+                        break;
+                    }
+                }
+                
+                if(StringUtils.isBlank(storeId)){
+                    throw new DuraCloudRuntimeException("storeId is blank and no primary storage account is indicated.");
+                }
+                
+            }
+
+            
             InputStream manifest = manifestResource.getManifest(storeId,
                                                                 spaceId,
                                                                 format);
+            
+            
             return responseOkStream(manifest);
 
         } catch (ManifestArgumentException e) {
