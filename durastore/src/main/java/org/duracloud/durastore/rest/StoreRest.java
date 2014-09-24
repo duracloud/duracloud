@@ -59,7 +59,10 @@ public class StoreRest extends BaseRest {
     private Response doGetStores(String msg) {
         List<StorageAccount> accts = storageProviderFactory.getStorageAccounts();
         boolean includeCredentials = false;
-        String xml = documentBinding.createXmlFrom(accts, includeCredentials);
+        boolean includeOptions = false;
+        String xml = documentBinding.createXmlFrom(accts,
+                                                   includeCredentials,
+                                                   includeOptions);
         return responseOkXml(msg, xml);
     }
 

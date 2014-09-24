@@ -52,7 +52,7 @@ public class DuraStoreInitDocumentBindingTest {
 
         verifyDuraStoreInitConfig(initConfig);
 
-        String xmlVersion2 = binding.createXmlFrom(initConfig, true);
+        String xmlVersion2 = binding.createXmlFrom(initConfig, true, true);
         InputStream xmlStreamVersion2 =
             new ByteArrayInputStream(xmlVersion2.getBytes("UTF-8"));
         DuraStoreInitConfig initConfigVersion2 =

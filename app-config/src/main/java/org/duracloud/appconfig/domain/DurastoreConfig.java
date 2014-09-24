@@ -205,12 +205,15 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
     public String asXml() {
         boolean includeCredentials = true;
+        boolean includeOptions = true;
         DuraStoreInitConfig initConfig = new DuraStoreInitConfig();
         initConfig.setAuditConfig(getAuditConfig());
         initConfig.setMillDbConfig(getMillDbConfig());
         List<StorageAccount> accounts = new ArrayList<>(getStorageAccounts());
         initConfig.setStorageAccounts(accounts);
-        return documentBinding.createXmlFrom(initConfig, includeCredentials);
+        return documentBinding.createXmlFrom(initConfig,
+                                             includeCredentials,
+                                             includeOptions);
     }
     
     private DatabaseConfig getMillDbConfig() {

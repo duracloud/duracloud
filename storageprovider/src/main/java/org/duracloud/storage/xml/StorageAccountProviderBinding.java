@@ -36,5 +36,6 @@ public interface StorageAccountProviderBinding {
      * @throws Exception
      */
     public Element getElementFrom(StorageAccount acct,
-                                  boolean includeCredentials);
+                                  boolean includeCredentials,
+                                  boolean includeOptions);
 }

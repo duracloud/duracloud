@@ -120,14 +120,17 @@ public class DuraStoreInitDocumentBinding {
      * @return
      */
     public String createXmlFrom(DuraStoreInitConfig duraStoreInitConfig,
-                                boolean includeCredentials) {
+                                boolean includeCredentials,
+                                boolean includeOptions) {
         String xml = "";
 
         Element durastoreConfig = new Element("durastoreConfig");
 
         Element accounts =
             accountsBinding.createDocumentFrom(
-                duraStoreInitConfig.getStorageAccounts(), includeCredentials);
+                duraStoreInitConfig.getStorageAccounts(),
+                includeCredentials,
+                includeOptions);
         durastoreConfig.addContent(accounts);
 
         Element audit = new Element("storageAudit");
