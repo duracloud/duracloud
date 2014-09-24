@@ -7,8 +7,16 @@
  */
 package org.duracloud.appconfig.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.AuditConfig;
+import org.duracloud.storage.domain.DatabaseConfig;
 import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -16,13 +24,6 @@ import org.duracloud.storage.domain.impl.StorageAccountImpl;
 import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * This class holds the configuration elements for durastore.
@@ -63,6 +64,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String bridgePassKey = "bridge-pass";
 
     private AuditConfig auditConfig = new AuditConfig();
+    private DatabaseConfig millDbConfig = new DatabaseConfig();
 
     private Map<String, StorageAccount> storageAccounts =
         new HashMap<String, StorageAccount>();
@@ -82,6 +84,9 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         } else if(key.startsWith(auditKey)) {
             String suffix = getSuffix(key);
             loadAudit(suffix, value);
+        }  else if(key.startsWith("mill.db")) {
+            String suffix = getSuffix(key);
+            loadMillDB(suffix, value);
         } else {
             String msg = "unknown key: " + key + " (" + value + ")";
             log.error(msg);
@@ -97,6 +102,21 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
             auditConfig.setAuditPassword(value);
         } else if (suffix.equalsIgnoreCase(queueKey)) {
             auditConfig.setAuditQueueName(value);
+        }
+    }
+    
+    private void loadMillDB(String key, String value) {
+        String suffix = getSuffix(key);
+        if (suffix.equalsIgnoreCase(usernameKey)) {
+            millDbConfig.setUsername(value);
+        } else if (suffix.equalsIgnoreCase(passwordKey)) {
+            millDbConfig.setPassword(value);
+        } else if (suffix.equalsIgnoreCase("host")) {
+            millDbConfig.setHost(value);
+        } else if (suffix.equalsIgnoreCase("port")) {
+            millDbConfig.setPort(Integer.parseInt(value));
+        } else if (suffix.equalsIgnoreCase("name")) {
+            millDbConfig.setName(value);
         }
     }
 
@@ -187,11 +207,16 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         boolean includeCredentials = true;
         DuraStoreInitConfig initConfig = new DuraStoreInitConfig();
         initConfig.setAuditConfig(getAuditConfig());
+        initConfig.setMillDbConfig(getMillDbConfig());
         List<StorageAccount> accounts = new ArrayList<>(getStorageAccounts());
         initConfig.setStorageAccounts(accounts);
         return documentBinding.createXmlFrom(initConfig, includeCredentials);
     }
     
+    private DatabaseConfig getMillDbConfig() {
+        return this.millDbConfig;
+    }
+
     public String getInitResource() {
         return INIT_RESOURCE;
     }

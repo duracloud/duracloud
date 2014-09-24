@@ -7,19 +7,24 @@
  */
 package org.duracloud.durastore.rest;
 
-import org.duracloud.common.rest.RestUtil;
-import org.duracloud.common.util.InitUtil;
-import org.duracloud.storage.util.StorageProviderFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static javax.ws.rs.core.Response.Status.*;
+
+import java.text.MessageFormat;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.duracloud.common.rest.RestUtil;
+import org.duracloud.common.util.InitUtil;
+import org.duracloud.storage.domain.DatabaseConfig;
+import org.duracloud.storage.domain.DuraStoreInitConfig;
+import org.duracloud.storage.util.InitConfigParser;
+import org.duracloud.storage.util.StorageProviderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author: Bill Branan
@@ -33,10 +38,13 @@ public class InitRest extends BaseRest {
     private StorageProviderFactory storageProviderFactory;
     private RestUtil restUtil;
 
+    private BasicDataSource datasource;
+    
     public InitRest(StorageProviderFactory storageProviderFactory,
-                    RestUtil restUtil) {
+                    RestUtil restUtil, BasicDataSource datasource) {
         this.storageProviderFactory = storageProviderFactory;
         this.restUtil = restUtil;
+        this.datasource = datasource;
     }
 
     /**
@@ -58,14 +66,30 @@ public class InitRest extends BaseRest {
                      " and port: " + instancePort);
 
             content = restUtil.getRequestContent(request, headers);
-            storageProviderFactory.initialize(content.getContentStream(),
+            DuraStoreInitConfig initConfig = InitConfigParser.parseInitXml(content.getContentStream());
+            storageProviderFactory.initialize(initConfig,
                                               instanceHost,
                                               instancePort);
+            
+            configureMillDatabase(initConfig);
             String responseText = "Initialization Successful";
             return responseOk(msg, responseText);
 
         } catch (Exception e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void configureMillDatabase(DuraStoreInitConfig initConfig) {
+        DatabaseConfig dbConfig = initConfig.getMillDbConfig();
+        if(dbConfig != null){
+            datasource.setUrl(MessageFormat.format("jdbc:mysql://{0}:{1}/{2}?autoReconnect=true",
+                                                   dbConfig.getHost(),
+                                                   dbConfig.getPort()+"",
+                                                   dbConfig.getName()));
+            datasource.setUsername(dbConfig.getUsername());
+            datasource.setPassword(dbConfig.getPassword());
+            
         }
     }
 

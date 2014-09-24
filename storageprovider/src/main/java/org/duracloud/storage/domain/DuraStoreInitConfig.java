@@ -19,7 +19,8 @@ public class DuraStoreInitConfig {
 
     private AuditConfig auditConfig;
     private List<StorageAccount> storageAccounts;
-
+    private DatabaseConfig millDbConfig;
+    
     public AuditConfig getAuditConfig() {
         return auditConfig;
     }
@@ -35,5 +36,12 @@ public class DuraStoreInitConfig {
     public void setStorageAccounts(List<StorageAccount> storageAccounts) {
         this.storageAccounts = storageAccounts;
     }
+    
+    public DatabaseConfig getMillDbConfig() {
+        return millDbConfig;
+    }
 
+    public void setMillDbConfig(DatabaseConfig millDbConfig) {
+        this.millDbConfig = millDbConfig;
+    }
 }

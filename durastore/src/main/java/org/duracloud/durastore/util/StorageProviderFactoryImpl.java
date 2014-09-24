@@ -22,6 +22,7 @@ import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.sdscstorage.SDSCStorageProvider;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.storage.domain.AuditConfig;
+import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.domain.StorageProviderType;
@@ -79,11 +80,11 @@ public class StorageProviderFactoryImpl extends ProviderFactoryBase
     }
 
     @Override
-    public void initialize(InputStream accountXml,
+    public void initialize(DuraStoreInitConfig initConfig,
                            String instanceHost,
                            String instancePort)
             throws StorageException {
-        super.initialize(accountXml, instanceHost, instancePort);
+        super.initialize(initConfig, instanceHost, instancePort);
         configureAuditQueue();
         initializeStorageProviders();
     }

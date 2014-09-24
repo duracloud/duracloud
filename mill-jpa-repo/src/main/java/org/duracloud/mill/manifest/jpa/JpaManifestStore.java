@@ -15,6 +15,7 @@ import org.duracloud.common.collection.StreamingIterator;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.duracloud.mill.db.repo.JpaManifestItemRepo;
+import org.duracloud.mill.db.repo.MillJpaRepoConfig;
 import org.duracloud.mill.db.util.JpaIteratorSource;
 import org.duracloud.mill.manifest.ManifestItemWriteException;
 import org.duracloud.mill.manifest.ManifestStore;
@@ -23,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -31,8 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Daniel Bernstein
  * 
  */
-@Transactional(value="millRepoTransactionManager")
-@Component("manifestStore")
+@Transactional(value=MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
 public class JpaManifestStore implements
                              ManifestStore {
     private static Logger log = LoggerFactory.getLogger(JpaManifestStore.class);

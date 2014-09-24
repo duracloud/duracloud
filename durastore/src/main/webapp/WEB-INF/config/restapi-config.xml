@@ -9,6 +9,8 @@
   <bean id="initRest" class="org.duracloud.durastore.rest.InitRest" >
     <constructor-arg ref="storageProviderFactory"/>
     <constructor-arg ref="restUtil"/>
+    <constructor-arg ref="millRepoDataSource"/>
+
   </bean>
 
   <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" >

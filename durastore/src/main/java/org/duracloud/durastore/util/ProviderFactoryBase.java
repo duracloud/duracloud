@@ -10,11 +10,10 @@ package org.duracloud.durastore.util;
 import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccountManager;
 import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.xml.DuraStoreInitDocumentBinding;
+import org.duracloud.storage.util.InitConfigParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -39,6 +38,7 @@ public abstract class ProviderFactoryBase {
      *
      * @param initXml A stream containing account information in XML format
      */
+    @Deprecated
     public void initialize(InputStream initXml,
                            String instanceHost,
                            String instancePort)
@@ -46,33 +46,25 @@ public abstract class ProviderFactoryBase {
         if (initXml == null) {
             throw new IllegalArgumentException("XML containing account information");
         }
+        DuraStoreInitConfig initConfig = InitConfigParser.parseInitXml(initXml);
+        initialize(initConfig, instanceHost, instancePort);
+    }
 
-        initConfig = parseInitXml(initXml);
+    /**
+     * Initializes DuraStore with account information
+     * necessary to connect to Storage Providers.
+     *
+     * @param initXml A stream containing account information in XML format
+     */
+    public void initialize(DuraStoreInitConfig initConfig,
+                           String instanceHost,
+                           String instancePort)
+            throws StorageException {
+        this.initConfig = initConfig;
         storageAccountManager.initialize(initConfig.getStorageAccounts());
         storageAccountManager.setEnvironment(instanceHost, instancePort);
     }
 
-    private DuraStoreInitConfig parseInitXml(InputStream initXml) {
-        DuraStoreInitDocumentBinding binding =
-            new DuraStoreInitDocumentBinding();
-
-        DuraStoreInitConfig initConfig;
-        try {
-            initConfig = binding.createFromXml(initXml);
-        } catch (Exception e) {
-            String error = "Unable to read DuraStore init due to error: " +
-                           e.getMessage();
-            log.error(error);
-            throw new StorageException(error, e);
-        } finally {
-            try {
-                initXml.close();
-            } catch(IOException e) {
-                log.warn(e.getMessage());
-            }
-        }
-        return initConfig;
-    }
 
     /**
      * @return the account manager
