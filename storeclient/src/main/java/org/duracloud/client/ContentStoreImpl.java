@@ -7,6 +7,17 @@
  */
 package org.duracloud.client;
 
+import static org.duracloud.storage.provider.StorageProvider.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.model.AclType;
@@ -25,6 +36,7 @@ import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.error.UnauthorizedException;
 import org.duracloud.error.UnsupportedTaskException;
+import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
@@ -34,23 +46,12 @@ import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
-
 /**
  * Provides access to a content store
  *
  * @author Bill Branan
  */
-public class ContentStoreImpl implements ContentStore{
+public class ContentStoreImpl implements ContentStore {
 
     private String storeId = null;
 
@@ -1112,5 +1113,34 @@ public class ContentStoreImpl implements ContentStore{
                                             taskName + e.getMessage(), e);
         }
     }
+    
+    @Override
+    public InputStream
+        getManifest(String spaceId, FORMAT format)
+            throws ContentStoreException {
+            String task = "get manifest";
+            String url = buildManifestURL(spaceId,format);
+            try {
+                HttpResponse response = restHelper.get(url);
+                checkResponse(response, HttpStatus.SC_OK);
+                return response.getResponseStream();
+            } catch(NotFoundException e) {
+                throw new NotFoundException(task, spaceId, e);
+            } catch(UnauthorizedException e) {
+                throw new UnauthorizedException(task, spaceId, e);
+            } catch (Exception e) {
+                throw new ContentStoreException(task, spaceId, e);
+            }
+    }
 
+    private String buildManifestURL(String spaceId, FORMAT format) {
+            String url = buildURL("/manifest/" + spaceId);
+            url = addStoreIdQueryParameter(url);
+            
+            if(format != null){
+                url += "&format="+format.name();
+            }
+            
+            return url;
+        }
 }

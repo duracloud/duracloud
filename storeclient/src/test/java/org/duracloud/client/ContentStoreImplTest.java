@@ -7,6 +7,17 @@
  */
 package org.duracloud.client;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
@@ -18,6 +29,7 @@ import org.duracloud.domain.Content;
 import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
+import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
@@ -26,14 +38,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Andrew Woods
@@ -170,6 +174,25 @@ public class ContentStoreImplTest {
         Assert.assertNotNull(space);
         List<String> spaceContents = space.getContentIds();
         Assert.assertEquals(2, spaceContents.size());
+    }
+    
+    @Test
+    public void testGetManifest() throws Exception {
+        String tsv = "manifest stream";
+        String fullURL = baseURL + "/manifest/" + spaceId +
+                         "?storeID=" + storeId + "&format=TSV";
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseStream())
+                .andReturn(new ByteArrayInputStream(tsv.getBytes()));
+
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+
+        replayMocks();
+
+        InputStream is = contentStore.getManifest(spaceId,FORMAT.TSV);
+        Assert.assertNotNull(is);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        Assert.assertEquals(tsv, reader.readLine());
     }
 
     @Test

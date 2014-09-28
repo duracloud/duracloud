@@ -14,6 +14,7 @@ import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.InputStream;
@@ -416,5 +417,16 @@ public interface ContentStore {
      * Exception handler logs the exception messages at the WARN level.
      */
     public void setRetryExceptionHandler(ExceptionHandler retryExceptionHandler);
+
+    /**
+     * Gets a manifest for the specific space if one exists.  If the space does not 
+     * exist or the manifest is empty, an exception will be thrown.
+     * @param spaceId the space id of the desired manifest
+     * @param format
+     * @return
+     * @throws ContentStoreException
+     */
+    public InputStream getManifest(String spaceId, FORMAT format)
+        throws ContentStoreException;
 
 }
