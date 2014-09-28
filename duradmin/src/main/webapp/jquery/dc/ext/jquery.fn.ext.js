@@ -158,6 +158,10 @@ $(function(){
       return this;
     };
 
+    //adds in missing addBack function for plugins that depend on it (namely jquery dropdown)
+    $.fn.addBack = function (selector) {
+      return this.add(selector == null ? this.prevObject : this.prevObject.filter(selector));
+    };
         
 	})();
 });

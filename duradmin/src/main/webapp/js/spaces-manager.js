@@ -2419,7 +2419,7 @@ $(function() {
 
     _createMakePublicButton : function(storeId, spaceId, successFunc) {
       var that = this;
-      var button = $.fn.create("button").addClass("featured").css("margin-left", "10px").html("Make space publicly readable");
+      var button = $.fn.create("button").addClass("featured").css("margin-left", "10px").html("Make publicly readable");
 
       button.click(function(evt) {
         that._makeSpacePubliclyReadable(evt, storeId, spaceId, successFunc);
@@ -3152,6 +3152,16 @@ $(function() {
         });
       }
 
+      var downloadManifestButton = $(".download-manifest-button", this.element);
+      downloadManifestButton.hide();
+      if (this._isAdmin()) {
+        downloadManifestButton.show();
+        // attach delete button listener
+        var manifestUrl = "/duradmin/manifest/"+this._storeId+"/"+this._spaceId + "?format="
+        $("#manifest-tsv").attr("href", manifestUrl+"tsv");
+        $("#manifest-bagit").attr("href", manifestUrl+"bagit");
+      }
+      
       var switchHolder = $(".streaming-switch-holder");
       switchHolder.hide();
       if (this._isAdmin() && space.primaryStorageProvider && !this._isSnapshot(this._storeId)) {
@@ -3188,7 +3198,7 @@ $(function() {
       if (this._isAdmin()) {
         var makePublicButton = this._createMakePublicButton(space.storeId, space.spaceId);
 
-        $(makePublicButton).insertAfter(deleteSpaceButton);
+        $(makePublicButton).insertAfter(downloadManifestButton);
 
         if (this._isPubliclyReadable(space.acls)) {
           makePublicButton.hide();

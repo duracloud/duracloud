@@ -259,8 +259,12 @@
 							 -->
 
               <button class="delete-space-button dc-delete-button">
-                <i class="pre trash"></i>Delete Space
+                <i class="pre trash"></i>Delete
               </button>
+              <a class=" download-manifest-button button" data-dropdown="#manifest-dropdown">
+                <i class="pre download" title="download manifest"></i>Manifest
+              </a>
+ 
               <div class="streaming-switch-holder">
                 <div
                   class="dc-busy"
@@ -756,5 +760,18 @@
       </tiles:putAttribute>
     </tiles:insertDefinition>
   </tiles:putAttribute>
+    <tiles:putAttribute name="footer-extensions">
+                 <!-- the dropdown plugin requires that dropdowns appear before the closing tag: 
+                       suboptimal yes: http://labs.abeautifulsite.net/jquery-dropdown/ -->
+                 <div
+                id="manifest-dropdown"
+                class="dropdown dropdown-tip">
+                <ul class="dropdown-menu">
+                  <li><a id="manifest-tsv" href="">Tab Separated (TSV)</a></li>
+                  <li><a id="manifest-bagit" href="">Bagit</a></li>
+                </ul>
+              </div>
+    
+    </tiles:putAttribute>
 </tiles:insertDefinition>
 
