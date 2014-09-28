@@ -261,6 +261,10 @@
               <button class="delete-space-button dc-delete-button">
                 <i class="pre trash"></i>Delete
               </button>
+              <a class=" download-audit-button button" >
+                <i class="pre download" title="download manifest"></i>Audit Log
+              </a>
+
               <a class=" download-manifest-button button" data-dropdown="#manifest-dropdown">
                 <i class="pre download" title="download manifest"></i>Manifest
               </a>

@@ -39,43 +39,37 @@ import org.springframework.web.bind.annotation.RequestParam;
  * 
  */
 @Controller
-@RequestMapping("/manifest")
-public class ManifestController {
+@RequestMapping("/audit")
+public class AuditLogController {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private ContentStoreManager contentStoreManager;
 
     @Autowired
-    public ManifestController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
+    public AuditLogController(@Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
     }
 
     @RequestMapping(value = "/{storeId}/{spaceId}", method = RequestMethod.GET)
     public String
         get(@PathVariable("storeId") String storeId,
-            @PathVariable("spaceId") String spaceId, @RequestParam("format") String manifestFormat, HttpServletResponse response) throws Exception {
+            @PathVariable("spaceId") String spaceId, HttpServletResponse response) throws Exception {
         try {
             ContentStore contentStore =
                 contentStoreManager.getContentStore(storeId);
-            FORMAT format = FORMAT.valueOf(manifestFormat.toUpperCase());
-            InputStream is = contentStore.getManifest(spaceId, format);
-            String extension = "txt";
-            if(format.equals(FORMAT.TSV)){
-                extension = "tsv";
-            }
+            InputStream is = contentStore.getAuditLog(spaceId);
             StringBuffer contentDisposition = new StringBuffer();
             contentDisposition.append("attachment;");
             contentDisposition.append("filename=\"");
             SimpleDateFormat dateFormat =
                 new SimpleDateFormat(DateFormat.PLAIN_FORMAT.getPattern());
-            contentDisposition.append("manifest-" + storeId
+            contentDisposition.append("audit-" + storeId
                                       + "-"
                                       + spaceId
-                                      +"-"
+                                      + "-"
                                       + dateFormat.format(new Date())
-                                      + "."
-                                      + extension);
+                                      + ".tsv");
             contentDisposition.append("\"");
             response.setHeader("Content-Disposition", contentDisposition.toString());
             IOUtils.copy(is, response.getOutputStream());

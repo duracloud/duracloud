@@ -3152,6 +3152,13 @@ $(function() {
         });
       }
 
+      var downloadAuditButton = $(".download-audit-button", this.element);
+      downloadAuditButton.hide();
+      if (this._isAdmin()) {
+        downloadAuditButton.show();
+        downloadAuditButton.attr("href", "/duradmin/audit/"+this._storeId+"/"+this._spaceId );
+      }
+      
       var downloadManifestButton = $(".download-manifest-button", this.element);
       downloadManifestButton.hide();
       if (this._isAdmin()) {
