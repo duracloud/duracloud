@@ -429,4 +429,15 @@ public interface ContentStore {
     public InputStream getManifest(String spaceId, FORMAT format)
         throws ContentStoreException;
 
+    
+    /**
+     * Gets an audit log for the specific space if one exists.  If the space does not 
+     * exist or the audit is empty, an exception will be thrown.
+     * @param spaceId the space id
+     * @return
+     * @throws ContentStoreException
+     */
+    public InputStream getAuditLog(String spaceId)
+        throws ContentStoreException;
+
 }

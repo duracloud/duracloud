@@ -1134,13 +1134,40 @@ public class ContentStoreImpl implements ContentStore {
     }
 
     private String buildManifestURL(String spaceId, FORMAT format) {
-            String url = buildURL("/manifest/" + spaceId);
-            url = addStoreIdQueryParameter(url);
-            
-            if(format != null){
-                url += "&format="+format.name();
-            }
-            
-            return url;
+        String url = buildURL("/manifest/" + spaceId);
+        url = addStoreIdQueryParameter(url);
+
+        if (format != null) {
+            url += "&format=" + format.name();
         }
+
+        return url;
+    }
+
+    @Override
+    public InputStream
+        getAuditLog(String spaceId)
+            throws ContentStoreException {
+            String task = "get manifest";
+            String url = buildAuditLogURL(spaceId);
+            try {
+                HttpResponse response = restHelper.get(url);
+                checkResponse(response, HttpStatus.SC_OK);
+                return response.getResponseStream();
+            } catch(NotFoundException e) {
+                throw new NotFoundException(task, spaceId, e);
+            } catch(UnauthorizedException e) {
+                throw new UnauthorizedException(task, spaceId, e);
+            } catch (Exception e) {
+                throw new ContentStoreException(task, spaceId, e);
+            }
+    }
+    
+    private String buildAuditLogURL(String spaceId) {
+        String url = buildURL("/audit/" + spaceId);
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+
+
 }

@@ -194,6 +194,24 @@ public class ContentStoreImplTest {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         Assert.assertEquals(tsv, reader.readLine());
     }
+    
+    public void testGetAuditLog() throws Exception {
+        String tsv = "audit stream";
+        String fullURL = baseURL + "/audit/" + spaceId +
+                         "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseStream())
+                .andReturn(new ByteArrayInputStream(tsv.getBytes()));
+
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+
+        replayMocks();
+
+        InputStream is = contentStore.getAuditLog(spaceId);
+        Assert.assertNotNull(is);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        Assert.assertEquals(tsv, reader.readLine());
+    }
 
     @Test
     public void testCreateSpace() throws Exception {
