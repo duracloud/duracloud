@@ -32,6 +32,14 @@
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>  
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-db</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   
     <dependency>
       <groupId>commons-lang</groupId>

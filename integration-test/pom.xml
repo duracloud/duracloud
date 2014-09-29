@@ -208,6 +208,13 @@
             <classifier>for-integration-test</classifier>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>common-db</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.duracloud</groupId>

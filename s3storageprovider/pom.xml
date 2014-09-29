@@ -43,8 +43,7 @@
 
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-      <scope>provided</scope>
+      <artifactId>xstream</artifactId>
     </dependency>
 
     <!-- Jets3t, library for accessing Amazon S3 -->

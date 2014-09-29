@@ -63,16 +63,13 @@
         <artifactId>commons-io</artifactId>
     </dependency>
 
-    <!-- OSGi bundles -->
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>  
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-      <scope>provided</scope>
+      <artifactId>xstream</artifactId>
     </dependency>
     <dependency>  
       <groupId>javax.xml.stream</groupId>  
-      <artifactId>com.springsource.javax.xml.stream</artifactId>
-      <scope>provided</scope>
+      <artifactId>stax-api</artifactId>
     </dependency>
     <dependency>  
       <groupId>javax.servlet</groupId>  
@@ -81,17 +78,25 @@
       <version>2.5</version>
     </dependency>
 
+    <!--
     <dependency>  
       <groupId>org.xmlpull</groupId>  
       <artifactId>com.springsource.org.xmlpull</artifactId>
       <scope>provided</scope>
     </dependency>    
+    -->
+    <!--
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>com.springsource.org.apache.commons.httpclient</artifactId>
       <scope>provided</scope>
     </dependency>
+    -->
 
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+    </dependency>
     <!-- Spring -->
     
     <dependency>

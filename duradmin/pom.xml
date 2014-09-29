@@ -418,8 +418,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.xmlpull</groupId>
-      <artifactId>com.springsource.org.xmlpull</artifactId>
+      <groupId>xpp3</groupId>
+      <artifactId>xpp3</artifactId>
       <scope>runtime</scope>
     </dependency>
 

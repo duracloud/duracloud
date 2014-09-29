@@ -24,13 +24,13 @@
 
     <dependency>  
       <groupId>org.jdom</groupId>  
-      <artifactId>com.springsource.org.jdom</artifactId> 
+      <artifactId>jdom</artifactId> 
     </dependency>
 
     <!-- test dependencies -->
     <dependency>  
       <groupId>com.thoughtworks.xstream</groupId>  
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+      <artifactId>xstream</artifactId>
       <scope>test</scope>
     </dependency>
 

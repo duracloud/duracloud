@@ -111,7 +111,7 @@
 
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+      <artifactId>xstream</artifactId>
     </dependency>
     
     <!-- test -->
