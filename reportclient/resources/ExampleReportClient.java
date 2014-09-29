@@ -6,8 +6,6 @@
  *     http://duracloud.org/license/
  */
 
-import org.duracloud.client.report.ServiceReportManager;
-import org.duracloud.client.report.ServiceReportManagerImpl;
 import org.duracloud.client.report.StorageReportManager;
 import org.duracloud.client.report.StorageReportManagerImpl;
 import org.duracloud.common.model.Credential;
@@ -16,7 +14,6 @@ import org.duracloud.reportdata.storage.StorageReportInfo;
 import org.duracloud.reportdata.storage.metrics.SpaceMetrics;
 import org.duracloud.reportdata.storage.metrics.StorageMetrics;
 import org.duracloud.reportdata.storage.metrics.StorageProviderMetrics;
-import org.duracloud.serviceconfig.ServiceSummary;
 
 import java.lang.System;
 import java.util.Date;
@@ -39,19 +36,14 @@ public class ExampleReportClient {
     private static final String CONTEXT = "duraboss";
 
     private StorageReportManager storageReportManager;
-    private ServiceReportManager serviceReportManager;
 
     public ExampleReportClient() {
         storageReportManager = new StorageReportManagerImpl(HOST, PORT, CONTEXT);
         storageReportManager.login(new Credential(USERNAME, PASSWORD));
-        serviceReportManager = new ServiceReportManagerImpl(HOST, PORT, CONTEXT);
-        serviceReportManager.login(new Credential(USERNAME, PASSWORD));
     }
 
     public void runExample() throws Exception {
         runStorageExample();
-        System.out.println("\n-------------------------------------\n");
-        runServiceExample();
     }
 
     private void runStorageExample() throws Exception {
@@ -102,50 +94,6 @@ public class ExampleReportClient {
                         "      Total Size (bytes): " + space.getTotalSize());
                 }
             }
-        }
-    }
-
-    private void runServiceExample() throws Exception {
-        List<String> reports =
-            serviceReportManager.getCompletedServicesReportList();
-        System.out.println();
-        System.out.println("Available Service Reports:");
-        System.out.println();
-        for(String report : reports) {
-            System.out.println("  " + report);
-        }
-
-        List<ServiceSummary> deployedServices =
-            serviceReportManager.getDeployedServicesReport();
-        System.out.println();
-        System.out.println("Deployed Services Report:");
-        for(ServiceSummary summary : deployedServices) {
-            printServiceSummary(summary);
-        }
-
-        List<ServiceSummary> completedServices =
-            serviceReportManager.getCompletedServicesReport();
-        System.out.println();
-        System.out.println("Completed Services Report:");
-        for(ServiceSummary summary : completedServices) {
-            printServiceSummary(summary);
-        }
-    }
-
-    private void printServiceSummary(ServiceSummary summary) {
-        System.out.println();
-        System.out.println("  Service " + summary.getName() + " with ID " +
-                           summary.getId() + " and deployment ID " +
-                           summary.getDeploymentId());
-        System.out.println("    Configuration:");
-        Map<String, String> config = summary.getConfigs();
-        for(String key : config.keySet()) {
-            System.out.println("      " + key + " = " + config.get(key));
-        }
-        System.out.println("    Properties:");
-        Map<String, String> props = summary.getProperties();
-        for(String key : props.keySet()) {
-            System.out.println("      " + key + " = " + props.get(key));
         }
     }
 
