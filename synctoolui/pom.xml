@@ -26,7 +26,7 @@
     <tiles.version>2.2.2</tiles.version>
     <jetty.version>8.1.4.v20120524</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
-    <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 8.5.2/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
+    <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 9.0.2/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
     <jre.unpack.dir>${project.build.directory}/jre</jre.unpack.dir>
   </properties>
   
