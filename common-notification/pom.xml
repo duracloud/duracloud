@@ -1,5 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common-notification</artifactId>
@@ -16,23 +17,23 @@
   <dependencies>
 
     <dependency>
-        <groupId>org.duracloud</groupId>
-        <artifactId>app-config</artifactId>
-        <version>${project.version}</version>
+      <groupId>org.duracloud</groupId>
+      <artifactId>app-config</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
-        <groupId>org.duracloud</groupId>
-        <artifactId>notification</artifactId>
-        <version>${project.version}</version>
+      <groupId>org.duracloud</groupId>
+      <artifactId>notification</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
-        <groupId>org.duracloud</groupId>
-        <artifactId>notification-amazon</artifactId>
-        <version>${project.version}</version>
-    </dependency>  
-  
+      <groupId>org.duracloud</groupId>
+      <artifactId>notification-amazon</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
   </dependencies>
 
 </project>
