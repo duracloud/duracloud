@@ -1078,6 +1078,12 @@
               <version>${mysql.driver.version}</version>
             </dependency>
 
+            <dependency>
+              <groupId>org.duracloud</groupId>
+              <artifactId>droid-core</artifactId>
+              <version>5.0.3</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
