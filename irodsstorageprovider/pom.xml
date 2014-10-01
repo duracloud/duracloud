@@ -2,7 +2,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>irodsstorageprovider</artifactId>
-  <packaging>jar</packaging>
   <name>iRODS/Chronopolis Storage Provider</name>
 
   <parent>
