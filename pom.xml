@@ -69,7 +69,6 @@
         <module>storeclient</module>
         <module>security</module>
         <module>computeprovider</module>
-        <module>ec2typicacomputeprovider</module>
         <module>s3storageprovider</module>
         <module>glacierstorageprovider</module>
         <module>openstackstorageprovider</module>
@@ -1089,12 +1088,6 @@
               <groupId>org.duracloud</groupId>
               <artifactId>droid-core</artifactId>
               <version>5.0.3</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.duracloud</groupId>
-              <artifactId>aws-typica</artifactId>
-              <version>1.5.1</version>
             </dependency>
 
             <dependency>
