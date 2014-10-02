@@ -34,16 +34,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>rackspace-java-cloudfiles</artifactId>
-      <version>1.9.1</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.jclouds.api</groupId>
       <artifactId>swift</artifactId>
     </dependency>
-
 
     <dependency>
       <groupId>org.duracloud</groupId>
