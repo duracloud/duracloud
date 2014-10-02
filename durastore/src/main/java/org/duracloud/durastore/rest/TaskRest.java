@@ -16,6 +16,8 @@ import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.TaskProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -37,12 +39,14 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
  *         Date: May 20, 2010
  */
 @Path("/task")
+@Component
 public class TaskRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(TaskRest.class);
 
     private TaskProviderFactory taskProviderFactory;
     private RestUtil restUtil;
 
+    @Autowired
     public TaskRest(TaskProviderFactory taskProviderFactory, RestUtil restUtil) {
         this.taskProviderFactory = taskProviderFactory;
         this.restUtil = restUtil;

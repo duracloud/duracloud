@@ -16,6 +16,8 @@ import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.storage.error.InvalidIdException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -43,12 +45,14 @@ import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_AC
  * @author Bill Branan
  */
 @Path("/")
+@Component
 public class SpaceRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(SpaceRest.class);
 
     private SpaceResource spaceResource;
     private SecurityContextUtil securityContextUtil;
 
+    @Autowired
     public SpaceRest(SpaceResource spaceResource,
                      SecurityContextUtil securityContextUtil) {
         this.spaceResource = spaceResource;
