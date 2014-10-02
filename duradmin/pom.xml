@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>duradmin</artifactId>
@@ -17,11 +18,14 @@
   <properties>
     <jquery.target.path>jquery</jquery.target.path>
     <jquery.plugin.target.path>jquery/plugins</jquery.plugin.target.path>
+    <!-- 
     <storepass>storepass</storepass>
     <keypass>keypass</keypass>
     <keystore>${project.build.directory}/keystore</keystore>
     <alias>uploadapplet</alias>
     <gen>true</gen>
+     -->
+
   </properties>
 
   <build>
@@ -97,7 +101,7 @@
                 <include>jquery.form.min.js</include>
               </includes>
             </overlay>
-            
+
             <overlay>
               <groupId>org.duracloud</groupId>
               <artifactId>jquery.layout</artifactId>
@@ -117,7 +121,7 @@
                 <include>jquery-validate/jquery.validate.js</include>
               </includes>
             </overlay>
-          
+
           </overlays>
         </configuration>
       </plugin>
@@ -131,7 +135,7 @@
           </excludes>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -158,11 +162,14 @@
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-json</artifactId>
       <version>${project.version}</version>
     </dependency>
+     -->
+    
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>security</artifactId>
@@ -185,6 +192,7 @@
       <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>snapshotstorageprovider</artifactId>
@@ -200,6 +208,18 @@
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>reportclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>reportdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>snapshotdata</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -232,15 +252,35 @@
       <scope>test</scope>
     </dependency>
 
-    <!--  for spring security  -->
+    <!--  for spring   -->
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-config</artifactId>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
     </dependency>
 
     <dependency>
@@ -253,12 +293,6 @@
       <artifactId>spring-security-taglibs</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
     <!--  for spring security end  -->
 
     <dependency>
@@ -267,12 +301,12 @@
       <scope>compile</scope>
       <version>1.3.1</version>
       <exclusions>
-      <exclusion>
+        <exclusion>
           <groupId>cglib</groupId>
           <artifactId>cglib-full</artifactId>
-      </exclusion>
+        </exclusion>
       </exclusions>
-     
+
     </dependency>
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -289,13 +323,17 @@
       <artifactId>spring-webflow</artifactId>
     </dependency>
 
-    <!-- for spring aop proxying -->
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib</artifactId>
-      <version>2.2</version>
-    </dependency>
     <!-- tiles -->
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-api</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-servlet</artifactId>
@@ -304,16 +342,6 @@
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-jsp</artifactId>
     </dependency>
-    
-    <!-- this artifact is also defined above: javax.servlet -->
-    <!--
-    <dependency>
-      
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-     -->
 
     <!-- for Jstl -->
     <dependency>
@@ -327,11 +355,9 @@
       <version>1.1.2</version>
     </dependency>
 
-    <!-- for EL -->
     <dependency>
-      <groupId>ognl</groupId>
-      <artifactId>ognl</artifactId>
-      <version>2.7.2</version>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
     </dependency>
 
     <!-- for HttpClient -->
@@ -351,13 +377,6 @@
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.codehaus.mojo.webstart</groupId>
-      <artifactId>webstart-jnlp-servlet</artifactId>
-      <version>1.0-6.0.02_ea_b02.2</version>
-      <scope>runtime</scope>
-    </dependency>
 
     <dependency>
       <groupId>net.sf.json-lib</groupId>
@@ -365,12 +384,6 @@
       <version>2.2.3</version>
       <classifier>jdk15</classifier>
       <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>xpp3</groupId>
-      <artifactId>xpp3</artifactId>
-      <scope>runtime</scope>
     </dependency>
 
     <dependency>
@@ -438,14 +451,11 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
     </dependency>
-    <!-- test -->
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>unit-test-db</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
 
+    <dependency>
+      <groupId>org.apache.xmlbeans</groupId>
+      <artifactId>xmlbeans</artifactId>
+    </dependency>
     <!-- selenium integration testing -->
     <dependency>
       <groupId>org.seleniumhq.selenium.client-drivers</groupId>

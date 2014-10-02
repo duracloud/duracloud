@@ -254,6 +254,7 @@
         <hibernate.version>4.3.2.Final</hibernate.version>
         <jclouds.version>1.8.0</jclouds.version>
         <jersey.version>2.5.1</jersey.version>
+        <tiles.version>2.2.2</tiles.version>
     </properties>
 
     <distributionManagement>
@@ -819,7 +820,7 @@
             <dependency>
                 <groupId>org.apache.tiles</groupId>
                 <artifactId>tiles-servlet</artifactId>
-                <version>2.2.2</version>
+                <version>${tiles.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -835,7 +836,17 @@
             <dependency>
                 <groupId>org.apache.tiles</groupId>
                 <artifactId>tiles-jsp</artifactId>
-                <version>2.2.2</version>
+                <version>${tiles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tiles</groupId>
+                <artifactId>tiles-core</artifactId>
+                <version>${tiles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tiles</groupId>
+                <artifactId>tiles-api</artifactId>
+                <version>${tiles.version}</version>
             </dependency>
 
             <dependency>
