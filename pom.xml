@@ -609,6 +609,7 @@
                 <artifactId>spring-security-core</artifactId>
                 <version>${org.springframework.security.version}</version>
             </dependency>
+
             <dependency>
               <groupId>org.springframework.security</groupId>
               <artifactId>spring-security-taglibs</artifactId>
@@ -895,18 +896,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>com.springsource.org.apache.commons.httpclient</artifactId>
-                <version>3.1.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${org.springframework.version}</version>
@@ -945,7 +934,7 @@
                 </exclusions>
             </dependency>
             
-	    <dependency>
+            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
                 <version>${org.springframework.version}</version>
@@ -965,10 +954,6 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1001,13 +986,8 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${org.springframework.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>com.springsource.org.apache.commons.logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
@@ -1031,6 +1011,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <dependency>
               <groupId>org.springframework</groupId>
               <artifactId>spring-test</artifactId>
@@ -1041,12 +1022,6 @@
                   <artifactId>commons-logging</artifactId>
                 </exclusion>
               </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>com.springsource.org.apache.commons.lang</artifactId>
-                <version>2.4.0</version>
             </dependency>
 
             <dependency>
