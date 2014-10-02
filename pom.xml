@@ -501,7 +501,20 @@
                 </executions>
             </plugin>
         </plugins>
+    
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jar-plugin</artifactId>
+              <version>2.3.1</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+
     </build>
+    
+
 
     <dependencyManagement>
         <dependencies>
