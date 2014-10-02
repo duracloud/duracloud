@@ -63,19 +63,6 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>auditor</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>manifest-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
       <artifactId>common-queue</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -97,7 +84,6 @@
       <artifactId>manifest</artifactId>
       <version>${project.version}</version>
     </dependency>
-
 
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -191,15 +177,14 @@
       <artifactId>spring-beans</artifactId>
     </dependency>
 
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
     </dependency>
-    
+
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-aop</artifactId>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>jsr311-api</artifactId>
     </dependency>
 
     <!-- for Jersey -->
@@ -207,7 +192,7 @@
       <groupId>com.sun.jersey.contribs</groupId>
       <artifactId>jersey-spring</artifactId>
     </dependency>
-    
+
     <!-- for JDOM -->
     <dependency>
       <groupId>org.jdom</groupId>
