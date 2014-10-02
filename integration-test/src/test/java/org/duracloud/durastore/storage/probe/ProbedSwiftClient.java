@@ -7,23 +7,36 @@
  */
 package org.duracloud.durastore.storage.probe;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.inject.Module;
 import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
 import org.duracloud.common.util.metrics.MetricsProbed;
 import org.duracloud.common.util.metrics.MetricsTable;
+import org.jclouds.Constants;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.domain.PageSet;
+import org.jclouds.enterprise.config.EnterpriseConfigurationModule;
 import org.jclouds.http.options.GetOptions;
 import org.jclouds.openstack.swift.SwiftApiMetadata;
-import org.jclouds.openstack.swift.SwiftAsyncClient;
 import org.jclouds.openstack.swift.SwiftClient;
-import org.jclouds.openstack.swift.domain.*;
+import org.jclouds.openstack.swift.domain.AccountMetadata;
+import org.jclouds.openstack.swift.domain.ContainerMetadata;
+import org.jclouds.openstack.swift.domain.MutableObjectInfoWithMetadata;
+import org.jclouds.openstack.swift.domain.ObjectInfo;
+import org.jclouds.openstack.swift.domain.SwiftObject;
 import org.jclouds.openstack.swift.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.options.ListContainerOptions;
-import org.jclouds.rest.RestContext;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Erik Paulsson
@@ -37,12 +50,28 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
     private SwiftClient swiftClient;
 
     public ProbedSwiftClient(String username, String apiAccessKey, String endpoint) {
-        RestContext<SwiftClient, SwiftAsyncClient> context =
-                ContextBuilder.newBuilder(new SwiftApiMetadata())
+        ListeningExecutorService useExecutor = createThreadPool();
+        ListeningExecutorService ioExecutor = createThreadPool();
+
+        Iterable<Module> modules = ImmutableSet.<Module> of(
+            new EnterpriseConfigurationModule(useExecutor, ioExecutor));
+
+        Properties properties = new Properties();
+        properties.setProperty(Constants.PROPERTY_STRIP_EXPECT_HEADER,
+                               "true");
+
+        swiftClient = ContextBuilder.newBuilder(new SwiftApiMetadata())
                         .endpoint(endpoint)
                         .credentials(username, apiAccessKey)
-                        .build(SwiftApiMetadata.CONTEXT_TOKEN);
-        swiftClient = context.getApi();
+                        .modules(modules)
+                        .overrides(properties)
+                        .buildApi(SwiftClient.class);
+    }
+
+    protected ListeningExecutorService createThreadPool() {
+        return MoreExecutors.listeningDecorator(
+            new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5L, TimeUnit.SECONDS,
+                                   new SynchronousQueue<Runnable>()));
     }
 
     protected void startMetric(String methodName) {
@@ -223,5 +252,10 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         String result = swiftClient.putObjectManifest(s, s2);
         stopMetric("putObjectManifest");
         return result;
+    }
+
+    @Override
+    public void close() throws IOException {
+        swiftClient.close();
     }
 }
