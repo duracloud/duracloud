@@ -98,8 +98,6 @@
         <module>retrievaltool</module>
         <module>integration-test</module>
         <module>integration</module>
-        <module>content-index-client</module>
-        <module>content-index-tool</module>
     </modules>
 
     <profiles>
