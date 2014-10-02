@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
@@ -31,17 +32,19 @@
   </properties>
   
   <build>
-      <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/install</directory>
-                <filtering>true</filtering>
-                <targetPath>${project.build.directory}/install</targetPath>
-            </resource>
-        </resources>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/install</directory>
+        <filtering>true</filtering>
+        <targetPath>${project.build.directory}/install</targetPath>
+      </resource>
+    </resources>
+
     <testResources>
       <testResource>
         <directory>src/test/resources</directory>
@@ -154,6 +157,7 @@
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <version>8.1.14.v20131031</version>
+
         <configuration>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <systemProperties>
@@ -165,7 +169,6 @@
               <name>durcloud.defaultport</name>
               <value>${durcloud.defaultport}</value>
             </systemProperty>
-
           </systemProperties>
           <webApp>
            <contextPath>/sync</contextPath>
@@ -176,6 +179,7 @@
           <stopKey>foo</stopKey>
           <stopPort>9999</stopPort>
         </configuration>
+
         <executions>
           <execution>
             <id>start-jetty</id>
@@ -209,24 +213,6 @@
         </executions>
       </plugin>
 
-     <!-- what function is this serving?  -dbernstein
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>org.duracloud.syncui.SyncUIDriver</mainClass>
-        </configuration>
-      </plugin>
-	-->
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -250,7 +236,6 @@
         </executions>
       </plugin>
 
-   
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>selenium-maven-plugin</artifactId>
@@ -299,15 +284,13 @@
 
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
-      <version>1.2</version>
     </dependency>
 
     <dependency>
@@ -327,40 +310,25 @@
       <artifactId>jetty-jsp</artifactId>
       <version>${jetty.version}</version>
     </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>${org.springframework.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>${org.springframework.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${org.springframework.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.webflow</groupId>
       <artifactId>spring-webflow</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -396,38 +364,27 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-      <version>1.0.0.GA</version>
     </dependency>
 
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>4.1.0.Final</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.0.1</version>
-    </dependency>      
+    </dependency>
       
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>      
+    </dependency>
 
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
-      <version>2.2</version>
     </dependency>
 
     <dependency>
@@ -455,15 +412,25 @@
     </dependency>
 
     <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>chunk</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>stitch</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
-      <version>1.4.2</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.10</version>
     </dependency>
 
     <dependency>
@@ -496,6 +463,7 @@
       <id>installers</id>
       <build>
         <plugins>
+
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-dependency-plugin</artifactId>
@@ -517,6 +485,7 @@
                 </execution>
               </executions>
           </plugin>
+
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
@@ -541,9 +510,10 @@
             <artifactId>exec-maven-plugin</artifactId>
             <version>1.1</version>
             <executions>
+
               <execution>
                 <id>windows</id>
-              <phase>install</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -558,6 +528,7 @@
                   </arguments>
                 </configuration>
               </execution>
+
               <execution>
                 <id>osx</id>
                 <!-- the osx installer without jre must be run in the verify phase
@@ -584,9 +555,10 @@
                   </arguments>
                 </configuration>
               </execution>
+
               <execution>
                 <id>osx-with-jre</id>
-              <phase>install</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -601,9 +573,10 @@
                   </arguments>
                 </configuration>
               </execution>
+
               <execution>
                 <id>linux</id>
-              <phase>install</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -618,8 +591,10 @@
                   </arguments>
                 </configuration>
               </execution>
+
             </executions>
           </plugin>
+
           <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <version>2.3</version>
@@ -668,8 +643,10 @@
               </execution>
             </executions>
           </plugin>
+
         </plugins>
       </build>
     </profile>
   </profiles>
+
  </project>
