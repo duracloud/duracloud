@@ -29,12 +29,15 @@ import org.duracloud.duraboss.rest.report.StorageReportResource;
 import org.duracloud.security.context.SecurityContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author: Bill Branan
  * Date: 5/12/11
  */
 @Path("/init")
+@Component
 public class InitRest extends BaseRest {
 
     private final Logger log = LoggerFactory.getLogger(InitRest.class);
@@ -45,6 +48,7 @@ public class InitRest extends BaseRest {
     private String reportSpaceId;
     private NotificationManager notificationManager;
 
+    @Autowired
     public InitRest(StorageReportResource storageResource,
                     SecurityContextUtil securityContextUtil,
                     RestUtil restUtil,
