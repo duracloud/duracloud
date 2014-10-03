@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
@@ -24,13 +24,13 @@
     <jetty.port>8888</jetty.port>
     <durcloud.defaultport>443</durcloud.defaultport>
     <glassfish-jsp-2.1.version>2.1.v20100127</glassfish-jsp-2.1.version>
-    <tiles.version>2.2.2</tiles.version>
     <jetty.version>8.1.4.v20120524</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
-    <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 8.5.2/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
+    <installbuilder.executable.path>/Applications/BitRock InstallBuilder
+      Enterprise 8.5.2/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
     <jre.unpack.dir>${project.build.directory}/jre</jre.unpack.dir>
   </properties>
-  
+
   <build>
 
     <resources>
@@ -56,14 +56,14 @@
 
       <!-- Turns off the tomcat deployment plugin -->
       <plugin>
-          <groupId>org.apache.tomcat.maven</groupId>
-          <artifactId>tomcat7-maven-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>tomcat-deploy</id>
-              <phase>none</phase>
-            </execution>
-          </executions>
+        <groupId>org.apache.tomcat.maven</groupId>
+        <artifactId>tomcat7-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>tomcat-deploy</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- jsps need to be precompiled. otherwise the executable jar 
@@ -81,7 +81,7 @@
           </execution>
         </executions>
       </plugin>
-         
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -112,7 +112,7 @@
         </configuration>
       </plugin>
 
-     <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
@@ -171,7 +171,7 @@
             </systemProperty>
           </systemProperties>
           <webApp>
-           <contextPath>/sync</contextPath>
+            <contextPath>/sync</contextPath>
           </webApp>
           <webAppConfig>
             <unpackOverlays>true</unpackOverlays>
@@ -243,12 +243,12 @@
         <executions>
           <execution>
             <id>xvfb</id>
-             <phase>pre-integration-test</phase>
+            <phase>pre-integration-test</phase>
             <goals>
               <goal>xvfb</goal>
             </goals>
             <configuration>
-               <skip>${skipITs}</skip>
+              <skip>${skipITs}</skip>
             </configuration>
           </execution>
           <execution>
@@ -312,6 +312,18 @@
     </dependency>
 
     <dependency>
+      <groupId>org.eclipse.jetty.orbit</groupId>
+      <artifactId>org.apache.jasper.glassfish</artifactId>
+      <version>2.2.2.v201112011158</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty.orbit</groupId>
+      <artifactId>javax.servlet.jsp</artifactId>
+      <version>2.2.0.v201112011158</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
     </dependency>
@@ -332,33 +344,43 @@
     </dependency>
 
     <dependency>
+      <groupId>org.springframework.webflow</groupId>
+      <artifactId>spring-binding</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-api</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-core</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-template</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-servlet</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-jsp</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
@@ -376,16 +398,17 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
-      
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -412,18 +435,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>chunk</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>stitch</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
     </dependency>
@@ -436,28 +447,26 @@
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
-      <version>2.19.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-api</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
     </dependency>
-     
+
     <dependency>
       <groupId>com.bitrock.installbuilder</groupId>
       <artifactId>jre</artifactId>
       <version>1.7.0_40-osx</version>
       <type>zip</type>
-    </dependency> 
+    </dependency>
   </dependencies>
-  
+
   <profiles>
     <profile>
       <id>installers</id>
@@ -465,25 +474,25 @@
         <plugins>
 
           <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-dependency-plugin</artifactId>
-              <version>2.2</version>
-              <executions>
-                <execution>
-                  <id>unpack</id>
-                  <phase>package<!-- or any other valid maven phase --></phase>
-                  <goals>
-                    <goal>unpack-dependencies</goal>
-                  </goals>
-                  <configuration>
-                    <includeGroupIds>com.bitrock.installbuilder</includeGroupIds>
-                    <includeArtifactIds>jre</includeArtifactIds>
-                    <outputDirectory>
-                       ${jre.unpack.dir}
-                    </outputDirectory>
-                  </configuration>
-                </execution>
-              </executions>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.2</version>
+            <executions>
+              <execution>
+                <id>unpack</id>
+                <phase>package<!-- or any other valid maven phase --></phase>
+                <goals>
+                  <goal>unpack-dependencies</goal>
+                </goals>
+                <configuration>
+                  <includeGroupIds>com.bitrock.installbuilder</includeGroupIds>
+                  <includeArtifactIds>jre</includeArtifactIds>
+                  <outputDirectory>
+                    ${jre.unpack.dir}
+                  </outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
 
           <plugin>
@@ -493,9 +502,10 @@
                 <phase>install</phase>
                 <configuration>
                   <tasks>
-                       <copy todir="${project.build.directory}/install" overwrite="true">
-                          <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx" />
-                       </copy>    
+                    <copy todir="${project.build.directory}/install"
+                      overwrite="true">
+                      <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx" />
+                    </copy>
                   </tasks>
                 </configuration>
                 <goals>
@@ -503,7 +513,7 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>          
+          </plugin>
 
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -617,28 +627,28 @@
               </execution>
               <execution>
                 <id>install</id>
-                <phase>install</phase> 
+                <phase>install</phase>
                 <goals>
-                  <goal>single</goal> 
+                  <goal>single</goal>
                 </goals>
                 <configuration>
-                    <descriptors>
-                      <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
-                    </descriptors>
-                    <finalName>${alternateArtifactId}-${project.version}</finalName>
+                  <descriptors>
+                    <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
+                  </descriptors>
+                  <finalName>${alternateArtifactId}-${project.version}</finalName>
                 </configuration>
               </execution>
               <execution>
                 <id>install-with-jre</id>
-                <phase>install</phase> 
+                <phase>install</phase>
                 <goals>
-                  <goal>single</goal> 
+                  <goal>single</goal>
                 </goals>
                 <configuration>
-                    <descriptors>
-                      <descriptor>src/main/install/osx-with-jre-installer-zip.xml</descriptor>
-                    </descriptors>
-                    <finalName>${alternateArtifactId}-${project.version}</finalName>
+                  <descriptors>
+                    <descriptor>src/main/install/osx-with-jre-installer-zip.xml</descriptor>
+                  </descriptors>
+                  <finalName>${alternateArtifactId}-${project.version}</finalName>
                 </configuration>
               </execution>
             </executions>
@@ -649,4 +659,4 @@
     </profile>
   </profiles>
 
- </project>
+</project>

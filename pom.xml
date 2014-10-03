@@ -255,6 +255,8 @@
         <jclouds.version>1.8.0</jclouds.version>
         <jersey.version>2.5.1</jersey.version>
         <tiles.version>2.2.2</tiles.version>
+        <selenium.version>2.19.0</selenium.version>
+        
     </properties>
 
     <distributionManagement>
@@ -860,7 +862,30 @@
                 <artifactId>tiles-api</artifactId>
                 <version>${tiles.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.tiles</groupId>
+                <artifactId>tiles-template</artifactId>
+                <version>${tiles.version}</version>
+            </dependency>
 
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-api</artifactId>
+                <version>${selenium.version}</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.seleniumhq.selenium</groupId>
+              <artifactId>selenium-java</artifactId>
+              <version>${selenium.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>commons-logging</groupId>
+                  <artifactId>commons-logging</artifactId>
+                </exclusion>
+              </exclusions>
+            </dependency>
+            
             <dependency>
                 <groupId>net.sf.spring-json</groupId>
                 <artifactId>spring-json</artifactId>
