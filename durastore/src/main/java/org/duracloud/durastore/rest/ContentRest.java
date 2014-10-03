@@ -20,6 +20,8 @@ import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -51,12 +53,13 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
  * @author Bill Branan
  */
 @Path("/{spaceID: (?!acl/)[^/]+}/{contentID: [^?]+}")
+@Component
 public class ContentRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(ContentRest.class);
 
     private ContentResource contentResource;
     private RestUtil restUtil;
-
+    @Autowired
     public ContentRest(ContentResource contentResource, RestUtil restUtil) {
         this.contentResource = contentResource;
         this.restUtil = restUtil;

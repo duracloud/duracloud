@@ -1,10 +1,3 @@
-package org.duracloud.mill.test;
-
-import org.easymock.EasyMockRunner;
-import org.easymock.EasyMockSupport;
-import org.junit.After;
-import org.junit.runner.RunWith;
-
 /*
  * The contents of this file are subject to the license and copyright
  * detailed in the LICENSE and NOTICE files at the root of the source
@@ -12,6 +5,12 @@ import org.junit.runner.RunWith;
  *
  *     http://duracloud.org/license/
  */
+package org.duracloud.mill.test;
+
+import org.easymock.EasyMockRunner;
+import org.easymock.EasyMockSupport;
+import org.junit.After;
+import org.junit.runner.RunWith;
 
 /**
  * @author Daniel Bernstein

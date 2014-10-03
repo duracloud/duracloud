@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
@@ -23,25 +24,26 @@
     <jetty.port>8888</jetty.port>
     <durcloud.defaultport>443</durcloud.defaultport>
     <glassfish-jsp-2.1.version>2.1.v20100127</glassfish-jsp-2.1.version>
-    <tiles.version>2.2.2</tiles.version>
     <jetty.version>8.1.4.v20120524</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
     <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 9.0.2/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
     <jre.unpack.dir>${project.build.directory}/jre</jre.unpack.dir>
   </properties>
-  
+
   <build>
-      <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/install</directory>
-                <filtering>true</filtering>
-                <targetPath>${project.build.directory}/install</targetPath>
-            </resource>
-        </resources>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/install</directory>
+        <filtering>true</filtering>
+        <targetPath>${project.build.directory}/install</targetPath>
+      </resource>
+    </resources>
+
     <testResources>
       <testResource>
         <directory>src/test/resources</directory>
@@ -53,14 +55,14 @@
 
       <!-- Turns off the tomcat deployment plugin -->
       <plugin>
-          <groupId>org.apache.tomcat.maven</groupId>
-          <artifactId>tomcat7-maven-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>tomcat-deploy</id>
-              <phase>none</phase>
-            </execution>
-          </executions>
+        <groupId>org.apache.tomcat.maven</groupId>
+        <artifactId>tomcat7-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>tomcat-deploy</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- jsps need to be precompiled. otherwise the executable jar 
@@ -78,7 +80,7 @@
           </execution>
         </executions>
       </plugin>
-         
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -109,7 +111,7 @@
         </configuration>
       </plugin>
 
-     <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
@@ -154,6 +156,7 @@
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <version>8.1.14.v20131031</version>
+
         <configuration>
           <scanIntervalSeconds>10</scanIntervalSeconds>
           <systemProperties>
@@ -165,10 +168,9 @@
               <name>durcloud.defaultport</name>
               <value>${durcloud.defaultport}</value>
             </systemProperty>
-
           </systemProperties>
           <webApp>
-           <contextPath>/sync</contextPath>
+            <contextPath>/sync</contextPath>
           </webApp>
           <webAppConfig>
             <unpackOverlays>true</unpackOverlays>
@@ -176,6 +178,7 @@
           <stopKey>foo</stopKey>
           <stopPort>9999</stopPort>
         </configuration>
+
         <executions>
           <execution>
             <id>start-jetty</id>
@@ -209,24 +212,6 @@
         </executions>
       </plugin>
 
-     <!-- what function is this serving?  -dbernstein
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>org.duracloud.syncui.SyncUIDriver</mainClass>
-        </configuration>
-      </plugin>
-	-->
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -250,7 +235,6 @@
         </executions>
       </plugin>
 
-   
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>selenium-maven-plugin</artifactId>
@@ -258,12 +242,12 @@
         <executions>
           <execution>
             <id>xvfb</id>
-             <phase>pre-integration-test</phase>
+            <phase>pre-integration-test</phase>
             <goals>
               <goal>xvfb</goal>
             </goals>
             <configuration>
-               <skip>${skipITs}</skip>
+              <skip>${skipITs}</skip>
             </configuration>
           </execution>
           <execution>
@@ -299,15 +283,13 @@
 
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
-      <version>1.2</version>
     </dependency>
 
     <dependency>
@@ -327,108 +309,105 @@
       <artifactId>jetty-jsp</artifactId>
       <version>${jetty.version}</version>
     </dependency>
-    
+
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>${slf4j.version}</version>
+      <groupId>org.eclipse.jetty.orbit</groupId>
+      <artifactId>org.apache.jasper.glassfish</artifactId>
+      <version>2.2.2.v201112011158</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty.orbit</groupId>
+      <artifactId>javax.servlet.jsp</artifactId>
+      <version>2.2.0.v201112011158</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>${org.springframework.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>${org.springframework.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${org.springframework.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.webflow</groupId>
       <artifactId>spring-webflow</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.webflow</groupId>
+      <artifactId>spring-binding</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-api</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-core</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-template</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-servlet</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-jsp</artifactId>
-      <version>${tiles.version}</version>
     </dependency>
 
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-      <version>1.0.0.GA</version>
     </dependency>
 
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <version>4.1.0.Final</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.0.1</version>
-    </dependency>      
-      
+    </dependency>
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>      
-
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib</artifactId>
-      <version>2.2</version>
     </dependency>
+
 
     <dependency>
       <groupId>org.duracloud</groupId>
@@ -457,66 +436,64 @@
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
-      <version>1.4.2</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.10</version>
     </dependency>
 
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
-      <version>2.19.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-api</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
     </dependency>
-     
+
     <dependency>
       <groupId>com.bitrock.installbuilder</groupId>
       <artifactId>jre</artifactId>
       <version>1.7.0_40-osx</version>
       <type>zip</type>
-    </dependency> 
+    </dependency>
   </dependencies>
-  
+
   <profiles>
     <profile>
       <id>installers</id>
       <build>
         <plugins>
+
           <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-dependency-plugin</artifactId>
-              <version>2.2</version>
-              <executions>
-                <execution>
-                  <id>unpack</id>
-                  <phase>package<!-- or any other valid maven phase --></phase>
-                  <goals>
-                    <goal>unpack-dependencies</goal>
-                  </goals>
-                  <configuration>
-                    <includeGroupIds>com.bitrock.installbuilder</includeGroupIds>
-                    <includeArtifactIds>jre</includeArtifactIds>
-                    <outputDirectory>
-                       ${jre.unpack.dir}
-                    </outputDirectory>
-                  </configuration>
-                </execution>
-              </executions>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.2</version>
+            <executions>
+              <execution>
+                <id>unpack</id>
+                <phase>package<!-- or any other valid maven phase --></phase>
+                <goals>
+                  <goal>unpack-dependencies</goal>
+                </goals>
+                <configuration>
+                  <includeGroupIds>com.bitrock.installbuilder</includeGroupIds>
+                  <includeArtifactIds>jre</includeArtifactIds>
+                  <outputDirectory>
+                    ${jre.unpack.dir}
+                  </outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
+
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
@@ -524,9 +501,10 @@
                 <phase>install</phase>
                 <configuration>
                   <tasks>
-                       <copy todir="${project.build.directory}/install" overwrite="true">
-                          <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx" />
-                       </copy>    
+                    <copy todir="${project.build.directory}/install"
+                      overwrite="true">
+                      <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx" />
+                    </copy>
                   </tasks>
                 </configuration>
                 <goals>
@@ -534,16 +512,17 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>          
+          </plugin>
 
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
             <version>1.1</version>
             <executions>
+
               <execution>
                 <id>windows</id>
-              <phase>install</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -558,6 +537,7 @@
                   </arguments>
                 </configuration>
               </execution>
+
               <execution>
                 <id>osx</id>
                 <!-- the osx installer without jre must be run in the verify phase
@@ -584,9 +564,10 @@
                   </arguments>
                 </configuration>
               </execution>
+
               <execution>
                 <id>osx-with-jre</id>
-              <phase>install</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -601,9 +582,10 @@
                   </arguments>
                 </configuration>
               </execution>
+
               <execution>
                 <id>linux</id>
-              <phase>install</phase>
+                <phase>install</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -618,8 +600,10 @@
                   </arguments>
                 </configuration>
               </execution>
+
             </executions>
           </plugin>
+
           <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <version>2.3</version>
@@ -642,34 +626,36 @@
               </execution>
               <execution>
                 <id>install</id>
-                <phase>install</phase> 
+                <phase>install</phase>
                 <goals>
-                  <goal>single</goal> 
+                  <goal>single</goal>
                 </goals>
                 <configuration>
-                    <descriptors>
-                      <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
-                    </descriptors>
-                    <finalName>${alternateArtifactId}-${project.version}</finalName>
+                  <descriptors>
+                    <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
+                  </descriptors>
+                  <finalName>${alternateArtifactId}-${project.version}</finalName>
                 </configuration>
               </execution>
               <execution>
                 <id>install-with-jre</id>
-                <phase>install</phase> 
+                <phase>install</phase>
                 <goals>
-                  <goal>single</goal> 
+                  <goal>single</goal>
                 </goals>
                 <configuration>
-                    <descriptors>
-                      <descriptor>src/main/install/osx-with-jre-installer-zip.xml</descriptor>
-                    </descriptors>
-                    <finalName>${alternateArtifactId}-${project.version}</finalName>
+                  <descriptors>
+                    <descriptor>src/main/install/osx-with-jre-installer-zip.xml</descriptor>
+                  </descriptors>
+                  <finalName>${alternateArtifactId}-${project.version}</finalName>
                 </configuration>
               </execution>
             </executions>
           </plugin>
+
         </plugins>
       </build>
     </profile>
   </profiles>
- </project>
+
+</project>

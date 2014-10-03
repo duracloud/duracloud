@@ -7,10 +7,7 @@
  */
 package org.duracloud.duraboss.rest.report;
 
-import org.duracloud.duraboss.rest.BaseRest;
-import org.duracloud.reporter.error.InvalidScheduleException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.InputStream;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,7 +17,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.io.InputStream;
+
+import org.duracloud.duraboss.rest.BaseRest;
+import org.duracloud.reporter.error.InvalidScheduleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * REST interface for storage reporting
@@ -29,12 +32,14 @@ import java.io.InputStream;
  * Date: 5/11/11
  */
 @Path("/report/storage")
+@Component
 public class StorageReportRest extends BaseRest {
 
     private StorageReportResource resource;
 
     private final Logger log = LoggerFactory.getLogger(StorageReportRest.class);
 
+    @Autowired
     public StorageReportRest(StorageReportResource resource) {
         this.resource = resource;
     }

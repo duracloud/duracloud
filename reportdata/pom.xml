@@ -1,52 +1,51 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.duracloud</groupId>
+  <artifactId>reportdata</artifactId>
+  <version>3.2.0-SNAPSHOT</version>
+  <name>DuraCloud Report Data</name>
+  <url>http://localhost:8080/${project.artifactId}</url>
+
+  <parent>
     <groupId>org.duracloud</groupId>
-    <artifactId>reportdata</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>duracloud</artifactId>
     <version>3.2.0-SNAPSHOT</version>
-    <name>DuraCloud Report Data</name>
-    <url>http://localhost:8080/${project.artifactId}</url>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-    <parent>
-        <groupId>org.duracloud</groupId>
-        <artifactId>duracloud</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+  <build>
 
-    <build>
+    <plugins>
 
-        <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>for-integration-test</classifier>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>for-integration-test</classifier>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+    </plugins>
 
-        </plugins>
+  </build>
 
-    </build>
+  <dependencies>
 
-    <dependencies>
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-xml</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>common-xml</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-    </dependencies>
+  </dependencies>
 
 </project>

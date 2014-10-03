@@ -25,12 +25,15 @@ import org.duracloud.storage.util.InitConfigParser;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @author: Bill Branan
  * Date: 9/19/11
  */
 @Path("/init")
+@Component
 public class InitRest extends BaseRest {
 
     private final Logger log = LoggerFactory.getLogger(InitRest.class);
@@ -39,7 +42,7 @@ public class InitRest extends BaseRest {
     private RestUtil restUtil;
 
     private BasicDataSource datasource;
-    
+    @Autowired
     public InitRest(StorageProviderFactory storageProviderFactory,
                     RestUtil restUtil, BasicDataSource datasource) {
         this.storageProviderFactory = storageProviderFactory;

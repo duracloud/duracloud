@@ -13,6 +13,8 @@ import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.xml.StorageAccountsDocumentBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,12 +27,14 @@ import java.util.List;
  * @author Bill Branan
  */
 @Path("/stores")
+@Component
 public class StoreRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(StoreRest.class);
 
     private StorageProviderFactory storageProviderFactory;
     private StorageAccountsDocumentBinding documentBinding;
 
+    @Autowired
     public StoreRest(StorageProviderFactory storageProviderFactory,
                      StorageAccountsDocumentBinding documentBinding) {
         this.storageProviderFactory = storageProviderFactory;

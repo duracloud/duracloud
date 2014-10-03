@@ -4,25 +4,7 @@
   xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
-
-  <!-- REST API resources -->
-  <bean id="storageReportRest" class="org.duracloud.duraboss.rest.report.StorageReportRest" >
-    <constructor-arg ref="storageResource"/>
-  </bean>  
-
-  <bean id="initRest" class="org.duracloud.duraboss.rest.InitRest" >
-    <constructor-arg ref="storageResource"/>
-    <constructor-arg ref="securityContextUtil"/>
-    <constructor-arg ref="restUtil"/>
-    <constructor-arg ref="report-space"/>
-    <constructor-arg ref="notificationManager"/>
-  </bean>
-
-  <bean id="securityRest" class="org.duracloud.duraboss.rest.SecurityRest">
-    <constructor-arg ref="userDetailsSvc" />
-    <constructor-arg ref="restUtil"/>
-  </bean>
-
+  
   <!-- Support beans -->
   <bean id="storageResource" class="org.duracloud.duraboss.rest.report.StorageReportResource"
         destroy-method="dispose">

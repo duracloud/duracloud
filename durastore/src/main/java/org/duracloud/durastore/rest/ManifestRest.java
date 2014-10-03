@@ -23,6 +23,8 @@ import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * REST interface for the Manifest Generator.
@@ -31,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *         Date: 3/29/12
  */
 @Path("/manifest")
+@Component
 public class ManifestRest extends BaseRest {
 
     private final Logger log = LoggerFactory.getLogger(ManifestRest.class);
@@ -38,7 +41,8 @@ public class ManifestRest extends BaseRest {
     private ManifestResource manifestResource;
 
     private StorageProviderFactory storageProviderFactory;
-
+    
+    @Autowired
     public ManifestRest(ManifestResource manifestResource, StorageProviderFactory storageProviderFactory) {
         this.storageProviderFactory = storageProviderFactory;
         this.manifestResource = manifestResource;

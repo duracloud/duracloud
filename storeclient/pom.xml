@@ -1,9 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>storeclient</artifactId>
-  <packaging>bundle</packaging>
   <version>3.2.0-SNAPSHOT</version>
   <name>StoreClient</name>
 
@@ -50,18 +50,16 @@
       </build>
 
     </profile>
+
   </profiles>
 
-
   <build>
-    <plugins>  
+    <plugins>
     </plugins>
-  </build>  
- 
- 
+  </build>
+
   <dependencies>
   
-    <!-- internal projects -->
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
@@ -86,18 +84,11 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- for JDOM -->
     <dependency>
-        <groupId>org.jdom</groupId>
-        <artifactId>jdom</artifactId>
+      <groupId>org.jdom</groupId>
+      <artifactId>jdom</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>    
-    
-    <!-- for HttpClient -->
+
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
@@ -109,18 +100,6 @@
       <artifactId>commons-io</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-    </dependency>
-    
-    <!-- test -->
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>common-db</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
+
 </project>

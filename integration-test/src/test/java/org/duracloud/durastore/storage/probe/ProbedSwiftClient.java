@@ -7,23 +7,36 @@
  */
 package org.duracloud.durastore.storage.probe;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.inject.Module;
 import org.duracloud.common.util.metrics.Metric;
 import org.duracloud.common.util.metrics.MetricException;
 import org.duracloud.common.util.metrics.MetricsProbed;
 import org.duracloud.common.util.metrics.MetricsTable;
+import org.jclouds.Constants;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.domain.PageSet;
+import org.jclouds.enterprise.config.EnterpriseConfigurationModule;
 import org.jclouds.http.options.GetOptions;
 import org.jclouds.openstack.swift.SwiftApiMetadata;
-import org.jclouds.openstack.swift.SwiftAsyncClient;
 import org.jclouds.openstack.swift.SwiftClient;
-import org.jclouds.openstack.swift.domain.*;
+import org.jclouds.openstack.swift.domain.AccountMetadata;
+import org.jclouds.openstack.swift.domain.ContainerMetadata;
+import org.jclouds.openstack.swift.domain.MutableObjectInfoWithMetadata;
+import org.jclouds.openstack.swift.domain.ObjectInfo;
+import org.jclouds.openstack.swift.domain.SwiftObject;
 import org.jclouds.openstack.swift.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.options.ListContainerOptions;
-import org.jclouds.rest.RestContext;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Erik Paulsson
@@ -37,12 +50,28 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
     private SwiftClient swiftClient;
 
     public ProbedSwiftClient(String username, String apiAccessKey, String endpoint) {
-        RestContext<SwiftClient, SwiftAsyncClient> context =
-                ContextBuilder.newBuilder(new SwiftApiMetadata())
+        ListeningExecutorService useExecutor = createThreadPool();
+        ListeningExecutorService ioExecutor = createThreadPool();
+
+        Iterable<Module> modules = ImmutableSet.<Module> of(
+            new EnterpriseConfigurationModule(useExecutor, ioExecutor));
+
+        Properties properties = new Properties();
+        properties.setProperty(Constants.PROPERTY_STRIP_EXPECT_HEADER,
+                               "true");
+
+        swiftClient = ContextBuilder.newBuilder(new SwiftApiMetadata())
                         .endpoint(endpoint)
                         .credentials(username, apiAccessKey)
-                        .build(SwiftApiMetadata.CONTEXT_TOKEN);
-        swiftClient = context.getApi();
+                        .modules(modules)
+                        .overrides(properties)
+                        .buildApi(SwiftClient.class);
+    }
+
+    protected ListeningExecutorService createThreadPool() {
+        return MoreExecutors.listeningDecorator(
+            new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5L, TimeUnit.SECONDS,
+                                   new SynchronousQueue<Runnable>()));
     }
 
     protected void startMetric(String methodName) {
@@ -72,7 +101,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return this.metricsTable;
     }
 
-    @Override
     public SwiftObject newSwiftObject() {
         startMetric("newSwiftObject");
         SwiftObject swiftObject = swiftClient.newSwiftObject();
@@ -80,7 +108,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return swiftObject;
     }
 
-    @Override
     public AccountMetadata getAccountStatistics() {
         startMetric("getAccountStatistics");
         AccountMetadata accountMetadata = swiftClient.getAccountStatistics();
@@ -88,7 +115,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return accountMetadata;
     }
 
-    @Override
     public Set<ContainerMetadata> listContainers(ListContainerOptions... listContainerOptionses) {
         startMetric("listContainers");
         Set<ContainerMetadata> containerMetadatas =
@@ -97,7 +123,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return containerMetadatas;
     }
 
-    @Override
     public ContainerMetadata getContainerMetadata(String s) {
         startMetric("getContainerMetadata");
         ContainerMetadata containerMetadata = swiftClient.getContainerMetadata(s);
@@ -105,7 +130,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return containerMetadata;
     }
 
-    @Override
     public boolean setContainerMetadata(String s, Map<String, String> stringStringMap) {
         startMetric("setContainerMetadata");
         boolean success = swiftClient.setContainerMetadata(s, stringStringMap);
@@ -113,7 +137,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public boolean deleteContainerMetadata(String s, Iterable<String> strings) {
         startMetric("deleteContainerMetadata");
         boolean success = swiftClient.deleteContainerMetadata(s, strings);
@@ -121,7 +144,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public boolean createContainer(String s) {
         startMetric("createContainer");
         boolean success = swiftClient.createContainer(s);
@@ -129,7 +151,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public boolean createContainer(String s, CreateContainerOptions... createContainerOptionses) {
         startMetric("createContainer");
         boolean success = swiftClient.createContainer(s, createContainerOptionses);
@@ -137,7 +158,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public boolean deleteContainerIfEmpty(String s) {
         startMetric("deleteContainerIfEmpty");
         boolean success = swiftClient.deleteContainerIfEmpty(s);
@@ -145,7 +165,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public boolean containerExists(String s) {
         startMetric("containerExists");
         boolean success = swiftClient.containerExists(s);
@@ -153,7 +172,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public PageSet<ObjectInfo> listObjects(String s, ListContainerOptions... listContainerOptionses) {
         startMetric("listObjects");
         PageSet<ObjectInfo> objectInfos = swiftClient.listObjects(s, listContainerOptionses);
@@ -161,7 +179,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return objectInfos;
     }
 
-    @Override
     public SwiftObject getObject(String s, String s2, GetOptions... getOptionses) {
         startMetric("getObject");
         SwiftObject swiftObject = swiftClient.getObject(s, s2, getOptionses);
@@ -169,7 +186,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return swiftObject;
     }
 
-    @Override
     public boolean setObjectInfo(String s, String s2, Map<String, String> stringStringMap) {
         startMetric("setObjectInfo");
         boolean success = swiftClient.setObjectInfo(s, s2, stringStringMap);
@@ -177,7 +193,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public MutableObjectInfoWithMetadata getObjectInfo(String s, String s2) {
         startMetric("getObjectInfo");
         MutableObjectInfoWithMetadata mutableObjectInfoWithMetadata =
@@ -186,7 +201,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return mutableObjectInfoWithMetadata;
     }
 
-    @Override
     public String putObject(String s, SwiftObject swiftObject) {
         startMetric("putObject");
         String checksum = swiftClient.putObject(s, swiftObject);
@@ -194,7 +208,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return checksum;
     }
 
-    @Override
     public boolean copyObject(String s, String s2, String s3, String s4) {
         startMetric("copyObject");
         boolean success = swiftClient.copyObject(s, s2, s3, s4);
@@ -202,14 +215,12 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public void removeObject(String s, String s2) {
         startMetric("removeObject");
         swiftClient.removeObject(s, s2);
         stopMetric("removeObject");
     }
 
-    @Override
     public boolean objectExists(String s, String s2) {
         startMetric("objectExists");
         boolean success = swiftClient.objectExists(s, s2);
@@ -217,11 +228,15 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
         return success;
     }
 
-    @Override
     public String putObjectManifest(String s, String s2) {
         startMetric("putObjectManifest");
         String result = swiftClient.putObjectManifest(s, s2);
         stopMetric("putObjectManifest");
         return result;
+    }
+
+    @Override
+    public void close() throws IOException {
+        swiftClient.close();
     }
 }
