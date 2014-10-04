@@ -14,49 +14,12 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <profiles>
-    <profile>
-      <id>profile-driver</id>
+  <properties>
+    <!-- see maven-shade-plugin in root pom.xml -->
+    <mainClass>org.duracloud.chunk.FileChunkerDriver</mainClass>
+  </properties>
 
-      <activation>
-        <activeByDefault>true</activeByDefault>
-        <property>
-          <name>profile</name>
-          <value>driver</value>
-        </property>
-      </activation>
-
-      <build>
-
-        <plugins>
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>install</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <archive>
-                <manifest>
-                  <mainClass>org.duracloud.chunk.FileChunkerDriver</mainClass>
-                </manifest>
-              </archive>
-            </configuration>
-          </plugin>
-
-        </plugins>
-
-      </build>
-
-    </profile>
-  </profiles>
-
-  <build>
-
+  <build>  
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -71,6 +34,11 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
