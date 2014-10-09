@@ -528,6 +528,7 @@
               <version>2.2</version>
               <configuration>
                 <createDependencyReducedPom>false</createDependencyReducedPom>
+                <minimizeJar>true</minimizeJar>
               </configuration>
               <executions>
                 <execution>
