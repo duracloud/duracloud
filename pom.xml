@@ -90,6 +90,7 @@
         <module>app-config</module>
         <module>chunk</module>
         <module>stitch</module>
+        <module>stitchtool</module>
         <module>uploadtool</module>
         <module>duradmin</module>
         <module>synctool</module>
