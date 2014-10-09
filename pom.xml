@@ -89,6 +89,7 @@
         <module>reportclient</module>
         <module>app-config</module>
         <module>chunk</module>
+        <module>chunktool</module>
         <module>stitch</module>
         <module>stitchtool</module>
         <module>uploadtool</module>
