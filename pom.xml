@@ -95,8 +95,10 @@
         <module>uploadtool</module>
         <module>duradmin</module>
         <module>synctool</module>
-        <module>synctoolui</module>
+        <module>synctool-driver</module>
         <module>syncoptimize</module>
+        <module>syncoptimize-tool</module>
+        <module>synctoolui</module>
         <module>retrievaltool</module>
         <module>integration-test</module>
         <module>integration</module>
