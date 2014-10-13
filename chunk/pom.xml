@@ -14,6 +14,12 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+
+  <properties>
+    <!-- see maven-shade-plugin in root pom.xml -->
+    <mainClass>org.duracloud.chunk.FileChunkerDriver</mainClass>
+  </properties>
+  
   <build>  
     <resources>
       <resource>
@@ -29,6 +35,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

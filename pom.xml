@@ -88,17 +88,12 @@
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>
-        <module>app-config-tool</module>
         <module>chunk</module>
-        <module>chunktool</module>
         <module>stitch</module>
-        <module>stitchtool</module>
         <module>uploadtool</module>
         <module>duradmin</module>
         <module>synctool</module>
-        <module>synctool-driver</module>
         <module>syncoptimize</module>
-        <module>syncoptimize-tool</module>
         <module>synctoolui</module>
         <module>retrievaltool</module>
         <module>integration-test</module>
@@ -534,6 +529,8 @@
               <configuration>
                 <createDependencyReducedPom>false</createDependencyReducedPom>
                 <minimizeJar>false</minimizeJar>
+                <shadedArtifactAttached>true</shadedArtifactAttached>
+                <shadedClassifierName>driver</shadedClassifierName>
               </configuration>
               <executions>
                 <execution>
