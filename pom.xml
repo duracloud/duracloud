@@ -88,6 +88,7 @@
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>
+        <module>app-config-tool</module>
         <module>chunk</module>
         <module>chunktool</module>
         <module>stitch</module>
@@ -532,7 +533,7 @@
               <version>2.2</version>
               <configuration>
                 <createDependencyReducedPom>false</createDependencyReducedPom>
-                <minimizeJar>true</minimizeJar>
+                <minimizeJar>false</minimizeJar>
               </configuration>
               <executions>
                 <execution>

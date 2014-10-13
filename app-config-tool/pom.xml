@@ -10,40 +10,32 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
-  <artifactId>app-config</artifactId>
+  <artifactId>app-config-tool</artifactId>
   <version>3.2.0-SNAPSHOT</version>
-  <name>Application Config</name>
+  <name>Application Config Tool</name>
+  
+  <properties>
+    <!-- see maven-shade-plugin in root pom.xml -->
+    <mainClass>org.duracloud.appconfig.ApplicationInitDriver</mainClass>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>  
   
   <dependencies>
 
     <!-- internal projects -->
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>app-config</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>security</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>storageprovider</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jdom</groupId>
-      <artifactId>jdom</artifactId>
-    </dependency>
-    
   </dependencies>
 </project>
