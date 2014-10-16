@@ -12,17 +12,22 @@ import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.common.util.ApplicationConfig;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.retrieval.config.RetrievalToolConfig;
-import org.duracloud.retrieval.config.RetrievalToolConfigParser;
-import org.duracloud.retrieval.mgmt.*;
+import org.duracloud.retrieval.mgmt.CSVFileOutputWriter;
+import org.duracloud.retrieval.mgmt.OutputWriter;
+import org.duracloud.retrieval.mgmt.RetrievalManager;
+import org.duracloud.retrieval.mgmt.SpaceListManager;
+import org.duracloud.retrieval.mgmt.StatusManager;
 import org.duracloud.retrieval.source.DuraStoreSpecifiedRetrievalSource;
 import org.duracloud.retrieval.source.DuraStoreStitchingRetrievalSource;
 import org.duracloud.retrieval.source.RetrievalSource;
-import org.duracloud.retrieval.util.LogUtil;
 import org.duracloud.retrieval.util.StoreClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -60,7 +65,6 @@ public class RetrievalTool {
     private OutputWriter outWriter;
     private RetrievalManager retManager;
     private RetrievalSource retSource;
-    private LogUtil logUtil;
     private String version;
 
     public RetrievalTool() {
@@ -69,27 +73,13 @@ public class RetrievalTool {
         this.version = props.getProperty("version");
     }
 
-    private RetrievalToolConfig processCommandLineArgs(String[] args) {
-        RetrievalToolConfigParser retConfigParser =
-            new RetrievalToolConfigParser();
-        retConfig = retConfigParser.processCommandLine(args);
-        retConfig.setVersion(version);
-
-        logger.info("Running Retrieval Tool with configuration: " +
-                    retConfig.getPrintableConfig());
-
-        return retConfig;
-    }
-
-    private void setupLogging(){
-        File workDir = retConfig.getWorkDir();
-        if(!workDir.exists()) {
-            workDir.mkdirs();
-            workDir.setWritable(true);
-        }
-
-        logUtil = new LogUtil();
-        logUtil.setupLogger(workDir);
+    /**
+     * Sets the configuration of the retrieval tool.
+     * @param retConfig to use for running the Retrieval Tool
+     */
+    protected void setRetrievalConfig(RetrievalToolConfig retConfig) {
+        this.retConfig = retConfig;
+        this.retConfig.setVersion(version);
     }
 
     private void startRetrievalManager(ContentStore contentStore) {
@@ -180,19 +170,25 @@ public class RetrievalTool {
         }
     }
 
-    private void startSpaceListManager(ContentStore contentStore)
-        throws ContentStoreException {
-        List<String> spaces = null;
+    private void startSpaceListManager(ContentStore contentStore) {
+        List<String> spaces;
         if(retConfig.isAllSpaces()) {
-            spaces = contentStore.getSpaces();
+            try {
+                spaces = contentStore.getSpaces();
+            } catch(ContentStoreException e) {
+                String errorMsg = "Unable to get spaces list due to error: " +
+                                  e.getMessage();
+                throw new DuraCloudRuntimeException(errorMsg, e);
+            }
         } else {
             spaces = retConfig.getSpaces();
         }
-        SpaceListManager spaceListManager = new SpaceListManager(contentStore,
-                                                                 retConfig.getContentDir(),
-                                                                 spaces,
-                                                                 retConfig.isOverwrite(),
-                                                                 retConfig.getNumThreads());
+        SpaceListManager spaceListManager =
+            new SpaceListManager(contentStore,
+                                 retConfig.getContentDir(),
+                                 spaces,
+                                 retConfig.isOverwrite(),
+                                 retConfig.getNumThreads());
         executor.execute(spaceListManager);
         while(!spaceListManager.isComplete()) {
             sleep(1000);
@@ -200,10 +196,10 @@ public class RetrievalTool {
         executor.shutdown();
     }
 
-    public void runRetrievalTool(RetrievalToolConfig retConfig) throws Exception {
-        this.retConfig = retConfig;
-        setupLogging();
+    public void runRetrievalTool() {
         logger.info("Starting Retrieval Tool version " + version);
+        logger.info("Running Retrieval Tool with configuration: " +
+                    retConfig.getPrintableConfig());
         System.out.print("\nStarting up the Retrieval Tool ...");
         System.out.println(retConfig.getPrintableConfig());
 
@@ -229,9 +225,4 @@ public class RetrievalTool {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        RetrievalTool retTool = new RetrievalTool();
-        RetrievalToolConfig retConfig = retTool.processCommandLineArgs(args);
-        retTool.runRetrievalTool(retConfig);
-    }
 }

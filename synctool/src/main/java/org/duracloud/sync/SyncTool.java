@@ -299,6 +299,8 @@ public class SyncTool {
 
     public void runSyncTool() {
         logger.info("Starting Sync Tool version " + version);
+        logger.info("Running Sync Tool with configuration: " +
+                    syncConfig.getPrintableConfig());
         System.out.print("\nStarting up the Sync Tool ...");
         startSyncManager();
 
