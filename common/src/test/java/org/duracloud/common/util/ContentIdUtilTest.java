@@ -7,19 +7,17 @@
  */
 package org.duracloud.common.util;
 
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.File;
 
-import org.junit.Assert;
-import org.junit.Test;
 /**
  * 
  * @author Daniel Bernstein
  *
  */
 public class ContentIdUtilTest {
-
-
 
     @Test
     public void testGetContentId() throws Exception {
@@ -28,11 +26,11 @@ public class ContentIdUtilTest {
         File file = new File("a/b/c", "file.txt");
 
         // Get Content ID with a watch dir
-        String contentId = ContentIdUtil.getContentId(file, watchDir);
+        String contentId = ContentIdUtil.getContentId(file, watchDir, null);
         Assert.assertEquals("b/c/file.txt", contentId);
 
         // Get Content ID with now watch dir
-        contentId = ContentIdUtil.getContentId(file, null);
+        contentId = ContentIdUtil.getContentId(file, null, null);
         Assert.assertEquals("file.txt", contentId);
     }
 
@@ -52,5 +50,4 @@ public class ContentIdUtilTest {
         Assert.assertEquals(prefix + "file.txt", contentId);
     }
 
-    
 }

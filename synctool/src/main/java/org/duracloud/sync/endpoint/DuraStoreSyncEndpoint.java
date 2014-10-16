@@ -7,12 +7,6 @@
  */
 package org.duracloud.sync.endpoint;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.client.ContentStore;
 import org.duracloud.common.util.ContentIdUtil;
@@ -23,6 +17,12 @@ import org.duracloud.storage.util.StorageProviderUtil;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Endpoint which pushes files to DuraCloud.
@@ -142,7 +142,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     public SyncResultType syncFileAndReturnDetailedResult(MonitoredFile syncFile,
                                                           File watchDir) {
         SyncResultType result = SyncResultType.ALREADY_IN_SYNC;
-        String contentId = ContentIdUtil.getContentId(syncFile.getFile(), watchDir);
+        String contentId =
+            ContentIdUtil.getContentId(syncFile.getFile(), watchDir, prefix);
         String absPath = syncFile.getAbsolutePath();
 
         logger.debug("Syncing file " + absPath +

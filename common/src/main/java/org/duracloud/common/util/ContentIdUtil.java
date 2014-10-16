@@ -30,7 +30,9 @@ public class ContentIdUtil {
      * @param contentIdPrefix
      * @return
      */
-    public static String getContentId(File file, File watchDir, String contentIdPrefix) {
+    public static String getContentId(File file,
+                                      File watchDir,
+                                      String contentIdPrefix) {
         String contentId = file.getName();
         if(null != watchDir) {
             URI relativeFileURI = watchDir.toURI().relativize(file.toURI());
@@ -40,10 +42,6 @@ public class ContentIdUtil {
             contentId = contentIdPrefix + contentId;
         }
         return contentId;
-    }
-    
-    public static String getContentId(File file, File watchDir) {
-        return getContentId(file, watchDir, null);
     }
 
 }
