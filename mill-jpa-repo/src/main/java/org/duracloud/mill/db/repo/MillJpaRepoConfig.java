@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * 
  */
 @Configuration
-@EnableJpaRepositories(basePackages = { "org.duracloud.mill.db.repo" }, 
+@EnableJpaRepositories(basePackages = { "org.duracloud.mill" }, 
                        entityManagerFactoryRef = MillJpaRepoConfig.ENTITY_MANAGER_FACTORY_BEAN, 
                        transactionManagerRef = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
 @EnableTransactionManagement
@@ -78,7 +78,7 @@ public class MillJpaRepoConfig {
             new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource);
         emf.setPersistenceUnitName("mill-repo-pu");
-        emf.setPackagesToScan("org.duracloud.mill.db.model");
+        emf.setPackagesToScan("org.duracloud.mill");
 
         String hbm2ddlAuto =
             System.getProperty("hibernate.hbm2ddl.auto");
