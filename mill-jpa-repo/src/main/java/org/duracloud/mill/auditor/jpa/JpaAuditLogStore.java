@@ -19,6 +19,7 @@ import org.duracloud.common.collection.StreamingIterator;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.mill.db.model.JpaAuditLogItem;
 import org.duracloud.mill.db.repo.JpaAuditLogItemRepo;
+import org.duracloud.mill.db.repo.MillJpaRepoConfig;
 import org.duracloud.mill.db.util.JpaIteratorSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,7 @@ import org.springframework.util.CollectionUtils;
  * @author Daniel Bernstein
  * 
  */
-@Transactional(value="millRepoTransactionManager")
+@Transactional(value=MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
 public class JpaAuditLogStore implements AuditLogStore {
 
     private JpaAuditLogItemRepo auditLogRepo;
