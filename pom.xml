@@ -55,7 +55,6 @@
         <module>common</module>
         <module>common-test</module>
         <module>common-cli</module>
-        <module>mimeutil</module>
         <module>notification</module>
         <module>notification-amazon</module>
         <module>common-db</module>
@@ -288,6 +287,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
         <repository>
             <id>central</id>
             <name>Maven Repository Switchboard</name>
@@ -1182,12 +1182,6 @@
               <groupId>mysql</groupId>
               <artifactId>mysql-connector-java</artifactId>
               <version>${mysql.driver.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.duracloud</groupId>
-              <artifactId>droid-core</artifactId>
-              <version>5.0.3</version>
             </dependency>
 
             <dependency>
