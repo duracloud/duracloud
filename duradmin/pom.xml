@@ -18,14 +18,6 @@
   <properties>
     <jquery.target.path>jquery</jquery.target.path>
     <jquery.plugin.target.path>jquery/plugins</jquery.plugin.target.path>
-    <!-- 
-    <storepass>storepass</storepass>
-    <keypass>keypass</keypass>
-    <keystore>${project.build.directory}/keystore</keystore>
-    <alias>uploadapplet</alias>
-    <gen>true</gen>
-     -->
-
   </properties>
 
   <build>
@@ -403,6 +395,7 @@
       <type>zip</type>
       <version>1.7.1</version>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>jquery-ui</artifactId>
@@ -416,30 +409,35 @@
       <type>zip</type>
       <version>1.3.1</version>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>jquery.ba-throttle-debounce</artifactId>
       <type>zip</type>
       <version>1.1</version>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>jquery.history</artifactId>
       <type>zip</type>
       <version>1.7.1-r2</version>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>jquery.form</artifactId>
       <type>zip</type>
       <version>20130616</version>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>jquery.layout</artifactId>
       <type>zip</type>
       <version>1.2.0</version>
     </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>jquery.validate</artifactId>
@@ -461,6 +459,7 @@
       <groupId>org.apache.xmlbeans</groupId>
       <artifactId>xmlbeans</artifactId>
     </dependency>
+
     <!-- selenium integration testing -->
     <dependency>
       <groupId>org.seleniumhq.selenium.client-drivers</groupId>
@@ -470,7 +469,6 @@
     </dependency>
 
   </dependencies>
-
 
   <profiles>
     <profile>
