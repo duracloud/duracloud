@@ -1,0 +1,11 @@
+language: java
+jdk:
+  - oraclejdk7
+notifications:
+  email:
+    recipients:
+      - duracloud-codewatch@googlegroups.com
+    on_success: change
+    on_failure: always
+script:
+  - mvn clean install -DskipIntTests
