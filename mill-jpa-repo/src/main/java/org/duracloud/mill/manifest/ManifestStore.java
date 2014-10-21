@@ -30,7 +30,7 @@ public interface ManifestStore {
      * @param timeStamp 
      * @throws ManifestItemWriteException
      */
-    void addUpdate(String account,
+    public void addUpdate(String account,
              String storeId,
              String spaceId,
              String contentId,
@@ -44,7 +44,7 @@ public interface ManifestStore {
      * @param spaceId
      * @return
      */
-    Iterator<ManifestItem> getItems(String storeId,
+    public Iterator<ManifestItem> getItems(String storeId,
                                     String spaceId);
 
 
@@ -57,7 +57,7 @@ public interface ManifestStore {
      * @return
      * @throws NotFoundException
      */
-    ManifestItem getItem(String account,
+    public ManifestItem getItem(String account,
                          String storeId,
                          String spaceId,
                          String contentId) throws NotFoundException;
@@ -70,7 +70,7 @@ public interface ManifestStore {
      * @param eventTimestamp
      * @throws ManifestItemWriteException 
      */
-    void flagAsDeleted(String account,
+    public void flagAsDeleted(String account,
                        String storeId,
                        String spaceId,
                        String contentId,
@@ -81,6 +81,20 @@ public interface ManifestStore {
      * @param expiration
      * @return Count of items deleted.
      */
-    Long purgeDeletedItemsBefore(Date expiration);
+    public Long purgeDeletedItemsBefore(Date expiration);
 
+    /**
+     * 
+     * @param account
+     * @param storeId
+     * @param spaceId
+     * @param contentId
+     * @param flag
+     * @throws ManifestItemWriteException 
+     */
+    public void updateMissingFromStorageProviderFlag(String account,
+                                              String storeId,
+                                              String spaceId,
+                                              String contentId,
+                                              boolean flag) throws ManifestItemWriteException;
 }

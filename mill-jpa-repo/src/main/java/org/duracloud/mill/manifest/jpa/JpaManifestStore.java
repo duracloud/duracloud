@@ -239,5 +239,42 @@ public class JpaManifestStore implements
        return this.manifestItemRepo.deleteByDeletedTrueAndModifiedBefore(expiration);
     }
 
+    @Override
+    public void updateMissingFromStorageProviderFlag(String account,
+                                                     String storeId,
+                                                     String spaceId,
+                                                     String contentId,
+                                                     boolean flag) throws ManifestItemWriteException {
+        
+        try {
+            
+            ManifestItem item = this.manifestItemRepo
+                    .findByAccountAndStoreIdAndSpaceIdAndContentId(account,
+                                                                   storeId,
+                                                                   spaceId,
+                                                                   contentId);
+            
+            if(item != null){
+                
+                item.setMissingFromStorageProvider(flag);
+                ManifestItem result = this.manifestItemRepo.saveAndFlush(item);
+                log.info("successfully processed update MissingFromStorageProvider flag: {}", result);
+
+            }else{
+                String message = MessageFormat.format("no manifest item found:  {0}/{1}/{2}/{3}: something's amiss.", 
+                                                           account,
+                                                           storeId,
+                                                           spaceId,
+                                                           contentId);
+                throw new NotFoundException(message);
+            }
+
+        } catch (Exception ex) {
+            String message = "failed to update manifest item with : " + ex.getMessage();
+            log.error(message);
+            throw new ManifestItemWriteException(message, ex);
+        }        
+    }
+
 
 }

@@ -38,6 +38,22 @@ public class ManifestItem extends BaseEntity {
     private String contentSize;
     @Column(nullable=false)
     private String contentMimetype;
+
+    /**
+     * When a content item exists in the manifest but does not exist in
+     * the storage provider it is possible that a delete audit event has been
+     * generated but has not yet been processed. In this case, the problem will
+     * resolve itself. However, it is also possible that the item was deleted
+     * directly on the storage provider and thus the inconsistency will not
+     * resolve itself.
+     * 
+     * Thus the missingFromStorageProvider field is used by the bit integrity space listing verification
+     * process to indicate a suspected problem. If the space listing verification encounters
+     * an item in the manifest that is not in the storage provider AND the missingFromStorageProvider is
+     * set to true, an error will be logged.
+     * 
+     */
+    private boolean missingFromStorageProvider = false;
     
     private boolean deleted = false;
 
@@ -107,5 +123,11 @@ public class ManifestItem extends BaseEntity {
     }
     public void setContentSize(String contentSize) {
         this.contentSize = contentSize;
+    }
+    public boolean isMissingFromStorageProvider() {
+        return missingFromStorageProvider;
+    }
+    public void setMissingFromStorageProvider(boolean missingFromStorageProvider) {
+        this.missingFromStorageProvider = missingFromStorageProvider;
     }
 }
