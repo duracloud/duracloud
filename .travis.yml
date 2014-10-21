@@ -7,5 +7,7 @@ notifications:
       - duracloud-codewatch@googlegroups.com
     on_success: change
     on_failure: always
+install:
+  - mvn install -DskipTests -DskipDeploy
 script:
-  - mvn clean install -DskipIntTests -DskipDeploy
+  - mvn test -DskipIntTests
