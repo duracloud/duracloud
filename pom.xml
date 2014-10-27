@@ -81,6 +81,8 @@
         <module>reportdata</module>
         <module>reporter</module>
         <module>mill-jpa-repo</module>
+        <module>account-management-db-model</module>
+        <module>account-management-db-repo</module>
         <module>auditor</module>
         <module>manifest</module>
         <module>manifestclient</module>
