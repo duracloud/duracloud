@@ -40,7 +40,7 @@ public class DuradminConfig
     private static boolean initialized = false;
 
     private static Properties getProps() {
-        return getPropsFromResource(getConfigFileName());
+        return ApplicationConfig.getPropsFromResource(getConfigFileName());
     }
 
     public static String getPropsHost() {

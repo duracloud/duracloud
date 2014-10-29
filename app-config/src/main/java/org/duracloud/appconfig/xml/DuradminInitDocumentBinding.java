@@ -9,9 +9,12 @@ package org.duracloud.appconfig.xml;
 
 import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.storage.domain.DatabaseConfig;
+import org.duracloud.storage.domain.DatabaseConfigXmlUtil;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +49,10 @@ public class DuradminInitDocumentBinding {
             config.setDurastoreContext(root.getChildText("durastoreContext"));
             config.setDurabossContext(root.getChildText("durabossContext"));
             config.setAmaUrl(root.getChildText("amaUrl"));
+            Element millDb = root.getChild("millDb");
+            if(millDb != null){
+                config.setMillDbConfig(DatabaseConfigXmlUtil.unmarshalDatabaseConfig(millDb));
+            }
 
         } catch (Exception e) {
             String error = "Error encountered attempting to parse " +
@@ -81,6 +88,15 @@ public class DuradminInitDocumentBinding {
             xml.append("</durastoreContext>");
             xml.append("  <amaUrl>" + amaUrl);
             xml.append("</amaUrl>");
+            
+            DatabaseConfig millDb = duradminConfig.getMillDbConfig();
+            if(millDb != null){
+                
+                Element element = DatabaseConfigXmlUtil.marshall(millDb, "millDb");
+                XMLOutputter out = new XMLOutputter();
+                xml.append(out.outputString(element));
+            }
+            
             xml.append("</duradminConfig>");
         }
         return xml.toString();

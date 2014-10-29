@@ -437,7 +437,7 @@ $(function(){
                 }else{
                     var url = prefix + "/htmltable?" + params;
                     link.attr("href", url)
-                        .attr("title","View Service Report")
+                        .attr("title","View Bit Integrity Report")
                         .fancybox({type: 'iframe',
                                    width: 800,
                                    scrolling: 'auto',

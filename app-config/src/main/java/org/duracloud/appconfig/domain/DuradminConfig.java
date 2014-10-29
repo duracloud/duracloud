@@ -9,6 +9,7 @@ package org.duracloud.appconfig.domain;
 
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.storage.domain.DatabaseConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,8 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
     private String amaUrl;
 
+    private DatabaseConfig millDbConfig = new DatabaseConfig();
+
     public String asXml() {
         return DuradminInitDocumentBinding.createDocumentFrom(this);
     }
@@ -61,10 +64,12 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
         } else if (key.equalsIgnoreCase(duraBossContextKey)) {
             this.durabossContext = value;
-
+            this.durabossContext = value;
         } else if (key.equalsIgnoreCase(amaUrlKey)) {
             this.amaUrl = value;
-
+        } else if (key.startsWith("mill.db")) {
+            String suffix = getSuffix(key);
+            loadDbConfig(millDbConfig, suffix, value);
         } else {
             if(!subclassLoadProperty(key, value)) {
                 String msg = "unknown key: " + key + " (" + value + ")";
@@ -116,5 +121,13 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
     public void setDurabossContext(String durabossContext) {
         this.durabossContext = durabossContext;
+    }
+
+    public DatabaseConfig getMillDbConfig() {
+        return millDbConfig;
+    }
+
+    public void setMillDbConfig(DatabaseConfig millDbConfig) {
+        this.millDbConfig = millDbConfig;
     }
 }

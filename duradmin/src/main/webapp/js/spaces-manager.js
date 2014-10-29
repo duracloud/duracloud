@@ -3066,19 +3066,20 @@ $(function() {
         spaceProps.push([ 'Streaming Host', space.properties.streamingHost ]);
       }
 
-      var bitIntegrityResult = space.bitIntegrityResult;
-      if (bitIntegrityResult) {
-        var completionDate = bitIntegrityResult.completionDate;
-        var result = bitIntegrityResult.result;
-        var reportContentId = bitIntegrityResult.reportContentId;
-
-        spaceProps.push([ "Last Health Check", "<div class='health-check " + bitIntegrityResult.result + "'>" + completionDate + " - " + result + " <a id='report-viewer' href=''>[report]</a>" + "</div>" ]);
+      var bitIntegrityReport = space.bitIntegrityReport;
+      if (bitIntegrityReport) {
+        var completionDate = new Date(bitIntegrityReport.completionDate.time).toString();
+        var result = bitIntegrityReport.result.toString().toLowerCase();
+        var reportContentId = bitIntegrityReport.reportContentId;
+        spaceProps.push([ "Last Health Check", "<div class='health-check " + result + "'>" + 
+                            completionDate + " - " + result + 
+                            " <a id='report-viewer' href=''>[report]</a></div>" ]);
       }
 
       var propertiesDiv = this._loadProperties(spaceProps);
 
-      if (bitIntegrityResult) {
-        dc.reportOverlayOnClick($("#report-viewer", propertiesDiv), bitIntegrityResult.reportContentId);
+      if (bitIntegrityReport) {
+        dc.reportOverlayOnClick($("#report-viewer", propertiesDiv), bitIntegrityReport.reportContentId);
       }
     },
 

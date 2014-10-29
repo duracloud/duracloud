@@ -7,6 +7,8 @@
  */
 package org.duracloud.duradmin.domain;
 
+import org.duracloud.storage.domain.DatabaseConfig;
+
 /**
  * @author: Bill Branan
  * Date: Jan 15, 2010
@@ -18,6 +20,7 @@ public class AdminInit {
     private String duraStoreContext;
     private String amaUrl;
     private String duraBossContext;
+
 
     public String getDuraStoreHost() {
         return duraStoreHost;

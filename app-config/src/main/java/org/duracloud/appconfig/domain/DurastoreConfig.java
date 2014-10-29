@@ -63,8 +63,9 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String bridgeUserKey = "bridge-user";
     protected static final String bridgePassKey = "bridge-pass";
 
-    private AuditConfig auditConfig = new AuditConfig();
     private DatabaseConfig millDbConfig = new DatabaseConfig();
+
+    private AuditConfig auditConfig = new AuditConfig();
 
     private Map<String, StorageAccount> storageAccounts =
         new HashMap<String, StorageAccount>();
@@ -86,7 +87,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
             loadAudit(suffix, value);
         }  else if(key.startsWith("mill.db")) {
             String suffix = getSuffix(key);
-            loadMillDB(suffix, value);
+            loadDbConfig(millDbConfig, suffix, value);
         } else {
             String msg = "unknown key: " + key + " (" + value + ")";
             log.error(msg);
@@ -105,20 +106,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         }
     }
     
-    private void loadMillDB(String key, String value) {
-        String suffix = getSuffix(key);
-        if (suffix.equalsIgnoreCase(usernameKey)) {
-            millDbConfig.setUsername(value);
-        } else if (suffix.equalsIgnoreCase(passwordKey)) {
-            millDbConfig.setPassword(value);
-        } else if (suffix.equalsIgnoreCase("host")) {
-            millDbConfig.setHost(value);
-        } else if (suffix.equalsIgnoreCase("port")) {
-            millDbConfig.setPort(Integer.parseInt(value));
-        } else if (suffix.equalsIgnoreCase("name")) {
-            millDbConfig.setName(value);
-        }
-    }
+
 
     private void loadStorageAcct(String key, String value) {
         String id = getPrefix(key);
