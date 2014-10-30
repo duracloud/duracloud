@@ -36,6 +36,14 @@
       <artifactId>commons-fileupload</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>1.12</version>
+      <scope>test</scope>
+    </dependency>
+
+
   </dependencies>
 
 </project>

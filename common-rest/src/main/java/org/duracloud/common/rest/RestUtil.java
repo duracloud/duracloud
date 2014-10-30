@@ -25,7 +25,7 @@ public interface RestUtil {
     public class RequestContent {
         protected InputStream contentStream = null;
         protected String mimeType = null;
-        protected int size = 0;
+        protected long size = 0;
 
         /**
          * @return the contentStream
@@ -44,7 +44,7 @@ public interface RestUtil {
         /**
          * @return the size
          */
-        public int getSize() {
+        public long getSize() {
             return size;
         }
     }
