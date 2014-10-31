@@ -279,18 +279,6 @@
     <repositories>
 
         <repository>
-            <id>duraspace-thirdparty</id>
-            <name>DuraSpace Thirdparty</name>
-            <url>https://m2.duraspace.org/content/repositories/thirdparty</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
-        <repository>
             <id>central</id>
             <name>Maven Repository Switchboard</name>
             <url>http://repo1.maven.org/maven2</url>

@@ -30,6 +30,14 @@
     <jre.unpack.dir>${project.build.directory}/jre</jre.unpack.dir>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>project.local</id>
+      <name>project</name>
+      <url>file:${project.basedir}/repo</url>
+    </repository>
+  </repositories>
+
   <build>
 
     <resources>
@@ -458,12 +466,6 @@
       <artifactId>easymock</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.bitrock.installbuilder</groupId>
-      <artifactId>jre</artifactId>
-      <version>1.7.0_40-osx</version>
-      <type>zip</type>
-    </dependency>
   </dependencies>
 
   <profiles>
@@ -490,26 +492,6 @@
                     ${jre.unpack.dir}
                   </outputDirectory>
                 </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>install</phase>
-                <configuration>
-                  <tasks>
-                    <copy todir="${project.build.directory}/install"
-                      overwrite="true">
-                      <fileset dir="${jre.unpack.dir}/jre1.7.0_40-osx" />
-                    </copy>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
               </execution>
             </executions>
           </plugin>
@@ -566,24 +548,6 @@
               </execution>
 
               <execution>
-                <id>osx-with-jre</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <configuration>
-                  <executable>${installbuilder.executable.path}</executable>
-                  <arguments>
-                    <argument>build</argument>
-                    <argument>${project.build.directory}/install/installbuilder.xml</argument>
-                    <argument>osx</argument>
-                    <argument>--setvars</argument>
-                    <argument>java_install_jre=1</argument>
-                  </arguments>
-                </configuration>
-              </execution>
-
-              <execution>
                 <id>linux</id>
                 <phase>install</phase>
                 <goals>
@@ -633,19 +597,6 @@
                 <configuration>
                   <descriptors>
                     <descriptor>src/main/install/osx-installer-zip.xml</descriptor>
-                  </descriptors>
-                  <finalName>${alternateArtifactId}-${project.version}</finalName>
-                </configuration>
-              </execution>
-              <execution>
-                <id>install-with-jre</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>src/main/install/osx-with-jre-installer-zip.xml</descriptor>
                   </descriptors>
                   <finalName>${alternateArtifactId}-${project.version}</finalName>
                 </configuration>
