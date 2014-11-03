@@ -10,6 +10,7 @@ package org.duracloud.duradmin.domain;
 import org.duracloud.duradmin.util.NameValuePair;
 import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.mill.db.model.BitIntegrityReport;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.io.Serializable;
@@ -49,7 +50,7 @@ public class Space
 
     private List<String> contents;
     
-    private BitIntegrityReport bitIntegrityReport;
+    private BitIntegrityReportProperties bitIntegrityReportProperties;
     
     public String getStoreId() {
         return storeId;
@@ -164,11 +165,12 @@ public class Space
         return snapshotInProgress;
     }
 
-    public void setBitIntegrityReport(BitIntegrityReport bitIntegrityReport) {
-        this.bitIntegrityReport = bitIntegrityReport;
+    public void
+        setBitIntegrityReportProperties(BitIntegrityReportProperties bitIntegrityReportProperties) {
+        this.bitIntegrityReportProperties = bitIntegrityReportProperties;
     }
-    
-    public BitIntegrityReport getBitIntegrityReport() {
-        return bitIntegrityReport;
+
+    public BitIntegrityReportProperties getBitIntegrityReportProperties() {
+        return bitIntegrityReportProperties;
     }
 }

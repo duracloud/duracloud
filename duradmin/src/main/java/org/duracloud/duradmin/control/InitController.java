@@ -7,25 +7,17 @@
  */
 package org.duracloud.duradmin.control;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
-import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
-
-import java.text.MessageFormat;
+import static javax.servlet.http.HttpServletResponse.*;
+import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.*;
+import static org.duracloud.common.util.ExceptionUtil.*;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.duracloud.common.util.InitUtil;
 import org.duracloud.duradmin.config.DuradminConfig;
 import org.duracloud.duradmin.domain.AdminInit;
-import org.duracloud.storage.domain.DatabaseConfig;
-import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,16 +45,12 @@ public class InitController {
     
     private ControllerSupport controllerSupport;
     
-    private BasicDataSource dataSource;
-
     @Autowired
     public InitController(
         ControllerSupport controllerSupport,
-        StorageSummaryCache storageSummaryCache,
-        BasicDataSource dataSource) {
+        StorageSummaryCache storageSummaryCache) {
         this.storageSummaryCache = storageSummaryCache;
         this.controllerSupport = controllerSupport;
-        this.dataSource = dataSource;
     }
     
     @RequestMapping(method=RequestMethod.POST)
@@ -96,9 +84,6 @@ public class InitController {
         init.setDuraBossContext(config.getDurabossContext());
         DuradminConfig.setConfig(init);
         
-        DatabaseConfig millDb = config.getMillDbConfig();
-        configureMillDatabase(millDb, dataSource);
-       
 
         this.controllerSupport.getContentStoreManager().reinitialize(DuradminConfig.getDuraStoreHost(), 
                                               DuradminConfig.getDuraStorePort(), 
@@ -107,18 +92,6 @@ public class InitController {
         this.storageSummaryCache.init();
 
         
-    }
-
-    private void configureMillDatabase(DatabaseConfig dbConfig, BasicDataSource dataSource) {
-        if(dbConfig != null){
-            dataSource.setUrl(MessageFormat.format("jdbc:mysql://{0}:{1}/{2}?autoReconnect=true",
-                                                   dbConfig.getHost(),
-                                                   dbConfig.getPort()+"",
-                                                   dbConfig.getName()));
-            dataSource.setUsername(dbConfig.getUsername());
-            dataSource.setPassword(dbConfig.getPassword());
-            
-        }
     }
     
     @RequestMapping(value="",method=RequestMethod.GET)

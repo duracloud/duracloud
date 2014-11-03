@@ -15,6 +15,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
+
 /**
  * @author Daniel Bernstein
  *         Date: Sep 2, 2014
@@ -32,6 +34,8 @@ public class BitIntegrityReport extends BaseEntity {
     private String reportContentId;
     @Column(nullable=false)
     private Date completionDate;
+    @Column(nullable=false)
+    private String reportSpaceId;
     
     @Enumerated(EnumType.STRING)
     private BitIntegrityReportResult result;
@@ -71,5 +75,11 @@ public class BitIntegrityReport extends BaseEntity {
     }
     public void setResult(BitIntegrityReportResult result) {
         this.result = result;
+    }
+    public String getReportSpaceId() {
+        return reportSpaceId;
+    }
+    public void setReportSpaceId(String reportSpaceId) {
+        this.reportSpaceId = reportSpaceId;
     }
 }

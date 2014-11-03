@@ -46,16 +46,10 @@ public class InitControllerTest {
     private String durastorePort = "111";
     private String durastoreContext = "durastore-context";
     private String amaUrl = "http://a.com";
-    private String dbName = "db";
-    private String dbHost= "host";
-    private String dbPort= "3306";
-    private String dbUser = "db-user";
-    private String dbPassword = "db-password";
     private HttpServletRequest request;
     private HttpServletResponse response;
     private StorageSummaryCache storageSummaryCache;
 
-    private BasicDataSource dataSource;
     
     @Before
     public void setUp() throws Exception {
@@ -70,17 +64,15 @@ public class InitControllerTest {
         ControllerSupport support = EasyMock.createMock("ControllerSupport",
                                                         ControllerSupport.class);
         
-        dataSource = EasyMock.createMock(BasicDataSource.class);
-        
         EasyMock.expect(support.getContentStoreManager()).andReturn(contentStoreManager);
-        controller = new InitController(support, storageSummaryCache, dataSource);
+        controller = new InitController(support, storageSummaryCache);
         EasyMock.replay(support, contentStoreManager);
 
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(request, response, storageSummaryCache, dataSource);
+        EasyMock.verify(request, response, storageSummaryCache);
     }
 
     private void resetDuradminConfig() {
@@ -105,16 +97,6 @@ public class InitControllerTest {
     private void doTest(int status) throws Exception {
         createMocks(status);
 
-        if(status == SC_OK){
-            dataSource.setUrl(EasyMock.isA(String.class));
-            EasyMock.expectLastCall();
-            dataSource.setUsername(EasyMock.isA(String.class));
-            EasyMock.expectLastCall();
-            dataSource.setPassword(EasyMock.isA(String.class));
-            EasyMock.expectLastCall();
-        }
-        
-        EasyMock.replay(dataSource);
         
         ModelAndView mav = controller.initialize(request, response);
         Assert.assertNotNull(mav);
@@ -213,11 +195,6 @@ public class InitControllerTest {
         props.put(p + DuradminConfig.duraStorePortKey, durastorePort);
         props.put(p + DuradminConfig.duraStoreContextKey, durastoreContext);
         props.put(p + DuradminConfig.amaUrlKey, amaUrl);
-        props.put(p + "mill.db.name", dbName);
-        props.put(p + "mill.db.port", dbPort);
-        props.put(p + "mill.db.host", dbHost);
-        props.put(p + "mill.db.username", dbUser);
-        props.put(p + "mill.db.password", dbPassword);
 
         config.load(props);
 

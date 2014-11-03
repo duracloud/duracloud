@@ -7,6 +7,11 @@
  */
 package org.duracloud.client;
 
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.domain.Content;
@@ -15,12 +20,9 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.manifest.ManifestGenerator.FORMAT;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.duracloud.storage.provider.StorageProvider;
-
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides access to a content store
@@ -439,5 +441,25 @@ public interface ContentStore {
      */
     public InputStream getAuditLog(String spaceId)
         throws ContentStoreException;
+    
+    /**
+     * Returns the most recent bit integrity report.
+     * If no bit integrity reports exist for this space, a null value is returned.
+     * @param spaceId
+     * @return
+     * @throws ContentStoreException
+     */
+    public BitIntegrityReport getBitIntegrityReport(String spaceId)
+        throws ContentStoreException;
 
+    /**
+     * Returns the properties associated with the most recent bit integrity report.
+     * If no bit integrity reports exist for this space, a null value is returned.
+     * @param spaceId
+     * @return
+     * @throws ContentStoreException
+     */
+    public BitIntegrityReportProperties
+        getBitIntegrityReportProperties(String spaceId)
+            throws ContentStoreException;
 }

@@ -12,6 +12,8 @@ import static org.duracloud.storage.provider.StorageProvider.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +26,7 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.retry.Retrier;
+import org.duracloud.common.util.DateUtil.DateFormat;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.common.web.RestHttpHelper;
@@ -37,6 +40,9 @@ import org.duracloud.error.NotFoundException;
 import org.duracloud.error.UnauthorizedException;
 import org.duracloud.error.UnsupportedTaskException;
 import org.duracloud.manifest.ManifestGenerator.FORMAT;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.IdUtil;
@@ -1169,5 +1175,68 @@ public class ContentStoreImpl implements ContentStore {
         return url;
     }
 
+    @Override
+    public BitIntegrityReport getBitIntegrityReport(String spaceId)
+        throws ContentStoreException {
+        String task = "get bit integrity report";
+        String url = buildBitIntegrityReportURL(spaceId);
+        try {
+            HttpResponse response = restHelper.get(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            BitIntegrityReportProperties properties =
+                extractBitIntegrityProperties(response);
+            BitIntegrityReport report =
+                new BitIntegrityReport(response.getResponseStream(), properties);
+            return report;
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(task, spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException(task, spaceId, e);
+        }
+    }
+
+    @Override
+    public BitIntegrityReportProperties
+        getBitIntegrityReportProperties(String spaceId)
+            throws ContentStoreException {
+        String task = "get bit integrity report properties";
+        String url = buildBitIntegrityReportURL(spaceId);
+        try {
+            HttpResponse response = restHelper.head(url);
+            checkResponse(response, HttpStatus.SC_OK);
+            return extractBitIntegrityProperties(response);
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(task, spaceId, e);
+        } catch (Exception e) {
+            throw new ContentStoreException(task, spaceId, e);
+        }
+    }
+
+    private String buildBitIntegrityReportURL(String spaceId) {
+        String url = buildURL("/bit-integrity/" + spaceId);
+        url = addStoreIdQueryParameter(url);
+        return url;
+    }
+
+    private BitIntegrityReportProperties
+        extractBitIntegrityProperties(HttpResponse response)
+            throws ParseException {
+        BitIntegrityReportProperties properties =
+            new BitIntegrityReportProperties();
+        for (Header header : response.getResponseHeaders()) {
+            String name = header.getName();
+            if (name.equals(HttpHeaders.BIT_INTEGRITY_REPORT_RESULT)) {
+                properties.setResult(BitIntegrityReportResult.valueOf(header.getValue()));
+            } else if (name.equals(HttpHeaders.BIT_INTEGRITY_REPORT_COMPLETION_DATE)) {
+                SimpleDateFormat format =
+                    new SimpleDateFormat(DateFormat.DEFAULT_FORMAT.getPattern());
+                properties.setCompletionDate(format.parse(header.getValue()));
+            } else if (name.equals(HttpHeaders.CONTENT_LENGTH)) {
+                properties.setSize(Integer.valueOf(header.getValue()));
+            }
+        }
+
+        return properties;
+    }
 
 }

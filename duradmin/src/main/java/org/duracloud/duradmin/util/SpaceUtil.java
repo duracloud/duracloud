@@ -152,50 +152,55 @@ public class SpaceUtil {
        
         return properties;
     }
+
     
 	public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
 			throws ContentStoreException, IOException {
-        OutputStream outStream = response.getOutputStream();
-	    try{
 	        Content c = store.getContent(spaceId, contentId);
 	        Map<String,String> m = store.getContentProperties(spaceId, contentId);
-	        response.setContentType(m.get(ContentStore.CONTENT_MIMETYPE));
-
+	        String mimetype = m.get(ContentStore.CONTENT_MIMETYPE);
 	        String contentLength = m.get(ContentStore.CONTENT_SIZE);
-	        if(contentLength != null){
-	            response.setContentLength(Integer.parseInt(contentLength));
-	        }
-	        InputStream is = c.getStream();
-	        byte[] buf = new byte[1024];
-	        int read = -1;
-	        while((read = is.read(buf)) > 0){
-	            outStream.write(buf, 0, read);
-	        }
-	        
-	        response.flushBuffer();
-	        outStream.close();
-	    }catch (Exception ex) {
-	        if(ex.getCause() instanceof ContentStateException){
-	            response.reset();
-	            response.setStatus(HttpStatus.SC_CONFLICT);
-                String message =
-                    "The requested content item is currently in long-term storage" +
-                    " with limited retrieval capability. Please contact " +
-                    "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
-                    "for assistance in retrieving this content item.";
-                //It is necessary to pad the message in order to force Internet Explorer to 
-                //display the server sent text rather than display the browser default error message.
-                //If the message is less than 512 bytes, the browser will ignore the message.
-                //c.f. http://support.microsoft.com/kb/294807
-                message += StringUtils.repeat(" ", 512);
-                outStream.write(message.getBytes());
-                outStream.close();
-	        } else {
-	            throw ex;
-	        }
-        }
+	        streamToResponse(c.getStream(), response, mimetype, contentLength);
 	}
 
+	public static void streamToResponse(InputStream is, HttpServletResponse response, String mimetype, String contentLength)
+           throws ContentStoreException, IOException {
+       OutputStream outStream = response.getOutputStream();
+       try{
+            response.setContentType(mimetype);
+
+           if(contentLength != null){
+               response.setContentLength(Integer.parseInt(contentLength));
+           }
+           byte[] buf = new byte[1024];
+           int read = -1;
+           while((read = is.read(buf)) > 0){
+               outStream.write(buf, 0, read);
+           }
+           
+           response.flushBuffer();
+           outStream.close();
+       }catch (Exception ex) {
+           if(ex.getCause() instanceof ContentStateException){
+               response.reset();
+               response.setStatus(HttpStatus.SC_CONFLICT);
+               String message =
+                   "The requested content item is currently in long-term storage" +
+                   " with limited retrieval capability. Please contact " +
+                   "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
+                   "for assistance in retrieving this content item.";
+               //It is necessary to pad the message in order to force Internet Explorer to 
+               //display the server sent text rather than display the browser default error message.
+               //If the message is less than 512 bytes, the browser will ignore the message.
+               //c.f. http://support.microsoft.com/kb/294807
+               message += StringUtils.repeat(" ", 512);
+               outStream.write(message.getBytes());
+               outStream.close();
+           } else {
+               throw ex;
+           }
+       }
+   }
     public static AclType resolveCallerAcl(String spaceId,ContentStore store, Map<String,AclType> acls,
                                            Authentication authentication) 
                                                throws ContentStoreException {

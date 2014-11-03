@@ -30,6 +30,7 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.mill.db.model.BitIntegrityReport;
 import org.duracloud.mill.db.repo.JpaBitIntegrityReportRepo;
 import org.duracloud.mill.db.repo.MillJpaRepoConfig;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,7 @@ public class SpaceController {
                 contentStoreManager.getContentStore(space.getStoreId(),0);
 			populateSpace(space, cloudSpace, contentStoreWithoutRetries);
 			populateSpaceCount(space, request);
-			populateBitIntegrityResults(space);
+			populateBitIntegrityResults(space, contentStore);
 			return createModel(space);
 		}catch(ContentStoreException ex){
 			ex.printStackTrace();
@@ -100,22 +101,14 @@ public class SpaceController {
 		}
 	}
 
-    private void populateBitIntegrityResults(Space space) {
+    private void populateBitIntegrityResults(Space space, ContentStore contentStore) {
         try{
-            String storeId = space.getStoreId();
-            String spaceId = space.getSpaceId();
-            PageRequest pageRequest = new PageRequest(0, 1);
-            Page<BitIntegrityReport> page =
-                reportRepo.findByStoreIdAndSpaceIdOrderByCompletionDateDesc(storeId,
-                                                                                      spaceId,
-                                                                                      pageRequest);
-            
-            if(page != null && !CollectionUtils.isEmpty(page.getContent())){
-                space.setBitIntegrityReport(page.getContent().get(0));
+            BitIntegrityReportProperties bitReportProps =
+                contentStore.getBitIntegrityReportProperties(space.getSpaceId());
+            if(bitReportProps == null){
+                log.warn("No bit report properties found for space {}", space.getSpaceId());
             }else{
-                log.warn("no bit integrity report found for storeId ({}) and spaceId ({})",
-                         storeId,
-                         spaceId);
+                space.setBitIntegrityReportProperties(bitReportProps);
             }
 
         }catch(Exception ex){

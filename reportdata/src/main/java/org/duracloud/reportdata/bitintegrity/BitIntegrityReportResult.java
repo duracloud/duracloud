@@ -5,7 +5,7 @@
  *
  *     http://duracloud.org/license/
  */
-package org.duracloud.mill.db.model;
+package org.duracloud.reportdata.bitintegrity;
 /**
  * 
  * @author Daniel Bernstein

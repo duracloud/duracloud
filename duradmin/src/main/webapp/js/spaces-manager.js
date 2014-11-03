@@ -3066,11 +3066,10 @@ $(function() {
         spaceProps.push([ 'Streaming Host', space.properties.streamingHost ]);
       }
 
-      var bitIntegrityReport = space.bitIntegrityReport;
+      var bitIntegrityReport = space.bitIntegrityReportProperties;
       if (bitIntegrityReport) {
         var completionDate = new Date(bitIntegrityReport.completionDate.time).toString();
         var result = bitIntegrityReport.result.toString().toLowerCase();
-        var reportContentId = bitIntegrityReport.reportContentId;
         spaceProps.push([ "Last Health Check", "<div class='health-check " + result + "'>" + 
                             completionDate + " - " + result + 
                             " <a id='report-viewer' href=''>[report]</a></div>" ]);
@@ -3079,7 +3078,7 @@ $(function() {
       var propertiesDiv = this._loadProperties(spaceProps);
 
       if (bitIntegrityReport) {
-        dc.reportOverlayOnClick($("#report-viewer", propertiesDiv), bitIntegrityReport.reportContentId);
+        dc.reportOverlayOnClick($("#report-viewer", propertiesDiv), bitIntegrityReport.reportSpaceId + "/" + bitIntegrityReport.reportContentId);
       }
     },
 

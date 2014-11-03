@@ -31,7 +31,7 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>storeclient</artifactId>
+      <artifactId>reportdata</artifactId>
       <version>${project.version}</version>
     </dependency>
 
