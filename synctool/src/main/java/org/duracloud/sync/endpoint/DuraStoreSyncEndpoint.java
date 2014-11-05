@@ -325,8 +325,6 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         return StorageProviderUtil.createContentProperties(absolutePath, username);
     }
 
-
-
     public Iterator<String> getFilesList() {
         Iterator<String> spaceContents;
         try {

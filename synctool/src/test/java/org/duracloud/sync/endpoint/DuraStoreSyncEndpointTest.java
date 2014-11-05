@@ -33,6 +33,7 @@ public class DuraStoreSyncEndpointTest {
     private ContentStore contentStore;
     private String username;
     private String spaceId;
+    private File contentFile;
 
     @Before
     public void setUp() throws Exception {
@@ -50,22 +51,24 @@ public class DuraStoreSyncEndpointTest {
         .andReturn("0")
         .times(1);
 
+        contentFile = File.createTempFile("content", "file.txt");
+        contentFile.deleteOnExit();
     }
 
     @After
     public void tearDown() throws Exception {
         EasyMock.verify(contentStore);
+
+        FileUtils.deleteQuietly(contentFile);
     }
 
     private void replayMocks() {
         EasyMock.replay(contentStore);
     }
 
-
-
-    private void setEndpoint(String prefix) {
+    private void setEndpoint(String prefix, boolean jumpStart) {
         endpoint = new DuraStoreSyncEndpoint(contentStore, username, spaceId,
-                                             false, true, false, false, null,
+                                             false, true, false, jumpStart, null,
                                              prefix);
     }
 
@@ -73,14 +76,13 @@ public class DuraStoreSyncEndpointTest {
     public void testAddUpdateFile() throws Exception {
         String contentId = "contentId";
         String content = "content-file";
-        File contentFile = File.createTempFile("content", "file.txt");
+
         FileUtils.writeStringToFile(contentFile, content);
         ChecksumUtil checksumUtil =
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String checksum = checksumUtil.generateChecksum(contentFile);
 
-        Capture<Map<String, String>> propsCapture =
-            new Capture<Map<String, String>>();
+        Capture<Map<String, String>> propsCapture = new Capture<>();
         EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
                                                 EasyMock.eq(contentId),
                                                 EasyMock.isA(InputStream.class),
@@ -91,14 +93,31 @@ public class DuraStoreSyncEndpointTest {
                 .andReturn("");
 
         replayMocks();
-        setEndpoint(null);
+        setEndpoint(null, false);
 
         MonitoredFile monitoredFile = new MonitoredFile(contentFile);
         endpoint.addUpdateContent(contentId, monitoredFile);
 
         Map<String, String> props = propsCapture.getValue();
         assertNotNull(props);
-        FileUtils.deleteQuietly(contentFile);
+    }
+
+    @Test
+    public void testSyncJumpstart() throws Exception {
+        EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
+                                                EasyMock.isA(String.class),
+                                                EasyMock.isA(InputStream.class),
+                                                EasyMock.eq(0L),
+                                                EasyMock.eq("text/plain"),
+                                                EasyMock.isA(String.class),
+                                                EasyMock.isA(Map.class)))
+                .andReturn("");
+
+        replayMocks();
+        setEndpoint(null, true);
+
+        MonitoredFile monitoredFile = new MonitoredFile(contentFile);
+        endpoint.syncFile(monitoredFile, contentFile.getParentFile());
     }
 
 }

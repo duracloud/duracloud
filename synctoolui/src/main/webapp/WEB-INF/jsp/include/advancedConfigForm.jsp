@@ -42,7 +42,7 @@
   <ul>
     <li><label
       title="This option will accelerate uploads by skipping the checks to see if the content already exists in DuraCloud. The 'jump start' feature is especially appropriate for the initial upload of collections with large numbers of very small files. Note:  It is only available when the policy is set to overwrite updates.">
-        <form:checkbox id="jumpStart" path="jumpStart" disabled="${advancedForm.updatePolicy != 'OVERWRITE'}"/> Accelerate initial upload of small files with jump start
+        <form:checkbox id="jumpStart" path="jumpStart" disabled="${advancedForm.updatePolicy != 'OVERWRITE'}"/> Accelerate initial upload of files with jump start
     </label></li>
   </ul>
 </fieldset>
