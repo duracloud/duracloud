@@ -3068,7 +3068,7 @@ $(function() {
 
       var bitIntegrityReport = space.bitIntegrityReportProperties;
       if (bitIntegrityReport) {
-        var completionDate = new Date(bitIntegrityReport.completionDate.time).toString();
+        var completionDate = bitIntegrityReport.completionDate;
         var result = bitIntegrityReport.result.toString().toLowerCase();
         spaceProps.push([ "Last Health Check", "<div class='health-check " + result + "'>" + 
                             completionDate + " - " + result + 
@@ -3078,7 +3078,7 @@ $(function() {
       var propertiesDiv = this._loadProperties(spaceProps);
 
       if (bitIntegrityReport) {
-        dc.reportOverlayOnClick($("#report-viewer", propertiesDiv), bitIntegrityReport.reportSpaceId + "/" + bitIntegrityReport.reportContentId);
+        dc.reportOverlayOnClick($("#report-viewer", propertiesDiv), space.storeId, space.spaceId);
       }
     },
 

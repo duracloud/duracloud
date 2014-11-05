@@ -418,7 +418,7 @@ $(function(){
 	    };
 	    
 	    dc.reportOverlayOnClick = function(link, storeId, spaceId){
-            var params = "&spaceId=" + spaceId);
+            var params = "&spaceId=" + spaceId;
             if(storeId){
                 params+="&storeId="+storeId;
             }
