@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 public class AdvancedForm implements Serializable{
     private String updatePolicy = UpdatePolicy.OVERWRITE.name();
     private boolean syncDeletes;
+    private boolean jumpStart;
 
     public boolean isSyncDeletes() {
         return syncDeletes;
@@ -36,5 +37,13 @@ public class AdvancedForm implements Serializable{
     
     public String getUpdatePolicy() {
         return updatePolicy;
+    }
+
+    public boolean isJumpStart() {
+        return jumpStart;
+    }
+
+    public void setJumpStart(boolean jumpStart) {
+        this.jumpStart = jumpStart;
     }
 }
