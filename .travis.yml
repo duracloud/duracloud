@@ -4,7 +4,7 @@ jdk:
 notifications:
   email:
     recipients:
-      - duracloud-codewatch@googlegroups.com
+      - cibuilds@duracloud.org
     on_success: change
     on_failure: always
 install:
