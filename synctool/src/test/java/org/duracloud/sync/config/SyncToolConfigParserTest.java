@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -91,6 +92,10 @@ public class SyncToolConfigParserTest {
         argsMap.remove("-x");
         argsMap.remove("-w");
         argsMap.remove("-a");
+        argsMap.remove("-e");
+        argsMap.remove("-n");
+        argsMap.remove("-o");
+        argsMap.remove("-j");
 
         // Process configs, make sure optional params are set to defaults
         syncConfig =
@@ -110,6 +115,10 @@ public class SyncToolConfigParserTest {
         assertEquals(expectedPassword, syncConfig.getPassword());
         assertNull(syncConfig.getWorkDir());
         assertNull(syncConfig.getPrefix());
+        assertNull(syncConfig.getExcludeList());
+        assertFalse(syncConfig.isRenameUpdates());
+        assertTrue(syncConfig.isSyncUpdates());
+        assertFalse(syncConfig.isJumpStart());
 
         // Make sure error is thrown on missing required params
         for(String arg : argsMap.keySet()) {
@@ -148,6 +157,7 @@ public class SyncToolConfigParserTest {
         argsMap.put("-l", "");
         argsMap.put("-x", "");
         argsMap.put("-a", "prefix/");
+        argsMap.put("-j", "");
         return argsMap;
     }
 
@@ -304,6 +314,38 @@ public class SyncToolConfigParserTest {
                 return "password";
             }
         };
+    }
+
+    @Test
+    public void testInvalidCombinations() {
+        HashMap<String, String> argsMap = getArgsMap();
+        argsMap.put("-n", "");
+        argsMap.put("-o", "");
+        verifyInvalidCombos(argsMap);
+
+        argsMap = getArgsMap();
+        argsMap.put("-n", "");
+        argsMap.put("-d", "");
+        verifyInvalidCombos(argsMap);
+
+        argsMap = getArgsMap();
+        argsMap.put("-n", "");
+        argsMap.put("-j", "");
+        verifyInvalidCombos(argsMap);
+
+        argsMap = getArgsMap();
+        argsMap.put("-o", "");
+        argsMap.put("-j", "");
+        verifyInvalidCombos(argsMap);
+    }
+
+    private void verifyInvalidCombos(HashMap<String, String> argsMap) {
+        try {
+            syncConfigParser.processStandardOptions(mapToArray(argsMap));
+            fail("Should fail when attempting to parse invalid arg combination");
+        } catch (ParseException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
 }

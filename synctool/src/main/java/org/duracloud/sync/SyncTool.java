@@ -165,6 +165,7 @@ public class SyncTool {
                                            syncConfig.getMaxFileSize(),
                                            syncConfig.isSyncUpdates(),
                                            syncConfig.isRenameUpdates(),
+                                           syncConfig.isJumpStart(),
                                            syncConfig.getUpdateSuffix(),
                                            syncConfig.getPrefix());
         

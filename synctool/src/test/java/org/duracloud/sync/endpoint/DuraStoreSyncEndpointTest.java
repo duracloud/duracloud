@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
 /**
@@ -66,7 +65,8 @@ public class DuraStoreSyncEndpointTest {
 
     private void setEndpoint(String prefix) {
         endpoint = new DuraStoreSyncEndpoint(contentStore, username, spaceId,
-                                             false, true, false, null, prefix);
+                                             false, true, false, false, null,
+                                             prefix);
     }
 
     @Test

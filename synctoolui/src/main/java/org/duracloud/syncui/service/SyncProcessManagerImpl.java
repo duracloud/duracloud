@@ -7,15 +7,6 @@
  */
 package org.duracloud.syncui.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -40,6 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * The SyncProcessManagerImpl is an implementation of the SyncProcessManager
@@ -254,6 +253,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                                                1073741824, // 1GB chunk size
                                                this.syncConfigurationManager.isSyncUpdates(),
                                                this.syncConfigurationManager.isRenameUpdates(),
+                                               this.syncConfigurationManager.isJumpStart(),
                                                this.syncConfigurationManager.getUpdateSuffix(),
                                                prefix);
 

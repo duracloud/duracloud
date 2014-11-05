@@ -187,6 +187,16 @@ public class SyncToolConfigParser {
         cleanStart.setRequired(false);
         cmdOptions.addOption(cleanStart);
 
+       Option jumpStart =
+           new Option("j", "jump-start", false,
+                      "indicates that the sync tool should not attempt to " +
+                      "check if content to be synchronized is already in " +
+                      "DuraCloud, but should instead transfer all content. " +
+                      "This option is best used for new data sets. " +
+                      "(optional, not set by default)");
+        jumpStart.setRequired(false);
+        cmdOptions.addOption(jumpStart);
+
        Option exitOnCompletion =
            new Option("x", "exit-on-completion", false,
                       "indicates that the sync tool should exit once it has " +
@@ -432,6 +442,19 @@ public class SyncToolConfigParser {
             config.setCleanStart(true);
         } else {
             config.setCleanStart(false);
+        }
+
+        if(cmd.hasOption("j")) {
+            config.setJumpStart(true);
+
+            if(cmd.hasOption("n") || cmd.hasOption("o")){
+                throw new ParseException(
+                    "The Jump Start option (-j) requires that updates be " +
+                    "handled as overwrites, thus options -n (rename updates) " +
+                    "and -o (no-updates) cannot be used at the same time.");
+            }
+        } else {
+            config.setJumpStart(false);
         }
 
         if(cmd.hasOption("x")) {

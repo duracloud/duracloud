@@ -41,6 +41,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     private boolean syncDeletes;
     private boolean syncUpdates;
     private boolean renameUpdates;
+    private boolean jumpStart;
     private String updateSuffix;
     private String storeId;
     private String prefix;
@@ -51,7 +52,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                                  String spaceId,
                                  boolean syncDeletes,
                                  boolean syncUpdates, 
-                                 boolean renameUpdates, 
+                                 boolean renameUpdates,
+                                 boolean jumpStart,
                                  String updateSuffix,
                                  String prefix) {
         this.contentStore = contentStore;
@@ -61,6 +63,7 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         this.syncDeletes = syncDeletes;
         this.syncUpdates = syncUpdates;
         this.renameUpdates = renameUpdates;
+        this.jumpStart = jumpStart;
         this.updateSuffix = updateSuffix;
         this.prefix = prefix;
         this.listenerList = new EventListenerSupport<>(EndPointListener.class);
@@ -71,13 +74,15 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
     public DuraStoreSyncEndpoint(ContentStore contentStore,
                                  String username,
                                  String spaceId,
-                                 boolean syncDeletes) {
+                                 boolean syncDeletes,
+                                 boolean jumpStart) {
         this(contentStore,
              username,
              spaceId,
              syncDeletes,
              true,
              false,
+             jumpStart,
              SyncToolConfig.DEFAULT_UPDATE_SUFFIX,
              null);
     }
@@ -148,10 +153,18 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
 
         logger.debug("Syncing file " + absPath +
                     " to DuraCloud with ID " + contentId);
-        Map<String, String> contentProperties = getContentProperties(spaceId,
-                                                                     contentId);
-        boolean dcFileExists = (null != contentProperties);
         try {
+            if(jumpStart) { // Skip all of the usual checks, just push the file
+                if(syncFile.exists()) {
+                    doAddContent(syncFile, contentId, absPath);
+                    return SyncResultType.ADDED;
+                }
+            }
+
+            Map<String, String> contentProperties =
+                getContentProperties(spaceId, contentId);
+            boolean dcFileExists = (null != contentProperties);
+
             if(syncFile.exists()) {
                 if(dcFileExists) { // File was updated
                     String dcChecksum =
@@ -207,16 +220,8 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
                         }
                     }
                 } else { // File was added
-                    logger.debug("Local file {} added, moving to DuraCloud.",
-                                 absPath);
-                    addUpdateContent(contentId, syncFile, absPath);
-                    this.listenerList.fire()
-                                     .contentAdded(this.storeId,
-                                                   this.spaceId,
-                                                   contentId,
-                                                   absPath);
+                    doAddContent(syncFile, contentId, absPath);
                     result =  SyncResultType.ADDED;
-                    
                 }
             } else { // File was deleted (does not exist locally)
                 if(syncDeletes) {
@@ -242,6 +247,15 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         }
         
         return result;
+    }
+
+    protected void doAddContent(MonitoredFile syncFile,
+                                String contentId,
+                                String absPath) throws ContentStoreException {
+       logger.debug("Local file {} added, moving to DuraCloud.", absPath);
+       addUpdateContent(contentId, syncFile, syncFile.getAbsolutePath());
+       this.listenerList.fire().contentAdded(this.storeId, this.spaceId,
+                                             contentId, absPath);
     }
 
     protected Map<String, String> getContentProperties(String spaceId,

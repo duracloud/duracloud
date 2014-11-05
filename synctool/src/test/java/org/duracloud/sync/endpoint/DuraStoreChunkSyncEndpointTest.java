@@ -99,7 +99,7 @@ public class DuraStoreChunkSyncEndpointTest {
         endpoint = new DuraStoreChunkSyncEndpoint(contentStore, username,
                                                   spaceId, syncDeletes,
                                                   maxFileSize, true, false,
-                                                  null, null);
+                                                  false, null, null);
     }
 
     @Test

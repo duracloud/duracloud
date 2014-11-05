@@ -41,6 +41,7 @@ public class SyncToolConfig implements Serializable {
     private boolean renameUpdates = false;
     private String updateSuffix = DEFAULT_UPDATE_SUFFIX;
     private String prefix;
+    private boolean jumpStart = false;
 
     public String getPrintableConfig() {
         StringBuilder config = new StringBuilder();
@@ -89,6 +90,8 @@ public class SyncToolConfig implements Serializable {
 
         config.append("Clean Start Mode: ");
         config.append(isCleanStart()).append("\n");
+        config.append("Jump Start Mode: ");
+        config.append(isJumpStart()).append("\n");
         config.append("SyncTool Exit on Completion: ");
         config.append(exitOnCompletion()).append("\n");
         config.append("Sync Updates: ");
@@ -268,6 +271,14 @@ public class SyncToolConfig implements Serializable {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public boolean isJumpStart() {
+        return jumpStart;
+    }
+
+    public void setJumpStart(boolean jumpStart) {
+        this.jumpStart = jumpStart;
     }
 
 }

@@ -73,6 +73,7 @@ public class Uploader {
                                            username,
                                            spaceId,
                                            false,
+                                           false,
                                            1073741824); // 1GB chunk size)
         syncManager = new SyncManager(contentItems,
                                       syncEndpoint,

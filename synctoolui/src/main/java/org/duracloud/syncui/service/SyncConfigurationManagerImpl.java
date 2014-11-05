@@ -243,4 +243,20 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setNumThreads(threadCount);
         persistSyncToolConfig();
     }
+
+    @Override
+    public void setJumpStart(boolean jumpStart) {
+        if((jumpStart && !this.syncToolConfig.isSyncUpdates()) ||
+           (jumpStart && this.syncToolConfig.isRenameUpdates())) {
+            // Jump-start requires updates to be synced as overwrites
+            return;
+        }
+        this.syncToolConfig.setJumpStart(jumpStart);
+        persistSyncToolConfig();
+    }
+
+    @Override
+    public boolean isJumpStart() {
+        return this.syncToolConfig.isJumpStart();
+    }
 }
