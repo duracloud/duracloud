@@ -31,6 +31,7 @@ import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,7 @@ import org.springframework.util.CollectionUtils;
  */
 @Path("/bit-integrity")
 @Component
+@Order(1)
 public class BitIntegrityReportRest extends BaseRest {
 
     private final Logger log = LoggerFactory.getLogger(BitIntegrityReportRest.class);
@@ -54,12 +56,15 @@ public class BitIntegrityReportRest extends BaseRest {
     public BitIntegrityReportRest(JpaBitIntegrityReportRepo repo,  StorageProviderFactory storageProviderFactory) {
         this.repo = repo;
         this.storageProviderFactory = storageProviderFactory;
+        log.info("created: {}, {}.", this.repo, this.storageProviderFactory);
     }
 
     @Path("/{spaceId}")
     @GET
     public Response getReport (@PathParam("spaceId") String spaceId,
                                  @QueryParam("storeID") String storeId) {
+        log.debug("getting report for {} , {} ", spaceId, storeId);
+
         return getReport(spaceId, storeId, false);
     }
 
@@ -67,6 +72,7 @@ public class BitIntegrityReportRest extends BaseRest {
     @HEAD
     public Response getReportHead (@PathParam("spaceId") String spaceId,
                                  @QueryParam("storeID") String storeId) {
+        log.debug("getting report head for {} , {} ", spaceId, storeId);
         return getReport(spaceId, storeId, true);
     }
 
