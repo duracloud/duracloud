@@ -851,7 +851,7 @@ span.label,
  	padding:10px;
  }
 
-.error
+.error,.failure
  {
  	border:1px solid #aa0000;
  	background-color:#990000;
