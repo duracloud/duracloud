@@ -30,9 +30,10 @@ public interface JpaBitIntegrityReportRepo
      * @param pageable
      * @return
      */
-        Page<BitIntegrityReport>
-        findByStoreIdAndSpaceIdOrderByCompletionDateDesc(String storeId,
-                                                                   String spaceId,
-                                                                   Pageable pageable);
+
+    Page<BitIntegrityReport>
+        findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(String storeId,
+                                                                       String spaceId,
+                                                                       Pageable pageable);
 
 }

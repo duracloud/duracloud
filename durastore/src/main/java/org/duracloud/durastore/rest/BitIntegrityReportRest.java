@@ -105,7 +105,7 @@ public class BitIntegrityReportRest extends BaseRest {
 
         try {
             PageRequest pageRequest = new PageRequest(0, 1);
-            Page<BitIntegrityReport> page = repo.findByStoreIdAndSpaceIdOrderByCompletionDateDesc(storeId, spaceId, pageRequest);
+            Page<BitIntegrityReport> page = repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(storeId, spaceId, pageRequest);
             
             if(page == null || CollectionUtils.isEmpty(page.getContent())){
                 return responseBad("No reports matching the criteria found.", Response.Status.NO_CONTENT);

@@ -113,7 +113,7 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
     @Test
     public void testGetReportNoBitReportFound() {
         setupHeader();
-        expect(repo.findByStoreIdAndSpaceIdOrderByCompletionDateDesc(eq(storeId),
+        expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(eq(storeId),
                                                                      eq(spaceId),
                                                                      isA(PageRequest.class))).andReturn(null);
         replayAll();
@@ -126,7 +126,7 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
     @Test
     public void testGetReportError() {
         setupHeader();
-        expect(repo.findByStoreIdAndSpaceIdOrderByCompletionDateDesc(eq(storeId),
+        expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(eq(storeId),
                                                                      eq(spaceId),
                                                                      isA(PageRequest.class))).andThrow(new RuntimeException("failure"));
         replayAll();
@@ -165,7 +165,7 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
         list.add(report);
 
         expect(page.getContent()).andReturn(list).times(2);
-        expect(repo.findByStoreIdAndSpaceIdOrderByCompletionDateDesc(eq(storeId),
+        expect(repo.findByStoreIdAndSpaceIdAndDisplayTrueOrderByCompletionDateDesc(eq(storeId),
                                                                      eq(spaceId),
                                                                      isA(PageRequest.class))).andReturn(page);
     }

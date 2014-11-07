@@ -37,6 +37,8 @@ public class BitIntegrityReport extends BaseEntity {
     @Column(nullable=false)
     private String reportSpaceId;
     
+    private boolean display = true;
+    
     @Enumerated(EnumType.STRING)
     private BitIntegrityReportResult result;
     
@@ -81,5 +83,11 @@ public class BitIntegrityReport extends BaseEntity {
     }
     public void setReportSpaceId(String reportSpaceId) {
         this.reportSpaceId = reportSpaceId;
+    }
+    public boolean isDisplay() {
+        return display;
+    }
+    public void setDisplay(boolean display) {
+        this.display = display;
     }
 }
