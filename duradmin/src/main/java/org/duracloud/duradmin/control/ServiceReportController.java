@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.duracloud.client.ContentStore;
@@ -23,7 +22,6 @@ import org.duracloud.client.report.error.NotFoundException;
 import org.duracloud.client.report.error.ReportException;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.common.util.LineParsingIterator;
-import org.duracloud.domain.Content;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
@@ -34,7 +32,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -133,8 +130,8 @@ public class ServiceReportController {
 
         SpaceUtil.streamToResponse(report.getStream(),
                                    response,
-                                   report.getProperties().getSize() + "",
-                                   "text/tsv");
+                                   "text/tsv",
+                                   report.getProperties().getSize() + "");
 
         return null;
     }
