@@ -30,8 +30,9 @@ public class Application extends ResourceConfig{
                 SpaceRest.class,
                 ManifestRest.class,
                 BitIntegrityReportRest.class,
-                ContentRest.class, 
                 AuditLogRest.class,
+                TaskRest.class,
+                ContentRest.class, 
                 SecurityRest.class
                 );
             
