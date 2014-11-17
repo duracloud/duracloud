@@ -32,7 +32,7 @@ public interface JpaManifestItemRepo extends
      * @return
      */
     Page<ManifestItem>
-            findByStoreIdAndSpaceIdOrderByContentIdAsc(String storeId,
+            findByStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(String storeId,
                                                        String spaceId,
                                                        Pageable pageable);
 

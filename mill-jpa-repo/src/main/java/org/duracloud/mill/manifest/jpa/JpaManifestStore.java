@@ -198,7 +198,7 @@ public class JpaManifestStore implements
                 protected Page<ManifestItem> getNextPage(Pageable pageable,
                                                          JpaManifestItemRepo repo) {
                     return manifestItemRepo
-                            .findByStoreIdAndSpaceIdOrderByContentIdAsc(storeId,
+                            .findByStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(storeId,
                                                                         spaceId,
                                                                         pageable);
                 }
