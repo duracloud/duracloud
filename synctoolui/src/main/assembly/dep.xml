@@ -70,7 +70,6 @@
           <exclude>WEB-INF/lib/jsr305*</exclude>
           <exclude>WEB-INF/lib/xmlbeans*</exclude>
           <exclude>WEB-INF/lib/xml-apis*</exclude>
-          <exclude>WEB-INF/lib/stitch-*</exclude>
           <exclude>WEB-INF/lib/spring-js-resources*</exclude>
         </excludes>
       </unpackOptions>
