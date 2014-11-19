@@ -29,7 +29,7 @@ public class GetRestoreTaskParameters extends BaseDTO {
     private String snapshotId;
 
     @XmlValue
-    private Long restoreId;
+    private String restoreId;
 
     public String getSnapshotId() {
         return snapshotId;
@@ -40,18 +40,18 @@ public class GetRestoreTaskParameters extends BaseDTO {
         this.snapshotId = snapshotId;
     }
 
-    private void check(String snapshotId, Long restoreId) {
-        if(!StringUtils.isBlank(snapshotId) && restoreId != null){
+    private void check(String snapshotId, String restoreId) {
+        if(!StringUtils.isBlank(snapshotId) && !StringUtils.isBlank(restoreId)){
             throw new IllegalArgumentException(
                 "EITHER a snapshotId or a restoreId may be set, but not both");
         }
     }
 
-    public Long getRestoreId() {
+    public String getRestoreId() {
         return restoreId;
     }
 
-    public void setRestoreId(Long restoreId) {
+    public void setRestoreId(String restoreId) {
         check(snapshotId, restoreId);
         this.restoreId = restoreId;
     }
@@ -84,7 +84,7 @@ public class GetRestoreTaskParameters extends BaseDTO {
             GetRestoreTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
-            if(StringUtils.isBlank(params.getSnapshotId()) && params.restoreId == null) {
+            if(StringUtils.isBlank(params.getSnapshotId()) && StringUtils.isBlank(params.getRestoreId())) {
                 throw new SnapshotDataException("Task parameter values may not be empty");
             }
             return params;

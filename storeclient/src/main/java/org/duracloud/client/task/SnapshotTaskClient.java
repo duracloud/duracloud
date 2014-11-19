@@ -126,7 +126,7 @@ public interface SnapshotTaskClient {
      * @return results
      * @throws ContentStoreException on error
      */
-    public GetRestoreTaskResult getRestore(Long restoreId)
+    public GetRestoreTaskResult getRestore(String restoreId)
         throws ContentStoreException;
 
     /**

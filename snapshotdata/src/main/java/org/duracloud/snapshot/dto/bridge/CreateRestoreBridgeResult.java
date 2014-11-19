@@ -25,7 +25,7 @@ public class CreateRestoreBridgeResult extends BaseDTO {
      * The ID which has been assigned to the restoration
      */
     @XmlValue
-    private Long restoreId;
+    private String restoreId;
 
     /**
      * The current status of the restore action
@@ -37,16 +37,16 @@ public class CreateRestoreBridgeResult extends BaseDTO {
     public CreateRestoreBridgeResult() {
     }
 
-    public CreateRestoreBridgeResult(Long restoreId, RestoreStatus status) {
+    public CreateRestoreBridgeResult(String restoreId, RestoreStatus status) {
         this.restoreId = restoreId;
         this.status = status;
     }
 
-    public Long getRestoreId() {
+    public String getRestoreId() {
         return restoreId;
     }
 
-    public void setRestoreId(Long restoreId) {
+    public void setRestoreId(String restoreId) {
         this.restoreId = restoreId;
     }
 

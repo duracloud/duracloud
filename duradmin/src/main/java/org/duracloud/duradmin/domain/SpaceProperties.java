@@ -30,7 +30,7 @@ public class SpaceProperties
 
     private Set<String> tags;
     
-    private Long restoreId;
+    private String restoreId;
     
     private String snapshotId;
 
@@ -83,11 +83,11 @@ public class SpaceProperties
         this.streamingHost = streamingHost;
     }
 
-    public Long getRestoreId() {
+    public String getRestoreId() {
         return restoreId;
     }
 
-    public void setRestoreId(Long restoreId) {
+    public void setRestoreId(String restoreId) {
         this.restoreId = restoreId;
     }
 

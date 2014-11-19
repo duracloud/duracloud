@@ -90,9 +90,9 @@ public class SpaceUtil {
         spaceProperties.setStreamingHost(spaceProps.get(ContentStore.STREAMING_HOST));
         spaceProperties.setSnapshotId(spaceProps.get(Constants.SNAPSHOT_ID_PROP));
 
-        String restoreIdStr = spaceProps.get(Constants.RESTORE_ID_PROP);
-        if(StringUtils.isNotBlank(restoreIdStr)){
-            spaceProperties.setRestoreId(Long.valueOf(restoreIdStr));
+        String restoreId = spaceProps.get(Constants.RESTORE_ID_PROP);
+        if(StringUtils.isNotBlank(restoreId)){
+            spaceProperties.setRestoreId(restoreId);
         }
 
         return spaceProperties;

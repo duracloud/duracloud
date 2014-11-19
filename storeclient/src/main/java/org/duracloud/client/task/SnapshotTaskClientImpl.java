@@ -170,7 +170,7 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
      * {@inheritDoc}
      */
     @Override
-    public GetRestoreTaskResult getRestore(Long restoreId)
+    public GetRestoreTaskResult getRestore(String restoreId)
         throws ContentStoreException {
         GetRestoreTaskParameters taskParams = new GetRestoreTaskParameters();
         taskParams.setRestoreId(restoreId);

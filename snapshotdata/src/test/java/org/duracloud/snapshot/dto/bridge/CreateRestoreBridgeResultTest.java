@@ -22,7 +22,7 @@ public class CreateRestoreBridgeResultTest {
     @Test
     public void testDeserialize() {
         RestoreStatus status = RestoreStatus.INITIALIZED;
-        Long restoreId = 1000l;
+        String restoreId = "restore-id";
         String str = "{ \"status\" : \"" + status + "\","  
                         + " \"restoreId\" : \"" + restoreId + "\"}";
         

@@ -217,13 +217,13 @@ public class SnapshotControllerTest extends EasyMockSupport {
     @Test
     public void testGetRestore() throws Exception{
         setupGetTaskClient(storeId);
-        long restoreId = 1000l;
+        String restoreId = "restore-id";
         EasyMock.expect(this.taskClient.getRestore(restoreId))
         .andReturn(new GetRestoreTaskResult());
         
         replayAll();
         SnapshotController controller = createController();
-        Assert.assertNotNull(controller.getRestore(storeId, restoreId));
+        Assert.assertNotNull(controller.getRestoreByRestoreId(storeId, restoreId));
     }
     
     @Test

@@ -54,7 +54,7 @@ public class SnapshotTaskClientImplTest {
     private int port = 8080;
     private String storeId = "0";
     private int contentExpirationDays = 42;
-    private Long restoreId = 97l;
+    private String restoreId = "restore-id";
     private RestoreStatus restoreStatus = RestoreStatus.WAITING_FOR_DPN;
     private String contentId = "content-id";
     private String propName = "prop-name";

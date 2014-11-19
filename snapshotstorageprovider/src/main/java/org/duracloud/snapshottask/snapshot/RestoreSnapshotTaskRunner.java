@@ -254,11 +254,11 @@ public class RestoreSnapshotTaskRunner extends AbstractSnapshotTaskRunner {
      * Adds the restore ID as a property on the new restore space
      */
     protected void addRestoreIdToSpaceProps(String restoreSpaceId,
-                                            Long restoreId) {
+                                            String restoreId) {
         Map<String, String> restoreSpaceProps =
             snapshotProvider.getSpaceProperties(restoreSpaceId);
         restoreSpaceProps.put(Constants.RESTORE_ID_PROP,
-                              String.valueOf(restoreId));
+                              restoreId);
         unwrappedSnapshotProvider.setNewSpaceProperties(restoreSpaceId,
                                                         restoreSpaceProps);
     }

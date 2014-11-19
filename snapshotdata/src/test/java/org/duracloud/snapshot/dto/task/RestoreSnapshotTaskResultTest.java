@@ -23,7 +23,7 @@ public class RestoreSnapshotTaskResultTest {
     @Test
     public void testSerialize() {
         String spaceId = "space-id";
-        Long restoreId = 42l;
+        String restoreId = "restore-id";
         RestoreStatus status = RestoreStatus.INITIALIZED;
 
         RestoreSnapshotTaskResult taskResult = new RestoreSnapshotTaskResult();
@@ -34,7 +34,7 @@ public class RestoreSnapshotTaskResultTest {
         String result = taskResult.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
         assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
-        assertThat(cleanResult, containsString("\"restoreId\":"+restoreId));
+        assertThat(cleanResult, containsString("\"restoreId\":\""+restoreId+"\""));
         assertThat(cleanResult, containsString("\"status\":\""+status+"\""));
     }
 
@@ -42,14 +42,14 @@ public class RestoreSnapshotTaskResultTest {
     public void testDeserialize() {
         // Verify valid params
         String resultSerialized = "{\"spaceId\" : \"space-id\"," +
-                                   "\"restoreId\" : " + 42 + "," +
+                                   "\"restoreId\" : \"restore-id\"," +
                                    "\"status\":\"" +
                                    RestoreStatus.TRANSFERRING_TO_DURACLOUD +"\"}";
 
         RestoreSnapshotTaskResult taskResult =
             RestoreSnapshotTaskResult.deserialize(resultSerialized);
         assertEquals("space-id", taskResult.getSpaceId());
-        assertEquals(new Long(42l), taskResult.getRestoreId());
+        assertEquals("restore-id", taskResult.getRestoreId());
         assertEquals(RestoreStatus.TRANSFERRING_TO_DURACLOUD,
                      taskResult.getStatus());
     }

@@ -131,7 +131,7 @@ public class RestoreSnapshotTaskRunnerTest {
 
     @Test
     public void testCallBridgeSuccess() throws Exception {
-        Long restoreId = 42l;
+        String restoreId = "restore-id";
         String snapshotURL = "snapshot-url";
         String snapshotBody = "snapshot-body";
 
@@ -184,7 +184,7 @@ public class RestoreSnapshotTaskRunnerTest {
     @Test
     public void testAddRestoreIdToSpaceProps() throws Exception {
         String restoreSpaceId = "restore-space-id";
-        Long restoreId = 42l;
+        String restoreId = "restore-id";
 
         Map<String, String> spaceProps = new HashMap<>();
         EasyMock.expect(snapshotProvider.getSpaceProperties(restoreSpaceId))

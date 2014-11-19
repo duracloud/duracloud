@@ -236,8 +236,8 @@ public class SnapshotController {
     @RequestMapping(value = "/spaces/restores/{storeId}/{restoreId}", method = RequestMethod.GET)
     @ResponseBody
     public String
-        getRestore(@PathVariable("storeId") String storeId,
-                   @PathVariable("restoreId") Long restoreId) {
+        getRestoreByRestoreId(@PathVariable("storeId") String storeId,
+                   @PathVariable("restoreId") String restoreId) {
         try {
             return getTaskClient(storeId)
                         .getRestore(restoreId)

@@ -22,7 +22,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
  */
 public class GetRestoreBridgeResultTest {
 
-    private Long id = 10101l;
+    private String restoreId = "restoreId";
     private String snapshotId = "snapshotId";
     private RestoreStatus status = RestoreStatus.RESTORATION_COMPLETE;
     private Date startDate  = new Date();
@@ -36,7 +36,7 @@ public class GetRestoreBridgeResultTest {
     @Test
     public void testDeSerialize(){
         String str =
-            "{ \"restoreId\": \"" + id + "\"," +
+            "{ \"restoreId\": \"" + restoreId + "\"," +
              " \"snapshotId\" : \"" + snapshotId + "\"," +
              " \"startDate\" : \"" + startDate.getTime() + "\"," +
              " \"endDate\" : \"" + endDate.getTime() + "\","  +
@@ -51,7 +51,7 @@ public class GetRestoreBridgeResultTest {
         GetRestoreBridgeResult params = GetRestoreBridgeResult
             .deserialize(str);
 
-        assertEquals(id, params.getRestoreId());
+        assertEquals(restoreId, params.getRestoreId());
         assertEquals(snapshotId, params.getSnapshotId());
         assertEquals(status, params.getStatus());
         assertEquals(startDate, params.getStartDate());
@@ -66,7 +66,7 @@ public class GetRestoreBridgeResultTest {
     @Test
     public void testToString() {
         GetRestoreBridgeResult result = new GetRestoreBridgeResult();
-        result.setRestoreId(id);
+        result.setRestoreId(restoreId);
         result.setSnapshotId(snapshotId);
         result.setStatus(status);
         result.setStartDate(startDate);
@@ -78,7 +78,7 @@ public class GetRestoreBridgeResultTest {
         result.setDestinationSpaceId(destinationSpaceId);
 
         String value = result.toString();
-        assertThat(value, containsString("restoreId=" + id));
+        assertThat(value, containsString("restoreId=" + restoreId));
         assertThat(value, containsString("snapshotId=" + snapshotId));
         assertThat(value, containsString("status=" + status.name()));
         assertThat(value, containsString("startDate=" + startDate));

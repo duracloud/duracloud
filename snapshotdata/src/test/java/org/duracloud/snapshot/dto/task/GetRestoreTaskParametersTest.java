@@ -23,14 +23,14 @@ public class GetRestoreTaskParametersTest {
 
     @Test
     public void testSerializeRestoreId() {
-        Long restoreId = 43l;
+        String restoreId = "restore-id";
 
         GetRestoreTaskParameters taskParams = new GetRestoreTaskParameters();
         taskParams.setRestoreId(restoreId);
 
         String result = taskParams.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
-        assertThat(cleanResult, containsString("\"restoreId\":"+restoreId));
+        assertThat(cleanResult, containsString("\"restoreId\":\""+restoreId+"\""));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class GetRestoreTaskParametersTest {
 
         taskParams =
             GetRestoreTaskParameters.deserialize(taskParamsSerialized);
-        assertEquals(101, taskParams.getRestoreId().longValue());
+        assertEquals("101", taskParams.getRestoreId());
 
          // Verify that empty params throw
         try {
