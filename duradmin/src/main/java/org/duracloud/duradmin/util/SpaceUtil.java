@@ -163,8 +163,13 @@ public class SpaceUtil {
 	        streamToResponse(c.getStream(), response, mimetype, contentLength);
 	}
 
-	public static void streamToResponse(InputStream is, HttpServletResponse response, String mimetype, String contentLength)
-           throws ContentStoreException, IOException {
+    public static void streamToResponse(InputStream is,
+                                        HttpServletResponse response,
+                                        String mimetype,
+                                        String contentLength)
+        throws ContentStoreException,
+            IOException {
+        
        OutputStream outStream = response.getOutputStream();
        try{
             response.setContentType(mimetype);
