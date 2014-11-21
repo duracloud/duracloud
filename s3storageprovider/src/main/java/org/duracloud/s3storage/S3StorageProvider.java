@@ -454,12 +454,17 @@ public class S3StorageProvider extends StorageProviderBase {
             PutObjectResult putResult = s3Client.putObject(putRequest);
             etag = putResult.getETag();
         } catch (AmazonClientException e) {
-            if(e instanceof AmazonS3Exception &&
-               ((AmazonS3Exception)e).getErrorCode().equals("InvalidDigest")) {
-                String err = "Checksum mismatch detected attempting to add " +
-                             "content " + contentId + " to S3 bucket " +
-                             bucketName + ". Content was not added.";
-                throw new ChecksumMismatchException(err, e, NO_RETRY);
+            if (e instanceof AmazonS3Exception) {
+                String errorCode = ((AmazonS3Exception) e).getErrorCode();
+                if (errorCode.equals("InvalidDigest") || errorCode.equals("BadDigest")) {
+                    String err =
+                        "Checksum mismatch detected attempting to add " + "content "
+                            + contentId
+                            + " to S3 bucket "
+                            + bucketName
+                            + ". Content was not added.";
+                    throw new ChecksumMismatchException(err, e, NO_RETRY);
+                }
             }
 
             etag = doesContentExist(bucketName, contentId);
