@@ -10,7 +10,7 @@
     <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
     <File>${LOG_FILENAME}</File>
     <encoder>
-      <pattern>%-14p %d{yyyy/MM/dd HH:mm:ss} [%t] (%F:%L\\) [%M(\\)] - %m%n</pattern>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
     </encoder>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <maxIndex>5</maxIndex>
@@ -53,7 +53,7 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%-14p %d{yyyy/MM/dd HH:mm:ss} [%t] (%F:%L\\) [%M(\\)] - %m%n</pattern>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
     </encoder>
   </appender>
 
