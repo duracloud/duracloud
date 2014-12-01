@@ -136,9 +136,8 @@ public class BitIntegrityReportRest extends BaseRest {
             return responseBuilder.build();
             
         } catch (Exception e) {
-            
-            log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}",
-                      account, storeId, spaceId), e);
+            log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2} -> {3}",
+                      account, storeId, spaceId, e.getMessage()));
             return responseBad(e);
         }
     }
