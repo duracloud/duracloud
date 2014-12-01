@@ -3162,7 +3162,7 @@ $(function() {
       if (this._isAdmin()) {
         downloadAuditButton.show();
         downloadAuditButton.attr("href", "/duradmin/audit/"+this._storeId+"/"+this._spaceId );
-        downloadAuditButton.click(function(e){
+        downloadAuditButton.unbind().click(function(e){
           var failureMessage = "The audit log is not available at this time.  \n" + 
                                "Audit log generation can sometimes require a \n" + 
                                "few extra minutes when system load is heavy.  \n" + 
@@ -3195,7 +3195,7 @@ $(function() {
                                 "contact DuraCloud support.";  
         
 
-	$("#manifest-tsv, #manifest-bagit").click(function(e){
+	$("#manifest-tsv, #manifest-bagit").unbind().click(function(e){
            return checkFor404(e, this.href, failureMessage); 
         });
       }
