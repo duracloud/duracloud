@@ -96,7 +96,7 @@ public class ContentStoreImpl implements ContentStore {
         this.retryExceptionHandler = new ExceptionHandler() {
             @Override
             public void handle(Exception ex) {
-                log.info(ex.getMessage());
+                log.warn(ex.getMessage());
             }
         };
     }
