@@ -73,9 +73,6 @@ public class DurabossConfigTest {
         props.put(p + DurabossConfig.reporterKey + "." +
                       DurabossConfig.enabledKey,
                   reporterEnabled.toString());
-        props.put(p + DurabossConfig.auditorKey + "." +
-                      DurabossConfig.enabledKey,
-                  auditorEnabled.toString());
 
         return props;
     }
@@ -105,7 +102,6 @@ public class DurabossConfigTest {
         Assert.assertTrue(admins.contains(notifyAdmin2));
 
         Assert.assertEquals(reporterEnabled, config.isReporterEnabled());
-        Assert.assertEquals(auditorEnabled, config.isAuditorEnabled());
     }
 
 }
