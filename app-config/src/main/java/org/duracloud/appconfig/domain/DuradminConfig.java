@@ -37,8 +37,6 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
     private String amaUrl;
 
-    private DatabaseConfig millDbConfig = new DatabaseConfig();
-
     public String asXml() {
         return DuradminInitDocumentBinding.createDocumentFrom(this);
     }
@@ -67,10 +65,7 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
             this.durabossContext = value;
         } else if (key.equalsIgnoreCase(amaUrlKey)) {
             this.amaUrl = value;
-        } else if (key.startsWith("mill.db")) {
-            String suffix = getSuffix(key);
-            loadDbConfig(millDbConfig, suffix, value);
-        } else {
+        }  else {
             if(!subclassLoadProperty(key, value)) {
                 String msg = "unknown key: " + key + " (" + value + ")";
                 log.error(msg);
@@ -121,13 +116,5 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
 
     public void setDurabossContext(String durabossContext) {
         this.durabossContext = durabossContext;
-    }
-
-    public DatabaseConfig getMillDbConfig() {
-        return millDbConfig;
-    }
-
-    public void setMillDbConfig(DatabaseConfig millDbConfig) {
-        this.millDbConfig = millDbConfig;
     }
 }
