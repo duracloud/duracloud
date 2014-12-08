@@ -9,7 +9,6 @@ package org.duracloud.appconfig.domain;
 
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
 import org.duracloud.common.error.DuraCloudRuntimeException;
-import org.duracloud.storage.domain.DatabaseConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +26,14 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     public static final String duraStorePortKey = "durastore-port";
     public static final String duraStoreContextKey = "durastore-context";
     public static final String duraBossContextKey = "duraboss-context";
-
+    public static final String millDbEnabledKey = "milldb.enabled";
     public static final String amaUrlKey = "ama-url";
 
     private String durastoreHost;
     private String durastorePort;
     private String durastoreContext;
     private String durabossContext;
-
+    private boolean millDbEnabled = false;
     private String amaUrl;
 
     public String asXml() {
@@ -65,6 +64,8 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
             this.durabossContext = value;
         } else if (key.equalsIgnoreCase(amaUrlKey)) {
             this.amaUrl = value;
+        } else if (key.equalsIgnoreCase(millDbEnabledKey)) {
+            this.millDbEnabled = Boolean.valueOf(value);
         }  else {
             if(!subclassLoadProperty(key, value)) {
                 String msg = "unknown key: " + key + " (" + value + ")";
@@ -117,4 +118,14 @@ public class DuradminConfig extends BaseConfig implements AppConfig {
     public void setDurabossContext(String durabossContext) {
         this.durabossContext = durabossContext;
     }
+    
+    public Boolean isMillDbEnabled() {
+        return millDbEnabled;
+    }
+    
+    public void setMillDbEnabled(boolean millDbEnabled) {
+        this.millDbEnabled = millDbEnabled;
+    }
+
+    
 }

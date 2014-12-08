@@ -20,6 +20,7 @@ public class AdminInit {
     private String duraStoreContext;
     private String amaUrl;
     private String duraBossContext;
+    private boolean millDbEnabled;
 
 
     public String getDuraStoreHost() {
@@ -60,5 +61,13 @@ public class AdminInit {
 
     public String getDuraBossContext() {
         return duraBossContext;
+    }
+
+    public void setMillDbEnabled(boolean millDbEnabled) {
+        this.millDbEnabled = millDbEnabled;
+    }
+    
+    public boolean isMillDbEnabled() {
+        return millDbEnabled;
     }
 }

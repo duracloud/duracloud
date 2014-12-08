@@ -15,6 +15,7 @@ import org.duracloud.common.model.AclType;
 import org.duracloud.common.util.TagUtil;
 import org.duracloud.common.web.EncodeUtil;
 import org.duracloud.domain.Content;
+import org.duracloud.duradmin.config.DuradminConfig;
 import org.duracloud.duradmin.domain.Acl;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.domain.ContentProperties;
@@ -65,7 +66,6 @@ public class SpaceUtil {
             space.setSnapshotInProgress(true);
         }
 
-
         AclType callerAcl = resolveCallerAcl(space.getSpaceId(), 
                                              contentStore, 
                                              spaceAcls,  
@@ -78,6 +78,10 @@ public class SpaceUtil {
             aclName = callerAcl.name();
         }
         space.setCallerAcl(aclName);
+
+        
+        space.setMillDbEnabled(DuradminConfig.isMillDbEnabled());
+        
         return space;
     }
 

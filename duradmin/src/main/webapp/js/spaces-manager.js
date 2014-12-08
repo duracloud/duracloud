@@ -3159,7 +3159,7 @@ $(function() {
 
       var downloadAuditButton = $(".download-audit-button", this.element);
       downloadAuditButton.hide();
-      if (this._isAdmin()) {
+      if (this._isAdmin() && space.millDbEnabled) {
         downloadAuditButton.show();
         downloadAuditButton.attr("href", "/duradmin/audit/"+this._storeId+"/"+this._spaceId );
         downloadAuditButton.unbind().click(function(e){
@@ -3179,7 +3179,7 @@ $(function() {
       downloadManifestButton.hide();
 
 
-      if (this._isAdmin()) {
+      if (this._isAdmin() && space.millDbEnabled) {
         downloadManifestButton.show();
         // attach delete button listener
         var manifestUrl = "/duradmin/manifest/"+this._storeId+"/"+this._spaceId + "?format="
@@ -3195,10 +3195,11 @@ $(function() {
                                 "contact DuraCloud support.";  
         
 
-	$("#manifest-tsv, #manifest-bagit").unbind().click(function(e){
+	      $("#manifest-tsv, #manifest-bagit").unbind().click(function(e){
            return checkFor404(e, this.href, failureMessage); 
         });
       }
+      
       
       var switchHolder = $(".streaming-switch-holder");
       switchHolder.hide();

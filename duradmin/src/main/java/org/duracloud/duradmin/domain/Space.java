@@ -52,6 +52,8 @@ public class Space
     
     private BitIntegrityReportProperties bitIntegrityReportProperties;
     
+    private boolean millDbEnabled = false;
+    
     public String getStoreId() {
         return storeId;
     }
@@ -172,5 +174,13 @@ public class Space
 
     public BitIntegrityReportProperties getBitIntegrityReportProperties() {
         return bitIntegrityReportProperties;
+    }
+
+    public void setMillDbEnabled(boolean millDbEnabled) {
+        this.millDbEnabled = millDbEnabled;
+    }
+    
+    public boolean isMillDbEnabled() {
+        return this.millDbEnabled;
     }
 }

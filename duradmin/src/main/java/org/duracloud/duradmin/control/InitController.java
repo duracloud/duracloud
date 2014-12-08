@@ -82,6 +82,7 @@ public class InitController {
         init.setDuraStoreContext(config.getDurastoreContext());
         init.setAmaUrl(config.getAmaUrl());
         init.setDuraBossContext(config.getDurabossContext());
+        init.setMillDbEnabled(config.isMillDbEnabled());
         DuradminConfig.setConfig(init);
         
 

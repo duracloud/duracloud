@@ -92,7 +92,9 @@ public class SpaceController {
                 contentStoreManager.getContentStore(space.getStoreId(),0);
 			populateSpace(space, cloudSpace, contentStoreWithoutRetries);
 			populateSpaceCount(space, request);
-			populateBitIntegrityResults(space, contentStore);
+			if(space.isMillDbEnabled()){
+	            populateBitIntegrityResults(space, contentStore);
+			}
 			return createModel(space);
 		}catch(ContentStoreException ex){
 			ex.printStackTrace();
