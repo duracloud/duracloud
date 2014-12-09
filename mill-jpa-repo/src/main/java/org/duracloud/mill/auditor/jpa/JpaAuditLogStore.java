@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-
 import org.duracloud.audit.AuditLogItem;
 import org.duracloud.audit.AuditLogStore;
 import org.duracloud.audit.AuditLogWriteFailedException;
@@ -21,6 +20,8 @@ import org.duracloud.mill.db.model.JpaAuditLogItem;
 import org.duracloud.mill.db.repo.JpaAuditLogItemRepo;
 import org.duracloud.mill.db.repo.MillJpaRepoConfig;
 import org.duracloud.mill.db.util.JpaIteratorSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +35,7 @@ import org.springframework.util.CollectionUtils;
  */
 @Transactional(value=MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
 public class JpaAuditLogStore implements AuditLogStore {
-
+    private static Logger log = LoggerFactory.getLogger(JpaAuditLogStore.class);
     private JpaAuditLogItemRepo auditLogRepo;
 
     @Autowired
@@ -76,9 +77,15 @@ public class JpaAuditLogStore implements AuditLogStore {
             item.setSourceContentId(sourceContentId);
             item.setTimestamp(timestamp.getTime());
             this.auditLogRepo.saveAndFlush(item);
+            log.debug("item saved: {}", item);
 
         } catch (Exception ex) {
-            throw new AuditLogWriteFailedException(ex, item);
+            if(ex instanceof org.springframework.dao.DataIntegrityViolationException){
+                log.warn("failed to add audit log item {}: due to data integrity violation: suspected duplicate record: -> message={}", 
+                         ex.getMessage());
+            }else{
+                throw new AuditLogWriteFailedException(ex, item);
+            }
         }
     }
 
