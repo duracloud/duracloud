@@ -90,14 +90,18 @@ public class JpaManifestStoreTest extends JpaTestBase<ManifestItem> {
         Date timestamp = new Date();
         ManifestItem returnItem = createMock(ManifestItem.class);
         expect(returnItem.getModified()).andReturn(new Date(System.currentTimeMillis() - 1000));
+        
+        expect(returnItem.getContentChecksum()).andReturn("old checksum");
         returnItem.setContentChecksum(contentChecksum);
         expectLastCall();
+        expect(returnItem.getContentMimetype()).andReturn("old mimetype");
         returnItem.setContentMimetype(contentMimetype);
         expectLastCall();
         returnItem.setContentSize(contentSize);
         expectLastCall();
         returnItem.setModified(timestamp);
         expectLastCall();
+        expect(returnItem.isDeleted()).andReturn(true);
         returnItem.setDeleted(false);
         expectLastCall();
 
@@ -117,9 +121,35 @@ public class JpaManifestStoreTest extends JpaTestBase<ManifestItem> {
                         contentSize,
                         timestamp);
     }
+    
+    @Test
+    public void testUpdateIgnoredDueToUnchangedItem() throws ManifestItemWriteException {
+        createTestSubject();
+        Date timestamp = new Date();
+        ManifestItem returnItem = createMock(ManifestItem.class);
+        expect(returnItem.getModified()).andReturn(new Date(System.currentTimeMillis() - 1000));
+        
+        expect(returnItem.getContentChecksum()).andReturn(contentChecksum);
+        expect(returnItem.getContentMimetype()).andReturn(contentMimetype);
+        expect(returnItem.isDeleted()).andReturn(false);
+
+        expect(this.repo.findByAccountAndStoreIdAndSpaceIdAndContentId(account,
+                                                                       storeId,
+                                                                       spaceId,
+                                                                       contentId)).andReturn(returnItem);
+        replayAll();
+        store.addUpdate(account,
+                        storeId,
+                        spaceId,
+                        contentId,
+                        contentChecksum,
+                        contentMimetype,
+                        contentSize,
+                        timestamp);
+    }
 
     @Test
-    public void testIgnoreUpdate() throws ManifestItemWriteException {
+    public void testIgnoreUpdateDueToOutOfOrderMessage() throws ManifestItemWriteException {
         createTestSubject();
         Date timestamp = new Date();
         ManifestItem returnItem = createMock(ManifestItem.class);

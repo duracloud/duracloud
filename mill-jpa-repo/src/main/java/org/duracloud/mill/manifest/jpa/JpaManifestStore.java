@@ -73,19 +73,37 @@ public class JpaManifestStore implements
         
         try {
             
+            boolean save = false;
+            
             ManifestItem item = this.manifestItemRepo
                     .findByAccountAndStoreIdAndSpaceIdAndContentId(account,
                                                                    storeId,
                                                                    spaceId,
                                                                    contentId);
             String action = "added";
-
+            
             if(item != null){
                 if(eventOutOfOrder(item, eventTimestamp)){
                     return;
                 }
+
+                //flip deleted flag if set to deleted
+                if(item.isDeleted()){
+                    item.setDeleted(false);
+                    save = true;
+                }
+                String oldChecksum = item.getContentChecksum();
+                if(!oldChecksum.equals(contentChecksum)){
+                    log.info("content checksum changed from {} to {}", oldChecksum, contentChecksum);
+                    save = true;
+                }
+
+                String oldMimetype = item.getContentMimetype();
+                if(!oldMimetype.equals(contentMimetype)){
+                    log.info("content mimetype changed from {} to {}", oldMimetype, contentMimetype);
+                    save = true;
+                }
                 
-                item.setDeleted(false);
                 action = "updated";
 
             }else{
@@ -95,17 +113,19 @@ public class JpaManifestStore implements
                 item.setStoreId(storeId);
                 item.setSpaceId(spaceId);
                 item.setContentId(contentId);
+                save = true;
             }
 
-            item.setContentChecksum(contentChecksum);
-            item.setContentMimetype(contentMimetype);
-            item.setContentSize(contentSize);
-            item.setModified(eventTimestamp);
-            
-            ManifestItem result = this.manifestItemRepo.saveAndFlush(item);
-            log.info("successfully {} {} to the jpa repo.", action, result);
-
-
+            if(save){
+                item.setContentChecksum(contentChecksum);
+                item.setContentMimetype(contentMimetype);
+                item.setContentSize(contentSize);
+                item.setModified(eventTimestamp);
+                ManifestItem result = this.manifestItemRepo.saveAndFlush(item);
+                log.info("successfully {} {} to the jpa repo.", action, result);
+            }else{
+                log.info("no update necessary since no changes were detected for {}", item);
+            }
 
         } catch (Exception ex) {
             String message = "failed to write item: " + ex.getMessage();
