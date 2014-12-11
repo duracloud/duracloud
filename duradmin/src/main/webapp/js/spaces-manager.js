@@ -541,7 +541,7 @@ $(function() {
       var that = this;
       // initialize the dialog proper
       var d = $("#copy-content-item-dialog");
-
+      
       d.dialog({
         autoOpen : true,
         show : 'blind',
@@ -1710,11 +1710,11 @@ $(function() {
         }
       });
 
-      $(document).bind("contentItemDeleted", function(evt, state) {
+      $(document).unbind("contentItemDeleted").bind("contentItemDeleted", function(evt, state) {
         that._getList().selectablelist("removeById", state.contentId);
       });
 
-      $(document).bind("contentItemAdded", function(evt, state) {
+      $(document).unbind("contentItemAdded").bind("contentItemAdded", function(evt, state) {
         that._addContentItemToList(state, that._isReadOnly(state));
       });
 
@@ -2753,7 +2753,7 @@ $(function() {
       var tagsToBeRemoved = [];
 
       var mp = this._createPropertiesPane(data.properties);
-
+      
       $(mp).bind("dc-add", function(evt, future) {
         evt.stopPropagation();
         var value = future.value;
@@ -2933,7 +2933,7 @@ $(function() {
 
       // attach delete button listener
       var deleteButton = $(".delete-space-button", this.element);
-      deleteButton.click(function(evt) {
+      deleteButton.unbind().click(function(evt) {
         var confirmText = "Are you sure you want to delete multiple spaces?";
         var busyText = "Deleting spaces";
         var spaces = that._spaces;
@@ -3462,6 +3462,7 @@ $(function() {
 
       // attach delete button listener
       var deleteButton = $(".delete-content-item-button", this.element);
+      deleteButton.unbind();
       if (readOnly) {
         deleteButton.hide();
       } else {
@@ -3664,8 +3665,9 @@ $(function() {
 
       $(".download-content-item-button", this.element).attr("href", dc.store.formatDownloadURL(contentItem));
 
+      
       var deleteContentButton = $(".delete-content-item-button", this.element);
-      deleteContentButton.click(function(evt) {
+      deleteContentButton.unbind().click(function(evt) {
         that._deleteContentItem(evt, contentItem);
       });
       if (readOnly) {
@@ -3674,7 +3676,7 @@ $(function() {
 
       var copyButton = $(".copy-content-item-button", this.element);
       if (!this._isReadOnlyStorageProvider()) {
-        copyButton.click(function(evt) {
+        copyButton.unbind().click(function(evt) {
           that._copyContentItems(evt, [ contentItem ]);
         });
       } else {
@@ -3701,7 +3703,7 @@ $(function() {
       $(".mime-type-image-holder", this.element).addClass(dc.getMimetypeImageClass(mimetype));
 
       var mp = this._loadPropertiesPane(contentItem.extendedProperties, readOnly);
-
+      $(mp).unbind();
       $(mp).bind("dc-add", function(evt, future) {
         var value = future.value;
         that._addContentItemProperties(contentItem.spaceId, contentItem.contentId, value.name, value.value, future);
@@ -3710,7 +3712,7 @@ $(function() {
       });
 
       var tag = this._loadTagPane(contentItem.properties.tags, readOnly);
-
+      $(tag).unbind();
       $(tag).bind("dc-add", function(evt, future) {
         var value = future.value[0];
         that._addContentItemTag(contentItem.spaceId, contentItem.contentId, value, future);
@@ -3720,7 +3722,7 @@ $(function() {
       });
 
       var editContentItemButton = $(".edit-content-item-button", this.element);
-      editContentItemButton.click(function(evt) {
+      editContentItemButton.unbind().click(function(evt) {
         that._handleEditContentItemClick(evt);
       });
       if (readOnly) {
