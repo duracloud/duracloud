@@ -68,6 +68,11 @@ public class NoopTaskQueue implements TaskQueue {
     public Integer size() {
         return new Integer(0);
     }
+    
+    @Override
+    public Integer sizeIncludingInvisibleAndDelayed() {
+        return size();
+    }
 
     @Override
     public void requeue(Task task) {

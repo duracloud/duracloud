@@ -7,6 +7,23 @@
  */
 package org.duracloud.common.queue.aws;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.duracloud.common.queue.TaskNotFoundException;
+import org.duracloud.common.queue.TaskQueue;
+import org.duracloud.common.queue.TimeoutException;
+import org.duracloud.common.queue.task.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.ChangeMessageVisibilityRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
@@ -21,21 +38,6 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
-import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.duracloud.common.queue.TaskNotFoundException;
-import org.duracloud.common.queue.TaskQueue;
-import org.duracloud.common.queue.TimeoutException;
-import org.duracloud.common.queue.task.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * SQSTaskQueue acts as the interface for interacting with an Amazon
@@ -282,6 +284,24 @@ public class SQSTaskQueue implements TaskQueue {
         GetQueueAttributesResult result = queryQueueAttributes(QueueAttributeName.ApproximateNumberOfMessages);
         String sizeStr = result.getAttributes().get(QueueAttributeName.ApproximateNumberOfMessages.name());
         Integer size = Integer.parseInt(sizeStr);
+        return size;
+    }
+
+    @Override
+    public Integer sizeIncludingInvisibleAndDelayed() {
+        GetQueueAttributesResult result =
+            queryQueueAttributes(QueueAttributeName.ApproximateNumberOfMessages,
+                                 QueueAttributeName.ApproximateNumberOfMessagesNotVisible,
+                                 QueueAttributeName.ApproximateNumberOfMessagesDelayed);
+        Map<String,String> attributes = result.getAttributes();
+        int size = 0;
+        for(String attrKey : attributes.keySet()){
+            String value = attributes.get(attrKey);
+            log.debug("retrieved attribute: {}={}", attrKey, value);
+            int intValue = Integer.parseInt(value);
+            size += intValue;
+        }
+        log.debug("calculated size: {}", size);
         return size;
     }
 
