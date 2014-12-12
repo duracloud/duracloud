@@ -76,16 +76,14 @@
         <module>irodsstorageprovider</module>
         <module>snapshotdata</module>
         <module>snapshotstorageprovider</module>
-        <module>manifest-api</module>
+        <module>mill-jpa-repo</module>
+        <module>manifest</module>
         <module>durastore</module>
         <module>reportdata</module>
         <module>reporter</module>
-        <module>mill-jpa-repo</module>
         <module>account-management-db-model</module>
         <module>account-management-db-repo</module>
         <module>auditor</module>
-        <module>manifest</module>
-        <module>manifestclient</module>
         <module>duraboss</module>
         <module>reportclient</module>
         <module>app-config</module>

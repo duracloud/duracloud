@@ -152,6 +152,16 @@ public abstract class BaseRest {
         return Response.status(status).entity(entity).build();
     }
 
+    protected String getSubdomain() {
+        String subdomain = request.getHeader("X-FORWARDED-HOST");
+        if(subdomain == null){
+            subdomain = request.getServerName();
+        }
+        
+        subdomain = subdomain.split("[.]")[0];
+        return subdomain;
+    }
+
 
 
 

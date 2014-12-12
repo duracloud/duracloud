@@ -32,6 +32,7 @@ import org.junit.Test;
 public class ManifestGeneratorImplTest extends AbstractTestBase{
 
     private ManifestGeneratorImpl generator;
+    private String account = "account";
     private String storeId = "store-id";
     private String spaceId = "space-id";
 
@@ -63,10 +64,10 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
             
             list.add(item);
         }
-        expect(store.getItems(eq(storeId), eq(spaceId))).andReturn(list.iterator());
+        expect(store.getItems(eq(account), eq(storeId), eq(spaceId))).andReturn(list.iterator());
         replayAll();
         generator = new ManifestGeneratorImpl(store);
-        InputStream is = generator.getManifest(storeId, spaceId, format);
+        InputStream is = generator.getManifest(account,storeId, spaceId, format);
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         int read = 0;
         while(true){
@@ -94,10 +95,10 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
             }
         });
         
-        expect(store.getItems(eq(storeId), eq(spaceId))).andReturn(it);
+        expect(store.getItems(eq(account), eq(storeId), eq(spaceId))).andReturn(it);
         replayAll();
         generator = new ManifestGeneratorImpl(store);
-        InputStream is = generator.getManifest(storeId, spaceId, FORMAT.TSV);
+        InputStream is = generator.getManifest(account,storeId, spaceId, FORMAT.TSV);
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         int read = 0;
         try {
@@ -121,11 +122,11 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
 
         expect(it.hasNext()).andReturn(false);
                 
-        expect(store.getItems(eq(storeId), eq(spaceId))).andReturn(it);
+        expect(store.getItems(eq(account), eq(storeId), eq(spaceId))).andReturn(it);
         replayAll();
         generator = new ManifestGeneratorImpl(store);
         try {
-            InputStream is = generator.getManifest(storeId, spaceId, FORMAT.TSV);
+            InputStream is = generator.getManifest(account,storeId, spaceId, FORMAT.TSV);
             fail("expected manifest empty exception");
         } catch (ManifestEmptyException e) {
             assertTrue(true);

@@ -182,7 +182,7 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>manifest-api</artifactId>
+      <artifactId>manifest</artifactId>
       <version>${project.version}</version>
     </dependency>
 

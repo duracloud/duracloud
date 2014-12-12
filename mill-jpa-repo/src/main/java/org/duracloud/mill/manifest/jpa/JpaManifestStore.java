@@ -210,7 +210,8 @@ public class JpaManifestStore implements
 
     @Override
     @Transactional(readOnly = true, value=MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
-    public Iterator<ManifestItem> getItems(final String storeId,
+    public Iterator<ManifestItem> getItems(final String account,
+                                           final String storeId,
                                            final String spaceId) {
         JpaIteratorSource<JpaManifestItemRepo, ManifestItem> source = 
             new JpaIteratorSource<JpaManifestItemRepo, ManifestItem>(this.manifestItemRepo) {
@@ -218,9 +219,10 @@ public class JpaManifestStore implements
                 protected Page<ManifestItem> getNextPage(Pageable pageable,
                                                          JpaManifestItemRepo repo) {
                     return manifestItemRepo
-                            .findByStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(storeId,
-                                                                        spaceId,
-                                                                        pageable);
+                            .findByAccountAndStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(account,
+                                                                                       storeId,
+                                                                                       spaceId,
+                                                                                       pageable);
                 }
             };
         

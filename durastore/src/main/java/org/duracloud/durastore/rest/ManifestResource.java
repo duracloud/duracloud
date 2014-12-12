@@ -8,10 +8,7 @@
 package org.duracloud.durastore.rest;
 
 import java.io.InputStream;
-import java.text.ParseException;
-import java.util.Date;
 
-import org.duracloud.common.util.DateUtil;
 import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.manifest.error.ManifestArgumentException;
@@ -33,12 +30,14 @@ public class ManifestResource {
         this.manifestGenerator = manifestGenerator;
     }
 
-    public InputStream getManifest(String storeId,
+    public InputStream getManifest(String account,
+                                   String storeId,
                                    String spaceId,
                                    String fmt)
         throws ManifestArgumentException, ManifestEmptyException {
 
-        return manifestGenerator.getManifest(storeId,
+        return manifestGenerator.getManifest(account, 
+                                             storeId,
                                              spaceId,
                                              validateFormat(fmt));
     }

@@ -52,15 +52,12 @@ public class AuditLogRest extends BaseRest {
     public Response getAuditLog (@PathParam("spaceId") String spaceId,
                                  @QueryParam("storeID") String storeId) {
         
-        String account = request.getHeader("X-FORWARDED-HOST");
-        if(account == null){
-            account = request.getServerName();
-        }
-        
-        account = account.split("[.]")[0];
+        String account = getSubdomain();
         
         log.info("getting audit log for account:{}, storeId:{}, spaceId:{}",
-                 new Object[]{account, storeId, spaceId});
+                 account,
+                 storeId,
+                 spaceId);
 
         if(StringUtils.isBlank(storeId)){
             for(StorageAccount storageAccount: this.storageProviderFactory.getStorageAccounts()){

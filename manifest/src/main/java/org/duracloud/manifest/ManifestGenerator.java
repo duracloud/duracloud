@@ -32,6 +32,7 @@ public interface ManifestGenerator {
     /**
      * This method generates the manifest for the given args.
      *
+     * @param account  of manifest items
      * @param storeId  of manifest items
      * @param spaceId  of manifest items
      * @param format   of manifest (see {@link FORMAT})
@@ -39,7 +40,8 @@ public interface ManifestGenerator {
      * @throws ManifestArgumentException if format or date are invalid
      * @throws ManifestEmptyException    if no manifest is created
      */
-    public InputStream getManifest(String storeId,
+    public InputStream getManifest(String account, 
+                                   String storeId,
                                    String spaceId,
                                    FORMAT format)
         throws ManifestArgumentException, ManifestEmptyException;

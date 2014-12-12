@@ -44,8 +44,9 @@ public interface ManifestStore {
      * @param spaceId
      * @return
      */
-    public Iterator<ManifestItem> getItems(String storeId,
-                                    String spaceId);
+    public Iterator<ManifestItem> getItems(String account,
+                                           String storeId,
+                                           String spaceId);
 
 
     /**

@@ -32,9 +32,10 @@ public interface JpaManifestItemRepo extends
      * @return
      */
     Page<ManifestItem>
-            findByStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(String storeId,
-                                                       String spaceId,
-                                                       Pageable pageable);
+    findByAccountAndStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(String account,
+                                                                      String storeId,
+                                                                      String spaceId,
+                                                                      Pageable pageable);
 
     /**
      * @param account
@@ -53,4 +54,5 @@ public interface JpaManifestItemRepo extends
      * @param expiration
      */
     Long deleteByDeletedTrueAndModifiedBefore(Date expiration);
+
 }

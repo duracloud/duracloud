@@ -53,8 +53,12 @@ public class ManifestRest extends BaseRest {
     public Response getManifest(@PathParam("spaceId") String spaceId,
                                 @QueryParam("format") String format,
                                 @QueryParam("storeID") String storeId) {
-        log.info("getting manifest, {}:{} [{}]",
-                 new Object[]{storeId, spaceId, format});
+        
+        String account = getSubdomain();
+        
+        log.info("getting manifest, {}:{}:{} [{}]", account, storeId,
+                                                               spaceId,
+                                                               format );
 
         try {
             if(StringUtils.isBlank(storeId)){
@@ -72,7 +76,8 @@ public class ManifestRest extends BaseRest {
             }
 
             
-            InputStream manifest = manifestResource.getManifest(storeId,
+            InputStream manifest = manifestResource.getManifest(account,
+                                                                storeId,
                                                                 spaceId,
                                                                 format);
             

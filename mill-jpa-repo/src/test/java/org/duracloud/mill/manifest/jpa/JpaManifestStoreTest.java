@@ -263,12 +263,13 @@ public class JpaManifestStoreTest extends JpaTestBase<ManifestItem> {
         int count = 10;
 
         Page<ManifestItem> page = setupPage(count);
-        expect(this.repo.findByStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(eq(storeId),
-                                                                    eq(spaceId),
-                                                                    capture(capture))).andReturn(page);
+        expect(this.repo.findByAccountAndStoreIdAndSpaceIdAndDeletedFalseOrderByContentIdAsc(eq(account),
+                                                                                   eq(storeId),
+                                                                                   eq(spaceId),
+                                                                                   capture(capture))).andReturn(page);
         replayAll();
 
-        Iterator<ManifestItem> it = this.store.getItems(storeId, spaceId);
+        Iterator<ManifestItem> it = this.store.getItems(account,storeId, spaceId);
         verifyIterator(count, it);
         verifyPageable(capture);
     }

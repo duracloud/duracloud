@@ -15,7 +15,6 @@ import java.util.Iterator;
 
 import org.duracloud.manifest.ManifestFormatter;
 import org.duracloud.manifest.ManifestGenerator;
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestEmptyException;
 import org.duracloud.manifest.error.ManifestGeneratorException;
@@ -39,17 +38,18 @@ public class ManifestGeneratorImpl implements ManifestGenerator{
     }
 
     @Override
-    public InputStream getManifest(final String storeId,
+    public InputStream getManifest(final String account,
+                                   final String storeId,
                                    final String spaceId,
                                    final FORMAT format)
         throws ManifestArgumentException,
             ManifestEmptyException {
         
-        log.info("retrieving manifest for storeId:{}, spaceId:{}, format:{}, ignoring asOfDate: {}");
+        log.info("retrieving manifest for account:{}, storeId:{}, spaceId:{}, format:{}", account,storeId,spaceId,format);
         try{
             PipedInputStream is = new PipedInputStream(10*1024);
             final PipedOutputStream os =  new PipedOutputStream(is);
-            final Iterator<ManifestItem> it = this.manifestStore.getItems(storeId, spaceId);
+            final Iterator<ManifestItem> it = this.manifestStore.getItems(account,storeId, spaceId);
             final ManifestFormatter formatter = getFormatter(format);
             if (!it.hasNext()) {
                 throw new ManifestEmptyException("the manifest for  storeId:"
