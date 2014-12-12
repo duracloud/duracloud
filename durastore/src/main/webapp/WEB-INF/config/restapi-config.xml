@@ -13,6 +13,8 @@
 
   <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
     <constructor-arg ref="manifestStore"/>
+    <constructor-arg ref="storageProviderFactory"/>
+
   </bean>
 
 

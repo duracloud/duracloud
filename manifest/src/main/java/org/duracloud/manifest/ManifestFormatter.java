@@ -32,7 +32,7 @@ public interface ManifestFormatter {
     /**
      * 
      * @param item to write
-     * @param outputStream destination of formatted items
+     * @param outputStream destination of formatted items.  Null manifest items are ignored.
      */
     public void writeManifestItemToOutput(ManifestItem item, OutputStream outputStream);
 

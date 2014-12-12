@@ -10,7 +10,7 @@ package org.duracloud.manifest;
 import java.io.InputStream;
 
 import org.duracloud.manifest.error.ManifestArgumentException;
-import org.duracloud.manifest.error.ManifestEmptyException;
+import org.duracloud.manifest.error.ManifestNotFoundException;
 
 /**
  * The Manifest Generator is responsible for creating content manifests from
@@ -38,12 +38,12 @@ public interface ManifestGenerator {
      * @param format   of manifest (see {@link FORMAT})
      * @return {@link InputStream} of manifest content
      * @throws ManifestArgumentException if format or date are invalid
-     * @throws ManifestEmptyException    if no manifest is created
+     * @throws ManifestNotFoundException    if no manifest is created
      */
     public InputStream getManifest(String account, 
                                    String storeId,
                                    String spaceId,
                                    FORMAT format)
-        throws ManifestArgumentException, ManifestEmptyException;
+        throws ManifestArgumentException, ManifestNotFoundException;
 
 }

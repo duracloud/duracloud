@@ -13,13 +13,13 @@ import org.duracloud.common.error.DuraCloudCheckedException;
  * @author Andrew Woods
  *         Date: 3/29/12
  */
-public class ManifestEmptyException extends DuraCloudCheckedException {
+public class ManifestNotFoundException extends DuraCloudCheckedException {
 
-    public ManifestEmptyException(String msg, Throwable e) {
+    public ManifestNotFoundException(String msg, Throwable e) {
         super(msg, e);
     }
 
-    public ManifestEmptyException(String msg) {
+    public ManifestNotFoundException(String msg) {
         super(msg);
     }
 

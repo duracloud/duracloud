@@ -14,16 +14,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.manifest.error.ManifestArgumentException;
-import org.duracloud.manifest.error.ManifestEmptyException;
+import org.duracloud.manifest.error.ManifestNotFoundException;
 import org.duracloud.mill.db.model.ManifestItem;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.mill.test.AbstractTestBase;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.IAnswer;
 import org.easymock.Mock;
 import org.junit.Before;
@@ -39,6 +43,10 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
     @Mock
     private ManifestStore store;
 
+    @Mock 
+    private StorageProviderFactory storageProviderFactory;
+    
+    
     @Before
     public void setUp() throws Exception {
     }
@@ -55,18 +63,20 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
 
     protected void testSuccessByFormat(FORMAT format, boolean countHeader)
         throws ManifestArgumentException,
-            ManifestEmptyException,
+            ManifestNotFoundException,
             IOException {
         int count = 5;
         List<ManifestItem> list = new LinkedList<>();
         for(int i = 0; i < count; i++){
             ManifestItem item = createMockManifestItem();
-            
             list.add(item);
         }
         expect(store.getItems(eq(account), eq(storeId), eq(spaceId))).andReturn(list.iterator());
+        
+        mockStorageProviderFactory();
+        
         replayAll();
-        generator = new ManifestGeneratorImpl(store);
+        generator = new ManifestGeneratorImpl(store, storageProviderFactory);
         InputStream is = generator.getManifest(account,storeId, spaceId, format);
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         int read = 0;
@@ -79,6 +89,17 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
         }
         
         assertEquals(count+(countHeader? 1:0), read);
+    }
+
+    protected void mockStorageProviderFactory() {
+        List<StorageAccount> storageAccounts = new LinkedList<>();
+        expect(storageProviderFactory.getStorageAccounts()).andReturn(storageAccounts);
+        StorageAccount storageAccount = createMock(StorageAccount.class);
+        storageAccounts.add(storageAccount);
+        expect(storageAccount.getId()).andReturn(storeId);
+        StorageProvider store = createMock(StorageProvider.class);
+        expect(storageProviderFactory.getStorageProvider(storeId)).andReturn(store);
+        expect(store.getSpaceProperties(eq(spaceId))).andReturn(new HashMap<String,String>());
     }
     
     
@@ -96,8 +117,9 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
         });
         
         expect(store.getItems(eq(account), eq(storeId), eq(spaceId))).andReturn(it);
+        mockStorageProviderFactory();
         replayAll();
-        generator = new ManifestGeneratorImpl(store);
+        generator = new ManifestGeneratorImpl(store, storageProviderFactory);
         InputStream is = generator.getManifest(account,storeId, spaceId, FORMAT.TSV);
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         int read = 0;
@@ -117,19 +139,34 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
     }
     
     @Test
-    public void testEmptyManifest() throws Exception {
+    public void testEmptyManifestTsv() throws Exception {
+        testEmptyManifest(FORMAT.TSV);
+    }
+    
+    @Test
+    public void testEmptyManifestBagit() throws Exception {
+        testEmptyManifest(FORMAT.BAGIT);
+    }
+
+    private void testEmptyManifest(FORMAT format) {
         Iterator<ManifestItem> it = createMock(Iterator.class);
 
         expect(it.hasNext()).andReturn(false);
                 
         expect(store.getItems(eq(account), eq(storeId), eq(spaceId))).andReturn(it);
+        mockStorageProviderFactory();
+        
         replayAll();
-        generator = new ManifestGeneratorImpl(store);
+        generator = new ManifestGeneratorImpl(store, storageProviderFactory);
         try {
-            InputStream is = generator.getManifest(account,storeId, spaceId, FORMAT.TSV);
-            fail("expected manifest empty exception");
-        } catch (ManifestEmptyException e) {
-            assertTrue(true);
+            InputStream is = generator.getManifest(account,storeId, spaceId, format);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            if(format.equals(FORMAT.TSV)){
+                assertNotNull(reader.readLine());
+            }
+            assertEquals(0, is.available());
+        } catch (Exception e) {
+            assertTrue(false);
         }
     }
 

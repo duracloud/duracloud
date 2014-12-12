@@ -47,8 +47,11 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
     public void writeManifestItemToOutput(ManifestItem item,
                                           OutputStream output) {
         writeHeader(output);
-        write(getLine(item), output);
-        write("\n", output);
+        
+        if(item != null){
+            write(getLine(item), output);
+            write("\n", output);
+        }
     }
 
     protected void writeHeader(OutputStream output) {

@@ -12,7 +12,7 @@ import java.io.InputStream;
 import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.manifest.error.ManifestArgumentException;
-import org.duracloud.manifest.error.ManifestEmptyException;
+import org.duracloud.manifest.error.ManifestNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class ManifestResource {
                                    String storeId,
                                    String spaceId,
                                    String fmt)
-        throws ManifestArgumentException, ManifestEmptyException {
+        throws ManifestArgumentException, ManifestNotFoundException {
 
         return manifestGenerator.getManifest(account, 
                                              storeId,

@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.manifest.error.ManifestArgumentException;
-import org.duracloud.manifest.error.ManifestEmptyException;
+import org.duracloud.manifest.error.ManifestNotFoundException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
@@ -40,11 +40,9 @@ public class ManifestRest extends BaseRest {
 
     private ManifestResource manifestResource;
 
-    private StorageProviderFactory storageProviderFactory;
     
     @Autowired
-    public ManifestRest(ManifestResource manifestResource, StorageProviderFactory storageProviderFactory) {
-        this.storageProviderFactory = storageProviderFactory;
+    public ManifestRest(ManifestResource manifestResource) {
         this.manifestResource = manifestResource;
     }
 
@@ -61,20 +59,6 @@ public class ManifestRest extends BaseRest {
                                                                format );
 
         try {
-            if(StringUtils.isBlank(storeId)){
-                for(StorageAccount storageAccount: this.storageProviderFactory.getStorageAccounts()){
-                    if(storageAccount.isPrimary()){
-                        storeId = storageAccount.getId();
-                        break;
-                    }
-                }
-                
-                if(StringUtils.isBlank(storeId)){
-                    throw new DuraCloudRuntimeException("storeId is blank and no primary storage account is indicated.");
-                }
-                
-            }
-
             
             InputStream manifest = manifestResource.getManifest(account,
                                                                 storeId,
@@ -89,7 +73,7 @@ public class ManifestRest extends BaseRest {
                       new Object[]{storeId, spaceId, format, e});
             return responseBadRequest(e);
 
-        } catch (ManifestEmptyException e) {
+        } catch (ManifestNotFoundException e) {
             log.error("Error for, {}:{} [{}]",
                       new Object[]{storeId, spaceId, format, e});
             return responseNotFound(e.getMessage());
