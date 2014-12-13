@@ -565,7 +565,9 @@ $(function() {
           var destStoreIdField = $("#destStoreId", theOther);
           var contentIdField = $("#contentId", theOther);
           var spaceSelect = $("#spaceId", theOther);
+          
           var loadWriteableSpaces = function(storeId, spaceId) {
+            spaceSelect.busySibling("Loading writable spaces...");
             dc.store.GetSpaces(storeId, true, {
               success : function(spaces) {
                 var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
@@ -575,10 +577,11 @@ $(function() {
                   spaceSelect.append("<option>" + space.spaceId + "</option>");
                 });
                 spaceSelect.val(selectedSpaceId);
+                spaceSelect.idleSibling();
               },
-            }, false // make
-            // it a
-            // synchronous
+            }, true // make
+            // it an
+            // asynchronous
             // call
             );
           };
