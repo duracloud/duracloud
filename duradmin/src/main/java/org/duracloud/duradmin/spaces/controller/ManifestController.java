@@ -8,21 +8,14 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.util.DateUtil.DateFormat;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +25,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 
@@ -58,10 +57,10 @@ public class ManifestController {
         try {
             ContentStore contentStore =
                 contentStoreManager.getContentStore(storeId);
-            FORMAT format = FORMAT.valueOf(manifestFormat.toUpperCase());
+            ManifestFormat format = ManifestFormat.valueOf(manifestFormat.toUpperCase());
             InputStream is = contentStore.getManifest(spaceId, format);
             String extension = "txt";
-            if(format.equals(FORMAT.TSV)){
+            if(format.equals(ManifestFormat.TSV)){
                 extension = "tsv";
             }
             StringBuffer contentDisposition = new StringBuffer();

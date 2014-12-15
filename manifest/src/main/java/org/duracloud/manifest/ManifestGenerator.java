@@ -7,10 +7,11 @@
  */
 package org.duracloud.manifest;
 
-import java.io.InputStream;
-
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestNotFoundException;
+
+import java.io.InputStream;
 
 /**
  * The Manifest Generator is responsible for creating content manifests from
@@ -23,19 +24,12 @@ import org.duracloud.manifest.error.ManifestNotFoundException;
 public interface ManifestGenerator {
 
     /**
-     * This enum defines the supported output manifest formats.
-     */
-    public static enum FORMAT {
-        TSV, BAGIT;
-    }
-
-    /**
      * This method generates the manifest for the given args.
      *
      * @param account  of manifest items
      * @param storeId  of manifest items
      * @param spaceId  of manifest items
-     * @param format   of manifest (see {@link FORMAT})
+     * @param format   of manifest
      * @return {@link InputStream} of manifest content
      * @throws ManifestArgumentException if format or date are invalid
      * @throws ManifestNotFoundException    if no manifest is created
@@ -43,7 +37,7 @@ public interface ManifestGenerator {
     public InputStream getManifest(String account, 
                                    String storeId,
                                    String spaceId,
-                                   FORMAT format)
+                                   ManifestFormat format)
         throws ManifestArgumentException, ManifestNotFoundException;
 
 }

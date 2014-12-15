@@ -8,13 +8,6 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
 import org.duracloud.client.ContentStore;
@@ -22,7 +15,6 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.util.DateUtil.DateFormat;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +23,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * 

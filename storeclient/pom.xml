@@ -85,12 +85,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>manifest-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.jdom</groupId>
       <artifactId>jdom</artifactId>
     </dependency>

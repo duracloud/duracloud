@@ -7,21 +7,9 @@
  */
 package org.duracloud.client;
 
-import static org.duracloud.storage.provider.StorageProvider.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.common.retry.Retriable;
@@ -39,7 +27,6 @@ import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
 import org.duracloud.error.UnauthorizedException;
 import org.duracloud.error.UnsupportedTaskException;
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportResult;
@@ -51,6 +38,19 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_ACL;
 
 /**
  * Provides access to a content store
@@ -1122,7 +1122,7 @@ public class ContentStoreImpl implements ContentStore {
     
     @Override
     public InputStream
-        getManifest(String spaceId, FORMAT format)
+        getManifest(String spaceId, ManifestFormat format)
             throws ContentStoreException {
             String task = "get manifest";
             String url = buildManifestURL(spaceId,format);
@@ -1139,7 +1139,7 @@ public class ContentStoreImpl implements ContentStore {
             }
     }
 
-    private String buildManifestURL(String spaceId, FORMAT format) {
+    private String buildManifestURL(String spaceId, ManifestFormat format) {
         String url = buildURL("/manifest/" + spaceId);
         url = addStoreIdQueryParameter(url);
 

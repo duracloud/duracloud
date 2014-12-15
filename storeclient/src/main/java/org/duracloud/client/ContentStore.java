@@ -7,11 +7,7 @@
  */
 package org.duracloud.client;
 
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.model.AclType;
 import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.domain.Content;
@@ -19,10 +15,14 @@ import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.duracloud.storage.provider.StorageProvider;
+
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides access to a content store
@@ -428,7 +428,7 @@ public interface ContentStore {
      * @return
      * @throws ContentStoreException
      */
-    public InputStream getManifest(String spaceId, FORMAT format)
+    public InputStream getManifest(String spaceId, ManifestFormat format)
         throws ContentStoreException;
 
     

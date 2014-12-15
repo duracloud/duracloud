@@ -7,19 +7,7 @@
  */
 package org.duracloud.manifest.impl;
 
-import static org.easymock.EasyMock.*;
-import static org.junit.Assert.*;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestNotFoundException;
 import org.duracloud.mill.db.model.ManifestItem;
@@ -32,6 +20,22 @@ import org.easymock.IAnswer;
 import org.easymock.Mock;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ManifestGeneratorImplTest extends AbstractTestBase{
 
@@ -53,15 +57,16 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
 
     @Test
     public void testBagit() throws Exception {
-        testSuccessByFormat(FORMAT.BAGIT, false);
+        testSuccessByFormat(ManifestFormat.BAGIT, false);
     }
 
     @Test
     public void testTsv() throws Exception {
-        testSuccessByFormat(FORMAT.TSV, true);
+        testSuccessByFormat(ManifestFormat.TSV, true);
     }
 
-    protected void testSuccessByFormat(FORMAT format, boolean countHeader)
+    protected void testSuccessByFormat(ManifestFormat format,
+                                       boolean countHeader)
         throws ManifestArgumentException,
             ManifestNotFoundException,
             IOException {
@@ -71,7 +76,8 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
             ManifestItem item = createMockManifestItem();
             list.add(item);
         }
-        expect(store.getItems(eq(account), eq(storeId), eq(spaceId))).andReturn(list.iterator());
+        expect(store.getItems(eq(account), eq(storeId), eq(spaceId)))
+            .andReturn(list.iterator());
         
         mockStorageProviderFactory();
         
@@ -120,7 +126,8 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
         mockStorageProviderFactory();
         replayAll();
         generator = new ManifestGeneratorImpl(store, storageProviderFactory);
-        InputStream is = generator.getManifest(account,storeId, spaceId, FORMAT.TSV);
+        InputStream is =
+            generator.getManifest(account,storeId, spaceId, ManifestFormat.TSV);
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         int read = 0;
         try {
@@ -140,15 +147,15 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
     
     @Test
     public void testEmptyManifestTsv() throws Exception {
-        testEmptyManifest(FORMAT.TSV);
+        testEmptyManifest(ManifestFormat.TSV);
     }
     
     @Test
     public void testEmptyManifestBagit() throws Exception {
-        testEmptyManifest(FORMAT.BAGIT);
+        testEmptyManifest(ManifestFormat.BAGIT);
     }
 
-    private void testEmptyManifest(FORMAT format) {
+    private void testEmptyManifest(ManifestFormat format) {
         Iterator<ManifestItem> it = createMock(Iterator.class);
 
         expect(it.hasNext()).andReturn(false);
@@ -161,7 +168,7 @@ public class ManifestGeneratorImplTest extends AbstractTestBase{
         try {
             InputStream is = generator.getManifest(account,storeId, spaceId, format);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            if(format.equals(FORMAT.TSV)){
+            if(format.equals(ManifestFormat.TSV)){
                 assertNotNull(reader.readLine());
             }
             assertEquals(0, is.available());

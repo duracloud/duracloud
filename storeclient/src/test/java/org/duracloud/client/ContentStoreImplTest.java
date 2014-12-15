@@ -7,6 +7,27 @@
  */
 package org.duracloud.client;
 
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.io.IOUtils;
+import org.duracloud.common.constant.ManifestFormat;
+import org.duracloud.common.model.AclType;
+import org.duracloud.common.retry.Retriable;
+import org.duracloud.common.util.SerializationUtil;
+import org.duracloud.common.web.RestHttpHelper;
+import org.duracloud.domain.Content;
+import org.duracloud.domain.Space;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.InvalidIdException;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -17,27 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.io.IOUtils;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.retry.Retriable;
-import org.duracloud.common.util.SerializationUtil;
-import org.duracloud.common.web.RestHttpHelper;
-import org.duracloud.domain.Content;
-import org.duracloud.domain.Space;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.InvalidIdException;
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author Andrew Woods
@@ -189,7 +189,7 @@ public class ContentStoreImplTest {
 
         replayMocks();
 
-        InputStream is = contentStore.getManifest(spaceId,FORMAT.TSV);
+        InputStream is = contentStore.getManifest(spaceId, ManifestFormat.TSV);
         Assert.assertNotNull(is);
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         Assert.assertEquals(tsv, reader.readLine());

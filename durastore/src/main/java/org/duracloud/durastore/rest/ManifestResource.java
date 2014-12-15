@@ -7,14 +7,14 @@
  */
 package org.duracloud.durastore.rest;
 
-import java.io.InputStream;
-
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.manifest.ManifestGenerator;
-import org.duracloud.manifest.ManifestGenerator.FORMAT;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
 
 /**
  * @author Andrew Woods
@@ -42,21 +42,21 @@ public class ManifestResource {
                                              validateFormat(fmt));
     }
 
-    private FORMAT validateFormat(String format)
+    private ManifestFormat validateFormat(String format)
         throws ManifestArgumentException {
         // null is default.
         if (null == format) {
-            return FORMAT.TSV;
+            return ManifestFormat.TSV;
         }
 
         try {
-            return FORMAT.valueOf(format.toUpperCase());
+            return ManifestFormat.valueOf(format.toUpperCase());
 
         } catch (RuntimeException e) {
             StringBuilder err = new StringBuilder("Invalid manifest format: ");
             err.append(format);
             err.append(" Allowable formats are: '");
-            for (ManifestGenerator.FORMAT f : FORMAT.values()) {
+            for (ManifestFormat f : ManifestFormat.values()) {
                 err.append(f.name());
                 err.append("', '");
             }

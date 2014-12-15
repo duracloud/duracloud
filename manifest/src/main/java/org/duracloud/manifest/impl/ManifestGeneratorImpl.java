@@ -7,13 +7,8 @@
  */
 package org.duracloud.manifest.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.Iterator;
-
 import org.apache.commons.lang3.StringUtils;
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.manifest.ManifestFormatter;
 import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.error.ManifestArgumentException;
@@ -27,6 +22,12 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.Iterator;
 
 /**
  * 
@@ -49,7 +50,7 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
     public InputStream getManifest(String account,
                                    String storeId,
                                    String spaceId,
-                                   FORMAT format)
+                                   ManifestFormat format)
         throws ManifestArgumentException,
             ManifestNotFoundException {
 
@@ -153,7 +154,7 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
         return storeId;
     }
 
-    protected ManifestFormatter getFormatter(final FORMAT format)
+    protected ManifestFormatter getFormatter(final ManifestFormat format)
         throws ManifestArgumentException {
         ManifestFormatter formatter;
         switch (format) {
