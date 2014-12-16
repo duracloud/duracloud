@@ -731,7 +731,9 @@ $(function() {
       
       $(document).bind("reloadSpaceList", function(evt, state){
           state.forceRefresh = true;
-          that.loadSpaces(state);
+          that.loadSpaces(state).always(function(){
+              dc.done();
+          });
       });
       
       $(document).bind("navigateToSpace", function(evt, state){
@@ -765,7 +767,9 @@ $(function() {
         if (params['contentId']) {
           HistoryManager.queue(function() {
 
-            return that._loadContentItem(params);
+            return that._loadContentItem(params).always(function(){
+                dc.done();
+            });
           });
 
           return true;
@@ -785,7 +789,9 @@ $(function() {
       HistoryManager.addChangeHandler(function(params) {
         if (params['spaceId']) {
           HistoryManager.queue(function() {
-            return that._loadSpace(params, true);
+            return that._loadSpace(params, true).then(function(){
+                dc.done();
+            });
           });
           return true;
         }
@@ -1108,16 +1114,23 @@ $(function() {
       if (showDetail == undefined) {
         showDetail = true;
       }
-      var func;
-      if (params.snapshot) {
-        func = that._loadSnapshot(params);
-      } else {
-        func = that._loadSpaceInternal(params, showDetail);
-      }
-
-      return $.when(that.loadSpaces(params), func).always(function() {
-        dc.done();
+      var func = function() {
+        if (params.snapshot) {
+          return that._loadSnapshot(params);
+        } else {
+          return that._loadSpaceInternal(params, showDetail);
+        }
+      };
+      
+      var deferred = $.Deferred();
+      that.loadSpaces(params).then(function(){
+          func().always(function() {
+            dc.done();
+            deferred.resolve();
+          });
       });
+      
+      return deferred;
     },
 
     _loadSnapshot : function(params) {
@@ -1142,12 +1155,14 @@ $(function() {
                               errorThrown);
 
       });
+      
+      return retrieveSnapshot;
 
     },
 
     _loadSpaceInternal : function(params, showDetail) {
       var that = this;
-      dc.busy("Loading...", {
+      dc.busy("Loading space...", {
         modal : true
       });
       retrieveSpace = dc.store.GetSpace2(params).success(function(data) {
@@ -1175,15 +1190,13 @@ $(function() {
 
     _loadContentItem : function(params) {
       var that = this;
-      dc.busy("Loading...", {
-        modal : true
-      });
 
       var space = that._contentItemListPane.contentitemlistpane("currentSpace");
 
       var loadSpace;
       if (space.spaceId == params.spaceId && space.storeId == params.storeId) {
-        loadSpace = $.Deferred().resolve();
+        loadSpace = $.Deferred();
+        loadSpace.resolve();
       } else {
         loadSpace = that._loadSpace(params, false);
       }
@@ -1204,12 +1217,15 @@ $(function() {
           success : function(contentItem) {
             that._detailManager.showContentItem(contentItem);
           },
-        }).done(function() {
-          dc.done();
         });
+        
+        deferred.then(function(){
+          that._contentItemListPane.contentitemlistpane("setCurrentById", params.contentId);
+        });
+        return deferred;
       };
 
-      return $.when(loadSpace).then(retrieveContentItem);
+      return loadSpace.then(retrieveContentItem);
     },
 
     _displaySpace : function(space) {
@@ -1620,6 +1636,11 @@ $(function() {
     _toggleCheckAllContentItems : function(checked) {
       $("#check-all-content-items", this.element).attr("checked", checked);
     },
+    
+    setCurrentById : function(contentId) {
+      this._getList().selectablelist("setCurrentItemById", contentId, false);
+    },
+
 
     _handleContentListStateChangedEvent : function(evt, state) {
       var that = this;
