@@ -132,6 +132,9 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         EasyMock.expect(this.syncConfigurationManager.isRenameUpdates())
         .andReturn(false).times(times);
 
+        EasyMock.expect(this.syncConfigurationManager.isJumpStart())
+        .andReturn(false).times(times);
+
         EasyMock.expect(this.syncConfigurationManager.getUpdateSuffix())
         .andReturn(null).times(times);
 

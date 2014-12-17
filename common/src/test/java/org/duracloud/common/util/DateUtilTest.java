@@ -10,7 +10,11 @@ package org.duracloud.common.util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.awt.SystemColor;
+import java.text.ParseException;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.duracloud.common.util.DateUtil.DateFormat;
 import static org.junit.Assert.assertEquals;
@@ -83,6 +87,32 @@ public class DateUtilTest {
         String text = "2012-03-29-12-00-00";
         Date date = DateUtil.convertToDate(text, DateFormat.PLAIN_FORMAT);
         Assert.assertNotNull(date);
+    }
+    
+    @Test
+    public void testProveMultithreadedParsingWorks() throws Exception {
+        int count = 100;
+        final CountDownLatch latch = new CountDownLatch(count);
+        for(int i = 0; i < count; i++){
+            new Thread(new Runnable() {
+                
+                @Override
+                public void run() {
+                    String date = DateUtil.convertToString(System.currentTimeMillis());
+                    try {
+                        DateUtil.convertToDate(date);
+                        
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Assert.fail("unexpected failure");
+                    }finally{
+                        latch.countDown();
+                    }
+                }
+            }).start();
+        }
+        
+        Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
     }
 
 }

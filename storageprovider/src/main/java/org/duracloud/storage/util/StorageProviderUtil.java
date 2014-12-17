@@ -8,6 +8,7 @@
 package org.duracloud.storage.util;
 
 import org.duracloud.common.util.DateUtil;
+import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -128,21 +129,22 @@ public class StorageProviderUtil {
      * @param contentId The Id of the content
      * @param checksum The content checksum, either provided or computed
      * @returns the validated checksum value from the provider
-     * @throws StorageException if the included checksum does not match
-     *                          the storage provider generated checksum
+     * @throws ChecksumMismatchException if the included checksum does not match
+     *                                   the storage provider generated checksum
      */
     public static String compareChecksum(String providerChecksum,
                                          String spaceId,
                                          String contentId,
                                          String checksum)
-        throws StorageException {
+        throws ChecksumMismatchException {
         if(!providerChecksum.equals(checksum)) {
             String err = "Content " + contentId + " was added to space " +
                 spaceId + " but the checksum, either provided or computed " +
                 "enroute, (" + checksum + ") does not match the checksum " +
                 "computed by the storage provider (" + providerChecksum +
-                "). This content should be checked or retransmitted.";
-            throw new StorageException(err, NO_RETRY);
+                "). This content has been removed, and should be checked and " +
+                "retransmitted.";
+            throw new ChecksumMismatchException(err, NO_RETRY);
         }
         return providerChecksum;
     }

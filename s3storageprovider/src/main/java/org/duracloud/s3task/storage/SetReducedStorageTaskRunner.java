@@ -10,6 +10,7 @@ package org.duracloud.s3task.storage;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 
 /**
  * Sets all content items in a space to use the reduced redundancy storage class
@@ -26,9 +27,11 @@ public class SetReducedStorageTaskRunner extends BaseStorageClassTaskRunner {
     private static final StorageClass STORAGE_CLASS =
         StorageClass.ReducedRedundancy;
 
-    public SetReducedStorageTaskRunner(S3StorageProvider s3Provider,
+    public SetReducedStorageTaskRunner(StorageProvider s3Provider,
+                                       S3StorageProvider unwrappedS3Provider,
                                        AmazonS3Client s3Client) {
         this.s3Provider = s3Provider;
+        this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
     }
 

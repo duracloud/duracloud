@@ -120,6 +120,10 @@ public class LocalTaskQueue implements TaskQueue {
         return completedCount;
     }
 
+    @Override
+    public Integer sizeIncludingInvisibleAndDelayed() {
+        return size();
+    }
     /* (non-Javadoc)
      * @see org.duracloud.queue.TaskQueue#requeue(org.duracloud.queue.task.Task)
      */

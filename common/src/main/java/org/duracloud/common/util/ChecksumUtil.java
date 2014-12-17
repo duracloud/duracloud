@@ -7,6 +7,7 @@
  */
 package org.duracloud.common.util;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -59,13 +61,34 @@ public class ChecksumUtil {
     }
 
     /**
-     * This method generates checksum of content in string.
+     * This method generates the checksum of a String and returns a hex-encoded
+     * String as the checksum value
+     *
      * @param string Content used as target of checksum.
-     * @return string representation of the generated checksum.
+     * @return string representation of the generated checksum using hex encoding
      */
     public String generateChecksum(String string) {
-        digest.update(string.getBytes());
-        return checksumBytesToString(digest.digest());
+        return checksumBytesToString(generateChecksumBytes(string));
+    }
+
+    private byte[] generateChecksumBytes(String string) {
+        try {
+            digest.update(string.getBytes("UTF-8"));
+            return digest.digest();
+        } catch(UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * This method generates the checksum of a String and returns a
+     * base64-encoded String as the checksum value
+     *
+     * @param string Content used as target of checksum.
+     * @return string representation of the generated checksum using base64 encoding
+     */
+    public String generateChecksumBase64(String string) {
+        return new String(Base64.encodeBase64(generateChecksumBytes(string)));
     }
 
     private int readFromStream(InputStream inStream, byte[] buf) {
@@ -152,6 +175,18 @@ public class ChecksumUtil {
           b[i] = (byte)v;
         }
         return b;
+    }
+
+    /**
+     * Converts a hex-encoded checksum (like that produced by the getChecksum
+     * and generateChecksum methods of this class) to a base64-encoded checksum
+     *
+     * @param hexEncodedChecksum hex-encoded checksum
+     * @return base64-encoded checksum
+     */
+    public static String convertToBase64Encoding(String hexEncodedChecksum) {
+        byte[] checksumBytes = hexStringToByteArray(hexEncodedChecksum);
+        return new String(Base64.encodeBase64(checksumBytes));
     }
 
     /**

@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.storage.error.StorageStateException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +30,8 @@ import static org.junit.Assert.fail;
 public class RestoreContentTaskRunnerTest {
 
     private AmazonS3Client s3Client;
-    private GlacierStorageProvider glacierProvider;
+    private StorageProvider glacierProvider;
+    private GlacierStorageProvider unwrappedGlacierProvider;
     private RestoreContentTaskRunner taskRunner;
     private String accessKey = "access-key";
     private String contentId = "content-id";
@@ -38,18 +40,23 @@ public class RestoreContentTaskRunnerTest {
     @Before
     public void setup() {
         s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
-        glacierProvider = EasyMock.createMock("GlacierStorageProvider",
-                                              GlacierStorageProvider.class);
-        taskRunner = new RestoreContentTaskRunner(glacierProvider, s3Client);
+        glacierProvider = EasyMock.createMock("StorageProvider",
+                                              StorageProvider.class);
+        unwrappedGlacierProvider =
+            EasyMock.createMock("GlacierStorageProvider",
+                                GlacierStorageProvider.class);
+        taskRunner = new RestoreContentTaskRunner(glacierProvider,
+                                                  unwrappedGlacierProvider,
+                                                  s3Client);
     }
 
     private void replayMocks() {
-        EasyMock.replay(s3Client, glacierProvider);
+        EasyMock.replay(s3Client, unwrappedGlacierProvider, glacierProvider);
     }
 
     @After
     public void tearDown() throws IOException {
-        EasyMock.verify(s3Client, glacierProvider);
+        EasyMock.verify(s3Client, unwrappedGlacierProvider, glacierProvider);
     }
 
     @Test
@@ -60,7 +67,7 @@ public class RestoreContentTaskRunnerTest {
 
     @Test
     public void testPerformTask() {
-        EasyMock.expect(glacierProvider.getBucketName("one"))
+        EasyMock.expect(unwrappedGlacierProvider.getBucketName("one"))
                 .andReturn("123.one");
 
         s3Client.restoreObject("123.one", "two/three.txt", 14);
@@ -73,7 +80,7 @@ public class RestoreContentTaskRunnerTest {
 
     @Test
     public void testPerformTaskRetrivalInProgress() {
-        EasyMock.expect(glacierProvider.getBucketName("one"))
+        EasyMock.expect(unwrappedGlacierProvider.getBucketName("one"))
                 .andReturn("123.one");
 
         AmazonS3Exception glacierEx = new AmazonS3Exception("err msg");

@@ -7,9 +7,38 @@
  */
 package org.duracloud.openstackstorage;
 
-import static org.duracloud.storage.error.StorageException.NO_RETRY;
-import static org.duracloud.storage.error.StorageException.RETRY;
-import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.inject.Module;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.net.URLCodec;
+import org.duracloud.common.stream.ChecksumInputStream;
+import org.duracloud.common.util.ChecksumUtil;
+import org.duracloud.common.util.DateUtil;
+import org.duracloud.storage.domain.ContentIterator;
+import org.duracloud.storage.error.ChecksumMismatchException;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.error.StorageException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.provider.StorageProviderBase;
+import org.duracloud.storage.util.StorageProviderUtil;
+import org.jclouds.Constants;
+import org.jclouds.ContextBuilder;
+import org.jclouds.blobstore.ContainerNotFoundException;
+import org.jclouds.blobstore.domain.PageSet;
+import org.jclouds.enterprise.config.EnterpriseConfigurationModule;
+import org.jclouds.openstack.swift.CopyObjectException;
+import org.jclouds.openstack.swift.SwiftApiMetadata;
+import org.jclouds.openstack.swift.SwiftClient;
+import org.jclouds.openstack.swift.domain.ContainerMetadata;
+import org.jclouds.openstack.swift.domain.MutableObjectInfoWithMetadata;
+import org.jclouds.openstack.swift.domain.ObjectInfo;
+import org.jclouds.openstack.swift.domain.SwiftObject;
+import org.jclouds.openstack.swift.options.CreateContainerOptions;
+import org.jclouds.openstack.swift.options.ListContainerOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,45 +47,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.URLCodec;
-import org.duracloud.common.stream.ChecksumInputStream;
-import org.duracloud.common.util.ChecksumUtil;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.storage.domain.ContentIterator;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.provider.StorageProviderBase;
-import org.duracloud.storage.util.StorageProviderUtil;
-import org.jclouds.ContextBuilder;
-import org.jclouds.blobstore.ContainerNotFoundException;
-import org.jclouds.blobstore.domain.PageSet;
-import org.jclouds.openstack.swift.CopyObjectException;
-import org.jclouds.openstack.swift.SwiftApiMetadata;
-import org.jclouds.openstack.swift.SwiftAsyncClient;
-import org.jclouds.openstack.swift.SwiftClient;
-import org.jclouds.openstack.swift.domain.ContainerMetadata;
-import org.jclouds.openstack.swift.domain.MutableObjectInfoWithMetadata;
-import org.jclouds.openstack.swift.domain.ObjectInfo;
-import org.jclouds.openstack.swift.domain.SwiftObject;
-import org.jclouds.openstack.swift.options.CreateContainerOptions;
-import org.jclouds.openstack.swift.options.ListContainerOptions;
-import org.jclouds.enterprise.config.EnterpriseConfigurationModule;
-import org.jclouds.rest.RestContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.inject.Module;
+import static org.duracloud.storage.error.StorageException.NO_RETRY;
+import static org.duracloud.storage.error.StorageException.RETRY;
+import static org.duracloud.storage.util.StorageProviderUtil.compareChecksum;
 
 /**
  * Provides content storage access to OpenStack storage providers.
@@ -65,7 +64,8 @@ import com.google.inject.Module;
  */
 public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
-    private static final Logger log = LoggerFactory.getLogger(OpenStackStorageProvider.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(OpenStackStorageProvider.class);
 
     private SwiftClient swiftClient = null;
 
@@ -82,14 +82,18 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
             ListeningExecutorService useExecutor = createThreadPool();
             ListeningExecutorService ioExecutor = createThreadPool();
-            
-            RestContext<SwiftClient, SwiftAsyncClient> context =
-                    ContextBuilder.newBuilder(new SwiftApiMetadata())
+
+            Iterable<Module> modules = ImmutableSet.<Module> of(
+                new EnterpriseConfigurationModule(useExecutor, ioExecutor));
+            Properties properties = new Properties();
+            properties.setProperty(Constants.PROPERTY_STRIP_EXPECT_HEADER,
+                                   "true");
+            swiftClient = ContextBuilder.newBuilder(new SwiftApiMetadata())
                             .endpoint(trimmedAuthUrl)
                             .credentials(username, apiAccessKey)
-                            .modules(ImmutableSet.<Module>of(new EnterpriseConfigurationModule(useExecutor,ioExecutor)))
-                            .build(SwiftApiMetadata.CONTEXT_TOKEN);
-            swiftClient = context.getApi();
+                            .modules(modules)
+                            .overrides(properties)
+                            .buildApi(SwiftClient.class);
         } catch (Exception e) {
             String err = "Could not connect to " + getProviderName() +
                     " due to error: " + e.getMessage();
@@ -368,8 +372,18 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         String providerChecksum = swiftClient.putObject(containerName, swiftObject);
 
         // Compare checksum
-        String checksum = wrappedContent.getMD5();
-        return compareChecksum(providerChecksum, spaceId, contentId, checksum);
+        try {
+            String checksum = wrappedContent.getMD5();
+            compareChecksum(providerChecksum, spaceId, contentId, checksum);
+        } catch(ChecksumMismatchException e) {
+            // Clean up object
+            if(swiftClient.objectExists(containerName, contentId)) {
+                swiftClient.removeObject(containerName, contentId);
+            }
+            throw e;
+        }
+
+        return providerChecksum;
     }
 
     @Override

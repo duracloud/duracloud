@@ -19,6 +19,7 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.duradmin.domain.Acl;
 import org.duracloud.security.impl.DuracloudUserDetails;
@@ -152,16 +153,15 @@ public class SpaceUtilTest {
     }
 
     @Test
-    public void testChronopolisSnashotInProgress() throws Exception{
-        expectGetStorageProviderType(StorageProviderType.CHRON_STAGE);
-        EasyMock.expect(this.contentStore.getContentProperties(
-                                               EasyMock.isA(String.class),
+    public void testSnashotInProgress() throws Exception{
+        Map<String,String> map = new HashMap<String,String>();
+        map.put(Constants.SNAPSHOT_ID_PROP, "test");
+        expectGetStorageProviderType(StorageProviderType.SNAPSHOT);
+        EasyMock.expect(this.contentStore.getSpaceProperties(
                                                EasyMock.isA(String.class)))
-                                          .andReturn(
-                                               new HashMap<String, String>());
+                                          .andReturn(map);
         expectAuthority("ROLE_ADMIN", 1);
         
-
         replay();
         
         AclType result = SpaceUtil.resolveCallerAcl(spaceId, contentStore, null, authentication);

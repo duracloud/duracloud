@@ -85,33 +85,45 @@ public class DirWalker extends DirectoryWalker implements Runnable {
     }
 
     protected void walkDirs() {
-        continueWalk = true;
-        for(File item : filesAndDirs) {
-            if(item.exists() && continueWalk) {
-                if(item.isDirectory()) { // Directory
-                    try {
-                        List results = new ArrayList();
-                        walk(item, results);
-                    } catch(IOException e) {
-                        throw new RuntimeException("Error walking directory " +
-                            item.getAbsolutePath() + ":" + e.getMessage(), e);
+        try{
+            continueWalk = true;
+            for(File item : filesAndDirs) {
+                if(null != item && item.exists() && continueWalk) {
+                    if(item.isDirectory()) { // Directory
+                        try {
+                            List results = new ArrayList();
+                            walk(item, results);
+                        } catch(IOException e) {
+                            throw new RuntimeException("Error walking directory " +
+                                item.getAbsolutePath() + ":" + e.getMessage(), e);
+                        }
+                    } else { // File
+                        handleFile(item, 0, null);
                     }
-                } else { // File
-                    handleFile(item, 0, null);
+                } else {
+                    String filename = "null";
+                    if(item !=null){
+                        filename = item.getAbsolutePath();
+                    }
+                    logger.warn("Skipping " + filename +
+                                ", as it does not exist");
                 }
-            } else {
-                logger.warn("Skipping " + item.getAbsolutePath() +
-                            ", as it does not exist");
             }
+            logger.info("Found " + files +
+                " files to sync in initial directory walk");
+        
+        }catch(Exception e){
+            logger.error("dir walker failed: " + e.getMessage(), e);
         }
-        logger.info("Found " + files +
-            " files to sync in initial directory walk");
+
         complete = true;
     }
 
     @Override
     protected void handleFile(File file, int depth, Collection results) {
-        if(!excluded(file)) {
+        if( null == file){
+            logger.warn("The file parameter is unexpectedly null. Ignoring...");
+        } else if(!excluded(file)) {
             ++files;
             fileList.addChangedFile(file);
         } else {

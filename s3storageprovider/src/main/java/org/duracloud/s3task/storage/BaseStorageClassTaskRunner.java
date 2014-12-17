@@ -10,6 +10,7 @@ package org.duracloud.s3task.storage;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 
 import java.util.HashMap;
@@ -24,7 +25,8 @@ public abstract class BaseStorageClassTaskRunner implements TaskRunner {
 
     private static final int MAX_FAILURES = 500;
 
-    protected S3StorageProvider s3Provider;
+    protected StorageProvider s3Provider;
+    protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
 
     protected abstract StorageClass getStorageClass();
@@ -40,7 +42,7 @@ public abstract class BaseStorageClassTaskRunner implements TaskRunner {
         }
 
         // Will throw if bucket does not exist
-        String bucketName = s3Provider.getBucketName(spaceId);
+        String bucketName = unwrappedS3Provider.getBucketName(spaceId);
 
         Iterator<String> contentItems =
             s3Provider.getSpaceContents(spaceId, null);

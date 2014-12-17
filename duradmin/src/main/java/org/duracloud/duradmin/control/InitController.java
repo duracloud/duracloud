@@ -7,12 +7,9 @@
  */
 package org.duracloud.duradmin.control;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.createDuradminConfigFrom;
-import static org.duracloud.common.util.ExceptionUtil.getStackTraceAsString;
+import static javax.servlet.http.HttpServletResponse.*;
+import static org.duracloud.appconfig.xml.DuradminInitDocumentBinding.*;
+import static org.duracloud.common.util.ExceptionUtil.*;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +44,7 @@ public class InitController {
     private StorageSummaryCache storageSummaryCache; 
     
     private ControllerSupport controllerSupport;
-
+    
     @Autowired
     public InitController(
         ControllerSupport controllerSupport,
@@ -85,8 +82,9 @@ public class InitController {
         init.setDuraStoreContext(config.getDurastoreContext());
         init.setAmaUrl(config.getAmaUrl());
         init.setDuraBossContext(config.getDurabossContext());
-
+        init.setMillDbEnabled(config.isMillDbEnabled());
         DuradminConfig.setConfig(init);
+        
 
         this.controllerSupport.getContentStoreManager().reinitialize(DuradminConfig.getDuraStoreHost(), 
                                               DuradminConfig.getDuraStorePort(), 
@@ -96,7 +94,7 @@ public class InitController {
 
         
     }
-
+    
     @RequestMapping(value="",method=RequestMethod.GET)
     public ModelAndView isInitialized(HttpServletResponse response) {
         if(DuradminConfig.isInitialized()) {

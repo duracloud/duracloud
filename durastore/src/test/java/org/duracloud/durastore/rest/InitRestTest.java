@@ -7,16 +7,17 @@
  */
 package org.duracloud.durastore.rest;
 
+import static org.junit.Assert.*;
+
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.dbcp.BasicDataSource;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -28,22 +29,24 @@ public class InitRestTest {
     private StorageProviderFactory storageProviderFactory;
     private RestUtil restUtil;
     private InitRest initRest;
+    private BasicDataSource datasource;
 
     @Before
     public void setup() {
         storageProviderFactory =
             EasyMock.createMock(StorageProviderFactory.class);
         restUtil = EasyMock.createMock(RestUtil.class);
-        initRest = new InitRest(storageProviderFactory, restUtil);
+        datasource = EasyMock.createMock(BasicDataSource.class);
+        initRest = new InitRest(storageProviderFactory, restUtil, datasource);
     }
 
     private void replayMocks() {
-        EasyMock.replay(storageProviderFactory, restUtil);
+        EasyMock.replay(storageProviderFactory, restUtil, datasource);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(storageProviderFactory, restUtil);
+        EasyMock.verify(storageProviderFactory, restUtil, datasource);
     }
 
     @Test

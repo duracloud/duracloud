@@ -10,6 +10,8 @@ package org.duracloud.manifest;
 import java.io.OutputStream;
 import java.util.Collection;
 
+import org.duracloud.mill.db.model.ManifestItem;
+
 /**
  * This class defines the contract for Manifest Formatters.
  *
@@ -26,5 +28,12 @@ public interface ManifestFormatter {
      */
     public void writeEventsToOutput(Collection<ContentMessage> events,
                                     OutputStream output);
+    
+    /**
+     * 
+     * @param item to write
+     * @param outputStream destination of formatted items.  Null manifest items are ignored.
+     */
+    public void writeManifestItemToOutput(ManifestItem item, OutputStream outputStream);
 
 }

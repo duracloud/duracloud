@@ -10,6 +10,7 @@ package org.duracloud.s3task.storage;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -23,31 +24,27 @@ import java.util.List;
  */
 public class SetStorageClassTestBase {
 
-    protected S3StorageProvider s3Provider;
+    protected StorageProvider s3Provider;
+    protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
 
     @Before
     public void setUp() throws Exception {
         s3Provider = createS3ProviderMock();
+        unwrappedS3Provider = createUnwrappedS3ProviderMock();
         s3Client = createS3ClientMock();
     }
 
     @After
     public void tearDown() throws Exception {
-        EasyMock.verify(s3Provider);
+        EasyMock.verify(s3Provider, unwrappedS3Provider, s3Client);
         s3Provider = null;
-
-        EasyMock.verify(s3Client);
+        unwrappedS3Provider = null;
         s3Client = null;
     }
 
-    private S3StorageProvider createS3ProviderMock() {
-        S3StorageProvider mock = EasyMock.createMock(S3StorageProvider.class);
-
-        EasyMock
-            .expect(mock.getBucketName(EasyMock.isA(String.class)))
-            .andReturn("bucket-name")
-            .times(1);
+    private StorageProvider createS3ProviderMock() {
+        StorageProvider mock = EasyMock.createMock(StorageProvider.class);
 
         List<String> contentItems = new ArrayList<String>();
         contentItems.add("item1");
@@ -57,6 +54,18 @@ public class SetStorageClassTestBase {
             .expect(mock.getSpaceContents(EasyMock.isA(String.class),
                                           EasyMock.<String>isNull()))
             .andReturn(contentItems.iterator())
+            .times(1);
+
+        EasyMock.replay(mock);
+        return mock;
+    }
+
+    private S3StorageProvider createUnwrappedS3ProviderMock() {
+        S3StorageProvider mock = EasyMock.createMock(S3StorageProvider.class);
+
+        EasyMock
+            .expect(mock.getBucketName(EasyMock.isA(String.class)))
+            .andReturn("bucket-name")
             .times(1);
 
         EasyMock.replay(mock);

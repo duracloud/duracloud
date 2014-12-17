@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="false" scan="false">
+  <jmxConfigurator/>
+  <property name="LOG_FILENAME" value="${duracloud.home}/logs/duracloud-snapshot.log" />
+
+  <appender name="DURACLOUD" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${LOG_FILENAME}</File>
+
+    <encoder>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
+    </encoder>
+  </appender>
+  <logger name="org.duracloud" level="${log.level}">
+    <appender-ref ref="DURACLOUD"/>
+  </logger>
+  <root level="WARN">
+    <appender-ref ref="STDOUT"/>
+  </root>
+</configuration>

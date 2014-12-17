@@ -114,8 +114,11 @@ public class StorageAccountsDocumentBindingTest {
         accts.add(acct1);
 
         boolean includeCredentials = true;
-        Element accountsElem = documentBinding.createDocumentFrom(accts,
-                                                              includeCredentials);
+        boolean includeOptions = true;
+        Element accountsElem =
+            documentBinding.createDocumentFrom(accts,
+                                               includeCredentials,
+                                               includeOptions);
 
         Assert.assertNotNull(accountsElem);
         List<StorageAccount> accounts =

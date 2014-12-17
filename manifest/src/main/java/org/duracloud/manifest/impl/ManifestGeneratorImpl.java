@@ -7,190 +7,155 @@
  */
 package org.duracloud.manifest.impl;
 
-import org.apache.commons.io.FileCleaningTracker;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.client.ContentStoreManager;
-import org.duracloud.common.util.DateUtil;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.manifest.ContentMessage;
-import org.duracloud.manifest.LocalManifestGenerator;
+import org.apache.commons.lang3.StringUtils;
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.manifest.ManifestFormatter;
+import org.duracloud.manifest.ManifestGenerator;
 import org.duracloud.manifest.error.ManifestArgumentException;
-import org.duracloud.manifest.error.ManifestEmptyException;
 import org.duracloud.manifest.error.ManifestGeneratorException;
-import org.duracloud.storage.error.InvalidEventTSVException;
+import org.duracloud.manifest.error.ManifestNotFoundException;
+import org.duracloud.mill.db.model.ManifestItem;
+import org.duracloud.mill.manifest.ManifestStore;
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.Iterator;
 
 /**
- * This class manages the generation of content manifests.
- *
- * @author Andrew Woods
- *         Date: 3/27/12
+ * 
+ * @author Daniel Bernstein Date: Sept. 16, 2014
  */
-public class ManifestGeneratorImpl implements LocalManifestGenerator {
-
-    private final Logger log =
+public class ManifestGeneratorImpl implements ManifestGenerator {
+    private ManifestStore manifestStore;
+    private StorageProviderFactory storageProviderFactory;
+    private static Logger log =
         LoggerFactory.getLogger(ManifestGeneratorImpl.class);
 
-    private FileCleaningTracker fileCleaningTracker;
-    private ContentStoreManager storeManager;
-    private String auditLogSpace;
-    private String primaryStoreId;
-
-    private Map<String, ContentMessage> events; // contentId -> event
-
-    public ManifestGeneratorImpl(String auditLogSpace,
-                                 FileCleaningTracker fileCleaningTracker) {
-        this.auditLogSpace = auditLogSpace;
-        this.fileCleaningTracker = fileCleaningTracker;
-        this.events = new HashMap<String, ContentMessage>();
+    public ManifestGeneratorImpl(ManifestStore manifestStore,
+                                 StorageProviderFactory storageProviderFactory) {
+        super();
+        this.manifestStore = manifestStore;
+        this.storageProviderFactory = storageProviderFactory;
     }
 
     @Override
-    public void initialize(ContentStoreManager storeManager) {
-        this.storeManager = storeManager;
-        this.primaryStoreId = getPrimaryStoreId(storeManager);
-        this.events = new HashMap<String, ContentMessage>();
-    }
-
-    @Override
-    public InputStream getManifest(String storeId,
+    public InputStream getManifest(String account,
+                                   String storeId,
                                    String spaceId,
-                                   FORMAT format,
-                                   Date asOfDate)
-        throws ManifestArgumentException, ManifestEmptyException {
-        //FIXME Hook up manifest generator to the new audit log generator.
-        throw new UnsupportedOperationException("manifest generator is in the process of being retooled to work with new auditing system.");
-//        List<String> logs;
-//        try {
-//            logs = getAuditLogs(storeId, spaceId);
-//        } catch(ManifestEmptyException e) {
-//            if(spaceExists(storeId, spaceId)) {
-//                logs = new ArrayList<String>();
-//            } else {
-//                throw e;
-//            }
-//        }
-//
-//        for (String log : logs) {
-//            scanLog(log, storeId, asOfDate);
-//        }
-//
-//        // Create the manifest and get a handle to its input stream.
-//        File manifest = buildManifest(format);
-//        InputStream stream = stream(manifest);
-//
-//        // Register the temp file to be removed when the stream is out of scope.
-//        cleanup(manifest, stream);
-//
-//        return stream;
-    }
+                                   ManifestFormat format)
+        throws ManifestArgumentException,
+            ManifestNotFoundException {
 
-    private void cleanup(File file, Object marker) {
-        // remove temp manifest either on jvm exit or
-        //  when marker goes out of scope.
-        file.deleteOnExit();
-        fileCleaningTracker.track(file, marker);
-
-        // clear existing events.
-        events.clear();
-    }
-
-//    private void scanLog(String logContentId, String storeId, Date asOfDate) {
-//        Iterator<String> lines = getLogIterator(logContentId);
-//        while (lines.hasNext()) {
-//            ContentMessage event = getEvent(lines.next());
-//
-//            log.debug("scanning event: {}", event);
-//            if (null != event &&
-//                matchesStoreId(event, storeId) &&
-//                preceedsDate(event, asOfDate)) {
-//
-//                switch (ContentMessage.ACTION.valueOf(event.getAction())) {
-//                    case INGEST:
-//                    case COPY:
-//                        events.put(event.getContentId(), event);
-//                        break;
-//                    case DELETE:
-//                        events.remove(event.getContentId());
-//                        break;
-//                    case ERROR:
-//                        log.warn("Corrupted event: " + event);
-//                        break;
-//                    default:
-//                        log.error("Unexpected event: " + event);
-//                        break;
-//                }
-//            }
-//        }
-//    }
-//
-    private ContentMessage getEvent(String line) {
-        ContentMessage event = null;
-
-        if (line == null || line.isEmpty() ||
-            line.equals(ContentMessage.tsvHeader())) {
-            return event;
-        }
-
+        log.info("retrieving manifest for account:{}, storeId:{}, spaceId:{}, format:{}",
+                 account,
+                 storeId,
+                 spaceId,
+                 format);
         try {
-            event = new ContentMessage(line);
 
-        } catch (InvalidEventTSVException e) {
-            log.error(e.getMessage());
+            storeId = validateStoreId(storeId);
+            validateSpaceId(storeId, spaceId);
+            PipedInputStream is = new PipedInputStream(10 * 1024);
+            final PipedOutputStream os = new PipedOutputStream(is);
+            final Iterator<ManifestItem> it =
+                this.manifestStore.getItems(account, storeId, spaceId);
+            final ManifestFormatter formatter = getFormatter(format);
+            if (!it.hasNext()) {
+                formatter.writeManifestItemToOutput(null, os);
+                os.close();
+                return is;
+            } else {
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            while (it.hasNext()) {
+                                formatter.writeManifestItemToOutput(it.next(),
+                                                                    os);
+                            }
+                            try {
+                                os.close();
+                            } catch (IOException e) {
+                                log.error("failed to close piped output stream : " + e.getMessage(),
+                                          e);
+                            }
+
+                        } catch (Exception e) {
+                            log.error("error writing to piped output stream : " + e.getMessage(),
+                                      e);
+                        }
+                    }
+                }).start();
+            }
+
+            return is;
+
+        } catch (IOException | RuntimeException ex) {
+            log.error("failed to retrieve manifest: " + ex.getMessage(), ex);
+            throw new ManifestGeneratorException(ex.getMessage());
         }
-        return event;
+
     }
 
-    private boolean matchesStoreId(ContentMessage event, String storeId) {
-        if (null == storeId) {
-            return primaryStoreId.equals(event.getStoreId());
+    protected void validateSpaceId(String storeId, String spaceId)
+        throws ManifestNotFoundException {
+        StorageProvider store =
+            this.storageProviderFactory.getStorageProvider(storeId);
+        try {
+            store.getSpaceProperties(spaceId);
+        } catch (NotFoundException ex) {
+            throw new ManifestNotFoundException("there is no manifest for space: " + spaceId
+                                                + " where storeId = "
+                                                + storeId
+                                                + " : no such space exists.");
         }
-
-        return storeId.equals(event.getStoreId());
     }
 
-    private boolean preceedsDate(ContentMessage event, Date asOfDate) {
-        if (null == asOfDate) {
-            return true;
-        }
+    protected String validateStoreId(String storeId)
+        throws ManifestArgumentException {
+        // validate storeId;
+        if (StringUtils.isBlank(storeId)) {
 
-        Date date = getDate(event.getDatetime());
-        if (null == date) {
-            return false;
-        }
+            for (StorageAccount storageAccount : this.storageProviderFactory.getStorageAccounts()) {
+                if (storageAccount.isPrimary()) {
+                    storeId = storageAccount.getId();
+                    break;
+                }
+            }
 
-        return !date.after(asOfDate);
-    }
+            if (StringUtils.isBlank(storeId)) {
+                throw new ManifestArgumentException("storeId is blank and " + "no primary storage account is "
+                                                    + "indicated for this account.");
+            }
 
-    private Date getDate(String text) {
-        Exception exception = null;
-        for (DateUtil.DateFormat dateFormat : DateUtil.DateFormat.values()) {
-            try {
-                return DateUtil.convertToDate(text, dateFormat);
-            } catch (ParseException e) {
-                exception = e;
+        } else {
+            boolean matches = false;
+            for (StorageAccount storageAccount : this.storageProviderFactory.getStorageAccounts()) {
+                if (storageAccount.getId().equals(storeId)) {
+                    matches = true;
+                    break;
+                }
+            }
+
+            if (!matches) {
+                throw new ManifestArgumentException("The storeId you supplied (" + storeId
+                                                    + ") is not associated with this domain.");
             }
         }
-
-        log.error(exception.getMessage());
-        return null;
+        return storeId;
     }
 
-    private File buildManifest(FORMAT format) throws ManifestArgumentException {
-
+    protected ManifestFormatter getFormatter(final ManifestFormat format)
+        throws ManifestArgumentException {
         ManifestFormatter formatter;
         switch (format) {
             case BAGIT:
@@ -205,140 +170,7 @@ public class ManifestGeneratorImpl implements LocalManifestGenerator {
                 throw new ManifestArgumentException(err);
         }
 
-        File file = getTempFile();
-        OutputStream output = outputStream(file);
-
-        formatter.writeEventsToOutput(events.values(), output);
-
-        IOUtils.closeQuietly(output);
-        return file;
-    }
-
-    private OutputStream outputStream(File file) {
-        try {
-            return FileUtils.openOutputStream(file);
-
-        } catch (IOException e) {
-            StringBuilder err = new StringBuilder("Error ");
-            err.append("opening output stream: ");
-            err.append(file.getAbsolutePath());
-            err.append(", error: ");
-            err.append(e.getMessage());
-            log.error(err.toString());
-
-            throw new ManifestGeneratorException(err.toString(), e);
-        }
-    }
-
-    private File getTempFile() {
-        try {
-            return File.createTempFile(DateUtil.nowPlain() + "-", "-manifest-gen");
-
-        } catch (IOException e) {
-            StringBuilder err = new StringBuilder("Error creating temp file, ");
-            err.append("error: ");
-            err.append(e.getMessage());
-            log.error(err.toString());
-
-            throw new ManifestGeneratorException(err.toString(), e);
-        }
-    }
-
-//    private List<String> getAuditLogs(String storeId,
-//                                      String spaceId)
-//        throws ManifestEmptyException {
-//        try {
-//            return auditLogStore.getAuditLogs(spaceId);
-//
-//        } catch (AuditLogNotFoundException e) {
-//            StringBuilder err = new StringBuilder("Audit log not found, ");
-//            err.append(storeId);
-//            err.append(":");
-//            err.append(spaceId);
-//            err.append(", message: ");
-//            err.append(e.getMessage());
-//            log.warn(err.toString());
-//            throw new ManifestEmptyException(err.toString(), e);
-//        }
-//    }
-
-//    private Iterator<String> getLogIterator(String logContentId) {
-//        InputStream logStream = getLogStream(logContentId);
-//        Iterator<String> lines;
-//        try {
-//            lines = IOUtils.lineIterator(logStream, null);
-//
-//        } catch (IOException e) {
-//            log.warn("Error getting line iterator for: {}", logContentId, e);
-//            lines = new ArrayList<String>().iterator();
-//        }
-//        return lines;
-//    }
-
-//    private InputStream getLogStream(String logContentId) {
-//        Content content;
-//        try {
-//            content = getContentStore().getContent(auditLogSpace, logContentId);
-//
-//        } catch (ContentStoreException e) {
-//            StringBuilder err = new StringBuilder("Error getting log: ");
-//            err.append(auditLogSpace);
-//            err.append("//");
-//            err.append(logContentId);
-//            err.append(", error: ");
-//            err.append(e.getMessage());
-//            log.error(err.toString());
-//
-//            throw new ManifestGeneratorException(err.toString(), e);
-//        }
-//        return content.getStream();
-//    }
-
-    private ContentStore getContentStore() throws ContentStoreException {
-        return storeManager.getPrimaryContentStore();
-    }
-
-    private String getPrimaryStoreId(ContentStoreManager storeManager) {
-        try {
-            return storeManager.getPrimaryContentStore().getStoreId();
-
-        } catch (ContentStoreException e) {
-            StringBuilder err = new StringBuilder("Error getting primary ");
-            err.append("storeId, msg: ");
-            err.append(e.getMessage());
-            log.error(err.toString());
-            throw new ManifestGeneratorException(err.toString(), e);
-        }
-    }
-
-    private InputStream stream(File file) {
-        try {
-            return FileUtils.openInputStream(file);
-
-        } catch (IOException e) {
-            StringBuilder err = new StringBuilder("Error opening file: ");
-            err.append(file.getAbsolutePath());
-            err.append(", error: ");
-            err.append(e.getMessage());
-            log.error(err.toString());
-
-            throw new ManifestGeneratorException(err.toString(), e);
-        }
-    }
-
-    private boolean spaceExists(String storeId, String spaceId) {
-        try {
-            ContentStore store;
-            if(null == storeId) {
-                store = storeManager.getPrimaryContentStore();
-            } else {
-                store = storeManager.getContentStore(storeId);
-            }
-            store.getSpaceProperties(spaceId);
-            return true;
-        } catch(ContentStoreException e) {
-        }
-        return false;
+        return formatter;
     }
 
 }

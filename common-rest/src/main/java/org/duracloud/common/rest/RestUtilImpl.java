@@ -59,7 +59,7 @@ public class RestUtilImpl implements RestUtil {
                         String contentLength =
                             itemHeaders.getHeader("Content-Length");
                         if(contentLength != null) {
-                            rContent.size = Integer.parseInt(contentLength);
+                            rContent.size = Long.parseLong(contentLength);
                         }
                     }
 
@@ -89,7 +89,7 @@ public class RestUtilImpl implements RestUtil {
                 List<String> lengthHeaders =
                     headers.getRequestHeader("Content-Length");
                 if(lengthHeaders != null && lengthHeaders.size() > 0) {
-                    rContent.size = Integer.parseInt(lengthHeaders.get(0));
+                    rContent.size = Long.parseLong(lengthHeaders.get(0));
                 }
             }
         }

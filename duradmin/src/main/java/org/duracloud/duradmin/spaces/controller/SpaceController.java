@@ -8,6 +8,15 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
@@ -18,25 +27,25 @@ import org.duracloud.duradmin.domain.Space;
 import org.duracloud.duradmin.domain.SpaceProperties;
 import org.duracloud.duradmin.util.SpaceUtil;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.mill.db.model.BitIntegrityReport;
+import org.duracloud.mill.db.repo.JpaBitIntegrityReportRepo;
+import org.duracloud.mill.db.repo.MillJpaRepoConfig;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * 
@@ -51,17 +60,17 @@ public class SpaceController {
 
 	private ContentStoreManager contentStoreManager;
 
-    private String bitIntegrityResultsContentId;
+    private JpaBitIntegrityReportRepo reportRepo;
 
     private String adminSpaceId;
 
     @Autowired
     public SpaceController(
         @Qualifier("adminSpaceId") String adminSpaceId,
-        @Qualifier("bitIntegrityResultsContentId") String bitIntegrityResultsContentId,
+        @Qualifier("bitIntegrityReportRepo") JpaBitIntegrityReportRepo reportRepo,
         @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
         this.adminSpaceId = adminSpaceId;
-        this.bitIntegrityResultsContentId = bitIntegrityResultsContentId;
+        this.reportRepo = reportRepo;
         this.contentStoreManager = contentStoreManager;
     }
     
@@ -83,6 +92,9 @@ public class SpaceController {
                 contentStoreManager.getContentStore(space.getStoreId(),0);
 			populateSpace(space, cloudSpace, contentStoreWithoutRetries);
 			populateSpaceCount(space, request);
+			if(space.isMillDbEnabled()){
+	            populateBitIntegrityResults(space, contentStore);
+			}
 			return createModel(space);
 		}catch(ContentStoreException ex){
 			ex.printStackTrace();
@@ -91,6 +103,21 @@ public class SpaceController {
 		}
 	}
 
+    private void populateBitIntegrityResults(Space space, ContentStore contentStore) {
+        try{
+            BitIntegrityReportProperties bitReportProps =
+                contentStore.getBitIntegrityReportProperties(space.getSpaceId());
+            if(bitReportProps == null){
+                log.warn("No bit report properties found for space {}", space.getSpaceId());
+            }else{
+                space.setBitIntegrityReportProperties(bitReportProps);
+            }
+
+        }catch(Exception ex){
+            log.error("failed to populate bit integrity results due to error:" + ex.getMessage(), ex);
+        }
+    }
+    
     private void populateSpace(Space space,
                                org.duracloud.domain.Space cloudSpace,
                                ContentStore contentStore)

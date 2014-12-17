@@ -16,6 +16,8 @@ import org.duracloud.security.context.SecurityContextUtil;
 import org.duracloud.storage.error.InvalidIdException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -43,12 +45,14 @@ import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_SPACE_AC
  * @author Bill Branan
  */
 @Path("/")
+@Component
 public class SpaceRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(SpaceRest.class);
 
     private SpaceResource spaceResource;
     private SecurityContextUtil securityContextUtil;
 
+    @Autowired
     public SpaceRest(SpaceResource spaceResource,
                      SecurityContextUtil securityContextUtil) {
         this.spaceResource = spaceResource;
@@ -114,7 +118,7 @@ public class SpaceRest extends BaseRest {
             return doGetSpace(spaceID, storeID, prefix, maxResults, marker);
 
         } catch(ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -156,7 +160,7 @@ public class SpaceRest extends BaseRest {
             return addSpacePropertiesToResponse(Response.ok(), spaceID, storeID);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg, e, NOT_FOUND);
+            return responseNotFound(msg, e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
@@ -202,7 +206,7 @@ public class SpaceRest extends BaseRest {
             return addSpaceACLsToResponse(Response.ok(), spaceID, storeID);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg, e, NOT_FOUND);
+            return responseNotFound(msg, e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
@@ -297,7 +301,7 @@ public class SpaceRest extends BaseRest {
             return doUpdateSpaceACLs(spaceID, storeID);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg, e, NOT_FOUND);
+            return responseNotFound(msg, e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
@@ -333,7 +337,7 @@ public class SpaceRest extends BaseRest {
             return doDeleteSpace(spaceID, storeID);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg, e, NOT_FOUND);
+            return responseNotFound(msg, e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg, e, INTERNAL_SERVER_ERROR);
@@ -355,12 +359,18 @@ public class SpaceRest extends BaseRest {
         return Response.ok(text, APPLICATION_XML).build();
     }
 
+    private Response responseNotFound(String msg,
+                                      Exception e,
+                                      Response.Status status) {
+        log.debug("Not Found: " + msg);
+        return responseBad(e.getMessage(), status);
+    }
+
     private Response responseBad(String msg,
                                  Exception e,
                                  Response.Status status) {
-        log.error("Error while " + msg, e);
-        String text = e.getMessage() == null ? "null" : e.getMessage();
-        return Response.status(status).entity(text).build();
+        log.error("Error: " + msg, e);
+        return responseBad(e.getMessage(), status);
     }
 
 }

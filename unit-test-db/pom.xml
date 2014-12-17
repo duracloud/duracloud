@@ -1,42 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.1.1</version>
+    <version>3.2.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>unit-test-db</artifactId>
-  <version>3.1.1</version>
-  <packaging>jar</packaging>
+  <version>3.2.0</version>
   <name>Unit Test Database</name>
 
-  <build>
+  <properties>
+    <!-- see maven-shade-plugin in root pom.xml -->
+    <mainClass>org.duracloud.unittestdb.UnitTestDatabaseLoaderCLI</mainClass>
+  </properties>
 
+  <build>
     <plugins>
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>org.duracloud.unittestdb.UnitTestDatabaseLoaderCLI</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
+  </build>
 
-  </build>  
-  
   <dependencies>
 
     <!-- internal projects -->
@@ -51,7 +40,7 @@
       <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common-db</artifactId>
@@ -62,30 +51,17 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-    </dependency>    
+    </dependency>
 
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>com.springsource.org.apache.commons.lang</artifactId>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
     </dependency>
 
     <!-- runtime dependencies -->
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>com.springsource.org.apache.derby</artifactId>
-      <version>10.5.1000001.764942</version>
-      <classifier>duracloud</classifier>
-      <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
       <scope>runtime</scope>
     </dependency>
 

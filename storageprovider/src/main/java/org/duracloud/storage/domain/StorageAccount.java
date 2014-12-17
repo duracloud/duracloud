@@ -28,7 +28,8 @@ public interface StorageAccount {
         HOST,
         BASE_DIRECTORY,
         RESOURCE,
-        // Chronopolis below
+        // Snapshot below
+        SNAPSHOT_USER,
         BRIDGE_HOST,
         BRIDGE_PORT,
         BRIDGE_USER,

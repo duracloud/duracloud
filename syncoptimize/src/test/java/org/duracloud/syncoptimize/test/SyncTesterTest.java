@@ -91,8 +91,9 @@ public class SyncTesterTest {
         assertEquals(prefix, syncArgs[13]);
         assertEquals("-x", syncArgs[14]);
         assertEquals("-l", syncArgs[15]);
-        assertEquals("-t", syncArgs[16]);
-        assertEquals(String.valueOf(threads), syncArgs[17]);
+        assertEquals("-j", syncArgs[16]);
+        assertEquals("-t", syncArgs[17]);
+        assertEquals(String.valueOf(threads), syncArgs[18]);
 
         EasyMock.verify(syncTool, contentStore);
     }

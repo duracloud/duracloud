@@ -7,16 +7,17 @@
  */
 package org.duracloud.manifest.impl;
 
-import org.apache.commons.io.IOUtils;
-import org.duracloud.manifest.ContentMessage;
-import org.duracloud.manifest.ManifestFormatter;
-import org.duracloud.manifest.error.ManifestFormatterException;
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.apache.commons.io.IOUtils;
+import org.duracloud.manifest.ContentMessage;
+import org.duracloud.manifest.ManifestFormatter;
+import org.duracloud.manifest.error.ManifestFormatterException;
+import org.duracloud.mill.db.model.ManifestItem;
+import org.slf4j.Logger;
 
 /**
  * This class provides the common logic for all ManifestFormatters.
@@ -25,14 +26,11 @@ import java.util.Iterator;
  *         Date: 3/29/12
  */
 public abstract class ManifestFormatterBase implements ManifestFormatter {
-
+    private boolean headerWasWritten = false;
     @Override
     public void writeEventsToOutput(Collection<ContentMessage> events,
                                     OutputStream output) {
-        String header = getHeader();
-        if (null != header) {
-            write(header + "\n", output);
-        }
+        writeHeader(output);
 
         Iterator<ContentMessage> itr = events.iterator();
         while (itr.hasNext()) {
@@ -44,6 +42,26 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
             }
         }
     }
+    
+    @Override
+    public void writeManifestItemToOutput(ManifestItem item,
+                                          OutputStream output) {
+        writeHeader(output);
+        
+        if(item != null){
+            write(getLine(item), output);
+            write("\n", output);
+        }
+    }
+
+    protected void writeHeader(OutputStream output) {
+        String header = getHeader();
+        if (null != header && !headerWasWritten) {
+            write(header + "\n", output);
+            headerWasWritten = true;
+        }
+    }
+    
 
     private void write(String line, OutputStream output) {
         try {
@@ -63,6 +81,15 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
 
     protected abstract String getHeader();
 
-    protected abstract String getLine(ContentMessage event);
+    public String getLine(ContentMessage event) {
+        return getLine(event.getContentMd5(), event.getSpaceId(), event.getContentId());
+    }
+
+    public String getLine(ManifestItem item){
+        return getLine(item.getContentChecksum(), item.getSpaceId(), item.getContentId());
+    }
+
+    protected abstract String getLine(String contentMd5, String spaceId, String contentId);
+
 
 }

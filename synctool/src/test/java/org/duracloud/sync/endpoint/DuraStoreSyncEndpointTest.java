@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
 /**
@@ -34,6 +33,7 @@ public class DuraStoreSyncEndpointTest {
     private ContentStore contentStore;
     private String username;
     private String spaceId;
+    private File contentFile;
 
     @Before
     public void setUp() throws Exception {
@@ -51,70 +51,38 @@ public class DuraStoreSyncEndpointTest {
         .andReturn("0")
         .times(1);
 
+        contentFile = File.createTempFile("content", "file.txt");
+        contentFile.deleteOnExit();
     }
 
     @After
     public void tearDown() throws Exception {
         EasyMock.verify(contentStore);
+
+        FileUtils.deleteQuietly(contentFile);
     }
 
     private void replayMocks() {
         EasyMock.replay(contentStore);
     }
 
-    @Test
-    public void testGetContentId() throws Exception {
-        replayMocks();
-        setEndpoint(null);
-
-        File watchDir = new File("a");
-        MonitoredFile file = new MonitoredFile(new File("a/b/c", "file.txt"));
-
-        // Get Content ID with a watch dir
-        String contentId = endpoint.getContentId(file, watchDir);
-        assertEquals("b/c/file.txt", contentId);
-
-        // Get Content ID with now watch dir
-        contentId = endpoint.getContentId(file, null);
-        assertEquals("file.txt", contentId);
-    }
-
-    @Test
-    public void testGetContentIdPrefix() throws Exception {
-        String prefix = "prefix/";
-
-        replayMocks();
-        setEndpoint(prefix);
-
-        File watchDir = new File("a");
-        MonitoredFile file = new MonitoredFile(new File("a/b/c", "file.txt"));
-
-        // Get Content ID with a watch dir
-        String contentId = endpoint.getContentId(file, watchDir);
-        assertEquals(prefix + "b/c/file.txt", contentId);
-
-        // Get Content ID with now watch dir
-        contentId = endpoint.getContentId(file, null);
-        assertEquals(prefix + "file.txt", contentId);
-    }
-
-    private void setEndpoint(String prefix) {
+    private void setEndpoint(String prefix, boolean jumpStart) {
         endpoint = new DuraStoreSyncEndpoint(contentStore, username, spaceId,
-                                             false, true, false, null, prefix);
+                                             false, true, false, jumpStart, null,
+                                             prefix);
     }
 
     @Test
     public void testAddUpdateFile() throws Exception {
         String contentId = "contentId";
         String content = "content-file";
-        File contentFile = File.createTempFile("content", "file.txt");
+
         FileUtils.writeStringToFile(contentFile, content);
         ChecksumUtil checksumUtil =
             new ChecksumUtil(ChecksumUtil.Algorithm.MD5);
         String checksum = checksumUtil.generateChecksum(contentFile);
 
-        Capture<Map<String, String>> propsCapture =
-            new Capture<Map<String, String>>();
+        Capture<Map<String, String>> propsCapture = new Capture<>();
         EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
                                                 EasyMock.eq(contentId),
                                                 EasyMock.isA(InputStream.class),
@@ -125,14 +93,31 @@ public class DuraStoreSyncEndpointTest {
                 .andReturn("");
 
         replayMocks();
-        setEndpoint(null);
+        setEndpoint(null, false);
 
         MonitoredFile monitoredFile = new MonitoredFile(contentFile);
         endpoint.addUpdateContent(contentId, monitoredFile);
 
         Map<String, String> props = propsCapture.getValue();
         assertNotNull(props);
-        FileUtils.deleteQuietly(contentFile);
+    }
+
+    @Test
+    public void testSyncJumpstart() throws Exception {
+        EasyMock.expect(contentStore.addContent(EasyMock.eq(spaceId),
+                                                EasyMock.isA(String.class),
+                                                EasyMock.isA(InputStream.class),
+                                                EasyMock.eq(0L),
+                                                EasyMock.eq("text/plain"),
+                                                EasyMock.isA(String.class),
+                                                EasyMock.isA(Map.class)))
+                .andReturn("");
+
+        replayMocks();
+        setEndpoint(null, true);
+
+        MonitoredFile monitoredFile = new MonitoredFile(contentFile);
+        endpoint.syncFile(monitoredFile, contentFile.getParentFile());
     }
 
 }

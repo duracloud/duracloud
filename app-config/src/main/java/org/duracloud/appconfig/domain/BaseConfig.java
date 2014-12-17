@@ -9,6 +9,7 @@ package org.duracloud.appconfig.domain;
 
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.error.DuraCloudRuntimeException;
+import org.duracloud.storage.domain.DatabaseConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,4 +93,18 @@ public abstract class BaseConfig {
         return suffix;
     }
 
+    protected void loadDbConfig(DatabaseConfig databaseConfig, String key, String value) {
+        String suffix = getSuffix(key);
+        if (suffix.equalsIgnoreCase("username")) {
+            databaseConfig.setUsername(value);
+        } else if (suffix.equalsIgnoreCase("password")) {
+            databaseConfig.setPassword(value);
+        } else if (suffix.equalsIgnoreCase("host")) {
+            databaseConfig.setHost(value);
+        } else if (suffix.equalsIgnoreCase("port")) {
+            databaseConfig.setPort(Integer.parseInt(value));
+        } else if (suffix.equalsIgnoreCase("name")) {
+            databaseConfig.setName(value);
+        }
+    }
 }

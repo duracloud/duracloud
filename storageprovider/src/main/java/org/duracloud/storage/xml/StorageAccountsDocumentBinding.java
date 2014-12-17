@@ -123,18 +123,20 @@ public class StorageAccountsDocumentBinding {
      * @return
      */
     public Element createDocumentFrom(Collection<StorageAccount> accts,
-                                      boolean includeCredentials) {
+                                      boolean includeCredentials,
+                                      boolean includeOptions) {
         Element storageProviderAccounts = new Element("storageProviderAccounts");
 
         if (null != accts && accts.size() > 0) {
             for (StorageAccount acct : accts) {
 
-                StorageAccountProviderBinding providerBinding = providerBindings
-                    .get(acct.getType());
+                StorageAccountProviderBinding providerBinding =
+                    providerBindings.get(acct.getType());
                 if (null != providerBinding) {
-                    storageProviderAccounts.addContent(providerBinding.getElementFrom(
-                        acct,
-                        includeCredentials));
+                    storageProviderAccounts.addContent(
+                        providerBinding.getElementFrom(acct,
+                                                       includeCredentials,
+                                                       includeOptions));
 
                 } else {
                     log.warn("Unexpected account type: " + acct.getType());
@@ -152,9 +154,10 @@ public class StorageAccountsDocumentBinding {
      * @return
      */
     public String createXmlFrom(Collection<StorageAccount> accts,
-                                boolean includeCredentials) {
+                                boolean includeCredentials,
+                                boolean includeOptions) {
         Element storageProviderAccounts =
-            createDocumentFrom(accts, includeCredentials);
+            createDocumentFrom(accts, includeCredentials, includeOptions);
         Document document = new Document(storageProviderAccounts);
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         return outputter.outputString(document);

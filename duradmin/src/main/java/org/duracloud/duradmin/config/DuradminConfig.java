@@ -36,11 +36,13 @@ public class DuradminConfig
     private static String duraserviceContextKey = "duraserviceContext";
 
     private static String durabossContextKey = "durabossContext";
+    
+    private static String millDbEnabledKey = "millDbEnabled";
 
     private static boolean initialized = false;
 
     private static Properties getProps() {
-        return getPropsFromResource(getConfigFileName());
+        return ApplicationConfig.getPropsFromResource(getConfigFileName());
     }
 
     public static String getPropsHost() {
@@ -58,6 +60,11 @@ public class DuradminConfig
     public static String getPropsDuraServiceContext() {
         return getProps().getProperty(duraserviceContextKey);
     }
+    
+    public static Boolean isPropsMillDbEnabled() {
+        return Boolean.valueOf(getProps().getProperty(millDbEnabledKey));
+    }
+
 
     public static void setConfigFileName(String name) {
         configFileName = name;
@@ -94,6 +101,11 @@ public class DuradminConfig
         return config.getDuraStoreContext();
     }
 
+    public static boolean isMillDbEnabled() {
+        checkInitialized();
+        return config.isMillDbEnabled();
+    }
+
     public String getAmaUrl() {
         checkInitialized();
         return config.getAmaUrl();
@@ -111,9 +123,10 @@ public class DuradminConfig
         config.setDuraStorePort(getPropsPort());
         config.setDuraStoreContext(getPropsDuraStoreContext());
         config.setDuraBossContext(getPropsDuraBossContext());
-
         config.setAmaUrl(null); // default is null.
+        config.setMillDbEnabled(isPropsMillDbEnabled());
     }
+
 
     private static String getPropsDuraBossContext() {
         return getProps().getProperty(durabossContextKey, "duraboss");

@@ -27,7 +27,7 @@ public class TestS3TaskProvider extends S3ProviderTestBase {
 
     @Before
     public void setUp() throws Exception {
-        taskProvider = new S3TaskProvider(null, null, null);
+        taskProvider = new S3TaskProvider(null, null, null, null);
     }
 
     @Test

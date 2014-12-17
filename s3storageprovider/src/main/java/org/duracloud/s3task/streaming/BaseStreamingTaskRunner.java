@@ -10,6 +10,7 @@ package org.duracloud.s3task.streaming;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
@@ -37,7 +38,8 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
 
     protected static final int maxRetries = 8;
 
-    protected S3StorageProvider s3Provider;
+    protected StorageProvider s3Provider;
+    protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
     protected CloudFrontService cfService;
 
@@ -143,7 +145,7 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
             s3Provider.getSpaceProperties(spaceId);
         if(spaceProps.containsKey(STREAMING_HOST_PROP)) {
             spaceProps.remove(STREAMING_HOST_PROP);
-            s3Provider.setNewSpaceProperties(spaceId, spaceProps);
+            unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
         }
     }
 

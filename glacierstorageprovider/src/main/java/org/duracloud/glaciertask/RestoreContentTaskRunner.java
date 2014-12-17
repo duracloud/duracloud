@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.storage.error.StorageStateException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 
 /**
@@ -25,12 +26,15 @@ public class RestoreContentTaskRunner implements TaskRunner {
     private static final String TASK_NAME = "restore-content";
     private static final int RESTORE_EXPIRATION_DAYS = 14;
 
-    private GlacierStorageProvider glacierProvider;
+    private StorageProvider glacierProvider;
+    private GlacierStorageProvider unwrappedGlacierProvider;
     private AmazonS3Client s3Client;
 
-    public RestoreContentTaskRunner(GlacierStorageProvider glacierProvider,
+    public RestoreContentTaskRunner(StorageProvider glacierProvider,
+                                    GlacierStorageProvider unwrappedGlacierProvider,
                                     AmazonS3Client s3Client) {
         this.glacierProvider = glacierProvider;
+        this.unwrappedGlacierProvider = unwrappedGlacierProvider;
         this.s3Client = s3Client;
     }
 
@@ -58,7 +62,7 @@ public class RestoreContentTaskRunner implements TaskRunner {
 
         // Restore content item
         try {
-            s3Client.restoreObject(glacierProvider.getBucketName(spaceId),
+            s3Client.restoreObject(unwrappedGlacierProvider.getBucketName(spaceId),
                                    contentId,
                                    RESTORE_EXPIRATION_DAYS);
         } catch(AmazonS3Exception e) {

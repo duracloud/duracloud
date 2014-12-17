@@ -70,13 +70,25 @@ public interface TaskQueue {
     public void deleteTask(Task task) throws TaskNotFoundException;
 
     /**
-     * @return the number of elements in this queue.
+     * @return The approximate number of elements in this queue (does not
+     *         include invisible and delayed tasks).
      */
     public Integer size();
 
     /**
-     * Requeues the task by deleting the task, incrementing the "attempts" counter, and re-adding back to the queue.
-     * Any subsequent calls on the requeued task via the task queue should fail due to the task not being found.
+     * @return The approximate number of elements in this queue including
+     *         all items that are visible (available for takes),
+     *         invisible (in process - not yet completed), and delayed (pending
+     *         addition to the queue).
+     */
+    public Integer sizeIncludingInvisibleAndDelayed();
+
+    /**
+     * Requeues the task by deleting the task, incrementing the "attempts"
+     * counter, and re-adding back to the queue. Any subsequent calls on the
+     * requeued task via the task queue should fail due to the task not being
+     * found.
+     * 
      * @param task
      */
     public void requeue(Task task);

@@ -268,7 +268,6 @@ var dc;
 				dc.checkSession();
 				future.success(data);
 		    },
-		    
 		    error: function(xhr, status, errorThrown){
 		    	future.failure(status,xhr);
 		    },
@@ -413,6 +412,65 @@ var dc;
         });
     };
 
+    dc.store.RestoreSnapshot = function(storeId, snapshotId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/restores?storeId="+storeId+"&snapshotId="+snapshotId, 
+            async: true,
+            dataType: 'json',
+            type: "post",
+        });
+    };
+
+    dc.store.GetSnapshots = function(storeId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/snapshots/" + storeId, 
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+    
+    dc.store.GetSnapshot = function(params){
+        
+        return dc.ajax2({
+            url: "/duradmin/spaces/snapshots/" + params.storeId + "/" + params.spaceId, 
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+    
+    dc.store.GetSnapshotRestoreSpaceId = function(params){
+      
+      return dc.ajax2({
+          url: "/duradmin/spaces/snapshots/" + params.storeId + "/" + params.snapshotId + "/restore-space-id", 
+          async: true,
+          dataType: 'json',
+          type: "get",
+      });
+  };
+    
+   
+    dc.store.GetRestoreBySnapshot = function(storeId,snapshotId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/restores/"+storeId+"/by-snapshot/" + snapshotId, 
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+    
+    dc.store.GetRestore = function(storeId,restoreId){
+        return dc.ajax2({
+            url: "/duradmin/spaces/restores/"+storeId+"/"+restoreId, 
+            async: true,
+            dataType: 'json',
+            type: "get",
+        });
+    };
+        
+    
+    
     dc.store.GetSnapshotProperties = function(storeId, spaceId){
         
         return dc.ajax2({
@@ -423,6 +481,19 @@ var dc;
         });
     };
 
+    dc.store.GetSnapshotContent = function(storeId, snapshotId, page, prefix){
+        if(!page){
+            page = 0;
+        }
+        return dc.ajax2({
+            url : "/duradmin/spaces/snapshots/" + storeId + "/" + snapshotId
+                    + "/content?page=" + page + "&prefix="
+                    + prefix,
+            dataType : 'json',
+            async : true,
+            type : "get",
+        });
+    };
     /**
      * 
      */

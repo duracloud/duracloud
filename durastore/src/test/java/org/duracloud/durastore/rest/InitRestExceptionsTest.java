@@ -7,12 +7,13 @@
  */
 package org.duracloud.durastore.rest;
 
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.dbcp.BasicDataSource;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 
 /**
  * @author: Bill Branan
@@ -23,6 +24,7 @@ public class InitRestExceptionsTest {
     private InitRest initRest;
     private StorageProviderFactory storageProviderFactory;
     private RestUtil restUtil;
+    private BasicDataSource datasource;
 
     private RestExceptionsTestSupport support = new RestExceptionsTestSupport();
 
@@ -30,7 +32,7 @@ public class InitRestExceptionsTest {
     public void setUp() throws Exception {
         storageProviderFactory = support.createStorageProviderFactory();
         restUtil = support.createRestUtil();
-        initRest = new InitRest(storageProviderFactory, restUtil);
+        initRest = new InitRest(storageProviderFactory, restUtil, datasource);
     }
 
     @Test

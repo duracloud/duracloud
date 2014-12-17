@@ -7,6 +7,28 @@
  */
 package org.duracloud.duradmin.util;
 
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang.StringUtils;
+import org.duracloud.client.ContentStore;
+import org.duracloud.common.constant.Constants;
+import org.duracloud.common.model.AclType;
+import org.duracloud.common.util.TagUtil;
+import org.duracloud.common.web.EncodeUtil;
+import org.duracloud.domain.Content;
+import org.duracloud.duradmin.config.DuradminConfig;
+import org.duracloud.duradmin.domain.Acl;
+import org.duracloud.duradmin.domain.ContentItem;
+import org.duracloud.duradmin.domain.ContentProperties;
+import org.duracloud.duradmin.domain.Space;
+import org.duracloud.duradmin.domain.SpaceProperties;
+import org.duracloud.error.ContentStateException;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.security.impl.DuracloudUserDetails;
+import org.duracloud.storage.domain.StorageProviderType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,32 +39,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.lang.StringUtils;
-import org.duracloud.client.ContentStore;
-import org.duracloud.common.constant.Constants;
-import org.duracloud.common.model.AclType;
-import org.duracloud.common.util.TagUtil;
-import org.duracloud.common.web.EncodeUtil;
-import org.duracloud.domain.Content;
-import org.duracloud.duradmin.domain.Acl;
-import org.duracloud.duradmin.domain.ContentItem;
-import org.duracloud.duradmin.domain.ContentProperties;
-import org.duracloud.duradmin.domain.Space;
-import org.duracloud.duradmin.domain.SpaceProperties;
-import org.duracloud.duradmin.security.RootAuthentication;
-import org.duracloud.error.ContentStateException;
-import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
-import org.duracloud.security.impl.DuracloudUserDetails;
-import org.duracloud.storage.domain.StorageProviderType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Provides utility methods for spaces.
@@ -65,11 +61,10 @@ public class SpaceUtil {
         space.setAcls(toAclList(spaceAcls));
 
         if (isAdmin(authentication)
-            && isChronopolis(contentStore)
+            && isSnapshotProvider(contentStore)
             && isSnapshotInProgress(contentStore, space.getSpaceId())) {
             space.setSnapshotInProgress(true);
         }
-
 
         AclType callerAcl = resolveCallerAcl(space.getSpaceId(), 
                                              contentStore, 
@@ -83,6 +78,10 @@ public class SpaceUtil {
             aclName = callerAcl.name();
         }
         space.setCallerAcl(aclName);
+
+        
+        space.setMillDbEnabled(DuradminConfig.isMillDbEnabled());
+        
         return space;
     }
 
@@ -93,6 +92,13 @@ public class SpaceUtil {
         spaceProperties.setSize(spaceProps.remove(ContentStore.SPACE_SIZE));
         spaceProperties.setTags(TagUtil.parseTags(spaceProps.remove(TagUtil.TAGS)));
         spaceProperties.setStreamingHost(spaceProps.get(ContentStore.STREAMING_HOST));
+        spaceProperties.setSnapshotId(spaceProps.get(Constants.SNAPSHOT_ID_PROP));
+
+        String restoreId = spaceProps.get(Constants.RESTORE_ID_PROP);
+        if(StringUtils.isNotBlank(restoreId)){
+            spaceProperties.setRestoreId(restoreId);
+        }
+
         return spaceProperties;
     }
 
@@ -150,50 +156,60 @@ public class SpaceUtil {
        
         return properties;
     }
+
     
 	public static void streamContent(ContentStore store, HttpServletResponse response, String spaceId, String contentId)
 			throws ContentStoreException, IOException {
-        OutputStream outStream = response.getOutputStream();
-	    try{
 	        Content c = store.getContent(spaceId, contentId);
 	        Map<String,String> m = store.getContentProperties(spaceId, contentId);
-	        response.setContentType(m.get(ContentStore.CONTENT_MIMETYPE));
-
+	        String mimetype = m.get(ContentStore.CONTENT_MIMETYPE);
 	        String contentLength = m.get(ContentStore.CONTENT_SIZE);
-	        if(contentLength != null){
-	            response.setContentLength(Integer.parseInt(contentLength));
-	        }
-	        InputStream is = c.getStream();
-	        byte[] buf = new byte[1024];
-	        int read = -1;
-	        while((read = is.read(buf)) > 0){
-	            outStream.write(buf, 0, read);
-	        }
-	        
-	        response.flushBuffer();
-	        outStream.close();
-	    }catch (Exception ex) {
-	        if(ex.getCause() instanceof ContentStateException){
-	            response.reset();
-	            response.setStatus(HttpStatus.SC_CONFLICT);
-                String message =
-                    "The requested content item is currently in long-term storage" +
-                    " with limited retrieval capability. Please contact " +
-                    "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
-                    "for assistance in retrieving this content item.";
-                //It is necessary to pad the message in order to force Internet Explorer to 
-                //display the server sent text rather than display the browser default error message.
-                //If the message is less than 512 bytes, the browser will ignore the message.
-                //c.f. http://support.microsoft.com/kb/294807
-                message += StringUtils.repeat(" ", 512);
-                outStream.write(message.getBytes());
-                outStream.close();
-	        } else {
-	            throw ex;
-	        }
-        }
+	        streamToResponse(c.getStream(), response, mimetype, contentLength);
 	}
 
+    public static void streamToResponse(InputStream is,
+                                        HttpServletResponse response,
+                                        String mimetype,
+                                        String contentLength)
+        throws ContentStoreException,
+            IOException {
+        
+       OutputStream outStream = response.getOutputStream();
+       try{
+            response.setContentType(mimetype);
+
+           if(contentLength != null){
+               response.setContentLength(Integer.parseInt(contentLength));
+           }
+           byte[] buf = new byte[1024];
+           int read = -1;
+           while((read = is.read(buf)) > 0){
+               outStream.write(buf, 0, read);
+           }
+           
+           response.flushBuffer();
+           outStream.close();
+       }catch (Exception ex) {
+           if(ex.getCause() instanceof ContentStateException){
+               response.reset();
+               response.setStatus(HttpStatus.SC_CONFLICT);
+               String message =
+                   "The requested content item is currently in long-term storage" +
+                   " with limited retrieval capability. Please contact " +
+                   "DuraCloud support (https://wiki.duraspace.org/x/6gPNAQ) " +
+                   "for assistance in retrieving this content item.";
+               //It is necessary to pad the message in order to force Internet Explorer to 
+               //display the server sent text rather than display the browser default error message.
+               //If the message is less than 512 bytes, the browser will ignore the message.
+               //c.f. http://support.microsoft.com/kb/294807
+               message += StringUtils.repeat(" ", 512);
+               outStream.write(message.getBytes());
+               outStream.close();
+           } else {
+               throw ex;
+           }
+       }
+   }
     public static AclType resolveCallerAcl(String spaceId,ContentStore store, Map<String,AclType> acls,
                                            Authentication authentication) 
                                                throws ContentStoreException {
@@ -212,7 +228,7 @@ public class SpaceUtil {
         
         if(snapshotInProgress == null){
             snapshotInProgress = false;
-    	    if(isChronopolis(store)){
+    	    if(isSnapshotProvider(store)){
     	        snapshotInProgress = isSnapshotInProgress(store,spaceId);
     	    }
         }
@@ -247,17 +263,14 @@ public class SpaceUtil {
     }
 
     private static boolean isSnapshotInProgress(ContentStore store,
-                                                String spaceId) throws ContentStoreException {
-        try{
-            store.getContentProperties(spaceId, Constants.SNAPSHOT_ID);
-            return true;
-        }catch(NotFoundException ex){
-            return false;
-        } //do nothing - no snapshot in progress
+                                                String spaceId)
+        throws ContentStoreException {
+        return store.getSpaceProperties(spaceId)
+                    .containsKey(Constants.SNAPSHOT_ID_PROP);
     }
 
-    protected static boolean isChronopolis(ContentStore store) {
-        return store.getStorageProviderType().equals(StorageProviderType.CHRON_STAGE.name());
+    protected static boolean isSnapshotProvider(ContentStore store) {
+        return store.getStorageProviderType().equals(StorageProviderType.SNAPSHOT.name());
     }
 	
     public static boolean isAdmin(Authentication authentication) {

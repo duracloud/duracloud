@@ -23,7 +23,9 @@ public class SetStandardStorageTaskRunnerTest extends SetStorageClassTestBase {
     @Test
     public void testPerformTask() {
         SetStandardStorageTaskRunner runner =
-            new SetStandardStorageTaskRunner(s3Provider, s3Client);
+            new SetStandardStorageTaskRunner(s3Provider,
+                                             unwrappedS3Provider,
+                                             s3Client);
 
         assertEquals("set-standard-storage-class", runner.getName());
         assertEquals(StorageClass.Standard, runner.getStorageClass());

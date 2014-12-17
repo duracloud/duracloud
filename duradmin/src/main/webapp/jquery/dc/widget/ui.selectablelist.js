@@ -142,6 +142,7 @@ $.widget("ui.selectablelist",{
 	clear: function(notify){
 		this._currentItem = null;
 		this.element.children("."+this.options.itemClass).remove();	
+        this.element.children("."+this.options.itemClass + "-divider").remove(); 
 		this.dataMap = new Array();
 		this._fireCurrentItemChanged(null,notify);
 		$(this._footer).html('');
@@ -152,7 +153,7 @@ $.widget("ui.selectablelist",{
 	 */
 	_init: function(){
 		var that = this;
-		this.clear();
+		this.clear(false);
 
 		this._footer = $.fn.create("div").addClass("dc-selectablelist-footer").html("");
 		$(that.element).append(that._footer);
@@ -162,7 +163,7 @@ $.widget("ui.selectablelist",{
 			that._initItem(c);
 		});
 		
-		that.element.bind("selectionChanged", function(evt, state){
+		that.element.unbind().bind("selectionChanged", function(evt, state){
 			var selectionChanged = that.options.selectionChanged;
 			if(selectionChanged){
 				selectionChanged(evt,state);
@@ -171,17 +172,65 @@ $.widget("ui.selectablelist",{
 		
 	},
 	
-	addItem: function(item, data, selected, /*optional boolean*/disabled){
-		this.setFooter('');
-		this._footer.before(item);
-		this._initItem(item,data, disabled);
-		
-		if(selected && this.options.selectable){
-			$("input[type=checkbox]",item).attr("checked", true);
-		}
-		
-		return item;
-	},
+
+    	addItem : function(item, 
+    	                   data, 
+    	                   selected, 
+    	                   /* optional boolean */disabled, 
+    	                   /*optional boolean*/noIndent, //suppresses indentation for non-selectable items.
+    	                   /*optional String*/ dividerLabel //specifies label of the section 
+    	                                                    //into which the item should be inserted.
+    	                   ) {
+    	var that = this;
+      this.setFooter('');
+      if(dividerLabel){
+        var dividers = [];
+        $("." + this.itemDividerClass(), this.element).each(function(i,e){
+            dividers.push(e);
+        });
+        
+        if(dividers.length > 0){
+          
+          $.each(dividers, function(i, div){
+            if($(div).html() == dividerLabel){
+               if(i == dividers.length-1){
+                 that._footer.before(item);
+               }else{
+                 $(dividers[i+1]).before(item);
+               }
+               
+               return false;
+            }
+          });
+        }else{
+          this._footer.before(item);
+        }
+      
+
+        if (selected && this.options.selectable) {
+          $("input[type=checkbox]", item).attr("checked", true);
+        }
+        
+      }else{
+          this._footer.before(item);
+      }
+
+      this._initItem(item, data, disabled, noIndent);
+
+      return item;
+    },
+    
+    itemDividerClass: function(){
+      return this.options.itemClass+"-divider";
+    },
+	
+    addDivider: function(label){
+        this.setFooter('');
+        
+        var divider = $.fn.create("div").addClass(this.itemDividerClass());
+        divider.html(label);
+        this._footer.before(divider);
+    },
 	
 	select: function(select){
 		var that = this;
@@ -284,97 +333,87 @@ $.widget("ui.selectablelist",{
 		$(this._footer).append(footerContent);
 	},
 
-	_initItem: function(item,data, selectionDisabled){
-		var that = this;
-		var o = this.options;
-		var itemClass = o.itemClass;
-		var actionClass = o.itemActionClass;
-		$(item).addClass(itemClass);
+	_initItem : function(item, data, selectionDisabled, noIndent) {
+      var that = this;
+      var o = this.options;
+      var itemClass = o.itemClass;
+      var actionClass = o.itemActionClass;
+      var checkbox;
+      var checkboxHolder;
 
-		if(this.options.selectable){
-		    var checkbox = $("<input type='checkbox'/>");
-		    //checkbox holder serves to create a clickable
-		    //buffer zone around the checkbox in order to
-		    //make it easier for the user to check.
-		    var checkboxHolder = $("<span class='cb-holder'></span>");
-            checkboxHolder.append(checkbox);
-            $(item).prepend(checkboxHolder);
-            
-            if(selectionDisabled == undefined){
-                selectionDisabled = false;
-            }
-            
-            if(selectionDisabled != undefined){
-                checkbox.disable(selectionDisabled);
-                if(selectionDisabled){
-                    checkbox.makeHidden();
-                }else{
-                    checkboxHolder.click(function(evt){
-                        if(evt.target == this){
-                            if(checkbox.is(":checked")){
-                                checkbox.removeAttr("checked");
-                            }else{
-                                checkbox.attr("checked", "checked");
-                            }
-                            that._itemSelectionStateChanged(checkbox);
-                        }
-                        evt.stopPropagation();
-                    });
+      if (selectionDisabled == undefined || selectionDisabled == null) {
+        selectionDisabled = false;
+      }
+
+      $(item).addClass(itemClass);
+
+      if (this.options.selectable && !(selectionDisabled && noIndent)) {
+        var checkbox = $("<input type='checkbox'/>");
+        //checkbox holder serves to create a clickable
+        //buffer zone around the checkbox in order to
+        //make it easier for the user to check.
+        var checkboxHolder = $("<span class='cb-holder'></span>");
+        checkboxHolder.append(checkbox);
+        $(item).prepend(checkboxHolder);
+
+        if (selectionDisabled != undefined) {
+          checkbox.disable(selectionDisabled);
+          if (selectionDisabled) {
+            checkbox.makeHidden();
+          } else {
+            checkboxHolder.click(function(evt) {
+              if (evt.target == this) {
+                if (checkbox.is(":checked")) {
+                  checkbox.removeAttr("checked");
+                } else {
+                  checkbox.attr("checked", "checked");
                 }
-            }
-            
-            $(item).children().first().change(function(evt){
-                 that._itemSelectionStateChanged(evt.target);
-                 evt.stopPropagation();
+                that._itemSelectionStateChanged(checkbox);
+              }
+              evt.stopPropagation();
             });
+          }
         }
 
-		$(item).children("div")
-		.last()
-		.addClass("float-r")
-		.addClass(actionClass);
+        $(item).children().first().change(function(evt) {
+          that._itemSelectionStateChanged(evt.target);
+          evt.stopPropagation();
+        });
+      }
 
-		var clickHandler = function(evt){
-			var item = $(evt.target).nearestOfClass(itemClass);
-			if($(evt.target).attr("type") != "checkbox"){
-			    
-			    if(that.options.clickable){
-	                if(that.options.selectable){
-	                    that._select(false);
-	                    item.find(":checkbox")
-                            .not("[disabled]")
-                            .attr("checked",true);
-	                }
-			        
-	                that._fireCurrentItemChanged(item);
-                }
+      $(item).children("div").last().addClass("float-r").addClass(actionClass);
 
-				evt.stopPropagation();
-			}
-		};
-		
-		//bind mouse action listeners
-		$(item).find("."+actionClass).andSelf()
-		.click(clickHandler)
-		.dblclick(clickHandler)
-		.mouseover(function(evt){
-			$(evt.target).nearestOfClass(itemClass)
-						 .find("."+actionClass)
-						 .makeVisible();
-		}).mouseout(function(evt){
-			$(evt.target).nearestOfClass(itemClass)
-						 .find("."+actionClass)
-						 .makeHidden();
-		});
-		
-		//hide all actions to start
-		$(item).find("."+actionClass).makeHidden();	
-		
-		//add the data to the map
-		that._putData($(item).attr("id"), data);
-		
-		return item;
-	}
+      var clickHandler = function(evt) {
+        var item = $(evt.target).nearestOfClass(itemClass);
+        if ($(evt.target).attr("type") != "checkbox") {
+
+          if (that.options.clickable) {
+            if (that.options.selectable) {
+              that._select(false);
+              item.find(":checkbox").not("[disabled]").attr("checked", true);
+            }
+
+            that._fireCurrentItemChanged(item);
+          }
+
+          evt.stopPropagation();
+        }
+      };
+
+      //bind mouse action listeners
+      $(item).find("." + actionClass).andSelf().click(clickHandler).dblclick(clickHandler).mouseover(function(evt) {
+        $(evt.target).nearestOfClass(itemClass).find("." + actionClass).makeVisible();
+      }).mouseout(function(evt) {
+        $(evt.target).nearestOfClass(itemClass).find("." + actionClass).makeHidden();
+      });
+
+      //hide all actions to start
+      $(item).find("." + actionClass).makeHidden();
+
+      //add the data to the map
+      that._putData($(item).attr("id"), data);
+      return item;
+    }
 });
 
 })();

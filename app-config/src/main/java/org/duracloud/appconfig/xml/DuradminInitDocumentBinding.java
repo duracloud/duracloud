@@ -7,6 +7,8 @@
  */
 package org.duracloud.appconfig.xml;
 
+import java.io.InputStream;
+
 import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.jdom.Document;
@@ -14,8 +16,6 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
 
 /**
  * This class (de)serializes duradmin configuration between objects and xml.
@@ -46,6 +46,7 @@ public class DuradminInitDocumentBinding {
             config.setDurastoreContext(root.getChildText("durastoreContext"));
             config.setDurabossContext(root.getChildText("durabossContext"));
             config.setAmaUrl(root.getChildText("amaUrl"));
+            config.setMillDbEnabled(Boolean.valueOf(root.getChildText("millDbEnabled")));
 
         } catch (Exception e) {
             String error = "Error encountered attempting to parse " +
@@ -71,7 +72,7 @@ public class DuradminInitDocumentBinding {
             String durastorePort = duradminConfig.getDurastorePort();
             String durastoreContext = duradminConfig.getDurastoreContext();
             String amaUrl = duradminConfig.getAmaUrl();
-
+            boolean millDbEnabled = duradminConfig.isMillDbEnabled();
             xml.append("<duradminConfig>");
             xml.append("  <durastoreHost>" + durastoreHost);
             xml.append("</durastoreHost>");
@@ -81,6 +82,9 @@ public class DuradminInitDocumentBinding {
             xml.append("</durastoreContext>");
             xml.append("  <amaUrl>" + amaUrl);
             xml.append("</amaUrl>");
+            xml.append("  <millDbEnabled>" + millDbEnabled);
+            xml.append("</millDbEnabled>");
+
             xml.append("</duradminConfig>");
         }
         return xml.toString();

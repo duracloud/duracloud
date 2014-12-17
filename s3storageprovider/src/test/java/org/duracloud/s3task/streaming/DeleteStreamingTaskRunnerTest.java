@@ -9,6 +9,7 @@ package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.model.cloudfront.S3Origin;
@@ -28,19 +29,23 @@ import static org.junit.Assert.assertFalse;
  */
 public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
-    protected DeleteStreamingTaskRunner createRunner(S3StorageProvider s3Provider,
+    protected DeleteStreamingTaskRunner createRunner(StorageProvider s3Provider,
+                                                     S3StorageProvider unwrappedS3Provider,
                                                      AmazonS3Client s3Client,
                                                      CloudFrontService cfService) {
         this.s3Provider = s3Provider;
+        this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
         this.cfService = cfService;
-        return new DeleteStreamingTaskRunner(s3Provider, s3Client, cfService);
+        return new DeleteStreamingTaskRunner(s3Provider, unwrappedS3Provider,
+                                             s3Client, cfService);
     }
 
     @Test
     public void testGetName() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3StorageProvider(),
+            createRunner(createMockStorageProvider(),
+                         createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
                          createMockCFServiceV1());
 
@@ -55,7 +60,8 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask1() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3StorageProviderV2(true),
+            createRunner(createMockStorageProviderV2(true),
+                         createMockUnwrappedS3StorageProviderV2(),
                          createMockS3ClientV3(),
                          createMockCFServiceV3());
 
@@ -108,7 +114,8 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask2() throws Exception {
         DeleteStreamingTaskRunner runner =
-            createRunner(createMockS3StorageProviderV2(true),
+            createRunner(createMockStorageProviderV2(true),
+                         createMockUnwrappedS3StorageProviderV2(),
                          createMockS3ClientV3(),
                          createMockCFServiceV4());
 

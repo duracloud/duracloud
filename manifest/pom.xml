@@ -1,16 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>manifest</artifactId>
-  <packaging>jar</packaging>
-  <version>3.1.1</version>
+  <version>3.2.0</version>
   <name>DuraCloud Content Manifest</name>
   <url>http://localhost:8080/${project.artifactId}</url>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>3.1.1</version>
+    <version>3.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -25,19 +25,20 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>duraboss-api</artifactId>
+      <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>storeclient</artifactId>
+      <artifactId>common-test</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>auditor</artifactId>
+      <artifactId>mill-jpa-repo</artifactId>
       <version>${project.version}</version>
     </dependency>
 

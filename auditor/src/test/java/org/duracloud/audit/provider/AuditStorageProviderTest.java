@@ -321,6 +321,15 @@ public class AuditStorageProviderTest extends EasyMockSupport {
                                                    spaceId,
                                                    contentId))
                 .andReturn("");
+
+        Map<String,String> props = new HashMap<>();
+        
+        props.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
+        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize+"");
+        
+        EasyMock.expect(targetProvider.getContentProperties(sourceSpaceId, sourceContentId))
+                .andReturn(props);
+
         replayAll();
         provider.copyContent(sourceSpaceId, sourceContentId, spaceId, contentId);
 
@@ -333,6 +342,11 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         assertEquals(sourceContentId,
                      taskProps.get(AuditTask.SOURCE_CONTENT_ID_PROP));
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
+        
+        assertNotNull(taskProps.get(AuditTask.CONTENT_PROPERTIES_PROP));
+        assertEquals(contentSize+"", taskProps.get(AuditTask.CONTENT_SIZE_PROP));
+        assertEquals(contentMimeType, taskProps.get(AuditTask.CONTENT_MIMETYPE_PROP));
+        
     }
 
     @Test

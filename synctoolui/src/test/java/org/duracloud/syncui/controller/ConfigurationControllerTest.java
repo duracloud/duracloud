@@ -92,6 +92,7 @@ public class ConfigurationControllerTest extends AbstractTest {
     public void testUpdateOptions (){
         AdvancedForm f = createMock(AdvancedForm.class);
         EasyMock.expect(f.isSyncDeletes()).andReturn(true);
+        EasyMock.expect(f.isJumpStart()).andReturn(false);
         EasyMock.expect(f.getUpdatePolicy()).andReturn(UpdatePolicy.PRESERVE.name());
         syncConfigurationManager.setSyncDeletes(EasyMock.anyBoolean());
         EasyMock.expectLastCall();
@@ -99,6 +100,9 @@ public class ConfigurationControllerTest extends AbstractTest {
         EasyMock.expectLastCall();
         syncConfigurationManager.setSyncUpdates(true);
         EasyMock.expectLastCall();
+        syncConfigurationManager.setJumpStart(false);
+        EasyMock.expectLastCall();
+
         replay();
         configurationController.updateOptions(f, new RedirectAttributesModelMap());
     }

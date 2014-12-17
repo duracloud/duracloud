@@ -21,6 +21,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.duracloud.appconfig.domain.DuradminConfig;
 import org.duracloud.appconfig.xml.DuradminInitDocumentBinding;
@@ -44,15 +45,12 @@ public class InitControllerTest {
     private String durastoreHost = "durastore-host";
     private String durastorePort = "111";
     private String durastoreContext = "durastore-context";
-    private String duraserviceHost = "duraservice-host";
-    private String duraservicePort = "222";
-    private String duraserviceContext = "duraservice-context";
     private String amaUrl = "http://a.com";
-
     private HttpServletRequest request;
     private HttpServletResponse response;
     private StorageSummaryCache storageSummaryCache;
 
+    
     @Before
     public void setUp() throws Exception {
         ContentStoreManager contentStoreManager = EasyMock.createMock(
@@ -65,9 +63,11 @@ public class InitControllerTest {
 
         ControllerSupport support = EasyMock.createMock("ControllerSupport",
                                                         ControllerSupport.class);
+        
         EasyMock.expect(support.getContentStoreManager()).andReturn(contentStoreManager);
         controller = new InitController(support, storageSummaryCache);
         EasyMock.replay(support, contentStoreManager);
+
     }
 
     @After
@@ -97,6 +97,7 @@ public class InitControllerTest {
     private void doTest(int status) throws Exception {
         createMocks(status);
 
+        
         ModelAndView mav = controller.initialize(request, response);
         Assert.assertNotNull(mav);
 

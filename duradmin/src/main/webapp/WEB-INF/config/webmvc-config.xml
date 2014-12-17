@@ -24,18 +24,13 @@
   <bean id="multipartResolver"
         class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
    -->
-  <context:component-scan base-package="org.duracloud.duradmin">
+  <context:component-scan base-package="org.duracloud.duradmin,org.duracloud.mill">
   </context:component-scan>
   <mvc:annotation-driven/>  
   
   <bean id="adminSpaceId" class="java.lang.String">
     <constructor-arg value="x-duracloud-admin"/>
   </bean>
-
-  <bean id="bitIntegrityResultsContentId" class="java.lang.String">
-    <constructor-arg value="bit-integrity-results.json"/>
-  </bean>
-
 
   <bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
     <property name="preparerFactoryClass" value="org.springframework.web.servlet.view.tiles2.SpringBeanPreparerFactory">

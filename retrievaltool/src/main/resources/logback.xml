@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="false" scan="false">
+
+  <property name="RETRIEVAL_LOG_FILENAME" value="${retrieval.work}/logs/retrieval.log" />
+  <appender name="SYNC_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${RETRIEVAL_LOG_FILENAME}</File>
+    <encoder>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${RETRIEVAL_LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  <logger name="org.duracloud.retrieval" level="INFO">
+    <appender-ref ref="SYNC_LOG"/>
+  </logger>
+
+  <property name="COMPLETE_LOG_FILENAME" value="${retrieval.work}/logs/complete.log" />
+  <appender name="COMPLETE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${COMPLETE_LOG_FILENAME}</File>
+    <encoder>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${COMPLETE_LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  <root level="INFO">
+    <appender-ref ref="COMPLETE_LOG"/>
+  </root>
+
+</configuration>

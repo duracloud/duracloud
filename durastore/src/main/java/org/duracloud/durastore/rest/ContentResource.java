@@ -38,7 +38,7 @@ public interface ContentResource {
                       InputStream content,
                       String contentMimeType,
                       Map<String, String> userProperties,
-                      int contentSize,
+                      long contentSize,
                       String checksum,
                       String storeID)
         throws ResourceException, InvalidIdException;

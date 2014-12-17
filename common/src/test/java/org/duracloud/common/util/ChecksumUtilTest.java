@@ -9,9 +9,6 @@ package org.duracloud.common.util;
 
 import org.duracloud.common.util.ChecksumUtil.Algorithm;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,9 +19,16 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.security.DigestInputStream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 public class ChecksumUtilTest {
 
     private String content;
+    private String shortContent = "Test Content";
+    private String shortContentMd5Hex = "d65cdbadce081581e7de64a5a44b4617";
+    private String shortContentMd5Base64 = "1lzbrc4IFYHn3mSlpEtGFw==";
 
     private InputStream stream;
 
@@ -162,12 +166,26 @@ public class ChecksumUtilTest {
     }
 
     @Test
+    public void testGenerateChecksumBase64() throws Exception {
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        String base64Checksum = util.generateChecksumBase64(shortContent);
+
+        assertEquals(shortContentMd5Base64, base64Checksum);
+    }
+
+    @Test
     public void testGenerateChecksumString() throws Exception {
-        ChecksumUtil util = new ChecksumUtil(Algorithm.SHA_256);
+        ChecksumUtil util = new ChecksumUtil(Algorithm.MD5);
+        String md5hex = util.generateChecksum(shortContent);
+        assertEquals(shortContentMd5Hex, md5hex);
+
+        String md5Base64 = ChecksumUtil.convertToBase64Encoding(md5hex);
+        assertEquals(shortContentMd5Base64, md5Base64);
+
+        // Compare string generate with stream generate
+        util = new ChecksumUtil(Algorithm.SHA_256);
         String stream = util.generateChecksum(getStream(content));
-
         String string = util.generateChecksum(content);
-
         assertEquals(stream, string);
     }
 

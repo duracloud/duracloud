@@ -142,6 +142,27 @@ $(function(){
             return this;
         };
 
+
+    $.fn.busySibling = function(text){
+      var busy = $("<div class='dc-busy-holder'></div>");
+      if(text){
+        busy.html(text);
+      }
+      busy.insertAfter($(this));
+      busy.show("fast");
+      return this;
+    };
+
+    $.fn.idleSibling = function(){
+      $(this).next(".dc-busy-holder").hide("fast").remove();
+      return this;
+    };
+
+    //adds in missing addBack function for plugins that depend on it (namely jquery dropdown)
+    $.fn.addBack = function (selector) {
+      return this.add(selector == null ? this.prevObject : this.prevObject.filter(selector));
+    };
+        
 	})();
 });
 

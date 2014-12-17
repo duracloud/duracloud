@@ -7,6 +7,8 @@
  */
 package org.duracloud.duradmin.domain;
 
+import org.duracloud.storage.domain.DatabaseConfig;
+
 /**
  * @author: Bill Branan
  * Date: Jan 15, 2010
@@ -18,6 +20,8 @@ public class AdminInit {
     private String duraStoreContext;
     private String amaUrl;
     private String duraBossContext;
+    private boolean millDbEnabled;
+
 
     public String getDuraStoreHost() {
         return duraStoreHost;
@@ -57,5 +61,13 @@ public class AdminInit {
 
     public String getDuraBossContext() {
         return duraBossContext;
+    }
+
+    public void setMillDbEnabled(boolean millDbEnabled) {
+        this.millDbEnabled = millDbEnabled;
+    }
+    
+    public boolean isMillDbEnabled() {
+        return millDbEnabled;
     }
 }

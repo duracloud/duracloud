@@ -9,6 +9,8 @@ package org.duracloud.duradmin.domain;
 
 import org.duracloud.duradmin.util.NameValuePair;
 import org.duracloud.duradmin.util.PropertiesUtils;
+import org.duracloud.mill.db.model.BitIntegrityReport;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.io.Serializable;
@@ -47,6 +49,10 @@ public class Space
     private List<NameValuePair> extendedProperties;
 
     private List<String> contents;
+    
+    private BitIntegrityReportProperties bitIntegrityReportProperties;
+    
+    private boolean millDbEnabled = false;
     
     public String getStoreId() {
         return storeId;
@@ -161,4 +167,20 @@ public class Space
         return snapshotInProgress;
     }
 
+    public void
+        setBitIntegrityReportProperties(BitIntegrityReportProperties bitIntegrityReportProperties) {
+        this.bitIntegrityReportProperties = bitIntegrityReportProperties;
+    }
+
+    public BitIntegrityReportProperties getBitIntegrityReportProperties() {
+        return bitIntegrityReportProperties;
+    }
+
+    public void setMillDbEnabled(boolean millDbEnabled) {
+        this.millDbEnabled = millDbEnabled;
+    }
+    
+    public boolean isMillDbEnabled() {
+        return this.millDbEnabled;
+    }
 }

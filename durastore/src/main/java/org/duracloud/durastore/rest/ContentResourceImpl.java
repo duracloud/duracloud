@@ -7,16 +7,13 @@
  */
 package org.duracloud.durastore.rest;
 
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.durastore.error.ResourceStateException;
+import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.InvalidIdException;
 import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.error.StorageStateException;
 import org.duracloud.storage.provider.BrokeredStorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
@@ -25,6 +22,9 @@ import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.storage.util.StorageProviderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * Provides interaction with content
@@ -153,7 +153,7 @@ public class ContentResourceImpl implements ContentResource {
                              InputStream content,
                              String contentMimeType,
                              Map<String, String> userProperties,
-                             int contentSize,
+                             long contentSize,
                              String checksum,
                              String storeID)
     throws ResourceException, InvalidIdException {
@@ -162,7 +162,6 @@ public class ContentResourceImpl implements ContentResource {
         try {
             StorageProvider storage =
                 storageProviderFactory.getStorageProvider(storeID);
-            
                 
             try {
                 // overlay new properties on top of older extended properties
@@ -198,6 +197,11 @@ public class ContentResourceImpl implements ContentResource {
                                       content);
         } catch (NotFoundException e) {
             throw new ResourceNotFoundException("add content",
+                                                spaceID,
+                                                contentID,
+                                                e);
+        } catch (ChecksumMismatchException e) {
+            throw new ResourceChecksumException("add content",
                                                 spaceID,
                                                 contentID,
                                                 e);

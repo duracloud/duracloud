@@ -276,7 +276,7 @@ body > #page-header
     background:url(../images/sdsc.png) no-repeat;
 }
 
-.chron_stage-logo
+.snapshot-logo
 {
     background:url(../images/chronopolis.png) no-repeat;
 }
@@ -851,7 +851,7 @@ span.label,
  	padding:10px;
  }
 
-.error
+.error,.failure
  {
  	border:1px solid #aa0000;
  	background-color:#990000;
@@ -1289,3 +1289,24 @@ button#enable-streaming {
 	margin-top:10px;
 }
 
+.dc-item-divider {
+  background-color:#5b5b5b;
+  padding:5px;
+  font-weight: bold;
+	
+}
+
+.dc-busy-holder {
+    background: url('../images/wait.gif') no-repeat left center;
+    display:inline-block; 
+    vertical-align:middle;
+    height:20px;
+    width:20px;
+    min-width:30px;
+    font-size: 10px;
+    padding-left:20px;
+}
+
+div.snapshot.dc-item {
+  padding: 5px 5px 0px 7px;
+}

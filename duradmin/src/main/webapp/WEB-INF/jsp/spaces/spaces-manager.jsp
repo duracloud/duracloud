@@ -48,8 +48,10 @@
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.acleditor.js"></script>
     <script
       type="text/javascript"
-      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.chronopolis.js"></script>
-
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.snapshot.js"></script>
+    <script
+      type="text/javascript"
+      src="${pageContext.request.contextPath}/jquery/dc/widget/ui.restore.js"></script>
     <script
       type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/dc/widget/ui.historypanel.js"></script>
@@ -161,6 +163,14 @@
           <div
             id="content-item-list-view"
             class="dc-list-item-viewer">
+          </div>
+        </div>
+        <div
+          id="detail-pane"
+          class="detail-pane"></div>
+
+        <div id="contentItemListPane"
+                  style="display: none">
             <div class="north header list-header clearfix">
               <div
                 id="header-content-list"
@@ -197,11 +207,42 @@
                 class="dc-item-list"
                 id="content-item-list"></div>
             </div>
-          </div>
         </div>
-        <div
-          id="detail-pane"
-          class="detail-pane"></div>
+
+        <div id="snapshotItemListPane"
+                  style="display: none">
+            <div class="north header list-header clearfix">
+              <div
+                id="header-content-list"
+                class="header-section clearfix">
+
+                <button class="float-r refresh-space-button">
+                  <i class="pre refresh"></i>Refresh
+                </button>
+
+                <h2>Snapshot Content Items</h2>
+              </div>
+              <div class="header-section">
+                <span class="float-r"> <input
+                  id="content-item-filter"
+                  class="dc-item-list-filter"
+                  value=""
+                  placeholder="type prefix"
+                  type="text" /> </span> <span
+                  id="content-item-list-status"
+                  class="dc-status"></span> <span
+                  id="content-item-list-controls"
+                  class="dc-item-list-controls"></span>
+
+              </div>
+            </div>
+
+            <div class="center dc-item-list-wrapper">
+              <div
+                class="dc-item-list"
+                id="content-item-list"></div>
+            </div>
+        </div>
 
         <!-- Space Detail Pane:  The div is invisible and used as a prototype for displaying specific space details.-->
         <div
@@ -218,8 +259,16 @@
 							 -->
 
               <button class="delete-space-button dc-delete-button">
-                <i class="pre trash"></i>Delete Space
+                <i class="pre trash"></i>Delete
               </button>
+              <a class=" download-audit-button button" >
+                <i class="pre download" title="download manifest"></i>Audit Log
+              </a>
+
+              <a class=" download-manifest-button button" data-dropdown="#manifest-dropdown">
+                <i class="pre download" title="download manifest"></i>Manifest
+              </a>
+ 
               <div class="streaming-switch-holder">
                 <div
                   class="dc-busy"
@@ -232,6 +281,43 @@
           <div class="center"></div>
           <span class="object-id"></span>
         </div>
+        
+                <!-- Snapshot Detail Pane:  The div is invisible and used as a prototype for displaying specific snapshot details.-->
+        <div
+          id="snapshotDetailPane"
+          class="dc-detail-pane"
+          style="display: none">
+          <div class="north header">
+            <h1>Snapshot Detail</h1>
+            <h3 class="object-name">Snapshot Name Here</h3>
+            <div class="button-bar">
+
+              <a id="restoreLink" class="button">View Restored Space</a>
+              <button 
+                id="restoreButton"
+                class="featured">
+                <i class="pre copy"></i>Restore Snapshot
+              </button>
+            </div>
+          </div>
+          <div class="center"></div>
+          <span class="object-id"></span>
+        </div>
+        
+        <div
+          id="snapshotItemDetailPane"
+          class="dc-detail-pane"
+          style="display: none">
+          <div class="north header">
+            <h1>Snapshot Item Detail</h1>
+            <h3 class="object-name">Snapshot Name Here</h3>
+            <div class="button-bar">
+            </div>
+          </div>
+          <div class="center"></div>
+          <span class="object-id"></span>
+        </div>
+        
 
         <div
           id="genericDetailPane"
@@ -446,13 +532,13 @@
         </div>
 
         <div
-          id="chronopolis-dialog"
+          id="snapshot-dialog"
           class="dialog"
           style="display: none; overflow: auto"
           title="Create Snapshot">
           <h1 class="dc-dialog-title">Create a snapshot</h1>
           <p class="hint">This action begins the process of transferring all of
-            the content in this space to Chronopolis for preservation. Once the
+            the content in this space to DPN for preservation. Once the
             Create button below is pressed, you will no longer be able to edit
             the contents of this space. You may optionally include a description
             of this snapshot, which will be preserved along with the snapshot
@@ -477,6 +563,7 @@
             </form>
           </div>
         </div>
+        
         
         <div
           id="edit-content-item-dialog"
@@ -677,5 +764,18 @@
       </tiles:putAttribute>
     </tiles:insertDefinition>
   </tiles:putAttribute>
+    <tiles:putAttribute name="footer-extensions">
+                 <!-- the dropdown plugin requires that dropdowns appear before the closing tag: 
+                       suboptimal yes: http://labs.abeautifulsite.net/jquery-dropdown/ -->
+                 <div
+                id="manifest-dropdown"
+                class="dropdown dropdown-tip">
+                <ul class="dropdown-menu">
+                  <li><a id="manifest-tsv" href="">Tab Separated (TSV)</a></li>
+                  <li><a id="manifest-bagit" href="">Bagit</a></li>
+                </ul>
+              </div>
+    
+    </tiles:putAttribute>
 </tiles:insertDefinition>
 

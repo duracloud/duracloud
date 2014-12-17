@@ -12,3 +12,4 @@ unit-test-db/testUnitDB
 *.ipr
 *.iws
 synctoolui/overlays/
+target/

@@ -11,6 +11,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.common.rest.HttpHeaders;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.web.EncodeUtil;
+import org.duracloud.durastore.error.ResourceChecksumException;
 import org.duracloud.durastore.error.ResourceException;
 import org.duracloud.durastore.error.ResourceNotFoundException;
 import org.duracloud.durastore.error.ResourceStateException;
@@ -19,6 +20,8 @@ import org.duracloud.storage.error.InvalidRequestException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -50,12 +53,13 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
  * @author Bill Branan
  */
 @Path("/{spaceID: (?!acl/)[^/]+}/{contentID: [^?]+}")
+@Component
 public class ContentRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(ContentRest.class);
 
     private ContentResource contentResource;
     private RestUtil restUtil;
-
+    @Autowired
     public ContentRest(ContentResource contentResource, RestUtil restUtil) {
         this.contentResource = contentResource;
         this.restUtil = restUtil;
@@ -90,7 +94,7 @@ public class ContentRest extends BaseRest {
             return doGetContent(spaceID, contentID, storeID, attachment);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
@@ -159,7 +163,7 @@ public class ContentRest extends BaseRest {
             return addContentPropertiesToResponse(Response.ok(), properties);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -297,7 +301,7 @@ public class ContentRest extends BaseRest {
             return doUpdateContentProperties(spaceID, contentID, storeID);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
@@ -394,7 +398,10 @@ public class ContentRest extends BaseRest {
             return responseBad(msg.toString(), e, BAD_REQUEST);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
+
+        } catch (ResourceChecksumException e) {
+            return responseBad(msg.toString(), e, CONFLICT);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -471,7 +478,7 @@ public class ContentRest extends BaseRest {
             return responseBad(msg.toString(), e, BAD_REQUEST);
 
         } catch (ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceStateException e) {
             return responseBad(msg.toString(), e, CONFLICT);
@@ -602,7 +609,7 @@ public class ContentRest extends BaseRest {
             return responseOk(msg.toString(), responseText);
 
         } catch(ResourceNotFoundException e) {
-            return responseBad(msg.toString(), e, NOT_FOUND);
+            return responseNotFound(msg.toString(), e, NOT_FOUND);
 
         } catch (ResourceException e) {
             return responseBad(msg.toString(), e, INTERNAL_SERVER_ERROR);
@@ -617,16 +624,17 @@ public class ContentRest extends BaseRest {
         return Response.ok(text, TEXT_PLAIN).build();
     }
 
+    private Response responseNotFound(String msg,
+                                      Exception e,
+                                      Response.Status status) {
+        log.debug("Not Found: " + msg);
+        return responseBad(e.getMessage(), status);
+    }
+
     private Response responseBad(String msg,
                                  Exception e,
                                  Response.Status status) {
         log.error("Error: " + msg, e);
         return responseBad(e.getMessage(), status);
     }
-
-    private Response responseBad(String msg, Response.Status status) {
-        String entity = msg == null ? "null" : msg;
-        return Response.status(status).entity(entity).build();
-    }
-
 }

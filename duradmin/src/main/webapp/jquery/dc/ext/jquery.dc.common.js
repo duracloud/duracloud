@@ -417,11 +417,8 @@ $(function(){
 	        return path.substring(index+1, (qsIndex > 0 ? qsIndex : path.length));
 	    };
 	    
-	    dc.reportOverlayOnClick = function(link, reportId){
-            var params = "contentId=" + 
-                            escape(dc.extractContentId(reportId)) + 
-                            "&spaceId=" + escape(dc.extractSpaceId(reportId));
-            var storeId = dc.extractStoreId(reportId);
+	    dc.reportOverlayOnClick = function(link, storeId, spaceId){
+            var params = "&spaceId=" + spaceId;
             if(storeId){
                 params+="&storeId="+storeId;
             }
@@ -433,11 +430,11 @@ $(function(){
             var jqxhr = $.getJSON(fileInfoUrl, function(data){
                 var size = new Number(data.fileInfo.size);
                 if(size > (1024*1000)){
-                    link.attr("href", "/duradmin/download/contentItem?attachment=true&" + params);
+                    link.attr("href", prefix + "/raw?attachment=true&" + params);
                 }else{
                     var url = prefix + "/htmltable?" + params;
                     link.attr("href", url)
-                        .attr("title","View Service Report")
+                        .attr("title","View Bit Integrity Report")
                         .fancybox({type: 'iframe',
                                    width: 800,
                                    scrolling: 'auto',

@@ -7,12 +7,16 @@
  */
 package org.duracloud.client;
 
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.retry.ExceptionHandler;
 import org.duracloud.domain.Content;
 import org.duracloud.domain.Space;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
+import org.duracloud.reportdata.bitintegrity.BitIntegrityReportProperties;
 import org.duracloud.storage.provider.StorageProvider;
 
 import java.io.InputStream;
@@ -200,6 +204,15 @@ public interface ContentStore {
         throws ContentStoreException;
 
     /**
+     * Determines if a space exists
+     *
+     * @param spaceId the identifier of the DuraCloud Space to check
+     * @return true if the space exists, false otherwise
+     * @throws ContentStoreException if an error occurs
+     */
+    public boolean spaceExists(String spaceId) throws ContentStoreException;
+
+    /**
      * Adds content to a space. The contentId of the new content item can
      * include "/" symbols to indicate a folder heirarchy.
      * Returns the checksum of the content as computed by the
@@ -351,6 +364,17 @@ public interface ContentStore {
             throws ContentStoreException;
 
     /**
+     * Determines if a content item exists in a given space
+     *
+     * @param spaceId the identifier of the DuraCloud Space
+     * @param contentId the identifier of the content item to check
+     * @return true if the content item exists, false otherwise
+     * @throws ContentStoreException if an error occurs
+     */
+    public boolean contentExists(String spaceId, String contentId)
+        throws ContentStoreException;
+
+    /**
      * Checks a space ID to ensure that it conforms to all restrictions
      *
      * @param spaceId ID to validate
@@ -389,4 +413,53 @@ public interface ContentStore {
     public String performTask(String taskName, String taskParameters)
         throws ContentStoreException;
 
+    /**
+     * Sets the Exception Handler which will be used to process any Exceptions
+     * that are thrown when an action fails but will be retried. The default
+     * Exception handler logs the exception messages at the WARN level.
+     */
+    public void setRetryExceptionHandler(ExceptionHandler retryExceptionHandler);
+
+    /**
+     * Gets a manifest for the specific space if one exists.  If the space does not 
+     * exist or the manifest is empty, an exception will be thrown.
+     * @param spaceId the space id of the desired manifest
+     * @param format
+     * @return
+     * @throws ContentStoreException
+     */
+    public InputStream getManifest(String spaceId, ManifestFormat format)
+        throws ContentStoreException;
+
+    
+    /**
+     * Gets an audit log for the specific space if one exists.  If the space does not 
+     * exist or the audit is empty, an exception will be thrown.
+     * @param spaceId the space id
+     * @return
+     * @throws ContentStoreException
+     */
+    public InputStream getAuditLog(String spaceId)
+        throws ContentStoreException;
+    
+    /**
+     * Returns the most recent bit integrity report.
+     * If no bit integrity reports exist for this space, a null value is returned.
+     * @param spaceId
+     * @return
+     * @throws ContentStoreException
+     */
+    public BitIntegrityReport getBitIntegrityReport(String spaceId)
+        throws ContentStoreException;
+
+    /**
+     * Returns the properties associated with the most recent bit integrity report.
+     * If no bit integrity reports exist for this space, a null value is returned.
+     * @param spaceId
+     * @return
+     * @throws ContentStoreException
+     */
+    public BitIntegrityReportProperties
+        getBitIntegrityReportProperties(String spaceId)
+            throws ContentStoreException;
 }

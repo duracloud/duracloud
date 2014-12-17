@@ -1,16 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>storeclient</artifactId>
-  <packaging>bundle</packaging>
-  <version>3.1.1</version>
+  <version>3.2.0</version>
   <name>StoreClient</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.1.1</version>
+    <version>3.2.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -28,23 +28,6 @@
       <build>
 
         <plugins>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.6.1</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
-                  <jarOutputDirectory>${project.build.directory}</jarOutputDirectory>
-                </configuration>
-              </execution>		
-            </executions>
-          </plugin>
 
           <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
@@ -67,18 +50,16 @@
       </build>
 
     </profile>
+
   </profiles>
 
-
   <build>
-    <plugins>  
+    <plugins>
     </plugins>
-  </build>  
- 
- 
+  </build>
+
   <dependencies>
   
-    <!-- internal projects -->
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
@@ -90,19 +71,24 @@
       <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
-    <!-- for JDOM -->
+
     <dependency>
-        <groupId>org.jdom</groupId>
-        <artifactId>jdom</artifactId>
+      <groupId>org.duracloud</groupId>
+      <artifactId>reportdata</artifactId>
+      <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>    
-    
-    <!-- for HttpClient -->
+      <groupId>org.duracloud</groupId>
+      <artifactId>snapshotdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jdom</groupId>
+      <artifactId>jdom</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
@@ -114,18 +100,6 @@
       <artifactId>commons-io</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-    </dependency>
-    
-    <!-- test -->
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>common-db</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
+
 </project>

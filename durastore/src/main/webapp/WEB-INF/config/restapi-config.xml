@@ -5,36 +5,27 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
 
-  <!-- REST API resources -->
-  <bean id="initRest" class="org.duracloud.durastore.rest.InitRest" >
+
+  <!--manifest-->
+  <bean id="manifestResource" class="org.duracloud.durastore.rest.ManifestResource">
+    <constructor-arg ref="manifestGenerator"/>
+  </bean>
+
+  <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
+    <constructor-arg ref="manifestStore"/>
     <constructor-arg ref="storageProviderFactory"/>
-    <constructor-arg ref="restUtil"/>
+
   </bean>
 
-  <bean id="storeRest" class="org.duracloud.durastore.rest.StoreRest" >
-    <constructor-arg ref="storageProviderFactory"/>
-    <constructor-arg ref="storageAccountsDocumentBinding"/>
+
+  <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl" >
+    <constructor-arg >
+        <bean class="org.duracloud.audit.AuditConfig">
+            <property name="logSpaceId" value="auditlogs"/>
+        </bean>
+    </constructor-arg>
   </bean>
 
-  <bean id="taskRest" class="org.duracloud.durastore.rest.TaskRest" >
-    <constructor-arg ref="taskProviderFactory"/>
-    <constructor-arg ref="restUtil"/>
-  </bean>
-
-  <bean id="spaceRest" class="org.duracloud.durastore.rest.SpaceRest" >
-    <constructor-arg ref="spaceResource"/>
-    <constructor-arg ref="securityContextUtil"/>
-  </bean>  
-
-  <bean id="contentRest" class="org.duracloud.durastore.rest.ContentRest" >
-    <constructor-arg ref="contentResource"/>
-    <constructor-arg ref="restUtil"/>
-  </bean>
-
-  <bean id="securityRest" class="org.duracloud.durastore.rest.SecurityRest">
-    <constructor-arg ref="userDetailsSvc" />
-    <constructor-arg ref="restUtil"/>
-  </bean>
 
   <!-- Support beans -->
   <bean id="storageAccountsDocumentBinding"

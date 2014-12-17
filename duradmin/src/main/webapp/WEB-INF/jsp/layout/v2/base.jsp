@@ -23,9 +23,14 @@
     <script type="text/javascript" src="${pageContext.request.contextPath}/js/thirdparty/date.js"></script>
 
 	<!-- jquery core, ui and css -->
+  
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery.min.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-ui.js"></script>
 	<!-- 3rd party jquery plugins start-->
+  <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/jquery/plugins/jquery.dropdown/jquery.dropdown.css" />
+    <script type="text/javascript"
+        src="${pageContext.request.contextPath}/jquery/plugins/jquery.dropdown/jquery.dropdown.min.js"></script>
+
 	<script type="text/javascript"
 		src="${pageContext.request.contextPath}/jquery/plugins/jquery.layout.js"></script>
 	<script type="text/javascript"
@@ -94,5 +99,6 @@
 </head>
 <body>
 	<tiles:insertAttribute name="body"/>
+    <tiles:insertAttribute name="footer-extensions" ignore="true"/>
 </body>
 </html>

@@ -29,6 +29,10 @@ public class SpaceProperties
     private String streamingHost;
 
     private Set<String> tags;
+    
+    private String restoreId;
+    
+    private String snapshotId;
 
     public String getCreated() {
         return created;
@@ -77,6 +81,22 @@ public class SpaceProperties
 
     public void setStreamingHost(String streamingHost) {
         this.streamingHost = streamingHost;
+    }
+
+    public String getRestoreId() {
+        return restoreId;
+    }
+
+    public void setRestoreId(String restoreId) {
+        this.restoreId = restoreId;
+    }
+
+    public String getSnapshotId() {
+        return snapshotId;
+    }
+
+    public void setSnapshotId(String snapshotId) {
+        this.snapshotId = snapshotId;
     }
 
 }

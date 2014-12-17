@@ -52,6 +52,7 @@ public class SaveSetupAction {
         String up = advancedForm.getUpdatePolicy();
         log.debug("setting update policy to  {}", up);
         UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
+        syncConfigurationManager.setJumpStart(advancedForm.isJumpStart());
         
         log.info("successfully saved setup.");
         return "success";

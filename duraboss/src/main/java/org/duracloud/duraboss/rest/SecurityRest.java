@@ -12,6 +12,8 @@ import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -25,14 +27,18 @@ import static org.duracloud.security.xml.SecurityUsersDocumentBinding.createSecu
  *         Date: Apr 15, 2010
  */
 @Path("/security")
+@Component
 public class SecurityRest extends BaseRest {
     private final Logger log = LoggerFactory.getLogger(SecurityRest.class);
 
     private DuracloudUserDetailsService userDetailsService;
-    private RestUtil restUtil;
 
+    private RestUtil restUtil;
+    
+    @Autowired
     public SecurityRest(DuracloudUserDetailsService userDetailsService,
                         RestUtil restUtil) {
+        super();
         this.userDetailsService = userDetailsService;
         this.restUtil = restUtil;
     }
@@ -55,4 +61,5 @@ public class SecurityRest extends BaseRest {
             return Response.serverError().entity(entity).build();
         }
     }
+
 }

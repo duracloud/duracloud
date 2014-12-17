@@ -16,8 +16,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.duracloud.common.util.CommandLineToolUtil;
 import org.duracloud.common.util.ConsolePrompt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,9 +28,6 @@ import java.util.List;
  * Date: Oct 12, 2010
  */
 public class RetrievalToolConfigParser {
-
-    private final Logger logger =
-        LoggerFactory.getLogger(RetrievalToolConfigParser.class);
 
     protected static final int DEFAULT_PORT = 443;
     protected static final int DEFAULT_NUM_THREADS = 3;
@@ -113,8 +108,9 @@ public class RetrievalToolConfigParser {
        Option workDirOption =
            new Option("w", "work-dir", true,
                       "logs and output files will be stored in the work " +
-                      "directory");
-       workDirOption.setRequired(true);
+                      "directory (optional, set to duracloud-retrieval-work " +
+                      "directory in user's home directory by default)");
+       workDirOption.setRequired(false);
        cmdOptions.addOption(workDirOption);
 
        Option overwrite =
@@ -180,6 +176,11 @@ public class RetrievalToolConfigParser {
         } catch (ParseException e) {
             printHelp(e.getMessage());
         }
+
+        // Make sure work dir is set
+        RetrievalConfig.setWorkDir(config.getWorkDir());
+        config.setWorkDir(RetrievalConfig.getWorkDir());
+
         return config;
     }
 
@@ -259,17 +260,21 @@ public class RetrievalToolConfigParser {
         contentDir.setWritable(true);
         config.setContentDir(contentDir);
 
-        File workDir = new File(cmd.getOptionValue("w"));
-        if(workDir.exists()) {
-            if(!workDir.isDirectory()) {
-                throw new ParseException("Work Dir paramter must provide " +
-                                         "the path to a directory.");
+        if(cmd.hasOption("w")) {
+            File workDir = new File(cmd.getOptionValue("w"));
+            if(workDir.exists()) {
+                if(!workDir.isDirectory()) {
+                    throw new ParseException("Work Dir parameter must provide " +
+                                             "the path to a directory.");
+                }
+            } else {
+                workDir.mkdirs();
             }
+            workDir.setWritable(true);
+            config.setWorkDir(workDir);
         } else {
-            workDir.mkdirs();
+            config.setWorkDir(null);
         }
-        workDir.setWritable(true);
-        config.setWorkDir(workDir);
 
         if(cmd.hasOption("o")) {
             config.setOverwrite(true);

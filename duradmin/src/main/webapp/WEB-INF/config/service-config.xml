@@ -16,11 +16,14 @@
   
   <bean id="contentStoreManagerTarget"  factory-bean="contentStoreManagerFactory" factory-method="create" />
 
+  <bean id="snapshotTaskClientManager"  class="org.duracloud.client.task.SnapshotTaskClientManager">
+    <constructor-arg ref="contentStoreManager"></constructor-arg>
+  </bean>
 
   <bean id="controllerSupport" class="org.duracloud.duradmin.control.ControllerSupport">
     <constructor-arg ref="contentStoreManager"/>
   </bean>
 
   <bean class="org.duracloud.duradmin.report.DuradminStorageReportManagerImpl"/>
-
+  
 </beans>

@@ -1,81 +1,50 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.duracloud</groupId>
+  <artifactId>reporter</artifactId>
+  <version>3.2.0</version>
+  <name>DuraCloud Reporter</name>
+  <url>http://localhost:8080/${project.artifactId}</url>
+
+  <parent>
     <groupId>org.duracloud</groupId>
-    <artifactId>reporter</artifactId>
-    <packaging>jar</packaging>
-    <version>3.1.1</version>
-    <name>DuraCloud Reporter</name>
-    <url>http://localhost:8080/${project.artifactId}</url>
+    <artifactId>duracloud</artifactId>
+    <version>3.2.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-    <parent>
-        <groupId>org.duracloud</groupId>
-        <artifactId>duracloud</artifactId>
-        <version>3.1.1</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
-    <dependencies>
+  <dependencies>
 
         <!-- internal projects -->
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>common-rest</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storeclient</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>common-notification</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>reportdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>security</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
 
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>storageprovider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>jsr311-api</artifactId>
+    </dependency>
 
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>storeclient</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-          <groupId>org.duracloud</groupId>
-          <artifactId>app-config</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>reportdata</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
-        <!-- for XStream -->
-        <dependency>
-          <groupId>com.thoughtworks.xstream</groupId>
-          <artifactId>com.springsource.com.thoughtworks.xstream</artifactId>
-        </dependency>
-
-    </dependencies>
+  </dependencies>
 
 </project>

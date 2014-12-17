@@ -1,73 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.duracloud</groupId>
+  <artifactId>integration</artifactId>
+  <packaging>jar</packaging>
+  <version>3.2.0</version>
+  <name>Integration</name>
+
+  <parent>
+    <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <artifactId>integration</artifactId>
-    <packaging>jar</packaging>
-    <version>3.1.1</version>
-    <name>Integration</name>
+    <version>3.2.0</version>
+  </parent>
 
-    <parent>
-        <artifactId>duracloud</artifactId>
-        <groupId>org.duracloud</groupId>
-        <version>3.1.1</version>
-    </parent>
-
-    <profiles>
-        <profile>
+  <profiles>
+    <profile>
             <!--Allows for skipping integration tests-->
-            <id>skipIntTests</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>skipIntTests</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
+      <id>skipIntTests</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>skipIntTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
 
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>integrationtest</id>
-                                <phase>none</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>integrationtest</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
 
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>common-json</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>common-queue</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>rackspacestorageprovider</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.duracloud</groupId>
-            <artifactId>sdscstorageprovider</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+  <dependencies>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-json</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-queue</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>s3storageprovider</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>rackspacestorageprovider</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>sdscstorageprovider</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>openstackstorageprovider</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storageprovider</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
 
 </project>

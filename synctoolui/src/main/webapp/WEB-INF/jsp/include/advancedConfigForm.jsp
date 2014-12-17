@@ -19,29 +19,50 @@
   <legend>Update Policy</legend>
   <ul>
     <li><label> <form:radiobutton
+          id="overwritePolicy"
           path="updatePolicy"
           value="OVERWRITE" />Overwrite existing content
     </label></li>
     <li><label><form:radiobutton
+          id="noUpdatePolicy"
           path="updatePolicy"
-          value="NONE" />Do not sync updates</label></li>
+          value="NONE"
+          disabled="${advancedForm.jumpStart}" />Do not sync updates</label></li>
     <li><label><form:radiobutton
           id="preserveUpdatePolicy"
           path="updatePolicy"
           value="PRESERVE"  
-          disabled="${advancedForm.syncDeletes}"
+          disabled="${advancedForm.syncDeletes || advancedForm.jumpStart}"
           />Update but do not overwrite (preserve original in
         cloud)</label></li>
+  </ul>
+</fieldset>
+<fieldset>
+  <legend>Jump Start</legend>
+  <ul>
+    <li><label
+      title="This option will accelerate uploads by skipping the checks to see if the content already exists in DuraCloud. The 'jump start' feature is especially appropriate for the initial upload of collections with large numbers of very small files. Note:  It is only available when the policy is set to overwrite updates.">
+        <form:checkbox id="jumpStart" path="jumpStart" disabled="${advancedForm.updatePolicy != 'OVERWRITE'}"/> Accelerate initial upload of files with jump start
+    </label></li>
   </ul>
 </fieldset>
 <script>
 	$("#syncDeletes").change(function(){
 		$("#preserveUpdatePolicy").prop("disabled",($("#syncDeletes").is(":checked")));
 	});
+	
+    $("#jumpStart").change(function(){
+      var jumpstartChecked = $("#jumpStart").is(":checked");
+      $("#preserveUpdatePolicy").prop("disabled", jumpstartChecked);
+      $("#noUpdatePolicy").prop("disabled",jumpstartChecked);
+    });
+	
 	$("[name='updatePolicy']").change(function(){
 		$("#syncDeletes").prop("disabled",($("#preserveUpdatePolicy").is(":checked")));
+	    $("#jumpStart").prop("disabled",!$("#overwritePolicy").is(":checked"));
 	});
 
+	
 	</script>
 
 

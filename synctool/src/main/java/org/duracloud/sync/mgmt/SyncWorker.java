@@ -58,30 +58,40 @@ public class SyncWorker implements Runnable {
     public void run() {
         SyncResultType result;
         start = new Date();
-        
+        File file = syncFile.getFile();
+        String filePath = (null != file ? file.getAbsolutePath() : "null");
+
         try {
             result = syncEndpoint.syncFileAndReturnDetailedResult(monitoredFile, watchDir);
             stop = new Date();
         } catch (Exception e) {
             logger.error("Exception syncing file "
-                             + syncFile.getFile().getAbsolutePath() + " was "
+                             + filePath + " was "
                              + e.getMessage(),
                          e);
             result = SyncResultType.FAILED;
         }
-
-        if (result != SyncResultType.FAILED) {
-            File file = syncFile.getFile();
-            SyncSummary summary =
-                new SyncSummary(file,
-                                start,
-                                stop,
-                                result,
-                                "");
+        
+        try{
+            if (result != SyncResultType.FAILED) {
+                SyncSummary summary =
+                    new SyncSummary(file,
+                                    start,
+                                    stop,
+                                    result,
+                                    "");
+                
+                statusManager.successfulCompletion(summary);
+            } else {
+                retryOnFailure();
+            }
+        }catch(Throwable e){
+            logger.error("Unexpected error: " + e.getMessage()
+                         + " - sync result = "
+                         + result
+                         + "; file="
+                         + filePath, e);
             
-            statusManager.successfulCompletion(summary);
-        } else {
-            retryOnFailure();
         }
         complete = true;
     }

@@ -79,6 +79,7 @@ public class SyncTester {
         args.add(prefix);
         args.add("-x");
         args.add("-l");
+        args.add("-j");
         args.add("-t");
         args.add(String.valueOf(threads));
 

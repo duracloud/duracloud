@@ -86,4 +86,8 @@ public interface SyncConfigurationManager {
     
     public void setThreadCount(int threadCount);
 
+    public void setJumpStart(boolean jumpStart);
+
+    public boolean isJumpStart();
+
 }

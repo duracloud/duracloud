@@ -20,6 +20,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The list of files which have been changed.
  *
@@ -28,6 +31,7 @@ import java.util.Map.Entry;
  */
 public class ChangedList {
 
+    private static final Logger log = LoggerFactory.getLogger(ChangedList.class);
     private LinkedHashMap<String, ChangedFile> fileList;
     private long listVersion;
 
@@ -53,7 +57,11 @@ public class ChangedList {
      * @param changedFile a file which has changed on the file system
      */
     public void addChangedFile(File changedFile) {
-        addChangedFile(new ChangedFile(changedFile));
+        if(null != changedFile){
+            addChangedFile(new ChangedFile(changedFile));
+        }else{
+            log.warn("The changedFile parameter was unexpectedly null. Ignored.");
+        }
     }
 
     /**

@@ -7,8 +7,12 @@
  */
 package org.duracloud.storage.xml;
 
+import java.io.InputStream;
+
 import org.duracloud.common.util.EncryptionUtil;
 import org.duracloud.storage.domain.AuditConfig;
+import org.duracloud.storage.domain.DatabaseConfig;
+import org.duracloud.storage.domain.DatabaseConfigXmlUtil;
 import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.error.StorageException;
 import org.jdom.Document;
@@ -18,8 +22,6 @@ import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
 
 /**
  * @author Bill Branan
@@ -69,6 +71,12 @@ public class DuraStoreInitDocumentBinding {
                 auditConfig.setAuditQueueName(audit.getChildText("auditQueue"));
                 initConfig.setAuditConfig(auditConfig);
             }
+
+            Element millDb = root.getChild("millDb");
+            if(null != millDb) {
+                initConfig.setMillDbConfig(DatabaseConfigXmlUtil.unmarshalDatabaseConfig(millDb));
+            }
+
         } catch (Exception e) {
             String error = "Unable to build storage account information due " +
                 "to error: " + e.getMessage();
@@ -78,6 +86,7 @@ public class DuraStoreInitDocumentBinding {
         return initConfig;
     }
 
+
     /**
      * Serializes the provided durastore init config into xml
      *
@@ -86,14 +95,17 @@ public class DuraStoreInitDocumentBinding {
      * @return
      */
     public String createXmlFrom(DuraStoreInitConfig duraStoreInitConfig,
-                                boolean includeCredentials) {
+                                boolean includeCredentials,
+                                boolean includeOptions) {
         String xml = "";
 
         Element durastoreConfig = new Element("durastoreConfig");
 
         Element accounts =
             accountsBinding.createDocumentFrom(
-                duraStoreInitConfig.getStorageAccounts(), includeCredentials);
+                duraStoreInitConfig.getStorageAccounts(),
+                includeCredentials,
+                includeOptions);
         durastoreConfig.addContent(accounts);
 
         Element audit = new Element("storageAudit");
@@ -117,6 +129,9 @@ public class DuraStoreInitDocumentBinding {
         }
         durastoreConfig.addContent(audit);
 
+        durastoreConfig.addContent(DatabaseConfigXmlUtil.marshall(duraStoreInitConfig.getMillDbConfig(),
+                                            "millDb"));
+        
         Document document = new Document(durastoreConfig);
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         return outputter.outputString(document);

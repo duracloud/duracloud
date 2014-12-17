@@ -10,7 +10,9 @@ package org.duracloud.client;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.duracloud.common.constant.ManifestFormat;
 import org.duracloud.common.model.AclType;
+import org.duracloud.common.retry.Retriable;
 import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.common.web.RestHttpHelper;
 import org.duracloud.domain.Content;
@@ -26,7 +28,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,11 +98,11 @@ public class ContentStoreImplTest {
         replayMocks();
     }
 
-    private class TestRetryable implements ContentStoreImpl.Retryable {
+    private class TestRetriable implements Retriable {
         private int expectedFailures = 0;
         private int attempts = 0;
 
-        public TestRetryable(int expectedFailures) {
+        public TestRetriable(int expectedFailures) {
             this.expectedFailures = expectedFailures;
         }
 
@@ -114,7 +119,7 @@ public class ContentStoreImplTest {
 
     private Integer doWork(int expectedFailures) throws ContentStoreException {
         ContentStoreImpl fakeStore = new ContentStoreImpl(null, null,null, null);
-        return fakeStore.execute(new TestRetryable(expectedFailures));
+        return fakeStore.execute(new TestRetriable(expectedFailures));
     }
 
     @Test
@@ -170,6 +175,43 @@ public class ContentStoreImplTest {
         List<String> spaceContents = space.getContentIds();
         Assert.assertEquals(2, spaceContents.size());
     }
+    
+    @Test
+    public void testGetManifest() throws Exception {
+        String tsv = "manifest stream";
+        String fullURL = baseURL + "/manifest/" + spaceId +
+                         "?storeID=" + storeId + "&format=TSV";
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseStream())
+                .andReturn(new ByteArrayInputStream(tsv.getBytes()));
+
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+
+        replayMocks();
+
+        InputStream is = contentStore.getManifest(spaceId, ManifestFormat.TSV);
+        Assert.assertNotNull(is);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        Assert.assertEquals(tsv, reader.readLine());
+    }
+    
+    public void testGetAuditLog() throws Exception {
+        String tsv = "audit stream";
+        String fullURL = baseURL + "/audit/" + spaceId +
+                         "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200);
+        EasyMock.expect(response.getResponseStream())
+                .andReturn(new ByteArrayInputStream(tsv.getBytes()));
+
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response);
+
+        replayMocks();
+
+        InputStream is = contentStore.getAuditLog(spaceId);
+        Assert.assertNotNull(is);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        Assert.assertEquals(tsv, reader.readLine());
+    }
 
     @Test
     public void testCreateSpace() throws Exception {
@@ -209,6 +251,21 @@ public class ContentStoreImplTest {
             contentStore.getSpaceProperties(spaceId);
         Assert.assertEquals("65", spaceProps.get("space-count"));
         Assert.assertEquals("custom", spaceProps.get("custom-property"));
+    }
+
+    @Test
+    public void testSpaceExists() throws Exception {
+        String xml = "<spaces><space id=\"space1\" />" +
+                     "<space id=\"space2\" /></spaces>";
+        String fullURL = baseURL + "/spaces" + "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode()).andReturn(200).times(2);
+        EasyMock.expect(response.getResponseBody()).andReturn(xml).times(2);
+        EasyMock.expect(restHelper.get(fullURL)).andReturn(response).times(2);
+
+        replayMocks();
+
+        Assert.assertTrue(contentStore.spaceExists("space1"));
+        Assert.assertFalse(contentStore.spaceExists("spaceX"));
     }
 
     @Test
@@ -318,6 +375,27 @@ public class ContentStoreImplTest {
     }
 
     @Test
+    public void testContentExists() throws Exception {
+        String fullURL = baseURL + "/" + spaceId + "/" + contentId +
+                         "?storeID=" + storeId;
+        EasyMock.expect(response.getStatusCode())
+                .andReturn(HttpStatus.SC_OK);
+        EasyMock.expect(response.getStatusCode())
+                .andReturn(HttpStatus.SC_NOT_FOUND);
+
+        Header[] headers = new Header[]{};
+        EasyMock.expect(response.getResponseHeaders())
+                .andReturn(headers).times(2);
+        EasyMock.expect(restHelper.head(fullURL)).andReturn(response).times(2);
+        EasyMock.expect(response.getResponseBody()).andReturn("");
+
+        replayMocks();
+
+        Assert.assertTrue(contentStore.contentExists(spaceId, contentId));
+        Assert.assertFalse(contentStore.contentExists(spaceId, contentId));
+    }
+
+    @Test
     public void testCopyContentWithDefaultStoreId() throws Exception {
         doTestCopyContent(storeId);
     }
@@ -380,19 +458,21 @@ public class ContentStoreImplTest {
 
     @Test
     public void testCopyContentErrorWithDefaultStore() throws Exception {
+        int retries = 2;
         contentStore =
-            new ContentStoreImpl(baseURL, type, storeId, restHelper, 0);
-        doTestCopyContentError(storeId);
+            new ContentStoreImpl(baseURL, type, storeId, restHelper, retries);
+        doTestCopyContentError(storeId, retries);
     }
 
     @Test
     public void testCopyContentErrorWithAlternateStore() throws Exception {
+        int retries = 4;
         contentStore =
-            new ContentStoreImpl(baseURL, type, storeId, restHelper, 0);
-        doTestCopyContentError("1");
+            new ContentStoreImpl(baseURL, type, storeId, restHelper, retries);
+        doTestCopyContentError("1", retries);
     }
 
-    private void doTestCopyContentError(String destStoreId) throws Exception {
+    private void doTestCopyContentError(String destStoreId, int retries) throws Exception {
         String srcSpaceId = "src-space-id";
         String srcContentId = "src-content-id";
         String destSpaceId = "dest-space-id";
@@ -404,7 +484,8 @@ public class ContentStoreImplTest {
                                     destSpaceId,
                                     destContentId,
                                     expectedMd5,
-                                    status);
+                                    status,
+                                    retries + 1);
         replayMocks();
 
         try {
@@ -433,23 +514,28 @@ public class ContentStoreImplTest {
                                              String destSpaceId,
                                              String destContentId,
                                              String md5,
-                                             int status) throws Exception {
-        EasyMock.expect(response.getStatusCode()).andReturn(status);
+                                             int status,
+                                             int expectedAttempts) throws Exception {
+        EasyMock.expect(response.getStatusCode())
+                .andReturn(status).times(expectedAttempts);
 
         Header header = EasyMock.createMock(Header.class);
-        EasyMock.expect(header.getValue()).andReturn(md5);
-        EasyMock.expect(response.getResponseBody()).andReturn("body");
+        EasyMock.expect(header.getValue())
+                .andReturn(md5);
+        EasyMock.expect(response.getResponseBody())
+                .andReturn("body")
+                .times(expectedAttempts);
         EasyMock.replay(header);
 
         String fullURL =
             baseURL + "/" + destSpaceId + "/" + destContentId + "?storeID=" +
                 destStoreId;
-        Capture<Map<String, String>> capturedHeaders =
-            new Capture<Map<String, String>>();
+        Capture<Map<String, String>> capturedHeaders = new Capture<>();
         EasyMock.expect(restHelper.put(EasyMock.eq(fullURL),
                                        EasyMock.<String>isNull(),
                                        EasyMock.capture(capturedHeaders)))
-            .andReturn(response);
+                .andReturn(response)
+                .times(expectedAttempts);
     }
 
     private Capture<Map<String, String>> createCopyContentMocks(String destStoreId,

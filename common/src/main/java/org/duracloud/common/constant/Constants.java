@@ -30,6 +30,19 @@ public class Constants {
     /**
      * Content ID used to define a space snapshot
      */
-    public static final String SNAPSHOT_ID = ".collection-snapshot.properties";
+    public static final String SNAPSHOT_PROPS_FILENAME =
+        ".collection-snapshot.properties";
+
+    /**
+     * The property value set on a space to indicate that a snapshot is in
+     * process
+     */
+    public static final String SNAPSHOT_ID_PROP = "snapshot-id";
+
+    /**
+     * The property value set on a space to indicate that it is a restored
+     * snapshot.
+     */
+    public static final String RESTORE_ID_PROP = "restore-id";
 
 }

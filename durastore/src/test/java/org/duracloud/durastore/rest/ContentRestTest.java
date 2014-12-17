@@ -143,7 +143,7 @@ public class ContentRestTest {
         RestUtil.RequestContent content = EasyMock.createMock("RequestContent",
                                                               RestUtil.RequestContent.class);
         
-        EasyMock.expect(content.getSize()).andReturn(5).times(2);
+        EasyMock.expect(content.getSize()).andReturn(5l).times(2);
         EasyMock.replay(content);
 
         EasyMock.expect(restUtil.getRequestContent(request, httpHeaders))

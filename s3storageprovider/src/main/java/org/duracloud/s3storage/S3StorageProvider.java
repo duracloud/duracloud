@@ -11,6 +11,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.AccessControlList;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -27,9 +28,11 @@ import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.common.stream.ChecksumInputStream;
+import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
 import org.duracloud.storage.domain.ContentIterator;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.ChecksumMismatchException;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -423,6 +426,11 @@ public class S3StorageProvider extends StorageProviderBase {
         if (contentSize > 0) {
             objMetadata.setContentLength(contentSize);
         }
+        if(null != contentChecksum && !contentChecksum.isEmpty()) {
+            String encodedChecksum =
+                ChecksumUtil.convertToBase64Encoding(contentChecksum);
+            objMetadata.setContentMD5(encodedChecksum);
+        }
 
         if(userProperties != null) {
             for (String key : userProperties.keySet()) {
@@ -446,6 +454,19 @@ public class S3StorageProvider extends StorageProviderBase {
             PutObjectResult putResult = s3Client.putObject(putRequest);
             etag = putResult.getETag();
         } catch (AmazonClientException e) {
+            if (e instanceof AmazonS3Exception) {
+                String errorCode = ((AmazonS3Exception) e).getErrorCode();
+                if (errorCode.equals("InvalidDigest") || errorCode.equals("BadDigest")) {
+                    String err =
+                        "Checksum mismatch detected attempting to add " + "content "
+                            + contentId
+                            + " to S3 bucket "
+                            + bucketName
+                            + ". Content was not added.";
+                    throw new ChecksumMismatchException(err, e, NO_RETRY);
+                }
+            }
+
             etag = doesContentExist(bucketName, contentId);
             if(null == etag) {
                 String err = "Could not add content " + contentId +
@@ -459,11 +480,25 @@ public class S3StorageProvider extends StorageProviderBase {
 
         // Compare checksum
         String providerChecksum = getETagValue(etag);
-        String checksum = wrappedContent.getMD5();
-        return StorageProviderUtil.compareChecksum(providerChecksum,
-                                                   spaceId,
-                                                   contentId,
-                                                   checksum);
+
+        try {
+            String checksum = wrappedContent.getMD5();
+            StorageProviderUtil.compareChecksum(providerChecksum,
+                                                spaceId,
+                                                contentId,
+                                                checksum);
+        } catch(ChecksumMismatchException e) {
+            try { // Clean up
+                s3Client.deleteObject(bucketName, contentId);
+            } catch (AmazonClientException amazonException) {
+                log.debug("Content item {} in space {} failed checksum test " +
+                          "and call to delete content item failed as well. " +
+                          "The content item was most likely never added to " +
+                          "storage.", contentId, spaceId);
+            }
+        }
+
+        return providerChecksum;
     }
 
     /*

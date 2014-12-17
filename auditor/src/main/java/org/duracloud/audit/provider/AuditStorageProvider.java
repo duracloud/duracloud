@@ -268,9 +268,12 @@ public class AuditStorageProvider implements StorageProvider {
             target.copyContent(sourceSpaceId, sourceContentId,
                                destSpaceId, destContentId);
 
+        Map<String,String> props = target.getContentProperties(sourceSpaceId, sourceContentId);
+        String contentMimetype = props.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
+        String contentSize = props.get(StorageProvider.PROPERTIES_CONTENT_SIZE);
         String action = AuditTask.ActionType.COPY_CONTENT.name();
         submitWriteTask(action, destSpaceId, destContentId, contentChecksum,
-                        AuditTask.NA, AuditTask.NA, null, null, sourceSpaceId,
+                        contentMimetype, contentSize, props, null, sourceSpaceId,
                         sourceContentId);
         return contentChecksum;
     }

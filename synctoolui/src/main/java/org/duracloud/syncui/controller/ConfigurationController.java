@@ -89,6 +89,7 @@ public class ConfigurationController {
         AdvancedForm f = new AdvancedForm();
         f.setSyncDeletes(this.syncConfigurationManager.isSyncDeletes());
         f.setUpdatePolicy(UpdatePolicyHelper.get(this.syncConfigurationManager).name());
+        f.setJumpStart(this.syncConfigurationManager.isJumpStart());
         return f;
     }
 
@@ -126,6 +127,11 @@ public class ConfigurationController {
         String up = form.getUpdatePolicy();
         log.debug("modifying update policy to  {}", up);
         UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
+
+        boolean jumpstart = form.isJumpStart();
+        log.debug("updating  jump start to : {}", jumpstart);
+        this.syncConfigurationManager.setJumpStart(jumpstart);
+
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
     

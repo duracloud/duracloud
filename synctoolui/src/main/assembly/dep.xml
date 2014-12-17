@@ -26,8 +26,10 @@
         <exclude>org.easymock:*</exclude>
         <exclude>htmlunit:*</exclude>
         <exclude>javax.servlet:jstl</exclude>
+        <exclude>javax.servlet:jsp*</exclude>
         <exclude>org.springframework:*</exclude>
         <exclude>org.springframework.webflow:*</exclude>
+        <exclude>org.springframework.security:*</exclude>
         <exclude>org.apache.tiles:*</exclude>
         <exclude>org.hibernate:*</exclude>
         <exclude>cglib:*</exclude>
@@ -35,6 +37,9 @@
         <exclude>xalan:*</exclude>
         <exclude>javax.validation:*</exclude>
         <exclude>com.bitrock.installbuilder:jre</exclude>
+        <exclude>org.jboss:*</exclude>
+        <exclude>org.apache.xmlbeans:*</exclude>
+	
       </excludes>
       <unpack>true</unpack>
       <!-- I added the exclusion below because jetty unpacking routine was blowing up
@@ -63,6 +68,9 @@
           <exclude>WEB-INF/lib/hamcrest-core*</exclude>
           <exclude>WEB-INF/lib/guava*</exclude>
           <exclude>WEB-INF/lib/jsr305*</exclude>
+          <exclude>WEB-INF/lib/xmlbeans*</exclude>
+          <exclude>WEB-INF/lib/xml-apis*</exclude>
+          <exclude>WEB-INF/lib/spring-js-resources*</exclude>
         </excludes>
       </unpackOptions>
       <useTransitiveFiltering>true</useTransitiveFiltering>

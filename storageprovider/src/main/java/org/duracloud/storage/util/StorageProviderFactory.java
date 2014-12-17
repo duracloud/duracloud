@@ -7,6 +7,7 @@
  */
 package org.duracloud.storage.util;
 
+import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -20,7 +21,12 @@ import java.util.List;
  */
 public interface StorageProviderFactory {
 
+    @Deprecated
     public void initialize(InputStream accountXml,
+                           String instanceHost,
+                           String instancePort);
+
+    public void initialize(DuraStoreInitConfig initConfig,
                            String instanceHost,
                            String instancePort);
 

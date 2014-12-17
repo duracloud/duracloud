@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
 
 /**
@@ -66,6 +67,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         argsMap.remove("-t");
         argsMap.remove("-d");
         argsMap.remove("-l");
+        argsMap.remove("-w");
 
         // Process configs, make sure optional params are set to defaults
         retConfig = retConfigParser.processOptions(mapToArray(argsMap));
@@ -78,6 +80,7 @@ public class RetrievalToolConfigParserTest extends RetrievalTestBase {
         assertEquals(true, retConfig.isApplyTimestamps());
         assertEquals(false, retConfig.isListOnly());
         assertEquals(expectedPassword, retConfig.getPassword());
+        assertNull(retConfig.getWorkDir());
 
         // Make sure error is thrown on missing required params
         for(String arg : argsMap.keySet()) {

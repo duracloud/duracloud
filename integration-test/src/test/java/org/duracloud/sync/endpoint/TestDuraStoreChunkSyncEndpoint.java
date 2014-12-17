@@ -28,6 +28,7 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
                                            username,
                                            SyncIntegrationTestBase.spaceId,
                                            true,
+                                           false,
                                            maxFileSize);
         testSync(endpoint);
 
@@ -53,6 +54,7 @@ public class TestDuraStoreChunkSyncEndpoint extends DuraStoreSyncTestBase {
             new DuraStoreChunkSyncEndpoint(getContentStore(),
                                            username,
                                            SyncIntegrationTestBase.spaceId,
+                                           false,
                                            false,
                                            maxFileSize);
         testSyncNoDeletes(endpoint);

@@ -14,6 +14,7 @@ import org.duracloud.s3task.storage.SetStandardStorageTaskRunner;
 import org.duracloud.s3task.streaming.DeleteStreamingTaskRunner;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.jets3t.service.CloudFrontService;
 import org.slf4j.LoggerFactory;
@@ -26,23 +27,31 @@ import org.slf4j.LoggerFactory;
  */
 public class S3TaskProvider extends TaskProviderBase {
 
-    public S3TaskProvider(S3StorageProvider s3Provider,
+    public S3TaskProvider(StorageProvider s3Provider,
+                          S3StorageProvider unwrappedS3Provider,
                           AmazonS3Client s3Client,
                           CloudFrontService cfService) {
         log = LoggerFactory.getLogger(S3TaskProvider.class);
 
         taskList.add(new NoopTaskRunner());
         taskList.add(new EnableStreamingTaskRunner(s3Provider,
+                                                   unwrappedS3Provider,
                                                    s3Client,
                                                    cfService));
         taskList.add(new DisableStreamingTaskRunner(s3Provider,
+                                                    unwrappedS3Provider,
                                                     s3Client,
                                                     cfService));
         taskList.add(new DeleteStreamingTaskRunner(s3Provider,
+                                                   unwrappedS3Provider,
                                                    s3Client,
                                                    cfService));
-        taskList.add(new SetStandardStorageTaskRunner(s3Provider, s3Client));
-        taskList.add(new SetReducedStorageTaskRunner(s3Provider, s3Client));
+        taskList.add(new SetStandardStorageTaskRunner(s3Provider,
+                                                      unwrappedS3Provider,
+                                                      s3Client));
+        taskList.add(new SetReducedStorageTaskRunner(s3Provider,
+                                                     unwrappedS3Provider,
+                                                     s3Client));
     }
 
 }

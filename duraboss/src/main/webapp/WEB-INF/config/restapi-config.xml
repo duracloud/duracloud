@@ -4,53 +4,13 @@
   xsi:schemaLocation="
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
-
-  <!-- REST API resources -->
-  <bean id="storageReportRest" class="org.duracloud.duraboss.rest.report.StorageReportRest" >
-    <constructor-arg ref="storageResource"/>
-  </bean>  
-
-  <bean id="manifestRest" class="org.duracloud.duraboss.rest.manifest.ManifestRest" >
-    <constructor-arg ref="manifestResource"/>
-  </bean>
-
-  <bean id="initRest" class="org.duracloud.duraboss.rest.InitRest" >
-    <constructor-arg ref="storageResource"/>
-    <constructor-arg ref="securityContextUtil"/>
-    <constructor-arg ref="restUtil"/>
-    <constructor-arg ref="report-space"/>
-    <constructor-arg ref="notificationManager"/>
-    <constructor-arg ref="manifestGenerator"/>
-  </bean>
-
-  <bean id="securityRest" class="org.duracloud.duraboss.rest.SecurityRest">
-    <constructor-arg ref="userDetailsSvc" />
-    <constructor-arg ref="restUtil"/>
-  </bean>
-
+  
   <!-- Support beans -->
   <bean id="storageResource" class="org.duracloud.duraboss.rest.report.StorageReportResource"
         destroy-method="dispose">
     <constructor-arg value="report/storage-report-"/>
     <constructor-arg value="report/error-log-storage-report.txt"/>
   </bean>
-
-  <!--manifest-->
-  <bean id="manifestResource" class="org.duracloud.duraboss.rest.manifest.ManifestResource">
-    <constructor-arg ref="manifestGenerator"/>
-  </bean>
-
-  <bean id="manifestGenerator" class="org.duracloud.manifest.impl.ManifestGeneratorImpl">
-    <constructor-arg ref="auditLogSpace"/>
-    <constructor-arg ref="fileCleaningTracker"/>
-  </bean>
-
-  <bean id="auditLogSpace" class="java.lang.String">
-    <constructor-arg value="x-duracloud-admin"/>
-  </bean>
-
-  <bean id="fileCleaningTracker" class="org.apache.commons.io.FileCleaningTracker"
-        destroy-method="exitWhenFinished"/>
 
   <bean id="report-space" class="java.lang.String">
     <constructor-arg value="x-duracloud-admin"/>

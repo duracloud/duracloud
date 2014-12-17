@@ -7,11 +7,10 @@
  */
 package org.duracloud.manifest.impl;
 
-import org.duracloud.manifest.ContentMessage;
+import static org.duracloud.common.util.bulk.ManifestVerifier.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.duracloud.common.util.bulk.ManifestVerifier.DELIM;
 
 /**
  * This class formats content manifests as tab-separated-values (TSV).
@@ -38,15 +37,14 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    public String getLine(ContentMessage event) {
+    protected String
+        getLine(String contentMd5, String spaceId, String contentId) {
         StringBuilder line = new StringBuilder();
-        line.append(event.getSpaceId());
+        line.append(spaceId);
         line.append(DELIM);
-        line.append(event.getContentId());
+        line.append(contentId);
         line.append(DELIM);
-        line.append(event.getContentMd5());
-
-        return line.toString();
+        line.append(contentMd5);
+        return line.toString();    
     }
-
 }

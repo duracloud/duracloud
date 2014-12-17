@@ -33,6 +33,11 @@ public class MonitoredFile {
         this.mimetype = null;
     }
 
+    public File getFile() {
+        return file;
+    }
+
+    
     public boolean exists() {
         return file.exists();
     }

@@ -11,8 +11,9 @@
     Imports the configurations of the different infrastructure systems
     of the application
   -->
-  <import resource="restapi-config.xml" />
+  <context:component-scan base-package="org.duracloud.duraboss" />
   <import resource="security-config.xml" />
+  <import resource="restapi-config.xml" />
   <import resource="notification-config.xml" />
 
 </beans>

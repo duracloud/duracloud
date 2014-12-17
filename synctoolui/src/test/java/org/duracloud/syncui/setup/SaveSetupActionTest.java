@@ -54,6 +54,9 @@ public class SaveSetupActionTest extends AbstractTest {
         advanced.setSyncDeletes(false);
         scm.setSyncDeletes(advanced.isSyncDeletes());
         EasyMock.expectLastCall();
+        advanced.setJumpStart(false);
+        scm.setJumpStart(advanced.isJumpStart());
+        EasyMock.expectLastCall();
 
         advanced.setUpdatePolicy(UpdatePolicy.OVERWRITE.name());
         scm.setSyncUpdates(true);

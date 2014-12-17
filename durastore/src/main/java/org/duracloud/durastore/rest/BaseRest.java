@@ -15,7 +15,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -102,5 +105,64 @@ public abstract class BaseRest {
         }
         return userProperties;
     }
+    
+    protected Response responseOk() {
+        return Response.ok().build();
+    }
+
+    protected Response responseOk(String text) {
+        return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    protected Response responseOkStream(InputStream text) {
+        return Response.ok(text, TEXT_PLAIN).build();
+    }
+
+    protected Response responseOkXml(String xml) {
+        return Response.ok(xml, APPLICATION_XML).build();
+    }
+
+    protected Response responseOkXmlStream(InputStream xml) {
+        return Response.ok(xml, APPLICATION_XML).build();
+    }
+
+    protected Response responseNotFound() {
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    protected Response responseNotFound(String msg) {
+        return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
+    }
+
+    protected Response responseBadRequest(Exception e) {
+        return responseBad(e, Response.Status.BAD_REQUEST);
+    }
+
+    protected Response responseBad(Exception e) {
+        return responseBad(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+
+    protected Response responseBad(Exception e, Response.Status status) {
+        String text = e.getMessage() == null ? "null" : e.getMessage();
+        return responseBad(text, status);
+    }
+
+    protected Response responseBad(String msg, Response.Status status) {
+        String entity = msg == null ? "null" : msg;
+        return Response.status(status).entity(entity).build();
+    }
+
+    protected String getSubdomain() {
+        String subdomain = request.getHeader("X-FORWARDED-HOST");
+        if(subdomain == null){
+            subdomain = request.getServerName();
+        }
+        
+        subdomain = subdomain.split("[.]")[0];
+        return subdomain;
+    }
+
+
+
 
 }

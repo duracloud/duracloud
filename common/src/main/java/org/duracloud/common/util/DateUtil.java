@@ -26,6 +26,7 @@ public class DateUtil {
 
         DateFormat(String pattern) {
             this.format = new SimpleDateFormat(pattern);
+            this.format.setLenient(false);
         }
 
         public String getPattern() {
@@ -36,17 +37,17 @@ public class DateUtil {
     public static Date convertToDate(String text, DateFormat format)
         throws ParseException {
         SimpleDateFormat dateFormat = format.format;
-        dateFormat.setLenient(false);
 
-        Date date = dateFormat.parse(text);
-        return date;
+        synchronized(dateFormat){
+            return dateFormat.parse(text);
+        }
     }
 
     public static Date convertToDate(String text) throws ParseException {
         return convertToDate(text, DateFormat.DEFAULT_FORMAT);
     }
 
-    public static String now() {
+    public  static String now() {
         long now = System.currentTimeMillis();
         return convertToString(now, DateFormat.DEFAULT_FORMAT);
     }
@@ -78,7 +79,9 @@ public class DateUtil {
 
     public static String convertToString(long millis, DateFormat format) {
         SimpleDateFormat dateFormat = format.format;
-        return dateFormat.format(millis);
+        synchronized (dateFormat) {
+            return dateFormat.format(millis);
+        }
     }
 
     public static String convertToString(long millis) {
