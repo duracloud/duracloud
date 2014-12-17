@@ -144,7 +144,7 @@ public class SnapshotController {
         }
     }
 
-    @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId:.+}", method = RequestMethod.GET)
     @ResponseBody
     public String
         getSnapshot(@PathVariable("storeId") String storeId,
@@ -218,7 +218,7 @@ public class SnapshotController {
         return taskClient;
     }
 
-    @RequestMapping(value = "/spaces/restores/{storeId}/by-snapshot/{snapshotId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/spaces/restores/{storeId}/by-snapshot/{snapshotId:.+}", method = RequestMethod.GET)
     @ResponseBody
     public String
         getRestore(@PathVariable("storeId") String storeId,
@@ -233,7 +233,7 @@ public class SnapshotController {
         }
     }
 
-    @RequestMapping(value = "/spaces/restores/{storeId}/{restoreId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/spaces/restores/{storeId}/{restoreId:.+}", method = RequestMethod.GET)
     @ResponseBody
     public String
         getRestoreByRestoreId(@PathVariable("storeId") String storeId,
