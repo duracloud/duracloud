@@ -316,6 +316,7 @@
                     <descriptors>
                         <descriptor>src/main/assembly/dep.xml</descriptor>
                     </descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
 
