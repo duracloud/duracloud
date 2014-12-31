@@ -105,13 +105,17 @@ $.widget("ui.selectablelist",{
 	},
 	
 	_fireSelectionChanged: function(){
-		var ci = this._currentItem;
-		this._styleItem(ci != null && ci.item != null ? ci.item : null);
-		var selectedItems = this._getSelectedItems();
-		
+	  var selectedItems = this._getSelectedItems();
+    
 		if(selectedItems.length == 0){
 		    this._fireCurrentItemChanged(null, false);
+		}else if(selectedItems.length == 1){
+		 this._currentItem = selectedItems[0];
 		}
+		
+		var ci = this._currentItem;
+    this._styleItem(ci != null && ci.item != null ? ci.item : null);
+    
 		
 		this.element.trigger(
 			"selectionChanged", 
