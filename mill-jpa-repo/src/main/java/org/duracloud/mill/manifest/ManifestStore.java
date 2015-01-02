@@ -98,4 +98,14 @@ public interface ManifestStore {
                                               String spaceId,
                                               String contentId,
                                               boolean flag) throws ManifestItemWriteException;
+
+    /**
+     * 
+     * @param account
+     * @param storeId
+     * @param spaceId
+     * @throws ManifestItemWriteException
+     */
+    public void delete(String account, String storeId, String spaceId)
+        throws ManifestItemWriteException;
 }

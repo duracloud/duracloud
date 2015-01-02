@@ -298,5 +298,10 @@ public class JpaManifestStore implements
         }        
     }
 
+    @Override
+    public void delete(String account, String storeId, String spaceId)
+        throws ManifestItemWriteException {
+        this.manifestItemRepo.deleteByAccountAndStoreIdAndSpaceId(account,storeId, spaceId);
+    }
 
 }
