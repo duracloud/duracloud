@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.easymock.EasyMock;
@@ -30,6 +31,7 @@ public class InitRestTest {
     private RestUtil restUtil;
     private InitRest initRest;
     private BasicDataSource datasource;
+    private AuditLogReader reader;
 
     @Before
     public void setup() {
@@ -37,16 +39,17 @@ public class InitRestTest {
             EasyMock.createMock(StorageProviderFactory.class);
         restUtil = EasyMock.createMock(RestUtil.class);
         datasource = EasyMock.createMock(BasicDataSource.class);
-        initRest = new InitRest(storageProviderFactory, restUtil, datasource);
+        reader =  EasyMock.createMock(AuditLogReader.class);
+        initRest = new InitRest(storageProviderFactory, restUtil, datasource, reader);
     }
 
     private void replayMocks() {
-        EasyMock.replay(storageProviderFactory, restUtil, datasource);
+        EasyMock.replay(storageProviderFactory, restUtil, datasource, reader);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(storageProviderFactory, restUtil, datasource);
+        EasyMock.verify(storageProviderFactory, restUtil, datasource, reader);
     }
 
     @Test

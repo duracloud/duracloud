@@ -9,6 +9,8 @@ package org.duracloud.audit.reader;
 
 import java.io.InputStream;
 
+import org.duracloud.storage.domain.AuditConfig;
+
 /**
  * 
  * @author Daniel Bernstein Date: Sept. 17, 2014
@@ -26,5 +28,7 @@ public interface AuditLogReader {
      */
     InputStream getAuditLog(String account, String storeId, String spaceId)
         throws AuditLogNotFoundException;
+
+    void initialize(AuditConfig auditConfig);
 
 }

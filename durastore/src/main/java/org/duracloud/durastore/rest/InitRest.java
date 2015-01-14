@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
 import org.duracloud.storage.domain.DatabaseConfig;
@@ -40,14 +41,16 @@ public class InitRest extends BaseRest {
 
     private StorageProviderFactory storageProviderFactory;
     private RestUtil restUtil;
-
+    private AuditLogReader auditLogReader;
     private BasicDataSource datasource;
     @Autowired
     public InitRest(StorageProviderFactory storageProviderFactory,
-                    RestUtil restUtil, BasicDataSource datasource) {
+                    RestUtil restUtil, BasicDataSource datasource, 
+                    AuditLogReader auditLogReader) {
         this.storageProviderFactory = storageProviderFactory;
         this.restUtil = restUtil;
         this.datasource = datasource;
+        this.auditLogReader = auditLogReader;
     }
 
     /**
@@ -73,7 +76,7 @@ public class InitRest extends BaseRest {
             storageProviderFactory.initialize(initConfig,
                                               instanceHost,
                                               instancePort);
-            
+            this.auditLogReader.initialize(initConfig.getAuditConfig());
             configureMillDatabase(initConfig);
             String responseText = "Initialization Successful";
             return responseOk(msg, responseText);

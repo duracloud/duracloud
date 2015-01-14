@@ -10,7 +10,6 @@ package org.duracloud.audit.reader.impl;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,11 +21,11 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.duracloud.audit.AuditConfig;
 import org.duracloud.audit.AuditLogUtil;
 import org.duracloud.audit.reader.AuditLogNotFoundException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.mill.test.AbstractTestBase;
+import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -74,7 +73,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
                                         prefix + "/" + contentId2 }).iterator();
         expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andReturn(it);
         AuditConfig config = createMock(AuditConfig.class);
-        expect(config.getLogSpaceId()).andReturn(globalAuditSpaceId );
+        expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId );
         
         setupGetContentCall(prefix, storageProvider, contentId1, file1Lines);
         setupGetContentCall(prefix, storageProvider, contentId2, file2Lines);
@@ -124,7 +123,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         String prefix = getPrefix();
         expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andThrow(new NotFoundException("not found"));
         
-        expect(config.getLogSpaceId()).andReturn(globalAuditSpaceId );
+        expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId );
         
         replayAll();
         AuditLogReaderImpl auditReader =
@@ -145,7 +144,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
             Arrays.asList(new String[] { }).iterator();
         expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andReturn(it);
         
-        expect(config.getLogSpaceId()).andReturn(globalAuditSpaceId );
+        expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId );
         
         replayAll();
         AuditLogReaderImpl auditReader =
@@ -175,7 +174,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
             Arrays.asList(new String[] { prefix + "/" + contentId1,  prefix + "/" + contentId2,
             }).iterator();
         expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andReturn(it);
-        expect(config.getLogSpaceId()).andReturn(globalAuditSpaceId );
+        expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId );
         
         setupGetContentCall(prefix, storageProvider, contentId1, file1Lines);
         setupGetContentCallFailure(prefix, storageProvider, contentId2, null);
@@ -228,12 +227,14 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
 
     protected AuditLogReaderImpl
         createAuditLogReader(final StorageProvider storageProvider, AuditConfig config) {
-        AuditLogReaderImpl auditReader = new AuditLogReaderImpl(config){
+        AuditLogReaderImpl auditReader = new AuditLogReaderImpl(){
             @Override
             protected StorageProvider getStorageProvider() {
                 return storageProvider;
             }
         };
+        
+        auditReader.initialize(config);
         
         return auditReader;
     }

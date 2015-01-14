@@ -17,17 +17,16 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
-import org.duracloud.audit.AuditConfig;
 import org.duracloud.audit.AuditLogUtil;
 import org.duracloud.audit.reader.AuditLogNotFoundException;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.audit.reader.AuditLogReaderException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,16 +44,20 @@ public class AuditLogReaderImpl implements AuditLogReader {
     
     private StorageProvider storageProvider;
 
-    public AuditLogReaderImpl(AuditConfig auditConfig) {
-        this.auditConfig = auditConfig;
+    public AuditLogReaderImpl() {
     }
 
+    @Override
+    public void initialize(AuditConfig auditConfig){
+        this.auditConfig = auditConfig;
+    }
+    
     @Override
     public InputStream getAuditLog(final String account, final String storeId, final String spaceId)
         throws AuditLogNotFoundException {
         
         this.storageProvider = getStorageProvider();
-        final String auditBucket = auditConfig.getLogSpaceId();
+        final String auditBucket = auditConfig.getAuditLogSpaceId();
 
         String prefix = MessageFormat.format("{0}/{1}/{2}/",account, storeId, spaceId);
         final PipedInputStream is = new PipedInputStream(10 * 1024);
