@@ -22,9 +22,9 @@ public interface AuditLogReader {
      * @param storeId
      * @param spaceId
      * @return
-     * @throws AuditLogEmptyException 
+     * @throws AuditLogNotFoundException 
      */
-    InputStream gitAuditLog(String account, String storeId, String spaceId)
-        throws AuditLogEmptyException;
+    InputStream getAuditLog(String account, String storeId, String spaceId)
+        throws AuditLogNotFoundException;
 
 }

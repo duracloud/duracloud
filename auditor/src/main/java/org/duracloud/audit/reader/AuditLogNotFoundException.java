@@ -14,8 +14,8 @@ import org.duracloud.common.error.DuraCloudCheckedException;
  *         Date: Sept. 17, 2014
  *
  */
-public class AuditLogEmptyException extends DuraCloudCheckedException {
-    public AuditLogEmptyException(String msg){
+public class AuditLogNotFoundException extends DuraCloudCheckedException {
+    public AuditLogNotFoundException(String msg){
         super(msg);
     }
 }

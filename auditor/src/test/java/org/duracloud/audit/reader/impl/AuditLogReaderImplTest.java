@@ -10,6 +10,7 @@ package org.duracloud.audit.reader.impl;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,14 +23,17 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.duracloud.audit.AuditConfig;
-import org.duracloud.audit.reader.AuditLogEmptyException;
+import org.duracloud.audit.AuditLogUtil;
+import org.duracloud.audit.reader.AuditLogNotFoundException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.mill.test.AbstractTestBase;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Mock;
 import org.junit.Before;
 import org.junit.Test;
+
 /**
  * 
  * @author Daniel Bernstein
@@ -56,7 +60,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
 
 
     @Test
-    public void testGetAuditLog() throws IOException, ContentStoreException, AuditLogEmptyException {
+    public void testGetAuditLog() throws IOException, ContentStoreException, AuditLogNotFoundException {
         
         String[]  file1Lines = {"a", "b", "c", "d"};
         String[]  file2Lines = {"e", "f", "g", "h"};
@@ -79,7 +83,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
 
         AuditLogReaderImpl auditReader = createAuditLogReader(storageProvider, config);
 
-        InputStream is = auditReader.gitAuditLog(account, storeId, spaceId);
+        InputStream is = auditReader.getAuditLog(account, storeId, spaceId);
         
         assertNotNull(is);
         
@@ -115,7 +119,26 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
 
     
     @Test
-    public void testGetEmptyLog() throws IOException, StorageException {
+    public void testGetLogNotFound() throws IOException, StorageException {
+        
+        String prefix = getPrefix();
+        expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andThrow(new NotFoundException("not found"));
+        
+        expect(config.getLogSpaceId()).andReturn(globalAuditSpaceId );
+        
+        replayAll();
+        AuditLogReaderImpl auditReader =
+            createAuditLogReader(storageProvider, config);
+
+        
+        try{
+            auditReader.getAuditLog(account, storeId, spaceId);
+            fail("expected to fail with empty log exception");
+        }catch(AuditLogNotFoundException e){}
+    }
+
+    @Test
+    public void testEmptyLog() throws IOException, StorageException {
         
         String prefix = getPrefix();
         Iterator<String> it =
@@ -128,13 +151,16 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         AuditLogReaderImpl auditReader =
             createAuditLogReader(storageProvider, config);
 
-        
         try{
-            auditReader.gitAuditLog(account, storeId, spaceId);
-            fail("expected to fail with empty log exception");
-        }catch(AuditLogEmptyException e){}
+            InputStream is = auditReader.getAuditLog(account, storeId, spaceId);
+            BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+            String line = buf.readLine();
+            assertEquals(AuditLogUtil.getHeader(), line);
+            assertEquals(-1, buf.read());
+        }catch(AuditLogNotFoundException e){
+            fail("unexpected to fail with empty log exception");
+        }
     }
-
     
     @Test
     public void testContentFailure() throws IOException, ContentStoreException {
@@ -159,7 +185,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         AuditLogReaderImpl auditReader = createAuditLogReader(storageProvider, config);
 
         try {
-            InputStream is = auditReader.gitAuditLog(account, storeId, spaceId);
+            InputStream is = auditReader.getAuditLog(account, storeId, spaceId);
             sleep();
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -167,7 +193,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
             assertNotNull(reader.readLine());
             reader.readLine();
             fail("expected reader exception");
-        }catch( AuditLogEmptyException ex){
+        }catch( AuditLogNotFoundException ex){
             fail("did not expect empty log exception");
         }catch(IOException ex){
             //all good.

@@ -17,7 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.duracloud.audit.reader.AuditLogEmptyException;
+import org.duracloud.audit.reader.AuditLogNotFoundException;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
@@ -75,7 +75,7 @@ public class AuditLogRest extends BaseRest {
 
         
         try {
-            InputStream auditLog = auditLogReader.gitAuditLog(account, storeId,
+            InputStream auditLog = auditLogReader.getAuditLog(account, storeId,
                                                                 spaceId);
             return responseOkStream(auditLog);
         } catch (Exception e) {
@@ -83,8 +83,8 @@ public class AuditLogRest extends BaseRest {
             log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}",
                       account, storeId, spaceId), e);
             
-            if(e instanceof AuditLogEmptyException){
-                return responseNotFound("No audit logs found.");
+            if(e instanceof AuditLogNotFoundException){
+                return responseNotFound(e.getMessage());
             }else{
                 return responseBad(e);
             }
