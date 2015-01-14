@@ -76,6 +76,7 @@ public class JpaAuditLogStore implements AuditLogStore {
             item.setSourceSpaceId(sourceSpaceId);
             item.setSourceContentId(sourceContentId);
             item.setTimestamp(timestamp.getTime());
+            item.setModified(timestamp);
             this.auditLogRepo.saveAndFlush(item);
             log.debug("item saved: {}", item);
 
