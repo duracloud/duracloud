@@ -90,22 +90,6 @@ public class JpaAuditLogStore implements AuditLogStore {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    @Transactional(readOnly=true)
-    public Iterator<AuditLogItem> getLogItems(final String account,
-            final String spaceId) {
-        return (Iterator) new StreamingIterator<JpaAuditLogItem>(
-                new JpaIteratorSource<JpaAuditLogItemRepo, JpaAuditLogItem>(
-                        auditLogRepo) {
-                    @Override
-                    protected Page getNextPage(
-                            Pageable pageable, JpaAuditLogItemRepo repo) {
-                        return repo.findByAccountAndSpaceIdOrderByContentIdAsc(
-                                account, spaceId, pageable);
-                    }
-                });
-    }
 
     @Override
     @Transactional(readOnly=true)
