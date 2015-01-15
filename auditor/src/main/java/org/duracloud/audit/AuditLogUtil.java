@@ -16,20 +16,20 @@ import org.apache.commons.lang3.StringUtils;
  * 
  */
 public class AuditLogUtil {
-    public static final String[] AUDIT_LOG_COLUMNS = { "ACCOUNT",
-                                                      "STORE_ID",
-                                                      "SPACE_ID",
-                                                      "CONTENT_ID",
-                                                      "CONTENT_MD5",
-                                                      "CONTENT_SIZE",
-                                                      "CONTENT_MIMETYPE",
-                                                      "CONTENT_PROPERTIES",
-                                                      "SPACE_ACLS",
-                                                      "SOURCE_SPACE_ID",
-                                                      "SOURCE_CONTENT_ID",
-                                                      "TIMESTAMP",
-                                                      "ACTION",
-                                                      "USERNAME" };
+    public static final String[] AUDIT_LOG_COLUMNS = { "account",
+                                                      "store-id",
+                                                      "space-id",
+                                                      "content-id",
+                                                      "content-md5",
+                                                      "content-size",
+                                                      "content-mimetype",
+                                                      "content-properties",
+                                                      "space-acls",
+                                                      "source-space-id",
+                                                      "source-content-id",
+                                                      "timestamp",
+                                                      "action",
+                                                      "username" };
 
     public static String getHeader() {
         String header =  StringUtils.join(AUDIT_LOG_COLUMNS, "\t");
