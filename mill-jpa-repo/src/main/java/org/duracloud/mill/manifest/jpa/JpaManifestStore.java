@@ -103,7 +103,13 @@ public class JpaManifestStore implements
                     log.info("content mimetype changed from {} to {}", oldMimetype, contentMimetype);
                     save = true;
                 }
-                
+
+                String oldSize = item.getContentSize();
+                if(!oldSize.equals(contentSize)){
+                    log.info("content size changed from {} to {}", oldMimetype, contentSize);
+                    save = true;
+                }
+
                 action = "updated";
 
             }else{
@@ -165,21 +171,28 @@ public class JpaManifestStore implements
                              spaceId,
                              contentId);
                     
-                }else{
-                    item.setDeleted(true);
                 }
-                
-                item.setModified(eventTimestamp);
-                ManifestItem result = this.manifestItemRepo.saveAndFlush(item);
-                log.info("successfully processed flag as deleted: {}", result);
-
             }else{
-                log.warn("no manifest item {}/{}/{}/{} : nothing to delete - ignoring...", 
+                log.warn("no manifest item {}/{}/{}/{} : nothing to delete - adding deleted manifest entry...", 
                           account,
                           storeId,
                           spaceId,
                           contentId);
+                
+                item = new ManifestItem();
+                item.setAccount(account);
+                item.setStoreId(storeId);
+                item.setSpaceId(spaceId);
+                item.setContentId(contentId);
+                item.setContentMimetype("unknown");
+                item.setContentSize("0");
+                item.setContentChecksum("unknown");
             }
+
+            item.setDeleted(true);
+            item.setModified(eventTimestamp);
+            ManifestItem result = this.manifestItemRepo.saveAndFlush(item);
+            log.info("successfully processed flag as deleted: {}", result);
 
         } catch (Exception ex) {
             String message = "failed to flag item as deleted item: " + ex.getMessage();
