@@ -27,7 +27,7 @@ public interface AuditLogReader {
      * @throws AuditLogNotFoundException 
      */
     InputStream getAuditLog(String account, String storeId, String spaceId)
-        throws AuditLogNotFoundException;
+        throws AuditLogReaderException;
 
     void initialize(AuditConfig auditConfig);
 

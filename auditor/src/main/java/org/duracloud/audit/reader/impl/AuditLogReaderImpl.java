@@ -18,13 +18,11 @@ import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
 import org.duracloud.audit.AuditLogUtil;
-import org.duracloud.audit.reader.AuditLogNotFoundException;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.audit.reader.AuditLogReaderException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.domain.AuditConfig;
-import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
@@ -54,7 +52,7 @@ public class AuditLogReaderImpl implements AuditLogReader {
     
     @Override
     public InputStream getAuditLog(final String account, final String storeId, final String spaceId)
-        throws AuditLogNotFoundException {
+        throws AuditLogReaderException {
         
         this.storageProvider = getStorageProvider();
         final String auditBucket = auditConfig.getAuditLogSpaceId();
@@ -69,7 +67,6 @@ public class AuditLogReaderImpl implements AuditLogReader {
         }
         
         try {
-
              final Iterator<String> it =
                 this.storageProvider.getSpaceContents(auditBucket, prefix);
             if (!it.hasNext()) {
@@ -105,8 +102,6 @@ public class AuditLogReaderImpl implements AuditLogReader {
                     }
                 }
             }).start();
-        } catch(NotFoundException e){
-            throw new AuditLogNotFoundException("No audit log found:  space '"+spaceId+"' does not exist.");
         } catch (StorageException | IOException e) {
             throw new AuditLogReaderException(e);
         } 

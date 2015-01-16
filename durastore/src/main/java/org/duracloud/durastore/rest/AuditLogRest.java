@@ -17,10 +17,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.duracloud.audit.reader.AuditLogNotFoundException;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,19 +76,25 @@ public class AuditLogRest extends BaseRest {
 
         
         try {
+            //check that spaces exists
+            StorageProvider store = storageProviderFactory.getStorageProvider(storeId);
+            store.getSpaceProperties(spaceId);
+
             InputStream auditLog = auditLogReader.getAuditLog(account, storeId,
                                                                 spaceId);
             return responseOkStream(auditLog);
+        } catch (NotFoundException e) {
+            
+            log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}: space not found.",
+                      account, storeId, spaceId), e);
+
+            return responseNotFound(e.getMessage());
+
         } catch (Exception e) {
             
             log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}",
                       account, storeId, spaceId), e);
-            
-            if(e instanceof AuditLogNotFoundException){
-                return responseNotFound(e.getMessage());
-            }else{
-                return responseBad(e);
-            }
+            return responseBad(e);
         }
     }
 

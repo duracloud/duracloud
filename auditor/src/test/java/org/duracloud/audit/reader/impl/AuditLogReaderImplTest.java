@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.duracloud.audit.AuditLogUtil;
-import org.duracloud.audit.reader.AuditLogNotFoundException;
+import org.duracloud.audit.reader.AuditLogReaderException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.mill.test.AbstractTestBase;
 import org.duracloud.storage.domain.AuditConfig;
@@ -59,7 +59,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
 
 
     @Test
-    public void testGetAuditLog() throws IOException, ContentStoreException, AuditLogNotFoundException {
+    public void testGetAuditLog() throws IOException, ContentStoreException {
         
         String[]  file1Lines = {"a", "b", "c", "d"};
         String[]  file2Lines = {"e", "f", "g", "h"};
@@ -133,7 +133,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         try{
             auditReader.getAuditLog(account, storeId, spaceId);
             fail("expected to fail with empty log exception");
-        }catch(AuditLogNotFoundException e){}
+        }catch(AuditLogReaderException e){}
     }
 
     @Test
@@ -156,7 +156,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
             String line = buf.readLine();
             assertEquals(AuditLogUtil.getHeader(), line);
             assertEquals(-1, buf.read());
-        }catch(AuditLogNotFoundException e){
+        }catch(Exception e){
             fail("unexpected to fail with empty log exception");
         }
     }
@@ -192,7 +192,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
             assertNotNull(reader.readLine());
             reader.readLine();
             fail("expected reader exception");
-        }catch( AuditLogNotFoundException ex){
+        }catch( AuditLogReaderException ex){
             fail("did not expect empty log exception");
         }catch(IOException ex){
             //all good.
