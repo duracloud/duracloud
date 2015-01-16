@@ -34,6 +34,8 @@ public interface JpaAuditLogItemRepo extends JpaRepository<JpaAuditLogItem, Long
     public List<JpaAuditLogItem> findByWrittenFalseOrderByTimestampAsc();
     
     
+    public Long deleteByWrittenTrueAndTimestampLessThan(long timestamp);
+    
     /**
      * @param account
      * @param storeId
