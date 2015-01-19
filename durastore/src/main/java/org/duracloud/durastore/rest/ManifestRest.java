@@ -15,12 +15,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
-import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.manifest.error.ManifestArgumentException;
 import org.duracloud.manifest.error.ManifestNotFoundException;
-import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +36,7 @@ public class ManifestRest extends BaseRest {
 
     private ManifestResource manifestResource;
 
+    private boolean enabled = true;
     
     @Autowired
     public ManifestRest(ManifestResource manifestResource) {
@@ -51,6 +48,10 @@ public class ManifestRest extends BaseRest {
     public Response getManifest(@PathParam("spaceId") String spaceId,
                                 @QueryParam("format") String format,
                                 @QueryParam("storeID") String storeId) {
+        
+        if(!enabled){
+            return Response.status(501).entity("This endpoint is currently disabled.").build();
+        }
         
         String account = getSubdomain();
         
@@ -83,6 +84,10 @@ public class ManifestRest extends BaseRest {
                       new Object[]{storeId, spaceId, format, e});
             return responseBad(e);
         }
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
 }

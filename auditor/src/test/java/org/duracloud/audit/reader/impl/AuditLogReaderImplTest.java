@@ -73,6 +73,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
                                         prefix + "/" + contentId2 }).iterator();
         expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andReturn(it);
         AuditConfig config = createMock(AuditConfig.class);
+        mockCheckEnabled(config);
         expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId );
         
         setupGetContentCall(prefix, storageProvider, contentId1, file1Lines);
@@ -124,7 +125,8 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         expect(storageProvider.getSpaceContents(eq(globalAuditSpaceId), eq(prefix))).andThrow(new NotFoundException("not found"));
         
         expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId );
-        
+        mockCheckEnabled(config);
+
         replayAll();
         AuditLogReaderImpl auditReader =
             createAuditLogReader(storageProvider, config);
@@ -146,6 +148,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         
         expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId );
         
+        mockCheckEnabled(config);
         replayAll();
         AuditLogReaderImpl auditReader =
             createAuditLogReader(storageProvider, config);
@@ -161,6 +164,15 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         }
     }
     
+    private void mockCheckEnabled(AuditConfig config) {
+        expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId);
+        expect(config.getAuditQueueName()).andReturn("queue");
+        expect(config.getAuditUsername()).andReturn("username");
+        expect(config.getAuditPassword()).andReturn("password");
+ 
+    }
+
+
     @Test
     public void testContentFailure() throws IOException, ContentStoreException {
         
@@ -178,6 +190,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         
         setupGetContentCall(prefix, storageProvider, contentId1, file1Lines);
         setupGetContentCallFailure(prefix, storageProvider, contentId2, null);
+        mockCheckEnabled(config);
 
         replayAll();
 

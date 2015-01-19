@@ -121,5 +121,11 @@ public class RestExceptionsTestSupport {
         return t;
     }
 
+    public ManifestRest createManifestRest() {
+        ManifestRest manifest = EasyMock.createMock("ManifestRest", ManifestRest.class);
+        EasyMock.replay(manifest);
+        return manifest;
+    }
+
 
 }

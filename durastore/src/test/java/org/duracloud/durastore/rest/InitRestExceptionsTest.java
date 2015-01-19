@@ -27,14 +27,16 @@ public class InitRestExceptionsTest {
     private RestUtil restUtil;
     private BasicDataSource datasource;
     private AuditLogReader auditLogReader;
+    private ManifestRest manifest;
     private RestExceptionsTestSupport support = new RestExceptionsTestSupport();
 
     @Before
     public void setUp() throws Exception {
         storageProviderFactory = support.createStorageProviderFactory();
         auditLogReader = support.createAuditLogReader();
+        manifest = support.createManifestRest();
         restUtil = support.createRestUtil();
-        initRest = new InitRest(storageProviderFactory, restUtil, datasource, auditLogReader);
+        initRest = new InitRest(storageProviderFactory, restUtil, datasource, auditLogReader, manifest);
     }
 
     @Test

@@ -20,6 +20,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.common.util.InitUtil;
+import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.domain.DatabaseConfig;
 import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.util.InitConfigParser;
@@ -43,14 +44,17 @@ public class InitRest extends BaseRest {
     private RestUtil restUtil;
     private AuditLogReader auditLogReader;
     private BasicDataSource datasource;
+    private ManifestRest manifestRest;
+    
     @Autowired
     public InitRest(StorageProviderFactory storageProviderFactory,
                     RestUtil restUtil, BasicDataSource datasource, 
-                    AuditLogReader auditLogReader) {
+                    AuditLogReader auditLogReader, ManifestRest manifestRest) {
         this.storageProviderFactory = storageProviderFactory;
         this.restUtil = restUtil;
         this.datasource = datasource;
         this.auditLogReader = auditLogReader;
+        this.manifestRest = manifestRest;
     }
 
     /**
@@ -76,7 +80,8 @@ public class InitRest extends BaseRest {
             storageProviderFactory.initialize(initConfig,
                                               instanceHost,
                                               instancePort);
-            this.auditLogReader.initialize(initConfig.getAuditConfig());
+            AuditConfig auditConfig = initConfig.getAuditConfig();
+            this.auditLogReader.initialize(auditConfig);
             configureMillDatabase(initConfig);
             String responseText = "Initialization Successful";
             return responseOk(msg, responseText);
@@ -88,15 +93,21 @@ public class InitRest extends BaseRest {
 
     private void configureMillDatabase(DuraStoreInitConfig initConfig) {
         DatabaseConfig dbConfig = initConfig.getMillDbConfig();
-        if(dbConfig != null){
+        boolean millDbConfigured = dbConfig != null && 
+                                   dbConfig.getHost() != null && 
+                                   dbConfig.getName() != null && 
+                                   dbConfig.getUsername() != null && 
+                                   dbConfig.getPassword() != null;
+        if(millDbConfigured){
             datasource.setUrl(MessageFormat.format("jdbc:mysql://{0}:{1}/{2}?autoReconnect=true",
                                                    dbConfig.getHost(),
                                                    dbConfig.getPort()+"",
                                                    dbConfig.getName()));
             datasource.setUsername(dbConfig.getUsername());
             datasource.setPassword(dbConfig.getPassword());
-            
         }
+        
+        manifestRest.setEnabled(millDbConfigured);
     }
 
     @GET

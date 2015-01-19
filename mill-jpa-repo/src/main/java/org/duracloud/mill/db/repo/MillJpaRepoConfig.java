@@ -58,7 +58,6 @@ public class MillJpaRepoConfig {
                                                System.getProperty("mill.db.name", "mill")));
         dataSource.setUsername(System.getProperty("mill.db.user", "mill"));
         dataSource.setPassword(System.getProperty("mill.db.pass", "password"));
-
         return dataSource;
     }
 

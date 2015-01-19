@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.duracloud.audit.reader.AuditLogReader;
+import org.duracloud.audit.reader.AuditLogReaderNotEnabledException;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.NotFoundException;
@@ -89,6 +90,12 @@ public class AuditLogRest extends BaseRest {
                       account, storeId, spaceId), e);
 
             return responseNotFound(e.getMessage());
+        } catch (AuditLogReaderNotEnabledException e) {
+            
+            log.error(MessageFormat.format("Error for  account:{0}, storeId:{1}, spaceId:{2}: space not found.",
+                      account, storeId, spaceId), e);
+
+            return Response.status(501).entity("This endpoint is currently disabled").build();
 
         } catch (Exception e) {
             

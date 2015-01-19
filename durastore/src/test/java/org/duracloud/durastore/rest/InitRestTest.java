@@ -32,6 +32,7 @@ public class InitRestTest {
     private InitRest initRest;
     private BasicDataSource datasource;
     private AuditLogReader reader;
+    private ManifestRest manifestRest;
 
     @Before
     public void setup() {
@@ -40,16 +41,17 @@ public class InitRestTest {
         restUtil = EasyMock.createMock(RestUtil.class);
         datasource = EasyMock.createMock(BasicDataSource.class);
         reader =  EasyMock.createMock(AuditLogReader.class);
-        initRest = new InitRest(storageProviderFactory, restUtil, datasource, reader);
+        manifestRest = EasyMock.createMock(ManifestRest.class);
+        initRest = new InitRest(storageProviderFactory, restUtil, datasource, reader, manifestRest);
     }
 
     private void replayMocks() {
-        EasyMock.replay(storageProviderFactory, restUtil, datasource, reader);
+        EasyMock.replay(storageProviderFactory, restUtil, datasource, reader, manifestRest);
     }
 
     @After
     public void teardown() {
-        EasyMock.verify(storageProviderFactory, restUtil, datasource, reader);
+        EasyMock.verify(storageProviderFactory, restUtil, datasource, reader, manifestRest);
     }
 
     @Test
@@ -63,7 +65,7 @@ public class InitRestTest {
         EasyMock.expect(storageProviderFactory.isInitialized())
             .andReturn(true)
             .times(1);
-
+        
         replayMocks();
 
         // Not initialized

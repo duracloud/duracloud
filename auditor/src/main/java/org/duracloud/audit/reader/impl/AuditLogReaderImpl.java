@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.duracloud.audit.AuditLogUtil;
 import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.audit.reader.AuditLogReaderException;
+import org.duracloud.audit.reader.AuditLogReaderNotEnabledException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.domain.AuditConfig;
@@ -53,6 +54,8 @@ public class AuditLogReaderImpl implements AuditLogReader {
     @Override
     public InputStream getAuditLog(final String account, final String storeId, final String spaceId)
         throws AuditLogReaderException {
+        
+        checkEnabled();
         
         this.storageProvider = getStorageProvider();
         final String auditBucket = auditConfig.getAuditLogSpaceId();
@@ -107,6 +110,15 @@ public class AuditLogReaderImpl implements AuditLogReader {
         } 
 
         return is;
+    }
+
+    private void checkEnabled() throws AuditLogReaderNotEnabledException{
+        if(auditConfig.getAuditLogSpaceId() == null ||
+            auditConfig.getAuditQueueName() == null || 
+            auditConfig.getAuditUsername() == null || 
+            auditConfig.getAuditPassword() == null){
+            throw new AuditLogReaderNotEnabledException();
+        }
     }
 
     protected StorageProvider getStorageProvider() {
