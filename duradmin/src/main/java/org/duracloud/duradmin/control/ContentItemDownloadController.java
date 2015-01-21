@@ -10,8 +10,12 @@ package org.duracloud.duradmin.control;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.duracloud.client.ContentStore;
 import org.duracloud.duradmin.util.SpaceUtil;
+import org.duracloud.error.ContentStateException;
+import org.duracloud.error.ContentStoreException;
+import org.duracloud.error.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ContentItemDownloadController {
 
+    private static final String CONTENT_DISPOSITION_HEADER = "Content-Disposition";
     private ControllerSupport controllerSupport;
 
     @Autowired
@@ -60,13 +65,31 @@ public class ContentItemDownloadController {
             contentDisposition.append("filename=\"");
             contentDisposition.append(contentId);
             contentDisposition.append("\"");
-            response.setHeader("Content-Disposition", contentDisposition.toString());
+            response.setHeader(CONTENT_DISPOSITION_HEADER, contentDisposition.toString());
     	}
 
     	ContentStore store = 
     	    controllerSupport.getContentStoreManager().getContentStore(storeId);
-
-    	SpaceUtil.streamContent(store, response, spaceId, contentId);
+    	try {
+            SpaceUtil.streamContent(store, response, spaceId, contentId);
+    	    
+    	} catch(ContentStoreException ex){
+    	    if(response.containsHeader(CONTENT_DISPOSITION_HEADER)){
+    	        response.setHeader(CONTENT_DISPOSITION_HEADER, null);
+    	    }
+    	    
+    	    if(ex instanceof ContentStateException){
+    	        response.setStatus(HttpStatus.SC_CONFLICT);
+    	    }else if (ex instanceof UnauthorizedException){
+    	        response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+    	    }
+    	    
+    	    Throwable t = ex;
+    	    if(t.getCause() != null){
+    	        t = ex.getCause();
+    	    }
+    	    response.getWriter().println(t.getMessage());
+    	}
 
     	return null;
     }
