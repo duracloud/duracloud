@@ -93,11 +93,6 @@ public class AuditLogReaderImpl implements AuditLogReader {
                                                 contentId);
 
                             count++;
-
-                            //flush every 100 lines
-                            if(count % 100 == 0) {
-                                os.flush();
-                            }
                         }
 
                         os.close();
@@ -157,7 +152,6 @@ public class AuditLogReaderImpl implements AuditLogReader {
             String line = reader.readLine();
             if (line != null) {
                 IOUtils.write(line+"\n", os);
-                
             } else {
                 break;
             }

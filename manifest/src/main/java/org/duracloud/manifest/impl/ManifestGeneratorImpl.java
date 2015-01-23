@@ -78,14 +78,9 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
                     @Override
                     public void run() {
                         try {
-                            int count = 0;
                             while (it.hasNext()) {
                                 formatter.writeManifestItemToOutput(it.next(),
                                                                     os);
-                                count++;
-                                if(count % 100 == 0) {
-                                    os.flush();
-                                }
                             }
                             try {
                                 os.close();
