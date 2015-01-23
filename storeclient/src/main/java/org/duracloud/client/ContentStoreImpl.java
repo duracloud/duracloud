@@ -25,6 +25,7 @@ import org.duracloud.error.ContentStateException;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.InvalidIdException;
 import org.duracloud.error.NotFoundException;
+import org.duracloud.error.NotImplementedException;
 import org.duracloud.error.UnauthorizedException;
 import org.duracloud.error.UnsupportedTaskException;
 import org.duracloud.reportdata.bitintegrity.BitIntegrityReport;
@@ -953,6 +954,8 @@ public class ContentStoreImpl implements ContentStore {
                 throw new InvalidIdException(errMsg);
             } else if (responseCode == HttpStatus.SC_UNAUTHORIZED) {
                 throw new UnauthorizedException(errMsg);
+            } else if (responseCode == HttpStatus.SC_NOT_IMPLEMENTED) {
+                throw new NotImplementedException(errMsg);
             } else if (responseCode == HttpStatus.SC_FORBIDDEN) {
                 throw new UnauthorizedException(
                     "User is not authorized to perform the requested function");
