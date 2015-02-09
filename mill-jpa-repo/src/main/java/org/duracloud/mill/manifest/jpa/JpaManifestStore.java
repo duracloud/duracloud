@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -31,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Daniel Bernstein
  * 
  */
-@Transactional(value=MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
 public class JpaManifestStore implements
                              ManifestStore {
     private static Logger log = LoggerFactory.getLogger(JpaManifestStore.class);
@@ -43,6 +43,7 @@ public class JpaManifestStore implements
     }
 
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void addUpdate(String account,
                       String storeId,
                       String spaceId,
@@ -144,6 +145,7 @@ public class JpaManifestStore implements
      * @see org.duracloud.mill.manifest.ManifestStore#flagAsDeleted(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void flagAsDeleted(String account,
                               String storeId,
                               String spaceId,
@@ -270,11 +272,13 @@ public class JpaManifestStore implements
      * @see org.duracloud.mill.manifest.ManifestStore#purgeDeletedItemsBefore(java.util.Date)
      */
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public Long purgeDeletedItemsBefore(Date expiration) {
        return this.manifestItemRepo.deleteByDeletedTrueAndModifiedBefore(expiration);
     }
 
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void updateMissingFromStorageProviderFlag(String account,
                                                      String storeId,
                                                      String spaceId,
@@ -312,6 +316,7 @@ public class JpaManifestStore implements
     }
 
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void delete(String account, String storeId, String spaceId)
         throws ManifestItemWriteException {
         this.manifestItemRepo.deleteByAccountAndStoreIdAndSpaceId(account,storeId, spaceId);

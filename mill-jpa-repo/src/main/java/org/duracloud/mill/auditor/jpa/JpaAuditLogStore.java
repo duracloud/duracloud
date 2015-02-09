@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -33,7 +34,6 @@ import org.springframework.util.CollectionUtils;
  * @author Daniel Bernstein
  * 
  */
-@Transactional(value=MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
 public class JpaAuditLogStore implements AuditLogStore {
     private static Logger log = LoggerFactory.getLogger(JpaAuditLogStore.class);
     private JpaAuditLogItemRepo auditLogRepo;
@@ -44,6 +44,7 @@ public class JpaAuditLogStore implements AuditLogStore {
     }
 
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void write(String account,
                       String storeId,
                       String spaceId,
@@ -92,7 +93,7 @@ public class JpaAuditLogStore implements AuditLogStore {
 
 
     @Override
-    @Transactional(readOnly=true)
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, readOnly = true)
     public Iterator<AuditLogItem> getLogItems(final String account,
                                               final String storeId,
                                               final String spaceId,
@@ -111,7 +112,7 @@ public class JpaAuditLogStore implements AuditLogStore {
     }
 
     @Override
-    @Transactional(readOnly=true)
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, readOnly = true)
     public AuditLogItem
             getLatestLogItem(String account,
                              String storeId,
@@ -130,7 +131,7 @@ public class JpaAuditLogStore implements AuditLogStore {
     }
 
     @Override
-    @Transactional(readOnly=true)
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void updateProperties(AuditLogItem item, String properties)
             throws AuditLogWriteFailedException {
         
