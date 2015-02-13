@@ -164,6 +164,16 @@
         </profile>
 
         <profile>
+            <id>java8-disable-strict-javadoc</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+            </properties>
+        </profile>
+
+        <profile>
             <id>profile-generate-docs-source-signature</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
@@ -200,6 +210,9 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <additionalparam>${javadoc.opts}</additionalparam>
+                                </configuration>
                             </execution>
                          </executions>
                     </plugin>
