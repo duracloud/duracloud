@@ -352,6 +352,11 @@
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-jsp</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-extras</artifactId>
+      <scope>compile</scope>
+    </dependency>
 
     <!-- for Jstl -->
     <dependency>

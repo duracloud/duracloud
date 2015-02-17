@@ -875,6 +875,11 @@
                 <artifactId>tiles-template</artifactId>
                 <version>${tiles.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.tiles</groupId>
+                <artifactId>tiles-extras</artifactId>
+                <version>${tiles.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
