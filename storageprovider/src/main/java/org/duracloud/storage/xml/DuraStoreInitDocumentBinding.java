@@ -68,6 +68,9 @@ public class DuraStoreInitDocumentBinding {
                 if(null != encPass) {
                     auditConfig.setAuditPassword(encryptionUtil.decrypt(encPass));
                 }
+
+                auditConfig.setAuditLogSpaceId(audit.getChildText("auditLogSpaceId"));
+
                 auditConfig.setAuditQueueName(audit.getChildText("auditQueue"));
                 initConfig.setAuditConfig(auditConfig);
             }
@@ -127,6 +130,13 @@ public class DuraStoreInitDocumentBinding {
         if(null != auditQueueName) {
             audit.addContent(new Element("auditQueue").setText(auditQueueName));
         }
+        
+        String auditLogSpaceId = auditConfig.getAuditLogSpaceId();
+        if(null != auditLogSpaceId) {
+            audit.addContent(new Element("auditLogSpaceId").setText(auditLogSpaceId));
+        }
+        
+        
         durastoreConfig.addContent(audit);
 
         durastoreConfig.addContent(DatabaseConfigXmlUtil.marshall(duraStoreInitConfig.getMillDbConfig(),

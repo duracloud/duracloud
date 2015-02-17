@@ -97,8 +97,11 @@ public class JpaManifestStoreTest extends JpaTestBase<ManifestItem> {
         expect(returnItem.getContentMimetype()).andReturn("old mimetype");
         returnItem.setContentMimetype(contentMimetype);
         expectLastCall();
+
+        expect(returnItem.getContentSize()).andReturn("old size");
         returnItem.setContentSize(contentSize);
         expectLastCall();
+
         returnItem.setModified(timestamp);
         expectLastCall();
         expect(returnItem.isDeleted()).andReturn(true);
@@ -131,6 +134,8 @@ public class JpaManifestStoreTest extends JpaTestBase<ManifestItem> {
         
         expect(returnItem.getContentChecksum()).andReturn(contentChecksum);
         expect(returnItem.getContentMimetype()).andReturn(contentMimetype);
+        expect(returnItem.getContentSize()).andReturn(contentSize);
+
         expect(returnItem.isDeleted()).andReturn(false);
 
         expect(this.repo.findByAccountAndStoreIdAndSpaceIdAndContentId(account,
@@ -200,9 +205,24 @@ public class JpaManifestStoreTest extends JpaTestBase<ManifestItem> {
                                                                        storeId,
                                                                        spaceId,
                                                                        contentId)).andReturn(null);
-
+        Capture<ManifestItem>  itemCapture = new Capture<ManifestItem>();
+        
+        expect(repo.saveAndFlush(capture(itemCapture))).andReturn(new ManifestItem());
+        
         replayAll();
         store.flagAsDeleted(account, storeId, spaceId, contentId, timestamp);
+        
+        ManifestItem item = itemCapture.getValue();
+        
+        assertNotNull(item.getContentChecksum());
+        assertNotNull(item.getContentMimetype());
+        assertNotNull(item.getContentSize());
+        assertEquals(account, item.getAccount());
+        assertEquals(storeId, item.getStoreId());
+        assertEquals(spaceId, item.getSpaceId());
+        assertEquals(contentId, item.getContentId());
+        assertEquals(timestamp, item.getModified());
+
     }
 
     private void createTestSubject() {

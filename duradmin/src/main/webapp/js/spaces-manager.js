@@ -3161,47 +3161,15 @@ $(function() {
         });
       }
 
-      var checkFor404 = function (event, url, failureMessage) {
-         var success = true;
-         $.ajax(
-           {
-             url:url, 
-             async:false,
-             statusCode: {
-               404: function(){
-                success = false;
-                alert(failureMessage);
-               }
-             }
-           }
-         );
-         
-         if(!success){
-           event.preventDefault();
-         }  
-      }; 
-
       var downloadAuditButton = $(".download-audit-button", this.element);
       downloadAuditButton.hide();
       if (this._isAdmin() && space.millDbEnabled) {
         downloadAuditButton.show();
         downloadAuditButton.attr("href", "/duradmin/audit/"+this._storeId+"/"+this._spaceId );
-        downloadAuditButton.unbind().click(function(e){
-          var failureMessage = "The audit log is not available at this time.  \n" + 
-                               "Audit log generation can sometimes require a \n" + 
-                               "few extra minutes when system load is heavy.  \n" + 
-                               "Please try again in a  few minutes.  If the \n" + 
-                               "audit log  is not accessible within ten minutes \n" + 
-			       "of creating the space, contact DuraCloud support.";  
-           return checkFor404(e, this.href, failureMessage);
-        });
       }
 
-
-      
       var downloadManifestButton = $(".download-manifest-button", this.element);
       downloadManifestButton.hide();
-
 
       if (this._isAdmin() && space.millDbEnabled) {
         downloadManifestButton.show();
@@ -3209,19 +3177,6 @@ $(function() {
         var manifestUrl = "/duradmin/manifest/"+this._storeId+"/"+this._spaceId + "?format="
         $("#manifest-tsv").attr("href", manifestUrl+"tsv");
         $("#manifest-bagit").attr("href", manifestUrl+"bagit");
-
-        var failureMessage = "The manifest is not available at this time.  \n" + 
-                                "Manifest generation can sometimes require a \n" + 
-                                "few extra minutes when system load is heavy.  \n" + 
-                                "If the space is not empty, check back in a  \n" + 
-                                "few minutes. If the manifest is not accessible \n" + 
-				"within ten minutes of adding content, please \n" + 
-                                "contact DuraCloud support.";  
-        
-
-	      $("#manifest-tsv, #manifest-bagit").unbind().click(function(e){
-           return checkFor404(e, this.href, failureMessage); 
-        });
       }
       
       

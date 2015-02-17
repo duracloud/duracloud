@@ -186,7 +186,7 @@ public class JpaAuditLogItem extends BaseEntity implements AuditLogItem {
     @Access(AccessType.PROPERTY)
     public String getUniqueKey() {
         if(uniqueKey == null){
-            this.uniqueKey = DigestUtils.md5Hex(this.account + "/"
+            this.uniqueKey = DigestUtils.md5Hex(this.action + "/" + this.account + "/"
                     + this.storeId + "/" + this.spaceId + "/"
                     + (this.contentId == null ? " " : this.contentId) + "/"
                     + this.timestamp);

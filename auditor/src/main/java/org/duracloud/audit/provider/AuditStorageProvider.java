@@ -280,11 +280,15 @@ public class AuditStorageProvider implements StorageProvider {
 
     @Override
     public void deleteContent(String spaceId, String contentId) {
-        target.deleteContent(spaceId, contentId);
 
+        Map<String,String> props = target.getContentProperties(spaceId, contentId);
+        String contentMimetype = props.get(StorageProvider.PROPERTIES_CONTENT_MIMETYPE);
+        String contentSize = props.get(StorageProvider.PROPERTIES_CONTENT_SIZE);
+        String contentChecksum = props.get(StorageProvider.PROPERTIES_CONTENT_CHECKSUM);
+        target.deleteContent(spaceId, contentId);
         String action = AuditTask.ActionType.DELETE_CONTENT.name();
-        submitWriteTask(action, spaceId, contentId, AuditTask.NA, AuditTask.NA,
-                        AuditTask.NA, null, null, AuditTask.NA, AuditTask.NA);
+        submitWriteTask(action, spaceId, contentId, contentChecksum, contentMimetype,
+                        contentSize, null, null, AuditTask.NA, AuditTask.NA);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -31,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Daniel Bernstein
  * 
  */
-@Transactional(value=MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN)
 public class JpaManifestStore implements
                              ManifestStore {
     private static Logger log = LoggerFactory.getLogger(JpaManifestStore.class);
@@ -43,6 +43,7 @@ public class JpaManifestStore implements
     }
 
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void addUpdate(String account,
                       String storeId,
                       String spaceId,
@@ -103,7 +104,13 @@ public class JpaManifestStore implements
                     log.info("content mimetype changed from {} to {}", oldMimetype, contentMimetype);
                     save = true;
                 }
-                
+
+                String oldSize = item.getContentSize();
+                if(!oldSize.equals(contentSize)){
+                    log.info("content size changed from {} to {}", oldMimetype, contentSize);
+                    save = true;
+                }
+
                 action = "updated";
 
             }else{
@@ -138,6 +145,7 @@ public class JpaManifestStore implements
      * @see org.duracloud.mill.manifest.ManifestStore#flagAsDeleted(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void flagAsDeleted(String account,
                               String storeId,
                               String spaceId,
@@ -165,21 +173,28 @@ public class JpaManifestStore implements
                              spaceId,
                              contentId);
                     
-                }else{
-                    item.setDeleted(true);
                 }
-                
-                item.setModified(eventTimestamp);
-                ManifestItem result = this.manifestItemRepo.saveAndFlush(item);
-                log.info("successfully processed flag as deleted: {}", result);
-
             }else{
-                log.warn("no manifest item {}/{}/{}/{} : nothing to delete - ignoring...", 
+                log.warn("no manifest item {}/{}/{}/{} : nothing to delete - adding deleted manifest entry...", 
                           account,
                           storeId,
                           spaceId,
                           contentId);
+                
+                item = new ManifestItem();
+                item.setAccount(account);
+                item.setStoreId(storeId);
+                item.setSpaceId(spaceId);
+                item.setContentId(contentId);
+                item.setContentMimetype("unknown");
+                item.setContentSize("0");
+                item.setContentChecksum("unknown");
             }
+
+            item.setDeleted(true);
+            item.setModified(eventTimestamp);
+            ManifestItem result = this.manifestItemRepo.saveAndFlush(item);
+            log.info("successfully processed flag as deleted: {}", result);
 
         } catch (Exception ex) {
             String message = "failed to flag item as deleted item: " + ex.getMessage();
@@ -257,11 +272,13 @@ public class JpaManifestStore implements
      * @see org.duracloud.mill.manifest.ManifestStore#purgeDeletedItemsBefore(java.util.Date)
      */
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public Long purgeDeletedItemsBefore(Date expiration) {
        return this.manifestItemRepo.deleteByDeletedTrueAndModifiedBefore(expiration);
     }
 
     @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
     public void updateMissingFromStorageProviderFlag(String account,
                                                      String storeId,
                                                      String spaceId,
@@ -298,5 +315,11 @@ public class JpaManifestStore implements
         }        
     }
 
+    @Override
+    @Transactional(value = MillJpaRepoConfig.TRANSACTION_MANAGER_BEAN, propagation = Propagation.REQUIRES_NEW)
+    public void delete(String account, String storeId, String spaceId)
+        throws ManifestItemWriteException {
+        this.manifestItemRepo.deleteByAccountAndStoreIdAndSpaceId(account,storeId, spaceId);
+    }
 
 }

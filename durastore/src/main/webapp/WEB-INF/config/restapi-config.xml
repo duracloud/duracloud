@@ -19,11 +19,6 @@
 
 
   <bean id="auditLogReader" class="org.duracloud.audit.reader.impl.AuditLogReaderImpl" >
-    <constructor-arg >
-        <bean class="org.duracloud.audit.AuditConfig">
-            <property name="logSpaceId" value="auditlogs"/>
-        </bean>
-    </constructor-arg>
   </bean>
 
 

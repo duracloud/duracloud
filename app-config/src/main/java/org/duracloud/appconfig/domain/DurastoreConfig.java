@@ -39,6 +39,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     // Audit
     protected static final String auditKey = "audit";
     protected static final String queueKey = "queue";
+    protected static final String logSpaceIdKey = "log-space-id";
 
     // Storage
     protected static final String storageAccountKey = "storage-acct";
@@ -103,6 +104,8 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
             auditConfig.setAuditPassword(value);
         } else if (suffix.equalsIgnoreCase(queueKey)) {
             auditConfig.setAuditQueueName(value);
+        } else if (suffix.equalsIgnoreCase(logSpaceIdKey)) {
+            auditConfig.setAuditLogSpaceId(value);
         }
     }
     

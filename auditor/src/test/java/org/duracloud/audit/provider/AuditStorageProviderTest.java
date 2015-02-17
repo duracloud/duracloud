@@ -323,7 +323,6 @@ public class AuditStorageProviderTest extends EasyMockSupport {
                 .andReturn("");
 
         Map<String,String> props = new HashMap<>();
-        
         props.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
         props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize+"");
         
@@ -353,6 +352,13 @@ public class AuditStorageProviderTest extends EasyMockSupport {
     public void testDeleteContent() throws Exception {
         Capture<Task> auditTaskCapture = mockAuditCall();
         Capture<Task> logCapture = mockWriteLogCall();
+        Map<String,String> props = new HashMap<>();
+        props.put(StorageProvider.PROPERTIES_CONTENT_MIMETYPE, contentMimeType);
+        props.put(StorageProvider.PROPERTIES_CONTENT_SIZE, contentSize+"");
+        props.put(StorageProvider.PROPERTIES_CONTENT_CHECKSUM, contentChecksum);
+        
+        EasyMock.expect(targetProvider.getContentProperties(spaceId, contentId))
+                .andReturn(props);
 
         targetProvider.deleteContent(spaceId, contentId);
         EasyMock.expectLastCall();
@@ -364,6 +370,10 @@ public class AuditStorageProviderTest extends EasyMockSupport {
         Map<String, String> taskProps =
             verifyTask(auditTask, AuditTask.ActionType.DELETE_CONTENT.name());
         assertEquals(contentId, taskProps.get(AuditTask.CONTENT_ID_PROP));
+        assertEquals(contentSize, Long.parseLong(taskProps.get(AuditTask.CONTENT_SIZE_PROP)));
+        assertEquals(contentMimeType, taskProps.get(AuditTask.CONTENT_MIMETYPE_PROP));
+        assertEquals(contentChecksum, taskProps.get(AuditTask.CONTENT_CHECKSUM_PROP));
+
     }
 
     @Test

@@ -110,31 +110,6 @@ public class JpaAuditLogStoreTest extends JpaTestBase<JpaAuditLogItem>{
     }
 
     /**
-     * Test method for {@link org.duracloud.mill.auditor.jpa.JpaAuditLogStore#getLogItems(java.lang.String, java.lang.String)}.
-     */
-    @Test
-    public void testGetLogItemsByAccountAndSpace() {
-        this.auditLogStore = new JpaAuditLogStore(repo);
-        Capture<Pageable> capture = new Capture<>();
-        int count = 10;
-
-        Page<JpaAuditLogItem> page = setupPage(count);
-        expect(this.repo.findByAccountAndSpaceIdOrderByContentIdAsc(eq(account),
-                                                                    eq(spaceId),
-                                                                    capture(capture)))
-                .andReturn(page);
-        replayAll();
-
-        Iterator<AuditLogItem> it = this.auditLogStore.getLogItems(account,
-                                                                   spaceId);
-        verifyIterator(count, it);
-        verifyPageable(capture);
-    }
-
-
-
-
-    /**
      * Test method for {@link org.duracloud.mill.auditor.jpa.JpaAuditLogStore#getLogItems(java.lang.String, java.lang.String, java.lang.String, java.lang.String)}.
      */
     @Test

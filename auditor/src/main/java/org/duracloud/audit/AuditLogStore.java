@@ -51,14 +51,6 @@ public interface AuditLogStore {
                       String sourceContentId,
                       Date timestamp) throws AuditLogWriteFailedException;
     
-    /**
-     * Returns a list of matching log events for the specified space across providers
-     * @param account
-     * @param spaceId 
-     * @return
-     */
-    public Iterator<AuditLogItem> getLogItems(String account,
-                                              String spaceId);
     
     /**
      * Retrieves log history for a content item.

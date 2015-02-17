@@ -32,8 +32,9 @@ public class DuraStoreInitDocumentBindingTest {
     private String username = "username";
     private String password = "password";
     private String queueName = "queue";
+    private String logSpaceId = "auditlogspaceid";
     private String millDbUsername ="millusername";
-    private String millDbPassword = "millpoassword";
+    private String millDbPassword = "millpassword";
     private String millDbHost = "millhost";
     private int millDbPort = 3306;
     private String millDbName = "milldbname";
@@ -66,6 +67,7 @@ public class DuraStoreInitDocumentBindingTest {
         assertEquals(username, auditConfig.getAuditUsername());
         assertEquals(password, auditConfig.getAuditPassword());
         assertEquals(queueName, auditConfig.getAuditQueueName());
+        assertEquals(logSpaceId, auditConfig.getAuditLogSpaceId());
 
         List<StorageAccount> accounts = initConfig.getStorageAccounts();
         assertEquals(1, accounts.size());
@@ -88,6 +90,7 @@ public class DuraStoreInitDocumentBindingTest {
         acctXml.append("    <auditUsername>" + encUser + "</auditUsername>");
         acctXml.append("    <auditPassword>" + encPass + "</auditPassword>");
         acctXml.append("    <auditQueue>" + queueName + "</auditQueue>");
+        acctXml.append("    <auditLogSpaceId>" + logSpaceId + "</auditLogSpaceId>");
         acctXml.append("  </storageAudit>");
         acctXml.append("  <millDb>");
         acctXml.append("    <username>" + millDbUsername + "</username>");

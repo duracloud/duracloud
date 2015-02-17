@@ -7,8 +7,10 @@
  */
 package org.duracloud.durastore.rest;
 
+import org.duracloud.audit.reader.AuditLogReader;
 import org.duracloud.common.rest.RestUtil;
 import org.duracloud.durastore.error.ResourceException;
+import org.duracloud.storage.domain.AuditConfig;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.duracloud.durastore.util.TaskProviderFactory;
 import org.duracloud.security.DuracloudUserDetailsService;
@@ -64,6 +66,15 @@ public class RestExceptionsTestSupport {
         return factory;
     }
 
+    protected AuditLogReader createAuditLogReader()
+        throws Exception {
+        AuditLogReader reader = EasyMock.createMock(
+            "AuditLogReader",
+            AuditLogReader.class);
+        reader.initialize(EasyMock.isA(AuditConfig.class));
+        EasyMock.expectLastCall();
+        return reader;
+    }
     protected SpaceResource createSpaceResource() throws ResourceException {
         SpaceResource resource = EasyMock.createMock("SpaceResource",
                                                      SpaceResource.class);
@@ -108,6 +119,12 @@ public class RestExceptionsTestSupport {
         }
         Assert.assertNotNull(t);
         return t;
+    }
+
+    public ManifestRest createManifestRest() {
+        ManifestRest manifest = EasyMock.createMock("ManifestRest", ManifestRest.class);
+        EasyMock.replay(manifest);
+        return manifest;
     }
 
 

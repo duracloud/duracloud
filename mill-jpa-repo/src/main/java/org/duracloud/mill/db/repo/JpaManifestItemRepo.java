@@ -55,4 +55,8 @@ public interface JpaManifestItemRepo extends
      */
     Long deleteByDeletedTrueAndModifiedBefore(Date expiration);
 
+    void deleteByAccountAndStoreIdAndSpaceId(String account,
+                                             String storeId,
+                                             String spaceId);
+
 }

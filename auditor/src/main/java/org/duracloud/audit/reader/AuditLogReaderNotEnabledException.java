@@ -7,15 +7,13 @@
  */
 package org.duracloud.audit.reader;
 
-import org.duracloud.common.error.DuraCloudCheckedException;
 /**
  * 
  * @author Daniel Bernstein
- *         Date: Sept. 17, 2014
  *
  */
-public class AuditLogEmptyException extends DuraCloudCheckedException {
-    public AuditLogEmptyException(String msg){
-        super(msg);
+public class AuditLogReaderNotEnabledException extends AuditLogReaderException {
+    public AuditLogReaderNotEnabledException(){
+        super("The audit log reader is not enabled.");
     }
 }

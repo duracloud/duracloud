@@ -9,6 +9,8 @@ package org.duracloud.audit.reader;
 
 import java.io.InputStream;
 
+import org.duracloud.storage.domain.AuditConfig;
+
 /**
  * 
  * @author Daniel Bernstein Date: Sept. 17, 2014
@@ -22,9 +24,11 @@ public interface AuditLogReader {
      * @param storeId
      * @param spaceId
      * @return
-     * @throws AuditLogEmptyException 
+     * @throws AuditLogNotFoundException 
      */
-    InputStream gitAuditLog(String account, String storeId, String spaceId)
-        throws AuditLogEmptyException;
+    InputStream getAuditLog(String account, String storeId, String spaceId)
+        throws AuditLogReaderException;
+
+    void initialize(AuditConfig auditConfig);
 
 }

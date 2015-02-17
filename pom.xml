@@ -4,7 +4,7 @@
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
     <packaging>pom</packaging>
-    <version>3.2.1</version>
+    <version>3.2.2</version>
     <name>DuraCloud</name>
     <description>Cloud-based digital content preservation system</description>
     <url>http://duracloud.org</url>
@@ -164,6 +164,16 @@
         </profile>
 
         <profile>
+            <id>java8-disable-strict-javadoc</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+            </properties>
+        </profile>
+
+        <profile>
             <id>profile-generate-docs-source-signature</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
@@ -200,6 +210,9 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <additionalparam>${javadoc.opts}</additionalparam>
+                                </configuration>
                             </execution>
                          </executions>
                     </plugin>
@@ -316,6 +329,7 @@
                     <descriptors>
                         <descriptor>src/main/assembly/dep.xml</descriptor>
                     </descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
 
@@ -859,6 +873,11 @@
             <dependency>
                 <groupId>org.apache.tiles</groupId>
                 <artifactId>tiles-template</artifactId>
+                <version>${tiles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tiles</groupId>
+                <artifactId>tiles-extras</artifactId>
                 <version>${tiles.version}</version>
             </dependency>
 

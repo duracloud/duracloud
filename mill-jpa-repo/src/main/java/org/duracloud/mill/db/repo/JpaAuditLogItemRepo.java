@@ -24,11 +24,6 @@ import org.springframework.stereotype.Repository;
 @Repository(value="auditLogItemRepo")
 public interface JpaAuditLogItemRepo extends JpaRepository<JpaAuditLogItem, Long> {
 
-    public Page<JpaAuditLogItem> findByAccountAndSpaceIdOrderByContentIdAsc(
-            @Param("account") String account,
-            @Param("spaceId") String spaceId,
-            Pageable pageable);
-
     public Page<JpaAuditLogItem> findByAccountAndStoreIdAndSpaceIdAndContentIdOrderByContentIdAsc(
             @Param("account") String account,
             @Param("storeId") String storeId,
@@ -36,8 +31,10 @@ public interface JpaAuditLogItemRepo extends JpaRepository<JpaAuditLogItem, Long
             @Param("spaceId") String contentId,
             Pageable pageable);
 
-    public List<JpaAuditLogItem> findByWrittenFalse();
+    public List<JpaAuditLogItem> findByWrittenFalseOrderByTimestampAsc();
     
+    
+    public Long deleteByWrittenTrueAndTimestampLessThan(long timestamp);
     
     /**
      * @param account
@@ -51,5 +48,9 @@ public interface JpaAuditLogItemRepo extends JpaRepository<JpaAuditLogItem, Long
                                                                               String storeId,
                                                                               String spaceId,
                                                                               String contentId);
+
+    public Page<JpaAuditLogItem> findByAccountAndSpaceIdOrderByTimestampAsc(String account,
+                                                           String spaceId,
+                                                           Pageable pageable);
 
 }

@@ -16,6 +16,7 @@ public class AuditConfig {
     private String auditUsername;
     private String auditPassword;
     private String auditQueueName;
+    private String auditLogSpaceId;
 
     public String getAuditUsername() {
         return auditUsername;
@@ -39,6 +40,14 @@ public class AuditConfig {
 
     public void setAuditQueueName(String auditQueueName) {
         this.auditQueueName = auditQueueName;
+    }
+
+    public String getAuditLogSpaceId() {
+        return auditLogSpaceId;
+    }
+
+    public void setAuditLogSpaceId(String auditLogSpaceId) {
+        this.auditLogSpaceId = auditLogSpaceId;
     }
 
 }
