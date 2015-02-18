@@ -7,13 +7,6 @@
  */
 package org.duracloud.common.queue.local;
 
-import org.duracloud.common.queue.TaskNotFoundException;
-import org.duracloud.common.queue.TaskQueue;
-import org.duracloud.common.queue.TimeoutException;
-import org.duracloud.common.queue.task.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -22,6 +15,14 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.duracloud.common.queue.TaskException;
+import org.duracloud.common.queue.TaskNotFoundException;
+import org.duracloud.common.queue.TaskQueue;
+import org.duracloud.common.queue.TimeoutException;
+import org.duracloud.common.queue.task.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements a local, in-memory task queue. (It is intended to use
@@ -133,4 +134,19 @@ public class LocalTaskQueue implements TaskQueue {
         task.incrementAttempts();
         this.queue.add(task);
     }
+    
+    @Override
+    public void deleteTasks(Set<Task> tasks) throws TaskException {
+        for(Task task : tasks){
+            deleteTask(task);
+        }
+    }
+    
+    @Override
+    public Set<Task> take(int maxTasks) throws TimeoutException {
+        Set<Task> set =  new HashSet<Task>(1);
+        set.add(this.take());
+        return set;
+    }
+
 }
