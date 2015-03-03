@@ -12,21 +12,24 @@ package org.duracloud.common.queue;
  * @author Daniel Bernstein
  * 
  */
-public class TaskNotFoundException extends TaskException {
+import org.duracloud.common.error.DuraCloudCheckedException;
 
-    public TaskNotFoundException() {
+public class TaskException extends DuraCloudCheckedException {
+    public TaskException() {
         super();
     }
+    
+    public TaskException(Throwable t){
+        super(t);
+    }
 
-    public TaskNotFoundException(String message) {
+    public TaskException(String message){
         super(message);
     }
 
-    public TaskNotFoundException(Throwable throwable) {
-        super(throwable);
+    public TaskException(String message, Throwable t){
+        super(message,t);
     }
 
-    public TaskNotFoundException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
 }
+

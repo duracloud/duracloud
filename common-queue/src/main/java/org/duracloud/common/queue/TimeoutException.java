@@ -13,7 +13,7 @@ package org.duracloud.common.queue;
  * @author Daniel Bernstein
  * 
  */
-public class TimeoutException extends Exception {
+public class TimeoutException extends TaskException {
     public TimeoutException() {
         super();
     }
