@@ -52,7 +52,9 @@ public class MillJpaRepoConfig {
     public BasicDataSource millRepoDataSource() {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(MessageFormat.format("jdbc:mysql://{0}:{1}/{2}?autoReconnect=true",
+        dataSource.setUrl(MessageFormat.format("jdbc:mysql://{0}:{1}/{2}?autoReconnect=true" +
+        		                                "&characterEncoding=utf8" +
+        		                                "&characterSetResults=utf8",
                                                System.getProperty("mill.db.host","localhost"),
                                                System.getProperty("mill.db.port","3306"),
                                                System.getProperty("mill.db.name", "mill")));
