@@ -8,7 +8,10 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
+import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
@@ -25,7 +28,8 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
     private final Logger log =
         LoggerFactory.getLogger(DisableStreamingTaskRunner.class);
 
-    public static final String TASK_NAME = "disable-streaming";
+    private static final String TASK_NAME =
+        StorageTaskConstants.DISABLE_STREAMING_TASK_NAME;
 
     public DisableStreamingTaskRunner(StorageProvider s3Provider,
                                       S3StorageProvider unwrappedS3Provider,
@@ -42,12 +46,15 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
     }
 
     public String performTask(String taskParameters) {
-        String spaceId = getSpaceId(taskParameters);
+        DisableStreamingTaskParameters taskParams =
+            DisableStreamingTaskParameters.deserialize(taskParameters);
+
+        String spaceId = taskParams.getSpaceId();
         log.info("Performing " + TASK_NAME + " task on space " + spaceId);        
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
-        String results;
+        DisableStreamingTaskResult taskResult = new DisableStreamingTaskResult();
 
         removeStreamingHostFromSpaceProps(spaceId);
 
@@ -63,15 +70,17 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
                                            "exists for space " + spaceId);
             }
 
-            results = "Disable Streaming Task completed successfully";
+            taskResult.setResult("Disable Streaming Task completed successfully");
         } catch(CloudFrontServiceException e) {
             log.warn("Error encountered running " + TASK_NAME + " task: " +
                      e.getMessage(), e);            
-            results = "Disable Streaming Task failed due to: " + e.getMessage();
+            taskResult.setResult("Disable Streaming Task failed due to: " +
+                                 e.getMessage());
         }
 
-        log.debug("Result of " + TASK_NAME + " task: " + results);        
-        return results;
+        String toReturn = taskResult.serialize();
+        log.info("Result of " + TASK_NAME + " task: " + toReturn);
+        return toReturn;
     }
 
 }

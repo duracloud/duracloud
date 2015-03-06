@@ -70,6 +70,7 @@
         <module>storeclient</module>
         <module>security</module>
         <module>computeprovider</module>
+        <module>storageproviderdata</module>
         <module>s3storageprovider</module>
         <module>glacierstorageprovider</module>
         <module>openstackstorageprovider</module>
@@ -1118,7 +1119,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
-                <version>1.9.1</version>
+                <version>1.9.22</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1239,7 +1240,7 @@
             <dependency>
               <groupId>net.java.dev.jets3t</groupId>
               <artifactId>jets3t</artifactId>
-              <version>0.8.1</version>
+              <version>0.9.3</version>
                <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

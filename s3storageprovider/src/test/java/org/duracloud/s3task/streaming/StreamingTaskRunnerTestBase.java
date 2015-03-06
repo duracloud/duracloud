@@ -31,10 +31,15 @@ public class StreamingTaskRunnerTestBase {
     protected AmazonS3Client s3Client;
     protected CloudFrontService cfService;
 
+    protected String cfAccountId = "cf-account-id";
+    protected String cfKeyId = "cf-key-id";
+    protected String cfKeyPath = "cf-key-path";
+
     protected String spaceId = "space-id";
     protected String bucketName = "bucket-name";
     protected String domainName = "domain-name";
     protected Capture<Map<String, String>> spacePropsCapture;
+    protected boolean secure = true;
 
     @After
     public void tearDown() {

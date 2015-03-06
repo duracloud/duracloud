@@ -23,6 +23,12 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
+      <artifactId>storageproviderdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -36,7 +42,6 @@
     <dependency>
       <groupId>net.java.dev.jets3t</groupId>
       <artifactId>jets3t</artifactId>
-      <version>0.8.1</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>

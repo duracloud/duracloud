@@ -30,14 +30,18 @@ public class S3TaskProvider extends TaskProviderBase {
     public S3TaskProvider(StorageProvider s3Provider,
                           S3StorageProvider unwrappedS3Provider,
                           AmazonS3Client s3Client,
-                          CloudFrontService cfService) {
+                          CloudFrontService cfService,
+                          String cfAccountId,
+                          String cfKeyId,
+                          String cfKeyPath) {
         log = LoggerFactory.getLogger(S3TaskProvider.class);
 
         taskList.add(new NoopTaskRunner());
         taskList.add(new EnableStreamingTaskRunner(s3Provider,
                                                    unwrappedS3Provider,
                                                    s3Client,
-                                                   cfService));
+                                                   cfService,
+                                                   cfAccountId));
         taskList.add(new DisableStreamingTaskRunner(s3Provider,
                                                     unwrappedS3Provider,
                                                     s3Client,

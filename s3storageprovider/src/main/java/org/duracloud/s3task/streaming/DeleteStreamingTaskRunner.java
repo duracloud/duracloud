@@ -8,7 +8,10 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskParameters;
+import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
@@ -26,7 +29,8 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
 
     private final Logger log = LoggerFactory.getLogger(DeleteStreamingTaskRunner.class);
 
-    private static final String TASK_NAME = "delete-streaming";
+    private static final String TASK_NAME =
+        StorageTaskConstants.DELETE_STREAMING_TASK_NAME;
 
     public DeleteStreamingTaskRunner(StorageProvider s3Provider,
                                      S3StorageProvider unwrappedS3Provider,
@@ -43,12 +47,15 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
     }
 
     public String performTask(String taskParameters) {
-        String spaceId = getSpaceId(taskParameters);
+        DeleteStreamingTaskParameters taskParams =
+            DeleteStreamingTaskParameters.deserialize(taskParameters);
+
+        String spaceId = taskParams.getSpaceId();
         log.info("Performing " + TASK_NAME + " task on space " + spaceId);        
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
-        String results;
+        DeleteStreamingTaskResult taskResult = new DeleteStreamingTaskResult();
 
         removeStreamingHostFromSpaceProps(spaceId);
         s3Client.deleteBucketPolicy(bucketName);
@@ -74,15 +81,17 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
                                            "exists for space " + spaceId);
             }
 
-            results = "Delete Streaming Task completed successfully";
+            taskResult.setResult("Delete Streaming Task completed successfully");
         } catch(CloudFrontServiceException e) {
             log.warn("Error encountered running " + TASK_NAME + " task: " +
                      e.getMessage(), e);            
-            results = "Delete Streaming Task failed due to: " + e.getMessage();
+            taskResult.setResult("Delete Streaming Task failed due to: " +
+                                 e.getMessage());
         }
 
-        log.debug("Result of " + TASK_NAME + " task: " + results);        
-        return results;
+        String toReturn = taskResult.serialize();
+        log.info("Result of " + TASK_NAME + " task: " + toReturn);
+        return toReturn;
     }
 
     /*

@@ -9,6 +9,7 @@ package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.jets3t.service.CloudFrontService;
@@ -72,8 +73,11 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
             assertNotNull(expected);
         }
 
+        DisableStreamingTaskParameters taskParams = new DisableStreamingTaskParameters();
+        taskParams.setSpaceId(spaceId);
+
         try {
-            runner.performTask(spaceId);
+            runner.performTask(taskParams.serialize());
             fail("Exception expected");
         } catch(Exception expected) {
             assertNotNull(expected);
@@ -119,7 +123,10 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
                          createMockS3ClientV3(),
                          createMockCFServiceV4());
 
-        String results = runner.performTask(spaceId);
+        DisableStreamingTaskParameters taskParams = new DisableStreamingTaskParameters();
+        taskParams.setSpaceId(spaceId);
+
+        String results = runner.performTask(taskParams.serialize());
         assertNotNull(results);
         testCapturedProps();
     }

@@ -191,7 +191,13 @@
       <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storageproviderdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>snapshotstorageprovider</artifactId>

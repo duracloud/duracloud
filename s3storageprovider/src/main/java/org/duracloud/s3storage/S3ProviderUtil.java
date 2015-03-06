@@ -31,8 +31,6 @@ public class S3ProviderUtil {
         new HashMap<String, AmazonS3Client>();
     private static Map<String, CloudFrontService> cloudFrontServices =
         new HashMap<String, CloudFrontService>();
-    private static Map<String, AmazonElasticMapReduceClient> emrClients =
-        new HashMap<String, AmazonElasticMapReduceClient>();
 
     public static AmazonS3Client getAmazonS3Client(String accessKey,
                                                    String secretKey) {
@@ -76,24 +74,7 @@ public class S3ProviderUtil {
                                                           String secretKey) {
         AWSCredentials awsCredentials = new AWSCredentials(accessKey,
                                                            secretKey);
-        try {
-            return new CloudFrontService(awsCredentials);
-        } catch (CloudFrontServiceException e) {
-            String err = "Could not create connection to Amazon CloudFront " +
-                         "due to error: " + e.getMessage();
-            throw new StorageException(err, e, RETRY);
-        }
-    }
-
-    public static AmazonElasticMapReduceClient getAmazonEMRClient(String accessKey,
-                                                                  String secretKey) {
-        AmazonElasticMapReduceClient client = emrClients.get(key(accessKey,
-                                                                 secretKey));
-        if(null == client) {
-            client = newAmazonEMRClient(accessKey, secretKey);
-            emrClients.put(key(accessKey, secretKey), client);
-        }
-        return client;
+        return new CloudFrontService(awsCredentials);
     }
 
     private static AmazonElasticMapReduceClient newAmazonEMRClient(String accessKey,

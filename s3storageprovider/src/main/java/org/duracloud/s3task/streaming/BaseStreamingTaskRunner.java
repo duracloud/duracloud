@@ -42,21 +42,13 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
     protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
     protected CloudFrontService cfService;
+    protected String cfAccountId;
+    protected String cfKeyId;
+    protected String cfKeyPath;
 
     public abstract String getName();
 
     public abstract String performTask(String taskParameters);
-
-    /*
-     * Extracts the spaceId value from the provided task parameters
-     */
-    protected String getSpaceId(String taskParameters) {
-        if(taskParameters != null && !taskParameters.equals("")) {
-            return taskParameters;
-        } else {
-            throw new RuntimeException("A Space ID must be provided");
-        }
-    }
 
     /*
      * Determines if a streaming distribution already exists for a given bucket
