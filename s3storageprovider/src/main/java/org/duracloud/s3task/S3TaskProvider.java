@@ -14,6 +14,7 @@ import org.duracloud.s3task.storage.SetStandardStorageTaskRunner;
 import org.duracloud.s3task.streaming.DeleteStreamingTaskRunner;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
+import org.duracloud.s3task.streaming.GetSignedUrlTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.jets3t.service.CloudFrontService;
@@ -42,6 +43,12 @@ public class S3TaskProvider extends TaskProviderBase {
                                                    s3Client,
                                                    cfService,
                                                    cfAccountId));
+        taskList.add(new GetSignedUrlTaskRunner(s3Provider,
+                                                unwrappedS3Provider,
+                                                s3Client,
+                                                cfService,
+                                                cfKeyId,
+                                                cfKeyPath));
         taskList.add(new DisableStreamingTaskRunner(s3Provider,
                                                     unwrappedS3Provider,
                                                     s3Client,

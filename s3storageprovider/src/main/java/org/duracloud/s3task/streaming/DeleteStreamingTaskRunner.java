@@ -67,7 +67,7 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
             if(existingDists != null && existingDists.size() > 0) {
                 for(StreamingDistribution existingDist : existingDists) {
                     String distId = existingDist.getId();
-                    if(existingDist.isEnabled()) {
+                    if(existingDist.getConfig().isEnabled()) {
                         // Disable the distribution
                         cfService.disableStreamingDistributionForDeletion(distId);
                         // Wait for the distribution to be disabled
