@@ -106,10 +106,8 @@
         <profile>
             <id>profile-dev</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
                 <property>
-                    <name>profile</name>
-                    <value>dev</value>
+                    <name>!skipDeploy</name>
                 </property>
             </activation>
 
@@ -237,16 +235,6 @@
             </build>
         </profile>
 
-        <profile>
-            <id>profile-empty</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>skipDeploy</name>
-                </property>
-            </activation>
-        </profile>
-      
     </profiles>
 
     <properties>
