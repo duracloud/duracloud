@@ -78,7 +78,7 @@ public class GetSignedUrlTaskParametersTest {
             " \"ipAddress\" : \""+ipAddress+"\"}";
 
         try {
-            EnableStreamingTaskParameters.deserialize(taskParamsSerialized);
+            GetSignedUrlTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
         } catch(TaskDataException e) {
         }
@@ -93,14 +93,14 @@ public class GetSignedUrlTaskParametersTest {
             " \"ipAddress\" : \"\"}";
 
         try {
-            EnableStreamingTaskParameters.deserialize(taskParamsSerialized);
+            GetSignedUrlTaskParameters.deserialize(taskParamsSerialized);
             fail("Exception expected: Invalid params");
         } catch(TaskDataException e) {
         }
 
         // Verify that empty params throw
         try {
-            EnableStreamingTaskParameters.deserialize("");
+            GetSignedUrlTaskParameters.deserialize("");
             fail("Exception expected: Invalid params");
         } catch(TaskDataException e) {
         }

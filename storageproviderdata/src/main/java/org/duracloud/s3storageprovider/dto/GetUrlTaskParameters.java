@@ -15,9 +15,9 @@ import java.io.IOException;
 
 /**
  * @author Bill Branan
- *         Date: 3/9/15
+ *         Date: 3/23/15
  */
-public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
+public class GetUrlTaskParameters {
 
     /**
      * The ID of the space in which the content item to be streamed resides
@@ -38,29 +38,9 @@ public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
     @XmlValue
     private String resourcePrefix;
 
-    /**
-     * Ending date and time (in Unix epoch format to the millisecond)
-     * for when URL expires
-     */
-    @XmlValue
-    private long dateLessThan;
-
-    /**
-     * Beginning date and time (in Unix epoch format to the millisecond)
-     * for when URL is accessible
-     */
-    @XmlValue
-    private long dateGreaterThan;
-
-    /**
-     * IP address or range where requests to stream must originate
-     */
-    @XmlValue
-    private String ipAddress;
-
 
     // Required by JAXB
-    public GetSignedUrlTaskParameters() {
+    public GetUrlTaskParameters() {
     }
 
     public String getSpaceId() {
@@ -87,38 +67,14 @@ public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
         this.resourcePrefix = resourcePrefix;
     }
 
-    public long getDateLessThan() {
-        return dateLessThan;
-    }
-
-    public void setDateLessThan(long dateLessThan) {
-        this.dateLessThan = dateLessThan;
-    }
-
-    public long getDateGreaterThan() {
-        return dateGreaterThan;
-    }
-
-    public void setDateGreaterThan(long dateGreaterThan) {
-        this.dateGreaterThan = dateGreaterThan;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
     /**
      * Creates a serialized version of task parameters
      *
      * @return JSON formatted task result info
      */
     public String serialize() {
-        JaxbJsonSerializer<GetSignedUrlTaskParameters> serializer =
-            new JaxbJsonSerializer<>(GetSignedUrlTaskParameters.class);
+        JaxbJsonSerializer<GetUrlTaskParameters> serializer =
+            new JaxbJsonSerializer<>(GetUrlTaskParameters.class);
         try {
             return serializer.serialize(this);
         } catch(IOException e) {
@@ -132,11 +88,11 @@ public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
      *
      * @param taskParameters - JSON formatted set of parameters
      */
-    public static GetSignedUrlTaskParameters deserialize(String taskParameters) {
-        JaxbJsonSerializer<GetSignedUrlTaskParameters> serializer =
-            new JaxbJsonSerializer<>(GetSignedUrlTaskParameters.class);
+    public static GetUrlTaskParameters deserialize(String taskParameters) {
+        JaxbJsonSerializer<GetUrlTaskParameters> serializer =
+            new JaxbJsonSerializer<>(GetUrlTaskParameters.class);
         try {
-            GetSignedUrlTaskParameters params =
+            GetUrlTaskParameters params =
                 serializer.deserialize(taskParameters);
             // Verify expected parameters
             if(null == params.getSpaceId() || params.getSpaceId().isEmpty()) {
@@ -145,9 +101,6 @@ public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
             } else if(null == params.getContentId() || params.getContentId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter 'contentId' may not be empty");
-            } else if(params.getDateLessThan() < System.currentTimeMillis()) {
-                throw new TaskDataException(
-                    "Task parameter 'dateLessThan' must define a future date");
             }
 
             return params;

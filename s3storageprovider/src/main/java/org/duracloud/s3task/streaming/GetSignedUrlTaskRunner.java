@@ -53,13 +53,11 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
 
     public GetSignedUrlTaskRunner(StorageProvider s3Provider,
                                   S3StorageProvider unwrappedS3Provider,
-                                  AmazonS3Client s3Client,
                                   CloudFrontService cfService,
                                   String cfKeyId,
                                   String cfKeyPath) {
         this.s3Provider = s3Provider;
-//        this.unwrappedS3Provider = unwrappedS3Provider; // TODO: needed?
-//        this.s3Client = s3Client; // TODO: needed?
+        this.unwrappedS3Provider = unwrappedS3Provider;
         this.cfService = cfService;
         // Certificate identifier, an active trusted signer for the distribution
         this.cfKeyId = cfKeyId;
@@ -84,11 +82,12 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         String ipAddress = taskParams.getIpAddress();
 
         log.info("Performing " + TASK_NAME + " task with parameters: spaceId="+spaceId+
-                 ", contentId="+contentId+", dateLessThan="+dateLessThan+
-                 ", dateGreaterThan="+dateGreaterThan+", ipAddress="+ipAddress);
+                 ", contentId="+contentId+", resourcePrefix="+resourcePrefix+
+                 ", dateLessThan="+dateLessThan+ ", dateGreaterThan="+dateGreaterThan+
+                 ", ipAddress="+ipAddress);
 
         // Will throw if bucket does not exist
-//        String bucketName = unwrappedS3Provider.getBucketName(spaceId); // TODO: needed?
+        String bucketName = unwrappedS3Provider.getBucketName(spaceId);
         GetSignedUrlTaskResult taskResult = new GetSignedUrlTaskResult();
 
         // Retrieve signing key. This key is generated via the AWS console and converted
@@ -105,10 +104,9 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         }
 
         try {
-            // TODO: Verify that the distribution isn't actually needed
-//            // Retrieve the existing distribution for the given space
-//            StreamingDistribution existingDist =
-//                getExistingDistribution(bucketName);
+            // Retrieve the existing distribution for the given space
+            StreamingDistribution existingDist = getExistingDistribution(bucketName);
+            String domainName = existingDist.getDomainName();
 
             // Verify that the date greater than is in the future
             Date verifiedDateGreaterThan = null;
@@ -136,8 +134,7 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
             // Generate a signed URL using the custom policy document.
             String signedUrl =
                 CloudFrontService.signUrl(resourceId, cfKeyId, signingKey, policy);
-
-            taskResult.setSignedUrl(signedUrl);
+            taskResult.setSignedUrl("rtmp://" + domainName + "/cfx/st/" + signedUrl);
         } catch(CloudFrontServiceException e) {
             throw new RuntimeException("Error encountered running " + TASK_NAME +
                                        " task: " + e.getMessage(), e);
