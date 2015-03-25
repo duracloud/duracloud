@@ -70,13 +70,17 @@ $.widget("ui.selectablelist",{
 		return selectedData;
 	},
 	
+	_setCurrentItem: function(item){
+    this._currentItem = {
+                         item:item, 
+                         data: this._getDataById($(item).attr("id")),
+                       };
+	},
+	
 	_fireCurrentItemChanged: function(item, notify){
 		
 		if(item != null){
-			this._currentItem = {
-					item:item, 
-					data: this._getDataById($(item).attr("id")),
-				};
+		  this._setCurrentItem(item);
 		}else{
 			this._currentItem = null;
 		}
@@ -110,7 +114,7 @@ $.widget("ui.selectablelist",{
 		if(selectedItems.length == 0){
 		    this._fireCurrentItemChanged(null, false);
 		}else if(selectedItems.length == 1){
-		 this._currentItem = selectedItems[0];
+		 this._currentItem = this._setCurrentItem(selectedItems[0]);
 		}
 		
 		var ci = this._currentItem;
