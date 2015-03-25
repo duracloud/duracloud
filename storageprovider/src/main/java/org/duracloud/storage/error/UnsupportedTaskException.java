@@ -13,8 +13,22 @@ package org.duracloud.storage.error;
  */
 public class UnsupportedTaskException extends TaskException {
 
+    /**
+     * Indicates that a requested task is not supported
+     * @param task name of task
+     */
     public UnsupportedTaskException(String task) {
-        super(task + " is not a supported task");
+        super(task + " is not a supported task.");
+    }
+
+    /**
+     * Indicates that the use of a task is not supported
+     * @param task name of task
+     * @param message reason for error
+     */
+    public UnsupportedTaskException(String task, String message) {
+        super("Execution of task " + task +
+              " is not supported as requested. " + message);
     }
 
 }

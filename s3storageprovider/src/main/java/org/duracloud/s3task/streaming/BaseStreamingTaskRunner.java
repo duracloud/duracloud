@@ -62,7 +62,7 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
         if(distributions != null) {
             for(StreamingDistribution dist : distributions) {
                 if(isDistFromBucket(bucketName, dist)) {
-                    return dist;
+                    return cfService.getStreamingDistributionInfo(dist.getId());
                 }
             }
         }

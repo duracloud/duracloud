@@ -235,10 +235,12 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
                                       origin2, null, "comment", true);
         StreamingDistribution[] distributions = {dist};
 
-        EasyMock
-            .expect(service.listStreamingDistributions())
-            .andReturn(distributions)
-            .times(1);
+        EasyMock.expect(service.listStreamingDistributions())
+                .andReturn(distributions)
+                .times(1);
+        EasyMock.expect(service.getStreamingDistributionInfo(EasyMock.anyString()))
+                .andReturn(dist)
+                .times(1);
 
         EasyMock.replay(service);
         return service;

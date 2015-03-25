@@ -102,10 +102,9 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
         CloudFrontService service =
             EasyMock.createMock(CloudFrontService.class);
 
-        EasyMock
-            .expect(service.listStreamingDistributions())
-            .andReturn(null)
-            .times(1);
+        EasyMock.expect(service.listStreamingDistributions())
+                .andReturn(null)
+                .times(1);
 
         EasyMock.replay(service);
         return service;
@@ -147,10 +146,12 @@ public class DisableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase 
                                       origin, null, "comment", true);
         StreamingDistribution[] distributions = {dist};
 
-        EasyMock
-            .expect(service.listStreamingDistributions())
-            .andReturn(distributions)
-            .times(1);
+        EasyMock.expect(service.listStreamingDistributions())
+                .andReturn(distributions)
+                .times(1);
+        EasyMock.expect(service.getStreamingDistributionInfo(EasyMock.anyString()))
+                .andReturn(dist)
+                .times(1);
 
         EasyMock.replay(service);
         return service;

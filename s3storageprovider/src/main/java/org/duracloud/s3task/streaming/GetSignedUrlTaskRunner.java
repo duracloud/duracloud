@@ -15,6 +15,7 @@ import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
+import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
@@ -107,6 +108,14 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
             // Retrieve the existing distribution for the given space
             StreamingDistribution existingDist = getExistingDistribution(bucketName);
             String domainName = existingDist.getDomainName();
+
+            // Verify that this is a secure distribution
+            if(existingDist.getActiveTrustedSigners().isEmpty()) {
+                throw new UnsupportedTaskException(TASK_NAME,
+                    "The " + TASK_NAME + " task cannot be used to request a " +
+                    "stream from an open distribution. Use " +
+                    StorageTaskConstants.GET_URL_TASK_NAME + " instead.");
+            }
 
             // Verify that the date greater than is in the future
             Date verifiedDateGreaterThan = null;

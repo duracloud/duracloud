@@ -14,6 +14,7 @@ import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
+import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.jets3t.service.CloudFrontService;
 import org.jets3t.service.CloudFrontServiceException;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Retrieves a URL for a media file that is streamed through
@@ -72,6 +74,14 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
             // Retrieve the existing distribution for the given space
             StreamingDistribution existingDist = getExistingDistribution(bucketName);
             String domainName = existingDist.getDomainName();
+
+            // Verify that this is an open distribution
+            if(! existingDist.getActiveTrustedSigners().isEmpty()) {
+                throw new UnsupportedTaskException(TASK_NAME,
+                    "The " + TASK_NAME + " task cannot be used to request a stream " +
+                    "from a secure distribution. Use " +
+                    StorageTaskConstants.GET_SIGNED_URL_TASK_NAME + " instead.");
+            }
 
             // Create the resource Id, which may or may not require a prefix
             // (such as "mp4:" for an mp4 file) depending on the intended player
