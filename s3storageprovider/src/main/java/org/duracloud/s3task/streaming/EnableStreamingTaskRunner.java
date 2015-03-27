@@ -7,27 +7,28 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentity;
+import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentityConfig;
+import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentitySummary;
+import com.amazonaws.services.cloudfront.model.CreateCloudFrontOriginAccessIdentityRequest;
+import com.amazonaws.services.cloudfront.model.CreateStreamingDistributionRequest;
+import com.amazonaws.services.cloudfront.model.GetCloudFrontOriginAccessIdentityRequest;
+import com.amazonaws.services.cloudfront.model.ListCloudFrontOriginAccessIdentitiesRequest;
+import com.amazonaws.services.cloudfront.model.S3Origin;
+import com.amazonaws.services.cloudfront.model.StreamingDistribution;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionConfig;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+import com.amazonaws.services.cloudfront.model.TrustedSigners;
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.apache.commons.lang.StringUtils;
 import org.duracloud.StorageTaskConstants;
-import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.Distribution;
-import org.jets3t.service.model.cloudfront.DistributionConfig;
-import org.jets3t.service.model.cloudfront.Origin;
-import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
-import org.jets3t.service.model.cloudfront.S3Origin;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,12 +47,12 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
     public EnableStreamingTaskRunner(StorageProvider s3Provider,
                                      S3StorageProvider unwrappedS3Provider,
                                      AmazonS3Client s3Client,
-                                     CloudFrontService cfService,
+                                     AmazonCloudFrontClient cfClient,
                                      String cfAccountId) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
-        this.cfService = cfService;
+        this.cfClient = cfClient;
         this.cfAccountId = cfAccountId;
     }
 
@@ -79,45 +80,37 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         EnableStreamingTaskResult taskResult = new EnableStreamingTaskResult();
 
         try {
-            StreamingDistribution existingDist =
+            StreamingDistributionSummary existingDist =
                 getExistingDistribution(bucketName);
 
             if(existingDist != null) { // There is an existing distribution
                 distId = existingDist.getId();
-
-                oaIdentityId = getDistributionOriginAccessId(distId);
-                if(oaIdentityId != null) {
-                    // Currently, a disabled distribution will not return a
-                    // valid oaIdentity, so getting to this point indicates that
-                    // the distirbution is enabled. The call to enable is being
-                    // left here just in case this changes.
-                    DistributionConfig distConfig = existingDist.getConfig();
-                    if(!distConfig.isEnabled()) {
-                        // Enable the existing distribution
-                        distConfig.setEnabled(true);
-                        cfService.updateDistributionConfig(distId, distConfig);
-                    }
-                    domainName = existingDist.getDomainName();
-                } else {
-                    distId = null;
+                if (!existingDist.isEnabled()) { // Distribution is disabled, enable it
+                    setDistributionState(distId, true);
                 }
-            }
-
-            if(distId == null) { // No existing distribution, need to create
+                domainName = existingDist.getDomainName();
+            } else { // No existing distribution, need to create one
                 oaIdentityId = getOriginAccessId();
-                S3Origin origin =
-                    new S3Origin(cfService.sanitizeS3BucketName(bucketName),
-                                 oaIdentityId);
-                Origin[] origins = {origin};
-
+                S3Origin origin = new S3Origin(bucketName + S3_ORIGIN_SUFFIX,
+                                               S3_ORIGIN_OAI_PREFIX + oaIdentityId);
                 // Set trusted signers to null if this is not a secure distribution
-                String[] trustedSigners = secure ? new String[]{cfAccountId} : null;
+                TrustedSigners signers = null;
+                if(secure) {
+                    signers = new TrustedSigners().withItems(cfAccountId)
+                                                  .withEnabled(true)
+                                                  .withQuantity(1);
+                }
 
-                StreamingDistributionConfig distConfig =
-                    new StreamingDistributionConfig(origins, null, null, null,
-                                                    true, null, trustedSigners);
-                Distribution dist = cfService.createDistribution(distConfig);
-
+                StreamingDistribution dist =
+                    cfClient.createStreamingDistribution(
+                        new CreateStreamingDistributionRequest(
+                            new StreamingDistributionConfig()
+                                .withCallerReference(""+System.currentTimeMillis())
+                                .withS3Origin(origin)
+                                .withEnabled(true)
+                                .withComment("Streaming space: " + spaceId)
+                                .withTrustedSigners(signers)))
+                            .getStreamingDistribution();
                 domainName = dist.getDomainName();
             }
 
@@ -131,7 +124,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
             unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
 
             taskResult.setResult("Enable Streaming Task completed successfully");
-        } catch(CloudFrontServiceException e) {
+        } catch(Exception e) {
             log.warn("Error encountered running " + TASK_NAME + " task: " +
                      e.getMessage(), e);
             taskResult.setResult("Enable Streaming Task failed due to: " +
@@ -148,31 +141,29 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
     /*
      * Retrieves an origin access ID, which may be either pre-existing or new
      */
-    private String getOriginAccessId() throws CloudFrontServiceException {
+    private String getOriginAccessId() {
         String oaId = getExistingOriginAccessId();
         if(oaId != null) { // Use existing ID
             return oaId;
         } else { // Create a new ID
-            // Note that while the comment ("id") is not officially necessary
-            // in this call, it fails with a NPE if the comment is not included
-            OriginAccessIdentity oaIdentity =
-                cfService.createOriginAccessIdentity(null, "id");
-            return oaIdentity.getId();
+            return cfClient.createCloudFrontOriginAccessIdentity(
+                    new CreateCloudFrontOriginAccessIdentityRequest(
+                        new CloudFrontOriginAccessIdentityConfig()
+                            .withComment("DuraCloud Origin Access ID")))
+                        .getCloudFrontOriginAccessIdentity().getId();
         }
     }
 
     /*
      * Attempts to get an existing origin access ID
      */
-    private String getExistingOriginAccessId()
-        throws CloudFrontServiceException {
-        List oaiList = cfService.getOriginAccessIdentityList();
+    private String getExistingOriginAccessId() {
+        List<CloudFrontOriginAccessIdentitySummary> oaiList =
+            cfClient.listCloudFrontOriginAccessIdentities(
+                new ListCloudFrontOriginAccessIdentitiesRequest())
+                    .getCloudFrontOriginAccessIdentityList().getItems();
         if(oaiList != null && oaiList.size() > 0) {
-            OriginAccessIdentity oaID =
-                (OriginAccessIdentity)oaiList.iterator().next();
-            if(oaID != null) {
-                return oaID.getId();
-            }
+            return oaiList.iterator().next().getId();
         }
         return null;
     }
@@ -183,16 +174,12 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
      *
      * @return results of the ACL setting activity
      */
-    private void setBucketAccessPolicy(String bucketName, String oaIdentityId)
-        throws CloudFrontServiceException {
-        // Clean up the origin access id if necessary
-        oaIdentityId = StringUtils.removeStart(oaIdentityId,
-            CloudFrontService.ORIGIN_ACCESS_IDENTITY_PREFIX);
-
-        // Get the origin access identity to use
-        OriginAccessIdentity oaIdentity =
-            cfService.getOriginAccessIdentity(oaIdentityId);
-        String s3UserId = oaIdentity.getS3CanonicalUserId();
+    private void setBucketAccessPolicy(String bucketName, String oaIdentityId) {
+        CloudFrontOriginAccessIdentity cfOAIdentity =
+            cfClient.getCloudFrontOriginAccessIdentity(
+                new GetCloudFrontOriginAccessIdentityRequest(oaIdentityId))
+                    .getCloudFrontOriginAccessIdentity();
+        String s3UserId = cfOAIdentity.getS3CanonicalUserId();
 
         StringBuilder policyText = new StringBuilder();
         policyText.append("{\"Version\":\"2012-10-17\",");

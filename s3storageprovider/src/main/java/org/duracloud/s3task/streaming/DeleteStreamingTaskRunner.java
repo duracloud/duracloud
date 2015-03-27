@@ -7,15 +7,17 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.DeleteStreamingDistributionRequest;
+import com.amazonaws.services.cloudfront.model.GetStreamingDistributionRequest;
+import com.amazonaws.services.cloudfront.model.StreamingDistribution;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.DeleteStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +33,16 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
 
     private static final String TASK_NAME =
         StorageTaskConstants.DELETE_STREAMING_TASK_NAME;
+    private static final String DEPLOYED = "Deployed";
 
     public DeleteStreamingTaskRunner(StorageProvider s3Provider,
                                      S3StorageProvider unwrappedS3Provider,
                                      AmazonS3Client s3Client,
-                                     CloudFrontService cfService) {
+                                     AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
-        this.cfService = cfService;
+        this.cfClient = cfClient;
     }
 
     public String getName() {
@@ -61,20 +64,21 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
         s3Client.deleteBucketPolicy(bucketName);
 
         try {
-            List<StreamingDistribution> existingDists =
+            List<StreamingDistributionSummary> existingDists =
                 getAllExistingDistributions(bucketName);
 
             if(existingDists != null && existingDists.size() > 0) {
-                for(StreamingDistribution existingDist : existingDists) {
+                for(StreamingDistributionSummary existingDist : existingDists) {
                     String distId = existingDist.getId();
-                    if(existingDist.getConfig().isEnabled()) {
+                    if(existingDist.isEnabled()) {
                         // Disable the distribution
-                        cfService.disableStreamingDistributionForDeletion(distId);
+                        setDistributionState(distId, false);
                         // Wait for the distribution to be disabled
                         waitForDisabled(distId);
                     }
                     // Delete the distribution
-                    cfService.deleteStreamingDistribution(distId);
+                    cfClient.deleteStreamingDistribution(
+                        new DeleteStreamingDistributionRequest().withId(distId));
                 }
             } else {
                 throw new RuntimeException("No streaming distribution " +
@@ -82,7 +86,7 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
             }
 
             taskResult.setResult("Delete Streaming Task completed successfully");
-        } catch(CloudFrontServiceException e) {
+        } catch(Exception e) {
             log.warn("Error encountered running " + TASK_NAME + " task: " +
                      e.getMessage(), e);            
             taskResult.setResult("Delete Streaming Task failed due to: " +
@@ -98,24 +102,30 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
      * Wait for the distribution to be disabled
      * Note that this can take up to 15 min
      */
-    private void waitForDisabled(String distId)
-        throws CloudFrontServiceException {
+    private void waitForDisabled(String distId) {
         long maxTime = 900000; // 15 min
         long start = System.currentTimeMillis();
 
-        StreamingDistribution dist =
-            cfService.getStreamingDistributionInfo(distId);
 
-        while(!dist.isDeployed()) {
+        boolean deployed = isDeployed(distId);
+        while(!deployed) {
             if(System.currentTimeMillis() < start + maxTime) {
                 sleep(10000);
-                dist = cfService.getStreamingDistributionInfo(distId);
+                deployed = isDeployed(distId);
             } else {
                 String error = "Timeout Reached waiting for distribution to " +
                     "be disabled. Please wait a few minutes and try again.";
-                throw new CloudFrontServiceException(error);
+                throw new RuntimeException(error);
             }
         }
+    }
+
+    private boolean isDeployed(String distId) {
+        StreamingDistribution dist =
+            cfClient.getStreamingDistribution(
+                new GetStreamingDistributionRequest(distId))
+                    .getStreamingDistribution();
+        return DEPLOYED.equals(dist.getStatus());
     }
 
     private void sleep(long time) {

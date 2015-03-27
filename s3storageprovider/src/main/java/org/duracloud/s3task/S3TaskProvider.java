@@ -7,6 +7,7 @@
  */
 package org.duracloud.s3task;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3task.storage.SetReducedStorageTaskRunner;
@@ -32,7 +33,7 @@ public class S3TaskProvider extends TaskProviderBase {
     public S3TaskProvider(StorageProvider s3Provider,
                           S3StorageProvider unwrappedS3Provider,
                           AmazonS3Client s3Client,
-                          CloudFrontService cfService,
+                          AmazonCloudFrontClient cfClient,
                           String cfAccountId,
                           String cfKeyId,
                           String cfKeyPath) {
@@ -42,24 +43,24 @@ public class S3TaskProvider extends TaskProviderBase {
         taskList.add(new EnableStreamingTaskRunner(s3Provider,
                                                    unwrappedS3Provider,
                                                    s3Client,
-                                                   cfService,
+                                                   cfClient,
                                                    cfAccountId));
         taskList.add(new GetUrlTaskRunner(s3Provider,
                                           unwrappedS3Provider,
-                                          cfService));
+                                          cfClient));
         taskList.add(new GetSignedUrlTaskRunner(s3Provider,
                                                 unwrappedS3Provider,
-                                                cfService,
+                                                cfClient,
                                                 cfKeyId,
                                                 cfKeyPath));
         taskList.add(new DisableStreamingTaskRunner(s3Provider,
                                                     unwrappedS3Provider,
                                                     s3Client,
-                                                    cfService));
+                                                    cfClient));
         taskList.add(new DeleteStreamingTaskRunner(s3Provider,
                                                    unwrappedS3Provider,
                                                    s3Client,
-                                                   cfService));
+                                                   cfClient));
         taskList.add(new SetStandardStorageTaskRunner(s3Provider,
                                                       unwrappedS3Provider,
                                                       s3Client));

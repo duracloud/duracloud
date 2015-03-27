@@ -7,26 +7,16 @@
  */
 package org.duracloud.s3task.streaming;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
-import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * Retrieves a URL for a media file that is streamed through
@@ -44,10 +34,10 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
 
     public GetUrlTaskRunner(StorageProvider s3Provider,
                             S3StorageProvider unwrappedS3Provider,
-                            CloudFrontService cfService) {
+                            AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
-        this.cfService = cfService;
+        this.cfClient = cfClient;
     }
 
     public String getName() {
@@ -72,11 +62,12 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
 
         try {
             // Retrieve the existing distribution for the given space
-            StreamingDistribution existingDist = getExistingDistribution(bucketName);
+            StreamingDistributionSummary existingDist =
+                getExistingDistribution(bucketName);
             String domainName = existingDist.getDomainName();
 
             // Verify that this is an open distribution
-            if(! existingDist.getActiveTrustedSigners().isEmpty()) {
+            if(! existingDist.getTrustedSigners().getItems().isEmpty()) {
                 throw new UnsupportedTaskException(TASK_NAME,
                     "The " + TASK_NAME + " task cannot be used to request a stream " +
                     "from a secure distribution. Use " +
@@ -91,7 +82,7 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
             }
 
             taskResult.setStreamUrl("rtmp://" + domainName + "/cfx/st/" + resourceId);
-        } catch(CloudFrontServiceException e) {
+        } catch(Exception e) {
             throw new RuntimeException("Error encountered running " + TASK_NAME +
                                        " task: " + e.getMessage(), e);
         }

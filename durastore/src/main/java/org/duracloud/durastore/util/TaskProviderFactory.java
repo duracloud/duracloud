@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.glaciertask.GlacierTaskProvider;
@@ -79,8 +80,8 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                 new S3StorageProvider(username, password);
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password);
-            CloudFrontService cfService =
-                S3ProviderUtil.getCloudFrontService(username, password);
+            AmazonCloudFrontClient cfClient =
+                S3ProviderUtil.getAmazonCloudFrontClient(username, password);
             Map<String, String> opts = account.getOptions();
             String cfAccountId =
                 opts.get(StorageAccount.OPTS.CF_ACCOUNT_ID.name());
@@ -91,7 +92,7 @@ public class TaskProviderFactory extends ProviderFactoryBase {
             taskProvider = new S3TaskProvider(storageProvider,
                                               unwrappedS3Provider,
                                               s3Client,
-                                              cfService,
+                                              cfClient,
                                               cfAccountId,
                                               cfKeyId,
                                               cfKeyPath);

@@ -7,12 +7,12 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.jets3t.service.CloudFrontService;
 import org.junit.After;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class StreamingTaskRunnerTestBase {
     protected StorageProvider s3Provider;
     protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
-    protected CloudFrontService cfService;
+    protected AmazonCloudFrontClient cfClient;
 
     protected String cfAccountId = "cf-account-id";
     protected String cfKeyId = "cf-key-id";
@@ -43,11 +43,11 @@ public class StreamingTaskRunnerTestBase {
 
     @After
     public void tearDown() {
-        EasyMock.verify(s3Provider, unwrappedS3Provider, s3Client, cfService);
+        EasyMock.verify(s3Provider, unwrappedS3Provider, s3Client, cfClient);
         s3Provider = null;
         unwrappedS3Provider = null;
         s3Client = null;
-        cfService = null;
+        cfClient = null;
     }
 
     protected S3StorageProvider createMockUnwrappedS3StorageProvider() {
@@ -137,11 +137,11 @@ public class StreamingTaskRunnerTestBase {
         return service;
     }
 
-    protected CloudFrontService createMockCFServiceV1() throws Exception {
-        CloudFrontService service =
-            EasyMock.createMock(CloudFrontService.class);
-        EasyMock.replay(service);
-        return service;
+    protected AmazonCloudFrontClient createMockCFClientV1() throws Exception {
+        AmazonCloudFrontClient cfClient =
+            EasyMock.createMock(AmazonCloudFrontClient.class);
+        EasyMock.replay(cfClient);
+        return cfClient;
     }
 
 }

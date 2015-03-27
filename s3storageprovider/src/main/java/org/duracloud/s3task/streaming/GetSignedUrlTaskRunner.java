@@ -7,35 +7,22 @@
  */
 package org.duracloud.s3task.streaming;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import org.apache.commons.lang.StringUtils;
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
-import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.Distribution;
-import org.jets3t.service.model.cloudfront.DistributionConfig;
-import org.jets3t.service.model.cloudfront.Origin;
-import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
-import org.jets3t.service.model.cloudfront.S3Origin;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 import org.jets3t.service.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Retrieves a signed URL for a media file that is streamed through
@@ -54,12 +41,12 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
 
     public GetSignedUrlTaskRunner(StorageProvider s3Provider,
                                   S3StorageProvider unwrappedS3Provider,
-                                  CloudFrontService cfService,
+                                  AmazonCloudFrontClient cfClient,
                                   String cfKeyId,
                                   String cfKeyPath) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
-        this.cfService = cfService;
+        this.cfClient = cfClient;
         // Certificate identifier, an active trusted signer for the distribution
         this.cfKeyId = cfKeyId;
         // Local file path to signing key in DER format
@@ -106,11 +93,12 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
 
         try {
             // Retrieve the existing distribution for the given space
-            StreamingDistribution existingDist = getExistingDistribution(bucketName);
+            StreamingDistributionSummary existingDist =
+                getExistingDistribution(bucketName);
             String domainName = existingDist.getDomainName();
 
             // Verify that this is a secure distribution
-            if(existingDist.getActiveTrustedSigners().isEmpty()) {
+            if(existingDist.getTrustedSigners().getItems().isEmpty()) {
                 throw new UnsupportedTaskException(TASK_NAME,
                     "The " + TASK_NAME + " task cannot be used to request a " +
                     "stream from an open distribution. Use " +
@@ -127,6 +115,7 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
             // Note that the resource path for RTMP streams is simply the name of the
             // stream; that name may need have its file extension omitted, depending on
             // the intended player.
+
             String policy =
                 CloudFrontService.buildPolicyForSignedUrl(contentId,
                                                           new Date(dateLessThan),
@@ -144,7 +133,7 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
             String signedUrl =
                 CloudFrontService.signUrl(resourceId, cfKeyId, signingKey, policy);
             taskResult.setSignedUrl("rtmp://" + domainName + "/cfx/st/" + signedUrl);
-        } catch(CloudFrontServiceException e) {
+        } catch(Exception e) {
             throw new RuntimeException("Error encountered running " + TASK_NAME +
                                        " task: " + e.getMessage(), e);
         }

@@ -7,15 +7,14 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +33,11 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
     public DisableStreamingTaskRunner(StorageProvider s3Provider,
                                       S3StorageProvider unwrappedS3Provider,
                                       AmazonS3Client s3Client,
-                                      CloudFrontService cfService) {
+                                      AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
-        this.cfService = cfService;
+        this.cfClient = cfClient;
     }
 
     public String getName() {
@@ -60,7 +59,7 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
 
         try {
             // Ensure that there is an existing distribution for the given space
-            StreamingDistribution existingDist =
+            StreamingDistributionSummary existingDist =
                 getExistingDistribution(bucketName);
 
             if(existingDist != null) {
@@ -71,7 +70,7 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
             }
 
             taskResult.setResult("Disable Streaming Task completed successfully");
-        } catch(CloudFrontServiceException e) {
+        } catch(Exception e) {
             log.warn("Error encountered running " + TASK_NAME + " task: " +
                      e.getMessage(), e);            
             taskResult.setResult("Disable Streaming Task failed due to: " +

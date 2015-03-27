@@ -7,16 +7,18 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigRequest;
+import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsRequest;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionConfig;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+import com.amazonaws.services.cloudfront.model.UpdateStreamingDistributionRequest;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.S3Origin;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +37,15 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
         LoggerFactory.getLogger(BaseStreamingTaskRunner.class);
 
     public static final String STREAMING_HOST_PROP = "streaming-host";
+    public static final String S3_ORIGIN_SUFFIX = ".s3.amazonaws.com";
+    public static final String S3_ORIGIN_OAI_PREFIX = "origin-access-identity/cloudfront/";
 
     protected static final int maxRetries = 8;
 
     protected StorageProvider s3Provider;
     protected S3StorageProvider unwrappedS3Provider;
     protected AmazonS3Client s3Client;
-    protected CloudFrontService cfService;
+    protected AmazonCloudFrontClient cfClient;
     protected String cfAccountId;
     protected String cfKeyId;
     protected String cfKeyPath;
@@ -51,50 +55,63 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
     public abstract String performTask(String taskParameters);
 
     /*
-     * Determines if a streaming distribution already exists for a given bucket
+     * Returns the first streaming distribution associated with a given bucket
      */
-    protected StreamingDistribution getExistingDistribution(String bucketName)
-        throws CloudFrontServiceException {
+    protected StreamingDistributionSummary getExistingDistribution(String bucketName) {
 
-        StreamingDistribution[] distributions =
-            cfService.listStreamingDistributions();
-
-        if(distributions != null) {
-            for(StreamingDistribution dist : distributions) {
-                if(isDistFromBucket(bucketName, dist)) {
-                    return cfService.getStreamingDistributionInfo(dist.getId());
-                }
-            }
+        List<StreamingDistributionSummary> dists =
+            getAllExistingDistributions(bucketName);
+        if(dists.isEmpty()) {
+            return null;
+        } else {
+            return dists.get(0);
         }
-
-        return null;
     }
 
     private boolean isDistFromBucket(String bucketName,
-                                     StreamingDistribution dist) {
-        S3Origin origin = (S3Origin)dist.getOrigin();
-        return bucketName.equals(origin.getOriginAsBucketName());
+                                     StreamingDistributionSummary distSummary) {
+        String bucketOrigin = bucketName + S3_ORIGIN_SUFFIX;
+        return bucketOrigin.equals(distSummary.getS3Origin().getDomainName());
     }
 
     /*
      * Determines if a streaming distribution already exists for a given bucket
      */
-    protected List<StreamingDistribution> getAllExistingDistributions(String bucketName)
-        throws CloudFrontServiceException {
+    protected List<StreamingDistributionSummary> getAllExistingDistributions(String bucketName) {
 
-        StreamingDistribution[] distributions =
-            cfService.listStreamingDistributions();
+        List<StreamingDistributionSummary> distListForBucket = new ArrayList<>();
 
-        List<StreamingDistribution> distList =
-            new ArrayList<StreamingDistribution>();
+        StreamingDistributionList distList =
+            cfClient.listStreamingDistributions(new ListStreamingDistributionsRequest())
+                    .getStreamingDistributionList();
 
-        for(StreamingDistribution dist : distributions) {
-            if(isDistFromBucket(bucketName, dist)) {
-                distList.add(dist);
+        for(StreamingDistributionSummary distSummary : distList.getItems()) {
+            if(isDistFromBucket(bucketName, distSummary)) {
+                distListForBucket.add(distSummary);
             }
         }
 
-        return distList;
+        return distListForBucket;
+    }
+
+    /**
+     * Enables or disables an existing distribution
+     *
+     * @param distId the ID of the distribution
+     * @param enabled true to enable, false to disable
+     */
+    protected void setDistributionState(String distId, boolean enabled) {
+        StreamingDistributionConfig distConfig =
+            cfClient.getStreamingDistributionConfig(
+                new GetStreamingDistributionConfigRequest(distId))
+                    .getStreamingDistributionConfig();
+
+        distConfig.setEnabled(enabled);
+
+        cfClient.updateStreamingDistribution(
+            new UpdateStreamingDistributionRequest()
+                .withStreamingDistributionConfig(distConfig)
+                .withId(distId));
     }
 
     /*
@@ -113,18 +130,6 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
         }
         throw new DuraCloudRuntimeException("Exceeded retries attempting to " +
                                             "get space contents for " + spaceId);
-    }
-
-    /*
-     * Attempts to get the origin access ID from an existing streaming
-     * distribution
-     */
-    protected String getDistributionOriginAccessId(String distributionId)
-        throws CloudFrontServiceException {
-        StreamingDistributionConfig config =
-            cfService.getStreamingDistributionConfig(distributionId);
-        S3Origin origin = (S3Origin)config.getOrigin();
-        return origin.getOriginAccessIdentity();
     }
 
     /*
