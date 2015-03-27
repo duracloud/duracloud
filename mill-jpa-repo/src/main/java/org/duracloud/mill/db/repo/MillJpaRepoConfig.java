@@ -101,8 +101,8 @@ public class MillJpaRepoConfig {
                           "org.hibernate.cache.HashtableCacheProvider");
         props.setProperty("jadira.usertype.autoRegisterUserTypes", "true");
         props.setProperty("jadira.usertype.databaseZone", "jvm");
-        props.setProperty("hibernate.show_sql", "false");
-        props.setProperty("hibernate.format_sql", "false");
+        props.setProperty("hibernate.show_sql", System.getProperty("hibernate.show_sql", "false"));
+        props.setProperty("hibernate.format_sql",  System.getProperty("hibernate.format_sql", "false"));
         props.setProperty("hibernate.show_comments", "false");
         emf.setJpaProperties(props);
         return emf;
