@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>snapshotdata</artifactId>
-  <version>3.2.4</version>
+  <version>3.2.5</version>
   <name>DuraCloud Snapshot Data</name>
 
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>3.2.4</version>
+    <version>3.2.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
