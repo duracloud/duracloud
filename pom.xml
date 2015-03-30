@@ -4,7 +4,7 @@
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
     <packaging>pom</packaging>
-    <version>3.2.4</version>
+    <version>3.2.5</version>
     <name>DuraCloud</name>
     <description>Cloud-based digital content preservation system</description>
     <url>http://duracloud.org</url>
@@ -263,7 +263,7 @@
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
         <org.springframework.webflow.version>2.3.3.RELEASE</org.springframework.webflow.version>
-        <org.springframework.data.jpa.version>1.8.0.RELEASE</org.springframework.data.jpa.version>
+        <org.springframework.data.jpa.version>1.6.0.RELEASE</org.springframework.data.jpa.version>
         <mysql.driver.version>5.1.28</mysql.driver.version>
         <hibernate.version>4.3.2.Final</hibernate.version>
         <jclouds.version>1.8.0</jclouds.version>

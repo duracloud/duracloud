@@ -31,7 +31,8 @@ public interface JpaAuditLogItemRepo extends JpaRepository<JpaAuditLogItem, Long
             @Param("spaceId") String contentId,
             Pageable pageable);
 
-    public List<JpaAuditLogItem> findTop10000ByWrittenFalseOrderByTimestampAsc();
+    
+    public List<JpaAuditLogItem> findByWrittenFalseOrderByTimestampAsc(Pageable pageable);
     
     
     public Long deleteByWrittenTrueAndTimestampLessThan(long timestamp);

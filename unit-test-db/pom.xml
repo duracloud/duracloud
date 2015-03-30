@@ -4,12 +4,12 @@
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.2.4</version>
+    <version>3.2.5</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>unit-test-db</artifactId>
-  <version>3.2.4</version>
+  <version>3.2.5</version>
   <name>Unit Test Database</name>
 
   <properties>
