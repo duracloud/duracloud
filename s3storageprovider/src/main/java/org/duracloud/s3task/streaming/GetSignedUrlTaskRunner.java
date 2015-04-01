@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Calendar;
 
 /**
@@ -79,52 +81,54 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
         GetSignedUrlTaskResult taskResult = new GetSignedUrlTaskResult();
 
+        // Retrieve the existing distribution for the given space
+        StreamingDistributionSummary existingDist =
+            getExistingDistribution(bucketName);
+        if (null == existingDist) {
+            throw new UnsupportedTaskException(TASK_NAME,
+                                               "The " + TASK_NAME +
+                                               " task can only be used after a space has " +
+                                               "been configured to enable secure streaming. Use " +
+                                               StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                                               " to enable secure streaming on this space.");
+        }
+        String domainName = existingDist.getDomainName();
+
+        // Verify that this is a secure distribution
+        if (existingDist.getTrustedSigners().getItems().isEmpty()) {
+            throw new UnsupportedTaskException(TASK_NAME,
+                                               "The " + TASK_NAME +
+                                               " task cannot be used to request a " +
+                                               "stream from an open distribution. Use " +
+                                               StorageTaskConstants.GET_URL_TASK_NAME +
+                                               " instead.");
+        }
+
+        // Make sure resourcePrefix is a valid string
+        if (null == resourcePrefix) {
+            resourcePrefix = "";
+        }
+
+        // Define expiration date/time
+        Calendar expireCalendar = Calendar.getInstance();
+        expireCalendar.add(Calendar.MINUTE, minutesToExpire);
+
         try {
-            // Retrieve the existing distribution for the given space
-            StreamingDistributionSummary existingDist =
-                getExistingDistribution(bucketName);
-            if(null == existingDist) {
-                throw new UnsupportedTaskException(TASK_NAME,
-                    "The " + TASK_NAME + " task can only be used after a space has " +
-                    "been configured to enable secure streaming. Use " +
-                    StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
-                    " to enable secure streaming on this space.");
-            }
-            String domainName = existingDist.getDomainName();
-
-            // Verify that this is a secure distribution
-            if(existingDist.getTrustedSigners().getItems().isEmpty()) {
-                throw new UnsupportedTaskException(TASK_NAME,
-                    "The " + TASK_NAME + " task cannot be used to request a " +
-                    "stream from an open distribution. Use " +
-                    StorageTaskConstants.GET_URL_TASK_NAME + " instead.");
-            }
-
-            // Create the resource Id, which may or may not require a prefix
-            // (such as "mp4:" for an mp4 file) depending on the intended player
-            String resourceId = contentId;
-            if(null != resourcePrefix && !resourcePrefix.equals("")) {
-                resourceId = resourcePrefix + contentId;
-            }
-
-            // Define expiration date/time
-            Calendar expireCalendar = Calendar.getInstance();
-            expireCalendar.add(Calendar.MINUTE, minutesToExpire);
-
             String signedUrl =
                 CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
                     CloudFrontUrlSigner.Protocol.rtmp,
                     domainName,
                     new File(cfKeyPath),
-                    resourceId,
+                    contentId,
                     cfKeyId,
                     expireCalendar.getTime(),
                     null,
                     ipAddress);
-            taskResult.setSignedUrl("rtmp://" + domainName + "/cfx/st/" + signedUrl);
-        } catch(Exception e) {
-            throw new RuntimeException("Error encountered running " + TASK_NAME +
-                                       " task: " + e.getMessage(), e);
+            taskResult.setSignedUrl("rtmp://" + domainName + "/cfx/st/" +
+                                    resourcePrefix + signedUrl);
+        } catch(InvalidKeySpecException | IOException e) {
+            throw new RuntimeException("Error encountered attempting to sign URL for" +
+                                       " task " + TASK_NAME + ": " + e.getMessage(), e);
         }
 
         String toReturn = taskResult.serialize();

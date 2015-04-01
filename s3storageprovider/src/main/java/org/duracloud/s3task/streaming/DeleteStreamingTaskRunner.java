@@ -63,35 +63,28 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
         removeStreamingHostFromSpaceProps(spaceId);
         s3Client.deleteBucketPolicy(bucketName);
 
-        try {
-            List<StreamingDistributionSummary> existingDists =
-                getAllExistingDistributions(bucketName);
+        List<StreamingDistributionSummary> existingDists =
+            getAllExistingDistributions(bucketName);
 
-            if(existingDists != null && existingDists.size() > 0) {
-                for(StreamingDistributionSummary existingDist : existingDists) {
-                    String distId = existingDist.getId();
-                    if(existingDist.isEnabled()) {
-                        // Disable the distribution
-                        setDistributionState(distId, false);
-                        // Wait for the distribution to be disabled
-                        waitForDisabled(distId);
-                    }
-                    // Delete the distribution
-                    cfClient.deleteStreamingDistribution(
-                        new DeleteStreamingDistributionRequest().withId(distId));
+        if(existingDists != null && existingDists.size() > 0) {
+            for(StreamingDistributionSummary existingDist : existingDists) {
+                String distId = existingDist.getId();
+                if(existingDist.isEnabled()) {
+                    // Disable the distribution
+                    setDistributionState(distId, false);
+                    // Wait for the distribution to be disabled
+                    waitForDisabled(distId);
                 }
-            } else {
-                throw new RuntimeException("No streaming distribution " +
-                                           "exists for space " + spaceId);
+                // Delete the distribution
+                cfClient.deleteStreamingDistribution(
+                    new DeleteStreamingDistributionRequest().withId(distId));
             }
-
-            taskResult.setResult("Delete Streaming Task completed successfully");
-        } catch(Exception e) {
-            log.warn("Error encountered running " + TASK_NAME + " task: " +
-                     e.getMessage(), e);            
-            taskResult.setResult("Delete Streaming Task failed due to: " +
-                                 e.getMessage());
+        } else {
+            throw new RuntimeException("No streaming distribution " +
+                                       "exists for space " + spaceId);
         }
+
+        taskResult.setResult("Delete Streaming Task completed successfully");
 
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);

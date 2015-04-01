@@ -57,25 +57,18 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
 
         removeStreamingHostFromSpaceProps(spaceId);
 
-        try {
-            // Ensure that there is an existing distribution for the given space
-            StreamingDistributionSummary existingDist =
-                getExistingDistribution(bucketName);
+        // Ensure that there is an existing distribution for the given space
+        StreamingDistributionSummary existingDist =
+            getExistingDistribution(bucketName);
 
-            if(existingDist != null) {
-                s3Client.deleteBucketPolicy(bucketName);
-            } else {
-                throw new RuntimeException("No streaming distribution " +
-                                           "exists for space " + spaceId);
-            }
-
-            taskResult.setResult("Disable Streaming Task completed successfully");
-        } catch(Exception e) {
-            log.warn("Error encountered running " + TASK_NAME + " task: " +
-                     e.getMessage(), e);            
-            taskResult.setResult("Disable Streaming Task failed due to: " +
-                                 e.getMessage());
+        if(existingDist != null) {
+            s3Client.deleteBucketPolicy(bucketName);
+        } else {
+            throw new RuntimeException("No streaming distribution " +
+                                       "exists for space " + spaceId);
         }
+
+        taskResult.setResult("Disable Streaming Task completed successfully");
 
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);

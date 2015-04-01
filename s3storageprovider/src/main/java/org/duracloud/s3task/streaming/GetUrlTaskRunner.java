@@ -60,39 +60,34 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
         GetUrlTaskResult taskResult = new GetUrlTaskResult();
 
-        try {
-            // Retrieve the existing distribution for the given space
-            StreamingDistributionSummary existingDist =
-                getExistingDistribution(bucketName);
-            if(null == existingDist) {
-                throw new UnsupportedTaskException(TASK_NAME,
-                    "The " + TASK_NAME + " task can only be used after a space has " +
-                    "been configured to enable open streaming. Use " +
-                    StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
-                    " to enable open streaming on this space.");
-            }
-            String domainName = existingDist.getDomainName();
-
-            // Verify that this is an open distribution
-            if(! existingDist.getTrustedSigners().getItems().isEmpty()) {
-                throw new UnsupportedTaskException(TASK_NAME,
-                    "The " + TASK_NAME + " task cannot be used to request a stream " +
-                    "from a secure distribution. Use " +
-                    StorageTaskConstants.GET_SIGNED_URL_TASK_NAME + " instead.");
-            }
-
-            // Create the resource Id, which may or may not require a prefix
-            // (such as "mp4:" for an mp4 file) depending on the intended player
-            String resourceId = contentId;
-            if(null != resourcePrefix && !resourcePrefix.equals("")) {
-                resourceId = resourcePrefix + contentId;
-            }
-
-            taskResult.setStreamUrl("rtmp://" + domainName + "/cfx/st/" + resourceId);
-        } catch(Exception e) {
-            throw new RuntimeException("Error encountered running " + TASK_NAME +
-                                       " task: " + e.getMessage(), e);
+        // Retrieve the existing distribution for the given space
+        StreamingDistributionSummary existingDist =
+            getExistingDistribution(bucketName);
+        if(null == existingDist) {
+            throw new UnsupportedTaskException(TASK_NAME,
+                "The " + TASK_NAME + " task can only be used after a space has " +
+                "been configured to enable open streaming. Use " +
+                StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                " to enable open streaming on this space.");
         }
+        String domainName = existingDist.getDomainName();
+
+        // Verify that this is an open distribution
+        if(! existingDist.getTrustedSigners().getItems().isEmpty()) {
+            throw new UnsupportedTaskException(TASK_NAME,
+                "The " + TASK_NAME + " task cannot be used to request a stream " +
+                "from a secure distribution. Use " +
+                StorageTaskConstants.GET_SIGNED_URL_TASK_NAME + " instead.");
+        }
+
+        // Create the resource Id, which may or may not require a prefix
+        // (such as "mp4:" for an mp4 file) depending on the intended player
+        String resourceId = contentId;
+        if(null != resourcePrefix && !resourcePrefix.equals("")) {
+            resourceId = resourcePrefix + contentId;
+        }
+
+        taskResult.setStreamUrl("rtmp://" + domainName + "/cfx/st/" + resourceId);
 
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);

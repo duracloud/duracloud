@@ -79,57 +79,50 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         String oaIdentityId = null;
         EnableStreamingTaskResult taskResult = new EnableStreamingTaskResult();
 
-        try {
-            StreamingDistributionSummary existingDist =
-                getExistingDistribution(bucketName);
+        StreamingDistributionSummary existingDist =
+            getExistingDistribution(bucketName);
 
-            if(existingDist != null) { // There is an existing distribution
-                distId = existingDist.getId();
-                if (!existingDist.isEnabled()) { // Distribution is disabled, enable it
-                    setDistributionState(distId, true);
-                }
-                domainName = existingDist.getDomainName();
-            } else { // No existing distribution, need to create one
-                oaIdentityId = getOriginAccessId();
-                S3Origin origin = new S3Origin(bucketName + S3_ORIGIN_SUFFIX,
-                                               S3_ORIGIN_OAI_PREFIX + oaIdentityId);
-                // Set trusted signers to null if this is not a secure distribution
-                TrustedSigners signers = null;
-                if(secure) {
-                    signers = new TrustedSigners().withItems(cfAccountId)
-                                                  .withEnabled(true)
-                                                  .withQuantity(1);
-                }
-
-                StreamingDistribution dist =
-                    cfClient.createStreamingDistribution(
-                        new CreateStreamingDistributionRequest(
-                            new StreamingDistributionConfig()
-                                .withCallerReference(""+System.currentTimeMillis())
-                                .withS3Origin(origin)
-                                .withEnabled(true)
-                                .withComment("Streaming space: " + spaceId)
-                                .withTrustedSigners(signers)))
-                            .getStreamingDistribution();
-                domainName = dist.getDomainName();
+        if(existingDist != null) { // There is an existing distribution
+            distId = existingDist.getId();
+            if (!existingDist.isEnabled()) { // Distribution is disabled, enable it
+                setDistributionState(distId, true);
+            }
+            domainName = existingDist.getDomainName();
+        } else { // No existing distribution, need to create one
+            oaIdentityId = getOriginAccessId();
+            S3Origin origin = new S3Origin(bucketName + S3_ORIGIN_SUFFIX,
+                                           S3_ORIGIN_OAI_PREFIX + oaIdentityId);
+            // Set trusted signers to null if this is not a secure distribution
+            TrustedSigners signers = null;
+            if(secure) {
+                signers = new TrustedSigners().withItems(cfAccountId)
+                                              .withEnabled(true)
+                                              .withQuantity(1);
             }
 
-            // Set bucket policy to accept origin access identity
-            setBucketAccessPolicy(bucketName, oaIdentityId);
-
-            // Update bucket tags to include streaming host
-            Map<String, String> spaceProps =
-                s3Provider.getSpaceProperties(spaceId);
-            spaceProps.put(STREAMING_HOST_PROP, domainName);
-            unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
-
-            taskResult.setResult("Enable Streaming Task completed successfully");
-        } catch(Exception e) {
-            log.warn("Error encountered running " + TASK_NAME + " task: " +
-                     e.getMessage(), e);
-            taskResult.setResult("Enable Streaming Task failed due to: " +
-                                 e.getMessage());
+            StreamingDistribution dist =
+                cfClient.createStreamingDistribution(
+                    new CreateStreamingDistributionRequest(
+                        new StreamingDistributionConfig()
+                            .withCallerReference(""+System.currentTimeMillis())
+                            .withS3Origin(origin)
+                            .withEnabled(true)
+                            .withComment("Streaming space: " + spaceId)
+                            .withTrustedSigners(signers)))
+                        .getStreamingDistribution();
+            domainName = dist.getDomainName();
         }
+
+        // Set bucket policy to accept origin access identity
+        setBucketAccessPolicy(bucketName, oaIdentityId);
+
+        // Update bucket tags to include streaming host
+        Map<String, String> spaceProps =
+            s3Provider.getSpaceProperties(spaceId);
+        spaceProps.put(STREAMING_HOST_PROP, domainName);
+        unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
+
+        taskResult.setResult("Enable Streaming Task completed successfully");
 
         // Return results
         taskResult.setStreamingHost(domainName);
