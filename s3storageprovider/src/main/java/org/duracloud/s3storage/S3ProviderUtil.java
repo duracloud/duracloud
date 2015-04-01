@@ -12,7 +12,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.storage.error.StorageException;
-import org.jets3t.service.CloudFrontService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,6 @@ public class S3ProviderUtil {
 
     private static Map<String, AmazonS3Client> s3Clients = new HashMap<>();
     private static Map<String, AmazonCloudFrontClient> cloudFrontClients = new HashMap<>();
-    private static Map<String, CloudFrontService> cloudFrontServices = new HashMap<>();
 
     public static AmazonS3Client getAmazonS3Client(String accessKey,
                                                    String secretKey) {

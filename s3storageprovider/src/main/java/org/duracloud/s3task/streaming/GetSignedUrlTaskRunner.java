@@ -8,6 +8,7 @@
 package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.CloudFrontUrlSigner;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
@@ -15,14 +16,11 @@ import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Date;
+import java.io.File;
+import java.util.Calendar;
 
 /**
  * Retrieves a signed URL for a media file that is streamed through
@@ -32,6 +30,8 @@ import java.util.Date;
  * Date: 3/9/2015
  */
 public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
+
+    public static final int DEFAULT_MINUTES_TO_EXPIRE = 480;
 
     private final Logger log =
         LoggerFactory.getLogger(GetSignedUrlTaskRunner.class);
@@ -65,36 +65,31 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         String spaceId = taskParams.getSpaceId();
         String contentId = taskParams.getContentId();
         String resourcePrefix = taskParams.getResourcePrefix();
-        long dateLessThan = taskParams.getDateLessThan();
-        long dateGreaterThan = taskParams.getDateGreaterThan();
         String ipAddress = taskParams.getIpAddress();
+        int minutesToExpire = taskParams.getMinutesToExpire();
+        if(minutesToExpire <= 0) {
+            minutesToExpire = DEFAULT_MINUTES_TO_EXPIRE;
+        }
 
         log.info("Performing " + TASK_NAME + " task with parameters: spaceId="+spaceId+
                  ", contentId="+contentId+", resourcePrefix="+resourcePrefix+
-                 ", dateLessThan="+dateLessThan+ ", dateGreaterThan="+dateGreaterThan+
-                 ", ipAddress="+ipAddress);
+                 ", minutesToExpire="+minutesToExpire+", ipAddress="+ipAddress);
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
         GetSignedUrlTaskResult taskResult = new GetSignedUrlTaskResult();
 
-        // Retrieve signing key. This key is generated via the AWS console and converted
-        // to DER format. This key file is expected to be local to the DuraStore
-        // application. For more info about this key see: http://amzn.to/1F8yPZ7
-        byte[] signingKey;
-        try {
-            signingKey =
-                ServiceUtils.readInputStreamToBytes(new FileInputStream(cfKeyPath));
-        } catch(IOException e) {
-            throw new RuntimeException("Unable to perform " + TASK_NAME +
-                                       ". Secure signing key is not available. " +
-                                       "Cause: " + e.getMessage());
-        }
-
         try {
             // Retrieve the existing distribution for the given space
             StreamingDistributionSummary existingDist =
                 getExistingDistribution(bucketName);
+            if(null == existingDist) {
+                throw new UnsupportedTaskException(TASK_NAME,
+                    "The " + TASK_NAME + " task can only be used after a space has " +
+                    "been configured to enable secure streaming. Use " +
+                    StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                    " to enable secure streaming on this space.");
+            }
             String domainName = existingDist.getDomainName();
 
             // Verify that this is a secure distribution
@@ -105,23 +100,6 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
                     StorageTaskConstants.GET_URL_TASK_NAME + " instead.");
             }
 
-            // Verify that the date greater than is in the future
-            Date verifiedDateGreaterThan = null;
-            if(dateGreaterThan > System.currentTimeMillis()) {
-                verifiedDateGreaterThan = new Date(dateGreaterThan);
-            }
-
-            // Build a policy document to define custom restrictions for the signed URL.
-            // Note that the resource path for RTMP streams is simply the name of the
-            // stream; that name may need have its file extension omitted, depending on
-            // the intended player.
-
-            String policy =
-                CloudFrontService.buildPolicyForSignedUrl(contentId,
-                                                          new Date(dateLessThan),
-                                                          ipAddress,
-                                                          verifiedDateGreaterThan);
-
             // Create the resource Id, which may or may not require a prefix
             // (such as "mp4:" for an mp4 file) depending on the intended player
             String resourceId = contentId;
@@ -129,9 +107,20 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
                 resourceId = resourcePrefix + contentId;
             }
 
-            // Generate a signed URL using the custom policy document.
+            // Define expiration date/time
+            Calendar expireCalendar = Calendar.getInstance();
+            expireCalendar.add(Calendar.MINUTE, minutesToExpire);
+
             String signedUrl =
-                CloudFrontService.signUrl(resourceId, cfKeyId, signingKey, policy);
+                CloudFrontUrlSigner.getSignedURLWithCustomPolicy(
+                    CloudFrontUrlSigner.Protocol.rtmp,
+                    domainName,
+                    new File(cfKeyPath),
+                    resourceId,
+                    cfKeyId,
+                    expireCalendar.getTime(),
+                    null,
+                    ipAddress);
             taskResult.setSignedUrl("rtmp://" + domainName + "/cfx/st/" + signedUrl);
         } catch(Exception e) {
             throw new RuntimeException("Error encountered running " + TASK_NAME +

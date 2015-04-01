@@ -22,8 +22,7 @@ public class GetSignedUrlTaskParametersTest {
     private final String spaceId = "space-id";
     private final String contentId = "content-id";
     private final String resourcePrefix = "resource:";
-    private final long dateLessThan = System.currentTimeMillis() + 10000;
-    private final long dateGreaterThan = 24L;
+    private final int minutesToExpire = 60;
     private final String ipAddress = "ip-address";
 
     @Test
@@ -33,8 +32,7 @@ public class GetSignedUrlTaskParametersTest {
         taskParams.setSpaceId(spaceId);
         taskParams.setContentId(contentId);
         taskParams.setResourcePrefix(resourcePrefix);
-        taskParams.setDateLessThan(dateLessThan);
-        taskParams.setDateGreaterThan(dateGreaterThan);
+        taskParams.setMinutesToExpire(minutesToExpire);
         taskParams.setIpAddress(ipAddress);
 
         String result = taskParams.serialize();
@@ -42,8 +40,7 @@ public class GetSignedUrlTaskParametersTest {
         assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
         assertThat(cleanResult, containsString("\"contentId\":\""+contentId+"\""));
         assertThat(cleanResult, containsString("\"resourcePrefix\":\""+resourcePrefix+"\""));
-        assertThat(cleanResult, containsString("\"dateLessThan\":"+dateLessThan+""));
-        assertThat(cleanResult, containsString("\"dateGreaterThan\":"+dateGreaterThan+""));
+        assertThat(cleanResult, containsString("\"minutesToExpire\":"+ minutesToExpire));
         assertThat(cleanResult, containsString("\"ipAddress\":\""+ipAddress+"\""));
     }
 
@@ -54,8 +51,7 @@ public class GetSignedUrlTaskParametersTest {
             "{\"spaceId\" : \""+spaceId+"\"," +
             " \"contentId\" : \""+contentId+"\"," +
             " \"resourcePrefix\" : \""+resourcePrefix+"\"," +
-            " \"dateLessThan\" : "+dateLessThan+"," +
-            " \"dateGreaterThan\" : "+dateGreaterThan+"," +
+            " \"minutesToExpire\" : "+ minutesToExpire +"," +
             " \"ipAddress\" : \""+ipAddress+"\"}";
 
         GetSignedUrlTaskParameters taskParams =
@@ -63,33 +59,15 @@ public class GetSignedUrlTaskParametersTest {
         assertEquals(spaceId, taskParams.getSpaceId());
         assertEquals(contentId, taskParams.getContentId());
         assertEquals(resourcePrefix, taskParams.getResourcePrefix());
-        assertEquals(dateLessThan, taskParams.getDateLessThan());
-        assertEquals(dateGreaterThan, taskParams.getDateGreaterThan());
+        assertEquals(minutesToExpire, taskParams.getMinutesToExpire());
         assertEquals(ipAddress, taskParams.getIpAddress());
-
-        // Verify that an incorrect dateLessThan will throw
-        // Verify valid params
-        taskParamsSerialized =
-            "{\"spaceId\" : \""+spaceId+"\"," +
-            " \"contentId\" : \""+contentId+"\"," +
-            " \"resourcePrefix\" : \""+resourcePrefix+"\"," +
-            " \"dateLessThan\" : "+0+"," +
-            " \"dateGreaterThan\" : "+dateGreaterThan+"," +
-            " \"ipAddress\" : \""+ipAddress+"\"}";
-
-        try {
-            GetSignedUrlTaskParameters.deserialize(taskParamsSerialized);
-            fail("Exception expected: Invalid params");
-        } catch(TaskDataException e) {
-        }
 
         // Verify that empty params throw
         taskParamsSerialized =
             "{\"spaceId\" : \"\"," +
             " \"contentId\" : \"\"," +
             " \"resourcePrefix\" : \"\"," +
-            " \"dateLessThan\" : \"\"," +
-            " \"dateGreaterThan\" : \"\"," +
+            " \"minutesToExpire\" : \"\"," +
             " \"ipAddress\" : \"\"}";
 
         try {

@@ -64,6 +64,13 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
             // Retrieve the existing distribution for the given space
             StreamingDistributionSummary existingDist =
                 getExistingDistribution(bucketName);
+            if(null == existingDist) {
+                throw new UnsupportedTaskException(TASK_NAME,
+                    "The " + TASK_NAME + " task can only be used after a space has " +
+                    "been configured to enable open streaming. Use " +
+                    StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                    " to enable open streaming on this space.");
+            }
             String domainName = existingDist.getDomainName();
 
             // Verify that this is an open distribution

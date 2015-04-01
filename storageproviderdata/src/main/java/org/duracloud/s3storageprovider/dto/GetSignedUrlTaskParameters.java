@@ -43,14 +43,7 @@ public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
      * for when URL expires
      */
     @XmlValue
-    private long dateLessThan;
-
-    /**
-     * Beginning date and time (in Unix epoch format to the millisecond)
-     * for when URL is accessible
-     */
-    @XmlValue
-    private long dateGreaterThan;
+    private int minutesToExpire;
 
     /**
      * IP address or range where requests to stream must originate
@@ -87,20 +80,12 @@ public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
         this.resourcePrefix = resourcePrefix;
     }
 
-    public long getDateLessThan() {
-        return dateLessThan;
+    public int getMinutesToExpire() {
+        return minutesToExpire;
     }
 
-    public void setDateLessThan(long dateLessThan) {
-        this.dateLessThan = dateLessThan;
-    }
-
-    public long getDateGreaterThan() {
-        return dateGreaterThan;
-    }
-
-    public void setDateGreaterThan(long dateGreaterThan) {
-        this.dateGreaterThan = dateGreaterThan;
+    public void setMinutesToExpire(int minutesToExpire) {
+        this.minutesToExpire = minutesToExpire;
     }
 
     public String getIpAddress() {
@@ -145,9 +130,6 @@ public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
             } else if(null == params.getContentId() || params.getContentId().isEmpty()) {
                 throw new TaskDataException(
                     "Task parameter 'contentId' may not be empty");
-            } else if(params.getDateLessThan() < System.currentTimeMillis()) {
-                throw new TaskDataException(
-                    "Task parameter 'dateLessThan' must define a future date");
             }
 
             return params;

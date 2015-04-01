@@ -19,7 +19,6 @@ import org.duracloud.s3task.streaming.GetSignedUrlTaskRunner;
 import org.duracloud.s3task.streaming.GetUrlTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
-import org.jets3t.service.CloudFrontService;
 import org.slf4j.LoggerFactory;
 
 /**

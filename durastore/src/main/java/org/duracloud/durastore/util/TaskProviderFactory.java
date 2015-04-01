@@ -23,7 +23,6 @@ import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.jets3t.service.CloudFrontService;
 
 import java.util.Map;
 
