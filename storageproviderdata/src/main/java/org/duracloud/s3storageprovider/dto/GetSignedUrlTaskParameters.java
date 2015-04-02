@@ -20,6 +20,12 @@ import java.io.IOException;
 public class GetSignedUrlTaskParameters extends GetUrlTaskParameters {
 
     /**
+     * Can be used as the value of the minutesToExpire parameter
+     * to indicate that the default value should be used
+     */
+    public static final int USE_DEFAULT_MINUTES_TO_EXPIRE = -1;
+
+    /**
      * The ID of the space in which the content item to be streamed resides
      */
     @XmlValue
