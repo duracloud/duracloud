@@ -99,7 +99,6 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
         long maxTime = 900000; // 15 min
         long start = System.currentTimeMillis();
 
-
         boolean deployed = isDeployed(distId);
         while(!deployed) {
             if(System.currentTimeMillis() < start + maxTime) {
