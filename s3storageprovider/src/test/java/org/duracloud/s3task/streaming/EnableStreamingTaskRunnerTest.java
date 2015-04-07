@@ -117,7 +117,7 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         String results = runner.performTask(taskParams.serialize());
         assertNotNull(results);
         testResults(results);
-        testCapturedProps();
+        testCapturedProps(secure);
         testCreateRequestCapture(secure);
     }
 
@@ -214,10 +214,19 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         assertTrue(taskResult.getResult().contains("completed"));
     }
 
-    private void testCapturedProps() {
+    private void testCapturedProps(boolean secure) {
         Map<String, String> spaceProps = spacePropsCapture.getValue();
-        String propName = EnableStreamingTaskRunner.STREAMING_HOST_PROP;
-        assertEquals(spaceProps.get(propName), domainName);
+        String streamHostPropName = EnableStreamingTaskRunner.STREAMING_HOST_PROP;
+        assertEquals(spaceProps.get(streamHostPropName), domainName);
+
+        String streamTypePropName = EnableStreamingTaskRunner.STREAMING_TYPE_PROP;
+        if(secure) {
+            assertEquals(spaceProps.get(streamTypePropName),
+                         EnableStreamingTaskRunner.STREAMING_TYPE.SECURE.name());
+        } else {
+            assertEquals(spaceProps.get(streamTypePropName),
+                         EnableStreamingTaskRunner.STREAMING_TYPE.OPEN.name());
+        }
     }
 
     private void testCreateRequestCapture(boolean secure) {
@@ -229,9 +238,11 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         assertTrue(distConfig.isEnabled());
         assertNotNull(distConfig.getComment());
         if(secure) {
-            assertNotNull(distConfig.getTrustedSigners());
+            assertTrue(distConfig.getTrustedSigners().isEnabled());
+            assertEquals(new Integer(1), distConfig.getTrustedSigners().getQuantity());
         } else {
-            assertNull(distConfig.getTrustedSigners());
+            assertFalse(distConfig.getTrustedSigners().isEnabled());
+            assertEquals(new Integer(0), distConfig.getTrustedSigners().getQuantity());
         }
     }
 
@@ -250,13 +261,13 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
         EnableStreamingTaskParameters taskParams = new EnableStreamingTaskParameters();
         taskParams.setSpaceId(spaceId);
-        boolean secure = true;
+        boolean secure = false;
         taskParams.setSecure(secure);
 
         String results = runner.performTask(taskParams.serialize());
         assertNotNull(results);
         testResults(results);
-        testCapturedProps();
+        testCapturedProps(secure);
     }
 
     /*
@@ -273,6 +284,23 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
         cfClientExpectValidDistribution(cfClient);
 
         String oaIdentity = "origin-access-identity";
+
+        CloudFrontOriginAccessIdentitySummary oaiSummary =
+            new CloudFrontOriginAccessIdentitySummary()
+                .withId(oaIdentity).withS3CanonicalUserId(oaIdentity + "-canonical");
+        List<CloudFrontOriginAccessIdentitySummary> oaiSummaryList = new ArrayList<>();
+        oaiSummaryList.add(oaiSummary);
+        CloudFrontOriginAccessIdentityList oaiList =
+            new CloudFrontOriginAccessIdentityList().withItems(oaiSummaryList);
+        ListCloudFrontOriginAccessIdentitiesResult listOaiResult =
+            new ListCloudFrontOriginAccessIdentitiesResult()
+                .withCloudFrontOriginAccessIdentityList(oaiList);
+        EasyMock
+            .expect(cfClient.listCloudFrontOriginAccessIdentities(
+                EasyMock.isA(ListCloudFrontOriginAccessIdentitiesRequest.class)))
+            .andReturn(listOaiResult)
+            .times(1);
+
         CloudFrontOriginAccessIdentity oai =
             new CloudFrontOriginAccessIdentity().withId(oaIdentity);
         GetCloudFrontOriginAccessIdentityResult getOaiResult =

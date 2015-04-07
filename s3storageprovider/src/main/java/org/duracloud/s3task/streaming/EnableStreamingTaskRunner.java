@@ -25,10 +25,13 @@ import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
+import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -76,28 +79,43 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
 
         String domainName = null;
         String distId = null;
-        String oaIdentityId = null;
+        String oaIdentityId = getOriginAccessId();
         EnableStreamingTaskResult taskResult = new EnableStreamingTaskResult();
 
         StreamingDistributionSummary existingDist =
             getExistingDistribution(bucketName);
 
         if(existingDist != null) { // There is an existing distribution
+            // Ensure that this is not an attempt to change the security type
+            // of this existing distribution
+            boolean existingSecure =
+                !existingDist.getTrustedSigners().getItems().isEmpty();
+            if ((secure && !existingSecure) || (!secure && existingSecure)) {
+                throw new UnsupportedTaskException(TASK_NAME,
+                    "The space " + spaceId + " is already configured to stream as " +
+                    (secure?"OPEN":"SECURE") + " and cannot be updated to stream as " +
+                    (secure?"SECURE":"OPEN") + ". To do this, you must first execute the " +
+                    StorageTaskConstants.DELETE_STREAMING_TASK_NAME + " task.");
+            }
+
             distId = existingDist.getId();
             if (!existingDist.isEnabled()) { // Distribution is disabled, enable it
                 setDistributionState(distId, true);
             }
             domainName = existingDist.getDomainName();
         } else { // No existing distribution, need to create one
-            oaIdentityId = getOriginAccessId();
             S3Origin origin = new S3Origin(bucketName + S3_ORIGIN_SUFFIX,
                                            S3_ORIGIN_OAI_PREFIX + oaIdentityId);
-            // Set trusted signers to null if this is not a secure distribution
-            TrustedSigners signers = null;
+
+            // Only include trusted signers on secure distributions
+            TrustedSigners signers = new TrustedSigners();
             if(secure) {
-                signers = new TrustedSigners().withItems(cfAccountId)
-                                              .withEnabled(true)
-                                              .withQuantity(1);
+                signers.setItems(Collections.singletonList(cfAccountId));
+                signers.setEnabled(true);
+                signers.setQuantity(1);
+            } else {
+                signers.setEnabled(false);
+                signers.setQuantity(0);
             }
 
             StreamingDistribution dist =
@@ -120,6 +138,8 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
         Map<String, String> spaceProps =
             s3Provider.getSpaceProperties(spaceId);
         spaceProps.put(STREAMING_HOST_PROP, domainName);
+        spaceProps.put(STREAMING_TYPE_PROP,
+                       secure ? STREAMING_TYPE.SECURE.name() : STREAMING_TYPE.OPEN.name());
         unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
 
         taskResult.setResult("Enable Streaming Task completed successfully");
@@ -142,6 +162,7 @@ public class EnableStreamingTaskRunner extends BaseStreamingTaskRunner  {
             return cfClient.createCloudFrontOriginAccessIdentity(
                     new CreateCloudFrontOriginAccessIdentityRequest(
                         new CloudFrontOriginAccessIdentityConfig()
+                            .withCallerReference(""+System.currentTimeMillis())
                             .withComment("DuraCloud Origin Access ID")))
                         .getCloudFrontOriginAccessIdentity().getId();
         }

@@ -9,6 +9,8 @@ package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigRequest;
+import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigResult;
+import com.amazonaws.services.cloudfront.model.GetStreamingDistributionResult;
 import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsRequest;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionConfig;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
@@ -37,6 +39,8 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
         LoggerFactory.getLogger(BaseStreamingTaskRunner.class);
 
     public static final String STREAMING_HOST_PROP = "streaming-host";
+    public static final String STREAMING_TYPE_PROP = "streaming-type";
+    public static enum STREAMING_TYPE {OPEN, SECURE};
     public static final String S3_ORIGIN_SUFFIX = ".s3.amazonaws.com";
     public static final String S3_ORIGIN_OAI_PREFIX = "origin-access-identity/cloudfront/";
 
@@ -101,16 +105,18 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
      * @param enabled true to enable, false to disable
      */
     protected void setDistributionState(String distId, boolean enabled) {
-        StreamingDistributionConfig distConfig =
+        GetStreamingDistributionConfigResult result =
             cfClient.getStreamingDistributionConfig(
-                new GetStreamingDistributionConfigRequest(distId))
-                    .getStreamingDistributionConfig();
+                new GetStreamingDistributionConfigRequest(distId));
 
+        StreamingDistributionConfig distConfig =
+            result.getStreamingDistributionConfig();
         distConfig.setEnabled(enabled);
 
         cfClient.updateStreamingDistribution(
             new UpdateStreamingDistributionRequest()
                 .withStreamingDistributionConfig(distConfig)
+                .withIfMatch(result.getETag())
                 .withId(distId));
     }
 
@@ -142,6 +148,7 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
             s3Provider.getSpaceProperties(spaceId);
         if(spaceProps.containsKey(STREAMING_HOST_PROP)) {
             spaceProps.remove(STREAMING_HOST_PROP);
+            spaceProps.remove(STREAMING_TYPE_PROP);
             unwrappedS3Provider.setNewSpaceProperties(spaceId, spaceProps);
         }
     }
