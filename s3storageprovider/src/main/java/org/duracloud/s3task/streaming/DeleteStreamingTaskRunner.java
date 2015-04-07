@@ -9,6 +9,8 @@ package org.duracloud.s3task.streaming;
 
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.DeleteStreamingDistributionRequest;
+import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigRequest;
+import com.amazonaws.services.cloudfront.model.GetStreamingDistributionConfigResult;
 import com.amazonaws.services.cloudfront.model.GetStreamingDistributionRequest;
 import com.amazonaws.services.cloudfront.model.StreamingDistribution;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
@@ -76,8 +78,12 @@ public class DeleteStreamingTaskRunner extends BaseStreamingTaskRunner {
                     waitForDisabled(distId);
                 }
                 // Delete the distribution
+                GetStreamingDistributionConfigResult result =
+                    cfClient.getStreamingDistributionConfig(
+                        new GetStreamingDistributionConfigRequest(distId));
                 cfClient.deleteStreamingDistribution(
-                    new DeleteStreamingDistributionRequest().withId(distId));
+                    new DeleteStreamingDistributionRequest().withId(distId)
+                                                            .withIfMatch(result.getETag()));
             }
         } else {
             throw new RuntimeException("No streaming distribution " +

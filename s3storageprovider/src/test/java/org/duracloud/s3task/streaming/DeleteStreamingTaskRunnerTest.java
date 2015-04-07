@@ -141,7 +141,7 @@ public class DeleteStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             .expect(cfClient.getStreamingDistributionConfig(
                 EasyMock.isA(GetStreamingDistributionConfigRequest.class)))
             .andReturn(distConfigResult)
-            .times(1);
+            .times(2);
 
         EasyMock
             .expect(cfClient.updateStreamingDistribution(
