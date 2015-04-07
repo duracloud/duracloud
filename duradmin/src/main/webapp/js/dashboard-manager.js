@@ -473,7 +473,7 @@
 								return dc.chart.toFixed(value, 0);
 							},
 							function(xValue, yValue){
-								return dc.STORAGE_PROVIDER_KEY_MAP[xValue] + dc.chart.toFixed(yValue,0);
+								return dc.STORAGE_PROVIDER_KEY_MAP[xValue] + ": " +  dc.chart.toFixed(yValue,0);
 							}
 						);
 	
