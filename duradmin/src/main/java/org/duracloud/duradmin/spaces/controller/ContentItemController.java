@@ -10,6 +10,7 @@ package org.duracloud.duradmin.spaces.controller;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,8 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.task.S3TaskClient;
+import org.duracloud.client.task.S3TaskClientManager;
 import org.duracloud.duradmin.domain.ContentItem;
 import org.duracloud.duradmin.util.PropertiesUtils;
 import org.duracloud.duradmin.util.SpaceUtil;
@@ -50,11 +53,13 @@ public class ContentItemController {
         LoggerFactory.getLogger(ContentItemController.class);
 
 	private ContentStoreManager contentStoreManager;
+    private S3TaskClientManager taskClientManager;
 
     @Autowired
     public ContentItemController(
         @Qualifier("contentStoreManager") ContentStoreManager contentStoreManager) {
         this.contentStoreManager = contentStoreManager;
+        this.taskClientManager = new S3TaskClientManager(contentStoreManager);
     }    
     
 	@RequestMapping(value="/delete", method = RequestMethod.POST)
@@ -87,9 +92,40 @@ public class ContentItemController {
 		    return new ModelAndView("jsonView", "contentItem", null);
 		}
 	}
-	
-	
-	
+
+    @RequestMapping(value="streaming-url", method = RequestMethod.GET)
+    public ModelAndView getStreamingUrl(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        ContentItem contentItem,
+                                        BindingResult result) throws Exception {
+        try{
+            String streamingType = request.getParameter("streamingType");
+            S3TaskClient taskClient = getTaskClient(contentItem);
+            String urlToStream;
+            if("SECURE".equals(streamingType)) {
+                urlToStream =
+                    taskClient.getSignedUrl(contentItem.getSpaceId(),
+                                           contentItem.getContentId(), null, 20, null)
+                              .getSignedUrl();
+            } else {
+                urlToStream =
+                    taskClient.getUrl(contentItem.getSpaceId(),
+                                      contentItem.getContentId(), null)
+                              .getStreamUrl();
+            }
+
+            Map<String, String> responseMap = new HashMap<>();
+            int breakPoint = urlToStream.indexOf("/cfx/st") + 7;
+            responseMap.put("prefix", urlToStream.substring(0, breakPoint));
+            responseMap.put("suffix",
+                            urlToStream.substring(breakPoint+1, urlToStream.length()));
+            return new ModelAndView("jsonView", "streamingUrl", responseMap);
+        }catch(ContentStoreException ex){
+            ex.printStackTrace();
+            response.setStatus(HttpStatus.SC_NOT_FOUND);
+            return new ModelAndView("jsonView", "streamingUrl", null);
+        }
+    }
 	
 	@RequestMapping(value ="/update-properties", method = RequestMethod.POST)
 	public ModelAndView updateContentProperties(HttpServletRequest request,
@@ -244,4 +280,8 @@ public class ContentItemController {
 	protected ContentStore getContentStore(ContentItem contentItem) throws ContentStoreException{
 		return contentStoreManager.getContentStore(contentItem.getStoreId());
 	}
+
+    protected S3TaskClient getTaskClient(ContentItem contentItem) throws ContentStoreException{
+        return taskClientManager.get(contentItem.getStoreId());
+    }
 }

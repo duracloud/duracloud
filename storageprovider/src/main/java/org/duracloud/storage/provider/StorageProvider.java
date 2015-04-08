@@ -63,6 +63,7 @@ public interface StorageProvider {
 
     public static final long DEFAULT_MAX_RESULTS = 1000;
     public static final String PROPERTIES_STREAMING_HOST = "streaming-host";
+    public static final String PROPERTIES_STREAMING_TYPE = "streaming-type";
 
     /**
      * Provides a listing of all spaces owned by a customer.

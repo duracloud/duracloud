@@ -38,8 +38,10 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
     private final Logger log =
         LoggerFactory.getLogger(BaseStreamingTaskRunner.class);
 
-    public static final String STREAMING_HOST_PROP = "streaming-host";
-    public static final String STREAMING_TYPE_PROP = "streaming-type";
+    public static final String STREAMING_HOST_PROP =
+        StorageProvider.PROPERTIES_STREAMING_HOST;
+    public static final String STREAMING_TYPE_PROP =
+        StorageProvider.PROPERTIES_STREAMING_TYPE;
     public static enum STREAMING_TYPE {OPEN, SECURE};
     public static final String S3_ORIGIN_SUFFIX = ".s3.amazonaws.com";
     public static final String S3_ORIGIN_OAI_PREFIX = "origin-access-identity/cloudfront/";
