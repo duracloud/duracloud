@@ -3838,16 +3838,20 @@ $(function() {
         var streamingHost = result.space.properties.streamingHost;
         var streamingType = result.space.properties.streamingType;
         if (streamingHost != null && streamingHost.trim() != "" && streamingHost.indexOf("null") == -1) {
-          dc.store.GetStreamingUrl(contentItem, streamingType, {
-            success : function(streamingUrl) {
-              that._writeMediaTag(streamingUrl);
-            },
-            failure : function(data) {
-              viewer.append("<p>Unable to stream file.</p>");
-            }
-          });
+          if (streamingType == "OPEN") {
+            dc.store.GetStreamingUrl(contentItem, streamingType, {
+              success: function (streamingUrl) {
+                that._writeMediaTag(streamingUrl);
+              },
+              failure: function (data) {
+                viewer.append("<p>Unable to stream file</p>");
+              }
+            });
+          } else {
+            viewer.append("<p>Streaming preview unavailable for secure streams</p>");
+          }
         } else {
-          viewer.append("<p>Turn on streaming for this space to enable playback.</p>");
+          viewer.append("<p>Turn on streaming for this space to enable playback</p>");
         }
       });
     },
