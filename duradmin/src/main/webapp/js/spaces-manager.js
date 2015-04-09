@@ -3075,6 +3075,10 @@ $(function() {
         spaceProps.push([ 'Streaming Host', space.properties.streamingHost ]);
       }
 
+      if (space.properties.streamingType) {
+        spaceProps.push([ 'Streaming Type', space.properties.streamingType ]);
+      }
+
       var bitIntegrityReport = space.bitIntegrityReportProperties;
       if (bitIntegrityReport) {
         var completionDate = bitIntegrityReport.completionDate;
@@ -3832,15 +3836,27 @@ $(function() {
         spaceId : contentItem.spaceId
       })).done(function(result) {
         var streamingHost = result.space.properties.streamingHost;
+        var streamingType = result.space.properties.streamingType;
         if (streamingHost != null && streamingHost.trim() != "" && streamingHost.indexOf("null") == -1) {
-          that._writeMediaTag(streamingHost, contentItem);
+          if (streamingType == "OPEN") {
+            dc.store.GetStreamingUrl(contentItem, streamingType, {
+              success: function (streamingUrl) {
+                that._writeMediaTag(streamingUrl);
+              },
+              failure: function (data) {
+                viewer.append("<p>Unable to stream file</p>");
+              }
+            });
+          } else {
+            viewer.append("<p>Streaming preview unavailable for secure streams</p>");
+          }
         } else {
-          viewer.append("<p>Turn on streaming for this space to enable playback.</p>");
+          viewer.append("<p>Turn on streaming for this space to enable playback</p>");
         }
       });
     },
 
-    _writeMediaTag : function(streamingHost, contentItem) {
+    _writeMediaTag : function(streamingUrl) {
       setTimeout(function() {
         // async necessary to
         // let the DOM update
@@ -3852,8 +3868,8 @@ $(function() {
         so.addParam('allowscriptaccess', 'always');
         so.addParam('wmode', 'opaque');
         so.addVariable('skin', '/duradmin/jwplayer/stylish.swf');
-        so.addVariable('file', contentItem.contentId);
-        so.addVariable('streamer', 'rtmp://' + streamingHost + '/cfx/st');
+        so.addVariable('file', streamingUrl.suffix);
+        so.addVariable('streamer', streamingUrl.prefix);
         so.write('mediaspace');
       }, 1000);
     },

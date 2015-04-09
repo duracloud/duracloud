@@ -10,6 +10,8 @@ package org.duracloud.duradmin.spaces.controller;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.task.S3TaskClient;
+import org.duracloud.client.task.S3TaskClientImpl;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
@@ -46,15 +48,14 @@ public class MediaStreamingTaskController {
                              @RequestParam(required = true) boolean enable)
         throws Exception {
         try{
-            
-            String action =
-                enable
-                    ? EnableStreamingTaskRunner.TASK_NAME
-                    : DisableStreamingTaskRunner.TASK_NAME;
-
             ContentStore store = this.contentStoreManager.getContentStore(storeId);
-            
-            store.performTask(action, spaceId);
+            S3TaskClient taskClient = new S3TaskClientImpl(store);
+
+            if(enable) {
+                taskClient.enableStreaming(spaceId, false);
+            } else {
+                taskClient.disableStreaming(spaceId);
+            }
             
             log.info("successfully "
                 + (enable ? "enabled" : "disabled")

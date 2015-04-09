@@ -7,6 +7,7 @@
  */
 package org.duracloud.durastore.util;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.glaciertask.GlacierTaskProvider;
@@ -22,7 +23,8 @@ import org.duracloud.storage.error.TaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
-import org.jets3t.service.CloudFrontService;
+
+import java.util.Map;
 
 /**
  * Provides access to TaskProvider implementations
@@ -77,12 +79,22 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                 new S3StorageProvider(username, password);
             AmazonS3Client s3Client =
                 S3ProviderUtil.getAmazonS3Client(username, password);
-            CloudFrontService cfService =
-                S3ProviderUtil.getCloudFrontService(username, password);
+            AmazonCloudFrontClient cfClient =
+                S3ProviderUtil.getAmazonCloudFrontClient(username, password);
+            Map<String, String> opts = account.getOptions();
+            String cfAccountId =
+                opts.get(StorageAccount.OPTS.CF_ACCOUNT_ID.name());
+            String cfKeyId =
+                opts.get(StorageAccount.OPTS.CF_KEY_ID.name());
+            String cfKeyPath =
+                opts.get(StorageAccount.OPTS.CF_KEY_PATH.name());
             taskProvider = new S3TaskProvider(storageProvider,
                                               unwrappedS3Provider,
                                               s3Client,
-                                              cfService);
+                                              cfClient,
+                                              cfAccountId,
+                                              cfKeyId,
+                                              cfKeyPath);
         } else if (type.equals(StorageProviderType.AMAZON_GLACIER)) {
             GlacierStorageProvider unwrappedGlacierProvider =
                 new GlacierStorageProvider(username, password);
@@ -100,16 +112,17 @@ public class TaskProviderFactory extends ProviderFactoryBase {
             String dcHost = storageAccountManager.getInstanceHost();
             String dcPort = storageAccountManager.getInstancePort();
             String dcAccountName = storageAccountManager.getAccountName();
+            Map<String, String> opts = account.getOptions();
             String dcSnapshotUser =
-                account.getOptions().get(StorageAccount.OPTS.SNAPSHOT_USER.name());
+                opts.get(StorageAccount.OPTS.SNAPSHOT_USER.name());
             String bridgeHost =
-                account.getOptions().get(StorageAccount.OPTS.BRIDGE_HOST.name());
+                opts.get(StorageAccount.OPTS.BRIDGE_HOST.name());
             String bridgePort =
-                account.getOptions().get(StorageAccount.OPTS.BRIDGE_PORT.name());
+                opts.get(StorageAccount.OPTS.BRIDGE_PORT.name());
             String bridgeUser =
-                account.getOptions().get(StorageAccount.OPTS.BRIDGE_USER.name());
+                opts.get(StorageAccount.OPTS.BRIDGE_USER.name());
             String bridgePass =
-                account.getOptions().get(StorageAccount.OPTS.BRIDGE_PASS.name());
+                opts.get(StorageAccount.OPTS.BRIDGE_PASS.name());
 
             taskProvider = new SnapshotTaskProvider(storageProvider,
                                                     unwrappedSnapshotProvider,

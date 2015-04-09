@@ -72,6 +72,7 @@ public interface ContentStore {
         StorageProvider.PROPERTIES_CONTENT_FILE_MODIFIED;
 
     public static final String STREAMING_HOST = StorageProvider.PROPERTIES_STREAMING_HOST;
+    public static final String STREAMING_TYPE = StorageProvider.PROPERTIES_STREAMING_TYPE;
 
     /**
      * Gets the base URL pointing to the DuraCloud DuraStore REST API

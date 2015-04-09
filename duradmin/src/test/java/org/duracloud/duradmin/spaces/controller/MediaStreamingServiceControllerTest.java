@@ -33,11 +33,11 @@ public class MediaStreamingServiceControllerTest extends AbstractTestBase {
         ContentStore store = createMock(ContentStore.class);
 
         try {
-            EasyMock.expect(contentStoreManager.getContentStore(EasyMock.isA(String.class))).andReturn(store);
-
+            EasyMock.expect(contentStoreManager.getContentStore(EasyMock.isA(String.class)))
+                    .andReturn(store);
             EasyMock.expect(store.performTask(EasyMock.isA(String.class),
-                                   EasyMock.isA(String.class))).andReturn("result");
-
+                                              EasyMock.isA(String.class)))
+                    .andReturn("{\"result\":\"result\"}");
         } catch (Exception e) {
             Assert.fail("Unexpected exception: "+e.getMessage());
         }
