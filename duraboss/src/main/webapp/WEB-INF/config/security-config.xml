@@ -38,6 +38,7 @@
     <beans:property name="decisionVoters">
       <beans:list>
         <beans:bean class="org.duracloud.security.vote.RoleVoterImpl" />
+        <beans:bean class="org.duracloud.security.vote.UserIpLimitsAccessVoter" />
       </beans:list>
     </beans:property>
   </beans:bean>
@@ -47,8 +48,7 @@
     <authentication-provider user-service-ref="userDetailsSvc">
       <password-encoder ref="passwordEncoder" />
     </authentication-provider>
-    <authentication-provider user-service-ref="userDetailsSvc"/>
-
+    <authentication-provider user-service-ref="userDetailsSvc" />
   </authentication-manager>
   
   <beans:bean id="userDetailsSvc" class="org.duracloud.security.impl.UserDetailsServiceImpl"/>

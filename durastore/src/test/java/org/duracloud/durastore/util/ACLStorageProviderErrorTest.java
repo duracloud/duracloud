@@ -104,6 +104,7 @@ public class ACLStorageProviderErrorTest {
         DuracloudUserDetails userDetails = new DuracloudUserDetails(username,
                                                                     "password",
                                                                     "email",
+                                                                    "",
                                                                     true,
                                                                     true,
                                                                     true,

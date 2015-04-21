@@ -21,6 +21,20 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public class DuracloudUserDetailsTest {
 
+    private String username = "user";
+    private String password = "pass";
+    private String email = "email@email.com";
+    private String ipLimits = "1.1.1.1/32";
+
+    @Test
+    public void testGetValues() {
+        DuracloudUserDetails userDetails = createDuracloudUserDetails(null);
+        Assert.assertEquals(username, userDetails.getUsername());
+        Assert.assertEquals(password, userDetails.getPassword());
+        Assert.assertEquals(email, userDetails.getEmail());
+        Assert.assertEquals(ipLimits, userDetails.getIpLimits());
+    }
+
     @Test
     public void testGetGroupsNull() throws Exception {
         List<String> expected = null;
@@ -61,9 +75,10 @@ public class DuracloudUserDetailsTest {
     }
 
     private DuracloudUserDetails createDuracloudUserDetails(List<String> groups) {
-        return new DuracloudUserDetails("username",
-                                        "password",
-                                        "email",
+        return new DuracloudUserDetails(username,
+                                        password,
+                                        email,
+                                        ipLimits,
                                         true,
                                         true,
                                         true,

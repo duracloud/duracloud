@@ -35,6 +35,7 @@ public class SecurityConfig extends BaseConfig implements AppConfig {
     protected final static String passwordKey = "password";
     protected final static String enabledKey = "enabled";
     protected final static String emailKey = "email";
+    protected final static String ipLimitsKey = "iplimits";
     protected final static String acctNonExpiredKey = "acct-non-expired";
     protected final static String credNonExpiredKey = "cred-non-expired";
     protected final static String acctNonLockedKey = "acct-non-locked";
@@ -94,6 +95,9 @@ public class SecurityConfig extends BaseConfig implements AppConfig {
 
         } else if (suffix.equalsIgnoreCase(emailKey)) {
             user.setEmail(value);
+
+        } else if (suffix.equalsIgnoreCase(ipLimitsKey)) {
+            user.setIpLimits(value);
 
         } else if (suffix.equalsIgnoreCase(acctNonExpiredKey)) {
             user.setAccountNonExpired(Boolean.valueOf(value));

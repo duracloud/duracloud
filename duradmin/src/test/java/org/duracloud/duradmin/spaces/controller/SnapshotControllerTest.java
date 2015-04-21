@@ -151,7 +151,7 @@ public class SnapshotControllerTest extends EasyMockSupport {
             }
         });
         SecurityUserBean userBean =
-            new SecurityUserBean(username, "password", userEmail, true,
+            new SecurityUserBean(username, "password", userEmail, "", true,
                                  true, true, true, null, null);
         EasyMock.expect(userDetailsService.getUserByUsername(username))
                 .andReturn(userBean);

@@ -39,6 +39,10 @@ public class UserDetailsServiceImplTest {
     private final String emailB = "b@email.com";
     private final String emailC = "c@email.com";
 
+    private final String ipLimitsA = "";
+    private final String ipLimitsB = "1.1.1.1/0";
+    private final String ipLimitsC = "1.2.3.4/32";
+
     private List<String> grantsA;
     private List<String> grantsB;
     private List<String> grantsC;
@@ -82,6 +86,7 @@ public class UserDetailsServiceImplTest {
         SecurityUserBean user0 = new SecurityUserBean(usernameA,
                                                       "apw",
                                                       emailA,
+                                                      ipLimitsA,
                                                       true,
                                                       true,
                                                       true,
@@ -91,6 +96,7 @@ public class UserDetailsServiceImplTest {
         SecurityUserBean user1 = new SecurityUserBean(usernameB,
                                                       "apw",
                                                       emailB,
+                                                      ipLimitsB,
                                                       true,
                                                       true,
                                                       true,
@@ -100,6 +106,7 @@ public class UserDetailsServiceImplTest {
         SecurityUserBean user2 = new SecurityUserBean(usernameC,
                                                       "upw",
                                                       emailC,
+                                                      ipLimitsC,
                                                       true,
                                                       true,
                                                       true,
@@ -139,6 +146,10 @@ public class UserDetailsServiceImplTest {
         Assert.assertEquals(emailA, udA.getEmail());
         Assert.assertEquals(emailB, udB.getEmail());
         Assert.assertEquals(emailC, udC.getEmail());
+
+        Assert.assertEquals(ipLimitsA, udA.getIpLimits());
+        Assert.assertEquals(ipLimitsB, udB.getIpLimits());
+        Assert.assertEquals(ipLimitsC, udC.getIpLimits());
 
         List<GrantedAuthority> gA = new ArrayList<>(udA.getAuthorities());
         List<GrantedAuthority> gB = new ArrayList<>(udB.getAuthorities());
@@ -229,6 +240,7 @@ public class UserDetailsServiceImplTest {
         SecurityUserBean user = new SecurityUserBean(cred.getUsername(),
                                                      cred.getPassword(),
                                                      "email",
+                                                     "",
                                                      true,
                                                      true,
                                                      true,

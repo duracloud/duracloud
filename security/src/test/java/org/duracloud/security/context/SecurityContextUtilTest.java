@@ -39,6 +39,7 @@ public class SecurityContextUtilTest {
     private String username = "username";
     private String password = "password";
     private String email = "email";
+    private String ipLimits = "1.2.3.4/32";
     private Collection<GrantedAuthority> authorities;
     private List<String> groups;
 
@@ -87,6 +88,7 @@ public class SecurityContextUtilTest {
         DuracloudUserDetails userDetails = new DuracloudUserDetails(username,
                                                                     password,
                                                                     email,
+                                                                    ipLimits,
                                                                     true,
                                                                     true,
                                                                     true,
@@ -125,7 +127,7 @@ public class SecurityContextUtilTest {
         Collection<GrantedAuthority> auths = userDetails.getAuthorities();
         Assert.assertNotNull(auths);
         List<GrantedAuthority> authsList = new ArrayList<>(auths);
-        LinkedList<GrantedAuthority> authoritiesList = new LinkedList<>(authorities);
+
         Assert.assertEquals(authorities.size(), authsList.size());
         for (GrantedAuthority authority : authorities) {
             Assert.assertTrue(authsList.contains(authority));
@@ -134,6 +136,7 @@ public class SecurityContextUtilTest {
         Assert.assertEquals(groups, userDetails.getGroups());
         Assert.assertEquals(username, userDetails.getUsername());
         Assert.assertEquals(email, userDetails.getEmail());
+        Assert.assertEquals(ipLimits, userDetails.getIpLimits());
     }
 
     @Test

@@ -22,11 +22,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class DuracloudUserDetails extends User implements UserDetails {
 
     private String email;
+    private String ipLimits;
     private List<String> groups;
 
     public DuracloudUserDetails(String username,
                                 String password,
                                 String email,
+                                String ipLimits,
                                 boolean enabled,
                                 boolean accountNonExpired,
                                 boolean credentialsNonExpired,
@@ -42,13 +44,18 @@ public class DuracloudUserDetails extends User implements UserDetails {
               accountNonLocked,
               authorities);
         this.email = email;
+        this.ipLimits = ipLimits;
         this.groups = groups;
     }
 
     public String getEmail() {
         return email;
     }
-    
+
+    public String getIpLimits() {
+        return ipLimits;
+    }
+
     @Override
     public void eraseCredentials() {
         //The credentials are getting erased despite my using the  

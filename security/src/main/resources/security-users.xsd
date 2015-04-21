@@ -8,7 +8,7 @@
     <xs:sequence maxOccurs="unbounded">
       <xs:element name="security-user" type="SecurityUserType"/>
     </xs:sequence>
-    <xs:attribute name="schemaVersion" type="xs:string" fixed="1.3" use="required"/>
+    <xs:attribute name="schemaVersion" type="xs:string" fixed="1.4" use="required"/>
   </xs:complexType>
   
   <xs:complexType name="SecurityUserType">
@@ -16,6 +16,7 @@
       <xs:element name="username" type="xs:string"/>
       <xs:element name="password" type="xs:string"/>
       <xs:element name="email" type="xs:string"/>
+      <xs:element name="ipLimits" type="xs:string"/>
       <xs:element name="enabled" type="xs:boolean" minOccurs="0"/>
       <xs:element name="accountNonExpired" type="xs:boolean" minOccurs="0"/>
       <xs:element name="credentialsNonExpired" type="xs:boolean" minOccurs="0"/>

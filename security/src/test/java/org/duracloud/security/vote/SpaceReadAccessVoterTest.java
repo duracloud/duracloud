@@ -39,7 +39,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -255,10 +255,11 @@ public class SpaceReadAccessVoterTest {
         groups.add(group);
 
         Collection<GrantedAuthority> authorities =
-            Arrays.asList(new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_USER")});
+            Arrays.asList(new GrantedAuthority[]{new SimpleGrantedAuthority("ROLE_USER")});
         DuracloudUserDetails user = new DuracloudUserDetails(username,
                                                              "x",
                                                              "email",
+                                                             "",
                                                              true,
                                                              true,
                                                              true,
@@ -270,7 +271,7 @@ public class SpaceReadAccessVoterTest {
 
     private Authentication anonymousUser() {
         Collection<GrantedAuthority> authorities =
-            Arrays.asList(new GrantedAuthority[]{new GrantedAuthorityImpl("ROLE_ANONYMOUS")});
+            Arrays.asList(new GrantedAuthority[]{new SimpleGrantedAuthority("ROLE_ANONYMOUS")});
         User user = new User("anon", "x", true, true, true, true, authorities);
         return new AnonymousAuthenticationToken("x", user, authorities);
     }
