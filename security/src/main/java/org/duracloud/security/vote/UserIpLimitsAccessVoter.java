@@ -7,34 +7,27 @@
  */
 package org.duracloud.security.vote;
 
-import org.duracloud.common.model.AclType;
-import org.duracloud.security.domain.HttpVerb;
 import org.duracloud.security.impl.DuracloudUserDetails;
-import org.duracloud.storage.provider.StorageProvider;
-import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
-import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static org.duracloud.security.vote.VoterUtil.debugText;
 
 /**
- * This class decides if a caller has READ access to a given resource. If the
- * caller is seeking WRITE access to this resource, this class abstains from
- * casting a vote.
+ * Votes on access depending on user IP limits. If IP limits are defined
+ * for a user, then any requests made by that user must originate from
+ * a valid IP range. If no IP limits are defined, ABSTAIN. If IP limits
+ * are defined and the user's request is in a valid range, GRANT. If IP
+ * limits are defined and the user's request is not in a defined valid range,
+ * DENY.
  *
  * @author Bill Branan
  *         Date: 04/15/15
@@ -96,7 +89,8 @@ public class UserIpLimitsAccessVoter implements AccessDecisionVoter {
         }
 
         String userIpLimits = getUserIpLimits(auth);
-        if(null != userIpLimits && !userIpLimits.equals("")) { // if user IP limits are set, check request IP
+        // if user IP limits are set, check request IP
+        if(null != userIpLimits && !userIpLimits.equals("")) {
             String requestIp = httpRequest.getRemoteAddr();
 
             String[] ipLimits = userIpLimits.split(";");
