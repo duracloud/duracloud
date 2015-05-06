@@ -8,9 +8,6 @@
 package org.duracloud.account.db.model;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 /**
  * @author Erik Paulsson
@@ -53,6 +50,11 @@ public class ServerImage extends BaseEntity {
      * value should be true on one and only one row in the Image table.
      */
     private boolean latest;
+    
+    /**
+     * The AWS IAM role to be used by the duracloud instance bootstap process.
+     */
+    private String iamRole;
 
     public String getProviderImageId() {
         return providerImageId;
@@ -92,5 +94,13 @@ public class ServerImage extends BaseEntity {
 
     public void setLatest(boolean latest) {
         this.latest = latest;
+    }
+
+    public String getIamRole() {
+        return iamRole;
+    }
+
+    public void setIamRole(String iamRole) {
+        this.iamRole = iamRole;
     }
 }
