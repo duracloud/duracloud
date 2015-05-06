@@ -39,6 +39,11 @@ public class DuracloudUser extends BaseEntity implements UserDetails {
     private boolean accountNonExpired = true;
     private boolean credentialsNonExpired = true;
     private boolean accountNonLocked = true;
+    
+    /**
+     * A CIDR formatted IP Range.
+     */
+    private String allowableIPAddressRange;  
 
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER, mappedBy="user")
     private Set<AccountRights> accountRights;
@@ -213,5 +218,13 @@ public class DuracloudUser extends BaseEntity implements UserDetails {
     
     public boolean isRoot() {
         return root;
+    }
+
+    public String getAllowableIPAddressRange() {
+        return allowableIPAddressRange;
+    }
+
+    public void setAllowableIPAddressRange(String allowableIPAddressRange) {
+        this.allowableIPAddressRange = allowableIPAddressRange;
     }
 }
