@@ -50,6 +50,11 @@ public class StorageProviderAccount extends ProviderAccount {
     @Column(name="map_value")
     private Map<String,String> properties; 
     
+    /**
+     * The max GBs of storage allowable for the account.
+     */
+    private int storageLimit;
+    
     public StorageProviderType getProviderType() {
         return providerType;
     }
@@ -72,6 +77,14 @@ public class StorageProviderAccount extends ProviderAccount {
 
     public void setProperties(Map<String,String> properties) {
         this.properties = properties;
+    }
+
+    public int getStorageLimit() {
+        return storageLimit;
+    }
+
+    public void setStorageLimit(int storageLimit) {
+        this.storageLimit = storageLimit;
     }
     
 
