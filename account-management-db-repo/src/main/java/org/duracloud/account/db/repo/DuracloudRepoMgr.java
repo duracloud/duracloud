@@ -54,6 +54,9 @@ public class DuracloudRepoMgr {
     @Autowired
     private DuracloudAccountClusterRepo accountClusterRepo;
 
+    @Autowired
+    private DuracloudMillRepo duracloudMillRepo;
+
     public DuracloudUserRepo getUserRepo() {
         return userRepo;
     }
@@ -111,6 +114,12 @@ public class DuracloudRepoMgr {
         repos.add(storageProviderAccountRepo);
         repos.add(serverDetailsRepo);
         repos.add(accountClusterRepo);
+        repos.add(duracloudMillRepo);
         return repos;
     }
+
+    public DuracloudMillRepo getDuracloudMillRepo() {
+        return duracloudMillRepo;
+    }
+
 }
