@@ -118,9 +118,14 @@ public class UserIpLimitsAccessVoter implements AccessDecisionVoter {
      * @return user ip limits, or null if no limits are set
      */
     protected String getUserIpLimits(Authentication auth) {
-        DuracloudUserDetails userDetails =
-            (DuracloudUserDetails) auth.getPrincipal();
-        return userDetails.getIpLimits();
+        Object principal = auth.getPrincipal();
+
+        if(principal instanceof DuracloudUserDetails) {
+            DuracloudUserDetails userDetails = (DuracloudUserDetails) principal;
+            return userDetails.getIpLimits();
+        } else {
+            return null;
+        }
     }
 
     /**

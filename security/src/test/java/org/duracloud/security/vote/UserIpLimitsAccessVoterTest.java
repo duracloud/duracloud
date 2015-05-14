@@ -98,4 +98,30 @@ public class UserIpLimitsAccessVoterTest {
         EasyMock.verify(auth, userDetails, resource, httpRequest);
     }
 
+    /**
+     * Test to verify that a call without an authenticated user (anonymous)
+     * will result in an ABSTAIN response
+     */
+    @Test
+    public void testAnonymousUser() {
+        UserIpLimitsAccessVoter voter = new UserIpLimitsAccessVoter();
+
+        Authentication auth = EasyMock.createMock(Authentication.class);
+        FilterInvocation resource = EasyMock.createMock(FilterInvocation.class);
+        HttpServletRequest httpRequest = EasyMock.createMock(HttpServletRequest.class);
+
+        EasyMock.expect(auth.getName()).andReturn("auth-name");
+        EasyMock.expect(auth.getPrincipal()).andReturn("anonymous-auth");
+        EasyMock.expect(resource.getHttpRequest()).andReturn(httpRequest);
+
+        Collection<ConfigAttribute> config = Collections.emptyList();
+
+        EasyMock.replay(auth, resource, httpRequest);
+
+        int voteResult = voter.vote(auth, resource, config);
+        assertEquals(ACCESS_ABSTAIN, voteResult);
+
+        EasyMock.verify(auth, resource, httpRequest);
+    }
+
 }
