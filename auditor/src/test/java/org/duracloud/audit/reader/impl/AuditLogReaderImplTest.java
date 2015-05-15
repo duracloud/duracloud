@@ -46,7 +46,6 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
     private String account = "account";
     private String globalAuditSpaceId = "global-audit-space-id";
 
-
     @Mock
     private StorageProvider storageProvider;
     
@@ -56,8 +55,7 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
     @Before
     public void setUp() throws Exception {
     }
-
-
+    
     @Test
     public void testGetAuditLog() throws IOException, ContentStoreException {
         
@@ -91,7 +89,6 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         
         String line = reader.readLine();
         
-        
         assertEquals(file1Lines[0], line);
         
         int count = 1;
@@ -116,8 +113,6 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         assertEquals(file1Lines.length+file2Lines.length-1, totalCount);
     }
 
-
-    
     @Test
     public void testGetLogNotFound() throws IOException, StorageException {
         
@@ -167,15 +162,10 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
     private void mockCheckEnabled(AuditConfig config) {
         expect(config.getAuditLogSpaceId()).andReturn(globalAuditSpaceId);
         expect(config.getAuditQueueName()).andReturn("queue");
-        expect(config.getAuditUsername()).andReturn("username");
-        expect(config.getAuditPassword()).andReturn("password");
- 
     }
-
 
     @Test
     public void testContentFailure() throws IOException, ContentStoreException {
-        
         String[]  file1Lines = {"a","b"};
 
         String prefix = getPrefix();
@@ -213,12 +203,10 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         
     }
 
-
     protected String getPrefix() {
         String prefix = account + "/" + storeId+"/"+spaceId +"/";
         return prefix;
     }
-
 
     protected void sleep() {
         try {
@@ -236,7 +224,6 @@ public class AuditLogReaderImplTest extends AbstractTestBase {
         expect(is.read(isA(byte[].class), anyInt(), anyInt())).andThrow(new IOException("test"));
         expect(storageProvider.getContent(eq(globalAuditSpaceId),eq(prefix + "/" + contentId))).andReturn(is);
     }
-
 
     protected AuditLogReaderImpl
         createAuditLogReader(final StorageProvider storageProvider, AuditConfig config) {
