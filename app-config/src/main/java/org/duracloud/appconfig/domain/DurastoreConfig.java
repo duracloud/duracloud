@@ -40,6 +40,8 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String auditKey = "audit";
     protected static final String queueKey = "queue";
     protected static final String logSpaceIdKey = "log-space-id";
+    // Mill
+    protected static final String millDbKey = "mill.db";
 
     // Storage
     protected static final String storageAccountKey = "storage-acct";
@@ -71,8 +73,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
     private AuditConfig auditConfig = new AuditConfig();
 
-    private Map<String, StorageAccount> storageAccounts =
-        new HashMap<String, StorageAccount>();
+    private Map<String, StorageAccount> storageAccounts = new HashMap<>();
 
     private DuraStoreInitDocumentBinding documentBinding =
         new DuraStoreInitDocumentBinding();
@@ -89,7 +90,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         } else if(key.startsWith(auditKey)) {
             String suffix = getSuffix(key);
             loadAudit(suffix, value);
-        }  else if(key.startsWith("mill.db")) {
+        }  else if(key.startsWith(millDbKey)) {
             String suffix = getSuffix(key);
             loadDbConfig(millDbConfig, suffix, value);
         } else {
@@ -193,12 +194,24 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         return auditConfig;
     }
 
+    public void setAuditConfig(AuditConfig auditConfig) {
+        this.auditConfig = auditConfig;
+    }
+
+    public DatabaseConfig getMillDbConfig() {
+        return this.millDbConfig;
+    }
+
+    public void setMillDbConfig(DatabaseConfig millDbConfig) {
+        this.millDbConfig = millDbConfig;
+    }
+
     public Collection<StorageAccount> getStorageAccounts() {
         return storageAccounts.values();
     }
 
     public void setStorageAccounts(Set<StorageAccount> storageAccts) {
-        this.storageAccounts = new HashMap<String, StorageAccount>();
+        this.storageAccounts = new HashMap<>();
         for (StorageAccount storageAcct : storageAccts) {
             this.storageAccounts.put(storageAcct.getId(), storageAcct);
         }
@@ -215,10 +228,6 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         return documentBinding.createXmlFrom(initConfig,
                                              includeCredentials,
                                              includeOptions);
-    }
-    
-    private DatabaseConfig getMillDbConfig() {
-        return this.millDbConfig;
     }
 
     public String getInitResource() {
