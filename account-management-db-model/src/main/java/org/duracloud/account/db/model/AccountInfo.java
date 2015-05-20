@@ -51,22 +51,13 @@ public class AccountInfo extends BaseEntity implements Comparable<AccountInfo> {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
-    /*
-     * The type of account
-     */
-    @Enumerated(EnumType.STRING)
-    private AccountType type;
-
+ 
     /*
      * The details needed to manage servers associated with this account
      */
     @OneToOne(fetch = FetchType.EAGER, optional = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "server_details_id", nullable = true, columnDefinition = "bigint(20)")
     private ServerDetails serverDetails;
-
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
-    @JoinColumn(name = "account_cluster_id", nullable = true, columnDefinition = "bigint(20)")
-    private AccountCluster accountCluster;
 
     @OneToOne(fetch = FetchType.EAGER, optional = true, mappedBy="account")
     private DuracloudInstance instance;
@@ -119,28 +110,12 @@ public class AccountInfo extends BaseEntity implements Comparable<AccountInfo> {
         this.status = status;
     }
 
-    public AccountType getType() {
-        return type;
-    }
-
-    public void setType(AccountType type) {
-        this.type = type;
-    }
-
     public ServerDetails getServerDetails() {
         return serverDetails;
     }
 
     public void setServerDetails(ServerDetails serverDetails) {
         this.serverDetails = serverDetails;
-    }
-
-    public AccountCluster getAccountCluster() {
-        return accountCluster;
-    }
-
-    public void setAccountCluster(AccountCluster accountCluster) {
-        this.accountCluster = accountCluster;
     }
 
     @Override

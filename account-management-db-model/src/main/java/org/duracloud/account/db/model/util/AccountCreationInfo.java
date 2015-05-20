@@ -3,10 +3,9 @@
  */
 package org.duracloud.account.db.model.util;
 
-import org.duracloud.account.db.model.AccountType;
-import org.duracloud.storage.domain.StorageProviderType;
-
 import java.util.Set;
+
+import org.duracloud.storage.domain.StorageProviderType;
 
 /**
  * Bean to be used for collecting information from users in order to create
@@ -49,10 +48,6 @@ public class AccountCreationInfo {
      */
     private Set<StorageProviderType> secondaryStorageProviderTypes;
 
-    /*
-     * The type of account to create.
-     */
-    private AccountType accountType;
 
     /*
      * The ID of the account cluster this account should join
@@ -65,7 +60,6 @@ public class AccountCreationInfo {
                                String department,
                                StorageProviderType primaryStorageProviderType,
                                Set<StorageProviderType> secondaryStorageProviderTypes,
-                               AccountType accountType,
                                Long accountClusterId) {
         this.subdomain = subdomain;
         this.acctName = acctName;
@@ -73,7 +67,6 @@ public class AccountCreationInfo {
         this.department = department;
         this.primaryStorageProviderType = primaryStorageProviderType;
         this.secondaryStorageProviderTypes = secondaryStorageProviderTypes;
-        this.accountType = accountType;
         this.accountClusterId = accountClusterId;
     }
 
@@ -101,13 +94,5 @@ public class AccountCreationInfo {
         return secondaryStorageProviderTypes;
     }
 
-
-    public AccountType getAccountType() {
-        return accountType;
-    }
-
-    public Long getAccountClusterId() {
-        return accountClusterId;
-    }
 
 }
