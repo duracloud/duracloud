@@ -10,9 +10,8 @@
   <ul>
     <li><label
       title="Check this box if you wish that deletes performed on files within the directories below also be performed on those files in DuraCloud. Note: It cannot be used in conjunction with the 'Update, but do not overwrite' policy.">
-        <form:checkbox id="syncDeletes" path="syncDeletes" disabled="${advancedForm.updatePolicy == 'PRESERVE'}"/> Sync
-        deletes
-    </label></li>
+        <form:checkbox id="syncDeletes" path="syncDeletes" disabled="${advancedForm.updatePolicy == 'PRESERVE'}"/> Sync deletes</label>
+    </li>
   </ul>
 </fieldset>
 <fieldset>
@@ -47,8 +46,26 @@
   </ul>
 </fieldset>
 <script>
-	$("#syncDeletes").change(function(){
-		$("#preserveUpdatePolicy").prop("disabled",($("#syncDeletes").is(":checked")));
+	var syncDeletesCB  = $("#syncDeletes");
+	syncDeletesCB.unbind().change(function(){
+	  var checked = syncDeletesCB.is(":checked");
+	    if(checked){
+	       if(!confirm("Warning: The 'Sync Deletes' is a very handy feature, but one that can cause unexpected side effects " + 
+	                     "for one unfamiliar with its characteristics.  Please understand that enabling this feature will "+
+	                     "ensure that deletes made to your local copy will be propagated to DuraCloud.  In the event that "+
+	                     "a directory is renamed locally, all content under the original directory will be deleted from DuraCloud  " + 
+	                     " and then re-uploaded to the new directory path (assuming the new directory path is within any of  " + 
+	                     " watched directories you've configured in the DuraCloudSync.\n\nSo be careful if you are renaming or moving  " + 
+	                     "directories, especially those with large amounts of content.  This also applies for locally mounted drives.  " + 
+	                     "If a locally mounted drive is unmounted, either intentionally or otherwise, DuraCloudSync will assume " + 
+	                     "that any content on that drive that was being watched by the tool was deleted and will delete the copies" + 
+	                     "of that content in DuraCloud. Click 'OK' if you're comfortable with the 'Sync Delete' behavior.\n\n")){
+	         syncDeletesCB.prop("checked", false);
+	         return false;
+	       };
+	    }
+	      
+		$("#preserveUpdatePolicy").prop("disabled",checked);
 	});
 	
     $("#jumpStart").change(function(){
