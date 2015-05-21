@@ -148,13 +148,14 @@ $(function(){
       if(text){
         busy.html(text);
       }
+      
       busy.insertAfter($(this));
       busy.show("fast");
       return this;
     };
 
     $.fn.idleSibling = function(){
-      $(this).next(".dc-busy-holder").hide("fast").remove();
+      $(this).siblings(".dc-busy-holder").hide("fast").remove();
       return this;
     };
 
