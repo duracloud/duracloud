@@ -303,7 +303,7 @@ $(function(){
 				showUnits = true;
 			}
 			
-			value = new Number(value/(1024*1024*1024));
+			value = new Number(value/(1000*1000*1000));
 			value =  value.toFixed(parseInt(decimalplaces));
 			
 			if(showUnits){
@@ -548,11 +548,11 @@ $(function(){
             bytes = new Number(bytes);
             var bytesValue = bytes + " bytes";
             
-            if(bytes < 1024){
+            if(bytes < 1000){
                 return bytesValue;
-            }else if(bytes < 1024*1000){
+            }else if(bytes < 1000*1000){
                val = (bytes/1000).toFixed(1) + " KB";
-            }else if(bytes < 1024*1000*1000){
+            }else if(bytes < 1000*1000*1000){
                 val = (bytes/(1000*1000)).toFixed(1) + " MB";
             }else{
                 val = (bytes/(1000*1000*1000)).toFixed(1) + " GB";
