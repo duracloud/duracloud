@@ -8,6 +8,7 @@
 package org.duracloud.sync.backup;
 
 import org.duracloud.sync.util.DirectoryUtil;
+import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.mgmt.ChangedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +33,11 @@ public class ChangedListBackupManager implements Runnable {
     private ChangedList changedList;
     private boolean continueBackup;
     private long changedListVersion;
-
+    private SyncToolConfig config;
+    
     public ChangedListBackupManager(ChangedList changedList,
                                     File backupDir,
-                                    long backupFrequency) {
+                                    long backupFrequency, SyncToolConfig syncConfig) {
         this.backupDir = new File(backupDir, "changeList");
         if(!this.backupDir.exists()) {
             this.backupDir.mkdir();
@@ -43,6 +45,7 @@ public class ChangedListBackupManager implements Runnable {
 
         this.backupFrequency = backupFrequency;
         this.changedList = changedList;
+        this.config = syncConfig;
 
         continueBackup = true;
     }
@@ -62,7 +65,7 @@ public class ChangedListBackupManager implements Runnable {
             File latestBackup = backupDirFiles[0];
             try {
                 backupTime = Long.parseLong(latestBackup.getName());
-                changedList.restore(latestBackup);
+                changedList.restore(latestBackup, this.config.getContentDirs());
             } catch(NumberFormatException e) {
                 logger.error("Unable to load changed list backup. File in " +
                     "changed list backup dir has invalid name: " +

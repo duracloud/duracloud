@@ -179,10 +179,11 @@ public class SyncTool {
     }
 
 
-    private long startSyncBackupManager(boolean restart) {
+    private long startSyncBackupManager(boolean restart, SyncToolConfig syncConfig) {
         syncBackupManager =
             new SyncBackupManager(syncConfig.getWorkDir(),
-                                  syncConfig.getPollFrequency());
+                                  syncConfig.getPollFrequency(),
+                                  syncConfig);
         long lastBackup = 0;
         if(restart) {
             lastBackup = syncBackupManager.attemptRestart();
@@ -308,7 +309,7 @@ public class SyncTool {
         System.out.print("...");
         boolean restart = restartPossible();
         System.out.print("...");
-        long lastBackup = startSyncBackupManager(restart);
+        long lastBackup = startSyncBackupManager(restart, syncConfig);
         System.out.print("...");
         if(restart && lastBackup > 0) {
             logger.info("Running Sync Tool re-start file check");

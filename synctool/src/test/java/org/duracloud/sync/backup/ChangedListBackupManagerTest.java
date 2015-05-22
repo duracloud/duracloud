@@ -12,6 +12,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertEquals;
 import org.apache.commons.io.FileUtils;
 import org.duracloud.sync.SyncTestBase;
+import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.sync.mgmt.ChangedFile;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
     public void testChangedListBackupManager() throws Exception {
         long backupFrequency = 100;
         ChangedListBackupManager bkMan =
-            new ChangedListBackupManager(changedList, tempDir, backupFrequency);
+            new ChangedListBackupManager(changedList, tempDir, backupFrequency, new SyncToolConfig());
         new Thread(bkMan).start();
 
         String testFileName = "testfile";

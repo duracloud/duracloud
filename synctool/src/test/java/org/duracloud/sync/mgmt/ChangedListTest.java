@@ -7,11 +7,11 @@
  */
 package org.duracloud.sync.mgmt;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.*;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -66,11 +66,33 @@ public class ChangedListTest extends SyncTestBase {
                      retrievedFile.getFile().getAbsolutePath());
         assertNull(changedList.getChangedFile());
 
-        changedList.restore(persistFile);
+        changedList.restore(persistFile, new ArrayList<File>());
 
         retrievedFile = changedList.getChangedFile();
         assertEquals(changedFile.getAbsolutePath(),
                      retrievedFile.getFile().getAbsolutePath());
+        assertNull(changedList.getChangedFile());
+
+        persistFile.delete();
+    }
+
+    @Test
+    public void testChangedListContainsFilesThatDoNotMatchContentDirs() throws Exception {
+        changedList.addChangedFile(changedFile);
+        File contentDir = new File(System.getProperty("java.io.tmp"), System.currentTimeMillis()+"");
+        assertTrue(contentDir.mkdir());
+        contentDir.deleteOnExit();
+        File persistFile = File.createTempFile("persist", "file");
+        changedList.persist(persistFile);
+
+        ChangedFile retrievedFile = changedList.getChangedFile();
+        assertEquals(changedFile.getAbsolutePath(),
+                     retrievedFile.getFile().getAbsolutePath());
+        assertNull(changedList.getChangedFile());
+
+        changedList.restore(persistFile, Arrays.asList(new File[]{contentDir}));
+
+        retrievedFile = changedList.getChangedFile();
         assertNull(changedList.getChangedFile());
 
         persistFile.delete();
