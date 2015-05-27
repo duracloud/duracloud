@@ -255,14 +255,6 @@ public class ProbedSwiftClient implements SwiftClient, MetricsProbed {
     }
 
     @Override
-    public String putObjectManifest(String container, SwiftObject object) {
-        startMetric("putObjectManifest");
-        String result = swiftClient.putObjectManifest(container, object);
-        stopMetric("putObjectManifest");
-        return result;
-    }
-
-    @Override
     public void close() throws IOException {
         swiftClient.close();
     }
