@@ -195,8 +195,7 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         ListContainerOptions containerOptions = ListContainerOptions.Builder.maxResults(limit);
         if(marker != null) containerOptions.afterMarker(marker);
         if(prefix != null) containerOptions.withPrefix(prefix);
-        return swiftClient.listObjects(containerName,
-                containerOptions);
+        return swiftClient.listObjects(containerName, containerOptions);
     }
 
     private void throwIfContentNotExist(String spaceId, String contentId) {
@@ -204,7 +203,8 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         String containerName = getContainerName(spaceId);
         boolean exists = false;
         try {
-            exists = swiftClient.objectExists(containerName, contentId);
+            String encContentId = sanitizeForURI(contentId);
+            exists = swiftClient.objectExists(containerName, encContentId);
         } catch (ContainerNotFoundException e) {
             log.debug("object does not exist: {}, {}", containerName, contentId);
             String errMsg = createNotFoundMsg(containerName, contentId);
@@ -361,10 +361,14 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         SwiftObject swiftObject = swiftClient.newSwiftObject();
         MutableObjectInfoWithMetadata objectInfoMetadata = swiftObject.getInfo();
-        objectInfoMetadata.setName(contentId);
-//        if(contentSize > 0) {   ****************  THIS BROKE THINGS ON SDSC  ********************
+
+        String encContentId = sanitizeForURI(contentId);
+        objectInfoMetadata.setName(encContentId);
+
+//        if(contentSize > 0) { ********  THIS BROKE THINGS ON SDSC  *********
 //            objectInfoMetadata.setBytes(contentSize);
 //        }
+
         objectInfoMetadata.setContentType(contentMimeType);  // This doesn't seem to do anything, set in metadata!
         objectInfoMetadata.getMetadata().putAll(properties);
         swiftObject.setPayload(wrappedContent);
@@ -377,8 +381,8 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
             compareChecksum(providerChecksum, spaceId, contentId, checksum);
         } catch(ChecksumMismatchException e) {
             // Clean up object
-            if(swiftClient.objectExists(containerName, contentId)) {
-                swiftClient.removeObject(containerName, contentId);
+            if(swiftClient.objectExists(containerName, encContentId)) {
+                swiftClient.removeObject(containerName, encContentId);
             }
             throw e;
         }
@@ -429,10 +433,13 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
                                   String destSpaceId,
                                   String destContentId) {
         try {
+            String encSourceContentId = sanitizeForURI(sourceContentId);
+            String encDestContentId = sanitizeForURI(destContentId);
+
             return swiftClient.copyObject(sourceSpaceId,
-                    sourceContentId,
+                    encSourceContentId,
                     destSpaceId,
-                    destContentId);
+                    encDestContentId);
 
         } catch (CopyObjectException e) {
             StringBuilder err = new StringBuilder("Could not copy content from: ");
@@ -457,7 +464,8 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         throwIfSpaceNotExist(spaceId);
         String containerName = getContainerName(spaceId);
-        SwiftObject swiftObject = swiftClient.getObject(containerName, contentId);
+        String encContentId = sanitizeForURI(contentId);
+        SwiftObject swiftObject = swiftClient.getObject(containerName, encContentId);
         if(swiftObject == null) {
             String errMsg = createNotFoundMsg(spaceId, contentId);
             throw new NotFoundException(errMsg);
@@ -489,7 +497,8 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
 
         String containerName = getContainerName(spaceId);
         log.debug("before swiftClient.removeObject({}, {})", spaceId, contentId);
-        swiftClient.removeObject(containerName, contentId);
+        String encContentId = sanitizeForURI(contentId);
+        swiftClient.removeObject(containerName, encContentId);
     }
 
     /**
@@ -531,8 +540,9 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
         String containerName = getContainerName(spaceId);
         log.debug("Calling swiftClient.setObjectInfo for spaceId: {} and contentId: {}",
                 spaceId, contentId);
+        String encContentId = sanitizeForURI(contentId);
         if(! swiftClient.setObjectInfo(containerName,
-                contentId,
+                encContentId,
                 newContentProperties)) {
             String errMsg = createNotFoundMsg(spaceId, contentId);
             throw new StorageException("Error setting content properties");
@@ -595,8 +605,9 @@ public abstract class OpenStackStorageProvider extends StorageProviderBase {
     private MutableObjectInfoWithMetadata getObjectProperties(String spaceId,
                                                               String contentId) {
         String containerName = getContainerName(spaceId);
+        String encContentId = sanitizeForURI(contentId);
         MutableObjectInfoWithMetadata objectInfoWithMetadata =
-                swiftClient.getObjectInfo(containerName, contentId);
+                swiftClient.getObjectInfo(containerName, encContentId);
 
         if(objectInfoWithMetadata == null) {
             String errMsg = createNotFoundMsg(spaceId, contentId);
