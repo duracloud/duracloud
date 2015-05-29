@@ -50,16 +50,15 @@
 	syncDeletesCB.unbind().change(function(){
 	  var checked = syncDeletesCB.is(":checked");
 	    if(checked){
-	       if(!confirm("Warning: The 'Sync Deletes' is a very handy feature, but one that can cause unexpected side effects " + 
-	                     "for one unfamiliar with its characteristics.  Please understand that enabling this feature will "+
-	                     "ensure that deletes made to your local copy will be propagated to DuraCloud.  In the event that "+
-	                     "a directory is renamed locally, all content under the original directory will be deleted from DuraCloud  " + 
-	                     " and then re-uploaded to the new directory path (assuming the new directory path is within any of  " + 
-	                     " watched directories you've configured in the DuraCloudSync.\n\nSo be careful if you are renaming or moving  " + 
-	                     "directories, especially those with large amounts of content.  This also applies for locally mounted drives.  " + 
-	                     "If a locally mounted drive is unmounted, either intentionally or otherwise, DuraCloudSync will assume " + 
-	                     "that any content on that drive that was being watched by the tool was deleted and will delete the copies" + 
-	                     "of that content in DuraCloud. Click 'OK' if you're comfortable with the 'Sync Delete' behavior.\n\n")){
+            if(!confirm("Warning: 'Sync Deletes' can be a very useful feature, but one that can cause unexpected side effects " +
+                        "for those unfamiliar with its characteristics. Please understand that enabling this feature will "+
+                        "ensure that deletes made to your local copy will be propagated to DuraCloud. In the event that "+
+                        "a directory is renamed locally, all content under the original directory will be deleted from DuraCloud " +
+                        "and then re-uploaded using the new directory path (assuming the new directory path is within any of " +
+                        "the watched directories you've configured in the DuraCloud Sync Tool).\n\nSimilarly, if the Sync Tool is " +
+                        "watching content on a locally mounted drive which is then unmounted (either intentionally or otherwise) " +
+                        "the Sync Tool will see that the content no longer exists locally and will delete the copies of that " +
+                        "content in DuraCloud. Click 'OK' if you are comfortable with the 'Sync Delete' behavior.\n\n")){
 	         syncDeletesCB.prop("checked", false);
 	         return false;
 	       };
