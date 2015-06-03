@@ -48,8 +48,6 @@
     <script type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/plugins/jquery.fancybox-1.3.1/fancybox/jquery.easing-1.3.pack.js"></script>
 
-    <script type="text/javascript" src="${pageContext.request.contextPath}/jquery/plugins/jquery.history.js"></script>
-
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/ext/jquery.fn.ext.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/ext/jquery.dc.common.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/jquery/dc/widget/ui.onoffswitch.js"></script>

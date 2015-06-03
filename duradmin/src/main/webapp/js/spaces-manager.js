@@ -93,7 +93,7 @@ $(function() {
 
       var contentId = obj.contentId;
       if (contentId != null && contentId != undefined) {
-        relative += "/" + contentId;
+        relative += "/" + encodeURIComponent(contentId);
       }
       return contextPath + relative;
     };
@@ -101,13 +101,6 @@ $(function() {
     var buildStateFromUrl = function(location) {
       var state = {};
       var pathname = location.pathname;
-
-      // this check is necessary for non html5 history api
-      // compliant browsers.
-      var hash = location.hash;
-      if (hash && hash.indexOf("#" + contextPath) == 0) {
-        pathname = "/duradmin/" + hash.substring(1, hash.length);
-      }
 
       if (pathname) {
         var index = pathname.indexOf(contextPath);
@@ -148,8 +141,14 @@ $(function() {
       pushState : function(data) {
         var url = _buildUrl(data);
         var title = "DuraCloud";
-        window.History.pushState(data, title, url);
-        if ($.browser['msie']) {
+        history.pushState(data, title, url);
+        //next two lines:  a trick to trigger a 
+        //pushstate event.  Without the history.back()
+        //call pushstate is not fired.
+        history.pushState(data, title, url);
+        history.back();
+        
+	      if ($.browser['msie']) {
           instance.change(data);
         }
       },
@@ -191,7 +190,7 @@ $(function() {
     };
 
     $(window).bind("popstate pushstate statechanged", function(evt) {
-      var state = window.History.getState().data;
+      var state = evt.state;
       if (!state) {
         state = buildStateFromUrl(window.location);
       }
@@ -204,7 +203,7 @@ $(function() {
         instance.change(state);
       });
     } else {
-      var unpopped = ('state' in window.history);
+      var unpopped = ('state' in history);
       if (unpopped) {
         setTimeout(function() {
           var evt = document.createEvent("PopStateEvent");
