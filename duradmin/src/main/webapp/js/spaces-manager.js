@@ -1219,7 +1219,7 @@ $(function() {
         });
         
         deferred.then(function(){
-          that._contentItemListPane.contentitemlistpane("setCurrentById", params.contentId);
+          that._contentItemListPane.contentitemlistpane("setCurrentById", dc.hexEncode(params.contentId));
         });
         return deferred;
       };
@@ -1653,7 +1653,7 @@ $(function() {
         if (length == 0) {
           that._toggleCheckAllContentItems(false);
           if (currentItem) {
-            var contentId = $(currentItem.item).attr("id");
+            var contentId = dc.hexDecode($(currentItem.item).attr("id"));
             HistoryManager.pushState({
               storeId : that._storeId,
               spaceId : space.spaceId,
@@ -1677,7 +1677,7 @@ $(function() {
         } else {
           if (length == 1) {
             that._toggleCheckAllContentItems(false);
-            var contentId = $(selectedItems[0]).attr("id");
+            var contentId = dc.hexDecode($(selectedItems[0]).attr("id"));
             var space = this.currentSpace();
 
             HistoryManager.pushState(that._createUniqueStateObject({
@@ -1734,7 +1734,7 @@ $(function() {
       });
 
       $(document).unbind("contentItemDeleted").bind("contentItemDeleted", function(evt, state) {
-        that._getList().selectablelist("removeById", state.contentId);
+        that._getList().selectablelist("removeById", dc.hexEncode(state.contentId));
       });
 
       $(document).unbind("contentItemAdded").bind("contentItemAdded", function(evt, state) {
@@ -1814,7 +1814,7 @@ $(function() {
       content = $.fn.create("span");
       content.attr("class", "dc-item-content").html(contentItem.contentId);
       node = $.fn.create("div");
-      node.attr("id", contentItem.contentId).append(content).append(actions);
+      node.attr("id", dc.hexEncode(contentItem.contentId)).append(content).append(actions);
 
       var item = this._getList().selectablelist('addItem', node, contentItem, false, readOnly);
       return item;
