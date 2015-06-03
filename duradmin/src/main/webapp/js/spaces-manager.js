@@ -567,8 +567,10 @@ $(function() {
           
           var loadWriteableSpaces = function(storeId, spaceId) {
             spaceSelect.busySibling("Loading writable spaces...");
+	    spaceSelect.disable(true);
             dc.store.GetSpaces(storeId, true, {
               success : function(spaces) {
+	        spaceSelect.disable(false);
                 var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
                 spaceSelect.children().remove();
                 spaceSelect.append("<option value=''>Choose</option>");
@@ -578,7 +580,7 @@ $(function() {
                 spaceSelect.val(selectedSpaceId);
                 spaceSelect.idleSibling();
               },
-            }, true // make
+            }, true// make
             // it an
             // asynchronous
             // call
@@ -589,7 +591,7 @@ $(function() {
           // a select box (ie multiple stores
           // available)
           // load list of spaces
-          destStoreIdField.change(function(evt) {
+          destStoreIdField.unbind().change(function(evt) {
             var dest = this;
             loadWriteableSpaces($(dest).val());
           });
