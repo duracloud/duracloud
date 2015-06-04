@@ -46,6 +46,10 @@ public class SyncBackupManager {
         return backupManager.loadBackup();
     }
 
+    public boolean hasBackups(){
+        return this.backupManager.hasBackups();
+    }
+    
     public void startupBackups() {
         execPool.execute(backupManager);
     }

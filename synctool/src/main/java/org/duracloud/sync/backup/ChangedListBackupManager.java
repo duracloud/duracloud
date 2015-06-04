@@ -116,5 +116,9 @@ public class ChangedListBackupManager implements Runnable {
 
     public void endBackup() {
         continueBackup = false;
+    }
+
+    public boolean hasBackups() {
+        return getSortedBackupDirFiles().length > 0;
     }    
 }

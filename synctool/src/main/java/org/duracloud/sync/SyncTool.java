@@ -178,20 +178,6 @@ public class SyncTool {
         syncManager.beginSync();
     }
 
-
-    private long startSyncBackupManager(boolean restart, SyncToolConfig syncConfig) {
-        syncBackupManager =
-            new SyncBackupManager(syncConfig.getWorkDir(),
-                                  syncConfig.getPollFrequency(),
-                                  syncConfig);
-        long lastBackup = 0;
-        if(restart) {
-            lastBackup = syncBackupManager.attemptRestart();
-        }
-        syncBackupManager.startupBackups();
-        return lastBackup;
-    }
-
     private void startDirWalker() {
         dirWalker = DirWalker.start(syncConfig.getContentDirs(),
                                     syncConfig.getExcludeList());
@@ -309,18 +295,32 @@ public class SyncTool {
         System.out.print("...");
         boolean restart = restartPossible();
         System.out.print("...");
-        long lastBackup = startSyncBackupManager(restart, syncConfig);
-        System.out.print("...");
-        if(restart && lastBackup > 0) {
-            logger.info("Running Sync Tool re-start file check");
-            startRestartDirWalker(lastBackup);
+
+        syncBackupManager =
+            new SyncBackupManager(syncConfig.getWorkDir(),
+                                  syncConfig.getPollFrequency(),
+                                  syncConfig);
+
+        boolean hasABackupFile = this.syncBackupManager.hasBackups();
+
+        if(restart && hasABackupFile){
+            //attempt restart
+            long lastBackup = syncBackupManager.attemptRestart();
             System.out.print("...");
-        } else {
-            logger.info("Running Sync Tool complete file check");
-            startDirWalker();
-            System.out.print("...");
+            if(lastBackup > 0) {
+                logger.info("Running Sync Tool re-start file check");
+                startRestartDirWalker(lastBackup);
+                System.out.print("...");
+            }
         }
 
+        if(dirWalker == null){
+            logger.info("Running Sync Tool complete file check");
+            startDirWalker();
+        }
+
+        startBackupsOnDirWalkerCompletion();
+        
         if(syncConfig.syncDeletes()) {
             startDeleteChecker();
         }
@@ -340,6 +340,21 @@ public class SyncTool {
             listenForExit();
         }
     }
+
+    private void startBackupsOnDirWalkerCompletion() {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                while(!dirWalker.walkComplete()){
+                    sleep(100);
+                }
+                logger.info("Walk complete: starting back up manager...");
+                syncBackupManager.startupBackups();
+                
+            }
+        }, "walk-completion-checker thread").start();
+    }
+
 
     private void printWelcome() {
         System.out.println(syncConfig.getPrintableConfig());
