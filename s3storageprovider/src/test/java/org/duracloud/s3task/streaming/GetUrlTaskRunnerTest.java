@@ -7,16 +7,12 @@
  */
 package org.duracloud.s3task.streaming;
 
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsRequest;
-import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsResult;
-import com.amazonaws.services.cloudfront.model.S3Origin;
-import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
-import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
-import com.amazonaws.services.s3.AmazonS3Client;
+import static org.junit.Assert.*;
+
+import java.util.HashMap;
+
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskResult;
 import org.duracloud.storage.error.UnsupportedTaskException;
@@ -24,12 +20,8 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.*;
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 /**
  * @author: Bill Branan
@@ -114,6 +106,8 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         }
     }
 
+    
+
     /*
      * Testing the case where a distribution is secure rather than open,
      * an exception is expected
@@ -138,6 +132,31 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
                         .contains(StorageTaskConstants.GET_SIGNED_URL_TASK_NAME));
         }
     }
+    
+    /*
+     * Testing the case where streaming is not enabled, an exception is expected
+     */
+    @Test
+    public void testPerformTask4() throws Exception {
+        GetUrlTaskRunner runner =
+            createRunner(createMockStorageProvider(new HashMap<String,String>()),
+                         createMockUnwrappedS3StorageProvider(),
+                         createMockS3ClientV1(),
+                         createMockCFClientV3());
+
+        GetUrlTaskParameters taskParams = new GetUrlTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setContentId(contentId);
+
+        try {
+            runner.performTask(taskParams.serialize());
+            fail("Exception expected");
+        } catch(UnsupportedTaskException e) {
+            assertTrue(e.getMessage()
+                        .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
+        }
+    }
+
 
     /*
      * For testing the case where a URL is generated from an existing

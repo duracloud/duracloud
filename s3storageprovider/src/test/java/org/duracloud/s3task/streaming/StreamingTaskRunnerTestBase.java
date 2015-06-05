@@ -87,6 +87,12 @@ public class StreamingTaskRunnerTestBase {
     }
 
     protected StorageProvider createMockStorageProvider() {
+       Map<String,String> props = new HashMap<>();
+       props.put(StorageProvider.PROPERTIES_STREAMING_TYPE, "any-streaming-type");
+       return createMockStorageProvider(props);
+    }
+
+    protected StorageProvider createMockStorageProvider(Map<String,String> spaceProps) {
         StorageProvider provider = EasyMock.createMock(StorageProvider.class);
 
         List<String> contents = new ArrayList<>();
@@ -99,6 +105,10 @@ public class StreamingTaskRunnerTestBase {
                                               EasyMock.<String>isNull()))
             .andReturn(contents.iterator())
             .anyTimes();
+        
+        EasyMock.expect(provider.getSpaceProperties(EasyMock.isA(String.class)))
+                .andReturn(spaceProps)
+                .anyTimes();
 
         EasyMock.replay(provider);
         return provider;

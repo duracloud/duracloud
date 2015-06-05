@@ -130,6 +130,8 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
             throw new RuntimeException("Error encountered attempting to sign URL for" +
                                        " task " + TASK_NAME + ": " + e.getMessage(), e);
         }
+        
+        checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);
 
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);

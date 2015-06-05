@@ -7,21 +7,21 @@
  */
 package org.duracloud.s3task.streaming;
 
+import java.util.HashMap;
+
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskParameters;
 import org.duracloud.s3storageprovider.dto.GetSignedUrlTaskResult;
+import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URL;
-
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 /**
@@ -175,6 +175,29 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         }
     }
 
+    /*
+     * Testing the case where streaming is not enabled, an exception is expected
+     */
+    @Test
+    public void testPerformTask4() throws Exception {
+        BaseStreamingTaskRunner runner =
+            createRunner(createMockStorageProvider(new HashMap<String,String>()),
+                         createMockUnwrappedS3StorageProvider(),
+                         createMockS3ClientV1(),
+                         createMockCFClientV3());
+
+        GetUrlTaskParameters taskParams = new GetUrlTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setContentId(contentId);
+
+        try {
+            runner.performTask(taskParams.serialize());
+            fail("Exception expected");
+        } catch(UnsupportedTaskException e) {
+            assertTrue(e.getMessage()
+                        .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
+        }
+    }
     /*
      * For testing the case where a URL is generated from an existing
      * distribution

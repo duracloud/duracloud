@@ -17,8 +17,11 @@ import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.cloudfront.model.UpdateStreamingDistributionRequest;
 import com.amazonaws.services.s3.AmazonS3Client;
+
+import org.duracloud.StorageTaskConstants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 import org.slf4j.Logger;
@@ -159,6 +162,23 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
         try {
             Thread.sleep(1000 * index);
         } catch(InterruptedException e) {
+        }
+    }
+
+    protected void
+        checkThatStreamingServiceIsEnabled(StorageProvider s3Provider,
+                                           String spaceId,
+                                           String taskName) {
+        // Verify that streaming is enabled
+        Map<String, String> spaceProperties =
+            s3Provider.getSpaceProperties(spaceId);
+        if (!spaceProperties.containsKey(StorageProvider.PROPERTIES_STREAMING_TYPE)) {
+            throw new UnsupportedTaskException(taskName,
+                                               "The " + taskName
+                                                   + " task can only be used after a space has "
+                                                   + "been configured to enable streaming. Use "
+                                                   + StorageTaskConstants.ENABLE_STREAMING_TASK_NAME
+                                                   + " to enable streaming on this space.");
         }
     }
 

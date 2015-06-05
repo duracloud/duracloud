@@ -7,8 +7,7 @@
  */
 package org.duracloud.s3task.streaming;
 
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
+
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3storageprovider.dto.GetUrlTaskParameters;
@@ -17,6 +16,9 @@ import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 
 /**
  * Retrieves a URL for a media file that is streamed through
@@ -79,7 +81,7 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
                 "from a secure distribution. Use " +
                 StorageTaskConstants.GET_SIGNED_URL_TASK_NAME + " instead.");
         }
-
+        
         // Create the resource Id, which may or may not require a prefix
         // (such as "mp4:" for an mp4 file) depending on the intended player
         String resourceId = contentId;
@@ -89,6 +91,9 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
 
         taskResult.setStreamUrl("rtmp://" + domainName + "/cfx/st/" + resourceId);
 
+        checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);       
+
+        
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);
         return toReturn;
