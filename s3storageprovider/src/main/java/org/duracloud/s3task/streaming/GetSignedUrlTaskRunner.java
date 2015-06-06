@@ -132,7 +132,7 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         }
         
         checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);
-
+        checkThatContentIdExists(this.s3Provider, spaceId, contentId, TASK_NAME);
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);
         return toReturn;

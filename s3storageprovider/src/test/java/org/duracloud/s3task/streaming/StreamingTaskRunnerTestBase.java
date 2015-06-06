@@ -7,6 +7,19 @@
  */
 package org.duracloud.s3task.streaming;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IExpectationSetters;
+import org.junit.After;
+
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsRequest;
 import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsResult;
@@ -15,16 +28,6 @@ import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
 import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.cloudfront.model.TrustedSigners;
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.junit.After;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author: Bill Branan
@@ -87,12 +90,15 @@ public class StreamingTaskRunnerTestBase {
     }
 
     protected StorageProvider createMockStorageProvider() {
+        return createMockStorageProvider(true);
+    }
+    protected StorageProvider createMockStorageProvider(boolean contentIdExists) {
        Map<String,String> props = new HashMap<>();
        props.put(StorageProvider.PROPERTIES_STREAMING_TYPE, "any-streaming-type");
-       return createMockStorageProvider(props);
+       return createMockStorageProvider(props, contentIdExists);
     }
 
-    protected StorageProvider createMockStorageProvider(Map<String,String> spaceProps) {
+    protected StorageProvider createMockStorageProvider(Map<String,String> spaceProps, boolean contentIdExists) {
         StorageProvider provider = EasyMock.createMock(StorageProvider.class);
 
         List<String> contents = new ArrayList<>();
@@ -109,7 +115,19 @@ public class StreamingTaskRunnerTestBase {
         EasyMock.expect(provider.getSpaceProperties(EasyMock.isA(String.class)))
                 .andReturn(spaceProps)
                 .anyTimes();
+        
+        IExpectationSetters<Map<String, String>> expection =
+            EasyMock.expect(provider.getContentProperties(EasyMock.isA(String.class),
+                                                          EasyMock.isA(String.class)));
 
+        if(contentIdExists){
+            expection.andReturn(new HashMap<String,String>());
+        }else{
+            expection.andThrow(new NotFoundException(""));
+        }
+        
+        expection.anyTimes();
+        
         EasyMock.replay(provider);
         return provider;
     }

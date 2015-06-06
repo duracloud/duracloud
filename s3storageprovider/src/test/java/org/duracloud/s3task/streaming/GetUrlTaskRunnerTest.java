@@ -31,7 +31,7 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
     private final String contentId = "content-id";
 
-    protected GetUrlTaskRunner createRunner(StorageProvider s3Provider,
+    protected BaseStreamingTaskRunner createRunner(StorageProvider s3Provider,
                                             S3StorageProvider unwrappedS3Provider,
                                             AmazonS3Client s3Client,
                                             AmazonCloudFrontClient cfClient) {
@@ -44,7 +44,7 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
     @Test
     public void testGetName() throws Exception {
-        GetUrlTaskRunner runner =
+        BaseStreamingTaskRunner runner =
             createRunner(createMockStorageProvider(),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
@@ -59,7 +59,7 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
      */
     @Test
     public void testPerformTask1() throws Exception {
-        GetUrlTaskRunner runner =
+        BaseStreamingTaskRunner runner =
             createRunner(createMockStorageProvider(),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
@@ -87,7 +87,7 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
      */
     @Test
     public void testPerformTask2() throws Exception {
-        GetUrlTaskRunner runner =
+        BaseStreamingTaskRunner runner =
             createRunner(createMockStorageProvider(),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
@@ -114,7 +114,7 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
      */
     @Test
     public void testPerformTask3() throws Exception {
-        GetUrlTaskRunner runner =
+        BaseStreamingTaskRunner runner =
             createRunner(createMockStorageProvider(),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
@@ -138,8 +138,8 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
      */
     @Test
     public void testPerformTask4() throws Exception {
-        GetUrlTaskRunner runner =
-            createRunner(createMockStorageProvider(new HashMap<String,String>()),
+        BaseStreamingTaskRunner runner =
+            createRunner(createMockStorageProvider(new HashMap<String,String>(), true),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
                          createMockCFClientV3());
@@ -154,6 +154,30 @@ public class GetUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
         } catch(UnsupportedTaskException e) {
             assertTrue(e.getMessage()
                         .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
+        }
+    }
+
+    /*
+     * Testing the case where content id does not exist, an exception is expected
+     */
+    @Test
+    public void testPerformTask5() throws Exception {
+        BaseStreamingTaskRunner runner =
+            createRunner(createMockStorageProvider(false),
+                         createMockUnwrappedS3StorageProvider(),
+                         createMockS3ClientV1(),
+                         createMockCFClientV4(false));
+
+        GetUrlTaskParameters taskParams = new GetUrlTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setContentId(contentId);
+
+        try {
+            runner.performTask(taskParams.serialize());
+            fail("Exception expected");
+        } catch(UnsupportedTaskException e) {
+            assertTrue(e.getMessage()
+                        .contains("non-existent content"));
         }
     }
 

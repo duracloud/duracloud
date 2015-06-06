@@ -181,7 +181,7 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
     @Test
     public void testPerformTask4() throws Exception {
         BaseStreamingTaskRunner runner =
-            createRunner(createMockStorageProvider(new HashMap<String,String>()),
+            createRunner(createMockStorageProvider(new HashMap<String,String>(), true),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
                          createMockCFClientV3());
@@ -198,6 +198,30 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
                         .contains(StorageTaskConstants.ENABLE_STREAMING_TASK_NAME));
         }
     }
+    
+    /*
+     * Testing the case where content id does not exist, an exception is expected
+     */
+    @Test
+    public void testPerformTask5() throws Exception {
+        BaseStreamingTaskRunner runner =
+            createRunner(createMockStorageProvider(false),
+                         createMockUnwrappedS3StorageProvider(),
+                         createMockS3ClientV1(),
+                         createMockCFClientV4(true));
+
+        GetUrlTaskParameters taskParams = new GetUrlTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setContentId(contentId);
+
+        try {
+            runner.performTask(taskParams.serialize());
+            fail("Exception expected");
+        } catch(UnsupportedTaskException e) {
+            assertTrue(e.getMessage()
+                        .contains("non-existent content"));
+        }
+    }    
     /*
      * For testing the case where a URL is generated from an existing
      * distribution

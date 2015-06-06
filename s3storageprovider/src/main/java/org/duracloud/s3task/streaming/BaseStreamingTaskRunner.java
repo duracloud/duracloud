@@ -21,6 +21,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.StorageTaskConstants;
 import org.duracloud.common.error.DuraCloudRuntimeException;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.UnsupportedTaskException;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
@@ -179,6 +180,20 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
                                                    + "been configured to enable streaming. Use "
                                                    + StorageTaskConstants.ENABLE_STREAMING_TASK_NAME
                                                    + " to enable streaming on this space.");
+        }
+    }
+
+    protected void checkThatContentIdExists(StorageProvider s3Provider,
+                                            String spaceId,
+                                            String contentId,
+                                            String taskName) {
+        try {
+            this.s3Provider.getContentProperties(spaceId, contentId);
+        } catch (NotFoundException ex) {
+            throw new UnsupportedTaskException(taskName,
+                                               "The " + taskName
+                                                   + " task cannot be used to request a stream "
+                                                   + "from a non-existent content item");
         }
     }
 
