@@ -184,7 +184,7 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
             createRunner(createMockStorageProvider(new HashMap<String,String>(), true),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
-                         createMockCFClientV3());
+                         createMockCFClientV1());
 
         GetUrlTaskParameters taskParams = new GetUrlTaskParameters();
         taskParams.setSpaceId(spaceId);
@@ -208,7 +208,7 @@ public class GetSignedUrlTaskRunnerTest extends StreamingTaskRunnerTestBase {
             createRunner(createMockStorageProvider(false),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
-                         createMockCFClientV4(true));
+                         createMockCFClientV1());
 
         GetUrlTaskParameters taskParams = new GetUrlTaskParameters();
         taskParams.setSpaceId(spaceId);

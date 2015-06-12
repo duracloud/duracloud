@@ -81,27 +81,30 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
         GetSignedUrlTaskResult taskResult = new GetSignedUrlTaskResult();
 
+        // Ensure that streaming service is on
+        checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);
+
+        // Ensure that content item exists
+        checkThatContentIdExists(this.s3Provider, spaceId, contentId, TASK_NAME);
+
         // Retrieve the existing distribution for the given space
         StreamingDistributionSummary existingDist =
             getExistingDistribution(bucketName);
         if (null == existingDist) {
             throw new UnsupportedTaskException(TASK_NAME,
-                                               "The " + TASK_NAME +
-                                               " task can only be used after a space has " +
-                                               "been configured to enable secure streaming. Use " +
-                                               StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
-                                               " to enable secure streaming on this space.");
+                "The " + TASK_NAME + " task can only be used after a space " +
+                "has been configured to enable secure streaming. Use " +
+                StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                " to enable secure streaming on this space.");
         }
         String domainName = existingDist.getDomainName();
 
         // Verify that this is a secure distribution
         if (existingDist.getTrustedSigners().getItems().isEmpty()) {
             throw new UnsupportedTaskException(TASK_NAME,
-                                               "The " + TASK_NAME +
-                                               " task cannot be used to request a " +
-                                               "stream from an open distribution. Use " +
-                                               StorageTaskConstants.GET_URL_TASK_NAME +
-                                               " instead.");
+                "The " + TASK_NAME + " task cannot be used to request a " +
+                "stream from an open distribution. Use " +
+                StorageTaskConstants.GET_URL_TASK_NAME + " instead.");
         }
 
         // Make sure resourcePrefix is a valid string
@@ -131,8 +134,6 @@ public class GetSignedUrlTaskRunner extends BaseStreamingTaskRunner  {
                                        " task " + TASK_NAME + ": " + e.getMessage(), e);
         }
         
-        checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);
-        checkThatContentIdExists(this.s3Provider, spaceId, contentId, TASK_NAME);
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);
         return toReturn;

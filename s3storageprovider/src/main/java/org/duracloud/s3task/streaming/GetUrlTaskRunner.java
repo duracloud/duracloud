@@ -62,6 +62,12 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
         GetUrlTaskResult taskResult = new GetUrlTaskResult();
 
+        // Ensure that streaming service is on
+        checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);
+
+        // Ensure that content item exists
+        checkThatContentIdExists(this.s3Provider, spaceId,contentId, TASK_NAME);
+
         // Retrieve the existing distribution for the given space
         StreamingDistributionSummary existingDist =
             getExistingDistribution(bucketName);
@@ -91,10 +97,6 @@ public class GetUrlTaskRunner extends BaseStreamingTaskRunner  {
 
         taskResult.setStreamUrl("rtmp://" + domainName + "/cfx/st/" + resourceId);
 
-        checkThatStreamingServiceIsEnabled(this.s3Provider, spaceId, TASK_NAME);       
-
-        checkThatContentIdExists(this.s3Provider, spaceId,contentId, TASK_NAME);
-        
         String toReturn = taskResult.serialize();
         log.info("Result of " + TASK_NAME + " task: " + toReturn);
         return toReturn;

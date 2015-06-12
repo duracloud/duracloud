@@ -175,11 +175,10 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
             s3Provider.getSpaceProperties(spaceId);
         if (!spaceProperties.containsKey(StorageProvider.PROPERTIES_STREAMING_TYPE)) {
             throw new UnsupportedTaskException(taskName,
-                                               "The " + taskName
-                                                   + " task can only be used after a space has "
-                                                   + "been configured to enable streaming. Use "
-                                                   + StorageTaskConstants.ENABLE_STREAMING_TASK_NAME
-                                                   + " to enable streaming on this space.");
+                "The " + taskName + " task can only be used after a space " +
+                "has been configured to enable streaming. Use " +
+                StorageTaskConstants.ENABLE_STREAMING_TASK_NAME +
+                " to enable streaming on this space.");
         }
     }
 
@@ -191,9 +190,8 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
             this.s3Provider.getContentProperties(spaceId, contentId);
         } catch (NotFoundException ex) {
             throw new UnsupportedTaskException(taskName,
-                                               "The " + taskName
-                                                   + " task cannot be used to request a stream "
-                                                   + "from a non-existent content item");
+                "The " + taskName + " task cannot be used to request " +
+                "a streaming URL for a non-existent content item: " + contentId);
         }
     }
 
