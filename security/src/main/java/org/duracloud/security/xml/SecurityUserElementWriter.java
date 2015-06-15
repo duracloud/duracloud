@@ -50,6 +50,7 @@ public class SecurityUserElementWriter {
         userType.setUsername(user.getUsername());
         userType.setPassword(user.getPassword());
         userType.setEmail(user.getEmail());
+        userType.setIpLimits(user.getIpLimits());
         userType.setEnabled(user.isEnabled());
         userType.setCredentialsNonExpired(user.isCredentialsNonExpired());
         userType.setAccountNonExpired(user.isAccountNonExpired());

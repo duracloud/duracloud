@@ -7,11 +7,20 @@
  */
 package org.duracloud.account.db.model;
 
-import org.duracloud.storage.domain.StorageProviderType;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
+
+import org.duracloud.storage.domain.StorageProviderType;
 
 /**
  * @author Erik Paulsson
@@ -34,6 +43,18 @@ public class StorageProviderAccount extends ProviderAccount {
      */
     private boolean rrs;
 
+    @ElementCollection(fetch=FetchType.EAGER)
+    @MapKeyColumn (name="map_key")
+    @CollectionTable(name ="storage_provider_account_properties",
+    joinColumns=@JoinColumn(name="storage_provider_account_id"))
+    @Column(name="map_value")
+    private Map<String,String> properties; 
+    
+    /**
+     * The max GBs of storage allowable for the account.
+     */
+    private int storageLimit;
+    
     public StorageProviderType getProviderType() {
         return providerType;
     }
@@ -49,4 +70,22 @@ public class StorageProviderAccount extends ProviderAccount {
     public void setRrs(boolean rrs) {
         this.rrs = rrs;
     }
+
+    public Map<String,String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String,String> properties) {
+        this.properties = properties;
+    }
+
+    public int getStorageLimit() {
+        return storageLimit;
+    }
+
+    public void setStorageLimit(int storageLimit) {
+        this.storageLimit = storageLimit;
+    }
+    
+
 }

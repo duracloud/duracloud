@@ -9,6 +9,7 @@ package org.duracloud.s3task.storage;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.StorageClass;
+import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.storage.provider.StorageProvider;
 
@@ -22,7 +23,7 @@ import org.duracloud.storage.provider.StorageProvider;
 public class SetReducedStorageTaskRunner extends BaseStorageClassTaskRunner {
 
     private static final String TASK_NAME =
-        "set-reduced-redundancy-storage-class";
+        StorageTaskConstants.SET_REDUCED_REDUNDANCY_STORAGE_CLASS_TASK_NAME;
 
     private static final StorageClass STORAGE_CLASS =
         StorageClass.ReducedRedundancy;

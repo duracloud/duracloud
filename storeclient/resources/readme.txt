@@ -10,22 +10,23 @@ DuraStore, a Java client, called StoreClient was written.
 
 2. Using StoreClient
 
-To use StoreClient, you will need all of the jars included in the
-libs directory to be available on your classpath. You will then be
-able to write code using the provided Javadocs to interact with the
-StoreClient.
+To use StoreClient, you will need all of the jars the client depends
+on. This is best accomplished by using Maven:
+
+<dependency>
+  <groupId>org.duracloud</groupId>
+  <artifactId>storeclient</artifactId>
+  <version>{duracloud-version}</version>
+</dependency>
+
+Alternatively, you can include the jar files in the libs directory
+on your classpath. You will then be able to write code using the
+provided Javadocs to interact with the StoreClient.
 
 3. Example Client
 
-An example Java class has been provided to assist in set up and
+An example Maven project has been provided to assist in set up and
 testing, as well as a starting point for writing your client code.
-The example client (found in ExampleClient.java) includes a simple 
-main class to print out the list of spaces and space properties
-available in your DuraStore account. To run the example:
-* Extract the store-client zip file
-* Update the HOST, PORT, USERNAME, and PASSWORD constant values in
-ExampleClient.java as needed to connect to your DuraCloud instance.
-* Make sure Ant is availble on your path and type "ant" to compile
-the example.
-* Type "ant run" to run the example, which will print space names
-and properties to the console.
+
+This client is available for download from Github here:
+https://github.com/duracloud/rest-client-example

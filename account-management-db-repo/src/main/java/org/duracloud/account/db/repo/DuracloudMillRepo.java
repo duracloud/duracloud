@@ -7,15 +7,15 @@
  */
 package org.duracloud.account.db.repo;
 
-import org.duracloud.account.db.model.AccountCluster;
+import org.duracloud.account.db.model.DuracloudMill;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author Erik Paulsson
- *         Date: 7/8/13
+ * @author Daniel Bernstein
+ *         Date: 05/06/2015
  */
-@Repository(value="accountClusterRepo")
-public interface DuracloudAccountClusterRepo extends JpaRepository<AccountCluster, Long> {
-
+@Repository(value="duracloudMillRepo")
+public interface DuracloudMillRepo extends JpaRepository<DuracloudMill, Long> {
+    
 }

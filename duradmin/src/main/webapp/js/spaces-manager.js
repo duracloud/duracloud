@@ -93,7 +93,7 @@ $(function() {
 
       var contentId = obj.contentId;
       if (contentId != null && contentId != undefined) {
-        relative += "/" + contentId;
+        relative += "/" + encodeURIComponent(contentId);
       }
       return contextPath + relative;
     };
@@ -101,13 +101,6 @@ $(function() {
     var buildStateFromUrl = function(location) {
       var state = {};
       var pathname = location.pathname;
-
-      // this check is necessary for non html5 history api
-      // compliant browsers.
-      var hash = location.hash;
-      if (hash && hash.indexOf("#" + contextPath) == 0) {
-        pathname = "/duradmin/" + hash.substring(1, hash.length);
-      }
 
       if (pathname) {
         var index = pathname.indexOf(contextPath);
@@ -148,8 +141,14 @@ $(function() {
       pushState : function(data) {
         var url = _buildUrl(data);
         var title = "DuraCloud";
-        window.History.pushState(data, title, url);
-        if ($.browser['msie']) {
+        history.pushState(data, title, url);
+        //next two lines:  a trick to trigger a 
+        //pushstate event.  Without the history.back()
+        //call pushstate is not fired.
+        history.pushState(data, title, url);
+        history.back();
+        
+	      if ($.browser['msie']) {
           instance.change(data);
         }
       },
@@ -191,7 +190,7 @@ $(function() {
     };
 
     $(window).bind("popstate pushstate statechanged", function(evt) {
-      var state = window.History.getState().data;
+      var state = evt.state;
       if (!state) {
         state = buildStateFromUrl(window.location);
       }
@@ -204,7 +203,7 @@ $(function() {
         instance.change(state);
       });
     } else {
-      var unpopped = ('state' in window.history);
+      var unpopped = ('state' in history);
       if (unpopped) {
         setTimeout(function() {
           var evt = document.createEvent("PopStateEvent");
@@ -568,8 +567,10 @@ $(function() {
           
           var loadWriteableSpaces = function(storeId, spaceId) {
             spaceSelect.busySibling("Loading writable spaces...");
+	    spaceSelect.disable(true);
             dc.store.GetSpaces(storeId, true, {
               success : function(spaces) {
+	        spaceSelect.disable(false);
                 var selectedSpaceId = spaceId ? spaceId : spaceSelect.val();
                 spaceSelect.children().remove();
                 spaceSelect.append("<option value=''>Choose</option>");
@@ -579,7 +580,7 @@ $(function() {
                 spaceSelect.val(selectedSpaceId);
                 spaceSelect.idleSibling();
               },
-            }, true // make
+            }, true// make
             // it an
             // asynchronous
             // call
@@ -590,7 +591,7 @@ $(function() {
           // a select box (ie multiple stores
           // available)
           // load list of spaces
-          destStoreIdField.change(function(evt) {
+          destStoreIdField.unbind().change(function(evt) {
             var dest = this;
             loadWriteableSpaces($(dest).val());
           });
@@ -1220,7 +1221,7 @@ $(function() {
         });
         
         deferred.then(function(){
-          that._contentItemListPane.contentitemlistpane("setCurrentById", params.contentId);
+          that._contentItemListPane.contentitemlistpane("setCurrentById", dc.hexEncode(params.contentId));
         });
         return deferred;
       };
@@ -1654,7 +1655,7 @@ $(function() {
         if (length == 0) {
           that._toggleCheckAllContentItems(false);
           if (currentItem) {
-            var contentId = $(currentItem.item).attr("id");
+            var contentId = dc.hexDecode($(currentItem.item).attr("id"));
             HistoryManager.pushState({
               storeId : that._storeId,
               spaceId : space.spaceId,
@@ -1678,7 +1679,7 @@ $(function() {
         } else {
           if (length == 1) {
             that._toggleCheckAllContentItems(false);
-            var contentId = $(selectedItems[0]).attr("id");
+            var contentId = dc.hexDecode($(selectedItems[0]).attr("id"));
             var space = this.currentSpace();
 
             HistoryManager.pushState(that._createUniqueStateObject({
@@ -1735,7 +1736,7 @@ $(function() {
       });
 
       $(document).unbind("contentItemDeleted").bind("contentItemDeleted", function(evt, state) {
-        that._getList().selectablelist("removeById", state.contentId);
+        that._getList().selectablelist("removeById", dc.hexEncode(state.contentId));
       });
 
       $(document).unbind("contentItemAdded").bind("contentItemAdded", function(evt, state) {
@@ -1815,7 +1816,7 @@ $(function() {
       content = $.fn.create("span");
       content.attr("class", "dc-item-content").html(contentItem.contentId);
       node = $.fn.create("div");
-      node.attr("id", contentItem.contentId).append(content).append(actions);
+      node.attr("id", dc.hexEncode(contentItem.contentId)).append(content).append(actions);
 
       var item = this._getList().selectablelist('addItem', node, contentItem, false, readOnly);
       return item;
@@ -3075,6 +3076,10 @@ $(function() {
         spaceProps.push([ 'Streaming Host', space.properties.streamingHost ]);
       }
 
+      if (space.properties.streamingType) {
+        spaceProps.push([ 'Streaming Type', space.properties.streamingType ]);
+      }
+
       var bitIntegrityReport = space.bitIntegrityReportProperties;
       if (bitIntegrityReport) {
         var completionDate = bitIntegrityReport.completionDate;
@@ -3832,15 +3837,27 @@ $(function() {
         spaceId : contentItem.spaceId
       })).done(function(result) {
         var streamingHost = result.space.properties.streamingHost;
+        var streamingType = result.space.properties.streamingType;
         if (streamingHost != null && streamingHost.trim() != "" && streamingHost.indexOf("null") == -1) {
-          that._writeMediaTag(streamingHost, contentItem);
+          if (streamingType == "OPEN") {
+            dc.store.GetStreamingUrl(contentItem, streamingType, {
+              success: function (streamingUrl) {
+                that._writeMediaTag(streamingUrl);
+              },
+              failure: function (data) {
+                viewer.append("<p>Unable to stream file</p>");
+              }
+            });
+          } else {
+            viewer.append("<p>Streaming preview unavailable for secure streams</p>");
+          }
         } else {
-          viewer.append("<p>Turn on streaming for this space to enable playback.</p>");
+          viewer.append("<p>Turn on streaming for this space to enable playback</p>");
         }
       });
     },
 
-    _writeMediaTag : function(streamingHost, contentItem) {
+    _writeMediaTag : function(streamingUrl) {
       setTimeout(function() {
         // async necessary to
         // let the DOM update
@@ -3852,8 +3869,8 @@ $(function() {
         so.addParam('allowscriptaccess', 'always');
         so.addParam('wmode', 'opaque');
         so.addVariable('skin', '/duradmin/jwplayer/stylish.swf');
-        so.addVariable('file', contentItem.contentId);
-        so.addVariable('streamer', 'rtmp://' + streamingHost + '/cfx/st');
+        so.addVariable('file', streamingUrl.suffix);
+        so.addVariable('streamer', streamingUrl.prefix);
         so.write('mediaspace');
       }, 1000);
     },

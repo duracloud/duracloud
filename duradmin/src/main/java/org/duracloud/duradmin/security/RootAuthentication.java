@@ -30,6 +30,7 @@ public class RootAuthentication implements Authentication{
             new DuracloudUserDetails(this.rootCredentials.getUsername(),
                                      this.rootCredentials.getPassword(),
                                      null,
+                                     null,
                                      true,
                                      true,
                                      true,

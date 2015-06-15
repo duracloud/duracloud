@@ -51,6 +51,7 @@ public class SecurityUserElementReader {
         String username = userType.getUsername();
         String password = userType.getPassword();
         String email = userType.getEmail();
+        String ipLimits = userType.getIpLimits();
         boolean enabled = userType.getEnabled();
         boolean credentialsNonExpired = userType.getCredentialsNonExpired();
         boolean accountNonExpired = userType.getAccountNonExpired();
@@ -61,6 +62,7 @@ public class SecurityUserElementReader {
         return new SecurityUserBean(username,
                                     password,
                                     email,
+                                    ipLimits,
                                     enabled,
                                     credentialsNonExpired,
                                     accountNonExpired,

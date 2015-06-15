@@ -7,25 +7,38 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentity;
+import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentityList;
+import com.amazonaws.services.cloudfront.model.CloudFrontOriginAccessIdentitySummary;
+import com.amazonaws.services.cloudfront.model.CreateCloudFrontOriginAccessIdentityRequest;
+import com.amazonaws.services.cloudfront.model.CreateCloudFrontOriginAccessIdentityResult;
+import com.amazonaws.services.cloudfront.model.CreateStreamingDistributionRequest;
+import com.amazonaws.services.cloudfront.model.CreateStreamingDistributionResult;
+import com.amazonaws.services.cloudfront.model.GetCloudFrontOriginAccessIdentityRequest;
+import com.amazonaws.services.cloudfront.model.GetCloudFrontOriginAccessIdentityResult;
+import com.amazonaws.services.cloudfront.model.ListCloudFrontOriginAccessIdentitiesRequest;
+import com.amazonaws.services.cloudfront.model.ListCloudFrontOriginAccessIdentitiesResult;
+import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsRequest;
+import com.amazonaws.services.cloudfront.model.ListStreamingDistributionsResult;
+import com.amazonaws.services.cloudfront.model.StreamingDistribution;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionConfig;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionList;
 import com.amazonaws.services.s3.AmazonS3Client;
-import org.duracloud.common.util.SerializationUtil;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storageprovider.dto.EnableStreamingTaskParameters;
+import org.duracloud.s3storageprovider.dto.EnableStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.model.cloudfront.LoggingStatus;
-import org.jets3t.service.model.cloudfront.OriginAccessIdentity;
-import org.jets3t.service.model.cloudfront.S3Origin;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
-import org.jets3t.service.model.cloudfront.StreamingDistributionConfig;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author: Bill Branan
@@ -33,16 +46,20 @@ import static junit.framework.Assert.fail;
  */
 public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
 
+    private Capture<CreateStreamingDistributionRequest> createDistRequestCapture;
+
     protected EnableStreamingTaskRunner createRunner(StorageProvider s3Provider,
                                                      S3StorageProvider unwrappedS3Provider,
                                                      AmazonS3Client s3Client,
-                                                     CloudFrontService cfService) {
+                                                     AmazonCloudFrontClient cfClient,
+                                                     String cfAccountId) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
-        this.cfService = cfService;
+        this.cfClient = cfClient;
+        this.cfAccountId = cfAccountId;
         return new EnableStreamingTaskRunner(s3Provider, unwrappedS3Provider,
-                                             s3Client, cfService);
+                                             s3Client, cfClient, cfAccountId);
     }
 
     @Test
@@ -51,7 +68,8 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             createRunner(createMockStorageProvider(),
                          createMockUnwrappedS3StorageProvider(),
                          createMockS3ClientV1(),
-                         createMockCFServiceV1());
+                         createMockCFClientV1(),
+                         cfAccountId);
 
         String name = runner.getName();
         assertEquals("enable-streaming", name);
@@ -60,14 +78,30 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
     /*
      * Testing the case where no streaming distribution exists for the given
      * bucket and no origin access id exists. Both should be created.
+     * The distribution created should be open.
      */
     @Test
-    public void testPerformTask1() throws Exception {
+    public void testPerformTask1Secure() throws Exception {
+        performTask1(true);
+    }
+
+    /*
+     * Testing the case where no streaming distribution exists for the given
+     * bucket and no origin access id exists. Both should be created.
+     * The distribution created should be open.
+     */
+    @Test
+    public void testPerformTask1Open() throws Exception {
+        performTask1(false);
+    }
+
+    private void performTask1(boolean secure) throws Exception {
         EnableStreamingTaskRunner runner =
             createRunner(createMockStorageProviderV2(false),
                          createMockUnwrappedS3StorageProviderV2(),
                          createMockS3ClientV3(),
-                         createMockCFServiceV3());
+                         createMockCFClientV4(),
+                         cfAccountId);
 
         try {
             runner.performTask(null);
@@ -76,72 +110,140 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             assertNotNull(expected);
         }
 
-        String results = runner.performTask(spaceId);
+        EnableStreamingTaskParameters taskParams = new EnableStreamingTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setSecure(secure);
+
+        String results = runner.performTask(taskParams.serialize());
         assertNotNull(results);
         testResults(results);
-        testCapturedProps();
+        testCapturedProps(secure);
+        testCreateRequestCapture(secure);
     }
+
 
     /*
      * For testing the case where a distribution and origin access id do not
      * exist and are created.
      * In short, these are the calls that are expected:
      *
-     * createStreamingDistribution (1) - returns valid dist
-     * createOriginAccessIdentity (1) - returns valid oaid
-     * getOriginAccessIdentityList (1) - returns null (or empty list)
-     * getOriginAccessIdentity (1) - returns valid oaid
-     * listStreamingDistributions (1) - returns null
+     * listStreamingDistributions (1) - returns empty list
+     * listCloudFrontOriginAccessIdentities (1) - returns empty list
+     * createCloudFrontOriginAccessIdentity (1) - return access id
+     * createStreamingDistribution (1) - returns distribution with domain name
+     * getCloudFrontOriginAccessIdentity (1) - returns OAIdentity
      */
-    private CloudFrontService createMockCFServiceV3() throws Exception {
-        CloudFrontService service =
-            EasyMock.createMock(CloudFrontService.class);
+    private AmazonCloudFrontClient createMockCFClientV4() throws Exception {
+        cfClient = EasyMock.createMock(AmazonCloudFrontClient.class);
 
-        S3Origin origin = new S3Origin("origin");
+        ListStreamingDistributionsResult result =
+            new ListStreamingDistributionsResult()
+                .withStreamingDistributionList(
+                    new StreamingDistributionList()
+                        .withItems(new ArrayList()));
+        EasyMock
+            .expect(cfClient.listStreamingDistributions(
+                EasyMock.isA(ListStreamingDistributionsRequest.class)))
+            .andReturn(result)
+            .times(1);
+
+        List<CloudFrontOriginAccessIdentitySummary> oaiSummaryList = new ArrayList<>();
+        CloudFrontOriginAccessIdentityList oaiList =
+            new CloudFrontOriginAccessIdentityList().withItems(oaiSummaryList);
+        ListCloudFrontOriginAccessIdentitiesResult listOaiResult =
+            new ListCloudFrontOriginAccessIdentitiesResult()
+                .withCloudFrontOriginAccessIdentityList(oaiList);
+        EasyMock
+            .expect(cfClient.listCloudFrontOriginAccessIdentities(
+                EasyMock.isA(ListCloudFrontOriginAccessIdentitiesRequest.class)))
+            .andReturn(listOaiResult)
+            .times(1);
+
+        String oaIdentity = "origin-access-identity";
+        CloudFrontOriginAccessIdentity oai =
+            new CloudFrontOriginAccessIdentity().withId(oaIdentity);
+        CreateCloudFrontOriginAccessIdentityResult createOaiResult =
+            new CreateCloudFrontOriginAccessIdentityResult()
+                .withCloudFrontOriginAccessIdentity(oai);
+        EasyMock
+            .expect(cfClient.createCloudFrontOriginAccessIdentity(
+                EasyMock.isA(CreateCloudFrontOriginAccessIdentityRequest.class)))
+            .andReturn(createOaiResult)
+            .times(1);
+
         StreamingDistribution dist =
-            new StreamingDistribution("id", "status", null, domainName,
-                                      origin, null, "comment", true);
-
+            new StreamingDistribution().withDomainName(domainName);
+        CreateStreamingDistributionResult createDistResult =
+            new CreateStreamingDistributionResult()
+                .withStreamingDistribution(dist);
+        createDistRequestCapture = new Capture<>();
         EasyMock
-            .expect(service.createStreamingDistribution(
-                EasyMock.isA(S3Origin.class),
-                EasyMock.<String>isNull(),
-                EasyMock.<String[]>isNull(),
-                EasyMock.<String>isNull(),
-                EasyMock.eq(true),
-                EasyMock.<LoggingStatus>isNull(),
-                EasyMock.eq(false),
-                EasyMock.<String[]>isNull()))
-            .andReturn(dist)
+            .expect(cfClient.createStreamingDistribution(
+                EasyMock.capture(createDistRequestCapture)))
+            .andReturn(createDistResult)
             .times(1);
 
-        OriginAccessIdentity oaIdentity =
-            new OriginAccessIdentity("id", "s3CanonicalUserId", "comment");
-
+        GetCloudFrontOriginAccessIdentityResult getOaiResult =
+            new GetCloudFrontOriginAccessIdentityResult()
+                .withCloudFrontOriginAccessIdentity(oai);
         EasyMock
-            .expect(service.createOriginAccessIdentity(
-                EasyMock.<String>isNull(),
-                EasyMock.isA(String.class)))
-            .andReturn(oaIdentity)
+            .expect(cfClient.getCloudFrontOriginAccessIdentity(
+            EasyMock.isA(GetCloudFrontOriginAccessIdentityRequest.class)))
+            .andReturn(getOaiResult)
             .times(1);
 
-        EasyMock
-            .expect(service.getOriginAccessIdentityList())
-            .andReturn(null)
-            .times(1);
+        EasyMock.replay(cfClient);
+        return cfClient;
+    }
 
-        EasyMock
-            .expect(service.getOriginAccessIdentity(EasyMock.isA(String.class)))
-            .andReturn(oaIdentity)
-            .times(1);
+    protected AmazonS3Client createMockS3ClientV3() throws Exception {
+        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
 
-        EasyMock
-            .expect(service.listStreamingDistributions())
-            .andReturn(null)
-            .times(1);
+        service.setBucketPolicy(EasyMock.isA(String.class),
+                                EasyMock.isA(String.class));
+        EasyMock.expectLastCall();
 
         EasyMock.replay(service);
         return service;
+    }
+
+    private void testResults(String results) {
+        EnableStreamingTaskResult taskResult =
+            EnableStreamingTaskResult.deserialize(results);
+        assertEquals(taskResult.getStreamingHost(), domainName);
+        assertTrue(taskResult.getResult().contains("completed"));
+    }
+
+    private void testCapturedProps(boolean secure) {
+        Map<String, String> spaceProps = spacePropsCapture.getValue();
+        String streamHostPropName = EnableStreamingTaskRunner.STREAMING_HOST_PROP;
+        assertEquals(spaceProps.get(streamHostPropName), domainName);
+
+        String streamTypePropName = EnableStreamingTaskRunner.STREAMING_TYPE_PROP;
+        if(secure) {
+            assertEquals(spaceProps.get(streamTypePropName),
+                         EnableStreamingTaskRunner.STREAMING_TYPE.SECURE.name());
+        } else {
+            assertEquals(spaceProps.get(streamTypePropName),
+                         EnableStreamingTaskRunner.STREAMING_TYPE.OPEN.name());
+        }
+    }
+
+    private void testCreateRequestCapture(boolean secure) {
+        StreamingDistributionConfig distConfig =
+            createDistRequestCapture.getValue().getStreamingDistributionConfig();
+        assertNotNull(distConfig.getCallerReference());
+        assertTrue(distConfig.getS3Origin()
+                             .getDomainName().startsWith(bucketName));
+        assertTrue(distConfig.isEnabled());
+        assertNotNull(distConfig.getComment());
+        if(secure) {
+            assertTrue(distConfig.getTrustedSigners().isEnabled());
+            assertEquals(new Integer(1), distConfig.getTrustedSigners().getQuantity());
+        } else {
+            assertFalse(distConfig.getTrustedSigners().isEnabled());
+            assertEquals(new Integer(0), distConfig.getTrustedSigners().getQuantity());
+        }
     }
 
     /*
@@ -154,37 +256,18 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
             createRunner(createMockStorageProviderV2(false),
                          createMockUnwrappedS3StorageProviderV2(),
                          createMockS3ClientV3(),
-                         createMockCFServiceV2());
+                         createMockCFClientV2(),
+                         cfAccountId);
 
-        String results = runner.performTask(spaceId);
+        EnableStreamingTaskParameters taskParams = new EnableStreamingTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        boolean secure = false;
+        taskParams.setSecure(secure);
+
+        String results = runner.performTask(taskParams.serialize());
         assertNotNull(results);
         testResults(results);
-        testCapturedProps();
-    }
-
-    protected AmazonS3Client createMockS3ClientV3() throws Exception {
-        AmazonS3Client service = EasyMock.createMock(AmazonS3Client.class);
-
-        service.setBucketPolicy(EasyMock.isA(String.class),
-                                EasyMock.isA(String.class));
-        EasyMock.expectLastCall();
-  
-        EasyMock.replay(service);
-        return service;
-    }
-
-    private void testResults(String results) {
-        Map<String, String> resultMap =
-            SerializationUtil.deserializeMap(results);
-        assertNotNull(resultMap);
-        assertEquals(resultMap.get("domain-name"), domainName);
-        assertTrue(resultMap.get("results").contains("completed"));
-    }
-
-    private void testCapturedProps() {
-        Map<String, String> spaceProps = spacePropsCapture.getValue();
-        String propName = EnableStreamingTaskRunner.STREAMING_HOST_PROP;
-        assertEquals(spaceProps.get(propName), domainName);
+        testCapturedProps(secure);
     }
 
     /*
@@ -192,47 +275,45 @@ public class EnableStreamingTaskRunnerTest extends StreamingTaskRunnerTestBase {
      * already exist and are used as is.
      * In short, these are the calls that are expected:
      *
-     * getStreamingDistributionConfig (1) - returns valid config (includes oaid, enabled)
-     * getOriginAccessIdentity (1) - returns valid oaid
      * listStreamingDistributions (1) - returns a list with a valid dist (matching bucket name)
+     * getOriginAccessIdentity (1) - returns valid oaid
      */
-    protected CloudFrontService createMockCFServiceV2() throws Exception {
-        CloudFrontService service =
-            EasyMock.createMock(CloudFrontService.class);
+    protected AmazonCloudFrontClient createMockCFClientV2() throws Exception {
+        cfClient = EasyMock.createMock(AmazonCloudFrontClient.class);
 
-        S3Origin origin = new S3Origin("origin", "originAccessId");
-        StreamingDistributionConfig config =
-            new StreamingDistributionConfig(origin, "callerReference",
-                                            new String[0], "comment", true,
-                                            null, false, null, null);
+        cfClientExpectValidDistribution(cfClient);
 
+        String oaIdentity = "origin-access-identity";
+
+        CloudFrontOriginAccessIdentitySummary oaiSummary =
+            new CloudFrontOriginAccessIdentitySummary()
+                .withId(oaIdentity).withS3CanonicalUserId(oaIdentity + "-canonical");
+        List<CloudFrontOriginAccessIdentitySummary> oaiSummaryList = new ArrayList<>();
+        oaiSummaryList.add(oaiSummary);
+        CloudFrontOriginAccessIdentityList oaiList =
+            new CloudFrontOriginAccessIdentityList().withItems(oaiSummaryList);
+        ListCloudFrontOriginAccessIdentitiesResult listOaiResult =
+            new ListCloudFrontOriginAccessIdentitiesResult()
+                .withCloudFrontOriginAccessIdentityList(oaiList);
         EasyMock
-            .expect(service.getStreamingDistributionConfig(
-                EasyMock.isA(String.class)))
-            .andReturn(config)
+            .expect(cfClient.listCloudFrontOriginAccessIdentities(
+                EasyMock.isA(ListCloudFrontOriginAccessIdentitiesRequest.class)))
+            .andReturn(listOaiResult)
             .times(1);
 
-        OriginAccessIdentity oaIdentity =
-            new OriginAccessIdentity("id", "s3CanonicalUserId", "comment");
-
+        CloudFrontOriginAccessIdentity oai =
+            new CloudFrontOriginAccessIdentity().withId(oaIdentity);
+        GetCloudFrontOriginAccessIdentityResult getOaiResult =
+            new GetCloudFrontOriginAccessIdentityResult()
+                .withCloudFrontOriginAccessIdentity(oai);
         EasyMock
-            .expect(service.getOriginAccessIdentity(EasyMock.isA(String.class)))
-            .andReturn(oaIdentity)
+            .expect(cfClient.getCloudFrontOriginAccessIdentity(
+                EasyMock.isA(GetCloudFrontOriginAccessIdentityRequest.class)))
+            .andReturn(getOaiResult)
             .times(1);
 
-        S3Origin origin2 = new S3Origin(bucketName);
-        StreamingDistribution dist =
-            new StreamingDistribution("id", "status", null, domainName,
-                                      origin2, null, "comment", true);
-        StreamingDistribution[] distributions = {dist};
-
-        EasyMock
-            .expect(service.listStreamingDistributions())
-            .andReturn(distributions)
-            .times(1);
-
-        EasyMock.replay(service);
-        return service;
+        EasyMock.replay(cfClient);
+        return cfClient;
     }
 
 }

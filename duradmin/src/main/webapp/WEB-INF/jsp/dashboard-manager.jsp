@@ -131,7 +131,7 @@ a.download-button, a.back-link {
 #main-content-tabs>div {
 	background: #FFFFFF;
 	color: #555;
-    background: #9E9E9E url(../images/bg_list_browser_header.gif) no-repeat top right
+    background-color: #9E9E9E
 }
 
 #main-content-panel {
@@ -144,7 +144,7 @@ a.download-button, a.back-link {
 	background: #ffffff url(images/ui-bg_flat_75_ffffff_40x100.png) 50% 50%
 		repeat-x;
 	color: #222222;
-  background:#9e9e9e url(../images/bg_list_browser_header.gif) no-repeat top right !important;
+  background:#9e9e9e url(images/bg_list_browser_header.gif) no-repeat top right !important;
 
  */
  
@@ -226,6 +226,12 @@ table {
 a.button {
   padding-bottom:7px;
     color:#AAA;
+    }
+
+.ui-state-default, 
+.ui-widget-content .ui-state-default, 
+.ui-widget-header .ui-state-default {
+   background: #6e6e6e 
 }
 
 

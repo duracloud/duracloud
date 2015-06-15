@@ -1,12 +1,15 @@
 /*
- * Copyright (c) 2009-2011 DuraSpace. All rights reserved.
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
  */
 package org.duracloud.account.db.model.util;
 
-import org.duracloud.account.db.model.AccountType;
-import org.duracloud.storage.domain.StorageProviderType;
-
 import java.util.Set;
+
+import org.duracloud.storage.domain.StorageProviderType;
 
 /**
  * Bean to be used for collecting information from users in order to create
@@ -49,32 +52,18 @@ public class AccountCreationInfo {
      */
     private Set<StorageProviderType> secondaryStorageProviderTypes;
 
-    /*
-     * The type of account to create.
-     */
-    private AccountType accountType;
-
-    /*
-     * The ID of the account cluster this account should join
-     */
-    private Long accountClusterId;
-
     public AccountCreationInfo(String subdomain,
                                String acctName,
                                String orgName,
                                String department,
                                StorageProviderType primaryStorageProviderType,
-                               Set<StorageProviderType> secondaryStorageProviderTypes,
-                               AccountType accountType,
-                               Long accountClusterId) {
+                               Set<StorageProviderType> secondaryStorageProviderTypes) {
         this.subdomain = subdomain;
         this.acctName = acctName;
         this.orgName = orgName;
         this.department = department;
         this.primaryStorageProviderType = primaryStorageProviderType;
         this.secondaryStorageProviderTypes = secondaryStorageProviderTypes;
-        this.accountType = accountType;
-        this.accountClusterId = accountClusterId;
     }
 
     public String getSubdomain() {
@@ -99,15 +88,6 @@ public class AccountCreationInfo {
 
     public Set<StorageProviderType> getSecondaryStorageProviderTypes() {
         return secondaryStorageProviderTypes;
-    }
-
-
-    public AccountType getAccountType() {
-        return accountType;
-    }
-
-    public Long getAccountClusterId() {
-        return accountClusterId;
     }
 
 }

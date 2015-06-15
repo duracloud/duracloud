@@ -25,6 +25,7 @@ public class SecurityConfigTest {
     private static final int NUM_USERS = 3;
     private String[] usernames = {"username0", "username1", "username2"};
     private String[] passwords = {"password0", "password1", "password2"};
+    private String[] ipLimits = {"1.2.3.4/0", "127.0.0.1/32", ""};
     private String[] enableds = {"true", "false", "true"};
     private String[] acctNonExpireds = {"false", "true", "false"};
     private String[] credNonExpireds = {"false", "false", "true"};
@@ -53,6 +54,7 @@ public class SecurityConfigTest {
             String p = prefix + i + dot;
             props.put(p + SecurityConfig.usernameKey, usernames[i]);
             props.put(p + SecurityConfig.passwordKey, passwords[i]);
+            props.put(p + SecurityConfig.ipLimitsKey, ipLimits[i]);
             props.put(p + SecurityConfig.enabledKey, enableds[i]);
             props.put(p + SecurityConfig.acctNonExpiredKey, acctNonExpireds[i]);
             props.put(p + SecurityConfig.credNonExpiredKey, credNonExpireds[i]);
@@ -100,6 +102,8 @@ public class SecurityConfigTest {
         Assert.assertNotNull(password);
         Assert.assertEquals(usernames[i], username);
         Assert.assertEquals(passwords[i], password);
+
+        Assert.assertEquals(ipLimits[i], user.getIpLimits());
 
         List<String> granteds = user.getGrantedAuthorities();
         Assert.assertNotNull(granteds);

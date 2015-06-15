@@ -210,7 +210,7 @@
                           <fmt:formatNumber value="${percent}" maxFractionDigits="0"/>%  of                     
                         </td>
                         <td>
-                           <fmt:formatNumber value="${file.length()/(1024*1000)}" maxFractionDigits="2"/> MBs
+                           <fmt:formatNumber value="${file.length()/(1000*1000)}" maxFractionDigits="2"/> MBs
                         </td>
                         <td>
                           ${file.name}

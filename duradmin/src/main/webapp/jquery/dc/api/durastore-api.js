@@ -304,8 +304,28 @@ var dc;
         if(!openSpace){
             contentUrl = contentUrl.replace("http://", "https://");}
         return j2kViewerBaseURL + "/viewer.html?rft_id=" + encodeURIComponent(contentUrl);
-	};	
+	};
 
+    /**
+     * Retrieves a streaming URL for a given content item in a given space.
+     * The URL will be either signed or unsigned, depending on the streaming type.
+     */
+    dc.store.GetStreamingUrl = function(contentItem, streamingType, callback){
+        return dc.ajax({
+            url: "/duradmin/spaces/content/streaming-url",
+            data: "storeId="+contentItem.storeId+
+                  "&spaceId="+encodeURIComponent(contentItem.spaceId)+
+                  "&contentId="+encodeURIComponent(contentItem.contentId)+
+                  "&streamingType="+streamingType,
+            cache: false,
+            success: function(data){
+                callback.success(data.streamingUrl);
+            },
+            failure: function(data){
+                callback.failure(data);
+            }
+        },callback);
+    };
 	
 	/**
 	 * 

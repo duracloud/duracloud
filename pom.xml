@@ -4,7 +4,7 @@
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
     <packaging>pom</packaging>
-    <version>3.2.5</version>
+    <version>3.3.0</version>
     <name>DuraCloud</name>
     <description>Cloud-based digital content preservation system</description>
     <url>http://duracloud.org</url>
@@ -70,6 +70,7 @@
         <module>storeclient</module>
         <module>security</module>
         <module>computeprovider</module>
+        <module>storageproviderdata</module>
         <module>s3storageprovider</module>
         <module>glacierstorageprovider</module>
         <module>openstackstorageprovider</module>
@@ -105,10 +106,8 @@
         <profile>
             <id>profile-dev</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
                 <property>
-                    <name>profile</name>
-                    <value>dev</value>
+                    <name>!skipDeploy</name>
                 </property>
             </activation>
 
@@ -236,16 +235,6 @@
             </build>
         </profile>
 
-        <profile>
-            <id>profile-empty</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>skipDeploy</name>
-                </property>
-            </activation>
-        </profile>
-      
     </profiles>
 
     <properties>
@@ -1118,7 +1107,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
-                <version>1.9.1</version>
+                <version>1.9.22</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1236,18 +1225,6 @@
               <version>17.0</version>
             </dependency>
             
-            <dependency>
-              <groupId>net.java.dev.jets3t</groupId>
-              <artifactId>jets3t</artifactId>
-              <version>0.8.1</version>
-               <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
             <dependency>
               <groupId>aopalliance</groupId>
               <artifactId>aopalliance</artifactId>

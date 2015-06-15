@@ -9,12 +9,9 @@ package org.duracloud.s3storage;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.elasticmapreduce.AmazonElasticMapReduceClient;
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.storage.error.StorageException;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.security.AWSCredentials;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,12 +24,8 @@ import static org.duracloud.storage.error.StorageException.RETRY;
  */
 public class S3ProviderUtil {
 
-    private static Map<String, AmazonS3Client> s3Clients =
-        new HashMap<String, AmazonS3Client>();
-    private static Map<String, CloudFrontService> cloudFrontServices =
-        new HashMap<String, CloudFrontService>();
-    private static Map<String, AmazonElasticMapReduceClient> emrClients =
-        new HashMap<String, AmazonElasticMapReduceClient>();
+    private static Map<String, AmazonS3Client> s3Clients = new HashMap<>();
+    private static Map<String, AmazonCloudFrontClient> cloudFrontClients = new HashMap<>();
 
     public static AmazonS3Client getAmazonS3Client(String accessKey,
                                                    String secretKey) {
@@ -61,50 +54,26 @@ public class S3ProviderUtil {
         }
     }
 
-    public static CloudFrontService getCloudFrontService(String accessKey,
-                                                         String secretKey) {
-        CloudFrontService service = cloudFrontServices.get(key(accessKey,
-                                                               secretKey));
-        if (null == service) {
-            service = newCloudFrontService(accessKey, secretKey);
-            cloudFrontServices.put(key(accessKey, secretKey), service);
-        }
-        return service;
-    }
-
-    private static CloudFrontService newCloudFrontService(String accessKey,
-                                                          String secretKey) {
-        AWSCredentials awsCredentials = new AWSCredentials(accessKey,
-                                                           secretKey);
-        try {
-            return new CloudFrontService(awsCredentials);
-        } catch (CloudFrontServiceException e) {
-            String err = "Could not create connection to Amazon CloudFront " +
-                         "due to error: " + e.getMessage();
-            throw new StorageException(err, e, RETRY);
-        }
-    }
-
-    public static AmazonElasticMapReduceClient getAmazonEMRClient(String accessKey,
-                                                                  String secretKey) {
-        AmazonElasticMapReduceClient client = emrClients.get(key(accessKey,
-                                                                 secretKey));
-        if(null == client) {
-            client = newAmazonEMRClient(accessKey, secretKey);
-            emrClients.put(key(accessKey, secretKey), client);
+    public static AmazonCloudFrontClient getAmazonCloudFrontClient(String accessKey,
+                                                                   String secretKey) {
+        AmazonCloudFrontClient client =
+            cloudFrontClients.get(key(accessKey, secretKey));
+        if (null == client) {
+            client = newAmazonCloudFrontClient(accessKey, secretKey);
+            cloudFrontClients.put(key(accessKey, secretKey), client);
         }
         return client;
     }
 
-    private static AmazonElasticMapReduceClient newAmazonEMRClient(String accessKey,
-                                                                   String secretKey) {
-        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey,
-                                                                     secretKey);
+    private static AmazonCloudFrontClient newAmazonCloudFrontClient(String accessKey,
+                                                                    String secretKey) {
+        BasicAWSCredentials awsCredentials =
+            new BasicAWSCredentials(accessKey, secretKey);
         try {
-            return new AmazonElasticMapReduceClient(awsCredentials);
+            return new AmazonCloudFrontClient(awsCredentials);
         } catch (AmazonServiceException e) {
-            String err = "Could not create connection to Amazon Elastic Map " +
-                         "Reduce due to error: " + e.getMessage();
+            String err = "Could not create connection to Amazon CloudFront " +
+                         "due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
         }
     }

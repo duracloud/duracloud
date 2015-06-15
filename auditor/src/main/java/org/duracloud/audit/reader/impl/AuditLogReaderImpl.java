@@ -114,9 +114,7 @@ public class AuditLogReaderImpl implements AuditLogReader {
 
     private void checkEnabled() throws AuditLogReaderNotEnabledException{
         if(auditConfig.getAuditLogSpaceId() == null ||
-            auditConfig.getAuditQueueName() == null || 
-            auditConfig.getAuditUsername() == null || 
-            auditConfig.getAuditPassword() == null){
+           auditConfig.getAuditQueueName() == null){
             throw new AuditLogReaderNotEnabledException();
         }
     }

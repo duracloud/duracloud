@@ -7,12 +7,14 @@
  */
 package org.duracloud.s3task.streaming;
 
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.cloudfront.model.StreamingDistributionSummary;
 import com.amazonaws.services.s3.AmazonS3Client;
+import org.duracloud.StorageTaskConstants;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storageprovider.dto.DisableStreamingTaskParameters;
+import org.duracloud.s3storageprovider.dto.DisableStreamingTaskResult;
 import org.duracloud.storage.provider.StorageProvider;
-import org.jets3t.service.CloudFrontService;
-import org.jets3t.service.CloudFrontServiceException;
-import org.jets3t.service.model.cloudfront.StreamingDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +27,17 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
     private final Logger log =
         LoggerFactory.getLogger(DisableStreamingTaskRunner.class);
 
-    public static final String TASK_NAME = "disable-streaming";
+    private static final String TASK_NAME =
+        StorageTaskConstants.DISABLE_STREAMING_TASK_NAME;
 
     public DisableStreamingTaskRunner(StorageProvider s3Provider,
                                       S3StorageProvider unwrappedS3Provider,
                                       AmazonS3Client s3Client,
-                                      CloudFrontService cfService) {
+                                      AmazonCloudFrontClient cfClient) {
         this.s3Provider = s3Provider;
         this.unwrappedS3Provider = unwrappedS3Provider;
         this.s3Client = s3Client;
-        this.cfService = cfService;
+        this.cfClient = cfClient;
     }
 
     public String getName() {
@@ -42,36 +45,34 @@ public class DisableStreamingTaskRunner extends BaseStreamingTaskRunner {
     }
 
     public String performTask(String taskParameters) {
-        String spaceId = getSpaceId(taskParameters);
+        DisableStreamingTaskParameters taskParams =
+            DisableStreamingTaskParameters.deserialize(taskParameters);
+
+        String spaceId = taskParams.getSpaceId();
         log.info("Performing " + TASK_NAME + " task on space " + spaceId);        
 
         // Will throw if bucket does not exist
         String bucketName = unwrappedS3Provider.getBucketName(spaceId);
-        String results;
+        DisableStreamingTaskResult taskResult = new DisableStreamingTaskResult();
 
         removeStreamingHostFromSpaceProps(spaceId);
 
-        try {
-            // Ensure that there is an existing distribution for the given space
-            StreamingDistribution existingDist =
-                getExistingDistribution(bucketName);
+        // Ensure that there is an existing distribution for the given space
+        StreamingDistributionSummary existingDist =
+            getExistingDistribution(bucketName);
 
-            if(existingDist != null) {
-                s3Client.deleteBucketPolicy(bucketName);
-            } else {
-                throw new RuntimeException("No streaming distribution " +
-                                           "exists for space " + spaceId);
-            }
-
-            results = "Disable Streaming Task completed successfully";
-        } catch(CloudFrontServiceException e) {
-            log.warn("Error encountered running " + TASK_NAME + " task: " +
-                     e.getMessage(), e);            
-            results = "Disable Streaming Task failed due to: " + e.getMessage();
+        if(existingDist != null) {
+            s3Client.deleteBucketPolicy(bucketName);
+        } else {
+            throw new RuntimeException("No streaming distribution " +
+                                       "exists for space " + spaceId);
         }
 
-        log.debug("Result of " + TASK_NAME + " task: " + results);        
-        return results;
+        taskResult.setResult("Disable Streaming Task completed successfully");
+
+        String toReturn = taskResult.serialize();
+        log.info("Result of " + TASK_NAME + " task: " + toReturn);
+        return toReturn;
     }
 
 }

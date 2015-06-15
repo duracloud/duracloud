@@ -286,7 +286,11 @@ $(function(){
 		
 		var spNameMap = {};
 		spNameMap["AMAZON_S3"] = "Amazon S3";
+		spNameMap["AMAZON_GLACIER"] = "Amazon Glacier";
 		spNameMap["RACKSPACE"] = "Rackspace";
+		spNameMap["SDSC"] = "SDSC";
+		spNameMap["SNAPSHOT"] = "Snapshot";
+		spNameMap["IRODS"] = "iRODS";
 		dc.STORAGE_PROVIDER_KEY_MAP = spNameMap;
 
 		
@@ -299,7 +303,7 @@ $(function(){
 				showUnits = true;
 			}
 			
-			value = new Number(value/(1024*1024*1024));
+			value = new Number(value/(1000*1000*1000));
 			value =  value.toFixed(parseInt(decimalplaces));
 			
 			if(showUnits){
@@ -544,11 +548,11 @@ $(function(){
             bytes = new Number(bytes);
             var bytesValue = bytes + " bytes";
             
-            if(bytes < 1024){
+            if(bytes < 1000){
                 return bytesValue;
-            }else if(bytes < 1024*1000){
+            }else if(bytes < 1000*1000){
                val = (bytes/1000).toFixed(1) + " KB";
-            }else if(bytes < 1024*1000*1000){
+            }else if(bytes < 1000*1000*1000){
                 val = (bytes/(1000*1000)).toFixed(1) + " MB";
             }else{
                 val = (bytes/(1000*1000*1000)).toFixed(1) + " GB";
@@ -559,6 +563,30 @@ $(function(){
             }
             return val;
         };
+        
+  
+        dc.hexEncode = function(val) {
+          var hex, i;
+    
+          var result = "";
+          for (i = 0; i < val.length; i++) {
+            hex = val.charCodeAt(i).toString(16);
+            result += ("000" + hex).slice(-4);
+          }
+    
+          return result
+        };
+  
+      dc.hexDecode = function(val) {
+        var j;
+        var hexes = val.match(/.{1,4}/g) || [];
+        var back = "";
+        for (j = 0; j < hexes.length; j++) {
+          back += String.fromCharCode(parseInt(hexes[j], 16));
+        }
+  
+        return back;
+      };        
 
 	})();
 });

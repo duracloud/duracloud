@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,16 +145,40 @@ public class ChangedList {
      * Restores the state of the ChangedList using the given backup file
      *
      * @param persistFile file containing previous state
+     * @param contentDirs content directories currently configured.
      */
-    public void restore(File persistFile) {
+    public void restore(File persistFile, List<File> contentDirs) {
         try {
             FileInputStream fileStream = new FileInputStream(persistFile);
             ObjectInputStream oStream = new ObjectInputStream(fileStream);
 
             synchronized(this) {
                 fileList = (LinkedHashMap<String, ChangedFile>) oStream.readObject();
-            }
 
+                //remove files in change list that are not in the content dir list.
+                if (contentDirs != null && !contentDirs.isEmpty()) {
+
+                    Iterator<Entry<String, ChangedFile>> entries =
+                        fileList.entrySet().iterator();
+                    while (entries.hasNext()) {
+                        Entry<String, ChangedFile> entry = entries.next();
+                        ChangedFile file = entry.getValue();
+                        boolean watched = false;
+                        for (File contentDir : contentDirs) {
+                            if (file.getFile()
+                                    .getAbsolutePath()
+                                    .startsWith(contentDir.getAbsolutePath())) {
+                                watched = true;
+                                break;
+                            }
+                        }
+
+                        if (!watched) {
+                            entries.remove();
+                        }
+                    }
+                }
+            }
             oStream.close();
         } catch(Exception e) {
             throw new RuntimeException("Unable to restore File Changed List:" +
@@ -161,6 +186,7 @@ public class ChangedList {
         }
     }
     
+
     public synchronized List<File> peek(int maxFiles){
         List<File> files = new LinkedList<File>();
         Iterator<Entry<String, ChangedFile>> it = this.fileList.entrySet().iterator();

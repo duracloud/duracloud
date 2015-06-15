@@ -4,13 +4,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>duradmin</artifactId>
   <packaging>war</packaging>
-  <version>3.2.5</version>
+  <version>3.3.0</version>
   <name>DuraCloud Administrator</name>
   <url>http://localhost:8080/${project.artifactId}</url>
   <parent>
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
-    <version>3.2.5</version>
+    <version>3.3.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -80,15 +80,6 @@
               <targetPath>${jquery.plugin.target.path}</targetPath>
               <includes>
                 <include>jquery.ba-throttle-debounce.js</include>
-              </includes>
-            </overlay>
-            <overlay>
-              <groupId>org.duracloud</groupId>
-              <artifactId>jquery.history</artifactId>
-              <type>zip</type>
-              <targetPath>${jquery.plugin.target.path}</targetPath>
-              <includes>
-                <include>jquery.history.js</include>
               </includes>
             </overlay>
             <overlay>
@@ -191,7 +182,13 @@
       <artifactId>storageprovider</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>storageproviderdata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>snapshotstorageprovider</artifactId>
@@ -435,12 +432,6 @@
       <version>1.1</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>jquery.history</artifactId>
-      <type>zip</type>
-      <version>1.7.1-r2</version>
-    </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>

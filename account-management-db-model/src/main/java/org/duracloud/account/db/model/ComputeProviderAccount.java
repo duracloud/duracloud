@@ -45,10 +45,6 @@ public class ComputeProviderAccount extends ProviderAccount {
      */
     private String keypair;
     
-    /**
-     * The name of the audit queue to be associated with DuraStore.
-     */
-    private String auditQueue;
 
     public ComputeProviderType getProviderType() {
         return providerType;
@@ -80,13 +76,5 @@ public class ComputeProviderAccount extends ProviderAccount {
 
     public void setKeypair(String keypair) {
         this.keypair = keypair;
-    }
-
-    public String getAuditQueue() {
-        return auditQueue;
-    }
-
-    public void setAuditQueue(String auditQueue) {
-        this.auditQueue = auditQueue;
     }
 }

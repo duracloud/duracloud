@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="false" scan="false">
+
+  <property name="HISTORY_LOG_FILENAME" value="${sync.work}/logs/history.log" />
+  <appender name="HISTORY_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${HISTORY_LOG_FILENAME}</File>
+    <encoder>
+      <pattern>%d{yyyy/MM/dd HH:mm:ss} - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${HISTORY_LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  <logger name="history-log" level="INFO">
+    <appender-ref ref="HISTORY_LOG"/>
+  </logger>
+
+
+  <property name="SYNC_LOG_FILENAME" value="${sync.work}/logs/sync.log" />
+  <appender name="SYNC_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${SYNC_LOG_FILENAME}</File>
+    <encoder>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${SYNC_LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  <logger name="org.duracloud.sync" level="INFO">
+    <appender-ref ref="SYNC_LOG"/>
+  </logger>
+
+  <property name="COMPLETE_LOG_FILENAME" value="${sync.work}/logs/complete.log" />
+  <appender name="COMPLETE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+    <File>${COMPLETE_LOG_FILENAME}</File>
+    <encoder>
+      <pattern>%-6p %d{yyyy/MM/dd HH:mm:ss} [%t] \(%F:%L\) [%M\(\)] - %m%n</pattern>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <maxIndex>5</maxIndex>
+      <FileNamePattern>${COMPLETE_LOG_FILENAME}.%i</FileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <MaxFileSize>20MB</MaxFileSize>
+    </triggeringPolicy>
+  </appender>
+  <root level="INFO">
+    <appender-ref ref="COMPLETE_LOG"/>
+  </root>
+
+</configuration>
