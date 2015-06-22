@@ -39,7 +39,6 @@
     <dependency>
       <groupId>org.duracloud.db</groupId>
       <artifactId>mill-db-repo</artifactId>
-      <version>${duracloud.db.version}</version>
     </dependency>
 
     <!--utilities-->

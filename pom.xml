@@ -534,6 +534,12 @@
         <dependencies>
 
             <dependency>
+                <groupId>org.duracloud.db</groupId>
+                <artifactId>mill-db-repo</artifactId>
+                <version>${duracloud.db.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.10</version>
