@@ -37,9 +37,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.duracloud</groupId>
-      <artifactId>mill-jpa-repo</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.duracloud.db</groupId>
+      <artifactId>mill-db-repo</artifactId>
+      <version>${duracloud.db.version}</version>
     </dependency>
 
     <!--utilities-->

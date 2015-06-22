@@ -79,13 +79,10 @@
         <module>irodsstorageprovider</module>
         <module>snapshotdata</module>
         <module>snapshotstorageprovider</module>
-        <module>mill-jpa-repo</module>
         <module>manifest</module>
         <module>durastore</module>
         <module>reportdata</module>
         <module>reporter</module>
-        <module>account-management-db-model</module>
-        <module>account-management-db-repo</module>
         <module>auditor</module>
         <module>duraboss</module>
         <module>reportclient</module>
@@ -249,17 +246,17 @@
         <log.level.default>INFO</log.level.default>
         <log.level>${log.level.default}</log.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <duracloud.db.version>3.3.1</duracloud.db.version>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
         <org.springframework.webflow.version>2.3.3.RELEASE</org.springframework.webflow.version>
-        <org.springframework.data.jpa.version>1.6.0.RELEASE</org.springframework.data.jpa.version>
         <mysql.driver.version>5.1.28</mysql.driver.version>
         <hibernate.version>4.3.2.Final</hibernate.version>
         <jclouds.version>1.8.0</jclouds.version>
         <jersey.version>2.5.1</jersey.version>
         <tiles.version>2.2.2</tiles.version>
         <selenium.version>2.19.0</selenium.version>
-        
     </properties>
 
     <distributionManagement>
@@ -1146,18 +1143,6 @@
               <version>${hibernate.version}</version>
               <scope>compile</scope>
             </dependency>
- 
-            <dependency>
-              <groupId>org.hibernate</groupId>
-              <artifactId>hibernate-entitymanager</artifactId>
-              <version>${hibernate.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.springframework.data</groupId>
-              <artifactId>spring-data-jpa</artifactId>
-              <version>${org.springframework.data.jpa.version}</version>
-            </dependency>
 
             <dependency>
               <groupId>org.springframework.data</groupId>
@@ -1177,18 +1162,6 @@
               <version>1.4</version>
             </dependency>
 
-            <dependency>
-              <groupId>mysql</groupId>
-              <artifactId>mysql-connector-java</artifactId>
-              <version>${mysql.driver.version}</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.hibernate.javax.persistence</groupId>
-              <artifactId>hibernate-jpa-2.1-api</artifactId>
-              <version>1.0.0.Final</version>
-            </dependency>
-		
             <dependency>
               <groupId>org.apache.xmlbeans</groupId>
               <artifactId>xmlbeans-xpath</artifactId>
