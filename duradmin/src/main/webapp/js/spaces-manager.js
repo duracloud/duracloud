@@ -3360,11 +3360,11 @@ $(function() {
 
       this._loadProperties(props);
       
-      var shProps = [ this._getMetadataDataTableTemplate() ];
+      var shProps = [ this._getHistoryDataTableTemplate() ];
       
       this._loadSnapshotHistoryPanel(shProps);
       
-      this._loadMetadata(snapshot.sourceStoreId, snapshot.snapshotId);
+      this._loadHistory(snapshot.sourceStoreId, snapshot.snapshotId);
 
       this._configureRestoreControls();
     },
@@ -3457,17 +3457,17 @@ $(function() {
         return propertiesDiv;
     },
     
-    _getMetadataDataTableTemplate : function() {
+    _getHistoryDataTableTemplate : function() {
     	var table = $.fn.create('table');
-    	table.attr({ 'id': 'snapshot_metadata', 'data-order': '[[ 0, "desc" ]]', 'data-page-length': '10' });
+    	table.attr({ 'id': 'snapshot_history', 'data-order': '[[ 0, "desc" ]]', 'data-page-length': '10' });
     	var thead = $.fn.create('thead');
     	var tr = $.fn.create('tr');
-    	var metadataDateTH = $.fn.create('th');
-    	metadataDateTH.append("Date");
-    	var metadataTH = $.fn.create('th');
-    	metadataTH.append("Property");
-    	tr.append(metadataDateTH);
-    	tr.append(metadataTH);
+    	var historyDateTH = $.fn.create('th');
+    	historyDateTH.append("Date");
+    	var historyTH = $.fn.create('th');
+    	historyTH.append("Property");
+    	tr.append(historyDateTH);
+    	tr.append(historyTH);
     	thead.append(tr);
     	table.append(thead);
     	var tbody = $.fn.create('tbody');
@@ -3475,15 +3475,15 @@ $(function() {
     	return table;
     },
     
-    _loadMetadata : function(storeId, snapshotId) {
+    _loadHistory : function(storeId, snapshotId) {
     	
-    	dc.store.GetSnapshotMetadata(storeId, snapshotId, "0").success(function(data) {
-    		$('#snapshot_metadata').dataTable( {
+    	dc.store.GetSnapshotHistory(storeId, snapshotId, "0").success(function(data) {
+    		$('#snapshot_history').dataTable( {
     			autoWidth: false,
     		    processing: true,
-                data: data.metadataItems,
+                data: data.historyItems,
                 columns: [
-                  { data: 'metadataDate', width: '30%', render: function (data, type, row, meta) {
+                  { data: 'historyDate', width: '30%', render: function (data, type, row, meta) {
                 	  		// make sure we 'display' and 'filter' the String of the date
                 	  		if ( type === 'display' || type === 'filter' ) {
                 	  			return new Date(data);
@@ -3494,7 +3494,7 @@ $(function() {
                 	  		}
                 	  }
                   },
-                  { data: 'metadata', width: '70%', render: function (data, type, row, meta) {
+                  { data: 'history', width: '70%', render: function (data, type, row, meta) {
 		                	// make sure we 'display' the String of the date
 		          	  		if ( type === 'display') {
 		          	  			var ret = "";
@@ -3566,7 +3566,7 @@ $(function() {
     	}).error(function(jqxhr, textStatus, errorThrown) {
     		dc.done();
     		dc.displayErrorDialog(jqxhr, 
-                              "Unable to get snapshot metadata history.", 
+                              "Unable to get snapshot history.", 
                               errorThrown);
     	});
     },

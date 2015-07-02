@@ -515,13 +515,13 @@ var dc;
         });
     };
     
-    dc.store.GetSnapshotMetadata = function(storeId, snapshotId, page){
+    dc.store.GetSnapshotHistory = function(storeId, snapshotId, page){
         if(!page){
             page = 0;
         }
         return dc.ajax2({
             url : "/duradmin/spaces/snapshots/" + storeId + "/" + snapshotId
-                    + "/metadata?page=" + page,
+                    + "/history?page=" + page,
             dataType : 'json',
             async : true,
             type : "get",
