@@ -8,7 +8,7 @@
     <bean name="jsonView" class="org.springframework.web.servlet.view.json.JsonView">
 	    <property name="encoding"><value>UTF-8</value></property>
 	    <property name="contentType"><value>application/json</value></property>
-	    <property name="jsonWriter"><ref bean="jsonlibJsonWriter"/></property>
+	    <property name="jsonWriter"><ref bean="jsonlibJsonWriterWithDates"/></property>
     	<property name="jsonErrors">
 	    	<list>
 	        	<ref bean="modelflagError" />
@@ -24,12 +24,20 @@
     <bean name="javascriptJsonView" class="org.springframework.web.servlet.view.json.JsonView">
 	    <property name="encoding"><value>UTF-8</value></property>
 	    <property name="contentType"><value>text/plain</value></property>
-	    <property name="jsonWriter"><ref bean="jsonlibJsonWriter"/></property>
+	    <property name="jsonWriter"><ref bean="jsonlibJsonWriterWithDates"/></property>
     	<property name="jsonErrors">
 	    	<list>
 	        	<ref bean="modelflagError" />
 	        </list>
         </property>
+    </bean>
+
+	<!-- New jsonlib string writer that supports parsing java.util.Date as long (epoch time) instead of using toString() 
+                -Gad
+         -->
+    <bean name="jsonlibJsonWriterWithDates" class="org.duracloud.duradmin.util.JsonlibJsonStringWriterWithDates">
+        <property name="convertAllMapValues"><value>true</value></property>
+        <property name="keepNullProperties"><value>true</value></property>
     </bean>
 
 	<!-- I chose jsonlib rather than xstream or sojo because it worked straight away while the others did not.

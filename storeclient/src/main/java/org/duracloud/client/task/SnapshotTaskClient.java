@@ -14,6 +14,7 @@ import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 
@@ -102,6 +103,20 @@ public interface SnapshotTaskClient {
                                                              int pageNumber,
                                                              int pageSize,
                                                              String prefix)
+        throws ContentStoreException;
+    
+    /**
+     * Gets the list of history items that are contained in the snapshot.
+     *
+     * @param snapshotId the ID of the snapshot to retrieve
+     * @param pageNumber the page number of result set pages
+     * @param pageSize the maximum number of content items to include in the result set
+     * @return list of history items
+     * @throws ContentStoreException on error
+     */
+    public GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId,
+                                                             int pageNumber,
+                                                             int pageSize)
         throws ContentStoreException;
 
     /**

@@ -3346,7 +3346,8 @@ $(function() {
       if (snapshot.snapshotDate) {
         snapshotDate = new Date(snapshot.snapshotDate);
       }
-      var props = [ [ "Description", snapshot.description ], 
+      var props = [ [ "Description", snapshot.description ],
+                    [ "Alternate Ids", snapshot.alternateIds.toString() ],
                     [ "Snapshot Date", snapshotDate.toString() ], 
                     [ "Source Host", snapshot.sourceHost ], 
                     [ "Source Store", snapshot.sourceStoreId ], 
@@ -3358,6 +3359,12 @@ $(function() {
       ];
 
       this._loadProperties(props);
+      
+      var shProps = [ this._getMetadataDataTableTemplate() ];
+      
+      this._loadSnapshotHistoryPanel(shProps);
+      
+      this._loadMetadata(snapshot.sourceStoreId, snapshot.snapshotId);
 
       this._configureRestoreControls();
     },
@@ -3430,6 +3437,138 @@ $(function() {
       that._getRestoreLink().unbind("click").click(function() {
         HistoryManager.pushState(that._createUniqueStateObject(restoreSpace));
       }).show();
+    },
+    
+    _loadSnapshotHistoryPanel : function(
+	    /* array */properties) {
+        var propertiesDiv = $(".detail-properties", this.element).first();
+        
+        if (propertiesDiv.size() == 1) {
+          propertiesDiv = $.fn.create("div").addClass("detail-properties");
+          propertiesDiv.tabularexpandopanel({
+            title : "Snapshot History",
+            data : properties
+          });
+          this._appendToCenter(propertiesDiv);
+        } else {
+          $(propertiesDiv).tabularexpandopanel("setData", properties);
+        }
+        
+        return propertiesDiv;
+    },
+    
+    _getMetadataDataTableTemplate : function() {
+    	var table = $.fn.create('table');
+    	table.attr({ 'id': 'snapshot_metadata', 'data-order': '[[ 0, "desc" ]]', 'data-page-length': '10' });
+    	var thead = $.fn.create('thead');
+    	var tr = $.fn.create('tr');
+    	var metadataDateTH = $.fn.create('th');
+    	metadataDateTH.append("Date");
+    	var metadataTH = $.fn.create('th');
+    	metadataTH.append("Property");
+    	tr.append(metadataDateTH);
+    	tr.append(metadataTH);
+    	thead.append(tr);
+    	table.append(thead);
+    	var tbody = $.fn.create('tbody');
+    	table.append(tbody);
+    	return table;
+    },
+    
+    _loadMetadata : function(storeId, snapshotId) {
+    	
+    	dc.store.GetSnapshotMetadata(storeId, snapshotId, "0").success(function(data) {
+    		$('#snapshot_metadata').dataTable( {
+    			autoWidth: false,
+    		    processing: true,
+                data: data.metadataItems,
+                columns: [
+                  { data: 'metadataDate', width: '30%', render: function (data, type, row, meta) {
+                	  		// make sure we 'display' and 'filter' the String of the date
+                	  		if ( type === 'display' || type === 'filter' ) {
+                	  			return new Date(data);
+                	  		}
+                	  		// make sure we 'sort', and 'type' by the Long of the date
+                	  		else {
+                	  			return data;
+                	  		}
+                	  }
+                  },
+                  { data: 'metadata', width: '70%', render: function (data, type, row, meta) {
+		                	// make sure we 'display' the String of the date
+		          	  		if ( type === 'display') {
+		          	  			var ret = "";
+		          	  			// see if the data is a JSON array.
+		          	  			try {
+		          	  				var obj = $.parseJSON(data);
+		          	  				// if it is, output key => value pairs
+			          	  			if($.isArray(obj)) {
+			          	  				// we'll put our key=>value pairs in a new <table>
+			          	  				var table = $.fn.create('table');
+			          	  				var tr = $(document.createElement('tr'));
+			          	  				var th = $.fn.create('th');
+			          	  				th.css("padding", "5px 10px");
+			          	  				th.append("Name");
+			          	  				tr.append(th);
+			          	                var th = $.fn.create('th');
+			          	                th.css("padding", "5px 10px");
+			          	                th.append("Value");
+			          	                tr.append(th);
+			          	                table.append(tr);
+			          	  				// get each object in this array
+				          	  			$.each(obj, function(index, keypair) {
+				          	  				var tr = $.fn.create('tr');
+				          	  				// if this array position is an object
+				          	  				if($.isPlainObject(keypair)) {
+					          	  				// get each key=>value pair in this array index
+				          	  					$.each(keypair, function(key, value) {
+				          	  						var tdKey = $.fn.create('td');
+				          	  						var tdVal = $.fn.create('td');
+				          	  						tdKey.append(key);
+				          	  						tdVal.append(value);
+				          	  						tr.append(tdKey);
+				          	  						tr.append(tdVal);
+				          	  					});
+				          	  				}
+				          	  				// we're an array, but our element isn't an object that we can get a key=>value pair from.
+				          	  				// Treat keypair like a string.
+				          	  				else {
+				          	  					var tdKey = $.fn.create('td');
+		          	  							var tdVal = $.fn.create('td');
+			          	  						tdKey.append(index);
+			          	  						tdVal.append(keypair);
+				          	  					tr.append(tdKey);
+			          	  						tr.append(tdVal);
+				          	  				}
+				          	  				table.append(tr);
+			          	  				});
+				          	  			// we return our <table>'s html as a string
+				          	  			ret = table.prop('outerHTML');
+			          	  			}
+		          	  				// else, output plain string
+			          	  			else {
+			          	  				ret = data;
+			          	  			}
+		          	  			}		          	  			
+		          	  			catch(err) {
+		          	  				ret = data;
+		          	  			}
+		          	  			return ret;
+		          	  		}
+		          	  		// make sure we 'filter', 'sort', and 'type' by the Long of the date
+		          	  		else {
+		          	  			return data;
+		          	  		}
+                	  }
+                  },
+                ],
+    		} );
+    	}).error(function(jqxhr, textStatus, errorThrown) {
+    		dc.done();
+    		dc.displayErrorDialog(jqxhr, 
+                              "Unable to get snapshot metadata history.", 
+                              errorThrown);
+    	});
     },
   }));
 

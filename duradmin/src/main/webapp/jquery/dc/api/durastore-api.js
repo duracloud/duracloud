@@ -514,6 +514,19 @@ var dc;
             type : "get",
         });
     };
+    
+    dc.store.GetSnapshotMetadata = function(storeId, snapshotId, page){
+        if(!page){
+            page = 0;
+        }
+        return dc.ajax2({
+            url : "/duradmin/spaces/snapshots/" + storeId + "/" + snapshotId
+                    + "/metadata?page=" + page,
+            dataType : 'json',
+            async : true,
+            type : "get",
+        });
+    };
     /**
      * 
      */
