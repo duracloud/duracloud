@@ -115,8 +115,8 @@ public class SpaceListWorkerTest extends RetrievalTestBase {
         // Perform the listing and record the output file timestamp
         File outputFile1 = doTestSpaceList1();
         long modTime1 = Files.getLastModifiedTime(outputFile1.toPath()).toMillis();
-        // Wait a moment, just to make sure
-        Thread.sleep(10);
+        // Wait a moment, just to make sure file modified dates differ
+        Thread.sleep(2000);
         // Perform the listing again, and verify that file timestamp differs
         File outputFile2 = doTestSpaceList1();
         long modTime2 = Files.getLastModifiedTime(outputFile2.toPath()).toMillis();
