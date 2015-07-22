@@ -27,6 +27,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
 import org.apache.commons.lang.StringUtils;
+import org.duracloud.common.model.AclType;
 import org.duracloud.common.stream.ChecksumInputStream;
 import org.duracloud.common.util.ChecksumUtil;
 import org.duracloud.common.util.DateUtil;
@@ -209,12 +210,15 @@ public class S3StorageProvider extends StorageProviderBase {
             created = new Date();
         }
 
+        // Empty ACL set for new space (no permissions set)
+        Map<String, AclType> spaceACLs = new HashMap<>();
+
         // Add space properties
         Map<String, String> spaceProperties = new HashMap<>();
         spaceProperties.put(PROPERTIES_SPACE_CREATED, formattedDate(created));
 
         try {
-            setNewSpaceProperties(spaceId, spaceProperties);
+            setNewSpaceProperties(spaceId, spaceProperties, spaceACLs);
         } catch(StorageException e) {
             removeSpace(spaceId);
             String err = "Unable to create space due to: " + e.getMessage();
