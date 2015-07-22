@@ -75,7 +75,7 @@ public class SpaceListWorker implements Runnable {
                                outputFile.getAbsolutePath());
             Iterator<String> contentIterator = contentStore.getSpaceContents(spaceId);
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(outputFile), "UTF-8"));) {
+                    new FileOutputStream(outputFile), "UTF-8"))) {
                 while(contentIterator.hasNext()) {
                     String contentId = contentIterator.next();
                     if(!chunkUtil.isChunk(contentId) &&
