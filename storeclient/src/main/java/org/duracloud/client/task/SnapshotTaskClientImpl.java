@@ -21,6 +21,8 @@ import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskParameters;
+import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskParameters;
@@ -145,6 +147,21 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
                                      taskParams.serialize());
 
         return GetSnapshotContentsTaskResult.deserialize(taskResult);
+    }
+    
+    @Override
+    public GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId, int pageNumber, int pageSize) throws ContentStoreException {
+        GetSnapshotHistoryTaskParameters taskParams =
+                new GetSnapshotHistoryTaskParameters();
+        taskParams.setSnapshotId(snapshotId);
+        taskParams.setPageNumber(pageNumber);
+        taskParams.setPageSize(pageSize);
+
+        String taskResult = 
+            contentStore.performTask(SnapshotConstants.GET_SNAPSHOT_HISTORY_TASK_NAME,
+                                     taskParams.serialize());
+
+        return GetSnapshotHistoryTaskResult.deserialize(taskResult);
     }
 
     /**

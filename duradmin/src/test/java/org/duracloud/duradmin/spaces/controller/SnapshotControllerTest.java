@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +31,12 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.security.domain.SecurityUserBean;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
+import org.duracloud.snapshot.dto.SnapshotHistoryItem;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 import org.easymock.EasyMock;
@@ -176,6 +179,36 @@ public class SnapshotControllerTest extends EasyMockSupport {
         replayAll();
         SnapshotController controller = createController();
         Assert.assertNotNull(controller.get("storeId", "spaceId"));
+    }
+    
+    @Test
+    public void testGetHistory() throws Exception{
+        Integer page = 0;
+
+        List<SnapshotHistoryItem> items = new ArrayList<>();
+        for(int i = 0; i < 200; i++ ) {
+            SnapshotHistoryItem item = new SnapshotHistoryItem();
+            item.setHistory("history" + i);
+            item.setHistoryDate(new Date());
+            items.add(item);
+        }
+        GetSnapshotHistoryTaskResult result =
+            new GetSnapshotHistoryTaskResult();
+        result.setHistoryItems(items);
+
+        setupGetTaskClient(storeId);
+        EasyMock.expect(taskClient.getSnapshotHistory(snapshotId, page, 200))
+                .andReturn(result);
+
+        replayAll();
+
+        SnapshotController controller = createController();
+        ModelAndView mav = controller.getHistory(storeId, snapshotId, page);
+        Map<String,Object> model = mav.getModel();
+        Assert.assertEquals(model.get("storeId"), storeId);
+        Assert.assertEquals(model.get("snapshotId"), snapshotId);
+        Assert.assertEquals(model.get("page"),page);
+        Assert.assertEquals(model.get("nextPage"),page+1);
     }
 
     

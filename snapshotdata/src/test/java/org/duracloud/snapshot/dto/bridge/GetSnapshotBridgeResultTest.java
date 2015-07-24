@@ -7,14 +7,16 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
-import org.duracloud.snapshot.dto.SnapshotStatus;
-import org.junit.Test;
-
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.containsString;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.duracloud.snapshot.dto.SnapshotStatus;
+import org.junit.Test;
 
 
 /**
@@ -32,6 +34,12 @@ public class GetSnapshotBridgeResultTest {
     private String snapshotId = "snapshot-id";
     private Long contentItemCount = 424242l;
     private Long totalSizeInBytes = 111111l;
+    private String alternateId1 = "alternate-1", alternateId2 = "alternate-2";
+    private List<String> alternateIds = new ArrayList<String>();
+    {
+        alternateIds.add(alternateId1);
+        alternateIds.add(alternateId2);
+    }
     
     @Test
     public void testSerialize() {
@@ -47,6 +55,7 @@ public class GetSnapshotBridgeResultTest {
         params.setSnapshotDate(snapshotDate);
         params.setContentItemCount(contentItemCount);
         params.setTotalSizeInBytes(totalSizeInBytes);
+        params.setAlternateIds(alternateIds);
         
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
@@ -68,6 +77,8 @@ public class GetSnapshotBridgeResultTest {
                    containsString("\"contentItemCount\":"+contentItemCount));
         assertThat(cleanResult,
                    containsString("\"totalSizeInBytes\":"+totalSizeInBytes));
+        assertThat(cleanResult,
+                containsString("\"alternateIds\":[\"" + alternateId1 + "\",\"" + alternateId2 + "\"]"));
 
         GetSnapshotBridgeResult params2 =
             GetSnapshotBridgeResult.deserialize(result);
@@ -79,7 +90,6 @@ public class GetSnapshotBridgeResultTest {
         assertEquals(snapshotId, params2.getSnapshotId());
         assertEquals(contentItemCount, params2.getContentItemCount());
         assertEquals(totalSizeInBytes, params2.getTotalSizeInBytes());
-               
-        
+        assertEquals(alternateIds, params2.getAlternateIds());
     }
 }

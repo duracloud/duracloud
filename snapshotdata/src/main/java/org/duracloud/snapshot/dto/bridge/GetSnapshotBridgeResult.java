@@ -7,14 +7,16 @@
  */
 package org.duracloud.snapshot.dto.bridge;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlValue;
+
 import org.duracloud.common.json.JaxbJsonSerializer;
 import org.duracloud.snapshot.dto.BaseDTO;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.error.SnapshotDataException;
-
-import javax.xml.bind.annotation.XmlValue;
-import java.io.IOException;
-import java.util.Date;
 
 /**
  * @author Daniel Bernstein
@@ -49,6 +51,9 @@ public class GetSnapshotBridgeResult extends BaseDTO {
     @XmlValue
     private Long totalSizeInBytes;
     
+    @XmlValue
+    private List<String> alternateIds;
+        
     public GetSnapshotBridgeResult(){}
 
  
@@ -123,6 +128,14 @@ public class GetSnapshotBridgeResult extends BaseDTO {
     public void setTotalSizeInBytes(Long totalSizeInBytes) {
         this.totalSizeInBytes = totalSizeInBytes;
     }
+    
+    public List<String> getAlternateIds() {
+        return alternateIds;
+    }
+    
+    public void setAlternateIds(List<String> alternateIds) {
+        this.alternateIds = alternateIds;
+    }
 
     /**
      * Creates a serialized version of bridge result
@@ -155,5 +168,5 @@ public class GetSnapshotBridgeResult extends BaseDTO {
                 "Unable to deserialize result due to: " + e.getMessage());
         }
     }
-
+    
 }
