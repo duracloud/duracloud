@@ -190,7 +190,7 @@ $(function() {
     };
 
     $(window).bind("popstate pushstate statechanged", function(evt) {
-      var state = evt.originalEvent.state;
+      var state = history.state;
       if (!state) {
         state = buildStateFromUrl(window.location);
       }
