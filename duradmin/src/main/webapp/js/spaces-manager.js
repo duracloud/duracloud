@@ -3385,7 +3385,9 @@ $(function() {
         if(restoreSpace.spaceId){
           that._enableRestoreLink(restoreSpace);
         }else{
-          that._enableRestoreButton();
+          if(that._isRoot()){
+            that._enableRestoreButton();
+          }
         }
       }).error(function(jqxhr, textStatus, errorThrown) {
           dc.displayErrorDialog(jqxhr, 

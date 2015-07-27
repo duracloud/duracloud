@@ -10,6 +10,7 @@ package org.duracloud.security.vote;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
+import org.duracloud.security.util.SecurityUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
@@ -144,13 +145,7 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
     }
 
     private boolean isRoot(Authentication auth) {
-        for(GrantedAuthority g : auth.getAuthorities()){
-            if(g.getAuthority().equals("ROLE_ROOT")){
-                return true;
-            }
-        }
-        
-        return false;
+        return SecurityUtil.isRoot(auth);
     }
 
     private boolean isSnapshotInProgress(HttpServletRequest httpRequest) {

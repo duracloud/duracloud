@@ -21,6 +21,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
 import org.duracloud.client.task.SnapshotTaskClientManager;
 import org.duracloud.common.constant.Constants;
+import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
@@ -93,9 +94,13 @@ public class SnapshotController {
     }
 
     protected String getUserEmail(String username) {
-        String userEmail = userDetailsService.getUserByUsername(username)
-            .getEmail();
-        return userEmail;
+        if(username.equals(RootUserCredential.getRootUsername())){
+            return RootUserCredential.getRootEmail();
+        }else{
+            String userEmail = userDetailsService.getUserByUsername(username)
+                .getEmail();
+            return userEmail;
+        }
     }
 
     protected String getUsername(HttpServletRequest request) {
@@ -287,6 +292,7 @@ public class SnapshotController {
                           @RequestParam String storeId,
                           @RequestParam String snapshotId) throws Exception {
         try {
+            
             String userEmail = getUserEmail(getUsername(request));
             return getTaskClient(storeId).restoreSnapshot(snapshotId, userEmail).serialize();
         } catch (Exception e) {
