@@ -15,7 +15,7 @@
 
 (function() {
 /**
- * ACL Editor: used for displaying and manipulating acls on a space.
+ * Displays information about a space that was restored from a snapshot.
  * created by Daniel Bernstein
  */
 $.widget("ui.restore",
