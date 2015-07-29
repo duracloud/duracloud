@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.snapshottask.snapshot.CleanupSnapshotTaskRunner;
+import org.duracloud.snapshottask.snapshot.CompleteRestoreTaskRunner;
 import org.duracloud.snapshottask.snapshot.CompleteSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.CreateSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetRestoreTaskRunner;
@@ -87,6 +88,9 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                    bridgePort,
                                                    bridgeUser,
                                                    bridgePass));
+        taskList.add(new CompleteRestoreTaskRunner(snapshotProvider,
+                                                   unwrappedSnapshotProvider,
+                                                   s3Client));
         taskList.add(new GetRestoreTaskRunner(bridgeHost,
                                               bridgePort,
                                               bridgeUser,

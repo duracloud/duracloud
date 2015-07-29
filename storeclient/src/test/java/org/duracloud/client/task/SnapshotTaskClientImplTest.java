@@ -24,6 +24,7 @@ import org.duracloud.snapshot.dto.SnapshotHistoryItem;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.CompleteRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
@@ -63,6 +64,7 @@ public class SnapshotTaskClientImplTest {
     private String propValue = "prop-value";
     private String completionResult = "result";
     private String historyValue = "history";
+    private int daysToExpire = 30;
 
     @Before
     public void setup() {
@@ -246,6 +248,21 @@ public class SnapshotTaskClientImplTest {
         assertThat(spaceId, equalTo(result.getSpaceId()));
         assertThat(restoreId, equalTo(result.getRestoreId()));
         assertThat(restoreStatus, equalTo(result.getStatus()));
+    }
+
+    @Test
+    public void testCompleteRestore() throws Exception {
+        String taskName = SnapshotConstants.COMPLETE_RESTORE_TASK_NAME;
+
+        CompleteRestoreTaskResult preparedResult = new CompleteRestoreTaskResult();
+        preparedResult.setResult(completionResult);
+
+        setupMock(taskName, preparedResult.serialize());
+        replayMocks();
+
+        CompleteRestoreTaskResult result =
+            taskClient.completeRestore(spaceId, daysToExpire);
+        assertThat(completionResult, equalTo(result.getResult()));
     }
 
     @Test

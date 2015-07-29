@@ -12,6 +12,8 @@ import org.duracloud.error.ContentStoreException;
 import org.duracloud.snapshot.SnapshotConstants;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.CompleteRestoreTaskParameters;
+import org.duracloud.snapshot.dto.task.CompleteRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskParameters;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskParameters;
@@ -181,6 +183,22 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
                                      taskParams.serialize());
 
         return RestoreSnapshotTaskResult.deserialize(taskResult);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public CompleteRestoreTaskResult completeRestore(String spaceId,
+                                                     int daysToExpire)
+        throws ContentStoreException {
+        CompleteRestoreTaskParameters taskParams = new CompleteRestoreTaskParameters();
+        taskParams.setSpaceId(spaceId);
+        taskParams.setDaysToExpire(daysToExpire);
+
+        String taskResult =
+            contentStore.performTask(SnapshotConstants.COMPLETE_RESTORE_TASK_NAME,
+                                     taskParams.serialize());
+        return CompleteRestoreTaskResult.deserialize(taskResult);
     }
 
     /**
