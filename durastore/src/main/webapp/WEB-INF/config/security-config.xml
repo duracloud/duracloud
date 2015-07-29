@@ -30,7 +30,8 @@
 
     <intercept-url pattern="/task" method="GET" access="ROLE_ADMIN"/>
     <intercept-url pattern="/task" method="POST" access="ROLE_ADMIN"/>
-
+    <!-- limit snapshot restorals to root users (durachron-94) -->
+    <intercept-url pattern="/task/restore-snapshot" method="POST" access="ROLE_ROOT"/>
     <!-- limit access to the Glacier content restore capability -->
     <intercept-url pattern="/task/restore-content" method="POST" access="ROLE_ROOT"/>
 
@@ -69,16 +70,12 @@
     <beans:constructor-arg ref="userDetailsSvc"/>
   </beans:bean>
 
-  <beans:bean id="taskAccessVoter" class="org.duracloud.security.vote.TaskAccessVoter">
-  </beans:bean>
-
   <beans:bean id="duraAccessDecisionManager" class="org.duracloud.security.vote.AccessDecisionManagerImpl">
     <beans:property name="allowIfAllAbstainDecisions" value="false"/>
     <beans:property name="decisionVoters">
       <beans:list>
         <beans:ref bean="spaceReadAccessVoter"/>
         <beans:ref bean="spaceWriteAccessVoter"/>
-        <beans:ref bean="taskAccessVoter"/>
         <beans:bean class="org.duracloud.security.vote.RoleVoterImpl" />
         <beans:bean class="org.duracloud.security.vote.UserIpLimitsAccessVoter" />
       </beans:list>
