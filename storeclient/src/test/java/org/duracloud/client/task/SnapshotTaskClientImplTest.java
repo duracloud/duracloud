@@ -276,6 +276,7 @@ public class SnapshotTaskClientImplTest {
         preparedResult.setDestinationSpaceId(spaceId);
         preparedResult.setDestinationStoreId(storeId);
         preparedResult.setEndDate(snapshotDate);
+        preparedResult.setExpirationDate(snapshotDate);
         preparedResult.setSnapshotId(snapshotId);
         preparedResult.setStartDate(snapshotDate);
         preparedResult.setStatus(restoreStatus);
@@ -291,6 +292,7 @@ public class SnapshotTaskClientImplTest {
         assertThat(spaceId, equalTo(result.getDestinationSpaceId()));
         assertThat(storeId, equalTo(result.getDestinationStoreId()));
         assertThat(snapshotDate, equalTo(result.getEndDate()));
+        assertThat(snapshotDate, equalTo(result.getExpirationDate()));
         assertThat(snapshotId, equalTo(result.getSnapshotId()));
         assertThat(snapshotDate, equalTo(result.getStartDate()));
         assertThat(restoreStatus, equalTo(result.getStatus()));
