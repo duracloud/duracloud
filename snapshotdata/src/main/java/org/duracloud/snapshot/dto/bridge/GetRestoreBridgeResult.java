@@ -33,6 +33,8 @@ public class GetRestoreBridgeResult extends BaseDTO {
     @XmlValue
     private Date endDate;
     @XmlValue
+    private Date expirationDate;
+    @XmlValue
     private String statusText;
 
     @XmlValue
@@ -82,6 +84,14 @@ public class GetRestoreBridgeResult extends BaseDTO {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public Date getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public String getStatusText() {

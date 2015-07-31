@@ -27,6 +27,7 @@ public class GetRestoreBridgeResultTest {
     private RestoreStatus status = RestoreStatus.RESTORATION_COMPLETE;
     private Date startDate  = new Date();
     private Date endDate  = new Date();
+    private Date expirationDate = new Date();
     private String statusText = "status text";
     private String destinationHost = "dest-host";
     private int destinationPort = 5050;
@@ -40,6 +41,7 @@ public class GetRestoreBridgeResultTest {
              " \"snapshotId\" : \"" + snapshotId + "\"," +
              " \"startDate\" : \"" + startDate.getTime() + "\"," +
              " \"endDate\" : \"" + endDate.getTime() + "\","  +
+             " \"expirationDate\" : \"" + expirationDate.getTime() + "\","  +
              " \"status\" : \"" + status + "\"," +
              " \"statusText\" : \"" + statusText + "\"," +
              " \"destinationHost\" : \"" + destinationHost + "\"," +
@@ -56,6 +58,7 @@ public class GetRestoreBridgeResultTest {
         assertEquals(status, params.getStatus());
         assertEquals(startDate, params.getStartDate());
         assertEquals(endDate, params.getEndDate());
+        assertEquals(expirationDate, params.getExpirationDate());
         assertEquals(statusText, params.getStatusText());
         assertEquals(destinationHost, params.getDestinationHost());
         assertEquals(destinationPort, params.getDestinationPort());
@@ -71,6 +74,7 @@ public class GetRestoreBridgeResultTest {
         result.setStatus(status);
         result.setStartDate(startDate);
         result.setEndDate(endDate);
+        result.setExpirationDate(expirationDate);
         result.setStatusText(statusText);
         result.setDestinationHost(destinationHost);
         result.setDestinationPort(destinationPort);
@@ -83,6 +87,7 @@ public class GetRestoreBridgeResultTest {
         assertThat(value, containsString("status=" + status.name()));
         assertThat(value, containsString("startDate=" + startDate));
         assertThat(value, containsString("endDate=" + endDate));
+        assertThat(value, containsString("expirationDate=" + expirationDate));
         assertThat(value, containsString("statusText=" + statusText));
         assertThat(value, containsString("destinationHost=" + destinationHost));
         assertThat(value, containsString("destinationPort=" + destinationPort));

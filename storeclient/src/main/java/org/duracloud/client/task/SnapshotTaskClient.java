@@ -9,6 +9,7 @@ package org.duracloud.client.task;
 
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.CompleteRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
@@ -131,6 +132,18 @@ public interface SnapshotTaskClient {
      */
     public RestoreSnapshotTaskResult restoreSnapshot(String snapshotId,
                                                      String userEmail)
+        throws ContentStoreException;
+
+    /**
+     * Performs setup necessary to expire content which has been restored.
+     *
+     * @param spaceId the ID of the space to which content was restored
+     * @param daysToExpire length of time before restored content expires (in days)
+     * @return results
+     * @throws ContentStoreException on error
+     */
+    public CompleteRestoreTaskResult completeRestore(String spaceId,
+                                                     int daysToExpire)
         throws ContentStoreException;
 
     /**

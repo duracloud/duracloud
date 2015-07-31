@@ -24,6 +24,7 @@ import org.duracloud.snapshot.dto.SnapshotHistoryItem;
 import org.duracloud.snapshot.dto.SnapshotStatus;
 import org.duracloud.snapshot.dto.SnapshotSummary;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.CompleteRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
@@ -63,6 +64,7 @@ public class SnapshotTaskClientImplTest {
     private String propValue = "prop-value";
     private String completionResult = "result";
     private String historyValue = "history";
+    private int daysToExpire = 30;
 
     @Before
     public void setup() {
@@ -249,6 +251,21 @@ public class SnapshotTaskClientImplTest {
     }
 
     @Test
+    public void testCompleteRestore() throws Exception {
+        String taskName = SnapshotConstants.COMPLETE_RESTORE_TASK_NAME;
+
+        CompleteRestoreTaskResult preparedResult = new CompleteRestoreTaskResult();
+        preparedResult.setResult(completionResult);
+
+        setupMock(taskName, preparedResult.serialize());
+        replayMocks();
+
+        CompleteRestoreTaskResult result =
+            taskClient.completeRestore(spaceId, daysToExpire);
+        assertThat(completionResult, equalTo(result.getResult()));
+    }
+
+    @Test
     public void testGetRestore() throws Exception {
         String taskName = SnapshotConstants.GET_RESTORE_TASK_NAME;
 
@@ -259,6 +276,7 @@ public class SnapshotTaskClientImplTest {
         preparedResult.setDestinationSpaceId(spaceId);
         preparedResult.setDestinationStoreId(storeId);
         preparedResult.setEndDate(snapshotDate);
+        preparedResult.setExpirationDate(snapshotDate);
         preparedResult.setSnapshotId(snapshotId);
         preparedResult.setStartDate(snapshotDate);
         preparedResult.setStatus(restoreStatus);
@@ -274,6 +292,7 @@ public class SnapshotTaskClientImplTest {
         assertThat(spaceId, equalTo(result.getDestinationSpaceId()));
         assertThat(storeId, equalTo(result.getDestinationStoreId()));
         assertThat(snapshotDate, equalTo(result.getEndDate()));
+        assertThat(snapshotDate, equalTo(result.getExpirationDate()));
         assertThat(snapshotId, equalTo(result.getSnapshotId()));
         assertThat(snapshotDate, equalTo(result.getStartDate()));
         assertThat(restoreStatus, equalTo(result.getStatus()));
