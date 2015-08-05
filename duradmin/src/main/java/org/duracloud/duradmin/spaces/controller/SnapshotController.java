@@ -177,6 +177,13 @@ public class SnapshotController {
             GetSnapshotHistoryTaskResult result =
                 taskClient.getSnapshotHistory(snapshotId, page, pageSize);
             List<SnapshotHistoryItem> items = result.getHistoryItems();
+            // Replace single quotes with double quotes in history values.
+            // This allows history values that are valid JSON (without escaping) to be
+            // provided as snapshot history updates, and be displayed properly.
+            for(SnapshotHistoryItem item : items) {
+                item.setHistory(item.getHistory().replaceAll("'", "\""));
+            }
+
             ModelAndView mav = new ModelAndView("jsonView");
             mav.addObject("historyItems", items);
             mav.addObject("page", page);

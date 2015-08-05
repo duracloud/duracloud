@@ -152,7 +152,10 @@ public class SnapshotTaskClientImpl implements SnapshotTaskClient {
     }
     
     @Override
-    public GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId, int pageNumber, int pageSize) throws ContentStoreException {
+    public GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId,
+                                                           int pageNumber,
+                                                           int pageSize)
+        throws ContentStoreException {
         GetSnapshotHistoryTaskParameters taskParams =
                 new GetSnapshotHistoryTaskParameters();
         taskParams.setSnapshotId(snapshotId);
