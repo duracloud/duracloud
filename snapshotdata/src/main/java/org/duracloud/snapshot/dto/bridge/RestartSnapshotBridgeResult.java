@@ -22,10 +22,10 @@ import java.io.IOException;
 public class RestartSnapshotBridgeResult extends BaseDTO {
 
     /**
-     * The ID which has been assigned to the snapshot
+     * Describes in human parseable terms what happened.
      */
     @XmlValue
-    private String snapshotId;
+    private String description;
 
     /**
      * The current status of the snapshot action
@@ -37,17 +37,17 @@ public class RestartSnapshotBridgeResult extends BaseDTO {
     public RestartSnapshotBridgeResult() {
     }
 
-    public RestartSnapshotBridgeResult(String snapshotId, SnapshotStatus status) {
-        this.snapshotId = snapshotId;
+    public RestartSnapshotBridgeResult(String description, SnapshotStatus status) {
+        this.description = description;
         this.status = status;
     }
 
-    public String getSnapshotId() {
-        return snapshotId;
+    public String getDescription() {
+        return description;
     }
 
-    public void setSnapshotId(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public SnapshotStatus getStatus() {

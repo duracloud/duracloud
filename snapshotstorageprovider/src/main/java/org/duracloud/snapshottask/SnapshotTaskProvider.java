@@ -7,22 +7,23 @@
  */
 package org.duracloud.snapshottask;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.snapshottask.snapshot.CleanupSnapshotTaskRunner;
-import org.duracloud.snapshottask.snapshot.CompleteRestoreTaskRunner;
 import org.duracloud.snapshottask.snapshot.CompleteSnapshotTaskRunner;
+import org.duracloud.snapshottask.snapshot.CompleteRestoreTaskRunner;
 import org.duracloud.snapshottask.snapshot.CreateSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetRestoreTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotContentsTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotHistoryTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotsTaskRunner;
+import org.duracloud.snapshottask.snapshot.RestartSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.RestoreSnapshotTaskRunner;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProviderBase;
 import org.slf4j.LoggerFactory;
+
+import com.amazonaws.services.s3.AmazonS3Client;
 
 /**
  * @author: Bill Branan
@@ -78,6 +79,11 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                        bridgePort,
                                                        bridgeUser,
                                                        bridgePass));
+        taskList.add(new RestartSnapshotTaskRunner(bridgeHost,
+                                                   bridgePort,
+                                                   bridgeUser,
+                                                   bridgePass));
+        
         taskList.add(new RestoreSnapshotTaskRunner(snapshotProvider,
                                                    unwrappedSnapshotProvider,
                                                    dcHost,

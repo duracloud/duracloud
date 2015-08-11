@@ -22,27 +22,27 @@ public class RestartSnapshotBridgeResultTest {
 
     @Test
     public void testSerialize() {
-        String snapshotId = "snapshot-id";
+        String description = "description";
         SnapshotStatus status = SnapshotStatus.INITIALIZED;
 
         RestartSnapshotBridgeResult params =
-            new RestartSnapshotBridgeResult(snapshotId, status);
+            new RestartSnapshotBridgeResult(description, status);
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
 
-        assertThat(cleanResult, containsString("\"snapshotId\":\""+snapshotId+"\""));
+        assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
         assertThat(cleanResult, containsString("\"status\":\""+status.name()+"\""));
     }
 
     @Test
     public void testDeserialize() {
         // Verify valid params
-        String resultSerialized = "{\"snapshotId\" : \"snapshot-id\"," +
+        String resultSerialized = "{\"description\" : \"description\"," +
                                     "\"status\":\"" + SnapshotStatus.INITIALIZED +"\"}";
 
         RestartSnapshotBridgeResult bridgeResult =
             RestartSnapshotBridgeResult.deserialize(resultSerialized);
-        assertEquals("snapshot-id", bridgeResult.getSnapshotId());
+        assertEquals("description", bridgeResult.getDescription());
         assertEquals(SnapshotStatus.INITIALIZED, bridgeResult.getStatus());
     }
 

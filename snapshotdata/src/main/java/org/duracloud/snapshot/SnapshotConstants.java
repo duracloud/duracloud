@@ -21,6 +21,7 @@ public class SnapshotConstants {
     public static final String GET_SNAPSHOT_CONTENTS_TASK_NAME = "get-snapshot-contents";
     public static final String GET_SNAPSHOT_HISTORY_TASK_NAME = "get-snapshot-history";
 
+    public static final String RESTART_SNAPSHOT_TASK_NAME = "restart-snapshot";
     public static final String RESTORE_SNAPSHOT_TASK_NAME = "restore-snapshot";
     public static final String COMPLETE_RESTORE_TASK_NAME = "complete-restore";
     public static final String GET_RESTORE_TASK_NAME = "get-restore";
