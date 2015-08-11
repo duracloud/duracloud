@@ -116,6 +116,24 @@ public class SpaceWriteAccessVoterTest {
         int decision = voter.vote(caller, resource, config);
         Assert.assertEquals(ACCESS_DENIED, decision);
     }
+    
+    @Test
+    public void testUserTask() {
+        boolean securedSpace = true;
+        LOGIN login = LOGIN.USER_READ;
+        String spaceId = "task";
+        String contentId = "/a-test";
+        Authentication caller = registeredUser(login, "none");
+        createMockInvocation(HttpVerb.POST, spaceId, contentId,3);
+        createUserDetailsServiceMock(login);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
+        expectGetSpaceAcls();
+
+        replayMocks();
+
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(ACCESS_GRANTED, decision);
+    }
 
     @Test
     public void testUserReadAccessMethodsPUTSpace() {
@@ -361,6 +379,7 @@ public class SpaceWriteAccessVoterTest {
         verifyVote(registeredUser(login, "no"), securedSpace, ACCESS_DENIED);
     }
 
+ 
     @Test
     public void testVoteClosedAnonymous() {
         boolean securedSpace = true;
@@ -424,7 +443,7 @@ public class SpaceWriteAccessVoterTest {
             times = 1;
         } else {
             times = 2;
-            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(2);
+            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(times);
         }
 
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(
@@ -456,7 +475,7 @@ public class SpaceWriteAccessVoterTest {
 
             EasyMock.expect(request.getQueryString()).andReturn(
                 "storeID=" + storeId + "&attachment=true");
-            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(2);
+            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(3);
         }
 
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(
@@ -504,15 +523,23 @@ public class SpaceWriteAccessVoterTest {
 
     private FilterInvocation createMockInvocation(HttpVerb method,
                                                   String contentId) {
-        String path = OPEN_SPACE_ID + contentId;
+        return createMockInvocation(method, OPEN_SPACE_ID, contentId,4);
+    }
+    
+    private FilterInvocation createMockInvocation(HttpVerb method,
+                                                  String spaceId,
+                                                  String contentId,
+                                                  int pathInfoCalls) {
+        String path = spaceId + contentId;
 
         
         addGetQueryStringInvocation(2);
-        EasyMock.expect(request.getPathInfo()).andReturn(path).times(3);
+        EasyMock.expect(request.getPathInfo()).andReturn(path).times(pathInfoCalls);
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(4);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;
     }
+
 
     protected void addGetQueryStringInvocation(int times) {
         EasyMock.expect(request.getQueryString()).andReturn(

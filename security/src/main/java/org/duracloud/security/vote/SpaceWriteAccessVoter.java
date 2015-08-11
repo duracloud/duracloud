@@ -138,10 +138,21 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
+        
+        if(isTask(httpRequest)){
+            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
+            //task configuration rules are defined in durastore's security-config.xml
+            //so if the call has made it this far, then we allow it.
+            return ACCESS_GRANTED;
+        }
 
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
         return grant;
+    }
+
+    private boolean isTask(HttpServletRequest httpRequest) {
+        return "task".equals(getSpaceId(httpRequest));
     }
 
     private boolean isRoot(Authentication auth) {
