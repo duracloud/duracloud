@@ -64,17 +64,38 @@ public abstract class StorageProviderBase implements StorageProvider {
     }
 
     /**
-     * Sets the properties of this space. Note that this method is intentionally
-     * not exposed to users, as it is not meant to be used for user properties,
-     * but only for system-level properties. The names and values need to be
-     * kept short, and the overall number of properties needs to be tightly
-     * limited, or there will be issues due to provider-specific limitation.
+     * Sets the properties on this space. Maintains the current ACL settings.
+     *
+     * @link setNewSpaceProperties(spaceId, spaceProperties, spaceACLs)
      *
      * @param spaceId
      * @param spaceProperties
      */
     public void setNewSpaceProperties(String spaceId,
                                       Map<String, String> spaceProperties) {
+        setNewSpaceProperties(spaceId, spaceProperties, getSpaceACLs(spaceId));
+    }
+
+    /**
+     * Sets the properties of this space. Note that this method is intentionally
+     * not exposed to users, as it is not meant to be used for user properties,
+     * but only for system-level properties. The names and values need to be
+     * kept short, and the overall number of properties needs to be tightly
+     * limited, or there will be issues due to provider-specific limitation.
+     *
+     * This method allows for Space Access control details to be updated at the same
+     * time as space properties.
+     *
+     * @param spaceId
+     * @param spaceProperties
+     * @param spaceACLs
+     */
+    public void setNewSpaceProperties(String spaceId,
+                                      Map<String, String> spaceProperties,
+                                      Map<String, AclType> spaceACLs) {
+        // Add ACLs to the properties list
+        spaceProperties.putAll(packACLs(spaceACLs));
+
         boolean success = false;
         int maxLoops = 6;
         for (int loops = 0; !success && loops < maxLoops; loops++) {

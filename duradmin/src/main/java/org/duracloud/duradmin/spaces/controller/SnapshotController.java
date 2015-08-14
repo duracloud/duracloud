@@ -21,11 +21,14 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
 import org.duracloud.client.task.SnapshotTaskClientManager;
 import org.duracloud.common.constant.Constants;
+import org.duracloud.common.model.RootUserCredential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.security.DuracloudUserDetailsService;
 import org.duracloud.snapshot.dto.SnapshotContentItem;
+import org.duracloud.snapshot.dto.SnapshotHistoryItem;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.id.SnapshotIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,9 +94,13 @@ public class SnapshotController {
     }
 
     protected String getUserEmail(String username) {
-        String userEmail = userDetailsService.getUserByUsername(username)
-            .getEmail();
-        return userEmail;
+        if(username.equals(RootUserCredential.getRootUsername())){
+            return RootUserCredential.getRootEmail();
+        }else{
+            String userEmail = userDetailsService.getUserByUsername(username)
+                .getEmail();
+            return userEmail;
+        }
     }
 
     protected String getUsername(HttpServletRequest request) {
@@ -153,6 +160,42 @@ public class SnapshotController {
         return getTaskClient(storeId)
                 .getSnapshot(snapshotId)
                 .serialize();
+    }
+    
+    @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/history", method = RequestMethod.GET)
+    public ModelAndView
+        getHistory(@PathVariable("storeId") String storeId,
+                    @PathVariable("snapshotId") String snapshotId,
+                    @RequestParam(value="page", required=false) Integer page) {
+        try {
+            SnapshotTaskClient taskClient = getTaskClient(storeId);
+
+            if(page == null){
+                page = 0;
+            }
+            int pageSize = 200;
+            GetSnapshotHistoryTaskResult result =
+                taskClient.getSnapshotHistory(snapshotId, page, pageSize);
+            List<SnapshotHistoryItem> items = result.getHistoryItems();
+            // Replace single quotes with double quotes in history values.
+            // This allows history values that are valid JSON (without escaping) to be
+            // provided as snapshot history updates, and be displayed properly.
+            for(SnapshotHistoryItem item : items) {
+                item.setHistory(item.getHistory().replaceAll("'", "\""));
+            }
+
+            ModelAndView mav = new ModelAndView("jsonView");
+            mav.addObject("historyItems", items);
+            mav.addObject("page", page);
+            mav.addObject("snapshotId", snapshotId);
+            mav.addObject("storeId", storeId);
+            mav.addObject("nextPage", items.size() == pageSize? page+1 : null);
+            mav.addObject("totalCount", result.getTotalCount());
+            return mav;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
     
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/content", method = RequestMethod.GET)
@@ -256,6 +299,7 @@ public class SnapshotController {
                           @RequestParam String storeId,
                           @RequestParam String snapshotId) throws Exception {
         try {
+            
             String userEmail = getUserEmail(getUsername(request));
             return getTaskClient(storeId).restoreSnapshot(snapshotId, userEmail).serialize();
         } catch (Exception e) {

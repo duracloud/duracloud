@@ -17,25 +17,21 @@ public class RootUserCredential extends Credential {
 
     private static final String defaultUsername = "root";
     private static final String defaultPassword = "rpw";
-
+    private static final String defaultEmail = "no-root-password-set";
     public RootUserCredential() {
         super(getRootUsername(), getRootPassword());
     }
 
     public static String getRootUsername() {
-        String username = System.getProperty("root.username");
-        if (null == username) {
-            username = defaultUsername;
-        }
-        return username;
+        return System.getProperty("root.username", defaultUsername);
+    }
+    
+    public static String getRootEmail() {
+        return System.getProperty("root.email", defaultEmail);
     }
 
     private static String getRootPassword() {
-        String password = System.getProperty("root.password");
-        if (null == password) {
-            password = defaultPassword;
-        }
-        return password;
+        return System.getProperty("root.password", defaultPassword);
     }
 
     public String getRootEncodedPassword() {

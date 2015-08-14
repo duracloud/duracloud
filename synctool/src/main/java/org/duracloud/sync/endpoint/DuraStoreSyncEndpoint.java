@@ -68,6 +68,12 @@ public class DuraStoreSyncEndpoint implements SyncEndpoint {
         this.prefix = prefix;
         this.listenerList = new EventListenerSupport<>(EndPointListener.class);
 
+        logger.info("Sync endpoint ready to transfer to space:" + spaceId +
+                    " in store: " + storeId + " with config: " +
+                    " syncDeletes:" + syncDeletes + ", syncUpdates:" + syncUpdates +
+                    ", renameUpdates:" + renameUpdates + ", jumpStart:" + jumpStart +
+                    ", updateSuffix:" + updateSuffix + ", prefix:" + prefix);
+
         ensureSpaceExists();
     }
     

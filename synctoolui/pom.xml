@@ -5,13 +5,13 @@
   <groupId>org.duracloud</groupId>
   <artifactId>synctoolui</artifactId>
   <packaging>war</packaging>
-  <version>3.3.0</version>
+  <version>3.4.0</version>
   <name>DuraCloud Sync Tool</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.3.0</version>
+    <version>3.4.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -26,7 +26,7 @@
     <glassfish-jsp-2.1.version>2.1.v20100127</glassfish-jsp-2.1.version>
     <jetty.version>8.1.4.v20120524</jetty.version>
     <slf4j.version>1.6.4</slf4j.version>
-    <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 9.0.2/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
+    <installbuilder.executable.path>/Applications/BitRock InstallBuilder Enterprise 15.1.0/bin/Builder.app/Contents/MacOS/installbuilder.sh</installbuilder.executable.path>
     <jre.unpack.dir>${project.build.directory}/jre</jre.unpack.dir>
   </properties>
 

@@ -15,7 +15,6 @@
   <http entry-point-ref="authenticationProcessingFilterEntryPoint">
     <intercept-url pattern="/init" method="GET" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/init" method="POST" access="ROLE_ROOT"/>
-    <intercept-url pattern="/spaces/snapshot" method="POST" access="ROLE_ADMIN"/>
     <intercept-url pattern="/security" access="ROLE_ROOT"/>
     <intercept-url pattern="/dashboard" access="ROLE_ROOT"  />
     <intercept-url pattern="/admin" access="ROLE_ROOT"  />

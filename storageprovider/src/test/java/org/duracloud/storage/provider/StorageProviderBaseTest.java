@@ -105,6 +105,89 @@ public class StorageProviderBaseTest {
     }
 
     @Test
+    public void testSetNewSpacePropertiesMaintainACLs() {
+        EasyMock.expect(providerMock.getAllSpaceProperties(spaceId))
+                .andReturn(spaceProps);
+
+        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
+                                          EasyMock.capture(propsSetCapture));
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        Map<String, String> newProps = new HashMap<>();
+        String newPropName = "newPropName";
+        String newPropValue = "newPropValue";
+        newProps.put(newPropName, newPropValue);
+
+        // Run the test
+        providerBase.setNewSpaceProperties(spaceId, newProps);
+
+        Map<String, String> propsSet = propsSetCapture.getValue();
+        Assert.assertNotNull(propsSet);
+
+        // Verify results, new prop should be in place
+        Assert.assertEquals(newPropValue, propsSet.get(newPropName));
+
+        // Verify results, old props should be gone
+        Assert.assertFalse(propsSet.containsKey(sysPropName));
+
+        // Verify results, all ACLs should be unchanged
+        String userRead = propsSet.get(StorageProviderBase.ACL_USER_READ);
+        Assert.assertTrue(userRead.contains(userRead0));
+        Assert.assertTrue(userRead.contains(userRead1));
+
+        String userWrite = propsSet.get(StorageProviderBase.ACL_USER_WRITE);
+        Assert.assertTrue(userWrite.contains(userWrite0));
+
+        String groupRead = propsSet.get(StorageProviderBase.ACL_GROUP_READ);
+        Assert.assertTrue(groupRead.contains(groupRead0));
+
+        String groupWrite = propsSet.get(StorageProviderBase.ACL_GROUP_WRITE);
+        Assert.assertTrue(groupWrite.contains(groupWrite0));
+        Assert.assertTrue(groupWrite.contains(groupWrite1));
+    }
+
+    @Test
+    public void testSetNewSpacePropertiesNewACLs() {
+        Capture<Map<String, String>> propsSetCapture = new Capture<>();
+        providerMock.doSetSpaceProperties(EasyMock.eq(spaceId),
+                                          EasyMock.capture(propsSetCapture));
+        EasyMock.expectLastCall();
+
+        replayMocks();
+
+        Map<String, String> newProps = new HashMap<>();
+        String newPropName = "newPropName";
+        String newPropValue = "newPropValue";
+        newProps.put(newPropName, newPropValue);
+
+        Map<String, AclType> newACLs = new HashMap<>();
+        String newAclUser = "newAclUser";
+        newACLs.put(StorageProvider.PROPERTIES_SPACE_ACL + newAclUser, AclType.READ);
+
+        // Run the test
+        providerBase.setNewSpaceProperties(spaceId, newProps, newACLs);
+
+        Map<String, String> propsSet = propsSetCapture.getValue();
+        Assert.assertNotNull(propsSet);
+
+        // Verify results, new prop should be in place
+        Assert.assertEquals(newPropValue, propsSet.get(newPropName));
+
+        // Verify results, old props should be gone
+        Assert.assertFalse(propsSet.containsKey(sysPropName));
+
+        // Verify results, new ACLs should be in place
+        String userRead = propsSet.get(StorageProviderBase.ACL_USER_READ);
+        Assert.assertTrue(userRead.contains(newAclUser));
+
+        // Verify results, old ACLs should be gone
+        Assert.assertFalse(userRead.contains(userRead0));
+    }
+
+    @Test
     public void testGetSpaceACLs() {
         createGetSpaceACLsMocks();
 

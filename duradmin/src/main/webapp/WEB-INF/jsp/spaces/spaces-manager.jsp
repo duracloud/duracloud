@@ -84,6 +84,28 @@
       type="text/javascript"
       src="${pageContext.request.contextPath}/jquery/plugins/jquery.tablesorter/jquery.tablesorter.min.js"></script>
 
+	<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/jquery/plugins/jquery.datatables/jquery.dataTables.css" />
+    <style>
+	    .dataTables_wrapper .dataTables_length,
+	    .dataTables_wrapper .dataTables_filter,
+	    .dataTables_wrapper .dataTables_info,
+		.dataTables_wrapper .dataTables_processing,
+		.dataTables_wrapper .dataTables_paginate {
+			color: #FFF;
+		}
+		table.dataTable tbody tr {
+			background-color: unset;
+		}
+		.dataTables_wrapper .dataTables_paginate .paginate_button.disabled, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+			color: #777 !important;
+		}
+		.dataTables_wrapper .dataTables_paginate .paginate_button {
+			color: #FFF !important;
+		}
+    </style>
+    
+    <script type="text/javascript" src="${pageContext.request.contextPath}/jquery/plugins/jquery.datatables/jquery.dataTables.min.js"></script>
+
     <script
       type="text/javascript"
       src="${pageContext.request.contextPath}/js/spaces-manager.js"></script>

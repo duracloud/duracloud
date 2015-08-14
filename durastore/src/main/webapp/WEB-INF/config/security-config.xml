@@ -28,12 +28,15 @@
     <intercept-url pattern="/acl/" method="PUT" access="ROLE_ROOT"/>
     <intercept-url pattern="/acl" method="POST" access="ROLE_ADMIN"/>
 
-    <intercept-url pattern="/task" method="GET" access="ROLE_ADMIN"/>
-    <intercept-url pattern="/task" method="POST" access="ROLE_ADMIN"/>
-
+    <!-- limit snapshot restorals to root users (durachron-94) -->
+    <intercept-url pattern="/task/restore-snapshot" method="POST" access="ROLE_ROOT"/>
     <!-- limit access to the Glacier content restore capability -->
     <intercept-url pattern="/task/restore-content" method="POST" access="ROLE_ROOT"/>
-
+    <intercept-url pattern="/task/get-snapshot" access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-snapshots" access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-snapshot-history" access="ROLE_USER"/>
+    <intercept-url pattern="/task/get-restore"  access="ROLE_USER"/>
+    <intercept-url pattern="/task/*" access="ROLE_ADMIN"/>
     <intercept-url pattern="/stores" method="GET" access="ROLE_USER"/>
     <intercept-url pattern="/stores" method="POST" access="ROLE_ROOT"/>
 

@@ -10,6 +10,7 @@ package org.duracloud.security.vote;
 import org.duracloud.common.constant.Constants;
 import org.duracloud.common.model.AclType;
 import org.duracloud.security.domain.HttpVerb;
+import org.duracloud.security.util.SecurityUtil;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.domain.StorageProviderType;
 import org.duracloud.storage.error.NotFoundException;
@@ -137,20 +138,25 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
+        
+        if(isTask(httpRequest)){
+            log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
+            //task configuration rules are defined in durastore's security-config.xml
+            //so if the call has made it this far, then we allow it.
+            return ACCESS_GRANTED;
+        }
 
         int grant = ACCESS_DENIED;
         log.debug(debugText(label, auth, config, resource, grant));
         return grant;
     }
 
+    private boolean isTask(HttpServletRequest httpRequest) {
+        return "task".equals(getSpaceId(httpRequest));
+    }
+
     private boolean isRoot(Authentication auth) {
-        for(GrantedAuthority g : auth.getAuthorities()){
-            if(g.getAuthority().equals("ROLE_ROOT")){
-                return true;
-            }
-        }
-        
-        return false;
+        return SecurityUtil.isRoot(auth);
     }
 
     private boolean isSnapshotInProgress(HttpServletRequest httpRequest) {

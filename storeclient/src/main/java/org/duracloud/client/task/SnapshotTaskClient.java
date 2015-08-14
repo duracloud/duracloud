@@ -9,11 +9,13 @@ package org.duracloud.client.task;
 
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.snapshot.dto.task.CleanupSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.CompleteRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 
@@ -103,6 +105,20 @@ public interface SnapshotTaskClient {
                                                              int pageSize,
                                                              String prefix)
         throws ContentStoreException;
+    
+    /**
+     * Gets the list of history items that are contained in the snapshot.
+     *
+     * @param snapshotId the ID of the snapshot to retrieve
+     * @param pageNumber the page number of result set pages
+     * @param pageSize the maximum number of content items to include in the result set
+     * @return list of history items
+     * @throws ContentStoreException on error
+     */
+    public GetSnapshotHistoryTaskResult getSnapshotHistory(String snapshotId,
+                                                             int pageNumber,
+                                                             int pageSize)
+        throws ContentStoreException;
 
     /**
      * Begins the process of restoring a snapshot by creating a landing space and
@@ -116,6 +132,18 @@ public interface SnapshotTaskClient {
      */
     public RestoreSnapshotTaskResult restoreSnapshot(String snapshotId,
                                                      String userEmail)
+        throws ContentStoreException;
+
+    /**
+     * Performs setup necessary to expire content which has been restored.
+     *
+     * @param spaceId the ID of the space to which content was restored
+     * @param daysToExpire length of time before restored content expires (in days)
+     * @return results
+     * @throws ContentStoreException on error
+     */
+    public CompleteRestoreTaskResult completeRestore(String spaceId,
+                                                     int daysToExpire)
         throws ContentStoreException;
 
     /**
