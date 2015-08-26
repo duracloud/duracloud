@@ -7,18 +7,21 @@
  */
 package org.duracloud.common.util;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.input.AutoCloseInputStream;
-import org.duracloud.common.error.DuraCloudRuntimeException;
-
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.AutoCloseInputStream;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 
 /**
  * Provides utility methods for I/O.
@@ -102,6 +105,28 @@ public class IOUtil {
                          file.getAbsolutePath() + ": " + e.getMessage();
             throw new DuraCloudRuntimeException(err, e);
         }
+    }
+    
+    /**
+     * Adds the specified file to the zip output stream.
+     * @param file
+     * @param zipOs
+     */
+    public static void addFileToZipOutputStream(File file, ZipOutputStream zipOs) throws IOException {
+        String fileName = file.getName();
+        try (FileInputStream fos = new FileInputStream(file)){
+            ZipEntry zipEntry = new ZipEntry(fileName);
+            zipEntry.setSize(file.length());
+            zipEntry.setTime(System.currentTimeMillis());
+            zipOs.putNextEntry(zipEntry);
+            byte[] buf = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fos.read(buf)) > 0) {
+                zipOs.write(buf, 0, bytesRead);
+            }
+            zipOs.closeEntry();
+            fos.close();
+        }     
     }
 
 }

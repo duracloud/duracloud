@@ -97,6 +97,12 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
 
+
+        if (isSnapshotMetadataSpace(httpRequest)) {
+            log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
+            return ACCESS_DENIED;
+        }
+
         if (isSnapshotInProgress(httpRequest)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
             return ACCESS_DENIED;
@@ -159,6 +165,11 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
         return SecurityUtil.isRoot(auth);
     }
 
+    private boolean isSnapshotMetadataSpace(HttpServletRequest httpRequest) {
+        String spaceId = getSpaceId(httpRequest);
+        return(Constants.SNAPSHOT_METADATA_SPACE.equals(spaceId));
+    }
+    
     private boolean isSnapshotInProgress(HttpServletRequest httpRequest) {
        String storeId = getStoreId(httpRequest);
        StorageProviderFactory factory = getStorageProviderFactory();
