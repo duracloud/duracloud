@@ -519,13 +519,18 @@ var dc;
         if(!page){
             page = 0;
         }
+        
         return dc.ajax2({
-            url : "/duradmin/spaces/snapshots/" + storeId + "/" + snapshotId
-                    + "/history?page=" + page,
+            url : dc.store.formatSnapshotHistoryUrl(storeId, snapshotId, page, "false"),
             dataType : 'json',
             async : true,
             type : "get",
         });
+    };
+    
+    dc.store.formatSnapshotHistoryUrl = function(storeId, snapshotId, page, attachment) {
+      return "/duradmin/spaces/snapshots/" + storeId + "/" + snapshotId
+      + "/history?page=" + page + "&attachment=" + attachment;
     };
     /**
      * 

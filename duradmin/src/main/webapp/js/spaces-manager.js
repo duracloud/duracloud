@@ -3372,14 +3372,22 @@ $(function() {
     _configureRestoreControls : function() {
       var that = this;
 
+      that._getMetadataLink().attr("href", dc.store.formatDownloadURL({storeId:this._storeId, spaceId:"x-snapshot-metadata", contentId: this._snapshot.snapshotId + ".zip"}, true));
+                              
+      that._getMetadataLink().hide();
+      
       that._getRestoreButton().disable(true);
+
       that._getRestoreLink().hide();
 
       if (that._snapshot.status != 'SNAPSHOT_COMPLETE') {
         return;
       }
-
+      
+      that._getMetadataLink().show();
+      
       that._getRestoreButton().busySibling("Retrieving restore info...");
+
       return dc.store.GetSnapshotRestoreSpaceId({snapshotId:that._snapshot.snapshotId,
                                 storeId:that._snapshot.sourceStoreId}).success(function(restoreSpace) {
         if(restoreSpace.spaceId){
@@ -3400,6 +3408,10 @@ $(function() {
 
     _getRestoreButton : function() {
       return $(this.element).find("#restoreButton");
+    },
+
+    _getMetadataLink : function() {
+      return $(this.element).find("#metadataLink");
     },
 
     _getRestoreLink : function() {
@@ -3448,10 +3460,20 @@ $(function() {
         if (propertiesDiv.size() == 1) {
           propertiesDiv = $.fn.create("div").addClass("detail-properties");
           propertiesDiv.tabularexpandopanel({
-            title : "Snapshot History",
+            title : "Snapshot History " + 
+                    "<a id='history-download' class='button' href='" + 
+                    dc.store.formatSnapshotHistoryUrl(this._storeId, 
+                                                      this._snapshot.snapshotId, 
+                                                      -1, true) + 
+                    "'>Download</a>",
             data : properties
           });
           this._appendToCenter(propertiesDiv);
+          
+          $("#history-download", propertiesDiv)
+             .click(function(e){e.stopPropagation();});
+                                               
+         
         } else {
           $(propertiesDiv).tabularexpandopanel("setData", properties);
         }

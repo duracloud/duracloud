@@ -203,7 +203,7 @@ public class SnapshotControllerTest extends EasyMockSupport {
         replayAll();
 
         SnapshotController controller = createController();
-        ModelAndView mav = controller.getHistory(storeId, snapshotId, page);
+        ModelAndView mav = controller.getHistory(storeId, snapshotId, page, false, null);
         Map<String,Object> model = mav.getModel();
         Assert.assertEquals(model.get("storeId"), storeId);
         Assert.assertEquals(model.get("snapshotId"), snapshotId);

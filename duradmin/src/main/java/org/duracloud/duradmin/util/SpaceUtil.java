@@ -233,6 +233,11 @@ public class SpaceUtil {
     	        snapshotInProgress = isSnapshotInProgress(store,spaceId);
     	    }
         }
+
+        if(spaceId.equals(Constants.SNAPSHOT_METADATA_SPACE)){
+            return AclType.READ;
+        }
+
         
         if(snapshotInProgress){
             return AclType.READ;

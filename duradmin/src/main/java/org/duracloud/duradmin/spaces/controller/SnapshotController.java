@@ -166,11 +166,13 @@ public class SnapshotController {
     public ModelAndView
         getHistory(@PathVariable("storeId") String storeId,
                     @PathVariable("snapshotId") String snapshotId,
-                    @RequestParam(value="page", required=false) Integer page) {
+                    @RequestParam(value="page", required=false) Integer page,
+                    @RequestParam(value="attachment", required=false, defaultValue="false") Boolean attachment,
+                    HttpServletResponse response) {
         try {
             SnapshotTaskClient taskClient = getTaskClient(storeId);
 
-            if(page == null){
+            if(page == null || page < 0){
                 page = 0;
             }
             int pageSize = 200;
@@ -184,6 +186,15 @@ public class SnapshotController {
                 item.setHistory(item.getHistory().replaceAll("'", "\""));
             }
 
+            if(attachment){
+                StringBuffer contentDisposition = new StringBuffer();
+                contentDisposition.append("attachment;");
+                contentDisposition.append("filename=\"");
+                contentDisposition.append(snapshotId+".history.json");
+                contentDisposition.append("\"");
+                response.setHeader("Content-Disposition", contentDisposition.toString());
+            }            
+            
             ModelAndView mav = new ModelAndView("jsonView");
             mav.addObject("historyItems", items);
             mav.addObject("page", page);

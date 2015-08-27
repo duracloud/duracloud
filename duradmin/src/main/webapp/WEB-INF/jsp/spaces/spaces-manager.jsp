@@ -315,11 +315,13 @@
             <div class="button-bar">
 
               <a id="restoreLink" class="button">View Restored Space</a>
+              <a id="metadataLink" class="button"><i class="pre download"></i>Download Metadata</a>
               <button 
                 id="restoreButton"
                 class="featured">
                 <i class="pre copy"></i>Restore Snapshot
               </button>
+
             </div>
           </div>
           <div class="center"></div>
