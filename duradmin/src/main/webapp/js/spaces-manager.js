@@ -3461,7 +3461,7 @@ $(function() {
           propertiesDiv = $.fn.create("div").addClass("detail-properties");
           propertiesDiv.tabularexpandopanel({
             title : "Snapshot History " + 
-                    "<a id='history-download' class='button' href='" + 
+                    "<a id='history-download'  href='" + 
                     dc.store.formatSnapshotHistoryUrl(this._storeId, 
                                                       this._snapshot.snapshotId, 
                                                       -1, true) + 

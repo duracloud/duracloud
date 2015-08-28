@@ -8,7 +8,9 @@
 
 package org.duracloud.duradmin.spaces.controller;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Properties;
 
@@ -16,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.task.SnapshotTaskClient;
@@ -41,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.thoughtworks.xstream.io.json.JsonWriter;
 
 /**
  * 
@@ -172,20 +178,6 @@ public class SnapshotController {
         try {
             SnapshotTaskClient taskClient = getTaskClient(storeId);
 
-            if(page == null || page < 0){
-                page = 0;
-            }
-            int pageSize = 200;
-            GetSnapshotHistoryTaskResult result =
-                taskClient.getSnapshotHistory(snapshotId, page, pageSize);
-            List<SnapshotHistoryItem> items = result.getHistoryItems();
-            // Replace single quotes with double quotes in history values.
-            // This allows history values that are valid JSON (without escaping) to be
-            // provided as snapshot history updates, and be displayed properly.
-            for(SnapshotHistoryItem item : items) {
-                item.setHistory(item.getHistory().replaceAll("'", "\""));
-            }
-
             if(attachment){
                 StringBuffer contentDisposition = new StringBuffer();
                 contentDisposition.append("attachment;");
@@ -193,20 +185,95 @@ public class SnapshotController {
                 contentDisposition.append(snapshotId+".history.json");
                 contentDisposition.append("\"");
                 response.setHeader("Content-Disposition", contentDisposition.toString());
-            }            
+            }
             
-            ModelAndView mav = new ModelAndView("jsonView");
-            mav.addObject("historyItems", items);
-            mav.addObject("page", page);
-            mav.addObject("snapshotId", snapshotId);
-            mav.addObject("storeId", storeId);
-            mav.addObject("nextPage", items.size() == pageSize? page+1 : null);
-            mav.addObject("totalCount", result.getTotalCount());
-            return mav;
+            if(page == null){
+                page = 0;
+            }
+
+            streamSnapshotHistory(page, 
+                                        storeId,
+                                        snapshotId,
+                                        taskClient,
+                                        response);
+            return null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
+
+    private void streamSnapshotHistory(int page,
+                                             String storeId,
+                                             String snapshotId,
+                                             SnapshotTaskClient taskClient, 
+                                             HttpServletResponse response) throws IOException, ContentStoreException{
+        PrintWriter writer = response.getWriter();
+        
+        int pageSize = 200;
+        if(page < 0){
+            pageSize = 1000;
+        }
+        
+        int pageCounter = page;
+        
+        JsonFactory factory = new JsonFactory();
+        JsonGenerator jwriter = factory.createJsonGenerator(writer);
+        jwriter.writeStartObject();
+        
+        jwriter.writeFieldName("historyItems");
+        jwriter.writeStartArray();
+        GetSnapshotHistoryTaskResult result = null;
+        while(true){
+            result = getSnapshotHistory(snapshotId, pageCounter, taskClient, pageSize);
+            List<SnapshotHistoryItem> items = result.getHistoryItems();
+            for(SnapshotHistoryItem item : items){
+                jwriter.writeStartObject();
+                jwriter.writeNumberField("historyDate", item.getHistoryDate().getTime());
+                jwriter.writeStringField("history",  item.getHistory());
+                jwriter.writeEndObject();
+            }
+
+            if(items.size() < pageSize || page >=0){
+                break;
+            }else{
+                pageCounter++;
+            }
+        }
+
+        jwriter.writeEndArray();
+        if(page >= 0){
+            jwriter.writeNumberField("page", page);
+            jwriter.writeNumberField("totalCount", result.getTotalCount());
+
+            if(result.getHistoryItems().size() == pageSize && (page+1*pageSize < result.getTotalCount())){
+                jwriter.writeNumberField("nextPage", page+1);
+            }else{
+                jwriter.writeNullField("nextPage");
+            }
+        }
+        
+        jwriter.writeStringField("snapshotId", snapshotId);
+        jwriter.writeStringField("storeId", storeId);
+        jwriter.writeEndObject();
+        jwriter.close();
+    }
+
+    protected GetSnapshotHistoryTaskResult
+              getSnapshotHistory(String snapshotId,
+                                 Integer page,
+                                 SnapshotTaskClient taskClient,
+                                 int pageSize) throws ContentStoreException {
+        GetSnapshotHistoryTaskResult result =
+            taskClient.getSnapshotHistory(snapshotId, page, pageSize);
+        List<SnapshotHistoryItem> items = result.getHistoryItems();
+        // Replace single quotes with double quotes in history values.
+        // This allows history values that are valid JSON (without escaping) to be
+        // provided as snapshot history updates, and be displayed properly.
+        for(SnapshotHistoryItem item : items) {
+            item.setHistory(item.getHistory().replaceAll("'", "\""));
+        }
+        return result;
     }
     
     @RequestMapping(value = "/spaces/snapshots/{storeId}/{snapshotId}/content", method = RequestMethod.GET)

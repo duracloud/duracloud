@@ -40,14 +40,6 @@
         <property name="keepNullProperties"><value>true</value></property>
     </bean>
 
-	<!-- I chose jsonlib rather than xstream or sojo because it worked straight away while the others did not.
-		-dbernstein
-	 -->    
-    <bean name="jsonlibJsonWriter" class="org.springframework.web.servlet.view.json.writer.jsonlib.JsonlibJsonStringWriter">
-    	<property name="convertAllMapValues"><value>true</value></property>
-        <property name="keepNullProperties"><value>true</value></property>
-    </bean>
-	
 	<bean name="modelflagError" class="org.springframework.web.servlet.view.json.error.ModelFlagError">
       <property name="name"><value>failure</value></property>
       <property name="value"><value>true</value></property>
