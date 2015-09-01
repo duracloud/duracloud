@@ -9,6 +9,11 @@ package org.duracloud.manifest.impl;
 
 import static org.duracloud.common.util.bulk.ManifestVerifier.*;
 
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.duracloud.mill.db.model.ManifestItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +28,8 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
     private final Logger log =
         LoggerFactory.getLogger(TsvManifestFormatter.class);
 
+    private static Pattern LINE_PATTERN = Pattern.compile("(.+)"+DELIM+"(.+)"+DELIM+"(.+)");
+
     private static final String HEADER =
         "space-id" + DELIM + "content-id" + DELIM + "MD5";
 
@@ -32,13 +39,13 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    protected String getHeader() {
+    public String getHeader() {
         return HEADER;
     }
 
     @Override
     protected String
-        getLine(String contentMd5, String spaceId, String contentId) {
+        formatLine(String contentMd5, String spaceId, String contentId) {
         StringBuilder line = new StringBuilder();
         line.append(spaceId);
         line.append(DELIM);
@@ -47,4 +54,23 @@ public class TsvManifestFormatter extends ManifestFormatterBase {
         line.append(contentMd5);
         return line.toString();    
     }
+    
+
+    @Override
+    public ManifestItem parseLine(String line) throws ParseException {
+        Matcher matcher = LINE_PATTERN.matcher(line);
+        if (!matcher.find()) {
+            throw new ParseException("Line doesn't match tsv format: unable to parse line: ->"
+                                     + line + "<-", 0);
+        }
+
+        ManifestItem item = new ManifestItem();
+        item.setSpaceId(matcher.group(1));
+        item.setContentId(matcher.group(2));
+        item.setContentChecksum(matcher.group(3));
+
+        return item;
+
+    }
+
 }

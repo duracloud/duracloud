@@ -156,21 +156,8 @@ public class ManifestGeneratorImpl implements ManifestGenerator {
 
     protected ManifestFormatter getFormatter(final ManifestFormat format)
         throws ManifestArgumentException {
-        ManifestFormatter formatter;
-        switch (format) {
-            case BAGIT:
-                formatter = new BagitManifestFormatter();
-                break;
-            case TSV:
-                formatter = new TsvManifestFormatter();
-                break;
-            default:
-                String err = "Unexpected format: " + format.name();
-                log.error(err);
-                throw new ManifestArgumentException(err);
-        }
-
-        return formatter;
+       ManifestFormatterFactory factory = new ManifestFormatterFactory();
+       return factory.create(format);
     }
 
 }

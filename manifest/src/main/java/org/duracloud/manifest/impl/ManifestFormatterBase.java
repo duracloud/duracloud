@@ -35,7 +35,7 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
         Iterator<ContentMessage> itr = events.iterator();
         while (itr.hasNext()) {
             ContentMessage event = itr.next();
-            write(getLine(event), output);
+            write(formatLine(event), output);
 
             if (itr.hasNext()) {
                 write("\n", output);
@@ -49,7 +49,7 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
         writeHeader(output);
         
         if(item != null){
-            write(getLine(item), output);
+            write(formatLine(item), output);
             write("\n", output);
         }
     }
@@ -79,17 +79,17 @@ public abstract class ManifestFormatterBase implements ManifestFormatter {
 
     protected abstract Logger log();
 
-    protected abstract String getHeader();
-
-    public String getLine(ContentMessage event) {
-        return getLine(event.getContentMd5(), event.getSpaceId(), event.getContentId());
+    public String formatLine(ContentMessage event) {
+        return formatLine(event.getContentMd5(), event.getSpaceId(), event.getContentId());
     }
 
-    public String getLine(ManifestItem item){
-        return getLine(item.getContentChecksum(), item.getSpaceId(), item.getContentId());
+    public String formatLine(ManifestItem item){
+        return formatLine(item.getContentChecksum(), item.getSpaceId(), item.getContentId());
     }
 
-    protected abstract String getLine(String contentMd5, String spaceId, String contentId);
+    
+    
+    protected abstract String formatLine(String contentMd5, String spaceId, String contentId);
 
 
 }
