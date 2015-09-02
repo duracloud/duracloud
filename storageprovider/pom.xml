@@ -20,6 +20,12 @@
       <artifactId>common</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common-queue</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.jdom</groupId>

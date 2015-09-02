@@ -7,13 +7,14 @@
  */
 package org.duracloud.storage.util;
 
+import java.io.InputStream;
+import java.util.List;
+
+import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.storage.domain.DuraStoreInitConfig;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.provider.StorageProvider;
-
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * @author Andrew Woods
@@ -40,5 +41,7 @@ public interface StorageProviderFactory {
         throws StorageException;
 
     public void expireStorageProvider(String storageAccountId);
+    
+    public TaskQueue getAuditQueue();
 
 }

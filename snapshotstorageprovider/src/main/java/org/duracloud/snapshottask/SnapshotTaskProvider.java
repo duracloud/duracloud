@@ -7,10 +7,12 @@
  */
 package org.duracloud.snapshottask;
 
+import org.duracloud.common.queue.TaskQueue;
+import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.snapshottask.snapshot.CleanupSnapshotTaskRunner;
-import org.duracloud.snapshottask.snapshot.CompleteSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.CompleteRestoreTaskRunner;
+import org.duracloud.snapshottask.snapshot.CompleteSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.CreateSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetRestoreTaskRunner;
 import org.duracloud.snapshottask.snapshot.GetSnapshotContentsTaskRunner;
@@ -42,7 +44,9 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                 String bridgeHost,
                                 String bridgePort,
                                 String bridgeUser,
-                                String bridgePass) {
+                                String bridgePass,
+                                TaskQueue auditQueue,
+                                ManifestStore manifestStore) {
         log = LoggerFactory.getLogger(SnapshotTaskProvider.class);
 
         taskList.add(new CreateSnapshotTaskRunner(snapshotProvider,
@@ -62,7 +66,11 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                bridgePass));
         taskList.add(new CleanupSnapshotTaskRunner(snapshotProvider,
                                                    unwrappedSnapshotProvider,
-                                                   s3Client));
+                                                   s3Client,
+                                                   auditQueue, 
+                                                   manifestStore, 
+                                                   dcAccountName,
+                                                   dcStoreId));
         taskList.add(new CompleteSnapshotTaskRunner(snapshotProvider,
                                                     unwrappedSnapshotProvider,
                                                     s3Client));
