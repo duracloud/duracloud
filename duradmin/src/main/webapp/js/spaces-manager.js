@@ -108,6 +108,11 @@ $(function() {
       if (contentId != null && contentId != undefined) {
         relative += "/" + encodeURIComponent(contentId);
       }
+      var snapshot = obj.snapshot; 
+      if (snapshot) {
+        relative += "?snapshot=true";
+      }
+
       return contextPath + relative;
     };
 
@@ -120,6 +125,14 @@ $(function() {
         if (index == -1) {
           return state;
         }
+        
+        var search = location.search;
+        var qmIndex = search.indexOf("?");
+        if (qmIndex > -1) {
+          if(search.substring(qmIndex).indexOf("snapshot=true") > 0){
+            state.snapshot=true; 
+          }
+        }
 
         var subpathname = pathname.substring(index + contextPath.length);
 
@@ -131,10 +144,6 @@ $(function() {
             state.spaceId = subpathname.slice(first + 1, second + 1);
             if (subpathname.length > second) {
               var contentId = subpathname.substring(second + 2);
-              var qmIndex = contentId.indexOf("?");
-              if (qmIndex > 0) {
-                contentId = contentId.substring(0, qmIndex);
-              }
               state.contentId = decodeURIComponent(contentId);
             }
           } else {
