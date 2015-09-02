@@ -62,6 +62,19 @@ $(function() {
   $.fx.speeds._default = 10;
 
   /**
+   * ERROR Constants
+   * 
+   */
+  SnapshotErrorMessage = {};
+  SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to Chronopolis; " +
+  		"some features may not be available at the moment. " +
+  		"We apologize for the inconvenience and are working " +
+  		"to resolve the problem.";
+  
+  displaySnapshotErrorDialog = function(jqXHR){
+    dc.displayErrorDialog(jqXHR, SnapshotErrorMessage.UNAVAILABLE,null, false);
+  };
+  /**
    * Disable default drag and drop functionality
    */
   $(document.body).bind("dragover drop", function(e) {
@@ -221,6 +234,8 @@ $(function() {
     storeProviders : storeProviders
   });
 });
+
+
 
 (function() {
 
@@ -1145,16 +1160,15 @@ $(function() {
         that._loadSnapshotContentItems(snapshot);
 
       }).error(function(jqXHR, textStatus, errorThrown) {
-        var message = "Unable to display snapshot.";
+      
         if (jqXHR.status == 404) {
           message = "snapshot " + params.spaceId + " does not exist.";
           this._detailManager.showEmpty();
-        } 
-        
-        dc.displayErrorDialog(jqXHR, 
-                              message, 
-                              errorThrown);
-
+          dc.displayErrorDialog(jqXHR, 
+                                message, null, false);
+        } else{
+          displaySnapshotErrorDialog(jqXHR);
+        }
       });
       
       return retrieveSnapshot;
@@ -1304,7 +1318,7 @@ $(function() {
               that._spacesArray.push(space);
             });
           }).error(function(jqXHR, textStatus, errorThrown) {
-            dc.displayErrorDialog(jqXHR, "Unable to display snapshot list.",errorThrown);
+            displaySnapshotErrorDialog(jqXHR);
           }).always(function(){
             that._spacesListPane.spaceslistpane("load", 
                                                 that._spacesArray, 
@@ -2117,8 +2131,8 @@ $(function() {
                                             prefix)
       .success(function(data) {
         handler(data);
-      }).error(function() {
-        dc.displayErrorDialog(xhr, "Failed to retrieve contents.");
+      }).error(function(jqXHR) {
+        displaySnapshotErrorDialog(jqXHR);
       }).always(function() {
         dc.done();
       });
@@ -2195,9 +2209,9 @@ $(function() {
           dc.done();
           that._addContentItemsToList(snapshot);
           that._updateNavigationControls(snapshot);
-        }).error(function(xhr, status, errorThrown) {
+        }).error(function(jqXHR, status, errorThrown) {
           setTimeout(function() {
-            alert("Failed to retrieve more content items:" + errorThrown);
+            displaySnapshotErrorDialog(jqXHR);
           }, 200);
 
           dc.done();
@@ -2251,8 +2265,8 @@ $(function() {
 
       dc.store.GetSnapshotContent(snapshot.sourceStoreId, snapshot.snapshotId, 0, "").success(function(snapshot) {
         that._load(snapshot);
-      }).error(function() {
-
+      }).error(function(jqXHR) {
+        displaySnapshotErrorDialog(jqXHR);
       }).always(function() {
         dc.done();
       });
@@ -3397,10 +3411,8 @@ $(function() {
             that._enableRestoreButton();
           }
         }
-      }).error(function(jqxhr, textStatus, errorThrown) {
-          dc.displayErrorDialog(jqxhr, 
-                                "Unable to retrieve restore space id.", 
-                                errorThrown);
+      }).error(function(jqXHR, textStatus, errorThrown) {
+        displaySnapshotErrorDialog(jqXHR);
       }).always(function(){
         that._getRestoreButton().idleSibling();
       });
@@ -3436,11 +3448,9 @@ $(function() {
         }).error(function(){
            dc.done();
         });
-      }).error(function(jqxhr, textStatus, errorThrown) {
+      }).error(function(jqXHR, textStatus, errorThrown) {
         dc.done();
-        dc.displayErrorDialog(jqxhr, 
-                              "Unable to initiate snapshot restore.", 
-                              errorThrown);
+        displaySnapshotErrorDialog(jqXHR);
       });
     },
 
@@ -3587,11 +3597,9 @@ $(function() {
                   },
                 ],
     		} );
-    	}).error(function(jqxhr, textStatus, errorThrown) {
+    	}).error(function(jqXHR, textStatus, errorThrown) {
     		dc.done();
-    		dc.displayErrorDialog(jqxhr, 
-                              "Unable to get snapshot history.", 
-                              errorThrown);
+        displaySnapshotErrorDialog(jqXHR);
     	});
     },
   }));

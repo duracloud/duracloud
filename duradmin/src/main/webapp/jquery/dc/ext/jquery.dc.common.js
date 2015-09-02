@@ -66,11 +66,18 @@ $(function(){
 			}
 		};
 		
-		dc.displayErrorDialog = function(xhr, textStatus, errorThrown){
+		dc.displayErrorDialog = function(xhr, textStatus, errorThrown, showStackTrace){
 			var errorText = xhr.responseText;
+	
+			
 			if(!textStatus){
 			    textStatus = "An unexpected error occurred:";
 			}
+			
+			if(showStackTrace == undefined || showStackTrace == null){
+			  showStackTrace = true;
+			}
+			
 			try{
 				var response = $.parseJSON(errorText);
 				errorText = "cause: " + response['exception.message'];
@@ -79,30 +86,50 @@ $(function(){
 				
 			}
 
+      dc.error("error: " + 
+               errorThrown + 
+               "; response=" + 
+               errorText);
+
+	     var options = {
+	                    autoOpen: true,
+	                    show: 'fade',
+	                    hide: 'fade',
+	                    width:500,
+	                    resizable: true,
+	                    closeOnEscape:true,
+	                    modal: true,
+	                    buttons: {
+	                      "Close": function(){
+	                        $(this).dialog("close");
+	                        errorDialog.empty();
+	                      },
+	                    },
+	                  };
+	                  
+
 			var errorDialog = $.fn.create("div");
+			
 			$(document).append(errorDialog);
-			errorDialog.append("<h1>"+textStatus+"</h1><div><button>Show Details</button><div class='error-detail' style='overflow:auto;height:200px;display:none'><pre>"+errorText+"</pre></div>");
-			errorDialog.find("button").click(function(){
-			   errorDialog.find(".error-detail").show(); 
-			});
+			errorDialog.append("<h1>"+textStatus+"</h1>");
 			
+      if(showStackTrace){
+        
+        errorDialog.append("<div><button>Show Details</button>" +
+                           "<div class='error-detail' style='overflow:auto;height:200px;display:none'>" +
+                           "<pre>"+errorText+"</pre></div>");
+        
+        errorDialog.find("button").click(function(){
+          errorDialog.find(".error-detail").show(); 
+        });
+
+        options = $.extend(options, {
+          height: 350
+        });
+      }
+
 			
-			errorDialog.dialog({
-				autoOpen: true,
-				show: 'fade',
-				hide: 'fade',
-				resizable: true,
-				height: 350,
-				width:500,
-				closeOnEscape:true,
-				modal: true,
-				buttons: {
-					"Close": function(){
-						$(this).dialog("close");
-						errorDialog.empty();
-					},
-				},
-			});
+			errorDialog.dialog(options);
 		};
 
 		

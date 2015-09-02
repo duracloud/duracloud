@@ -110,13 +110,10 @@ $.widget("ui.snapshot",
                                                     textStatus, 
                                                     errorThrown ) {
                                         dc.done();
-                                        dc.error("error: " + 
-                                               errorThrown + 
-                                               "; response=" + 
-                                               jqXHR.responseText);
                                         dc.displayErrorDialog(jqXHR, 
-                                                              "Failed to initiate snapshot.", 
-                                                              errorThrown);
+                                                              SnapshotErrorMessage.UNAVAILABLE, 
+                                                              null,
+                                                              false);
                                     });
                             },
                             Cancel: function() {
@@ -144,13 +141,14 @@ $.widget("ui.snapshot",
 	                    that._displayProperties(properties, panel);
 	                  })
 	                  .error(function( jqXHR, textStatus, errorThrown ) {
-                      dc.displayErrorDialog(jqXHR, 
-                                            "Unable to display snapshot.", 
-                                            errorThrown);
+	                    dc.displayErrorDialog(jqXHR, 
+	                                          SnapshotErrorMessage.UNAVAILABLE, 
+	                                          null, 
+	                                          false);
 	                  });
 			    }
 			    
-                return panel;
+			    return panel;
 			},
 		}
 	)
