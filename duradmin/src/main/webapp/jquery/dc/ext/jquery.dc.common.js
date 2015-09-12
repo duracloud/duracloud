@@ -57,15 +57,18 @@ $(function(){
 			}
 		};
 		
-		dc.checkSession = function(data){
-			if(data != undefined && data != null){
-				if(data.toString().indexOf("loginForm") > -1){
-					alert("Your session has timed out.");
-					window.location.reload();
-				}
-			}
-		};
-		
+    dc.checkSession = function(data){
+      if(data != undefined && data != null){
+        if(data.responseText){
+          data = data.responseText;
+        }
+        if(data.toString().indexOf("loginForm") > -1){
+          alert("Your session has timed out.");
+          window.location.reload();
+        }
+      }
+    };
+
 		dc.displayErrorDialog = function(xhr, textStatus, errorThrown, showStackTrace){
 			var errorText = xhr.responseText;
 	
@@ -135,9 +138,13 @@ $(function(){
 		
 		dc.ajax2 = function(settings){
 		    return $.ajax(settings)
-		            .done(function(data){
-	                    dc.checkSession(data);
-	                });
+                  .error(function(data){
+                    dc.checkSession(data);
+                  })
+                  .done(function(data) {
+                    dc.checkSession(data);
+                  });
+
 		};
 		
 		dc.ajax = function(innerCallback, outerCallback){
