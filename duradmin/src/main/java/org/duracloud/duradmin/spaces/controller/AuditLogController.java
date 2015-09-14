@@ -48,7 +48,7 @@ public class AuditLogController {
         this.contentStoreManager = contentStoreManager;
     }
 
-    @RequestMapping(value = "/{storeId}/{spaceId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{storeId}/{spaceId:.*}", method = RequestMethod.GET)
     public String
         get(@PathVariable("storeId") String storeId,
             @PathVariable("spaceId") String spaceId, HttpServletResponse response) throws Exception {

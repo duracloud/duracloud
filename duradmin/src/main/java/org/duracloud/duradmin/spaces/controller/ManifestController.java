@@ -50,7 +50,7 @@ public class ManifestController {
         this.contentStoreManager = contentStoreManager;
     }
 
-    @RequestMapping(value = "/{storeId}/{spaceId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{storeId}/{spaceId:.*}", method = RequestMethod.GET)
     public String
         get(@PathVariable("storeId") String storeId,
             @PathVariable("spaceId") String spaceId, @RequestParam("format") String manifestFormat, HttpServletResponse response) throws Exception {
