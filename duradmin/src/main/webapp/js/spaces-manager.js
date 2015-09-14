@@ -3199,7 +3199,7 @@ $(function() {
       var downloadManifestButton = $(".download-manifest-button", this.element);
       downloadManifestButton.hide();
 
-      if (this._isAdmin() && space.millDbEnabled) {
+      if (space.millDbEnabled) {
         downloadManifestButton.show();
         // attach delete button listener
         var manifestUrl = "/duradmin/manifest/"+this._storeId+"/"+this._spaceId + "?format="
