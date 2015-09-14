@@ -26,8 +26,12 @@
    -->
   <context:component-scan base-package="org.duracloud.duradmin,org.duracloud.mill">
   </context:component-scan>
-  <mvc:annotation-driven/>  
+  <mvc:annotation-driven content-negotiation-manager="contentNegotiationManager"/>  
   
+  <bean id="contentNegotiationManager"
+        class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+    <property name="favorPathExtension" value="false" />
+  </bean>
   <bean id="adminSpaceId" class="java.lang.String">
     <constructor-arg value="x-duracloud-admin"/>
   </bean>
