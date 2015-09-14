@@ -825,6 +825,7 @@ public class S3StorageProvider extends StorageProviderBase {
         List<Bucket> buckets = listAllBuckets();
         for(Bucket bucket : buckets){
             String bucketName = bucket.getName();
+            spaceId = spaceId.replace(".",  "[.]");
             if(bucketName.matches("[\\w]{20}[.]"+spaceId)) {
                 return bucketName;
             }

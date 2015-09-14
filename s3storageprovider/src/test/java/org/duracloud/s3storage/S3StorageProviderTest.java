@@ -7,6 +7,29 @@
  */
 package org.duracloud.s3storage;
 
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.duracloud.storage.domain.StorageAccount;
+import org.duracloud.storage.error.NotFoundException;
+import org.duracloud.storage.provider.StorageProvider;
+import org.easymock.Capture;
+import org.easymock.EasyMock;
+import org.easymock.IExpectationSetters;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
@@ -22,26 +45,6 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
-import org.duracloud.storage.domain.StorageAccount;
-import org.duracloud.storage.error.NotFoundException;
-import org.duracloud.storage.provider.StorageProvider;
-import org.easymock.Capture;
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author: Bill Branan
@@ -175,12 +178,24 @@ public class S3StorageProviderTest {
     }
 
     private void addListBucketsMock() {
+        addListBucketsMock(null, Arrays.asList(spaceId, "dest-space-id"));
+    }
+
+    private void addListBucketsMock(Integer times, List<String>spaceIds) {
         List<Bucket> buckets = new ArrayList<>();
-        buckets.add(new Bucket(accessKey + "." + spaceId));
-        buckets.add(new Bucket(accessKey + ".dest-space-id"));
-        EasyMock.expect(s3Client.listBuckets())
-                .andReturn(buckets)
-                .anyTimes();
+        for(String sid : spaceIds){
+            buckets.add(new Bucket(accessKey + "." + sid));
+        }
+        IExpectationSetters<List<Bucket>> expectationSetter = EasyMock.expect(s3Client.listBuckets())
+                .andReturn(buckets);
+        
+        if(times == null){
+            expectationSetter.anyTimes();
+        }else {
+            expectationSetter.times(times);
+        }
+        
+        
     }
 
     private InputStream createStream(String content) {
@@ -441,6 +456,47 @@ public class S3StorageProviderTest {
             props.get(StorageProvider.PROPERTIES_SPACE_CREATED));
 
         EasyMock.verify(s3Client);
+    }
+    
+    /**
+     * Verifies the fix for https://jira.duraspace.org/browse/DURACLOUD-936
+     */
+    @Test
+    public void testDuracloud936(){
+        testCreateSpace("space.id");
+    }
+    
+    @Test
+    public void testCreateSpace(){
+        testCreateSpace("spaceid");
+    }
+    
+
+    protected void testCreateSpace(String spaceId){
+        s3Client = EasyMock.createMock("AmazonS3Client", AmazonS3Client.class);
+        List<String> spaceIds = new LinkedList<>();
+        spaceIds.add("space-id");
+        addListBucketsMock(1, spaceIds);
+        String bucketName = accessKey+"."+spaceId;
+        
+        
+        S3StorageProvider provider = getProvider();
+        Bucket bucket = EasyMock.createMock(Bucket.class);
+        EasyMock.expect(bucket.getName()).andReturn(bucketName);
+        EasyMock.expect(bucket.getCreationDate()).andReturn(new Date());
+        EasyMock.expect(this.s3Client.createBucket(bucketName)).andReturn(bucket);
+        EasyMock.expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
+        
+        List<String> spaceIds2 = new LinkedList<>(spaceIds);
+        spaceIds2.add(spaceId);
+        addListBucketsMock(2, spaceIds2);
+        EasyMock.expect(s3Client.getBucketTaggingConfiguration(bucketName)).andReturn(new BucketTaggingConfiguration());
+        s3Client.setBucketTaggingConfiguration(EasyMock.eq(bucketName), EasyMock.isA(BucketTaggingConfiguration.class));
+        EasyMock.expectLastCall();
+        EasyMock.expect(s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class))).andReturn(new ObjectListing());
+        EasyMock.replay(s3Client, bucket);
+        provider.createSpace(spaceId);
+        EasyMock.verify(s3Client,bucket);
     }
 
 }
