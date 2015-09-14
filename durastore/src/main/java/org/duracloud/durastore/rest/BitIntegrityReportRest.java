@@ -112,7 +112,8 @@ public class BitIntegrityReportRest extends BaseRest {
             }
             
             BitIntegrityReport report = page.getContent().get(0);
-            StorageProvider provider = this.storageProviderFactory.getStorageProvider(storeId);
+            //retrieve report info from primary store.
+            StorageProvider provider = this.storageProviderFactory.getStorageProvider();
             String reportSpaceId = report.getReportSpaceId();
             String reportContentId = report.getReportContentId();
             Map<String,String> props = provider.getContentProperties(reportSpaceId, reportContentId);

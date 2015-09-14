@@ -147,7 +147,7 @@ public class BitIntegrityReportRestTest extends EasyMockSupport {
     }
 
     protected void setupStorageProviderFactory() {
-        expect(storageProviderFactory.getStorageProvider(storeId)).andReturn(store);
+        expect(storageProviderFactory.getStorageProvider()).andReturn(store);
     }
 
     protected void setupGetContent() {
