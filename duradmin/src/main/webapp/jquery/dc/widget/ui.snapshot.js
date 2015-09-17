@@ -52,7 +52,7 @@ $.widget("ui.snapshot",
 			            i == "Snapshot ID" || 
 			            i == "snapshot-id"){
 			          snapshotId = value;
-			          value = "<a id='snapshot-id'>"+snapshotId+"</a>";
+			          value = "<a id='snapshot-id' class='button' title='View Snapshot'>"+snapshotId+"</a>";
 			        }
 
 			        list.push([i, value]);
