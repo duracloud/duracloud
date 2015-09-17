@@ -15,9 +15,11 @@ import org.duracloud.syncui.domain.DirectoryConfigForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
+import org.duracloud.syncui.domain.ModeForm;
 import org.duracloud.syncui.domain.PrefixForm;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.ThreadCountForm;
+import org.duracloud.syncui.service.RunMode;
 import org.duracloud.syncui.service.SyncConfigurationManager;
 import org.duracloud.syncui.service.SyncOptimizeManager;
 import org.duracloud.syncui.service.SyncProcessException;
@@ -79,6 +81,13 @@ public class ConfigurationController {
         return new DuracloudCredentialsForm();
     }
 
+    @ModelAttribute("modeForm")
+    public ModeForm modeForm() {
+        ModeForm form =  new ModeForm();
+        form.setMode(this.syncConfigurationManager.getMode());
+        return form;
+    }
+
     @ModelAttribute("syncProcessState")
     public SyncProcessState syncProcessState() {
         return syncProcessManager.getProcessState();
@@ -132,6 +141,17 @@ public class ConfigurationController {
         log.debug("updating  jump start to : {}", jumpstart);
         this.syncConfigurationManager.setJumpStart(jumpstart);
 
+        return createConfigUpdatedRedirectView(redirectAttributes);
+    }
+    
+    @RequestMapping(value = { "/mode" }, method = RequestMethod.POST)
+    public View updateMode(
+                                ModeForm form,
+                                RedirectAttributes redirectAttributes) {
+
+        RunMode mode = form.getMode();
+        log.debug("updating mode to : {}", mode);
+        this.syncConfigurationManager.setMode(mode);
         return createConfigUpdatedRedirectView(redirectAttributes);
     }
     

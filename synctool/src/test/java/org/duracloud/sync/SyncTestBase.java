@@ -25,13 +25,13 @@ public class SyncTestBase {
     @Before
     public void setUp() throws Exception {
         changedList = ChangedList.getInstance();
-        assertNull(changedList.getChangedFile());
+        assertNull(changedList.reserve());
     }
 
     @After
     public void tearDown() throws Exception {
-        while(changedList.getChangedFile() != null) {}
-        assertNull(changedList.getChangedFile());
+        while(changedList.reserve() != null) {}
+        assertNull(changedList.reserve());
     }
 
     protected File createTempDir(String dirName) {

@@ -138,6 +138,13 @@
               
             </div>
             <div class="body">
+              <form:form
+                method="post"
+                modelAttribute="modeForm"
+                action="${pageContext.request.contextPath}/configuration/mode">
+                <jsp:include page="./include/modeForm.jsp"/>
+              </form:form>
+            
               <fieldset>
                 <legend>Destination Prefix</legend>
                 <form:form

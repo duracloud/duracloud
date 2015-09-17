@@ -46,13 +46,13 @@ public class ChangeWatcher implements Runnable {
 
     public void run() {
         while (continueWatch) {
-            ChangedFile changedFile = changedList.getChangedFile();
+            ChangedFile changedFile = changedList.reserve();
             if (changedFile != null) {
                 boolean success = handler.handleChangedFile(changedFile);
                 if(success) {
                     status.startingWork();
                 } else {
-                    changedList.addChangedFile(changedFile);                       
+                    changedFile.unreserve();
                 }
             } else {
                 // List is empty or handler not ready, wait before next check

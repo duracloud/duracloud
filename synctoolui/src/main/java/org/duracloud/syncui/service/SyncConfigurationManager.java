@@ -89,5 +89,9 @@ public interface SyncConfigurationManager {
     public void setJumpStart(boolean jumpStart);
 
     public boolean isJumpStart();
-
+    
+    public void setMode(RunMode mode);
+    
+    public RunMode getMode();
+    
 }

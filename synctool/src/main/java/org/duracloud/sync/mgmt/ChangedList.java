@@ -13,14 +13,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
+import org.apache.commons.lang3.event.EventListenerSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +34,14 @@ import org.slf4j.LoggerFactory;
 public class ChangedList {
 
     private static final Logger log = LoggerFactory.getLogger(ChangedList.class);
-    private LinkedHashMap<String, ChangedFile> fileList;
+    private Map<String, ChangedFile> fileList;
+    private Map<String, ChangedFile> reservedFiles;
+    
     private long listVersion;
 
     private static ChangedList instance;
+
+    private EventListenerSupport<ChangedListListener> listeners;
 
     public static synchronized ChangedList getInstance() {
         if(instance == null) {
@@ -46,8 +51,11 @@ public class ChangedList {
     }
 
     private ChangedList() {
-        fileList = new LinkedHashMap<String, ChangedFile>();
+        fileList = Collections.synchronizedMap(new LinkedHashMap<String,ChangedFile>());
+        reservedFiles = Collections.synchronizedMap(new LinkedHashMap<String,ChangedFile>());
         listVersion = 0;
+        listeners =
+            new EventListenerSupport<ChangedListListener>(ChangedListListener.class);
     }
 
     /**
@@ -57,7 +65,7 @@ public class ChangedList {
      *
      * @param changedFile a file which has changed on the file system
      */
-    public void addChangedFile(File changedFile) {
+    public void addChangedFile(final File changedFile) {
         if(null != changedFile){
             addChangedFile(new ChangedFile(changedFile));
         }else{
@@ -76,6 +84,28 @@ public class ChangedList {
     protected synchronized void addChangedFile(ChangedFile changedFile) {
         fileList.put(changedFile.getFile().getAbsolutePath(), changedFile);
         incrementVersion();
+        fireChangedEvent();
+    }
+
+    protected void fireChangedEvent() {
+        listeners.fire().listChanged(this);
+    }
+
+    protected void fireChangedEventAsync() {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                fireChangedEvent();
+            }
+        }).start();
+    }
+
+    public void addListener(ChangedListListener listener){
+        this.listeners.addListener(listener);
+    }
+
+    public void removeListener(ChangedListListener listener){
+        this.listeners.removeListener(listener);
     }
 
     /**
@@ -83,22 +113,27 @@ public class ChangedList {
      */
     public synchronized void clear(){
         fileList.clear();
+        reservedFiles.clear();
+        fireChangedEvent();
     }
 
     /**
-     * Retrieves a changed file for processing and removes it from the list.
+     * Retrieves a changed file for processing and removes it from the list of unreserved
+     * files.  
      * Returns null if there are no changed files in the list.
      *
      * @return a file which has changed on the file system
      */
-    public synchronized ChangedFile getChangedFile() {
+    public synchronized ChangedFile reserve() {
         if(fileList.isEmpty()) {
             return null;
         }
 
         String key = fileList.keySet().iterator().next();
         ChangedFile changedFile = fileList.remove(key);
+        reservedFiles.put(key, changedFile);
         incrementVersion();
+        fireChangedEventAsync();
         return changedFile;
     }
 
@@ -126,13 +161,15 @@ public class ChangedList {
             ObjectOutputStream oStream = new ObjectOutputStream((fileStream));
 
             long persistVersion;
-            HashMap<String, File> fileListClone;
+            Map<String, ChangedFile> fileListCopy;
             synchronized(this) {
-                fileListClone = (HashMap<String, File>)fileList.clone();
+                fileListCopy = new LinkedHashMap<>(reservedFiles);
+                fileListCopy.putAll(fileList);
+
                 persistVersion = listVersion;
             }
 
-            oStream.writeObject(fileListClone);
+            oStream.writeObject(fileListCopy);
             oStream.close();
             return persistVersion;
         } catch(IOException e) {
@@ -196,6 +233,18 @@ public class ChangedList {
             count++;
         }
         return files;
+    }
+
+    void remove(ChangedFile changedFile) {
+       this.reservedFiles.remove(getKey(changedFile));
+    }
+    
+    void unreserve(ChangedFile changedFile){
+        addChangedFile(this.reservedFiles.get(getKey(changedFile)));
+    }
+
+    private String getKey(ChangedFile changedFile) {
+        return changedFile.getFile().getAbsolutePath();
     }
         
 }

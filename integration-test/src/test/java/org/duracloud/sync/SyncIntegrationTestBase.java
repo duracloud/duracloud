@@ -96,15 +96,15 @@ public class SyncIntegrationTestBase {
     @Before
     public void setUp() throws Exception {
         changedList = ChangedList.getInstance();
-        assertNull(changedList.getChangedFile());
+        assertNull(changedList.reserve());
 
         tempDir = createTempDir("sync-test-dir");
     }
 
     @After
     public void tearDown() throws Exception {
-        while(changedList.getChangedFile() != null) {}
-        assertNull(changedList.getChangedFile());
+        while(changedList.reserve() != null) {}
+        assertNull(changedList.reserve());
 
         FileUtils.deleteDirectory(tempDir);
     }    

@@ -15,7 +15,6 @@ import java.io.Serializable;
  * Date: Apr 1, 2010
  */
 public class ChangedFile implements Serializable {
-
     private File changedFile;
     private int syncAttempts;
 
@@ -35,4 +34,13 @@ public class ChangedFile implements Serializable {
     public void incrementSyncAttempts() {
         syncAttempts++;
     }
+    
+    public void remove(){
+        ChangedList.getInstance().remove(this);
+    }
+
+    public void unreserve(){
+        ChangedList.getInstance().unreserve(this);
+    }
+
 }

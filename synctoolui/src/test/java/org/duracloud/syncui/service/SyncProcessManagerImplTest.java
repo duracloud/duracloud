@@ -7,6 +7,13 @@
  */
 package org.duracloud.syncui.service;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
@@ -19,19 +26,12 @@ import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.domain.SyncProcessState;
 import org.duracloud.syncui.domain.SyncProcessStats;
-import org.easymock.EasyMock;
 import org.easymock.IAnswer;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
+import static org.easymock.EasyMock.*;
+import static org.junit.Assert.*;
 /**
  * 
  * @author Daniel Bernstein
@@ -76,11 +76,17 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         this.contentStoreManagerFactory =
             createMock(ContentStoreManagerFactory.class);
         this.syncOptimizeManager = createMock(SyncOptimizeManager.class);
+        setupWorkingDirectory();
+        setupContentDirectories();
+
+
+    }
+
+    protected void createTestSubject() {
         this.syncProcessManagerImpl =
             new SyncProcessManagerImpl(syncConfigurationManager,
                                        this.contentStoreManagerFactory,
                                        this.syncOptimizeManager);
-
     }
 
     protected void setupStart() throws ContentStoreException {
@@ -88,29 +94,25 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     }
     protected void setupStart(int times) throws ContentStoreException {
         
-        File directory = new File(System.getProperty("java.io.tmpdir") + File.separator + "test-" + System.currentTimeMillis());
-        directory.mkdirs();
-        directory.deleteOnExit();
             
-        EasyMock.expect(this.syncOptimizeManager.isRunning())
+        expect(this.syncOptimizeManager.isRunning())
                 .andReturn(false).atLeastOnce();
-        EasyMock.expect(this.syncConfigurationManager.getThreadCount())
+        expect(this.syncConfigurationManager.getThreadCount())
                 .andReturn(10).atLeastOnce();
-        
         ContentStoreManager contentStoreManager =
             createMock(ContentStoreManager.class);
-        contentStoreManager.login(EasyMock.isA(Credential.class));
+        contentStoreManager.login(isA(Credential.class));
 
-        EasyMock.expectLastCall().times(times);
+        expectLastCall().times(times);
 
-        EasyMock.expect(contentStoreManagerFactory.create())
+        expect(contentStoreManagerFactory.create())
                 .andReturn(contentStoreManager).times(times);
 
-        EasyMock.expect(contentStoreManager.getPrimaryContentStore())
+        expect(contentStoreManager.getPrimaryContentStore())
                 .andReturn(contentStore).times(times);
-        EasyMock.expect(this.contentStore.getStoreId()).andReturn("0").anyTimes();
+        expect(this.contentStore.getStoreId()).andReturn("0").anyTimes();
 
-        EasyMock.expect(this.contentStore.getSpaceContents(EasyMock.isA(String.class)))
+        expect(this.contentStore.getSpaceContents(isA(String.class)))
                 .andAnswer(new IAnswer<Iterator<String>>() {
                     @Override
                     public Iterator<String> answer() throws Throwable {
@@ -118,44 +120,72 @@ public class SyncProcessManagerImplTest extends AbstractTest {
                     }
                 }).anyTimes();
 
-        DirectoryConfigs dconfigs = new DirectoryConfigs();
-        dconfigs.add(new DirectoryConfig(directory.getAbsolutePath()));
-        EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
-                .andReturn(dconfigs).times(times);
+        
 
-        EasyMock.expect(this.syncConfigurationManager.isSyncDeletes())
+        expect(this.syncConfigurationManager.isSyncDeletes())
         .andReturn(true).times(times);
         
-        EasyMock.expect(this.syncConfigurationManager.isSyncUpdates())
+        expect(this.syncConfigurationManager.isSyncUpdates())
         .andReturn(true).times(times);
 
-        EasyMock.expect(this.syncConfigurationManager.isRenameUpdates())
+        expect(this.syncConfigurationManager.isRenameUpdates())
         .andReturn(false).times(times);
 
-        EasyMock.expect(this.syncConfigurationManager.isJumpStart())
+        expect(this.syncConfigurationManager.isJumpStart())
         .andReturn(false).times(times);
 
-        EasyMock.expect(this.syncConfigurationManager.getUpdateSuffix())
+        expect(this.syncConfigurationManager.getUpdateSuffix())
         .andReturn(null).times(times);
 
-        EasyMock.expect(this.syncConfigurationManager.getPrefix())
+        expect(this.syncConfigurationManager.getPrefix())
         .andReturn(null).times(times);
 
         DuracloudConfiguration dc = createMock(DuracloudConfiguration.class);
-        EasyMock.expect(dc.getUsername()).andReturn("testusername").times(times);
-        EasyMock.expect(dc.getPassword()).andReturn("testpassword").times(times);
-        EasyMock.expect(dc.getSpaceId()).andReturn("testspace").times(times);
+        expect(dc.getUsername()).andReturn("testusername").times(times);
+        expect(dc.getPassword()).andReturn("testpassword").times(times);
+        expect(dc.getSpaceId()).andReturn("testspace").times(times);
 
-        EasyMock.expect(this.syncConfigurationManager.retrieveDuracloudConfiguration())
+        expect(this.syncConfigurationManager.retrieveDuracloudConfiguration())
                 .andReturn(dc).times(times);
+        expect(this.syncConfigurationManager.getMode())
+        .andReturn(RunMode.CONTINUOUS).times(times);
+
+    }
+    
+    protected void setupContentDirectories(){
+        File directory =
+            new File(System.getProperty("java.io.tmpdir") + File.separator
+                     + "test-"
+                     + System.currentTimeMillis());
+        directory.mkdirs();
+        directory.deleteOnExit();
+
+
+        DirectoryConfigs dconfigs = new DirectoryConfigs();
+        dconfigs.add(new DirectoryConfig(directory.getAbsolutePath()));
+        expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
+                .andReturn(dconfigs).atLeastOnce();
+    }
+
+    protected void setupWorkingDirectory() {
+        File workDir =
+            new File(System.getProperty("java.io.tmpdir") + File.separator
+                     + "workdir-"
+                     + System.currentTimeMillis());
+        workDir.mkdirs();
+        workDir.deleteOnExit();
+
+
+        expect(this.syncConfigurationManager.getWorkDirectory()).andReturn(workDir)
+                                                                .anyTimes();
     }
     
     @Test
     public void testResume() throws Exception {
         setupStart(2);
-
         replay();
-        
+        createTestSubject();
+
         TestSyncStateListener[] listeners =  {
             new TestSyncStateListener(SyncProcessState.RUNNING),
             new TestSyncStateListener(SyncProcessState.PAUSING),
@@ -171,15 +201,15 @@ public class SyncProcessManagerImplTest extends AbstractTest {
 
         syncProcessManagerImpl.start();
         int i = -1;
-        Assert.assertTrue(listeners[++i].success());
+        assertTrue(listeners[++i].success());
         syncProcessManagerImpl.pause();
-        Assert.assertTrue(listeners[++i].success());
-        Assert.assertTrue(listeners[++i].success());
+        assertTrue(listeners[++i].success());
+        assertTrue(listeners[++i].success());
 
         syncProcessManagerImpl.resume();
         
-        Assert.assertTrue(listeners[++i].success());
-        Assert.assertTrue(listeners[++i].success());
+        assertTrue(listeners[++i].success());
+        assertTrue(listeners[++i].success());
         
         //this sleep seems to be necessary: otherwise 
         //the verify step is returning strange info: 
@@ -194,18 +224,20 @@ public class SyncProcessManagerImplTest extends AbstractTest {
             ContentStoreException {
         setupStart();
         replay();
+        createTestSubject();
+
         TestSyncStateListener listener =
             new TestSyncStateListener(SyncProcessState.RUNNING);
         syncProcessManagerImpl.addSyncStateChangeListener(listener);
         syncProcessManagerImpl.start();
-        Assert.assertTrue(listener.success());
+        assertTrue(listener.success());
     }
 
     @Test
     public void testStop() throws SyncProcessException, ContentStoreException {
         setupStart();
-        
         replay();
+        createTestSubject();
 
         TestSyncStateListener listener0 =
             new TestSyncStateListener(SyncProcessState.RUNNING);
@@ -214,17 +246,18 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         syncProcessManagerImpl.addSyncStateChangeListener(listener0);
         syncProcessManagerImpl.addSyncStateChangeListener(listener1);
         syncProcessManagerImpl.start();
-        Assert.assertTrue(listener0.success());
+        assertTrue(listener0.success());
         syncProcessManagerImpl.stop();
-        Assert.assertTrue(listener1.success());
+        assertTrue(listener1.success());
     }
 
     @Test
     public void testRestart() throws SyncProcessException, ContentStoreException {
         setupStart(2);
-        EasyMock.expectLastCall();
+        expectLastCall();
 
         replay();
+        createTestSubject();
 
         TestSyncStateListener listener0 =
             new TestSyncStateListener(SyncProcessState.RUNNING);
@@ -235,14 +268,14 @@ public class SyncProcessManagerImplTest extends AbstractTest {
 
         syncProcessManagerImpl.addSyncStateChangeListener(listener0);
         syncProcessManagerImpl.start();
-        Assert.assertTrue(listener0.success());
+        assertTrue(listener0.success());
 
         syncProcessManagerImpl.addSyncStateChangeListener(listener1);
         syncProcessManagerImpl.addSyncStateChangeListener(listener2);
         syncProcessManagerImpl.restart();
 
-        Assert.assertTrue(listener1.success());
-        Assert.assertTrue(listener2.success());
+        assertTrue(listener1.success());
+        assertTrue(listener2.success());
 
     }
 
@@ -251,6 +284,7 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     public void testPaused() throws SyncProcessException, ContentStoreException {
         setupStart();
         replay();
+        createTestSubject();
 
         TestSyncStateListener listener0 =
             new TestSyncStateListener(SyncProcessState.RUNNING);
@@ -260,51 +294,63 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         syncProcessManagerImpl.addSyncStateChangeListener(listener0);
         syncProcessManagerImpl.addSyncStateChangeListener(listener1);
         syncProcessManagerImpl.start();
-        Assert.assertTrue(listener0.success());
+        assertTrue(listener0.success());
         syncProcessManagerImpl.pause();
-        Assert.assertTrue(listener1.success());
+        assertTrue(listener1.success());
     }
 
     @Test
     public void testGetProcessState() {
         replay();
+        createTestSubject();
+
         SyncProcessState state = syncProcessManagerImpl.getProcessState();
-        Assert.assertEquals(SyncProcessState.STOPPED, state);
+        assertEquals(SyncProcessState.STOPPED, state);
     }
 
     @Test
     public void testGetProcessStats() {
         replay();
+        createTestSubject();
+
         SyncProcessStats stats = syncProcessManagerImpl.getProcessStats();
-        Assert.assertNotNull(stats);
+        assertNotNull(stats);
     }
 
     @Test
     public void testGetMonitoredFiles() {
         replay();
+        createTestSubject();
+
         List<MonitoredFile> files = syncProcessManagerImpl.getMonitoredFiles();
-        Assert.assertNotNull(files);
+        assertNotNull(files);
     }
 
     @Test
     public void testGetQueuedFiles() {
         replay();
+        createTestSubject();
+
         List<File> files = syncProcessManagerImpl.getQueuedFiles();
-        Assert.assertNotNull(files);
+        assertNotNull(files);
     }
 
     @Test
     public void testGetFailures() {
         replay();
+        createTestSubject();
+
         List<SyncSummary> failures = syncProcessManagerImpl.getFailures();
-        Assert.assertNotNull(failures);
+        assertNotNull(failures);
     }
 
     @Test
     public void testGetRecentlyCompleted() {
         replay();
+        createTestSubject();
+
         List<SyncSummary> completed = syncProcessManagerImpl.getRecentlyCompleted();
-        Assert.assertNotNull(completed);
+        assertNotNull(completed);
     }
 
 }

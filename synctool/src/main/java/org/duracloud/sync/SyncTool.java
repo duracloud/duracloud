@@ -299,7 +299,7 @@ public class SyncTool {
         syncBackupManager =
             new SyncBackupManager(syncConfig.getWorkDir(),
                                   syncConfig.getPollFrequency(),
-                                  syncConfig);
+                                  syncConfig.getContentDirs());
 
         boolean hasABackupFile = this.syncBackupManager.hasBackups();
 

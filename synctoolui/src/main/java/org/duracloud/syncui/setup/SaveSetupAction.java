@@ -11,6 +11,7 @@ import org.duracloud.syncui.controller.ConfigurationController.UpdatePolicy;
 import org.duracloud.syncui.domain.AdvancedForm;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudCredentialsForm;
+import org.duracloud.syncui.domain.ModeForm;
 import org.duracloud.syncui.domain.SpaceForm;
 import org.duracloud.syncui.service.SyncConfigurationManager;
 import org.duracloud.syncui.util.UpdatePolicyHelper;
@@ -40,7 +41,8 @@ public class SaveSetupAction {
     public String execute(DuracloudCredentialsForm credentials,
                           SpaceForm spaceForm,
                           DirectoryConfigs configs,
-                          AdvancedForm advancedForm) {
+                          AdvancedForm advancedForm,
+                          ModeForm modeForm) {
         syncConfigurationManager.persistDuracloudConfiguration(credentials.getUsername(),
                                                                credentials.getPassword(),
                                                                credentials.getHost(),
@@ -53,6 +55,7 @@ public class SaveSetupAction {
         log.debug("setting update policy to  {}", up);
         UpdatePolicyHelper.set(this.syncConfigurationManager, UpdatePolicy.valueOf(up));
         syncConfigurationManager.setJumpStart(advancedForm.isJumpStart());
+        syncConfigurationManager.setMode(modeForm.getMode());
         
         log.info("successfully saved setup.");
         return "success";
