@@ -284,7 +284,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             
             syncEndpoint.addEndPointListener(new EndPointLogger());
             
-            syncBackupManager = new SyncBackupManager(this.syncConfigurationManager.getWorkDirectory(), 
+            File backupDir = new File(this.syncConfigurationManager.getWorkDirectory(), "backup");
+            backupDir.mkdirs();
+
+            syncBackupManager = new SyncBackupManager(backupDir, 
                                                       CHANGE_LIST_MONITOR_FREQUENCY, 
                                                       dirs);
             
