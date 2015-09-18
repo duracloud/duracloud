@@ -7,14 +7,16 @@
  */
 package org.duracloud.common.util;
 
-import org.duracloud.common.error.DuraCloudRuntimeException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.security.Key;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.security.Key;
+
+import org.apache.commons.lang3.StringUtils;
+import org.duracloud.common.error.DuraCloudRuntimeException;
 
 /**
  * Encryption utilities.
@@ -23,7 +25,8 @@ import java.security.Key;
  */
 public class EncryptionUtil {
 
-    private static final byte[] keyBytes = "7437018461906678".getBytes();
+    private static final String DEFAULT_KEY = "7437018461906678";
+    private byte[] keyBytes;
     private Cipher cipher;
     private Key key;
 
@@ -33,12 +36,29 @@ public class EncryptionUtil {
      * @throws Exception
      */
     public EncryptionUtil() throws DuraCloudRuntimeException {
+        this(DEFAULT_KEY);
+    }
+    
+    public EncryptionUtil(String key) throws DuraCloudRuntimeException {
+        if(key == null){
+            throw new IllegalArgumentException("'key' parameter must be non-null");
+        }
+        
+        int keySize = DEFAULT_KEY.length();
+        if(key.length() > keySize){
+            key = key.substring(0,keySize);
+        }
+            
+        key = StringUtils.leftPad(key, keySize);
+        
+        
+        this.keyBytes = key.getBytes();
         try {
             // Create cipher
             this.cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
 
             // Create Key
-            DESKeySpec deskey = new DESKeySpec(keyBytes);
+            DESKeySpec deskey = new DESKeySpec(this.keyBytes);
             this.key = new SecretKeySpec(deskey.getKey(), "DES");
         } catch(Exception e) {
             throw new DuraCloudRuntimeException(e);
