@@ -290,14 +290,14 @@ public class SpaceWriteAccessVoterTest {
     }
 
     @Test
-    public void testSnapshotMetdataSpaceReadOnly() {
+    public void testSnapshotMetdataSpaceAdminNotDeletable() {
         LOGIN login = LOGIN.ADMIN;
         int expectedDecision = ACCESS_DENIED;
         boolean securedSpace = true;
         Authentication caller = registeredUser(login, "none");
-        
         EasyMock.expect(request.getPathInfo()).andReturn(Constants.SNAPSHOT_METADATA_SPACE).atLeastOnce();
-        EasyMock.expect(request.getMethod()).andReturn(HttpVerb.POST.name());
+        EasyMock.expect(request.getMethod()).andReturn(HttpVerb.DELETE.name()).times(2);
+
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         replayMocks();
