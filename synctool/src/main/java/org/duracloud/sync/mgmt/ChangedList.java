@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -34,8 +33,8 @@ import org.slf4j.LoggerFactory;
 public class ChangedList {
 
     private static final Logger log = LoggerFactory.getLogger(ChangedList.class);
-    private Map<String, ChangedFile> fileList;
-    private Map<String, ChangedFile> reservedFiles;
+    private LinkedHashMap<String, ChangedFile> fileList;
+    private LinkedHashMap<String, ChangedFile> reservedFiles;
     
     private long listVersion;
 
@@ -51,8 +50,8 @@ public class ChangedList {
     }
 
     private ChangedList() {
-        fileList = Collections.synchronizedMap(new LinkedHashMap<String,ChangedFile>());
-        reservedFiles = Collections.synchronizedMap(new LinkedHashMap<String,ChangedFile>());
+        fileList = new LinkedHashMap<String,ChangedFile>();
+        reservedFiles = new LinkedHashMap<String,ChangedFile>();
         listVersion = 0;
         listeners =
             new EventListenerSupport<ChangedListListener>(ChangedListListener.class);
@@ -155,7 +154,7 @@ public class ChangedList {
      * @param persistFile file to write state to
      * @return the version ID of the ChangedList which was persisted
      */
-    public long persist(File persistFile) {
+    public synchronized long persist(File persistFile) {
         try {
             FileOutputStream fileStream = new FileOutputStream(persistFile);
             ObjectOutputStream oStream = new ObjectOutputStream((fileStream));
@@ -184,7 +183,7 @@ public class ChangedList {
      * @param persistFile file containing previous state
      * @param contentDirs content directories currently configured.
      */
-    public void restore(File persistFile, List<File> contentDirs) {
+    public synchronized void restore(File persistFile, List<File> contentDirs) {
         try {
             FileInputStream fileStream = new FileInputStream(persistFile);
             ObjectInputStream oStream = new ObjectInputStream(fileStream);
@@ -235,12 +234,15 @@ public class ChangedList {
         return files;
     }
 
-    void remove(ChangedFile changedFile) {
+    synchronized void  remove(ChangedFile changedFile) {
        this.reservedFiles.remove(getKey(changedFile));
     }
     
-    void unreserve(ChangedFile changedFile){
-        addChangedFile(this.reservedFiles.get(getKey(changedFile)));
+    synchronized void  unreserve(ChangedFile changedFile){
+        ChangedFile removedFile = this.reservedFiles.remove(getKey(changedFile));
+        if(removedFile != null){
+            addChangedFile(removedFile);
+        }
     }
 
     private String getKey(ChangedFile changedFile) {
