@@ -46,8 +46,8 @@ public class ChangedListBackupManagerTest  extends SyncTestBase {
             new ChangedListBackupManager(changedList, tempDir, backupFrequency, new LinkedList<File>());
         new Thread(bkMan).start();
 
-        String testFileName = "testfile";
-        File file = new File(testFileName);
+        String testFileName =  "testfile" + System.currentTimeMillis();
+        File file = new File(tempDir, testFileName);
         file.createNewFile();
         file.deleteOnExit();
         changedList.addChangedFile(file);
