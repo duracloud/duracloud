@@ -52,7 +52,7 @@ public class SyncManagerTest extends SyncTestBase {
         for(int i=0; i < changedFiles; i++) {
             changedList.addChangedFile(new File(tempDir, "test-file-" + i));
         }
-        Thread.sleep(200);
+        Thread.sleep(2000);
         assertEquals(changedFiles, handledFiles);
 
         syncManager.endSync();
