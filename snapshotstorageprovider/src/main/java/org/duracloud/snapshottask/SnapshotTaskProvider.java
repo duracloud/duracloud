@@ -11,6 +11,7 @@ import org.duracloud.common.queue.TaskQueue;
 import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.snapshotstorage.SnapshotStorageProvider;
 import org.duracloud.snapshottask.snapshot.CleanupSnapshotTaskRunner;
+import org.duracloud.snapshottask.snapshot.CompleteCancelSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.CompleteRestoreTaskRunner;
 import org.duracloud.snapshottask.snapshot.CompleteSnapshotTaskRunner;
 import org.duracloud.snapshottask.snapshot.CreateSnapshotTaskRunner;
@@ -109,6 +110,15 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                               bridgePort,
                                               bridgeUser,
                                               bridgePass));
+
+        taskList.add(new CompleteCancelSnapshotTaskRunner(snapshotProvider,
+                                                   unwrappedSnapshotProvider,
+                                                   dcSnapshotUser,
+                                                   bridgeHost,
+                                                   bridgePort,
+                                                   bridgeUser,
+                                                   bridgePass));
+
     }
 
 }
