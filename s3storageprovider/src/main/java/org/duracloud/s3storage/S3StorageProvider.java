@@ -302,6 +302,7 @@ public class S3StorageProvider extends StorageProviderBase {
     protected String getSpaceCount(String spaceId, int maxCount) {
         List<String> spaceContentChunk = null;
         long count = 0;
+
         do {
             String marker = null;
             if (spaceContentChunk != null && spaceContentChunk.size() > 0) {
@@ -309,7 +310,7 @@ public class S3StorageProvider extends StorageProviderBase {
             }
             spaceContentChunk = getSpaceContentsChunked(spaceId,
                                                         null,
-                                                        DEFAULT_MAX_RESULTS,
+                                                        MAX_ITEM_COUNT,
                                                         marker);
             count += spaceContentChunk.size();
         } while (spaceContentChunk.size() > 0 && count < maxCount);
