@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import org.duracloud.storage.domain.StorageAccount;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.provider.StorageProvider;
@@ -118,15 +119,6 @@ public class S3StorageProviderTest {
     }
 
     @Test
-    public void testStorageClassRRS() {
-        String expected = StorageClass.ReducedRedundancy.toString();
-        doTestStorageClass(StorageClass.ReducedRedundancy.toString(), expected);
-        doTestStorageClass("ReducEDreDUNdanCY", expected);
-        doTestStorageClass("ReducED", expected);
-        doTestStorageClass("rrs", expected);
-    }
-
-    @Test
     public void testStorageClassNull() {
         String expected = StorageClass.Standard.toString();
         doTestStorageClass(null, expected);
@@ -140,7 +132,6 @@ public class S3StorageProviderTest {
             createS3ClientAddContent(hexChecksum);
         S3StorageProvider provider =
             new S3StorageProvider(s3Client, accessKey,options);
-
 
         contentStream = createStream(content);
         provider.addContent(spaceId,
@@ -479,23 +470,43 @@ public class S3StorageProviderTest {
         addListBucketsMock(1, spaceIds);
         String bucketName = accessKey+"."+spaceId;
         
-        
         S3StorageProvider provider = getProvider();
         Bucket bucket = EasyMock.createMock(Bucket.class);
         EasyMock.expect(bucket.getName()).andReturn(bucketName);
         EasyMock.expect(bucket.getCreationDate()).andReturn(new Date());
         EasyMock.expect(this.s3Client.createBucket(bucketName)).andReturn(bucket);
+
+        s3Client.deleteBucketLifecycleConfiguration(bucketName);
+        EasyMock.expectLastCall();
+        Capture<BucketLifecycleConfiguration> lifecycleConfigCapture = new Capture<>();
+        s3Client.setBucketLifecycleConfiguration(EasyMock.eq(bucketName),
+                                                 EasyMock.capture(lifecycleConfigCapture));
+        EasyMock.expectLastCall();
+
         EasyMock.expect(this.s3Client.listBuckets()).andReturn(Arrays.asList(bucket));
         
         List<String> spaceIds2 = new LinkedList<>(spaceIds);
         spaceIds2.add(spaceId);
         addListBucketsMock(2, spaceIds2);
-        EasyMock.expect(s3Client.getBucketTaggingConfiguration(bucketName)).andReturn(new BucketTaggingConfiguration());
-        s3Client.setBucketTaggingConfiguration(EasyMock.eq(bucketName), EasyMock.isA(BucketTaggingConfiguration.class));
+        EasyMock.expect(s3Client.getBucketTaggingConfiguration(bucketName))
+                .andReturn(new BucketTaggingConfiguration());
+        s3Client.setBucketTaggingConfiguration(EasyMock.eq(bucketName),
+                                               EasyMock.isA(BucketTaggingConfiguration.class));
         EasyMock.expectLastCall();
-        EasyMock.expect(s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class))).andReturn(new ObjectListing());
+
+        EasyMock.expect(s3Client.listObjects(EasyMock.isA(ListObjectsRequest.class)))
+                .andReturn(new ObjectListing());
+
         EasyMock.replay(s3Client, bucket);
+
         provider.createSpace(spaceId);
+
+        BucketLifecycleConfiguration lifecycleConfig = lifecycleConfigCapture.getValue();
+        BucketLifecycleConfiguration.Transition transition =
+            lifecycleConfig.getRules().get(0).getTransitions().get(0);
+        assertEquals(3, transition.getDays());
+        assertEquals(StorageClass.StandardInfrequentAccess, transition.getStorageClass());
+
         EasyMock.verify(s3Client,bucket);
     }
 

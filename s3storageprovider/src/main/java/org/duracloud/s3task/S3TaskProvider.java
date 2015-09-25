@@ -10,8 +10,7 @@ package org.duracloud.s3task;
 import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.duracloud.s3storage.S3StorageProvider;
-import org.duracloud.s3task.storage.SetReducedStorageTaskRunner;
-import org.duracloud.s3task.storage.SetStandardStorageTaskRunner;
+import org.duracloud.s3task.storage.SetStoragePolicyTaskRunner;
 import org.duracloud.s3task.streaming.DeleteStreamingTaskRunner;
 import org.duracloud.s3task.streaming.DisableStreamingTaskRunner;
 import org.duracloud.s3task.streaming.EnableStreamingTaskRunner;
@@ -60,12 +59,7 @@ public class S3TaskProvider extends TaskProviderBase {
                                                    unwrappedS3Provider,
                                                    s3Client,
                                                    cfClient));
-        taskList.add(new SetStandardStorageTaskRunner(s3Provider,
-                                                      unwrappedS3Provider,
-                                                      s3Client));
-        taskList.add(new SetReducedStorageTaskRunner(s3Provider,
-                                                     unwrappedS3Provider,
-                                                     s3Client));
+        taskList.add(new SetStoragePolicyTaskRunner(unwrappedS3Provider));
     }
 
 }

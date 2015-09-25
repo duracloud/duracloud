@@ -19,10 +19,7 @@ public class StorageTaskConstants {
     public static final String GET_URL_TASK_NAME = "get-url";
     public static final String GET_SIGNED_URL_TASK_NAME = "get-signed-url";
 
-    // Storage class
-    public static final String SET_STANDARD_STORAGE_CLASS_TASK_NAME =
-        "set-standard-storage-class";
-    public static final String SET_REDUCED_REDUNDANCY_STORAGE_CLASS_TASK_NAME =
-        "set-reduced-redundancy-storage-class";
+    // Storage policy
+    public static final String SET_STORAGE_POLICY_TASK_NAME = "set-storage-policy";
 
 }

@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.BucketTaggingConfiguration;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
@@ -24,6 +25,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.SetBucketLifecycleConfigurationRequest;
 import com.amazonaws.services.s3.model.StorageClass;
 import com.amazonaws.services.s3.model.TagSet;
 import org.apache.commons.lang.StringUtils;
@@ -69,7 +71,6 @@ public class S3StorageProvider extends StorageProviderBase {
 
     private String accessKeyId = null;
     protected AmazonS3Client s3Client = null;
-    private StorageClass storageClass = null;
 
     public S3StorageProvider(String accessKey, String secretKey) {
         this(S3ProviderUtil.getAmazonS3Client(accessKey, secretKey),
@@ -90,7 +91,6 @@ public class S3StorageProvider extends StorageProviderBase {
                              Map<String, String> options) {
         this.accessKeyId = accessKey;
         this.s3Client = s3Client;
-        this.storageClass = getStorageClass(options);
     }
 
     /**
@@ -229,11 +229,55 @@ public class S3StorageProvider extends StorageProviderBase {
     private Bucket createBucket(String spaceId) {
         String bucketName = getNewBucketName(spaceId);
         try {
-            return s3Client.createBucket(bucketName);
+            Bucket bucket = s3Client.createBucket(bucketName);
+
+            // Apply lifecycle config to bucket
+            StoragePolicy storagePolicy = getStoragePolicy();
+            setSpaceLifecycle(bucketName, storagePolicy.getBucketLifecycleConfig());
+
+            return bucket;
         } catch (AmazonClientException e) {
             String err = "Could not create S3 bucket with name " + bucketName
                     + " due to error: " + e.getMessage();
             throw new StorageException(err, e, RETRY);
+        }
+    }
+
+    /**
+     * Defines the storage policy for the primary S3 provider.
+     * Subclasses can define different policy choices.
+     *
+     * @return
+     */
+    protected StoragePolicy getStoragePolicy() {
+        return new StoragePolicy(StorageClass.StandardInfrequentAccess, 3);
+    }
+
+    /**
+     * Sets a lifecycle policy on an S3 bucket based on the given configuration
+     *
+     * @param bucketName name of the bucket to update
+     * @param config bucket lifecycle configuration
+     */
+    public void setSpaceLifecycle(String bucketName,
+                                  BucketLifecycleConfiguration config) {
+        boolean success = false;
+        int maxLoops = 6;
+        for (int loops = 0; !success && loops < maxLoops; loops++) {
+            try {
+                s3Client.deleteBucketLifecycleConfiguration(bucketName);
+                s3Client.setBucketLifecycleConfiguration(bucketName, config);
+                success = true;
+            } catch (NotFoundException e) {
+                success = false;
+                wait(loops);
+            }
+        }
+
+        if (!success) {
+            throw new StorageException(
+                "Lifecycle policy for bucket " + bucketName +
+                " could not be applied. The space cannot be found.");
         }
     }
 
@@ -450,7 +494,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                                            contentId,
                                                            wrappedContent,
                                                            objMetadata);
-        putRequest.setStorageClass(this.storageClass);
+        putRequest.setStorageClass(DEFAULT_STORAGE_CLASS);
         putRequest.setCannedAcl(CannedAccessControlList.Private);
 
         // Add the object
@@ -555,7 +599,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                                           sourceContentId,
                                                           destBucketName,
                                                           destContentId);
-        request.setStorageClass(this.storageClass);
+        request.setStorageClass(DEFAULT_STORAGE_CLASS);
         request.setCannedAccessControlList(CannedAccessControlList.Private);
 
         CopyObjectResult result = doCopyObject(request);
@@ -722,7 +766,7 @@ public class S3StorageProvider extends StorageProviderBase {
                                                                   contentId,
                                                                   bucketName,
                                                                   contentId);
-            copyRequest.setStorageClass(this.storageClass);
+            copyRequest.setStorageClass(DEFAULT_STORAGE_CLASS);
             copyRequest.setNewObjectMetadata(objMetadata);
             s3Client.copyObject(copyRequest);
             s3Client.setObjectAcl(bucketName, contentId, originalACL);
@@ -886,22 +930,4 @@ public class S3StorageProvider extends StorageProviderBase {
         return name.replaceAll("%20", " ");
     }
 
-    private StorageClass getStorageClass(Map<String, String> options) {
-        StorageClass sc = DEFAULT_STORAGE_CLASS;
-        String scOpt = null;
-        if (null != options) {
-            scOpt = options.get(StorageAccount.OPTS.STORAGE_CLASS.name());
-            if (null != scOpt) {
-                String storageClassLower = scOpt.toLowerCase();
-                if (storageClassLower.equals("reduced_redundancy") ||
-                    storageClassLower.equals("reducedredundancy") ||
-                    storageClassLower.equals("reduced") ||
-                    storageClassLower.equals("rrs")) {
-                    sc = StorageClass.ReducedRedundancy;
-                }
-            }
-        }
-        log.debug("StorageClass set to: {}, from {}", sc, scOpt);
-        return sc;
-    }
 }

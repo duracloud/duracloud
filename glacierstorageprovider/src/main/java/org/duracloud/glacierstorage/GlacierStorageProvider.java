@@ -12,6 +12,7 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.BucketLifecycleConfiguration;
 import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storage.StoragePolicy;
 import org.duracloud.storage.error.NotFoundException;
 import org.duracloud.storage.error.StorageException;
 import org.duracloud.storage.error.StorageStateException;
@@ -44,66 +45,9 @@ public class GlacierStorageProvider extends S3StorageProvider {
         super(s3Client, accessKey, null);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Performs the usual space creation activities, then sets up lifecycle
-     * policies on the S3 bucket which indicate that all content should be
-     * archived in AWS Glacier as quickly as possible after it lands in the
-     * bucket.
-     */
     @Override
-    public void createSpace(String spaceId) {
-        log.debug("createSpace(" + spaceId + ")");
-
-        super.createSpace(spaceId);
-
-        // Define the transition to Glacier
-        BucketLifecycleConfiguration.Transition transition =
-            new BucketLifecycleConfiguration.Transition()
-                .withDays(0)
-                .withStorageClass(StorageClass.Glacier);
-
-        // Use the transition in a rule
-        BucketLifecycleConfiguration.Rule rule =
-            new BucketLifecycleConfiguration.Rule()
-                .withId("Archive all files")
-                .withPrefix("")
-                .withTransition(transition)
-                .withStatus(BucketLifecycleConfiguration.ENABLED.toString());
-
-        // Create lifecycle config with rule
-        List<BucketLifecycleConfiguration.Rule> rules = new ArrayList<>();
-        rules.add(rule);
-
-        BucketLifecycleConfiguration config =
-            new BucketLifecycleConfiguration()
-                .withRules(rules);
-
-        // Apply lifecycle config to bucket
-        setNewSpaceLifecycle(spaceId, config);
-    }
-
-    protected void setNewSpaceLifecycle(String spaceId,
-                                        BucketLifecycleConfiguration config) {
-        boolean success = false;
-        int maxLoops = 6;
-        for (int loops = 0; !success && loops < maxLoops; loops++) {
-            try {
-                s3Client.setBucketLifecycleConfiguration(getBucketName(spaceId),
-                                                         config);
-                success = true;
-            } catch (NotFoundException e) {
-                success = false;
-                wait(loops);
-            }
-        }
-
-        if (!success) {
-            throw new StorageException(
-                "Lifecycle policy (to use Glacier) for space " + spaceId +
-                " could not be applied. The space cannot be found.");
-        }
+    protected StoragePolicy getStoragePolicy() {
+        return new StoragePolicy(StorageClass.Glacier, 0);
     }
 
     /**
