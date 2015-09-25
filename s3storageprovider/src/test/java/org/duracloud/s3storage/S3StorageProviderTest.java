@@ -126,7 +126,6 @@ public class S3StorageProviderTest {
 
     private void doTestStorageClass(String storageClass, String expected) {
         Map<String, String> options = new HashMap<>();
-        options.put(StorageAccount.OPTS.STORAGE_CLASS.name(), storageClass);
 
         Capture<PutObjectRequest> capturedRequest =
             createS3ClientAddContent(hexChecksum);

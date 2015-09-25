@@ -41,50 +41,11 @@ public class StorageAccountProviderS3BindingImplTest {
         Assert.assertNull(result);
     }
 
-
-    @Test
-    public void testGetAccountFromXmlNullStorageClass() throws Exception {
-        boolean include = true;
-        String storageClass = null;
-        StorageAccount acct = createAccount(storageClass);
-        Element xml = createAccountXml(acct, include);
-
-        boolean valid = true;
-        StorageAccount result = doTest(xml, valid);
-        Assert.assertNotNull(result);
-    }
-
-    @Test
-    public void testGetAccountFromXmlStandard() throws Exception {
-        boolean include = true;
-        String storageClass = "standard";
-        StorageAccount acct = createAccount(storageClass);
-        Element xml = createAccountXml(acct, include);
-
-        boolean valid = true;
-        StorageAccount result = doTest(xml, valid);
-        Assert.assertNotNull(result);
-        Assert.assertEquals(acct, result);
-    }
-
-    @Test
-    public void testGetAccountFromXmlReduced() throws Exception {
-        boolean include = true;
-        String storageClass = "reducEDreDundANCY";
-        StorageAccount acct = createAccount(storageClass);
-        Element xml = createAccountXml(acct, include);
-
-        boolean valid = true;
-        StorageAccount result = doTest(xml, valid);
-        Assert.assertNotNull(result);
-        Assert.assertEquals(acct, result);
-    }
-
     @Test
     public void testGetAccountFromXmlBadCredentials() throws Exception {
         boolean include = true;
-        String storageClass = null;
-        StorageAccount acct = createAccount(storageClass);
+        String cfKeyId = null;
+        StorageAccount acct = createAccount(cfKeyId);
         acct.setUsername(null);
         acct.setPassword(null);
         Element xml = createAccountXml(acct, include);
@@ -97,8 +58,8 @@ public class StorageAccountProviderS3BindingImplTest {
     @Test
     public void testGetAccountFromXmlUnknownProvider() throws Exception {
         boolean include = true;
-        String storageClass = "standard";
-        StorageAccount acct = createAccount(storageClass);
+        String cfKeyId = "cf-key-id";
+        StorageAccount acct = createAccount(cfKeyId);
         acct.setType(StorageProviderType.UNKNOWN);
         Element xml = createAccountXml(acct, include);
 
@@ -141,17 +102,17 @@ public class StorageAccountProviderS3BindingImplTest {
             password = encryptionUtil.encrypt(acct.getPassword());
         }
 
-        String storageClass = acct.getOptions().get(StorageAccount.OPTS.STORAGE_CLASS.name());
+        String cfKeyId = acct.getOptions().get(StorageAccount.OPTS.CF_KEY_ID.name());
 
         xml.append("  <storageAcct ownerId='0' isPrimary='");
         xml.append(isPrimary + "'>");
         xml.append("    <id>" + acct.getId() + "</id>");
 
-        if (null != storageClass && !"null".equals(storageClass)) {
+        if (null != cfKeyId && !"null".equals(cfKeyId)) {
             xml.append("    <storageProviderOptions>");
             xml.append("      <option name='");
-            xml.append(StorageAccount.OPTS.STORAGE_CLASS.name());
-            xml.append("' value='"+storageClass+"' />");
+            xml.append(StorageAccount.OPTS.CF_KEY_ID.name());
+            xml.append("' value='"+cfKeyId+"' />");
             xml.append("    </storageProviderOptions>");
         }
         xml.append("    <storageProviderType>");
@@ -173,7 +134,7 @@ public class StorageAccountProviderS3BindingImplTest {
         return doc.getRootElement();
     }
 
-    private StorageAccount createAccount(String storageClass) {
+    private StorageAccount createAccount(String cfKeyId) {
         StorageAccount acct = null;
 
         String id = "id";
@@ -183,7 +144,7 @@ public class StorageAccountProviderS3BindingImplTest {
                                       username,
                                       password,
                                       StorageProviderType.AMAZON_S3);
-        acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), storageClass);
+        acct.setOption(StorageAccount.OPTS.CF_KEY_ID.name(), cfKeyId);
 
         return acct;
     }

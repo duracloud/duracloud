@@ -21,7 +21,6 @@ public interface StorageAccount {
      */
     public enum OPTS {
         // S3 below
-        STORAGE_CLASS,
         CF_ACCOUNT_ID,
         CF_KEY_ID,
         CF_KEY_PATH,

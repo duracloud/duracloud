@@ -33,7 +33,7 @@ public class StorageAccountsDocumentBindingTest {
 
     private StorageAccountsDocumentBinding documentBinding;
 
-    private final String storeClass = "reducedredundancy";
+    private final String cfKeyId = "1234";
     private InputStream xml;
 
     @Before
@@ -79,11 +79,8 @@ public class StorageAccountsDocumentBindingTest {
 
         Map<String, String> options = acct.getOptions();
         if (acct.getType() == StorageProviderType.AMAZON_S3) {
-            String storageClass = options.get(StorageAccount.OPTS
-                                                  .STORAGE_CLASS
-                                                  .name());
-            Assert.assertNotNull(storageClass);
-
+            String cfKeyId = options.get(StorageAccount.OPTS.CF_KEY_ID.name());
+            Assert.assertNotNull(cfKeyId);
         } else {
             Assert.assertEquals(0, options.size());
         }
@@ -156,7 +153,7 @@ public class StorageAccountsDocumentBindingTest {
             password = encryptionUtil.encrypt(acct.getPassword());
         }
 
-        String storageClass = getStorageClass(acct);
+        String cfKeyId = getCfKeyId(acct);
 
         acctXml.append("  <storageAcct ownerId='0' isPrimary='");
         acctXml.append(isPrimary + "'>");
@@ -165,11 +162,11 @@ public class StorageAccountsDocumentBindingTest {
 
         acctXml.append("    <storageProviderType>");
         acctXml.append(acct.getType().name() + "</storageProviderType>");
-        if (null != storageClass) {
+        if (null != cfKeyId) {
             acctXml.append("    <storageProviderOptions>");
             acctXml.append("      <option name='");
-            acctXml.append(StorageAccount.OPTS.STORAGE_CLASS.name());
-            acctXml.append("' value='"+storageClass+"' />");
+            acctXml.append(StorageAccount.OPTS.CF_KEY_ID.name());
+            acctXml.append("' value='"+cfKeyId+"' />");
             acctXml.append("    </storageProviderOptions>");
         }
         acctXml.append("    <storageProviderCredential>");
@@ -181,10 +178,10 @@ public class StorageAccountsDocumentBindingTest {
         return acctXml;
     }
 
-    private String getStorageClass(StorageAccount acct) {
+    private String getCfKeyId(StorageAccount acct) {
         if (acct.getType() == StorageProviderType.AMAZON_S3) {
             return acct.getOptions().get(StorageAccount.OPTS
-                                             .STORAGE_CLASS
+                                             .CF_KEY_ID
                                              .name());
         }
         return null;
@@ -200,7 +197,7 @@ public class StorageAccountsDocumentBindingTest {
         acct = new StorageAccountImpl(id, username, password, type);
 
         if (type == StorageProviderType.AMAZON_S3) {
-            acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), storeClass);
+            acct.setOption(StorageAccount.OPTS.CF_KEY_ID.name(), cfKeyId);
         }
 
         return acct;
