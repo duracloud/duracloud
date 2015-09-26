@@ -16,6 +16,7 @@ import org.duracloud.s3storageprovider.dto.SetStoragePolicyTaskParameters;
 import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskRunner;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -58,7 +59,8 @@ public class SetStoragePolicyTaskRunner implements TaskRunner {
         } catch(IllegalArgumentException e) {
             throw new RuntimeException("Cannot set storage policy due to invalid " +
                                        "storage class. The valid storage class " +
-                                       "options are: " + StorageClass.values());
+                                       "options are: " +
+                                       Arrays.asList(StorageClass.values()));
         }
 
         // Will throw if bucket does not exist

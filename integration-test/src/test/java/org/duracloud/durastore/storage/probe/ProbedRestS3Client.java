@@ -9,10 +9,7 @@ package org.duracloud.durastore.storage.probe;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.Request;
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.http.HttpMethodName;
-import com.amazonaws.http.HttpRequest;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import org.duracloud.common.util.metrics.Metric;
@@ -599,15 +596,6 @@ public class ProbedRestS3Client
         startMetric("generatePresignedUrl");
         URL result = super.generatePresignedUrl(generatePresignedUrlRequest); 
         stopMetric("generatePresignedUrl");
-        return result;
-    }
-
-    @Override
-    protected <T> HttpRequest convertToHttpRequest(Request<T> request,
-                                                   HttpMethodName methodName) {
-        startMetric("convertToHttpRequest");
-        HttpRequest result = super.convertToHttpRequest(request, methodName);
-        stopMetric("convertToHttpRequest");
         return result;
     }
 

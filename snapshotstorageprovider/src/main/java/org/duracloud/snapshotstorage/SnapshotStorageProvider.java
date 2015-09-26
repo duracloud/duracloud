@@ -45,6 +45,6 @@ public class SnapshotStorageProvider extends S3StorageProvider {
     }
 
     protected StoragePolicy getStoragePolicy() {
-        return new StoragePolicy(StorageClass.Standard, 0);
+        return null; // no transition policy, leaving content in S3 standard
     }
 }

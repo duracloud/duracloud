@@ -233,7 +233,9 @@ public class S3StorageProvider extends StorageProviderBase {
 
             // Apply lifecycle config to bucket
             StoragePolicy storagePolicy = getStoragePolicy();
-            setSpaceLifecycle(bucketName, storagePolicy.getBucketLifecycleConfig());
+            if(null != storagePolicy) {
+                setSpaceLifecycle(bucketName, storagePolicy.getBucketLifecycleConfig());
+            }
 
             return bucket;
         } catch (AmazonClientException e) {
@@ -247,10 +249,10 @@ public class S3StorageProvider extends StorageProviderBase {
      * Defines the storage policy for the primary S3 provider.
      * Subclasses can define different policy choices.
      *
-     * @return
+     * @return storage policy to set, or null if no policy should be defined
      */
     protected StoragePolicy getStoragePolicy() {
-        return new StoragePolicy(StorageClass.StandardInfrequentAccess, 3);
+        return new StoragePolicy(StorageClass.StandardInfrequentAccess, 30);
     }
 
     /**

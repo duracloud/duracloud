@@ -32,6 +32,8 @@
     <intercept-url pattern="/task/restore-snapshot" method="POST" access="ROLE_ROOT"/>
     <!-- limit access to the Glacier content restore capability -->
     <intercept-url pattern="/task/restore-content" method="POST" access="ROLE_ROOT"/>
+    <!-- limit access to set S3 bucket lifecycle policies -->
+    <intercept-url pattern="/task/set-storage-policy" method="POST" access="ROLE_ROOT"/>
     <intercept-url pattern="/task/get-snapshot" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-snapshots" access="ROLE_USER"/>
     <intercept-url pattern="/task/get-snapshot-history" access="ROLE_USER"/>

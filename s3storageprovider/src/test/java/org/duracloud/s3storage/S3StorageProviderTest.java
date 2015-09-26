@@ -113,18 +113,10 @@ public class S3StorageProviderTest {
 
     @Test
     public void testStorageClassStandard() {
-        String expected = StorageClass.Standard.toString();
-        doTestStorageClass(StorageClass.Standard.toString(), expected);
-        doTestStorageClass("xx", expected);
+        doTestStorageClass(StorageClass.Standard.toString());
     }
 
-    @Test
-    public void testStorageClassNull() {
-        String expected = StorageClass.Standard.toString();
-        doTestStorageClass(null, expected);
-    }
-
-    private void doTestStorageClass(String storageClass, String expected) {
+    private void doTestStorageClass(String expected) {
         Map<String, String> options = new HashMap<>();
 
         Capture<PutObjectRequest> capturedRequest =
@@ -503,7 +495,7 @@ public class S3StorageProviderTest {
         BucketLifecycleConfiguration lifecycleConfig = lifecycleConfigCapture.getValue();
         BucketLifecycleConfiguration.Transition transition =
             lifecycleConfig.getRules().get(0).getTransitions().get(0);
-        assertEquals(3, transition.getDays());
+        assertEquals(30, transition.getDays());
         assertEquals(StorageClass.StandardInfrequentAccess, transition.getStorageClass());
 
         EasyMock.verify(s3Client,bucket);
