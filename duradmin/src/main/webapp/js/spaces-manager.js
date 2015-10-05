@@ -2653,20 +2653,13 @@ $(function() {
       $.ui.basedetailpane.prototype._init.call(this);
     },
 
-    _preparePropertiesDialog : function(targetListDataType) {
+    _preparePropertiesDialog : function() {
       var that = this;
       var items, getFunction;
-      if (targetListDataType == "contentItem") {
-        items = this._contentItems;
-        getFunction = function(ci, callback) {
-          dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, callback);
-        };
-      } else {
-        items = this._spaces;
-        getFunction = function(space, callback) {
-          dc.store.GetSpace(space.storeId, space.spaceId, callback);
-        };
-      }
+      items = this._contentItems;
+      getFunction = function(ci, callback) {
+        dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, callback);
+      };
 
       this._aggregatePropertiesFromSelection(items, getFunction, {
         success : function(data) {
@@ -3043,11 +3036,6 @@ $(function() {
       if (!this._isAdmin()) {
         deleteButton.hide();
       }
-
-      var editPropsButton = $(".add-remove-properties-button", this.element);
-      editPropsButton.click(function(evt) {
-        that._preparePropertiesDialog("space");
-      });
 
       if (this._isReadOnlyStorageProvider()) {
         deleteButton.hide();
@@ -3650,7 +3638,7 @@ $(function() {
         addRemoveProperties.hide();
       } else {
         addRemoveProperties.click(function(evt) {
-          that._preparePropertiesDialog("contentItem");
+          that._preparePropertiesDialog();
         });
       }
 
