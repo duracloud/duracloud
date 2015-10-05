@@ -99,12 +99,14 @@ public class InitRest extends BaseRest {
                                    dbConfig.getUsername() != null && 
                                    dbConfig.getPassword() != null;
         if(millDbConfigured){
-            datasource.setUrl(MessageFormat.format("jdbc:mysql://{0}:{1}/{2}?autoReconnect=true",
+            datasource.setUrl(MessageFormat.format("jdbc:mysql://{0}:{1}/{2}",
                                                    dbConfig.getHost(),
                                                    dbConfig.getPort()+"",
                                                    dbConfig.getName()));
             datasource.setUsername(dbConfig.getUsername());
             datasource.setPassword(dbConfig.getPassword());
+            datasource.setTestOnBorrow(true);
+            datasource.setValidationQuery("SELECT 1");
         }
         
         manifestRest.setEnabled(millDbConfigured);
