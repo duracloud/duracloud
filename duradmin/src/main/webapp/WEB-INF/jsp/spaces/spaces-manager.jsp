@@ -369,10 +369,6 @@
               <button class="featured delete-space-button dc-delete-button">
                 <i class="pre trash"></i>Delete Selected Spaces
               </button>
-              <button class="add-remove-properties-button">
-                <i class="pre pencil"></i>Edit Properties
-              </button>
-
             </div>
 
           </div>
