@@ -114,7 +114,7 @@ $(function(){
 			var errorDialog = $.fn.create("div");
 			
 			$(document).append(errorDialog);
-			errorDialog.append("<h1>"+textStatus+"</h1>");
+			errorDialog.append("<h2>"+textStatus+"</h2>");
 			
       if(showStackTrace){
         

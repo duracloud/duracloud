@@ -68,8 +68,7 @@ $(function() {
   SnapshotErrorMessage = {};
   SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to Chronopolis; " +
   		"some features may not be available at the moment. " +
-  		"We apologize for the inconvenience and are working " +
-  		"to resolve the problem.";
+  		"We apologize for the inconvenience.";
   
   displaySnapshotErrorDialog = function(jqXHR){
     dc.displayErrorDialog(jqXHR, SnapshotErrorMessage.UNAVAILABLE,null, false);
