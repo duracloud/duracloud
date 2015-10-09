@@ -107,8 +107,8 @@ public class SyncManager implements ChangeHandler {
         File watchDir = getWatchDir(changedFile.getFile());
         try {
             SyncWorker worker = new SyncWorker(changedFile, watchDir, endpoint);
-            workerPool.execute(worker);
             addToWorkerList(worker);
+            workerPool.execute(worker);
             return true;
         } catch(RejectedExecutionException e) {
             return false;
@@ -154,7 +154,7 @@ public class SyncManager implements ChangeHandler {
         }
     }
 
-    public List<MonitoredFile> getFilesInTransfer() {
+    public synchronized List<MonitoredFile> getFilesInTransfer() {
         cleanWorkerList();
         List<MonitoredFile> monitoredFiles = new ArrayList<MonitoredFile>();
         for(SyncWorker worker : (ArrayList<SyncWorker>)workerList.clone()) {

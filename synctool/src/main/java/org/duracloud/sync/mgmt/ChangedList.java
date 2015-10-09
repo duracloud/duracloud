@@ -79,6 +79,14 @@ public class ChangedList {
     public int getListSize() {
         return fileList.size();
     }
+    
+    /**
+     * Gets the current size of the changed list included the files that have been reserved
+     * @return the size of the list
+     */
+    public int getListSizeIncludingReservedFiles() {
+        return fileList.size() + reservedFiles.size();
+    }
 
     protected synchronized void addChangedFile(ChangedFile changedFile) {
         fileList.put(changedFile.getFile().getAbsolutePath(), changedFile);

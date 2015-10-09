@@ -7,7 +7,6 @@
  */
 package org.duracloud.syncui.service;
 
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.util.Date;
 import java.util.LinkedList;
@@ -83,11 +82,29 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private class InternalChangedListListener implements ChangedListListener {
         @Override
-        public void listChanged(ChangedList list){
-            if(list.getListSize() == 0){
-                SyncProcessManagerImpl.this.stop();
-                list.removeListener(this);
+        public void listChanged(final ChangedList list){
+            //ignore if there are items in the list
+            if(list.getListSize() > 0){
+                return;
             }
+
+            //if appears to be empty remove listener
+            list.removeListener(InternalChangedListListener.this);
+
+            //in separate thread start shutdown only
+            //after  list is absolutely empty (no reserved files)
+            //and sync manager has finished transferring files.
+            new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    while (!syncManager.getFilesInTransfer().isEmpty() && 
+                        list.getListSizeIncludingReservedFiles() > 0) {
+                        SyncProcessManagerImpl.this.sleep();
+                    }
+
+                    SyncProcessManagerImpl.this.stop();
+                }
+            }).start();
         }
     }
     
@@ -450,28 +467,27 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void stopImpl()  {
         changeState(stoppingState);
-        
-        final Thread t = new Thread() {
+        new Thread() {
             @Override
             public void run() {
                 shutdownSyncProcess();
                 syncStartedDate = null;
-                
-                SyncManager sm = SyncProcessManagerImpl.this.syncManager;
-                while (!sm.getFilesInTransfer().isEmpty()) {
-                    try {
-                        sleep(3000);
-                    } catch (InterruptedException e) {
-                        log.warn(e.getMessage(), e);
-                    }
+                while (!syncManager.getFilesInTransfer().isEmpty()) {
+                    SyncProcessManagerImpl.this.sleep();
                 }
                 
                 resetChangeList();
                 changeState(stoppedState);
             }
-        };
-
-        t.start();
+        }.start();
+    }
+    
+    protected void sleep() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            log.warn(e.getMessage(), e);
+        }
     }
 
     private void pauseImpl() {
@@ -482,11 +498,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                 shutdownSyncProcess();
                 SyncManager sm = SyncProcessManagerImpl.this.syncManager;
                 while (!sm.getFilesInTransfer().isEmpty()) {
-                    try {
-                        sleep(3000);
-                    } catch (InterruptedException e) {
-                        log.warn(e.getMessage(), e);
-                    }
+                    SyncProcessManagerImpl.this.sleep();
                 }
 
                 changeState(pausedState);
