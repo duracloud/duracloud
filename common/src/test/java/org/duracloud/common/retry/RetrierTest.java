@@ -7,9 +7,9 @@
  */
 package org.duracloud.common.retry;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * @author Bill Branan
@@ -67,9 +67,34 @@ public class RetrierTest {
         } catch (Exception e) {
             assertEquals(expectedAttempts, Integer.valueOf(e.getMessage()));
         }
-
     }
 
+    @Test
+    public void testRetrierExponentiallyIncreasingWaitBetweenRetries() throws Exception {
+        final Integer expectedAttempts = 4;
+        final int failuresBeforeSuccess = 4; // More than the number of retries
+        final RetryTester retryTester = new RetryTester(failuresBeforeSuccess);
+
+        Retrier retrier = new Retrier(Retrier.DEFAULT_MAX_RETRIES, 100, 2);
+        long start = System.currentTimeMillis();
+        try {
+            retrier.execute(new Retriable() {
+                @Override
+                public Integer retry() throws Exception {
+                    return retryTester.doWork();
+                }
+            });
+        } catch (Exception e) {
+            assertEquals(expectedAttempts, Integer.valueOf(e.getMessage()));
+            long elapsed = System.currentTimeMillis() - start;
+            //0+1+4
+            assertTrue(elapsed >= 500);
+            assertTrue(elapsed < 800);
+
+        }
+    }
+
+    
     private class RetryTester {
         private int failuresBeforeSuccess;
         private int attempts;

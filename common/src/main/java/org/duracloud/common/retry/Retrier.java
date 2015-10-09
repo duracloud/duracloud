@@ -34,17 +34,47 @@ public class Retrier {
      * Default max number of attempts to make in performing a Retriable action
      */
     public static final int DEFAULT_MAX_RETRIES = 3;
-
+    public static final int DEFAULT_WAIT_BETWEEN_RETRIES = 1000;
+    public static final int DEFAULT_WAIT_MULTIPLIER = 1;
     private int maxRetries;
+    
+    /**
+     * The number of milliseconds to wait between retries
+     */
+    private long waitBetweenRetries;
+
+    /**
+     * A multiplier to make waits between retries increase exponentially. The wait time will 
+     * for each retry equals  (attempt ^ multiplier) * wait
+     */
+    private int waitBetweenRetriesMultiplier;
 
     private static final Logger log = LoggerFactory.getLogger(Retrier.class);
-
+    
     public Retrier() {
-        this.maxRetries = DEFAULT_MAX_RETRIES;
+        this(DEFAULT_MAX_RETRIES,
+             DEFAULT_WAIT_BETWEEN_RETRIES,
+             DEFAULT_WAIT_MULTIPLIER);
     }
 
-    public Retrier(int maxRetries) {
+    /**
+     * 
+     * @param maxRetries
+     */
+    public Retrier(int maxRetries){
+        this(maxRetries, DEFAULT_WAIT_BETWEEN_RETRIES, DEFAULT_WAIT_MULTIPLIER);
+    }
+
+    /**
+     * 
+     * @param maxRetries
+     * @param waitBetweenRetries
+     * @param waitBetweenRetriesMultiplier
+     */
+    public Retrier(int maxRetries, int waitBetweenRetries, int waitBetweenRetriesMultiplier) {
         this.maxRetries = maxRetries;
+        this.waitBetweenRetries = waitBetweenRetries;
+        this.waitBetweenRetriesMultiplier = waitBetweenRetriesMultiplier;
     }
     
     private static final ExceptionHandler DEFAULT_EXCEPTION_HANDLER =
@@ -101,7 +131,9 @@ public class Retrier {
             } catch (Exception e) {
                 lastException = e;
                 exceptionHandler.handle(e);
-                WaitUtil.wait(i);
+                if(i < maxRetries){
+                    WaitUtil.waitMs((long)Math.pow(i,waitBetweenRetriesMultiplier)*waitBetweenRetries);
+                }
             }
         }
         throw lastException;

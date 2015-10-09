@@ -21,10 +21,18 @@ public class WaitUtil {
      * @param seconds - the number of seconds to wait
      */
     public static void wait(int seconds) {
+        waitMs(seconds*1000);
+    }
+
+    /**
+     * Causes the current thread to waits for a given number of milliseconds.
+     *
+     * @param milliseconds - the number of milliseconds to wait
+     */
+    public static void waitMs(long milliseconds) {
         try {
-            Thread.sleep(1000 * seconds);
+            Thread.sleep(milliseconds);
         } catch(InterruptedException e) {
         }
     }
-
 }
