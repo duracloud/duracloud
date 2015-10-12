@@ -15,6 +15,6 @@ public enum SnapshotStatus {
     SNAPSHOT_COMPLETE, 
     FAILED_TO_TRANSFER_FROM_DURACLOUD,
     ERROR, 
-    CANCELLING;
+    CANCELLED;
 
 }

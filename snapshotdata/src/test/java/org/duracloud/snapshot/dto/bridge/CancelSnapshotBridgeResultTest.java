@@ -20,7 +20,7 @@ public class CancelSnapshotBridgeResultTest {
 
     @Test
     public void testDeserialize(){
-        SnapshotStatus status = SnapshotStatus.CANCELLING;
+        SnapshotStatus status = SnapshotStatus.CANCELLED;
         String details = "details";
         String str = "{ \"status\" : \"" + status + "\","  
                         + " \"details\" : \"" + details + "\"}";
