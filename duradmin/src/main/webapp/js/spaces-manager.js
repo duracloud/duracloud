@@ -66,7 +66,7 @@ $(function() {
    * 
    */
   SnapshotErrorMessage = {};
-  SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to Chronopolis; " +
+  SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to DuraCloud Vault; " +
   		"some features may not be available at the moment. " +
   		"We apologize for the inconvenience.";
   
