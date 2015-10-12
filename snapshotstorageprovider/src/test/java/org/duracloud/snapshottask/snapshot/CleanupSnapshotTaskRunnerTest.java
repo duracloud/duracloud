@@ -59,8 +59,7 @@ public class CleanupSnapshotTaskRunnerTest extends EasyMockSupport{
         s3Client = createMock("AmazonS3Client", AmazonS3Client.class);
         manifestStore = createMock("ManifestStore", ManifestStore.class);
         auditQueue = createMock("TaskQueue", TaskQueue.class);
-        taskRunner = new CleanupSnapshotTaskRunner(snapshotProvider,
-                                                   unwrappedSnapshotProvider,
+        taskRunner = new CleanupSnapshotTaskRunner(unwrappedSnapshotProvider,
                                                    s3Client, 
                                                    auditQueue, manifestStore, account, storeId);
     }

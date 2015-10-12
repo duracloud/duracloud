@@ -65,8 +65,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                bridgePort,
                                                bridgeUser,
                                                bridgePass));
-        taskList.add(new CleanupSnapshotTaskRunner(snapshotProvider,
-                                                   unwrappedSnapshotProvider,
+        taskList.add(new CleanupSnapshotTaskRunner(unwrappedSnapshotProvider,
                                                    s3Client,
                                                    auditQueue, 
                                                    manifestStore, 

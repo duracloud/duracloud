@@ -48,7 +48,6 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
 
     private static int EXPIRATION_DAYS = 1;
 
-    private StorageProvider snapshotProvider;
     private SnapshotStorageProvider unwrappedSnapshotProvider;
     private AmazonS3Client s3Client;
     private TaskQueue auditTaskQueue;
@@ -56,14 +55,12 @@ public class CleanupSnapshotTaskRunner implements TaskRunner {
     private String account;
     private String storeId;
     
-    public CleanupSnapshotTaskRunner(StorageProvider snapshotProvider,
-                                     SnapshotStorageProvider unwrappedSnapshotProvider,
+    public CleanupSnapshotTaskRunner(SnapshotStorageProvider unwrappedSnapshotProvider,
                                      AmazonS3Client s3Client, 
                                      TaskQueue auditTaskQueue,
                                      ManifestStore manifestStore, 
                                      String account,
                                      String storeId) {
-        this.snapshotProvider = snapshotProvider;
         this.unwrappedSnapshotProvider = unwrappedSnapshotProvider;
         this.s3Client = s3Client;
         this.auditTaskQueue = auditTaskQueue;
