@@ -66,7 +66,7 @@ $(function() {
    * 
    */
   SnapshotErrorMessage = {};
-  SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to DuraCloud Vault; " +
+  SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to DPN; " +
   		"some features may not be available at the moment. " +
   		"We apologize for the inconvenience.";
   
