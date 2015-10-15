@@ -58,8 +58,9 @@ public class FileStitcherImpl implements FileStitcher {
             throw new InvalidManifestException(spaceId, contentId);
         }
 
+        Content manifestContent = this.dataSource.getContent(spaceId, contentId);
         // get deserialized manifest.
-        ChunksManifest manifest = getManifest(spaceId, contentId);
+        ChunksManifest manifest = getManifest(manifestContent, spaceId, contentId);
 
         // collect ordered sequence of chunk streams.
         InputStream multiStream = getChunkSequenceStream(spaceId, manifest);
@@ -68,11 +69,19 @@ public class FileStitcherImpl implements FileStitcher {
         Content content = new Content();
         content.setStream(multiStream);
         content.setId(manifest.getHeader().getSourceContentId());
-        content.setProperties(getContentProperties(manifest));
-
+        
+        //merge properties by overlaying stitched props over manifest props
+        Map<String,String> stitchedProps = getContentProperties(manifest);
+        Map<String,String> manifestProps = manifestContent.getProperties();
+        if(manifestProps == null){
+            manifestProps = stitchedProps;
+        }else{
+            manifestProps.putAll(stitchedProps);
+        }
+        content.setProperties(manifestProps);
         return content;
     }
-
+    
     private boolean isManifest(String contentId) {
         return null != contentId &&
             contentId.endsWith(ChunksManifest.manifestSuffix);
@@ -81,7 +90,11 @@ public class FileStitcherImpl implements FileStitcher {
     @Override
     public ChunksManifest getManifest(String spaceId, String manifestId)
         throws InvalidManifestException {
-        Content content = dataSource.getContent(spaceId, manifestId);
+        return getManifest(dataSource.getContent(spaceId, manifestId), spaceId, manifestId);
+    }
+    
+    private ChunksManifest getManifest(Content content, String spaceId, String manifestId)
+        throws InvalidManifestException {
         if (null == content) {
             String msg = "No content found!";
             log.error(msg);
@@ -124,15 +137,13 @@ public class FileStitcherImpl implements FileStitcher {
     }
 
     private Map<String, String> getContentProperties(ChunksManifest manifest) {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         ChunksManifestBean.ManifestHeader header = manifest.getHeader();
-
         String contentSize = Long.toString(header.getSourceByteSize());
         props.put(PROPERTIES_CONTENT_SIZE, contentSize);
         props.put(PROPERTIES_CONTENT_MIMETYPE, header.getSourceMimetype());
         props.put(PROPERTIES_CONTENT_MD5, header.getSourceMD5());
         props.put(PROPERTIES_CONTENT_CHECKSUM, header.getSourceMD5());
-
         return props;
     }
 

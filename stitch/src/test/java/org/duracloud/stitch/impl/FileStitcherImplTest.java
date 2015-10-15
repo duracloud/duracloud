@@ -7,6 +7,18 @@
  */
 package org.duracloud.stitch.impl;
 
+import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.*;
+import static org.duracloud.storage.provider.StorageProvider.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
 import org.duracloud.chunk.manifest.ChunksManifest;
 import org.duracloud.chunk.manifest.xml.ManifestDocumentBinding;
@@ -14,31 +26,20 @@ import org.duracloud.domain.Content;
 import org.duracloud.stitch.FileStitcher;
 import org.duracloud.stitch.datasource.DataSource;
 import org.duracloud.stitch.error.InvalidManifestException;
+import org.duracloud.storage.provider.StorageProvider;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.duracloud.stitch.impl.FileStitcherImplTest.MODE.*;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_CHECKSUM;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MD5;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_MIMETYPE;
-import static org.duracloud.storage.provider.StorageProvider.PROPERTIES_CONTENT_SIZE;
-
 /**
  * @author Andrew Woods
  *         Date: 9/3/11
  */
 public class FileStitcherImplTest {
+
+    private static final String COLOR_PROPERTY = "color";
 
     private FileStitcher stitcher;
 
@@ -103,7 +104,7 @@ public class FileStitcherImplTest {
     public void testGetContentFromManifest() throws Exception {
         createMocks(VALID_CHUNKS);
         replayMocks();
-
+        
         stitcher = new FileStitcherImpl(dataSource);
         Content content = stitcher.getContentFromManifest(spaceId, contentId);
         Assert.assertNotNull(content);
@@ -116,9 +117,13 @@ public class FileStitcherImplTest {
         Map<String, String> props = content.getProperties();
         Assert.assertNotNull(props);
 
-        Assert.assertEquals(4, props.size());
+        Assert.assertEquals(5, props.size());
         Assert.assertTrue(props.containsKey(PROPERTIES_CONTENT_SIZE));
         Assert.assertNotNull(props.get(PROPERTIES_CONTENT_SIZE));
+        Long.parseLong(props.get(PROPERTIES_CONTENT_SIZE));
+
+        Assert.assertTrue(props.containsKey(COLOR_PROPERTY));
+        Assert.assertNotNull(props.get(COLOR_PROPERTY));
 
         Assert.assertTrue(props.containsKey(PROPERTIES_CONTENT_MIMETYPE));
         Assert.assertNotNull(props.get(PROPERTIES_CONTENT_MIMETYPE));
@@ -231,7 +236,11 @@ public class FileStitcherImplTest {
         String xml = ManifestDocumentBinding.createDocumentFrom(manifest);
 
         content.setId(contentId);
-        content.setProperties(null);
+        Map<String,String> properties = new HashMap<>();
+        properties.put(StorageProvider.PROPERTIES_CONTENT_SIZE, "xxx");
+        properties.put(COLOR_PROPERTY, "green");
+        
+        content.setProperties(properties);
         content.setStream(getStream(xml));
 
         return content;
