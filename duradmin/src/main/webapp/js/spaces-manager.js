@@ -2662,7 +2662,7 @@ $(function() {
 
       this._aggregatePropertiesFromSelection(items, getFunction, {
         success : function(data) {
-          that._loadPropertiesDialog(data, targetListDataType);
+          that._loadPropertiesDialog(data);
         },
         failure : function(text) {
           alert("unable to load selection:" + text);
@@ -2785,7 +2785,7 @@ $(function() {
       return null;
     },
 
-    _loadPropertiesDialog : function(data, targetListType) {
+    _loadPropertiesDialog : function(data) {
       var that = this;
       var propertiesToBeAdded = [];
       var propertiesToBeRemoved = [];
@@ -2862,13 +2862,9 @@ $(function() {
             tagsToAdd : tagsToBeAdded,
           };
 
-          if (targetListType == "contentItem") {
-            params.contentItems = that._contentItems;
-            that._bulkUpdateContentProperties(params);
-          } else {
-            params.spaces = that._spaces;
-            that._bulkUpdateSpaceProperties(params);
-          }
+          params.contentItems = that._contentItems;
+          that._bulkUpdateContentProperties(params);
+          
 
           d.dialog("close");
           dc.busy("Preparing to perform update...", {
