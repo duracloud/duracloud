@@ -163,7 +163,7 @@ public class StorageAccountProviderSimpleBindingImplTest {
         String username = "username";
         String password = "password";
         StorageProviderType type = StorageProviderType.AMAZON_S3;
-        String optionName = StorageAccount.OPTS.STORAGE_CLASS.name();
+        String optionName = StorageAccount.OPTS.CF_KEY_ID.name();
         String optionValue = "option-value";
         StorageAccount account =
             new StorageAccountImpl(storeId, username, password, type);

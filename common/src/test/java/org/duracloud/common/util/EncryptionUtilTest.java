@@ -37,6 +37,25 @@ public class EncryptionUtilTest {
     }
 
     @Test
+    public void testEncryptionNonNullConstructorShortKey() throws Exception {
+        testEncryptionNonNullConstructor("test");
+    }
+    
+    @Test
+    public void testEncryptionNonNullConstructorLongKey() throws Exception {
+        testEncryptionNonNullConstructor("testslkadfjaslfdjaslfdjasldkfjas098dsaf");
+    }
+    
+    private void testEncryptionNonNullConstructor(String key) throws Exception {
+        String text = "Test Content";
+        encryptionUtil = new EncryptionUtil(key);
+        String encryptedText = encryptionUtil.encrypt(text);
+        assertFalse(text.equals(encryptedText));
+        String decryptedText = encryptionUtil.decrypt(encryptedText);
+        assertEquals(text, decryptedText);
+    }
+
+    @Test
     public void testEncryptionXML() throws Exception {
         String text = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
                       "<inventory>" +

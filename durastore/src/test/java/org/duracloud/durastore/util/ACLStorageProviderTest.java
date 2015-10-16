@@ -105,6 +105,7 @@ public class ACLStorageProviderTest {
             Assert.assertTrue(userSpacesA.contains(space));
             i++;
         }
+        
         Assert.assertEquals(userSpacesA.size(), i);
     }
 

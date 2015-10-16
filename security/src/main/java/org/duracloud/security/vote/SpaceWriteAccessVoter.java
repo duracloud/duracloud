@@ -97,6 +97,13 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             return ACCESS_GRANTED;
         }
 
+        // Do not allow deletions from or of the snapshot metadata space
+        if (isSnapshotMetadataSpace(httpRequest) && isDeleteAction(httpRequest)) {
+            log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
+            return ACCESS_DENIED;
+        }
+
+        // Do not allow changes to spaces which are in the middle of the snapshot process
         if (isSnapshotInProgress(httpRequest)) {
             log.debug(debugText(label, auth, config, resource, ACCESS_DENIED));
             return ACCESS_DENIED;
@@ -107,7 +114,6 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
             log.debug(debugText(label, auth, config, resource, ACCESS_GRANTED));
             return ACCESS_GRANTED;
         }
-
         
         // Since not an Admin, DENY permission to create spaces.
         if (isSpaceCreation(httpRequest)) {
@@ -159,6 +165,11 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
         return SecurityUtil.isRoot(auth);
     }
 
+    private boolean isSnapshotMetadataSpace(HttpServletRequest httpRequest) {
+        String spaceId = getSpaceId(httpRequest);
+        return(Constants.SNAPSHOT_METADATA_SPACE.equals(spaceId));
+    }
+    
     private boolean isSnapshotInProgress(HttpServletRequest httpRequest) {
        String storeId = getStoreId(httpRequest);
        StorageProviderFactory factory = getStorageProviderFactory();
@@ -210,6 +221,13 @@ public class SpaceWriteAccessVoter extends SpaceAccessVoter {
         if (HttpVerb.POST.equals(getHttpVerb(httpRequest))) {
             String path = httpRequest.getPathInfo();
             return path.startsWith("/acl/") || path.startsWith("acl/");
+        }
+        return false;
+    }
+
+    private boolean isDeleteAction(HttpServletRequest httpRequest) {
+        if (HttpVerb.DELETE.equals(getHttpVerb(httpRequest))) {
+            return true;
         }
         return false;
     }

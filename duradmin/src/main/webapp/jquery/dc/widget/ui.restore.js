@@ -67,10 +67,8 @@ $.widget("ui.restore",
                 .error(function( jqXHR, 
                                 textStatus, 
                                 errorThrown ) {
+                  dc.displayErrorDialog(jqXHR, SnapshotErrorMessage.UNAVAILABLE, null, false);
 
-                  dc.displayErrorDialog(jqXHR, 
-                                        "Unable to display restore.", 
-                                        errorThrown);
                 });
 
 

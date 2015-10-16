@@ -7,22 +7,34 @@
  */
 package org.duracloud.syncui.service;
 
+import java.io.File;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
+import org.duracloud.sync.backup.SyncBackupManager;
 import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.EndPointLogger;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.ChangedListListener;
 import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
 import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
 import org.duracloud.sync.walker.DeleteChecker;
 import org.duracloud.sync.walker.DirWalker;
+import org.duracloud.sync.walker.RestartDirWalker;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.duracloud.syncui.domain.SyncProcessState;
@@ -31,14 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * The SyncProcessManagerImpl is an implementation of the SyncProcessManager
@@ -62,7 +66,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private PausedState pausedState = new PausedState();
     private ResumingState resumingState = new ResumingState();
     
-    private List<SyncStateChangeListener> listeners;
+    private EventListenerSupport<SyncStateChangeListener> listeners;
     private SyncProcessStateTransitionValidator syncProcessStateTransitionValidator;
 
     private SyncManager syncManager;
@@ -73,7 +77,37 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private SyncOptimizeManager syncOptimizeManager;
     private ContentStoreManagerFactory contentStoreManagerFactory;
     private Date syncStartedDate = null;
+    private ChangedListListener changedListListener;
+    private SyncBackupManager syncBackupManager;
 
+    private class InternalChangedListListener implements ChangedListListener {
+        @Override
+        public void listChanged(final ChangedList list){
+            //ignore if there are items in the list
+            if(list.getListSize() > 0){
+                return;
+            }
+
+            //if appears to be empty remove listener
+            list.removeListener(InternalChangedListListener.this);
+
+            //in separate thread start shutdown only
+            //after  list is absolutely empty (no reserved files)
+            //and sync manager has finished transferring files.
+            new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    while (!syncManager.getFilesInTransfer().isEmpty() && 
+                        list.getListSizeIncludingReservedFiles() > 0) {
+                        SyncProcessManagerImpl.this.sleep();
+                    }
+
+                    SyncProcessManagerImpl.this.stop();
+                }
+            }).start();
+        }
+    }
+    
     @Autowired
     public SyncProcessManagerImpl(
         SyncConfigurationManager syncConfigurationManager,
@@ -81,12 +115,21 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             SyncOptimizeManager syncOptimizeManager) {
         this.syncConfigurationManager = syncConfigurationManager;
         this.currentState = this.stoppedState;
-        this.listeners = new ArrayList<SyncStateChangeListener>();
+        this.listeners = new EventListenerSupport<>(SyncStateChangeListener.class);
         this.syncProcessStateTransitionValidator =
             new SyncProcessStateTransitionValidator();
 
         this.contentStoreManagerFactory = contentStoreManagerFactory;
         this.syncOptimizeManager = syncOptimizeManager;
+
+        syncBackupManager =
+            new SyncBackupManager(syncConfigurationManager.getWorkDirectory(),
+                                  CHANGE_LIST_MONITOR_FREQUENCY,
+                                  syncConfigurationManager.retrieveDirectoryConfigs().toFileList());
+
+        ChangedList.getInstance()
+                   .addListener(this.changedListListener = new InternalChangedListListener());
+
     }
     
     @PostConstruct
@@ -106,6 +149,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         }
     }
 
+    
     @Override
     public SyncProcessError getError() {
         return this.error;
@@ -154,21 +198,18 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     @Override
     public void
         addSyncStateChangeListener(SyncStateChangeListener syncStateChangeListener) {
-        this.listeners.add(syncStateChangeListener);
+        this.listeners.addListener(syncStateChangeListener);
     }
 
     @Override
     public void
         removeSyncStateChangeListener(SyncStateChangeListener syncStateChangeListener) {
-        this.listeners.remove(syncStateChangeListener);
+        this.listeners.removeListener(syncStateChangeListener);
     }
 
     private void fireStateChanged(SyncProcessState state) {
         SyncStateChangedEvent event = new SyncStateChangedEvent(state);
-        List<SyncStateChangeListener> copy = new ArrayList<>(listeners);
-        for (SyncStateChangeListener listener : copy) {
-            listener.stateChanged(event);
-        }
+        listeners.fire().stateChanged(event);
     }
 
     private synchronized void changeState(InternalState state) {
@@ -260,17 +301,39 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             
             syncEndpoint.addEndPointListener(new EndPointLogger());
             
-            syncManager = new SyncManager(dirs, syncEndpoint, this.syncConfigurationManager.getThreadCount(), // threads
+            File backupDir = new File(this.syncConfigurationManager.getWorkDirectory(), "backup");
+            backupDir.mkdirs();
+
+            syncBackupManager = new SyncBackupManager(backupDir, 
+                                                      CHANGE_LIST_MONITOR_FREQUENCY, 
+                                                      dirs);
+            
+            long backup = -1;
+            if(syncBackupManager.hasBackups()){
+                backup = syncBackupManager.attemptRestart();
+            }
+            
+            syncManager = new SyncManager(dirs, syncEndpoint, 
+                                          this.syncConfigurationManager.getThreadCount(), // threads
                                           CHANGE_LIST_MONITOR_FREQUENCY); // change list poll frequency
             syncManager.beginSync();
 
-            dirWalker = DirWalker.start(dirs, null);
+            RunMode mode = this.syncConfigurationManager.getMode();
+                
+            if(backup < 0){
+                dirWalker = DirWalker.start(dirs, null);
+            }else if(mode.equals(RunMode.CONTINUOUS)){
+                dirWalker = RestartDirWalker.start(dirs, null, backup);
+            }
+            
+            startBackupsOnDirWalkerCompletion();
+
             dirMonitor =
                 new DirectoryUpdateMonitor(dirs,
                                            CHANGE_LIST_MONITOR_FREQUENCY,
                                            syncDeletes);
-            dirMonitor.startMonitor();
             
+            configureMode(mode);
             if(syncDeletes) {
                 deleteChecker = DeleteChecker.start(syncEndpoint,
                                                     spaceId,
@@ -285,6 +348,43 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         } catch (Exception e){
             String message = StringUtils.abbreviate(e.getMessage(),100);
             handleStartupException(message, e);
+        }
+    }
+
+    private void startBackupsOnDirWalkerCompletion() {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                while(dirWalker != null && !dirWalker.walkComplete()){
+                    sleep(100);
+                }
+                log.info("Starting back up manager...");
+                syncBackupManager.startupBackups();
+                
+            }
+        }, "walk-completion-checker thread").start();
+    }
+    
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+        }
+    }
+    
+    private void configureMode(RunMode mode) {
+        // only start the dirMonitor if the sync config manager is
+        // set to run continuously.
+        try {
+            if (mode.equals(RunMode.CONTINUOUS)) {
+                dirMonitor.startMonitor();
+                ChangedList.getInstance().removeListener(changedListListener);
+            } else {
+                ChangedList.getInstance().addListener(changedListListener);
+                dirMonitor.stopMonitor();
+            }
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
         }
     }
 
@@ -318,7 +418,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             this.syncManager.terminateSync();
         }
         try{
-            this.dirMonitor.stopMonitor();
+            if(this.dirMonitor != null){
+                this.dirMonitor.stopMonitor();
+            }
         }catch(Exception ex){
             log.warn("stop monitor failed: " + ex.getMessage());
         }
@@ -334,6 +436,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     
     private void resetChangeList() {
         ChangedList.getInstance().clear();
+        syncBackupManager.endBackups();
+        syncBackupManager.clearBackups();
     }
     
     @SuppressWarnings("unused")
@@ -363,28 +467,27 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void stopImpl()  {
         changeState(stoppingState);
-        
-        final Thread t = new Thread() {
+        new Thread() {
             @Override
             public void run() {
                 shutdownSyncProcess();
                 syncStartedDate = null;
-                
-                SyncManager sm = SyncProcessManagerImpl.this.syncManager;
-                while (!sm.getFilesInTransfer().isEmpty()) {
-                    try {
-                        sleep(3000);
-                    } catch (InterruptedException e) {
-                        log.warn(e.getMessage(), e);
-                    }
+                while (!syncManager.getFilesInTransfer().isEmpty()) {
+                    SyncProcessManagerImpl.this.sleep();
                 }
-
+                
                 resetChangeList();
                 changeState(stoppedState);
             }
-        };
-
-        t.start();
+        }.start();
+    }
+    
+    protected void sleep() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            log.warn(e.getMessage(), e);
+        }
     }
 
     private void pauseImpl() {
@@ -395,11 +498,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                 shutdownSyncProcess();
                 SyncManager sm = SyncProcessManagerImpl.this.syncManager;
                 while (!sm.getFilesInTransfer().isEmpty()) {
-                    try {
-                        sleep(3000);
-                    } catch (InterruptedException e) {
-                        log.warn(e.getMessage(), e);
-                    }
+                    SyncProcessManagerImpl.this.sleep();
                 }
 
                 changeState(pausedState);

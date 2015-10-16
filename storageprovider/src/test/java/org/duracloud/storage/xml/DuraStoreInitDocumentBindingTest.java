@@ -74,7 +74,7 @@ public class DuraStoreInitDocumentBindingTest {
         StorageAccount account = accounts.get(0);
         assertEquals(StorageProviderType.AMAZON_S3, account.getType());
         assertEquals("0", account.getId());
-        assertEquals("rrs", account.getOptions().get("STORAGE_CLASS"));
+        assertEquals("1234", account.getOptions().get("CF_KEY_ID"));
         assertEquals(username, account.getUsername());
         assertEquals(password, account.getPassword());
     }
@@ -98,7 +98,6 @@ public class DuraStoreInitDocumentBindingTest {
         acctXml.append("    <host>" + millDbHost + "</host>");
         acctXml.append("    <port>" + millDbPort + "</port>");
         acctXml.append("    <name>" + millDbName + "</name>");
-
         acctXml.append("  </millDb>");
         acctXml.append("  <storageProviderAccounts>");
         acctXml.append("    <storageAcct ownerId='0' isPrimary='true'>");
@@ -107,7 +106,7 @@ public class DuraStoreInitDocumentBindingTest {
                               StorageProviderType.AMAZON_S3 +
                               "</storageProviderType>");
         acctXml.append("      <storageProviderOptions>");
-        acctXml.append("        <option name='STORAGE_CLASS' value='rrs' />");
+        acctXml.append("        <option name='CF_KEY_ID' value='1234' />");
         acctXml.append("      </storageProviderOptions>");
         acctXml.append("      <storageProviderCredential>");
         acctXml.append("        <username>" + encUser + "</username>");

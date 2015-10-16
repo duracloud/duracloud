@@ -38,9 +38,7 @@ public class StorageAccountImplTest {
         doTestSetProperty("junk", val, success);
 
         success = true;
-        doTestSetProperty(StorageAccount.OPTS.STORAGE_CLASS.name(),
-                          val,
-                          success);
+        doTestSetProperty(StorageAccount.OPTS.CF_KEY_ID.name(), val, success);
     }
 
     private void doTestSetProperty(String key, String value, boolean success) {

@@ -4,8 +4,18 @@
         http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
   <view-state id="welcome" view="/setup/welcome">
-    <transition on="next" to="enterDuracloudCredentials" />
+    <transition on="next" to="chooseMode" />
   </view-state>
+  
+    <view-state id="chooseMode" view="/setup/mode"
+    model="modeForm">
+    <on-entry>
+      <set name="flowScope.modeForm" value="modeForm" />
+    </on-entry>
+    <transition on="next" to="enterDuracloudCredentials" />
+    <transition on="cancel" to="end" validate="false" />
+  </view-state>
+  
 
   <view-state id="enterDuracloudCredentials" view="/setup/credentials"
     model="duracloudCredentialsForm">
@@ -15,7 +25,6 @@
     <transition on="next" to="isSpaceAvailable" />
     <transition on="cancel" to="end" validate="false" />
   </view-state>
-
 
   <decision-state id="isSpaceAvailable">
     <on-entry>
@@ -84,7 +93,7 @@
 
   <action-state id="saveSetup">
     <evaluate
-      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs,  flowScope.advancedForm)" />
+      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs,  flowScope.advancedForm, flowScope.modeForm)" />
     <transition to="finish" />
   </action-state>
 

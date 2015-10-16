@@ -81,7 +81,7 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
         monitor.startMonitor();
         
         Thread.sleep(1000);
-        assertNull(changedList.getChangedFile());
+        assertNull(changedList.reserve());
 
         // Update file
         FileWriter writer = new FileWriter(tempFile);
@@ -118,16 +118,16 @@ public class DirectoryUpdateMonitorTest extends SyncTestBase {
 
     private void checkFileInChangedList(File file) throws Exception {
         Thread.sleep(1000);
-        ChangedFile changedFile = changedList.getChangedFile();
+        ChangedFile changedFile = changedList.reserve();
         assertNotNull(changedFile);
         assertEquals(file.getAbsolutePath(),
                      changedFile.getFile().getAbsolutePath());
-        assertNull(changedList.getChangedFile());
+        assertNull(changedList.reserve());
     }
 
     private void checkFileNotInChangedList(File file) throws Exception {
         Thread.sleep(1000);
-        assertNull(changedList.getChangedFile());
+        assertNull(changedList.reserve());
     }
 
 }

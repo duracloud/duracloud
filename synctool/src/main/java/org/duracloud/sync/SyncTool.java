@@ -7,6 +7,12 @@
  */
 package org.duracloud.sync;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Properties;
+
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.util.StoreClientUtil;
 import org.duracloud.common.util.ApplicationConfig;
@@ -25,11 +31,6 @@ import org.duracloud.sync.walker.DirWalker;
 import org.duracloud.sync.walker.RestartDirWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Properties;
 
 /**
  * Starting point for the Sync Tool. The purpose of this tool is to synchronize
@@ -296,10 +297,12 @@ public class SyncTool {
         boolean restart = restartPossible();
         System.out.print("...");
 
+        File backupDir = new File(syncConfig.getWorkDir(), "backup");
+        backupDir.mkdirs();
         syncBackupManager =
-            new SyncBackupManager(syncConfig.getWorkDir(),
+            new SyncBackupManager(backupDir,
                                   syncConfig.getPollFrequency(),
-                                  syncConfig);
+                                  syncConfig.getContentDirs());
 
         boolean hasABackupFile = this.syncBackupManager.hasBackups();
 

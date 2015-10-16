@@ -61,7 +61,7 @@ public interface StorageProvider {
     public static final DateFormat ISO8601_DATE_FORMAT =
         new SimpleDateFormat("yyyy-MM-dd");
 
-    public static final long DEFAULT_MAX_RESULTS = 1000;
+    public static final long DEFAULT_MAX_RESULTS = 10000;
     public static final String PROPERTIES_STREAMING_HOST = "streaming-host";
     public static final String PROPERTIES_STREAMING_TYPE = "streaming-type";
 

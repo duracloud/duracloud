@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.duracloud</groupId>
   <artifactId>common</artifactId>
-  <version>3.4.0</version>
+  <version>3.5.0</version>
   <name>Common</name>
 
   <parent>
     <artifactId>duracloud</artifactId>
     <groupId>org.duracloud</groupId>
-    <version>3.4.0</version>
+    <version>3.5.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -57,6 +57,10 @@
 
   <dependencies>
 
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+    </dependency>
     <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>

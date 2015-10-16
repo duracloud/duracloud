@@ -8,6 +8,7 @@
 package org.duracloud.manifest;
 
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.util.Collection;
 
 import org.duracloud.mill.db.model.ManifestItem;
@@ -36,4 +37,24 @@ public interface ManifestFormatter {
      */
     public void writeManifestItemToOutput(ManifestItem item, OutputStream outputStream);
 
+    /**
+     * Returns the header if there is one, otherwise null.
+     * @return
+     */
+    public String getHeader();
+    
+    /**
+     * Parses a line into a ManifestItem
+     * @param line
+     * @return
+     * @throws ParseException
+     */
+    public ManifestItem parseLine(String line) throws ParseException;
+
+    /**
+     * Formats a manifest item into an appropriate line.
+     * @param item
+     * @return
+     */
+    public String formatLine(ManifestItem item);
 }

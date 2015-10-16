@@ -7,7 +7,11 @@
  */
 package org.duracloud.manifest.impl;
 
-import org.duracloud.manifest.ContentMessage;
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.duracloud.mill.db.model.ManifestItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +22,8 @@ import org.slf4j.LoggerFactory;
  *         Date: 3/29/12
  */
 public class BagitManifestFormatter extends ManifestFormatterBase {
-
+    private static Pattern LINE_PATTERN = Pattern.compile("(\\w+)\\s+(.*)/(.*)");
+    
     private final Logger log =
         LoggerFactory.getLogger(BagitManifestFormatter.class);
 
@@ -28,13 +33,13 @@ public class BagitManifestFormatter extends ManifestFormatterBase {
     }
 
     @Override
-    protected String getHeader() {
+    public String getHeader() {
         return null;
     }
 
     @Override
     protected String
-        getLine(String contentChecksum, String spaceId, String contentId) {
+        formatLine(String contentChecksum, String spaceId, String contentId) {
         StringBuilder line = new StringBuilder();
         line.append(contentChecksum);
         line.append("  ");
@@ -43,5 +48,22 @@ public class BagitManifestFormatter extends ManifestFormatterBase {
         line.append(contentId);
 
         return line.toString();
+    }
+    
+    @Override
+    public ManifestItem parseLine(String line) throws ParseException {
+        Matcher matcher = LINE_PATTERN.matcher(line);
+        if (!matcher.find()) {
+            throw new ParseException("Line doesn't match bagit format: unable to parse line: ->"
+                                     + line + "<-", 0);
+        }
+
+        ManifestItem item = new ManifestItem();
+        item.setContentChecksum(matcher.group(1));
+        item.setSpaceId(matcher.group(2));
+        item.setContentId(matcher.group(3));
+
+        return item;
+
     }
 }

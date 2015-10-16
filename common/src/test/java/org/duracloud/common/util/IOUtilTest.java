@@ -7,6 +7,16 @@
  */
 package org.duracloud.common.util;
 
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -14,14 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the I/O Utilities.
@@ -87,5 +89,29 @@ public class IOUtilTest {
         String finalContent = IOUtil.readStringFromStream(fileStream);
         Assert.assertEquals(content, finalContent);
     }
+    
+    @Test
+    public void testAddFileToZipOutputStream() throws Exception {
+        String content = "content";
+        InputStream contentStream = IOUtil.writeStringToStream(content);
+        File file = IOUtil.writeStreamToFile(contentStream);
+        file.deleteOnExit();
+        assertNotNull(file);
+        assertTrue(file.exists());
+        File zipFile = File.createTempFile("test", "zip");
+        zipFile.deleteOnExit();
+        
+        ZipOutputStream zip = new ZipOutputStream(IOUtil.getOutputStream(zipFile));
+        IOUtil.addFileToZipOutputStream(file, zip);
+        zip.close();
+        
+        ZipInputStream is = new ZipInputStream( new FileInputStream(zipFile));
+        
+        ZipEntry entry = is.getNextEntry();
+        Assert.assertEquals(file.getName(),entry.getName());
+        String finalContent = IOUtil.readStringFromStream(is);
+        Assert.assertEquals(content, finalContent);
+    }
+
 
 }

@@ -182,17 +182,4 @@ public abstract class BaseStreamingTaskRunner implements TaskRunner {
         }
     }
 
-    protected void checkThatContentIdExists(StorageProvider s3Provider,
-                                            String spaceId,
-                                            String contentId,
-                                            String taskName) {
-        try {
-            this.s3Provider.getContentProperties(spaceId, contentId);
-        } catch (NotFoundException ex) {
-            throw new UnsupportedTaskException(taskName,
-                "The " + taskName + " task cannot be used to request " +
-                "a streaming URL for a non-existent content item: " + contentId);
-        }
-    }
-
 }

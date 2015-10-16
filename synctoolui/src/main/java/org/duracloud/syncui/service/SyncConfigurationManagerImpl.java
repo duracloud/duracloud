@@ -7,8 +7,16 @@
  */
 package org.duracloud.syncui.service;
 
+import java.beans.PropertyChangeEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.event.EventListenerSupport;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duracloud.syncui.config.SyncUIConfig;
 import org.duracloud.syncui.domain.DirectoryConfig;
@@ -17,12 +25,6 @@ import org.duracloud.syncui.domain.DuracloudConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 
@@ -258,5 +260,22 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     @Override
     public boolean isJumpStart() {
         return this.syncToolConfig.isJumpStart();
+    }
+    
+    @Override
+    public RunMode getMode() {
+        return this.syncToolConfig.exitOnCompletion()
+            ? RunMode.SINGLE_PASS : RunMode.CONTINUOUS;
+    }
+    
+    @Override
+    public void setMode(RunMode mode) {
+        RunMode oldValue = getMode();
+        RunMode newValue = mode;
+        
+        if(oldValue != newValue){
+            this.syncToolConfig.setExitOnCompletion(newValue.equals(RunMode.SINGLE_PASS) ? true : false);
+            persistSyncToolConfig();
+        }
     }
 }

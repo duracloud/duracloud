@@ -84,6 +84,9 @@ public class GlacierStorageProviderTest {
         EasyMock.expectLastCall();
 
         // Space has been created. Now add glacier lifecycle policy.
+        s3Client.deleteBucketLifecycleConfiguration(EasyMock.isA(String.class));
+        EasyMock.expectLastCall();
+
         Capture<BucketLifecycleConfiguration> lcConfigCap = new Capture<>();
         s3Client.setBucketLifecycleConfiguration(EasyMock.isA(String.class),
                                                  EasyMock.capture(lcConfigCap));

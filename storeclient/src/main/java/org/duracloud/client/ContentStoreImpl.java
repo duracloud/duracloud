@@ -1185,6 +1185,9 @@ public class ContentStoreImpl implements ContentStore {
         String url = buildBitIntegrityReportURL(spaceId);
         try {
             HttpResponse response = restHelper.get(url);
+            if(hasNoContent(response)){
+                return null;
+            }
             checkResponse(response, HttpStatus.SC_OK);
             BitIntegrityReportProperties properties =
                 extractBitIntegrityProperties(response);
@@ -1198,6 +1201,10 @@ public class ContentStoreImpl implements ContentStore {
         }
     }
 
+    private boolean hasNoContent(HttpResponse response) {
+        return (response.getStatusCode() == HttpStatus.SC_NO_CONTENT);
+    }
+
     @Override
     public BitIntegrityReportProperties
         getBitIntegrityReportProperties(String spaceId)
@@ -1206,6 +1213,9 @@ public class ContentStoreImpl implements ContentStore {
         String url = buildBitIntegrityReportURL(spaceId);
         try {
             HttpResponse response = restHelper.head(url);
+            if(hasNoContent(response)){
+                return null;
+            }
             checkResponse(response, HttpStatus.SC_OK);
             return extractBitIntegrityProperties(response);
         } catch (UnauthorizedException e) {

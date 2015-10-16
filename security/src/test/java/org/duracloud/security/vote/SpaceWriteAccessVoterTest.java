@@ -265,8 +265,7 @@ public class SpaceWriteAccessVoterTest {
         boolean securedSpace = true;
         Authentication caller = registeredUser(login, "none");
         
-        EasyMock.expect(request.getPathInfo()).andReturn("test").times(1);
-
+        EasyMock.expect(request.getPathInfo()).andReturn("test").atLeastOnce();
         EasyMock.expect(request.getMethod()).andReturn(HttpVerb.POST.name());
             
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
@@ -284,6 +283,23 @@ public class SpaceWriteAccessVoterTest {
         EasyMock.expect(provider.getSpaceProperties(EasyMock.isA(String.class)))
                 .andReturn(spaceProps);
 
+        replayMocks();
+
+        int decision = voter.vote(caller, resource, config);
+        Assert.assertEquals(expectedDecision, decision);
+    }
+
+    @Test
+    public void testSnapshotMetdataSpaceAdminNotDeletable() {
+        LOGIN login = LOGIN.ADMIN;
+        int expectedDecision = ACCESS_DENIED;
+        boolean securedSpace = true;
+        Authentication caller = registeredUser(login, "none");
+        EasyMock.expect(request.getPathInfo()).andReturn(Constants.SNAPSHOT_METADATA_SPACE).atLeastOnce();
+        EasyMock.expect(request.getMethod()).andReturn(HttpVerb.DELETE.name()).times(2);
+
+        EasyMock.expect(resource.getHttpRequest()).andReturn(request);
+        Collection<ConfigAttribute> config = getConfigAttribute(securedSpace);
         replayMocks();
 
         int decision = voter.vote(caller, resource, config);
@@ -443,8 +459,9 @@ public class SpaceWriteAccessVoterTest {
             times = 1;
         } else {
             times = 2;
-            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(times);
         }
+
+        EasyMock.expect(request.getPathInfo()).andReturn(spaceId).anyTimes();
 
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(
             times);
@@ -475,7 +492,7 @@ public class SpaceWriteAccessVoterTest {
 
             EasyMock.expect(request.getQueryString()).andReturn(
                 "storeID=" + storeId + "&attachment=true");
-            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(3);
+            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).atLeastOnce();
         }
 
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(
@@ -488,12 +505,13 @@ public class SpaceWriteAccessVoterTest {
     private FilterInvocation createMockUpdateAclInvocation(LOGIN login) {
         String path = "/acl/" + OPEN_SPACE_ID;
 
+        EasyMock.expect(request.getPathInfo()).andReturn(path).atLeastOnce();
+
         if (login.equals(LOGIN.ADMIN)) {
             EasyMock.expect(request.getMethod()).andReturn(HttpVerb.POST
                                                                .name());
 
         } else {
-            EasyMock.expect(request.getPathInfo()).andReturn(path);
             EasyMock.expect(request.getMethod())
                     .andReturn(HttpVerb.POST.name())
                     .times(4);
@@ -507,12 +525,13 @@ public class SpaceWriteAccessVoterTest {
     private FilterInvocation createMockDeleteSpaceInvocation(LOGIN login) {
         String spaceId = OPEN_SPACE_ID;
 
+        EasyMock.expect(request.getPathInfo()).andReturn(spaceId).atLeastOnce();
+
         if (login.equals(LOGIN.ADMIN)) {
             EasyMock.expect(request.getMethod()).andReturn(HttpVerb.DELETE
                                                                .name());
 
         } else {
-            EasyMock.expect(request.getPathInfo()).andReturn(spaceId).times(2);
             EasyMock.expect(request.getMethod())
                     .andReturn(HttpVerb.DELETE.name())
                     .times(3);
@@ -534,7 +553,7 @@ public class SpaceWriteAccessVoterTest {
 
         
         addGetQueryStringInvocation(2);
-        EasyMock.expect(request.getPathInfo()).andReturn(path).times(pathInfoCalls);
+        EasyMock.expect(request.getPathInfo()).andReturn(path).atLeastOnce();
         EasyMock.expect(request.getMethod()).andReturn(method.name()).times(4);
         EasyMock.expect(resource.getHttpRequest()).andReturn(request);
         return resource;

@@ -7,14 +7,15 @@
  */
 package org.duracloud.syncui.service;
 
+import static org.junit.Assert.*;
+
+import java.io.File;
+
 import org.duracloud.syncui.AbstractTest;
 import org.duracloud.syncui.domain.DirectoryConfigs;
 import org.duracloud.syncui.domain.DuracloudConfiguration;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
 
 /**
  * 
@@ -31,6 +32,10 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
         configPath = System.getProperty("java.io.tmpdir")
             + File.separator + ".sync-config" + System.currentTimeMillis();
         
+        setupConfigurationManager();
+    }
+
+    protected void setupConfigurationManager() {
         syncConfigurationManager = new SyncConfigurationManagerImpl();
         syncConfigurationManager.setConfigXmlPath(configPath);
     }
@@ -43,7 +48,7 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
 
     @Test
     public void testIsConfigurationCompleteFalse() {
-        Assert.assertFalse(this.syncConfigurationManager.isConfigurationComplete());
+        assertFalse(this.syncConfigurationManager.isConfigurationComplete());
     }
 
     @Test
@@ -63,14 +68,24 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     public void testRetrieveDirectoryConfigs() {
         DirectoryConfigs directoryConfigs =
             this.syncConfigurationManager.retrieveDirectoryConfigs();
-        Assert.assertNotNull(directoryConfigs);
+        assertNotNull(directoryConfigs);
     }
 
     @Test
     public void testRetrieveDuracloudConfiguration() {
         DuracloudConfiguration dc =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
-        Assert.assertNotNull(dc);
+        assertNotNull(dc);
+    }
+    
+    @Test
+    public void testGetSetRunMode() {
+        this.syncConfigurationManager.setMode(RunMode.CONTINUOUS);
+        setupConfigurationManager();
+        assertEquals(RunMode.CONTINUOUS,this.syncConfigurationManager.getMode());
+        this.syncConfigurationManager.setMode(RunMode.SINGLE_PASS);
+        setupConfigurationManager();
+        assertEquals(RunMode.SINGLE_PASS,this.syncConfigurationManager.getMode());
     }
 
     @Test
@@ -90,7 +105,7 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
         this.syncConfigurationManager.purgeWorkDirectory();
 
         if(workDir != null){
-            Assert.assertTrue(workDir.list().length == 0);
+            assertTrue(workDir.list().length == 0);
         }
     }
 

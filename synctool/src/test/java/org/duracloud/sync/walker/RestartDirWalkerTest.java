@@ -79,10 +79,10 @@ public class RestartDirWalkerTest extends SyncTestBase {
 
         // Changed list should include sub1file1, and all files from sub2
         List<File> changedFiles = new ArrayList<File>();
-        ChangedFile changedFile = changedList.getChangedFile();
+        ChangedFile changedFile = changedList.reserve();
         while(changedFile != null) {
             changedFiles.add(changedFile.getFile());
-            changedFile = changedList.getChangedFile();
+            changedFile = changedList.reserve();
         }
 
         assertEquals(3, changedFiles.size());
@@ -92,6 +92,6 @@ public class RestartDirWalkerTest extends SyncTestBase {
                        file.equals(sub2file2));
         }
 
-        assertNull(changedList.getChangedFile());
+        assertNull(changedList.reserve());
     }
 }

@@ -142,7 +142,7 @@ public class ContentStoreImplTest {
         String xml = "<space id=\"space1\">" +
                      "<item>Image 1</item><item>Image 2</item></space>";
         String fullURL = baseURL + "/" + spaceId +
-                         "?maxResults=1000&storeID=" + storeId;
+                         "?maxResults="+StorageProvider.DEFAULT_MAX_RESULTS + "&storeID=" + storeId;
         EasyMock.expect(response.getStatusCode()).andReturn(200);
         EasyMock.expect(response.getResponseBody()).andReturn(xml);
         EasyMock.expect(restHelper.get(fullURL)).andReturn(response);

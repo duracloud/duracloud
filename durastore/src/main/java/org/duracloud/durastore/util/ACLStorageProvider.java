@@ -45,6 +45,8 @@ public class ACLStorageProvider implements StorageProvider {
     private Map<String, Map<String, AclType>> spaceACLMap;
     private boolean loaded;
 
+    private Thread cacheLoaderThread = null;
+    
     public ACLStorageProvider(StorageProvider targetProvider) {
         this(targetProvider, new SecurityContextUtil());
     }
@@ -56,7 +58,18 @@ public class ACLStorageProvider implements StorageProvider {
         this.spaceACLMap = new HashMap<String, Map<String, AclType>>();
         this.loaded = false;
 
-        new Thread(new CacheLoader()).start();
+        ensureCacheLoaderThreadIsRunning();
+    }
+
+    private void ensureCacheLoaderThreadIsRunning() {
+        if(this.cacheLoaderThread == null || !this.cacheLoaderThread.isAlive()){
+            log.info("cacheLoaderThread was not running. Starting it up..."); 
+            this.cacheLoaderThread = new Thread(new CacheLoader());
+            this.cacheLoaderThread.start();
+            log.info("cacheLoaderThread has been started"); 
+        }else{
+            log.debug("cacheLoaderThread is already running.");
+        }
     }
 
     /**
@@ -84,7 +97,11 @@ public class ACLStorageProvider implements StorageProvider {
     }
 
     private void waitForCache() {
+
         while (!loaded) {
+            
+            ensureCacheLoaderThreadIsRunning();
+
             log.debug("waiting: {}", targetProvider.getClass().getName());
             try {
                 Thread.sleep(500);

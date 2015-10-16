@@ -177,6 +177,16 @@ public class SpaceReadAccessVoterTest {
         doTestVoteReservedResourcesOpen("acl");
     }
 
+    @Test
+    public void testVoteReservedResourcesOpenBitIntegrity() {
+        doTestVoteReservedResourcesOpen("bit-integrity");
+    }
+
+    @Test
+    public void testVoteReservedResourcesOpenManifest() {
+        doTestVoteReservedResourcesOpen("manifest");
+    }
+
     private void doTestVoteReservedResourcesOpen(String spaceId) {
         boolean securedSpace = false;
         Authentication caller = anonymousUser();

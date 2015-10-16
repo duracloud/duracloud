@@ -7,14 +7,14 @@
  */
 package org.duracloud.sync.backup;
 
-import org.duracloud.sync.config.SyncToolConfig;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.duracloud.sync.mgmt.ChangedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Handles the execution of the changed list backup manager
@@ -31,12 +31,12 @@ public class SyncBackupManager {
     
     private ExecutorService execPool;
 
-    public SyncBackupManager(File backupDir, long frequency, SyncToolConfig syncConfig) {
+    public SyncBackupManager(File backupDir, long frequency, List<File> contentDirs) {
         logger.info("Starting Sync Backup Manager");
         backupManager = new ChangedListBackupManager(ChangedList.getInstance(),
                                                      backupDir,
                                                      frequency, 
-                                                     syncConfig);
+                                                     contentDirs);
 
         // Create thread pool for backupManager
         execPool = Executors.newFixedThreadPool(1);
@@ -58,5 +58,9 @@ public class SyncBackupManager {
         logger.info("Closing Sync Backup Manager, ending backups");
         backupManager.endBackup();
         execPool.shutdown();
+    }
+    
+    public void clearBackups(){
+        backupManager.clear();
     }
 }

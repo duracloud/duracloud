@@ -12,3 +12,4 @@ install:
   - mvn install -DskipTests -DskipDeploy
 script:
   - mvn test -DskipIntTests
+sudo: false

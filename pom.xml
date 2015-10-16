@@ -4,7 +4,7 @@
     <groupId>org.duracloud</groupId>
     <artifactId>duracloud</artifactId>
     <packaging>pom</packaging>
-    <version>3.4.0</version>
+    <version>3.5.0</version>
     <name>DuraCloud</name>
     <description>Cloud-based digital content preservation system</description>
     <url>http://duracloud.org</url>
@@ -89,6 +89,7 @@
         <module>app-config</module>
         <module>chunk</module>
         <module>stitch</module>
+        <module>manifeststitch</module>
         <module>uploadtool</module>
         <module>duradmin</module>
         <module>synctool</module>
@@ -247,7 +248,7 @@
         <log.level>${log.level.default}</log.level>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <duracloud.db.version>3.3.5</duracloud.db.version>
+        <duracloud.db.version>3.4.0</duracloud.db.version>
         <org.springframework.version>4.0.5.RELEASE</org.springframework.version>
         <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
         <org.springframework.webflow.version>2.3.3.RELEASE</org.springframework.webflow.version>
@@ -276,16 +277,23 @@
     </distributionManagement>
 
     <repositories>
+      <repository>
+        <id>central</id>
+        <name>Maven Repository Switchboard</name>
+        <url>http://repo1.maven.org/maven2</url>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+      </repository>
 
-        <repository>
-            <id>central</id>
-            <name>Maven Repository Switchboard</name>
-            <url>http://repo1.maven.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
+      <repository>
+        <id>snapshot</id>
+        <name>Sonatype Snapshots Maven Repository</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <snapshots>
+          <enabled>true</enabled>
+        </snapshots>
+      </repository>
     </repositories>
 
     <pluginRepositories>
@@ -699,7 +707,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.2.5</version>
+                <version>4.5.1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -711,7 +719,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>4.2.5</version>
+                <version>4.4.3</version>
             </dependency>
       
 	    <dependency>
@@ -1122,7 +1130,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk</artifactId>
-                <version>1.9.22</version>
+                <version>1.10.20</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

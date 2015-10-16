@@ -40,7 +40,7 @@ public class DirWalkerTest extends SyncTestBase {
         assertTrue(dirWalker.walkComplete());
 
         int walkerFilesFound = 0;
-        while(changedList.getChangedFile() != null) {
+        while(changedList.reserve() != null) {
             walkerFilesFound++;
         }
 

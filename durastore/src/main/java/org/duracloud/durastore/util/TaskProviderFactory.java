@@ -7,10 +7,11 @@
  */
 package org.duracloud.durastore.util;
 
-import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
-import com.amazonaws.services.s3.AmazonS3Client;
+import java.util.Map;
+
 import org.duracloud.glacierstorage.GlacierStorageProvider;
 import org.duracloud.glaciertask.GlacierTaskProvider;
+import org.duracloud.mill.manifest.ManifestStore;
 import org.duracloud.s3storage.S3ProviderUtil;
 import org.duracloud.s3storage.S3StorageProvider;
 import org.duracloud.s3task.S3TaskProvider;
@@ -24,7 +25,8 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.provider.TaskProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 
-import java.util.Map;
+import com.amazonaws.services.cloudfront.AmazonCloudFrontClient;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 /**
  * Provides access to TaskProvider implementations
@@ -35,11 +37,14 @@ import java.util.Map;
 public class TaskProviderFactory extends ProviderFactoryBase {
 
     private StorageProviderFactory storageProviderFactory;
-
+    private ManifestStore manifestStore;
+    
     public TaskProviderFactory(StorageAccountManager storageAccountManager,
-                               StorageProviderFactory storageProviderFactory) {
+                               StorageProviderFactory storageProviderFactory,
+                               ManifestStore manifestStore) {
         super(storageAccountManager);
         this.storageProviderFactory = storageProviderFactory;
+        this.manifestStore = manifestStore;
     }
 
     /**
@@ -123,7 +128,7 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                 opts.get(StorageAccount.OPTS.BRIDGE_USER.name());
             String bridgePass =
                 opts.get(StorageAccount.OPTS.BRIDGE_PASS.name());
-
+            
             taskProvider = new SnapshotTaskProvider(storageProvider,
                                                     unwrappedSnapshotProvider,
                                                     s3Client,
@@ -135,7 +140,9 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                                                     bridgeHost,
                                                     bridgePort,
                                                     bridgeUser,
-                                                    bridgePass);
+                                                    bridgePass, 
+                                                    this.storageProviderFactory.getAuditQueue(),
+                                                    this.manifestStore);
         } else {
             throw new TaskException("No TaskProvider is available for " + type);
         }

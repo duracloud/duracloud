@@ -8,7 +8,9 @@
 package org.duracloud.snapshotstorage;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.StorageClass;
 import org.duracloud.s3storage.S3StorageProvider;
+import org.duracloud.s3storage.StoragePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,4 +44,7 @@ public class SnapshotStorageProvider extends S3StorageProvider {
          super(s3Client, accessKey, options);
     }
 
+    protected StoragePolicy getStoragePolicy() {
+        return null; // no transition policy, leaving content in S3 standard
+    }
 }

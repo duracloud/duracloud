@@ -52,7 +52,6 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String usernameKey = "username";
     protected static final String passwordKey = "password";
     // S3
-    protected static final String storageClassKey = "storage-class";
     protected static final String cfAccountId = "cf-account-id";
     protected static final String cfKeyId = "cf-key-id";
     protected static final String cfKeyPath = "cf-key-path";
@@ -138,9 +137,6 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
 
         } else if (suffix.equalsIgnoreCase(passwordKey)) {
             acct.setPassword(value);
-
-        } else if (suffix.equalsIgnoreCase(storageClassKey)) {
-            acct.setOption(StorageAccount.OPTS.STORAGE_CLASS.name(), value);
 
         } else if (suffix.equalsIgnoreCase(cfAccountId)) {
             acct.setOption(StorageAccount.OPTS.CF_ACCOUNT_ID.name(), value);

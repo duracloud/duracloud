@@ -24,6 +24,7 @@
   </definition>
 
   <definition name="/setup/welcome" template="/WEB-INF/jsp/setup/welcome.jsp" />
+  <definition name="/setup/mode" template="/WEB-INF/jsp/setup/mode.jsp" />
   <definition name="/setup/credentials" template="/WEB-INF/jsp/setup/credentials.jsp" />
   <definition name="/setup/space" template="/WEB-INF/jsp/setup/space.jsp" />
   <definition name="/setup/directory" template="/WEB-INF/jsp/setup/directory.jsp" />

@@ -93,7 +93,11 @@ public class SyncWorker implements Runnable {
                          + filePath, e);
             
         }
+        //remove from the list.
+        this.syncFile.remove();
+
         complete = true;
+        
     }
 
     public boolean isComplete() {

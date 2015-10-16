@@ -62,6 +62,18 @@ $(function() {
   $.fx.speeds._default = 10;
 
   /**
+   * ERROR Constants
+   * 
+   */
+  SnapshotErrorMessage = {};
+  SnapshotErrorMessage.UNAVAILABLE = "DuraCloud is not currently able to connect to DPN; " +
+  		"some features may not be available at the moment. " +
+  		"We apologize for the inconvenience.";
+  
+  displaySnapshotErrorDialog = function(jqXHR){
+    dc.displayErrorDialog(jqXHR, SnapshotErrorMessage.UNAVAILABLE,null, false);
+  };
+  /**
    * Disable default drag and drop functionality
    */
   $(document.body).bind("dragover drop", function(e) {
@@ -95,6 +107,11 @@ $(function() {
       if (contentId != null && contentId != undefined) {
         relative += "/" + encodeURIComponent(contentId);
       }
+      var snapshot = obj.snapshot; 
+      if (snapshot) {
+        relative += "?snapshot=true";
+      }
+
       return contextPath + relative;
     };
 
@@ -107,6 +124,14 @@ $(function() {
         if (index == -1) {
           return state;
         }
+        
+        var search = location.search;
+        var qmIndex = search.indexOf("?");
+        if (qmIndex > -1) {
+          if(search.substring(qmIndex).indexOf("snapshot=true") > 0){
+            state.snapshot=true; 
+          }
+        }
 
         var subpathname = pathname.substring(index + contextPath.length);
 
@@ -118,10 +143,6 @@ $(function() {
             state.spaceId = subpathname.slice(first + 1, second + 1);
             if (subpathname.length > second) {
               var contentId = subpathname.substring(second + 2);
-              var qmIndex = contentId.indexOf("?");
-              if (qmIndex > 0) {
-                contentId = contentId.substring(0, qmIndex);
-              }
               state.contentId = decodeURIComponent(contentId);
             }
           } else {
@@ -221,6 +242,8 @@ $(function() {
     storeProviders : storeProviders
   });
 });
+
+
 
 (function() {
 
@@ -1145,16 +1168,15 @@ $(function() {
         that._loadSnapshotContentItems(snapshot);
 
       }).error(function(jqXHR, textStatus, errorThrown) {
-        var message = "Unable to display snapshot.";
+      
         if (jqXHR.status == 404) {
           message = "snapshot " + params.spaceId + " does not exist.";
           this._detailManager.showEmpty();
-        } 
-        
-        dc.displayErrorDialog(jqXHR, 
-                              message, 
-                              errorThrown);
-
+          dc.displayErrorDialog(jqXHR, 
+                                message, null, false);
+        } else{
+          displaySnapshotErrorDialog(jqXHR);
+        }
       });
       
       return retrieveSnapshot;
@@ -1304,7 +1326,7 @@ $(function() {
               that._spacesArray.push(space);
             });
           }).error(function(jqXHR, textStatus, errorThrown) {
-            dc.displayErrorDialog(jqXHR, "Unable to display snapshot list.",errorThrown);
+            displaySnapshotErrorDialog(jqXHR);
           }).always(function(){
             that._spacesListPane.spaceslistpane("load", 
                                                 that._spacesArray, 
@@ -2117,8 +2139,8 @@ $(function() {
                                             prefix)
       .success(function(data) {
         handler(data);
-      }).error(function() {
-        dc.displayErrorDialog(xhr, "Failed to retrieve contents.");
+      }).error(function(jqXHR) {
+        displaySnapshotErrorDialog(jqXHR);
       }).always(function() {
         dc.done();
       });
@@ -2195,9 +2217,9 @@ $(function() {
           dc.done();
           that._addContentItemsToList(snapshot);
           that._updateNavigationControls(snapshot);
-        }).error(function(xhr, status, errorThrown) {
+        }).error(function(jqXHR, status, errorThrown) {
           setTimeout(function() {
-            alert("Failed to retrieve more content items:" + errorThrown);
+            displaySnapshotErrorDialog(jqXHR);
           }, 200);
 
           dc.done();
@@ -2251,8 +2273,8 @@ $(function() {
 
       dc.store.GetSnapshotContent(snapshot.sourceStoreId, snapshot.snapshotId, 0, "").success(function(snapshot) {
         that._load(snapshot);
-      }).error(function() {
-
+      }).error(function(jqXHR) {
+        displaySnapshotErrorDialog(jqXHR);
       }).always(function() {
         dc.done();
       });
@@ -2630,24 +2652,17 @@ $(function() {
       $.ui.basedetailpane.prototype._init.call(this);
     },
 
-    _preparePropertiesDialog : function(targetListDataType) {
+    _preparePropertiesDialog : function() {
       var that = this;
       var items, getFunction;
-      if (targetListDataType == "contentItem") {
-        items = this._contentItems;
-        getFunction = function(ci, callback) {
-          dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, callback);
-        };
-      } else {
-        items = this._spaces;
-        getFunction = function(space, callback) {
-          dc.store.GetSpace(space.storeId, space.spaceId, callback);
-        };
-      }
+      items = this._contentItems;
+      getFunction = function(ci, callback) {
+        dc.store.GetContentItem(ci.storeId, ci.spaceId, ci.contentId, callback);
+      };
 
       this._aggregatePropertiesFromSelection(items, getFunction, {
         success : function(data) {
-          that._loadPropertiesDialog(data, targetListDataType);
+          that._loadPropertiesDialog(data);
         },
         failure : function(text) {
           alert("unable to load selection:" + text);
@@ -2770,7 +2785,7 @@ $(function() {
       return null;
     },
 
-    _loadPropertiesDialog : function(data, targetListType) {
+    _loadPropertiesDialog : function(data) {
       var that = this;
       var propertiesToBeAdded = [];
       var propertiesToBeRemoved = [];
@@ -2847,13 +2862,9 @@ $(function() {
             tagsToAdd : tagsToBeAdded,
           };
 
-          if (targetListType == "contentItem") {
-            params.contentItems = that._contentItems;
-            that._bulkUpdateContentProperties(params);
-          } else {
-            params.spaces = that._spaces;
-            that._bulkUpdateSpaceProperties(params);
-          }
+          params.contentItems = that._contentItems;
+          that._bulkUpdateContentProperties(params);
+          
 
           d.dialog("close");
           dc.busy("Preparing to perform update...", {
@@ -3021,11 +3032,6 @@ $(function() {
         deleteButton.hide();
       }
 
-      var editPropsButton = $(".add-remove-properties-button", this.element);
-      editPropsButton.click(function(evt) {
-        that._preparePropertiesDialog("space");
-      });
-
       if (this._isReadOnlyStorageProvider()) {
         deleteButton.hide();
         editPropsButton.hide();
@@ -3176,7 +3182,7 @@ $(function() {
       var downloadManifestButton = $(".download-manifest-button", this.element);
       downloadManifestButton.hide();
 
-      if (this._isAdmin() && space.millDbEnabled) {
+      if (space.millDbEnabled) {
         downloadManifestButton.show();
         // attach delete button listener
         var manifestUrl = "/duradmin/manifest/"+this._storeId+"/"+this._spaceId + "?format="
@@ -3372,14 +3378,22 @@ $(function() {
     _configureRestoreControls : function() {
       var that = this;
 
+      that._getMetadataLink().attr("href", dc.store.formatDownloadURL({storeId:this._storeId, spaceId:"x-snapshot-metadata", contentId: this._snapshot.snapshotId + ".zip"}, true));
+                              
+      that._getMetadataLink().hide();
+      
       that._getRestoreButton().disable(true);
+
       that._getRestoreLink().hide();
 
       if (that._snapshot.status != 'SNAPSHOT_COMPLETE') {
         return;
       }
-
+      
+      that._getMetadataLink().show();
+      
       that._getRestoreButton().busySibling("Retrieving restore info...");
+
       return dc.store.GetSnapshotRestoreSpaceId({snapshotId:that._snapshot.snapshotId,
                                 storeId:that._snapshot.sourceStoreId}).success(function(restoreSpace) {
         if(restoreSpace.spaceId){
@@ -3389,10 +3403,8 @@ $(function() {
             that._enableRestoreButton();
           }
         }
-      }).error(function(jqxhr, textStatus, errorThrown) {
-          dc.displayErrorDialog(jqxhr, 
-                                "Unable to retrieve restore space id.", 
-                                errorThrown);
+      }).error(function(jqXHR, textStatus, errorThrown) {
+        displaySnapshotErrorDialog(jqXHR);
       }).always(function(){
         that._getRestoreButton().idleSibling();
       });
@@ -3400,6 +3412,10 @@ $(function() {
 
     _getRestoreButton : function() {
       return $(this.element).find("#restoreButton");
+    },
+
+    _getMetadataLink : function() {
+      return $(this.element).find("#metadataLink");
     },
 
     _getRestoreLink : function() {
@@ -3424,11 +3440,9 @@ $(function() {
         }).error(function(){
            dc.done();
         });
-      }).error(function(jqxhr, textStatus, errorThrown) {
+      }).error(function(jqXHR, textStatus, errorThrown) {
         dc.done();
-        dc.displayErrorDialog(jqxhr, 
-                              "Unable to initiate snapshot restore.", 
-                              errorThrown);
+        displaySnapshotErrorDialog(jqXHR);
       });
     },
 
@@ -3448,10 +3462,20 @@ $(function() {
         if (propertiesDiv.size() == 1) {
           propertiesDiv = $.fn.create("div").addClass("detail-properties");
           propertiesDiv.tabularexpandopanel({
-            title : "Snapshot History",
+            title : "Snapshot History " + 
+                    "<a id='history-download'  href='" + 
+                    dc.store.formatSnapshotHistoryUrl(this._storeId, 
+                                                      this._snapshot.snapshotId, 
+                                                      -1, true) + 
+                    "'>Download</a>",
             data : properties
           });
           this._appendToCenter(propertiesDiv);
+          
+          $("#history-download", propertiesDiv)
+             .click(function(e){e.stopPropagation();});
+                                               
+         
         } else {
           $(propertiesDiv).tabularexpandopanel("setData", properties);
         }
@@ -3565,11 +3589,9 @@ $(function() {
                   },
                 ],
     		} );
-    	}).error(function(jqxhr, textStatus, errorThrown) {
+    	}).error(function(jqXHR, textStatus, errorThrown) {
     		dc.done();
-    		dc.displayErrorDialog(jqxhr, 
-                              "Unable to get snapshot history.", 
-                              errorThrown);
+        displaySnapshotErrorDialog(jqXHR);
     	});
     },
   }));
@@ -3611,7 +3633,7 @@ $(function() {
         addRemoveProperties.hide();
       } else {
         addRemoveProperties.click(function(evt) {
-          that._preparePropertiesDialog("contentItem");
+          that._preparePropertiesDialog();
         });
       }
 

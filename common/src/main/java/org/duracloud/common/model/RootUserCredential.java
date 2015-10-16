@@ -15,6 +15,15 @@ import org.duracloud.common.util.ChecksumUtil;
  */
 public class RootUserCredential extends Credential {
 
+    private static final String defaultUsernameProp = "root.username";
+    private static final String defaultPasswordProp = "root.password";
+    private static final String defaultEmailProp = "root.email";
+
+    private static String usernameProp = defaultUsernameProp;
+    private static String passwordProp = defaultPasswordProp;
+    private static String emailProp = defaultEmailProp;
+
+    
     private static final String defaultUsername = "root";
     private static final String defaultPassword = "rpw";
     private static final String defaultEmail = "no-root-password-set";
@@ -22,16 +31,41 @@ public class RootUserCredential extends Credential {
         super(getRootUsername(), getRootPassword());
     }
 
+    /**
+     * Allows users to override the default  username, password, and email
+     * System property keys. 
+     * @param usernameProp
+     * @param passwordProp
+     * @param emailProp
+     */
+    public static void overrideSystemPropertyKeys(String usernameProp,
+                                       String passwordProp,
+                                       String emailProp) {
+        RootUserCredential.usernameProp = userDefaultIfNull(usernameProp, defaultUsernameProp);
+        RootUserCredential.passwordProp = userDefaultIfNull(passwordProp, defaultPasswordProp);
+        RootUserCredential.emailProp = userDefaultIfNull(emailProp, defaultEmailProp);
+    }
+    
+    private static String userDefaultIfNull(String prop,
+                                            String defaultProp) {
+        return prop != null ? prop : defaultProp;
+    }
+
     public static String getRootUsername() {
-        return System.getProperty("root.username", defaultUsername);
+        return getProperty(usernameProp, defaultUsername);
     }
     
     public static String getRootEmail() {
-        return System.getProperty("root.email", defaultEmail);
+        return getProperty(emailProp, defaultEmail);
     }
 
     private static String getRootPassword() {
-        return System.getProperty("root.password", defaultPassword);
+        return getProperty(passwordProp, defaultPassword);
+    }
+
+    private static String getProperty(String propertyKey,
+                                      String defaultValue) {
+       return System.getProperty(propertyKey, defaultValue);
     }
 
     public String getRootEncodedPassword() {

@@ -17,10 +17,16 @@ import java.util.List;
 public class Constants {
 
     /**
+     * Content ID used to define a space snapshot
+     */
+    public static final String SNAPSHOT_METADATA_SPACE =
+        "x-snapshot-metadata";
+
+    /**
      * This structure defines the system managed spaces.
      */
     public static final List<String> SYSTEM_SPACES = Arrays
-        .asList("x-duracloud-admin", "x-service-out", "x-service-work");
+        .asList("x-duracloud-admin", "x-service-out", "x-service-work", SNAPSHOT_METADATA_SPACE);
 
     /**
      * Mime types
