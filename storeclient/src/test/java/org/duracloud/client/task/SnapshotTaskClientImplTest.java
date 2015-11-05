@@ -7,8 +7,8 @@
  */
 package org.duracloud.client.task;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,9 +29,10 @@ import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
-import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.RequestRestoreSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 import org.easymock.EasyMock;
 import org.junit.After;
@@ -248,6 +249,20 @@ public class SnapshotTaskClientImplTest {
         assertThat(spaceId, equalTo(result.getSpaceId()));
         assertThat(restoreId, equalTo(result.getRestoreId()));
         assertThat(restoreStatus, equalTo(result.getStatus()));
+    }
+    
+    @Test
+    public void testRequestRestoreSnapshot() throws Exception {
+        String taskName = SnapshotConstants.REQUEST_RESTORE_SNAPSHOT_TASK_NAME;
+
+        RequestRestoreSnapshotTaskResult preparedResult = new RequestRestoreSnapshotTaskResult();
+        preparedResult.setDescription("success");
+        setupMock(taskName, preparedResult.serialize());
+        replayMocks();
+
+        RequestRestoreSnapshotTaskResult result =
+            taskClient.requestRestoreSnapshot(snapshotId, userEmail);
+        assertThat("success", equalTo(result.getDescription()));
     }
 
     @Test

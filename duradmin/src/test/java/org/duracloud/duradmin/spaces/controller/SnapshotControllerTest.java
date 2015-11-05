@@ -44,6 +44,7 @@ import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.RequestRestoreSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockRunner;
@@ -151,6 +152,18 @@ public class SnapshotControllerTest extends EasyMockSupport {
         replayAll();
         SnapshotController controller = createController();
         Assert.assertNotNull(controller.restore(request, storeId, snapshotId));
+    }
+
+    @Test
+    public void testRequestRestoreSnapshot() throws Exception {
+
+        EasyMock.expect(taskClient.requestRestoreSnapshot(snapshotId, userEmail))
+                .andReturn(new RequestRestoreSnapshotTaskResult());
+        setupUserDetails();
+        setupGetTaskClient(storeId);
+        replayAll();
+        SnapshotController controller = createController();
+        Assert.assertNotNull(controller.requestRestore(request, storeId, snapshotId));
     }
 
     protected void setupUserDetails() {

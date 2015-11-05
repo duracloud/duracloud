@@ -14,9 +14,10 @@ import org.duracloud.snapshot.dto.task.CompleteSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.CreateSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.GetRestoreTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotContentsTaskResult;
-import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotHistoryTaskResult;
+import org.duracloud.snapshot.dto.task.GetSnapshotListTaskResult;
 import org.duracloud.snapshot.dto.task.GetSnapshotTaskResult;
+import org.duracloud.snapshot.dto.task.RequestRestoreSnapshotTaskResult;
 import org.duracloud.snapshot.dto.task.RestoreSnapshotTaskResult;
 
 /**
@@ -133,6 +134,18 @@ public interface SnapshotTaskClient {
     public RestoreSnapshotTaskResult restoreSnapshot(String snapshotId,
                                                      String userEmail)
         throws ContentStoreException;
+
+    /**
+     * Sends a snapshot restore request to the DuraCloud Admin.
+     *
+     * @param snapshotId the ID of the snapshot to restore
+     * @param userEmail address to inform when restore starts and completes.
+     * @return results
+     * @throws ContentStoreException on error
+     */
+    public RequestRestoreSnapshotTaskResult
+           requestRestoreSnapshot(String snapshotId, String userEmail)
+               throws ContentStoreException;
 
     /**
      * Performs setup necessary to expire content which has been restored.
