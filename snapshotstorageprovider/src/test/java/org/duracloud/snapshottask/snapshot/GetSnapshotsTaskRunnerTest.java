@@ -36,6 +36,7 @@ public class GetSnapshotsTaskRunnerTest {
     private GetSnapshotsTaskRunner taskRunner;
 
     private String dcHost = "dc-host";
+    private String dcStoreId = "dc-store-id";
     private String bridgeHost = "bridge-host";
     private String bridgePort = "bridge-port";
     private String bridgeUser = "bridge-user";
@@ -44,7 +45,7 @@ public class GetSnapshotsTaskRunnerTest {
     @Before
     public void setup() {
         restHelper = EasyMock.createMock("RestHttpHelper", RestHttpHelper.class);
-        taskRunner = new GetSnapshotsTaskRunner(dcHost, bridgeHost, bridgePort,
+        taskRunner = new GetSnapshotsTaskRunner(dcHost, dcStoreId, bridgeHost, bridgePort,
                                                 bridgeUser, bridgePass);
     }
 
@@ -63,7 +64,7 @@ public class GetSnapshotsTaskRunnerTest {
 
         String snapshotUrl = taskRunner.buildBridgeURL();
         String expectedUrl = "http://"+ bridgeHost + ":" + bridgePort +
-                             "/bridge/snapshot?host="+ dcHost;
+                             "/bridge/snapshot?host="+ dcHost + "&storeId=" + dcStoreId;
         assertEquals(expectedUrl, snapshotUrl);
     }
 

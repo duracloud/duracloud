@@ -26,14 +26,17 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
     private Logger log = LoggerFactory.getLogger(GetSnapshotsTaskRunner.class);
 
     private String dcHost;
+    private String dcStoreId;
 
     public GetSnapshotsTaskRunner(String dcHost,
+                                  String dcStoreId,
                                   String bridgeAppHost,
                                   String bridgeAppPort,
                                   String bridgeAppUser,
                                   String bridgeAppPass) {
         super(bridgeAppHost, bridgeAppPort, bridgeAppUser, bridgeAppPass);
         this.dcHost = dcHost;
+        this.dcStoreId = dcStoreId;
     }
 
     @Override
@@ -50,9 +53,10 @@ public class GetSnapshotsTaskRunner extends AbstractSnapshotTaskRunner {
      * Create URL to call bridge app
      */
     protected String buildBridgeURL() {
-        return MessageFormat.format("{0}/snapshot?host={1}",
+        return MessageFormat.format("{0}/snapshot?host={1}&storeId={2}",
                                     buildBridgeBaseURL(),
-                                    dcHost);
+                                    dcHost,
+                                    dcStoreId);
     }
 
     /*

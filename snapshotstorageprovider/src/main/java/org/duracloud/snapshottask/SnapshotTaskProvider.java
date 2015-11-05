@@ -76,6 +76,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                     unwrappedSnapshotProvider,
                                                     s3Client));
         taskList.add(new GetSnapshotsTaskRunner(dcHost,
+                                                dcStoreId,
                                                 bridgeHost,
                                                 bridgePort,
                                                 bridgeUser,
