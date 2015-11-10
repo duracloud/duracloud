@@ -26,10 +26,11 @@ public class CreateSnapshotBridgeParametersTest {
         String spaceId = "space-id";
         String description = "description";
         String userEmail = "user-email";
+        String dpnMemberUUID = "dpn-member-uuid";
 
         CreateSnapshotBridgeParameters params =
             new CreateSnapshotBridgeParameters(host, port, storeId, spaceId,
-                                               description, userEmail);
+                                               description, userEmail, dpnMemberUUID);
         String result = params.serialize();
         String cleanResult = result.replaceAll("\\s+", "");
 
@@ -39,6 +40,8 @@ public class CreateSnapshotBridgeParametersTest {
         assertThat(cleanResult, containsString("\"spaceId\":\""+spaceId+"\""));
         assertThat(cleanResult, containsString("\"description\":\""+description+"\""));
         assertThat(cleanResult, containsString("\"userEmail\":\""+userEmail+"\""));
+        assertThat(cleanResult, containsString("\"dpnMemberUUID\":\""+dpnMemberUUID+"\""));
+
     }
 
 }

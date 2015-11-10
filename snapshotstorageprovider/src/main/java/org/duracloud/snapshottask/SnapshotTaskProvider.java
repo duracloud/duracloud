@@ -47,6 +47,7 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                 String bridgePort,
                                 String bridgeUser,
                                 String bridgePass,
+                                String dpnMemberUUID,
                                 TaskQueue auditQueue,
                                 ManifestStore manifestStore) {
         log = LoggerFactory.getLogger(SnapshotTaskProvider.class);
@@ -61,7 +62,8 @@ public class SnapshotTaskProvider extends TaskProviderBase {
                                                   bridgeHost,
                                                   bridgePort,
                                                   bridgeUser,
-                                                  bridgePass));
+                                                  bridgePass,
+                                                  dpnMemberUUID));
         taskList.add(new GetSnapshotTaskRunner(bridgeHost,
                                                bridgePort,
                                                bridgeUser,

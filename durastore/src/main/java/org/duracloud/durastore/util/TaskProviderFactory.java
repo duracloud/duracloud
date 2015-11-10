@@ -128,6 +128,8 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                 opts.get(StorageAccount.OPTS.BRIDGE_USER.name());
             String bridgePass =
                 opts.get(StorageAccount.OPTS.BRIDGE_PASS.name());
+            String dpnMemberUUID =
+                opts.get(StorageAccount.OPTS.DPN_MEMBER_UUID.name());
             
             taskProvider = new SnapshotTaskProvider(storageProvider,
                                                     unwrappedSnapshotProvider,
@@ -141,6 +143,7 @@ public class TaskProviderFactory extends ProviderFactoryBase {
                                                     bridgePort,
                                                     bridgeUser,
                                                     bridgePass, 
+                                                    dpnMemberUUID,
                                                     this.storageProviderFactory.getAuditQueue(),
                                                     this.manifestStore);
         } else {

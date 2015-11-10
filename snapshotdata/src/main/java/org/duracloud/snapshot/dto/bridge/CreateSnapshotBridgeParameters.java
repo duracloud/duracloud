@@ -51,6 +51,12 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
     private String description;
 
     /**
+     * The DPN Member UUID of associated with the duracloud account.
+     */
+    @XmlValue
+    private String dpnMemberUUID;
+
+    /**
      * The email address of the user, will be used for snapshot notifications
      */
     @XmlValue
@@ -63,13 +69,15 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
                                           String storeId,
                                           String spaceId,
                                           String description,
-                                          String userEmail) {
+                                          String userEmail,
+                                          String dpnMemberUUID) {
         this.host = host;
         this.port = port;
         this.storeId = storeId;
         this.spaceId = spaceId;
         this.description = description;
         this.userEmail = userEmail;
+        this.dpnMemberUUID = dpnMemberUUID;
     }
 
     public String getHost() {
@@ -90,6 +98,10 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
 
     public String getStoreId() {
         return storeId;
+    }
+    
+    public String getDpnMemberUUID() {
+        return dpnMemberUUID;
     }
 
     public void setStoreId(String storeId) {
@@ -120,6 +132,9 @@ public class CreateSnapshotBridgeParameters extends BaseDTO {
         this.userEmail = userEmail;
     }
 
+    public void setDpnMemberUUID(String dpnMemberUUID) {
+        this.dpnMemberUUID = dpnMemberUUID;
+    }
     /**
      * Creates a serialized version of bridge parameters
      *

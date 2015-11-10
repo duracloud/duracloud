@@ -67,6 +67,7 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
     protected static final String bridgePortKey = "bridge-port";
     protected static final String bridgeUserKey = "bridge-user";
     protected static final String bridgePassKey = "bridge-pass";
+    protected static final String dpnMemberUUIDKey = "dpn-member-uuid";
 
     private DatabaseConfig millDbConfig = new DatabaseConfig();
 
@@ -177,6 +178,9 @@ public class DurastoreConfig extends BaseConfig implements AppConfig {
         } else if (suffix.equalsIgnoreCase(bridgePassKey)) {
             acct.setOption(StorageAccount.OPTS.BRIDGE_PASS.name(), value);
 
+        }else if (suffix.equalsIgnoreCase(dpnMemberUUIDKey)) {
+            acct.setOption(StorageAccount.OPTS.DPN_MEMBER_UUID.name(), value);
+        
         } else {
             String msg = "unknown acct key: " + key + " (" + value + ")";
             log.error(msg);
