@@ -3359,6 +3359,7 @@ $(function() {
                     [ "Source Store", snapshot.sourceStoreId ], 
                     [ "Source Space", snapshot.sourceSpaceId ], 
                     [ "Status", snapshot.status ],
+                    [ "Member Id", snapshot.memberId],
                     [ "Content Item Count", snapshot.contentItemCount ],
                     [ "Total Size", dc.formatBytes(snapshot.totalSizeInBytes,true) ]
                     

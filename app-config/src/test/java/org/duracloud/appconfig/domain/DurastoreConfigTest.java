@@ -22,7 +22,7 @@ import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_HOST;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_PASS;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_PORT;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_USER;
-import static org.duracloud.storage.domain.StorageAccount.OPTS.DPN_MEMBER_UUID;
+import static org.duracloud.storage.domain.StorageAccount.OPTS.BRIDGE_MEMBER_ID;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.HOST;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.PORT;
 import static org.duracloud.storage.domain.StorageAccount.OPTS.RESOURCE;
@@ -56,7 +56,7 @@ public class DurastoreConfigTest {
     private String bridgePort = "bridgeport";
     private String bridgeUser = "bridgeuser";
     private String bridgePass = "bridgepass";
-    private String dpnMemberUUID = "dpn-member-uuid";
+    private String bridgeMemberId = "bridge-member-id";
     @Test
     public void testLoad() {
         DurastoreConfig config = new DurastoreConfig();
@@ -94,7 +94,7 @@ public class DurastoreConfigTest {
                 props.put(p + DurastoreConfig.bridgePortKey, bridgePort);
                 props.put(p + DurastoreConfig.bridgeUserKey, bridgeUser);
                 props.put(p + DurastoreConfig.bridgePassKey, bridgePass);
-                props.put(p + DurastoreConfig.dpnMemberUUIDKey, dpnMemberUUID);
+                props.put(p + DurastoreConfig.bridgeMemberIDKey, bridgeMemberId);
 
             }
         }
@@ -159,7 +159,7 @@ public class DurastoreConfigTest {
             Assert.assertEquals(bridgePort, options.get(BRIDGE_PORT.name()));
             Assert.assertEquals(bridgeUser, options.get(BRIDGE_USER.name()));
             Assert.assertEquals(bridgePass, options.get(BRIDGE_PASS.name()));
-            Assert.assertEquals(dpnMemberUUID, options.get(DPN_MEMBER_UUID.name()));
+            Assert.assertEquals(bridgeMemberId, options.get(BRIDGE_MEMBER_ID.name()));
 
         } else {
             Assert.assertEquals(0, options.size());

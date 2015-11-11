@@ -36,7 +36,7 @@ public interface StorageAccount {
         BRIDGE_PORT,
         BRIDGE_USER,
         BRIDGE_PASS,
-        DPN_MEMBER_UUID;
+        BRIDGE_MEMBER_ID;
     }
 
     public String getId();

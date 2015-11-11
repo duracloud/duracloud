@@ -53,7 +53,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
     private String dcHost;
     private String dcPort;
     private String dcStoreId;
-    private String dpnMemberUUID;
+    private String bridgeMemberId;
 
     public CreateSnapshotTaskRunner(StorageProvider snapshotProvider,
                                     SnapshotStorageProvider unwrappedSnapshotProvider,
@@ -66,7 +66,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
                                     String bridgeAppPort,
                                     String bridgeAppUser,
                                     String bridgeAppPass, 
-                                    String dpnMemberUUID) {
+                                    String bridgeMemberId) {
         super(snapshotProvider,
               unwrappedSnapshotProvider,
               dcSnapshotUser,
@@ -78,7 +78,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         this.dcPort = dcPort;
         this.dcStoreId = dcStoreId;
         this.dcAccountName = dcAccountName;
-        this.dpnMemberUUID = dpnMemberUUID;
+        this.bridgeMemberId = bridgeMemberId;
     }
 
     @Override
@@ -91,9 +91,9 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         log.info("Performing SNAPSHOT task with parameters, " +
                  "DuraCloud Host: {} DuraCloud Port: {} DuraCloud StoreID: {} " +
                  "Account Name: {} DuraCloud Snapshot User: {} Bridge Host: {} " +
-                 "Bridge Port: {} Bridge User: {} DPN Member UUID: {}",
+                 "Bridge Port: {} Bridge User: {} Member Id: {}",
                  dcHost, dcPort, dcStoreId, dcAccountName, getSnapshotUser(),
-                 getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser(), dpnMemberUUID);
+                 getBridgeAppHost(), getBridgeAppPort(), getBridgeAppUser(), bridgeMemberId);
 
         // Get input params
         CreateSnapshotTaskParameters taskParams =
@@ -114,7 +114,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
         snapshotProps.put("owner-id", dcAccountName);
         snapshotProps.put("description", taskParams.getDescription());
         snapshotProps.put("user-email", taskParams.getUserEmail());
-        snapshotProps.put("dpn-member-uuid", dpnMemberUUID);
+        snapshotProps.put("member-id", bridgeMemberId);
 
         // Store snapshot properties in the snapshot space. This both provides
         // access to the properties down stream and effectively sets the space
@@ -191,7 +191,7 @@ public class CreateSnapshotTaskRunner extends SpaceModifyingSnapshotTaskRunner {
                                                taskParams.getSpaceId(),
                                                taskParams.getDescription(),
                                                taskParams.getUserEmail(),
-                                               dpnMemberUUID);
+                                               bridgeMemberId);
         return bridgeParams.serialize();
     }
 
