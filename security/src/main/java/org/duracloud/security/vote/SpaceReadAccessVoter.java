@@ -22,7 +22,6 @@ import org.duracloud.storage.provider.StorageProvider;
 import org.duracloud.storage.util.StorageProviderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
